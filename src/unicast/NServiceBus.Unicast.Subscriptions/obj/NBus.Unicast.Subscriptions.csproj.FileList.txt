@@ -1,0 +1,11 @@
+bin\Debug\NBus.Unicast.Subscriptions.dll
+bin\Debug\NBus.Unicast.Subscriptions.pdb
+bin\Debug\NBus.Unicast.Transport.dll
+bin\Debug\NBus.Async.dll
+bin\Debug\NBus.dll
+bin\Debug\NBus.Async.pdb
+bin\Debug\NBus.pdb
+bin\Debug\NBus.Unicast.Transport.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\NBus.Unicast.Subscriptions.dll
+obj\Debug\NBus.Unicast.Subscriptions.pdb

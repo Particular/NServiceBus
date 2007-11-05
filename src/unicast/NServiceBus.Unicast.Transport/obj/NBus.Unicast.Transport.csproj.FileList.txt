@@ -1,0 +1,9 @@
+bin\Debug\NBus.Unicast.Transport.dll
+bin\Debug\NBus.Unicast.Transport.pdb
+bin\Debug\NBus.dll
+bin\Debug\NBus.Async.dll
+bin\Debug\NBus.Async.pdb
+bin\Debug\NBus.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\NBus.Unicast.Transport.dll
+obj\Debug\NBus.Unicast.Transport.pdb

@@ -1,0 +1,15 @@
+bin\Debug\NBus.Unicast.Subscriptions.Msmq.dll
+bin\Debug\NBus.Unicast.Subscriptions.Msmq.pdb
+bin\Debug\NBus.dll
+bin\Debug\NBus.Unicast.Subscriptions.dll
+bin\Debug\NBus.Unicast.Transport.dll
+bin\Debug\NBus.Unicast.Transport.Msmq.dll
+bin\Debug\NBus.Async.dll
+bin\Debug\NBus.pdb
+bin\Debug\NBus.Unicast.Transport.pdb
+bin\Debug\NBus.Unicast.Subscriptions.pdb
+bin\Debug\NBus.Async.pdb
+bin\Debug\NBus.Unicast.Transport.Msmq.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\NBus.Unicast.Subscriptions.Msmq.dll
+obj\Debug\NBus.Unicast.Subscriptions.Msmq.pdb
