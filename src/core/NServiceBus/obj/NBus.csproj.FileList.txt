@@ -1,7 +1,0 @@
-bin\Debug\NBus.dll
-bin\Debug\NBus.pdb
-bin\Debug\NBus.Async.dll
-bin\Debug\NBus.Async.pdb
-obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\NBus.dll
-obj\Debug\NBus.pdb
