@@ -340,14 +340,12 @@ namespace NServiceBus.Unicast
         {
             foreach (Type messageHandlerType in this.GetHandlerTypes(messageType))
             {
-                object handler = this.builder.Build(messageHandlerType);
-                log.Debug(messageHandlerType.Name + " Activated.");
-
-                MethodInfo handleMethodInfo = messageHandlerType.GetMethod("Handle", new Type[1] { toHandle.GetType() });
-
                 try
                 {
-                    handleMethodInfo.Invoke(handler, new object[1] { toHandle });
+                    log.Debug("Activating: " + messageHandlerType.Name);
+
+                    this.builder.BuildAndDispatch(messageHandlerType, "Handle", toHandle);
+                    
                     log.Debug(messageHandlerType.Name + " Done.");
 
                     if (!doNotContinueDispatchingCurrentMessageToHandlers)
