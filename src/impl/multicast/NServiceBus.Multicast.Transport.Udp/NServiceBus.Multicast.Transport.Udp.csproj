@@ -65,6 +65,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y $(ProjectDir)bin\debug\*.* $(ProjectDir)..\..\..\..\build\multicast\impl</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\..\build\multicast\impl"</PostBuildEvent>
   </PropertyGroup>
 </Project>

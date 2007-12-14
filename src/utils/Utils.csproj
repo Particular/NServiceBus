@@ -52,6 +52,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y $(ProjectDir)bin\debug\*.* $(ProjectDir)..\..\build\utils</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\build\utils"</PostBuildEvent>
   </PropertyGroup>
 </Project>
