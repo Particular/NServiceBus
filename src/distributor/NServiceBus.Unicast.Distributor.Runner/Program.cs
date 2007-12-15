@@ -5,6 +5,9 @@ using Common.Logging;
 
 namespace NServiceBus.Unicast.MsmqDistributor.Runner
 {
+	/// <summary>
+	/// Application for creating and executing a <see cref="Distributor"/>.
+	/// </summary>
     class Program
     {
         static void Main(string[] args)

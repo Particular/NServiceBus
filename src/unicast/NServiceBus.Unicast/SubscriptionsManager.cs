@@ -8,10 +8,17 @@ using Common.Logging;
 namespace NServiceBus.Unicast
 {
     /// <summary>
-    /// Thread safe
+    /// Manages subscriptions for published messages.
     /// </summary>
+	/// <remarks>
+	/// Thread safe.
+	/// </remarks>
     public class SubscriptionsManager
     {
+		/// <summary>
+		/// Sets the <see cref="ISubscriptionStorage"/> implementation to use for
+		/// accessing stored subscriptions.
+		/// </summary>
         public ISubscriptionStorage Storage
         {
             set
@@ -24,6 +31,11 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Gets the list of conditions associated with a message.
+		/// </summary>
+		/// <param name="message">The message to get conditions for.</param>
+		/// <returns>A list of conditions that are associated with type of message provided.</returns>
         public IList<Predicate<IMessage>> GetConditionsForMessage(IMessage message)
         {
             IList<Predicate<IMessage>> result = new List<Predicate<IMessage>>();
@@ -36,6 +48,11 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+		/// <summary>
+		/// Gets a list of the addresses of subscribers for the specified message.
+		/// </summary>
+		/// <param name="message">The message to get subscribers for.</param>
+		/// <returns>A list of subscriber addresses.</returns>
         public IList<string> GetSubscribersForMessage(IMessage message)
         {
             List<string> result = new List<string>();
@@ -48,6 +65,14 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+		/// <summary>
+		/// Adds a condition to a message type.
+		/// </summary>
+		/// <param name="messageType">The message type to add a condition to.</param>
+		/// <param name="condition">The condition to add.</param>
+		/// <remarks>
+		/// All conditions added to a message type must be met if the messages of that type 
+		/// are to be published to a subscriber.</remarks>
         public void AddConditionForSubscriptionToMessageType(Type messageType, Predicate<IMessage> condition)
         {
             if (condition == null)
@@ -63,11 +88,23 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Attempts to handle a subscription message.
+		/// </summary>
+		/// <param name="msg">The message to attempt to handle.</param>
+		/// <returns>true if the message was a valid subscription message, otherwise false.</returns>
         public bool HandledSubscriptionMessage(Msg msg)
         {
             return this.HandledSubscriptionMessage(msg, true);
         }
 
+		/// <summary>
+		/// Attempts to handle a subscription message allowing specification of whether or not
+		/// the subscription persistence store should be updated.
+		/// </summary>
+		/// <param name="msg">The message to attempt to handle.</param>
+		/// <param name="updateQueue">Whether or not the subscription persistence store should be updated.</param>
+		/// <returns>true if the message was a valid subscription message, otherwise false.</returns>
         private bool HandledSubscriptionMessage(Msg msg, bool updateQueue)
         {
             IMessage[] messages = msg.Body;
@@ -99,6 +136,13 @@ namespace NServiceBus.Unicast
             return false;
         }
 
+		/// <summary>
+		/// Handles a adding a subscription.
+		/// </summary>
+		/// <param name="msg">The message to handle.</param>
+		/// <param name="messageType">The message type being subscribed to.</param>
+		/// <param name="subMessage">A subscription message.</param>
+		/// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
         private void HandleAddSubscription(Msg msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
             if (subMessage.subscriptionType == SubscriptionType.Add)
@@ -117,6 +161,13 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Handles a removing a subscription.
+		/// </summary>
+		/// <param name="msg">The message to handle.</param>
+		/// <param name="messageType">The message type being subscribed to.</param>
+		/// <param name="subMessage">A subscription message.</param>
+		/// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
         private void HandleRemoveSubscription(Msg msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
             if (subMessage.subscriptionType == SubscriptionType.Remove)
@@ -144,9 +195,17 @@ namespace NServiceBus.Unicast
 
         private static ILog log = LogManager.GetLogger(typeof(UnicastBus));
 
-
+		/// <summary>
+		/// Describes an entry in the list of subscriptions.
+		/// </summary>
         private class Entry
         {
+			/// <summary>
+			/// Initializes a new Entry for the provided message type and
+			/// subscription request.
+			/// </summary>
+			/// <param name="messageType"></param>
+			/// <param name="msg"></param>
             public Entry(Type messageType, Msg msg)
             {
                 this.msg = msg;
@@ -154,12 +213,20 @@ namespace NServiceBus.Unicast
             }
 
             private Type messageType;
-            public Type MessageType
+            
+			/// <summary>
+			/// Gets the message type for the subscription entry.
+			/// </summary>
+			public Type MessageType
             {
                 get { return messageType; }
             }
 
             private Msg msg;
+
+			/// <summary>
+			/// Gets the subscription request message.
+			/// </summary>
             public Msg Msg
             {
                 get { return msg; }

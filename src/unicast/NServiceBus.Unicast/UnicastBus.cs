@@ -13,17 +13,29 @@ using ObjectBuilder;
 
 namespace NServiceBus.Unicast
 {
+	/// <summary>
+	/// A unicast implementation of <see cref="IBus"/> for NServiceBus.
+	/// </summary>
     public class UnicastBus : IBus
     {
         #region config properties
 
         private bool disableMessageHandling = false;
+
+		/// <summary>
+		/// Disables the handling of incoming messages.
+		/// </summary>
         public bool DisableMessageHandling
         {
             set { disableMessageHandling = value; }
         }
 
         protected ITransport transport;
+
+		/// <summary>
+		/// Sets an <see cref="ITransport"/> implementation to use as the
+		/// message transport for the bus.
+		/// </summary>
         public ITransport Transport
         {
             set
@@ -34,9 +46,22 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// A delegate for a method that will handle the <see cref="MessageReceived"/>
+		/// event.
+		/// </summary>
+		/// <param name="message">The message received.</param>
         public delegate void MessageReceivedDelegate(Msg message);
+
+		/// <summary>
+		/// Event raised when a message is received.
+		/// </summary>
         public event MessageReceivedDelegate MessageReceived;
 
+		/// <summary>
+		/// Sets an <see cref="ISubscriptionStorage"/> implementation to
+		/// be used for subscription storage for the bus.
+		/// </summary>
         public ISubscriptionStorage SubscriptionStorage
         {
             set
@@ -46,29 +71,60 @@ namespace NServiceBus.Unicast
         }
 
         private IBuilder builder;
+
+		/// <summary>
+		/// Sets <see cref="IBuilder"/> implementation that will be used to 
+		/// dynamically instantiate and execute message handlers.
+		/// </summary>
         public IBuilder Builder
         {
             set { builder = value; }
         }
 
         private bool propogateReturnAddressOnSend = false;
+
+		/// <summary>
+		/// Sets whether or not the return address of a received message 
+		/// should be propogated when the message is forwarded.
+		/// </summary>
         public bool PropogateReturnAddressOnSend
         {
             set { propogateReturnAddressOnSend = value; }
         }
 
         private bool impersonateSender;
+
+		/// <summary>
+		/// Sets whether or not the bus should impersonate the sender
+		/// of a message it has received when re-sending the message.
+		/// </summary>
         public bool ImpersonateSender
         {
             set { impersonateSender = value; }
         }
 
         private string distributorDataAddress;
+
+		/// <summary>
+		/// Sets the address to which the messages received on this bus
+		/// will be requeued if it is on the receiving end of a distributor.
+		/// </summary>
         public string DistributorDataAddress
         {
             set { distributorDataAddress = value; }
         }
 
+		//TODO: Why does this have a getter?
+		/// <summary>
+		/// Gets/sets the message types associated with the bus.
+		/// </summary>
+		/// <remarks>
+		/// This property accepts a dictionary where the key can be the name of a type implementing
+		/// <see cref="IMessage"/> or the name of an assembly that contains message types.  The value 
+		/// of each entry is the address of the owner of the message type defined in the key.
+		/// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
+		/// will be registered against the address defined in the value of the entry.
+		/// </remarks>
         public IDictionary MessageOwners
         {
             get
@@ -91,15 +147,17 @@ namespace NServiceBus.Unicast
                         this.RegisterMessageTypeToDestination(t, de.Value.ToString(), true);
                 }
 
-                this.messageTypes.Add(typeof(ErrorMessage));
+                this.messageTypes.Add(typeof(CompletionMessage));
                 this.messageTypes.Add(typeof(SubscriptionMessage));
                 this.messageTypes.Add(typeof(ReadyMessage));
                 this.messageTypes.Add(typeof(IMessage[]));
             }
         }
 
+		//TODO:  Why is there a getter?
         /// <summary>
-        /// List of strings, where each string is the name of an assembly
+        /// Gets/sets a list of assembly names which contain a message handlers
+		/// for the bus.
         /// </summary>
         public IList MessageHandlerAssemblies
         {
@@ -125,11 +183,20 @@ namespace NServiceBus.Unicast
 
         #region IBus Members
 
+		/// <summary>
+		/// Publishes a message to all subscribers of the the supplied message type.
+		/// </summary>
+		/// <param name="message">The message to publish.</param>
         public virtual void Publish(IMessage message)
         {
             this.Publish(new IMessage[] { message });
         }
 
+
+		/// <summary>
+		/// Publishes the first message in the list to all subscribers of that message type.
+		/// </summary>
+		/// <param name="messages">A list of messages.  Only the first will be published.</param>
         public virtual void Publish(params IMessage[] messages)
         {
             foreach (string subscriber in this.subscriptionsManager.GetSubscribersForMessage(messages[0]))
@@ -143,11 +210,21 @@ namespace NServiceBus.Unicast
                 }
         }
 
+		/// <summary>
+		/// Subcribes to recieve published messages of the specified type.
+		/// </summary>
+		/// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
         {
             this.Subscribe(messageType, null);
         }
 
+		/// <summary>
+		/// Subscribes to receive published messages of the specified type if
+		/// they meet the provided condition.
+		/// </summary>
+		/// <param name="messageType">The type of message to subscribe to.</param>
+		/// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<IMessage> condition)
         {
             this.subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
@@ -157,6 +234,10 @@ namespace NServiceBus.Unicast
             this.Send(new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add), destination);
         }
 
+		/// <summary>
+		/// Unsubscribes from receiving published messages of the specified type.
+		/// </summary>
+		/// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
             string destination = this.GetDestinationForMessageType(messageType);
@@ -164,11 +245,19 @@ namespace NServiceBus.Unicast
             this.Send(new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove), destination);
         }
 
+		/// <summary>
+		/// Sends a messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.
+		/// </summary>
+		/// <param name="message">The message to send.</param>
         public void Reply(IMessage message)
         {
             this.Reply(new IMessage[] { message });
         }
 
+		/// <summary>
+		/// Sends all messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.
+		/// </summary>
+		/// <param name="messages">The messages to send.</param>
         public void Reply(params IMessage[] messages)
         {
             Msg toSend = this.GetMsgFor(messages);
@@ -178,19 +267,33 @@ namespace NServiceBus.Unicast
             this.transport.Send(toSend, messageBeingHandled.ReturnAddress);
         }
 
+		/// <summary>
+		/// Returns an completion message with the specified error code to the sender
+		/// of the message being handled.
+		/// </summary>
+		/// <param name="errorCode">An code specifying the result.</param>
         public void Return(int errorCode)
         {
-            ErrorMessage msg = new ErrorMessage();
+            CompletionMessage msg = new CompletionMessage();
             msg.ErrorCode = errorCode;
 
             this.Reply(msg);
         }
 
+		/// <summary>
+		/// Causes the message being handled to be moved to the back of the list of available 
+		/// messages so it can be handled later.
+		/// </summary>
         public void HandleCurrentMessageLater()
         {
             HandleMsgLater(messageBeingHandled);
         }
 
+		/// <summary>
+		/// Moves the specified messages to the back of the list of available 
+		/// messages so they can be handled later.
+		/// </summary>
+		/// <param name="messages">The messages to handle later.</param>
         public void HandleMessagesLater(params IMessage[] messages)
         {
             Msg m = this.GetMsgFor(messages);
@@ -198,11 +301,23 @@ namespace NServiceBus.Unicast
             this.HandleMsgLater(m);
         }
 
+		/// <summary>
+		/// Sends a message.
+		/// </summary>
+		/// <param name="message">The message to send.</param>
         public void Send(IMessage message)
         {
             this.Send(new IMessage[] { message });
         }
 
+		/// <summary>
+		/// Sends the list of provided messages.
+		/// </summary>
+		/// <param name="messages">The list of messages to send.</param>
+		/// <remarks>
+		/// All the messages will be sent to the destination configured for the
+		/// first message in the list.
+		/// </remarks>
         public void Send(params IMessage[] messages)
         {
             CompletionCallback callback = null;
@@ -211,6 +326,10 @@ namespace NServiceBus.Unicast
             this.Send(messages, callback, state);
         }
 
+		/// <summary>
+		/// Sends the list of messages back to the current bus.
+		/// </summary>
+		/// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
             Msg m = this.GetMsgFor(messages);
@@ -218,23 +337,59 @@ namespace NServiceBus.Unicast
             this.transport.ReceiveMessageLater(m);
         }
 
+		/// <summary>
+		/// Sends the message to the specified destination.
+		/// </summary>
+		/// <param name="message">The message to send.</param>
+		/// <param name="destination">
+		/// The address of the destination to send the message to.
+		/// </param>
         public void Send(IMessage message, string destination)
         {
             this.Send(message, destination, null, null);
         }
 
+		/// <summary>
+		/// Send the list of provided messages.
+		/// </summary>
+		/// <param name="messages">The list of messages to send.</param>
+		/// <param name="destination">
+		/// The address of the destination to which the messages will be sent.
+		/// </param>
         public void Send(IMessage[] messages, string destination)
         {
             this.Send(messages, destination, null, null);
         }
 
+		/// <summary>
+		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+		/// when the message is completed.
+		/// </summary>
+		/// <param name="message">The message to send.</param>
+		/// <param name="callback">The delegate to call after the message has completed.</param>
+		/// <param name="state">An object containing state data to pass to the delegate method.</param>
+		/// <remarks>
+		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
+		/// bus in the message handler.
+		/// </remarks>
         public void Send(IMessage message, CompletionCallback callback, object state)
         {
             string destination = this.messageTypeToDestinationLookup[message.GetType()];
 
             this.Send(message, destination, callback, state);
         }
-
+		
+		/// <summary>
+		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+		/// when the message is completed.
+		/// </summary>
+		/// <param name="messages">The list of messages to send.</param>
+		/// <param name="callback">The delegate to call after the message has completed.</param>
+		/// <param name="state">An object containing state data to pass to the delegate method.</param>
+		/// <remarks>
+		/// All the messages will be sent to the destination configured for the
+		/// first message in the list.
+		/// </remarks>
         public void Send(IMessage[] messages, CompletionCallback callback, object state)
         {
             string destination = this.messageTypeToDestinationLookup[messages[0].GetType()];
@@ -242,11 +397,35 @@ namespace NServiceBus.Unicast
             this.Send(messages, destination, callback, state);
         }
 
+		/// <summary>
+		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+		/// when the message is completed.
+		/// </summary>
+		/// <param name="message">The message to send.</param>
+		/// <param name="destination">The address of the destination to send the message to.</param>
+		/// <param name="callback">The delegate to call after the message has completed.</param>
+		/// <param name="state">An object containing state data to pass to the delegate method.</param>
+		/// <remarks>
+		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
+		/// bus in the message handler.
+		/// </remarks>
         public void Send(IMessage message, string destination, CompletionCallback callback, object state)
         {
             this.Send(new IMessage[] { message }, destination, callback, state);
         }
 
+		/// <summary>
+		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+		/// when the message is completed.
+		/// </summary>
+		/// <param name="messages">The list of messages to send.</param>
+		/// <param name="destination">The address of the destination to send the messages to.</param>
+		/// <param name="callback">The delegate to call after the message has completed.</param>
+		/// <param name="state">An object containing state data to pass to the delegate method.</param>
+		/// <remarks>
+		/// All the messages will be sent to the destination configured for the
+		/// first message in the list.
+		/// </remarks>
         public void Send(IMessage[] messages, string destination, CompletionCallback callback, object state)
         {
             Msg toSend = this.GetMsgFor(messages);
@@ -257,6 +436,9 @@ namespace NServiceBus.Unicast
                     this.messageIdToCallbackLookup[toSend.Id] = new CallbackHolder(callback, state);
         }
 
+		/// <summary>
+		/// Gets the address from which the message being handled was sent.
+		/// </summary>
         public string SourceOfMessageBeingHandled
         {
             get
@@ -268,6 +450,9 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Starts the bus.
+		/// </summary>
         public virtual void Start()
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -276,9 +461,13 @@ namespace NServiceBus.Unicast
 
             this.transport.Start();
 
-            this.SendLocal(new ErrorMessage());
+            this.SendLocal(new CompletionMessage());
         }
 
+		/// <summary>
+		/// Tells the bus to stop dispatching the current message to additional
+		/// handlers.
+		/// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             doNotContinueDispatchingCurrentMessageToHandlers = true;
@@ -307,11 +496,17 @@ namespace NServiceBus.Unicast
 
         //}
 
-        // run by multiple threads so must be thread safe
-        // public for testing
-        public void HandleMessage(Msg m)
+        /// <summary>
+        /// Handles a received message.
+        /// </summary>
+        /// <param name="m">The received message.</param>
+		/// <remarks>
+		/// run by multiple threads so must be thread safe
+		/// public for testing
+		/// </remarks>
+		public void HandleMessage(Msg m)
         {
-            if (this.HandledErrorMessage(m))
+            if (this.HandledCompletionMessage(m))
                 return;
 
             if (this.subscriptionsManager.HandledSubscriptionMessage(m))
@@ -336,6 +531,18 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Finds the message handlers associated with the message type and dispatches
+		/// the message to the found handlers.
+		/// </summary>
+		/// <param name="toHandle">The message to dispatch to the handlers.</param>
+		/// <param name="messageType">The message type by which to locate the correct handlers.</param>
+		/// <returns></returns>
+		/// <remarks>
+		/// If during the dispatch, a message handler calls the <see cref="DoNotContinueDispatchingCurrentMessageToHandlers"/> method,
+		/// this prevents the message from being further dispatched.
+		/// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
+		/// </remarks>
         private bool DispatchMessageToHandlersBasedOnType(IMessage toHandle, Type messageType)
         {
             foreach (Type messageHandlerType in this.GetHandlerTypes(messageType))
@@ -362,6 +569,14 @@ namespace NServiceBus.Unicast
             return true;
         }
 
+		/// <summary>
+		/// Gets the inner most exception from an exception stack.
+		/// </summary>
+		/// <param name="e">The exception to get the inner most exception for.</param>
+		/// <returns>The innermost exception.</returns>
+		/// <remarks>
+		/// If the exception has no inner exceptions the provided exception will be returned.
+		/// </remarks>
         private Exception GetInnermostException(Exception e)
         {
             Exception result = e;
@@ -371,12 +586,17 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        private bool HandledErrorMessage(Msg msg)
+		/// <summary>
+		/// Returns whether or not the message is a completion message.
+		/// </summary>
+		/// <param name="msg">The message to evaluate.</param>
+		/// <returns>true if the message is an ErrorMessage, otherwise false.</returns>
+        private bool HandledCompletionMessage(Msg msg)
         {
             if (msg.Body.Length != 1)
                 return false;
 
-            ErrorMessage errorMessage = msg.Body[0] as ErrorMessage;
+            CompletionMessage errorMessage = msg.Body[0] as CompletionMessage;
             if (errorMessage != null)
             {
                 CallbackHolder callbackHolder;
@@ -396,6 +616,18 @@ namespace NServiceBus.Unicast
             return false;
         }
 
+		/// <summary>
+		/// Handles the <see cref="MsgReceived"/> event from the <see cref="ITransport"/> used
+		/// for the bus.
+		/// </summary>
+		/// <param name="sender">The sender of the event.</param>
+		/// <param name="e">The arguments for the event.</param>
+		/// <remarks>
+		/// When the transport passes up the <see cref="Msg"/> its received,
+		/// the bus checks for initializiation, 
+		/// sets the message as that which is currently being handled for the current thread
+		/// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
+		/// </remarks>
         private void transport_MsgReceived(object sender, MsgReceivedEventArgs e)
         {
             Msg msg = e.Message;
@@ -426,6 +658,13 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Checks whether a received message is an initialization message.
+		/// </summary>
+		/// <param name="msg">The message to check.</param>
+		/// <returns>true if the message is an initialization message, otherwise false.</returns>
+		/// <remarks>
+		/// A <see cref="CompletionMessage"/> is used out of convenience as the initialization message.</remarks>
         private bool IsInitializationMessage(Msg msg)
         {
             if (!msg.ReturnAddress.Contains(this.transport.Address))
@@ -437,7 +676,7 @@ namespace NServiceBus.Unicast
             if (msg.Body.Length > 1)
                 return false;
 
-            ErrorMessage em = msg.Body[0] as ErrorMessage;
+            CompletionMessage em = msg.Body[0] as CompletionMessage;
             if (em == null)
                 return false;
 
@@ -446,6 +685,9 @@ namespace NServiceBus.Unicast
 
         #endregion
 
+		/// <summary>
+		/// A container for a CompletionCallback and its state.
+		/// </summary>
         internal class CallbackHolder
         {
             public CallbackHolder(CompletionCallback callback, object state)
@@ -454,12 +696,23 @@ namespace NServiceBus.Unicast
                 State = state;
             }
 
+			/// <summary>
+			/// Gets/sets the CompletionCallback for the CallbackHolder.
+			/// </summary>
             public CompletionCallback Callback;
+
+			/// <summary>
+			/// Gets/sets the state of the CallbackHolder.
+			/// </summary>
             public object State;
         }
 
         #region helper methods
 
+		/// <summary>
+		/// Requeues a message to be handled later.
+		/// </summary>
+		/// <param name="m">The message to requeue.</param>
         private void HandleMsgLater(Msg m)
         {
             if (this.distributorDataAddress != null)
@@ -473,6 +726,15 @@ namespace NServiceBus.Unicast
             this.transport.ReceiveMessageLater(m);
         }
 
+		/// <summary>
+		/// Adds types from an assembly to the list of registered message types and handlers 
+		/// for the bus.
+		/// </summary>
+		/// <param name="a">The assembly to process.</param>
+		/// <remarks>
+		/// If a type implements <see cref="IMessage"/> it will be added to the list
+		/// of message types registered to the bus.  If a type implements <see cref="IMessageHandler<>"/>
+		/// it will be added to the list of message handlers for the bus.</remarks>
         public void AddTypesFromAssembly(Assembly a)
         {
             foreach (Type t in a.GetTypes())
@@ -487,6 +749,20 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Registers a message type to a destination.
+		/// </summary>
+		/// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
+		/// <param name="destination">The address of the destination the message type is registered to.</param>
+		/// <param name="configuredByAssembly">
+		/// Indicates whether or not this registration call is related to a type configured from an
+		/// assembly.
+		/// </param>
+		/// <remarks>
+		/// Since the same message type may be configured specifically to one address
+		/// and via its assembly to a different address, the <see cref="configuredByAssembly"/>
+		/// parameter dictates that the specific message type data is to be used.
+		/// </remarks>
         public void RegisterMessageTypeToDestination(Type messageType, string destination, bool configuredByAssembly)
         {
             if (typeof(IMessage) == messageType)
@@ -507,11 +783,25 @@ namespace NServiceBus.Unicast
             }            
         }
 
+		/// <summary>
+		/// Checks whether or not the existing configuration can be overridden for a message type.
+		/// </summary>
+		/// <param name="messageType">The type of message to check the configuration for.</param>
+		/// <param name="configuredByAssembly">
+		/// Indicates whether or not this check is related to a type configured from an
+		/// assembly.
+		/// </param>
+		/// <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
         private bool MustNotOverrideExistingConfiguration(Type messageType, bool configuredByAssembly)
         {
             return this.messageTypeToDestinationLookup.ContainsKey(messageType) && configuredByAssembly;
         }
 
+		/// <summary>
+		/// Wraps the provided messages in an NServiceBus envelope.
+		/// </summary>
+		/// <param name="messages">The messages to wrap.</param>
+		/// <returns>The envelope containing the messages.</returns>
         protected Msg GetMsgFor(params IMessage[] messages)
         {
             Msg result = new Msg();
@@ -538,6 +828,10 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+		/// <summary>
+		/// Evaluates a type and loads it if it implements <see cref="IMessageHander<>"/>.
+		/// </summary>
+		/// <param name="t">The type to evaluate.</param>
         private void If_Type_Is_MessageHandler_Then_Load(Type t)
         {
             if (t.IsAbstract)
@@ -567,6 +861,11 @@ namespace NServiceBus.Unicast
             }
         }
 
+		/// <summary>
+		/// Registers a relationship between a message type and a handler for that type.
+		/// </summary>
+		/// <param name="handlerType">The type of the handler.</param>
+		/// <param name="messageType">The type of the message to associate with the handler.</param>
         private void RegisterHandlerTypeForMessageType(Type handlerType, Type messageType)
         {
             if (!this.messageTypeToHandlerTypeLookup.ContainsKey(messageType))
@@ -576,6 +875,11 @@ namespace NServiceBus.Unicast
                 this.messageTypeToHandlerTypeLookup[messageType].Add(handlerType);
         }
 
+		/// <summary>
+		/// Gets a list of handler types associated with a message type.
+		/// </summary>
+		/// <param name="messageType">The type of message to get the handlers for.</param>
+		/// <returns>The list of handler types associated with the message type.</returns>
         private IList<Type> GetHandlerTypes(Type messageType)
         {
             IList<Type> result;
@@ -587,12 +891,23 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+		/// <summary>
+		/// Gets the destination address for a message type.
+		/// </summary>
+		/// <param name="messageType">The message type to get the destination for.</param>
+		/// <returns>The address of the destination associated with the message type.</returns>
         protected string GetDestinationForMessageType(Type messageType)
         {
             string destination;
 
             lock (this.messageTypeToDestinationLookup)
                 this.messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
+
+			//WHY: Shouldn't a null check be done here?
+			if (destination == null)
+				throw new ConfigurationException(
+					string.Format("No destination could be found for message type {0}.", messageType)
+					);
 
             return destination;
         }
@@ -601,20 +916,23 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
+		/// <summary>
+		/// Gets/sets the subscription manager to use for the bus.
+		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
         List<Type> messageTypes = new List<Type>();
         IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
         IDictionary<string, CallbackHolder> messageIdToCallbackLookup = new Dictionary<string, CallbackHolder>();
 
-        /// <summary>
+        /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
-        /// </summary>
+		/// </remarks>
         IDictionary<Type, string> messageTypeToDestinationLookup = new Dictionary<Type, string>();
 
-        /// <summary>
+		/// <remarks>
         /// ThreadStatic
-        /// </summary>
+		/// </remarks>
         [ThreadStatic]
         static Msg messageBeingHandled;
 

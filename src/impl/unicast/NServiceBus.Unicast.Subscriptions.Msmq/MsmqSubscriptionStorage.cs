@@ -7,10 +7,18 @@ using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
+	/// <summary>
+	/// Provides functionality for managing message subscriptions
+	/// using MSMQ.
+	/// </summary>
     public class MsmqSubscriptionStorage : ISubscriptionStorage
     {
         #region ISubscriptionStorage Members
 
+		/// <summary>
+		/// Gets all messages from the subscription store.
+		/// </summary>
+		/// <returns>A list of all the messages in the subscription store.</returns>
         public IList<Msg> GetAllMessages()
         {
             Message[] msgs = this.q.GetAllMessages();
@@ -26,6 +34,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             return result;
         }
 
+		/// <summary>
+		/// Adds a message to the subscription store.
+		/// </summary>
+		/// <param name="m">The message to add.</param>
         public void Add(Msg m)
         {
             Message toSend = new Message(m, this.q.Formatter);
@@ -40,6 +52,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             this.AddToLookup(m, toSend.Id);
         }
 
+		/// <summary>
+		/// Removes a message from the subscription store.
+		/// </summary>
+		/// <param name="m">The message to remove.</param>
         public void Remove(Msg m)
         {
             string messageId = null;
@@ -67,12 +83,21 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         #region config info
 
         private bool dontUseExternalTransaction;
+
+		/// <summary>
+		/// Gets/sets whether or not to use a trasaction started outside the 
+		/// subscription store.
+		/// </summary>
         public bool DontUseExternalTransaction
         {
             get { return dontUseExternalTransaction; }
             set { dontUseExternalTransaction = value; }
         }
 
+		/// <summary>
+		/// Sets the address of the MSMQ queue where subscription messages
+		/// will be stored.
+		/// </summary>
         public string Queue
         {
             set
@@ -102,6 +127,12 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         #region helper methods
 
+		/// <summary>
+		/// Adds a message to the lookup to find message from
+		/// subscriber, to message type, to message id
+		/// </summary>
+		/// <param name="m">The message to add to the lookup.</param>
+		/// <param name="messageId">The id of the message.</param>
         private void AddToLookup(Msg m, string messageId)
         {
             lock (this.lookup)
@@ -114,6 +145,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
+		/// <summary>
+		/// Initializes the lookup from the queue.
+		/// </summary>
         private void Init()
         {
             IList<Msg> messages = this.GetAllMessages();
