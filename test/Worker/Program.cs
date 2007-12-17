@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using NServiceBus;
 using Common.Logging;
 
@@ -8,7 +6,7 @@ namespace Worker
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();

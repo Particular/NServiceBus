@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections;
 using NServiceBus;
-using NServiceBus.Workflow;
+using NServiceBus.Saga;
 using System.Xml.Serialization;
 
 namespace Messages
@@ -31,7 +28,7 @@ namespace Messages
     }
 
     [Serializable]
-    [StartsWorkflow]
+    [StartsSaga]
     public class PriceQuoteRequest : IMessage
     {
 
@@ -54,15 +51,15 @@ namespace Messages
     }
 
     [Serializable]
-    public class PartnerQuoteMessage : IWorkflowMessage
+    public class PartnerQuoteMessage : ISagaMessage
     {
-        #region IWorkflowMessage Members
+        #region ISagaMessage Members
 
-        private Guid workflowId;
-        public Guid WorkflowId
+        private Guid sagaId;
+        public Guid SagaId
         {
-            get { return workflowId; }
-            set { workflowId = value; }
+            get { return sagaId; }
+            set { sagaId = value; }
         }
 
         #endregion

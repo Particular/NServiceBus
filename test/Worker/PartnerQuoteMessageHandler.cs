@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Messages;
 using NServiceBus;
 using System.Threading;
@@ -15,7 +13,7 @@ namespace Worker
 
             message.Quote = 10 + new Random().Next(10) * 10;
 
-            Console.WriteLine("Partner " + message.PartnerNumber.ToString() + " provided quote " + message.Quote.ToString());
+            Console.WriteLine("Partner {0} provided quote {1}.", message.PartnerNumber, message.Quote);
 
             this.Bus.Reply(message);
         }

@@ -60,6 +60,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BUILD\CORE\NServiceBus.Async.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\build\core\NServiceBus.Saga.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BUILD\UNICAST\NServiceBus.Unicast.dll</HintPath>
@@ -83,10 +87,6 @@
     <Reference Include="NServiceBus.Unicast.Transport.WCF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.WCF.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Workflow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BUILD\CORE\NServiceBus.Workflow.dll</HintPath>
     </Reference>
     <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -1,19 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections;
-using System.Threading;
 using Messages;
 using NServiceBus;
-using NServiceBus.Async;
-using System.Configuration;
 using Common.Logging;
 
 namespace ClientRunner
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             try
             {
@@ -32,7 +26,7 @@ namespace ClientRunner
                 Console.WriteLine("Press 'Enter' to send a message. To exit, press 'q' and then 'Enter'.");
                 while (Console.ReadLine().ToLower() != "q")
                 {
-                    Messages.Command m = new Messages.Command();
+                    Command m = new Command();
                     m.i = toSend;
 
                     toSend++;

@@ -2,88 +2,292 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "src\core\NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Async", "src\core\NServiceBus.Async\NServiceBus.Async.csproj", "{B9B861C6-100A-4808-9ECE-339C22A0EF6E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Workflow", "src\core\NServiceBus.Workflow\NServiceBus.Workflow.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{4A182899-5624-4FF0-8753-D2E8E31AF140}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6CEB2C22-90CC-4161-952D-7ED706BB8387}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "distributor", "distributor", "{8C38D3A9-16E6-40A0-A813-818A45BF0374}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsmqWorkerAvailabilityManager", "src\distributor\MsmqWorkerAvailabilityManager\MsmqWorkerAvailabilityManager.csproj", "{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Distributor", "src\distributor\NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj", "{D142D372-C9FA-4505-A6EB-E919746F0FF1}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Distributor.Runner", "src\distributor\NServiceBus.Unicast.Distributor.Runner\NServiceBus.Unicast.Distributor.Runner.csproj", "{D72C6682-16CE-4424-A875-435418118B61}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "impl", "impl", "{7B56E082-A287-4400-B069-D1625C229E55}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "multicast", "multicast", "{EEF3494C-E063-4789-B92E-7A3B2F2615C5}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unicast", "unicast", "{D8B58938-14AF-4FA2-BAC3-7FE59721B7E0}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Multicast.Transport.Udp", "src\impl\multicast\NServiceBus.Multicast.Transport.Udp\NServiceBus.Multicast.Transport.Udp.csproj", "{BDF9752A-CB9E-4C9E-954A-5E95EF02EE50}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport.Msmq", "src\impl\unicast\NServiceBus.Unicast.Msmq\NServiceBus.Unicast.Transport.Msmq.csproj", "{487809CE-0B5D-4425-A6CA-06F7C444DBCC}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.Msmq", "src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq\NServiceBus.Unicast.Subscriptions.Msmq.csproj", "{6657A1B8-3773-46A4-88F2-A421E074D35F}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport.WCF", "src\impl\unicast\NServiceBus.Unicast.Transport.WCF\NServiceBus.Unicast.Transport.WCF.csproj", "{7A6E1C0F-8E0D-45AD-90C4-FD841DCA2124}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "multicast", "multicast", "{651BC6B0-4412-4A5C-9331-4A78C9913D94}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Multicast", "src\multicast\NServiceBus.Multicast\NServiceBus.Multicast\NServiceBus.Multicast.csproj", "{7FF2A661-39A8-4595-B122-4EC4F58A4405}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus.Multicast", "NServiceBus.Multicast", "{7A3C001F-28A5-4FCE-9FA1-FCC79DB879BE}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Multicast.Transport", "src\multicast\NServiceBus.Multicast\NServiceBus.Multicast.Transport\NServiceBus.Multicast.Transport.csproj", "{16EDF9F2-1CB1-4321-9249-15DC8A925FD9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unicast", "unicast", "{2BC45674-F407-45D5-B299-BF314DAF88BE}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast", "src\unicast\NServiceBus.Unicast\NServiceBus.Unicast.csproj", "{EB2C42A2-70FD-4469-959B-C577470B001B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions", "src\unicast\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj", "{CD9FA43E-A56D-4B62-8245-F911B137EC09}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport", "src\unicast\NServiceBus.Unicast.Transport\NServiceBus.Unicast.Transport.csproj", "{D9628493-605A-4259-ADD3-7732F0DEFFBB}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{AE680ED6-74D9-4D85-834F-E9F20DE9C2B4}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "src\utils\Utils.csproj", "{2616579A-202F-48F6-8A7F-6A6AA9288CA7}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "full", "full", "{740CBD5E-C88F-43A6-B811-2E9D6E31C381}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RequestResponse", "RequestResponse", "{0BDBDF3F-34E5-48A2-9369-408B205A2D23}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "test\RequestResponse\Client\Client.csproj", "{C1F100D1-356F-4380-BCCD-E9337E62313C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "test\RequestResponse\Messages\Messages.csproj", "{54DD21D6-0E27-4C86-BE8C-3A1D1C8BDB12}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "test\RequestResponse\Server\Server.csproj", "{3FD3C5A2-EA0D-488A-B37D-265E4AAF5787}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{039524CA-58E9-47F7-A2D9-5692E64BDC44}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "test\Client\Client\Client.csproj", "{D6234E14-4405-4521-9C55-82A30D71D1A6}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientRunner", "test\Client\ClientRunner\ClientRunner.csproj", "{08B3BA09-935C-47AB-98AF-C501F4D01EDC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryWorkflowPersister", "test\Server\InMemoryWorkflowPersister\InMemoryWorkflowPersister.csproj", "{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "test\Server\Server\Server.csproj", "{9A5BF179-19C3-4332-B804-D1A986261CC0}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFirst", "test\Server\ServerFirst\ServerFirst.csproj", "{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerRunner", "test\Server\ServerRunner\ServerRunner.csproj", "{4017D287-BE83-4069-A2AE-718E3B63A42B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "test\Messages\Messages.csproj", "{A630F8E1-124C-4E46-BEB8-E6628603D124}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker", "test\Worker\Worker.csproj", "{19E80020-C123-4B69-B5A5-A51BD4ADA50E}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebServiceBridge", "WebServiceBridge", "{EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Samples\WebServiceBridge\Messages\Messages.csproj", "{ED855B92-C7EB-4BE7-9072-5C2260C329FC}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Samples\WebServiceBridge\Server\Server.csproj", "{E259AE1E-613E-41D8-B36A-F80343239363}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "Samples\WebServiceBridge\WebApplication1\WebApplication1.csproj", "{FE207907-5E5A-4E6C-BF00-9C1C9858F258}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebService1", "Samples\WebServiceBridge\WebService1\WebService1.csproj", "{20EE4282-E399-4253-81DF-F99A508DEE0D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Saga", "src\core\NServiceBus.Saga\NServiceBus.Saga.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemorySagaPersister", "test\Server\InMemorySagaPersister\InMemorySagaPersister.csproj", "{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,10 +303,6 @@ Global
 		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -175,10 +375,6 @@ Global
 		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -199,20 +395,44 @@ Global
 		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E259AE1E-613E-41D8-B36A-F80343239363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E259AE1E-613E-41D8-B36A-F80343239363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E259AE1E-613E-41D8-B36A-F80343239363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E259AE1E-613E-41D8-B36A-F80343239363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE207907-5E5A-4E6C-BF00-9C1C9858F258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE207907-5E5A-4E6C-BF00-9C1C9858F258}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE207907-5E5A-4E6C-BF00-9C1C9858F258}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE207907-5E5A-4E6C-BF00-9C1C9858F258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20EE4282-E399-4253-81DF-F99A508DEE0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20EE4282-E399-4253-81DF-F99A508DEE0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20EE4282-E399-4253-81DF-F99A508DEE0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20EE4282-E399-4253-81DF-F99A508DEE0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{73867D40-8CBB-48E9-BFFA-12BBDD48A341} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
-		{C1DE5465-4694-475A-8D06-E17733C41D69} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{4A182899-5624-4FF0-8753-D2E8E31AF140} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{8C38D3A9-16E6-40A0-A813-818A45BF0374} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{7B56E082-A287-4400-B069-D1625C229E55} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{651BC6B0-4412-4A5C-9331-4A78C9913D94} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{2BC45674-F407-45D5-B299-BF314DAF88BE} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{AE680ED6-74D9-4D85-834F-E9F20DE9C2B4} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
+		{B9B861C6-100A-4808-9ECE-339C22A0EF6E} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
+		{73867D40-8CBB-48E9-BFFA-12BBDD48A341} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
+		{C1DE5465-4694-475A-8D06-E17733C41D69} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{740CBD5E-C88F-43A6-B811-2E9D6E31C381} = {D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}
 		{0BDBDF3F-34E5-48A2-9369-408B205A2D23} = {D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689} = {8C38D3A9-16E6-40A0-A813-818A45BF0374}
@@ -240,9 +460,14 @@ Global
 		{3FD3C5A2-EA0D-488A-B37D-265E4AAF5787} = {0BDBDF3F-34E5-48A2-9369-408B205A2D23}
 		{D6234E14-4405-4521-9C55-82A30D71D1A6} = {039524CA-58E9-47F7-A2D9-5692E64BDC44}
 		{08B3BA09-935C-47AB-98AF-C501F4D01EDC} = {039524CA-58E9-47F7-A2D9-5692E64BDC44}
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{9A5BF179-19C3-4332-B804-D1A986261CC0} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{4017D287-BE83-4069-A2AE-718E3B63A42B} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
+		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
+		{EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
+		{ED855B92-C7EB-4BE7-9072-5C2260C329FC} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
+		{E259AE1E-613E-41D8-B36A-F80343239363} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
+		{FE207907-5E5A-4E6C-BF00-9C1C9858F258} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
+		{20EE4282-E399-4253-81DF-F99A508DEE0D} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
 	EndGlobalSection
 EndGlobal

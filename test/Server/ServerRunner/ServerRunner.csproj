@@ -64,6 +64,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.Async.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.dll</HintPath>
@@ -87,10 +91,6 @@
     <Reference Include="NServiceBus.Unicast.Transport.WCF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.WCF.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Workflow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\CORE\NServiceBus.Workflow.dll</HintPath>
     </Reference>
     <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -126,9 +126,9 @@
     <None Include="NonWCF MSMQ App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InMemoryWorkflowPersister\InMemoryWorkflowPersister.csproj">
+    <ProjectReference Include="..\InMemorySagaPersister\InMemorySagaPersister.csproj">
       <Project>{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}</Project>
-      <Name>InMemoryWorkflowPersister</Name>
+      <Name>InMemorySagaPersister</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServerFirst\ServerFirst.csproj">
       <Project>{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}</Project>

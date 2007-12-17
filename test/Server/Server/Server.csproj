@@ -48,9 +48,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Workflow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\CORE\NServiceBus.Workflow.dll</HintPath>
+      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -59,7 +59,7 @@
   <ItemGroup>
     <Compile Include="CommandMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WF.cs" />
+    <Compile Include="Saga.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

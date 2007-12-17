@@ -41,10 +41,9 @@
       <HintPath>..\..\BUILD\CORE\NServiceBus.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NServiceBus.Workflow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BUILD\CORE\NServiceBus.Workflow.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\build\core\NServiceBus.Saga.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

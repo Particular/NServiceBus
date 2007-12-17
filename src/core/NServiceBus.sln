@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Async", "NServi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Workflow", "NServiceBus.Workflow\NServiceBus.Workflow.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Workflow", "NServiceBus.Saga\NServiceBus.Saga.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

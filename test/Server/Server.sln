@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFirst", "ServerFirst\ServerFirst.csproj", "{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryWorkflowPersister", "InMemoryWorkflowPersister\InMemoryWorkflowPersister.csproj", "{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemorySagaPersister", "InMemorySagaPersister\InMemorySagaPersister.csproj", "{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerRunner", "ServerRunner\ServerRunner.csproj", "{4017D287-BE83-4069-A2AE-718E3B63A42B}"
 EndProject
