@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using Common.Logging;
-using NServiceBus.Async;
 using NServiceBus.Messages;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
@@ -320,7 +319,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
         public void Send(params IMessage[] messages)
         {
-            CompletionCallback callback = null;
+            AsyncCallback callback = null;
             object state = null;
 
             this.Send(messages, callback, state);
@@ -362,7 +361,7 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+        /// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="message">The message to send.</param>
@@ -372,15 +371,15 @@ namespace NServiceBus.Unicast
 		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
 		/// bus in the message handler.
 		/// </remarks>
-        public void Send(IMessage message, CompletionCallback callback, object state)
+        public IAsyncResult Send(IMessage message, AsyncCallback callback, object state)
         {
             string destination = this.messageTypeToDestinationLookup[message.GetType()];
 
-            this.Send(message, destination, callback, state);
+            return this.Send(message, destination, callback, state);
         }
 		
 		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="messages">The list of messages to send.</param>
@@ -390,15 +389,15 @@ namespace NServiceBus.Unicast
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        public void Send(IMessage[] messages, CompletionCallback callback, object state)
+        public IAsyncResult Send(IMessage[] messages, AsyncCallback callback, object state)
         {
             string destination = this.messageTypeToDestinationLookup[messages[0].GetType()];
 
-            this.Send(messages, destination, callback, state);
+            return this.Send(messages, destination, callback, state);
         }
 
 		/// <summary>
-		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+		/// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="message">The message to send.</param>
@@ -409,13 +408,13 @@ namespace NServiceBus.Unicast
 		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
 		/// bus in the message handler.
 		/// </remarks>
-        public void Send(IMessage message, string destination, CompletionCallback callback, object state)
+        public IAsyncResult Send(IMessage message, string destination, AsyncCallback callback, object state)
         {
-            this.Send(new IMessage[] { message }, destination, callback, state);
+            return this.Send(new IMessage[] { message }, destination, callback, state);
         }
 
 		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="messages">The list of messages to send.</param>
@@ -426,14 +425,17 @@ namespace NServiceBus.Unicast
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        public void Send(IMessage[] messages, string destination, CompletionCallback callback, object state)
+        public IAsyncResult Send(IMessage[] messages, string destination, AsyncCallback callback, object state)
         {
             Msg toSend = this.GetMsgFor(messages);
             this.transport.Send(toSend, destination);
 
-            if (callback != null)
-                lock (this.messageIdToCallbackLookup)
-                    this.messageIdToCallbackLookup[toSend.Id] = new CallbackHolder(callback, state);
+            BusAsyncResult result = new BusAsyncResult(callback, state);
+
+            lock (this.messageIdToAsyncResultLookup)
+                this.messageIdToAsyncResultLookup[toSend.Id] = result;
+
+		    return result;
         }
 
 		/// <summary>
@@ -599,16 +601,16 @@ namespace NServiceBus.Unicast
             CompletionMessage errorMessage = msg.Body[0] as CompletionMessage;
             if (errorMessage != null)
             {
-                CallbackHolder callbackHolder;
+                BusAsyncResult busAsyncResult;
 
-                lock (this.messageIdToCallbackLookup)
+                lock (this.messageIdToAsyncResultLookup)
                 {
-                    this.messageIdToCallbackLookup.TryGetValue(msg.CorrelationId, out callbackHolder);
-                    this.messageIdToCallbackLookup.Remove(msg.CorrelationId);
+                    this.messageIdToAsyncResultLookup.TryGetValue(msg.CorrelationId, out busAsyncResult);
+                    this.messageIdToAsyncResultLookup.Remove(msg.CorrelationId);
                 }
 
-                if (callbackHolder != null)
-                    callbackHolder.Callback(errorMessage.ErrorCode, callbackHolder.State);
+                if (busAsyncResult != null)
+                    busAsyncResult.Complete(errorMessage.ErrorCode);
 
                 return true;
             }
@@ -617,7 +619,7 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Handles the <see cref="MsgReceived"/> event from the <see cref="ITransport"/> used
+		/// Handles the <see cref="ITransport.MsgReceived"/> event from the <see cref="ITransport"/> used
 		/// for the bus.
 		/// </summary>
 		/// <param name="sender">The sender of the event.</param>
@@ -685,28 +687,6 @@ namespace NServiceBus.Unicast
 
         #endregion
 
-		/// <summary>
-		/// A container for a CompletionCallback and its state.
-		/// </summary>
-        internal class CallbackHolder
-        {
-            public CallbackHolder(CompletionCallback callback, object state)
-            {
-                Callback = callback;
-                State = state;
-            }
-
-			/// <summary>
-			/// Gets/sets the CompletionCallback for the CallbackHolder.
-			/// </summary>
-            public CompletionCallback Callback;
-
-			/// <summary>
-			/// Gets/sets the state of the CallbackHolder.
-			/// </summary>
-            public object State;
-        }
-
         #region helper methods
 
 		/// <summary>
@@ -733,7 +713,7 @@ namespace NServiceBus.Unicast
 		/// <param name="a">The assembly to process.</param>
 		/// <remarks>
 		/// If a type implements <see cref="IMessage"/> it will be added to the list
-		/// of message types registered to the bus.  If a type implements <see cref="IMessageHandler<>"/>
+		/// of message types registered to the bus.  If a type implements IMessageHandler
 		/// it will be added to the list of message handlers for the bus.</remarks>
         public void AddTypesFromAssembly(Assembly a)
         {
@@ -829,7 +809,7 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Evaluates a type and loads it if it implements <see cref="IMessageHander<>"/>.
+		/// Evaluates a type and loads it if it implements IMessageHander<T>.
 		/// </summary>
 		/// <param name="t">The type to evaluate.</param>
         private void If_Type_Is_MessageHandler_Then_Load(Type t)
@@ -923,7 +903,7 @@ namespace NServiceBus.Unicast
 
         List<Type> messageTypes = new List<Type>();
         IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
-        IDictionary<string, CallbackHolder> messageIdToCallbackLookup = new Dictionary<string, CallbackHolder>();
+        IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking

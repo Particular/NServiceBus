@@ -4,12 +4,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{20EE4282-E399-4253-81DF-F99A508DEE0D}</ProjectGuid>
+    <ProjectGuid>{562F1C2D-8279-482D-8474-30CDE9EE3269}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebService1</RootNamespace>
-    <AssemblyName>WebService1</AssemblyName>
+    <RootNamespace>WebApplication1</RootNamespace>
+    <AssemblyName>WebApplication1</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,31 +49,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.0.0.19923, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Async, Version=1.0.0.26861, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Async, Version=1.0.0.19923, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.Async.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast, Version=1.0.0.19929, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Subscriptions.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.19924, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.19929, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
     </Reference>
@@ -104,24 +96,36 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Default.aspx" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <Content Include="Global.asax" />
-    <Content Include="Service1.asmx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Default.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Service1.asmx.cs">
-      <DependentUpon>Service1.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{ED855B92-C7EB-4BE7-9072-5C2260C329FC}</Project>
-      <Name>Messages %28Samples\WebServiceBridge\Messages%29</Name>
+      <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -139,7 +143,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>21612</DevelopmentServerPort>
+          <DevelopmentServerPort>21943</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

@@ -136,7 +136,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Server\Server.csproj">
       <Project>{9A5BF179-19C3-4332-B804-D1A986261CC0}</Project>
-      <Name>Server</Name>
+      <Name>Server %28test\full\Server\Server%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

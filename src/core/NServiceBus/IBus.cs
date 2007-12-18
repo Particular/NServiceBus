@@ -1,5 +1,4 @@
 using System;
-using NServiceBus.Async;
 
 namespace NServiceBus
 {
@@ -86,58 +85,62 @@ namespace NServiceBus
         void Send(IMessage[] messages, string destination);
 
 		/// <summary>
-		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+        /// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="message">The message to send.</param>
 		/// <param name="callback">The delegate to call after the message has completed.</param>
 		/// <param name="state">An object containing state data to pass to the delegate method.</param>
+		/// <returns>An object implementing <see cref="IAsyncResult"/> for synchronizing with other actions.</returns>
 		/// <remarks>
 		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
 		/// bus in the message handler.
 		/// </remarks>.
-        void Send(IMessage message, CompletionCallback callback, object state);
+        IAsyncResult Send(IMessage message, AsyncCallback callback, object state);
 
 		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+        /// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="messages">The list of messages to send.</param>
 		/// <param name="callback">The delegate to call after the message has completed.</param>
 		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
+        /// <returns>An object implementing <see cref="IAsyncResult"/> for synchronizing with other actions.</returns>
+        /// <remarks>
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        void Send(IMessage[] messages, CompletionCallback callback, object state);
+        IAsyncResult Send(IMessage[] messages, AsyncCallback callback, object state);
 
 		/// <summary>
-		/// Sends a message and calls the provided <see cref="CompletionCallback"/> delegate
+        /// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="message">The message to send.</param>
 		/// <param name="destination">The address of the destination to send the message to.</param>
 		/// <param name="callback">The delegate to call after the message has completed.</param>
 		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
+        /// <returns>An object implementing <see cref="IAsyncResult"/> for synchronizing with other actions.</returns>
+        /// <remarks>
 		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
 		/// bus in the message handler.
 		/// </remarks>
-        void Send(IMessage message, string destination, CompletionCallback callback, object state);
+        IAsyncResult Send(IMessage message, string destination, AsyncCallback callback, object state);
 
 		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="CompletionCallback"/> delegate
+        /// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
 		/// <param name="messages">The list of messages to send.</param>
 		/// <param name="destination">The address of the destination to send the messages to.</param>
 		/// <param name="callback">The delegate to call after the message has completed.</param>
 		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
+        /// <returns>An object implementing <see cref="IAsyncResult"/> for synchronizing with other actions.</returns>
+        /// <remarks>
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        void Send(IMessage[] messages, string destination, CompletionCallback callback, object state);
+        IAsyncResult Send(IMessage[] messages, string destination, AsyncCallback callback, object state);
 
 		/// <summary>
 		/// Sends a messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.

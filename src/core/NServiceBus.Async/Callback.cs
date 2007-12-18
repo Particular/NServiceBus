@@ -1,13 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NServiceBus.Async
 {
 	/// <summary>
-	/// A delegate for a method that will be called back on completion of a message.
+    /// The object found in <see cref="IAsyncResult"/>.AsyncState returned by the <see cref="AsyncCallback"/> 
+    /// passed to the Send method of the bus.
 	/// </summary>
-	/// <param name="errorCode">The result code of the message.</param>
-	/// <param name="state">An object that can contain state information for the method.</param>
-    public delegate void CompletionCallback(int errorCode, object state);
+	public class CompletionResult
+    {
+        /// <summary>
+        /// The value passed as a parameter to Bus.Return on the server side.
+        /// </summary>
+        public int errorCode;
+
+        /// <summary>
+        /// An object that can contain state information for the method.
+        /// </summary>
+        public object state;
+    }
 }

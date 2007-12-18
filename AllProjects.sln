@@ -289,6 +289,30 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemorySagaPersister", "te
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AsyncPages", "AsyncPages", "{B351256F-5A1C-435F-A81E-97EC2E4EB155}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Samples\AsyncPages\Messages\Messages.csproj", "{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Samples\AsyncPages\Server\Server.csproj", "{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "Samples\AsyncPages\WebApplication1\WebApplication1.csproj", "{562F1C2D-8279-482D-8474-30CDE9EE3269}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -419,6 +443,18 @@ Global
 		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -465,9 +501,13 @@ Global
 		{4017D287-BE83-4069-A2AE-718E3B63A42B} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
+		{B351256F-5A1C-435F-A81E-97EC2E4EB155} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{ED855B92-C7EB-4BE7-9072-5C2260C329FC} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
 		{E259AE1E-613E-41D8-B36A-F80343239363} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
 		{FE207907-5E5A-4E6C-BF00-9C1C9858F258} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
 		{20EE4282-E399-4253-81DF-F99A508DEE0D} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
+		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7} = {B351256F-5A1C-435F-A81E-97EC2E4EB155}
+		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1} = {B351256F-5A1C-435F-A81E-97EC2E4EB155}
+		{562F1C2D-8279-482D-8474-30CDE9EE3269} = {B351256F-5A1C-435F-A81E-97EC2E4EB155}
 	EndGlobalSection
 EndGlobal

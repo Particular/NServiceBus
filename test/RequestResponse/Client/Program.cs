@@ -8,7 +8,7 @@ namespace Client
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
@@ -27,20 +27,25 @@ namespace Client
 
                 Console.WriteLine("Requesting to update customer {0}", m.CustomerId);
 
-                bClient.Send(m, new CompletionCallback(UpdateCustomerComplete), m);
+                bClient.Send(m, UpdateCustomerComplete, m);
             }
         }
 
-        private static void UpdateCustomerComplete(int errorCode, object state)
+        private static void UpdateCustomerComplete(IAsyncResult asyncResult)
         {
-            UpdateCustomerMessage m = state as UpdateCustomerMessage;
-            if (m == null)
-                return;
+            CompletionResult result = asyncResult.AsyncState as CompletionResult;
 
-            if (errorCode == (int)ErrorCode.None)
-                Console.WriteLine("Customer {0} updated successfully", m.CustomerId);
-            if (errorCode == (int)ErrorCode.NotFound)
-                Console.WriteLine("Could not updated customer {0} - not found.", m.CustomerId);
+            if (result != null)
+            {
+                UpdateCustomerMessage m = result.state as UpdateCustomerMessage;
+                if (m == null)
+                    return;
+
+                if (result.errorCode == (int)ErrorCode.None)
+                    Console.WriteLine("Customer {0} updated successfully", m.CustomerId);
+                if (result.errorCode == (int)ErrorCode.NotFound)
+                    Console.WriteLine("Could not updated customer {0} - not found.", m.CustomerId);
+            }
         }
     }
 }

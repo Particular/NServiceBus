@@ -3,6 +3,8 @@ using System.ComponentModel;
 using Messages;
 using NServiceBus;
 using System.Threading;
+using System;
+using NServiceBus.Async;
 
 namespace WebService1
 {
@@ -22,18 +24,20 @@ namespace WebService1
 
             IBus bClient = builder.Build<IBus>();
 
-            ManualResetEvent mre = new ManualResetEvent(false);
             ErrorCodes result = ErrorCodes.None;
 
-            bClient.Send(request, delegate(int error, object state)
+            IAsyncResult sync = bClient.Send(request, delegate(IAsyncResult asyncResult)
                                       {
-                                          result = (ErrorCodes) error;
-                                          mre.Set();
+                                          CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
+                                          if (completionResult != null)
+                                          {
+                                              result = (ErrorCodes) completionResult.errorCode;
+                                          }
                                       },
                          Context.Response
                 );
 
-            mre.WaitOne();
+            sync.AsyncWaitHandle.WaitOne();
 
             return result;
         }
