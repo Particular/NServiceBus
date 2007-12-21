@@ -84,7 +84,8 @@ namespace NServiceBus.Unicast
 
 		/// <summary>
 		/// Sets whether or not the return address of a received message 
-		/// should be propogated when the message is forwarded.
+		/// should be propogated when the message is forwarded. This field is
+		/// used primarily for the Distributor.
 		/// </summary>
         public bool PropogateReturnAddressOnSend
         {
@@ -96,6 +97,9 @@ namespace NServiceBus.Unicast
 		/// <summary>
 		/// Sets whether or not the bus should impersonate the sender
 		/// of a message it has received when re-sending the message.
+		/// What occurs is that the thread sets its current principal
+        /// to the value found in the <see cref="Msg.WindowsIdentityName" />
+        /// when that thread handles a message.
 		/// </summary>
         public bool ImpersonateSender
         {
@@ -106,12 +110,27 @@ namespace NServiceBus.Unicast
 
 		/// <summary>
 		/// Sets the address to which the messages received on this bus
-		/// will be requeued if it is on the receiving end of a distributor.
+		/// will be sent when the method HandleCurrentMessageLater is called.
 		/// </summary>
         public string DistributorDataAddress
         {
             set { distributorDataAddress = value; }
         }
+
+	    private string forwardReceivedMessagesTo;
+
+        /// <summary>
+        /// Sets the address to which all messages received on this bus will be 
+        /// forwarded to (not including subscription messages). 
+        /// This is primarily useful for smart client scenarios 
+        /// where both client and server software are installed on the mobile
+        /// device. The server software will have this field set to the address
+        /// of the real server.
+        /// </summary>
+	    public string ForwardReceivedMessagesTo
+	    {
+	        set { forwardReceivedMessagesTo = value; }
+	    }
 
 		//TODO: Why does this have a getter?
 		/// <summary>
@@ -508,10 +527,12 @@ namespace NServiceBus.Unicast
 		/// </remarks>
 		public void HandleMessage(Msg m)
         {
-            if (this.HandledCompletionMessage(m))
+            if (this.subscriptionsManager.HandledSubscriptionMessage(m))
                 return;
 
-            if (this.subscriptionsManager.HandledSubscriptionMessage(m))
+            this.ForwardMessageIfNecessary(m);
+
+            if (this.HandledCompletionMessage(m))
                 return;
 
             if (this.impersonateSender)
@@ -688,6 +709,17 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
+
+        /// <summary>
+        /// Sends the Msg to the address found in the field <see cref="forwardReceivedMessagesTo"/>
+        /// if it isn't null.
+        /// </summary>
+        /// <param name="m">The message to forward</param>
+        private void ForwardMessageIfNecessary(Msg m)
+        {
+            if (this.forwardReceivedMessagesTo != null)
+                this.transport.Send(m, this.forwardReceivedMessagesTo);
+        }
 
 		/// <summary>
 		/// Requeues a message to be handled later.
