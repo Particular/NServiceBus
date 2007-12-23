@@ -12,14 +12,14 @@ namespace NServiceBus
 		/// </summary>
         void Start();
 
-        /// <summary>
-        /// Publishes the list of messages to subscribers.
-        /// If publishing multiple messages, they should all be of the same type
-        /// since subscribers are identified by the first message in the list.
-        /// </summary>
-        /// <param name="messages">A list of messages. The first message's type
-        /// is used for looking up subscribers.</param>
-        void Publish(params IMessage[] messages);
+	    /// <summary>
+	    /// Publishes the list of messages to subscribers.
+	    /// If publishing multiple messages, they should all be of the same type
+	    /// since subscribers are identified by the first message in the list.
+	    /// </summary>
+	    /// <param name="messages">A list of messages. The first message's type
+	    /// is used for looking up subscribers.</param>
+	    void Publish<T>(params T[] messages) where T : IMessage;
 
 		/// <summary>
 		/// Subcribes to recieve published messages of the specified type.

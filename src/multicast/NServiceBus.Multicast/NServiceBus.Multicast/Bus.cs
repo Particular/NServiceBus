@@ -19,9 +19,9 @@ namespace NServiceBus.Multicast
 
         #endregion
 
-        public override void Publish(params IMessage[] messages)
+        public override void Publish<T>(params T[] messages)
         {
-            Msg m = this.GetMsgFor(messages);
+            Msg m = this.GetMsgFor(messages as IMessage[]);
             string address = this.GetDestinationForMessageType(messages[0].GetType());
 
             ((IMulticastTransport)this.transport).Publish(m, address);

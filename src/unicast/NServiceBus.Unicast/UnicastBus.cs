@@ -181,12 +181,12 @@ namespace NServiceBus.Unicast
 		/// Publishes the first message in the list to all subscribers of that message type.
 		/// </summary>
 		/// <param name="messages">A list of messages.  Only the first will be published.</param>
-        public virtual void Publish(params IMessage[] messages)
+        public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
             foreach (string subscriber in this.subscriptionsManager.GetSubscribersForMessage(messages[0]))
                 try
                 {
-                    this.Send(subscriber, messages);
+                    this.Send(subscriber, messages as IMessage[]);
                 }
                 catch(Exception e)
                 {
