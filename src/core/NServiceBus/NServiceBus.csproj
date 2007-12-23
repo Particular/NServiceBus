@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="BaseMessageHandler.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="ICallback.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="Messages.cs" />

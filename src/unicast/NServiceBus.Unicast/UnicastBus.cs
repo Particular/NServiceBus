@@ -132,9 +132,8 @@ namespace NServiceBus.Unicast
 	        set { forwardReceivedMessagesTo = value; }
 	    }
 
-		//TODO: Why does this have a getter?
 		/// <summary>
-		/// Gets/sets the message types associated with the bus.
+		/// Sets the message types associated with the bus.
 		/// </summary>
 		/// <remarks>
 		/// This property accepts a dictionary where the key can be the name of a type implementing
@@ -145,41 +144,18 @@ namespace NServiceBus.Unicast
 		/// </remarks>
         public IDictionary MessageOwners
         {
-            get
-            {
-                return null;
-            }
             set
             {
-                foreach (DictionaryEntry de in value)
-                {
-                    Type messageType = Type.GetType(de.Key.ToString(), false);
-                    if (messageType != null)
-                    {
-                        this.RegisterMessageTypeToDestination(messageType, de.Value.ToString(), false);
-                        continue;
-                    }
-
-                    Assembly a = Assembly.Load(de.Key.ToString());
-                    foreach (Type t in a.GetTypes())
-                        this.RegisterMessageTypeToDestination(t, de.Value.ToString(), true);
-                }
-
-                this.messageTypes.Add(typeof(CompletionMessage));
-                this.messageTypes.Add(typeof(SubscriptionMessage));
-                this.messageTypes.Add(typeof(ReadyMessage));
-                this.messageTypes.Add(typeof(IMessage[]));
+                ConfigureMessageOwners(value);
             }
         }
 
-		//TODO:  Why is there a getter?
         /// <summary>
-        /// Gets/sets a list of assembly names which contain a message handlers
+        /// Sets the list of assembly names which contain a message handlers
 		/// for the bus.
         /// </summary>
         public IList MessageHandlerAssemblies
         {
-            get { return null; }
             set
             {
                 foreach (string s in value)
@@ -202,16 +178,6 @@ namespace NServiceBus.Unicast
         #region IBus Members
 
 		/// <summary>
-		/// Publishes a message to all subscribers of the the supplied message type.
-		/// </summary>
-		/// <param name="message">The message to publish.</param>
-        public virtual void Publish(IMessage message)
-        {
-            this.Publish(new IMessage[] { message });
-        }
-
-
-		/// <summary>
 		/// Publishes the first message in the list to all subscribers of that message type.
 		/// </summary>
 		/// <param name="messages">A list of messages.  Only the first will be published.</param>
@@ -220,7 +186,7 @@ namespace NServiceBus.Unicast
             foreach (string subscriber in this.subscriptionsManager.GetSubscribersForMessage(messages[0]))
                 try
                 {
-                    this.Send(messages, subscriber);
+                    this.Send(subscriber, messages);
                 }
                 catch(Exception e)
                 {
@@ -249,7 +215,7 @@ namespace NServiceBus.Unicast
 
             string destination = this.GetDestinationForMessageType(messageType);
 
-            this.Send(new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add), destination);
+            this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
         }
 
 		/// <summary>
@@ -260,16 +226,7 @@ namespace NServiceBus.Unicast
         {
             string destination = this.GetDestinationForMessageType(messageType);
 
-            this.Send(new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove), destination);
-        }
-
-		/// <summary>
-		/// Sends a messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.
-		/// </summary>
-		/// <param name="message">The message to send.</param>
-        public void Reply(IMessage message)
-        {
-            this.Reply(new IMessage[] { message });
+            this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
         }
 
 		/// <summary>
@@ -319,35 +276,10 @@ namespace NServiceBus.Unicast
             this.HandleMsgLater(m);
         }
 
-		/// <summary>
-		/// Sends a message.
-		/// </summary>
-		/// <param name="message">The message to send.</param>
-        public void Send(IMessage message)
-        {
-            this.Send(new IMessage[] { message });
-        }
-
-		/// <summary>
-		/// Sends the list of provided messages.
-		/// </summary>
-		/// <param name="messages">The list of messages to send.</param>
-		/// <remarks>
-		/// All the messages will be sent to the destination configured for the
-		/// first message in the list.
-		/// </remarks>
-        public void Send(params IMessage[] messages)
-        {
-            AsyncCallback callback = null;
-            object state = null;
-
-            this.Send(messages, callback, state);
-        }
-
-		/// <summary>
-		/// Sends the list of messages back to the current bus.
-		/// </summary>
-		/// <param name="messages">The messages to send.</param>
+        /// <summary>
+        /// Sends the list of messages back to the current bus.
+        /// </summary>
+        /// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
             Msg m = this.GetMsgFor(messages);
@@ -356,103 +288,42 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Sends the message to the specified destination.
-		/// </summary>
-		/// <param name="message">The message to send.</param>
-		/// <param name="destination">
-		/// The address of the destination to send the message to.
-		/// </param>
-        public void Send(IMessage message, string destination)
-        {
-            this.Send(message, destination, null, null);
-        }
-
-		/// <summary>
-		/// Send the list of provided messages.
-		/// </summary>
-		/// <param name="messages">The list of messages to send.</param>
-		/// <param name="destination">
-		/// The address of the destination to which the messages will be sent.
-		/// </param>
-        public void Send(IMessage[] messages, string destination)
-        {
-            this.Send(messages, destination, null, null);
-        }
-
-		/// <summary>
-        /// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
-		/// when the message is completed.
-		/// </summary>
-		/// <param name="message">The message to send.</param>
-		/// <param name="callback">The delegate to call after the message has completed.</param>
-		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
-		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
-		/// bus in the message handler.
-		/// </remarks>
-        public IAsyncResult Send(IMessage message, AsyncCallback callback, object state)
-        {
-            string destination = this.messageTypeToDestinationLookup[message.GetType()];
-
-            return this.Send(message, destination, callback, state);
-        }
-		
-		/// <summary>
 		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
-		/// <param name="messages">The list of messages to send.</param>
-		/// <param name="callback">The delegate to call after the message has completed.</param>
-		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
+        /// <param name="messages">The list of messages to send.</param>
+        /// <remarks>
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        public IAsyncResult Send(IMessage[] messages, AsyncCallback callback, object state)
+        public ICallback Send(params IMessage[] messages)
         {
             string destination = this.messageTypeToDestinationLookup[messages[0].GetType()];
 
-            return this.Send(messages, destination, callback, state);
-        }
-
-		/// <summary>
-		/// Sends a message and calls the provided <see cref="AsyncCallback"/> delegate
-		/// when the message is completed.
-		/// </summary>
-		/// <param name="message">The message to send.</param>
-		/// <param name="destination">The address of the destination to send the message to.</param>
-		/// <param name="callback">The delegate to call after the message has completed.</param>
-		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
-		/// A message is completed when the recipient calls the <see cref="Return"/> method on the
-		/// bus in the message handler.
-		/// </remarks>
-        public IAsyncResult Send(IMessage message, string destination, AsyncCallback callback, object state)
-        {
-            return this.Send(new IMessage[] { message }, destination, callback, state);
+            return this.Send(destination, messages);
         }
 
 		/// <summary>
 		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
 		/// when the message is completed.
 		/// </summary>
-		/// <param name="messages">The list of messages to send.</param>
 		/// <param name="destination">The address of the destination to send the messages to.</param>
-		/// <param name="callback">The delegate to call after the message has completed.</param>
-		/// <param name="state">An object containing state data to pass to the delegate method.</param>
-		/// <remarks>
+        /// <param name="messages">The list of messages to send.</param>
+        /// <remarks>
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        public IAsyncResult Send(IMessage[] messages, string destination, AsyncCallback callback, object state)
+        public ICallback Send(string destination, params IMessage[] messages)
         {
             Msg toSend = this.GetMsgFor(messages);
             this.transport.Send(toSend, destination);
 
-            BusAsyncResult result = new BusAsyncResult(callback, state);
-
-            lock (this.messageIdToAsyncResultLookup)
-                this.messageIdToAsyncResultLookup[toSend.Id] = result;
+            Callback result = new Callback(toSend.Id);
+		    result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
+		                             {
+                                         lock (this.messageIdToAsyncResultLookup)
+                                             this.messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+                                     };
 
 		    return result;
         }
@@ -583,7 +454,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception e)
                 {
-                    log.Error(messageHandlerType.Name + " Failed handling message.", this.GetInnermostException(e));
+                    log.Error(messageHandlerType.Name + " Failed handling message.", GetInnermostException(e));
 
                     throw;
                 }
@@ -600,7 +471,7 @@ namespace NServiceBus.Unicast
 		/// <remarks>
 		/// If the exception has no inner exceptions the provided exception will be returned.
 		/// </remarks>
-        private Exception GetInnermostException(Exception e)
+        private static Exception GetInnermostException(Exception e)
         {
             Exception result = e;
             while (result.InnerException != null)
@@ -677,7 +548,7 @@ namespace NServiceBus.Unicast
             }
             catch (Exception ex)
             {
-                log.Error("Failed handling message.", this.GetInnermostException(ex));
+                log.Error("Failed handling message.", GetInnermostException(ex));
             }
         }
 
@@ -709,6 +580,33 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
+
+        /// <summary>
+        /// Sets up known types needed for XML serialization as well as
+        /// to which address to send which message.
+        /// </summary>
+        /// <param name="owners">A dictionary of message_type, address pairs.</param>
+        private void ConfigureMessageOwners(IDictionary owners)
+        {
+            foreach (DictionaryEntry de in owners)
+            {
+                Type messageType = Type.GetType(de.Key.ToString(), false);
+                if (messageType != null)
+                {
+                    this.RegisterMessageTypeToDestination(messageType, de.Value.ToString(), false);
+                    continue;
+                }
+
+                Assembly a = Assembly.Load(de.Key.ToString());
+                foreach (Type t in a.GetTypes())
+                    this.RegisterMessageTypeToDestination(t, de.Value.ToString(), true);
+            }
+
+            this.messageTypes.Add(typeof(CompletionMessage));
+            this.messageTypes.Add(typeof(SubscriptionMessage));
+            this.messageTypes.Add(typeof(ReadyMessage));
+            this.messageTypes.Add(typeof(IMessage[]));
+        }
 
         /// <summary>
         /// Sends the Msg to the address found in the field <see cref="forwardReceivedMessagesTo"/>

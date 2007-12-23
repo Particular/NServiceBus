@@ -27,7 +27,7 @@ namespace Client
 
                 Console.WriteLine("Requesting to update customer {0}", m.CustomerId);
 
-                bClient.Send(m, UpdateCustomerComplete, m);
+                bClient.Send(m).Register(UpdateCustomerComplete, m);
             }
         }
 

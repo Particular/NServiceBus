@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using NServiceBus.Unicast;
 using NServiceBus.Multicast.Transport;
 using NServiceBus.Unicast.Transport;
@@ -19,11 +18,6 @@ namespace NServiceBus.Multicast
         }
 
         #endregion
-
-        public override void Publish(IMessage message)
-        {
-            this.Publish(new IMessage[] { message });
-        }
 
         public override void Publish(params IMessage[] messages)
         {

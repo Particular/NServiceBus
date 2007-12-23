@@ -31,7 +31,7 @@ namespace WebApplication1
             Command command = new Command();
             command.Id = number;
 
-            return bus.Send(command, cb, null);
+            return bus.Send(command).Register(cb, null);
         }
 
         protected void Button1_Click(object sender, EventArgs e)

@@ -24,22 +24,23 @@ namespace WebService1
 
             IBus bClient = builder.Build<IBus>();
 
-            ErrorCodes result = ErrorCodes.None;
+            object result = ErrorCodes.None;
 
-            IAsyncResult sync = bClient.Send(request, delegate(IAsyncResult asyncResult)
-                                      {
-                                          CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
-                                          if (completionResult != null)
-                                          {
-                                              result = (ErrorCodes) completionResult.errorCode;
-                                          }
-                                      },
-                         Context.Response
-                );
+            IAsyncResult sync = bClient.Send(request).Register(
+                delegate(IAsyncResult asyncResult)
+                  {
+                      CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
+                      if (completionResult != null)
+                      {
+                          result = (ErrorCodes) completionResult.errorCode;
+                      }
+                  },
+                  null
+                  );
 
             sync.AsyncWaitHandle.WaitOne();
 
-            return result;
+            return (ErrorCodes)result;
         }
     }
 }

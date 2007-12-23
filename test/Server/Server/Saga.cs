@@ -92,7 +92,7 @@ namespace Server
             PriceQuoteResponse msg = new PriceQuoteResponse();
             msg.Quote = this.BestQuote;
 
-            this.bus.Send(msg, this.clientAddress);
+            this.bus.Send(this.clientAddress, msg);
         }
         #endregion
 
