@@ -652,6 +652,8 @@ namespace NServiceBus.Unicast
                 if (typeof(IMessage).IsAssignableFrom(t) && !t.IsAbstract)
                 {
                     this.messageTypes.Add(t);
+                    if(log.IsDebugEnabled)
+                        log.Debug(string.Format("Registered message '{0}'", t));
                     continue;
                 }
 
@@ -780,9 +782,13 @@ namespace NServiceBus.Unicast
         {
             if (!this.messageTypeToHandlerTypeLookup.ContainsKey(messageType))
                 this.messageTypeToHandlerTypeLookup.Add(messageType, new List<Type>());
-
+                
             if (!this.messageTypeToHandlerTypeLookup[messageType].Contains(handlerType))
+            {
                 this.messageTypeToHandlerTypeLookup[messageType].Add(handlerType);
+                if (log.IsDebugEnabled)
+                    log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, handlerType));
+            }
         }
 
 		/// <summary>
