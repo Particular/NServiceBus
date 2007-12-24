@@ -1,0 +1,21 @@
+CREATE TABLE dbo.OnlineSagas
+	(
+	Id uniqueidentifier NOT NULL,
+	Value varbinary(MAX) NULL
+	)  ON [PRIMARY]
+	 TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE dbo.OnlineSagas ADD CONSTRAINT
+	PK_OnlineSagas PRIMARY KEY CLUSTERED 
+	(
+	Id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE TABLE dbo.CompletedSagas
+	(
+	Id uniqueidentifier NOT NULL,
+	Value varbinary(MAX) NULL
+	)  ON [PRIMARY]
+	 TEXTIMAGE_ON [PRIMARY]
+GO

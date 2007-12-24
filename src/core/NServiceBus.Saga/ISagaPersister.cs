@@ -17,6 +17,12 @@ namespace NServiceBus.Saga
 		/// <param name="saga">The saga entity to save.</param>
         void Save(ISagaEntity saga);
 
+        /// <summary>
+        /// Updates an existing saga entity in the persistence store.
+        /// </summary>
+        /// <param name="saga">The saga entity to updated.</param>
+        void Update(ISagaEntity saga);
+
 		/// <summary>
 		/// Gets a saga entity from the persistence store by its Id.
 		/// </summary>
@@ -28,7 +34,7 @@ namespace NServiceBus.Saga
         /// Sets a saga as completed and removes it from the active saga list
 		/// in the persistence store.
 		/// </summary>
-		/// <param name="wf">The saga to complete.</param>
-        void Complete(ISagaEntity wf);
+		/// <param name="saga">The saga to complete.</param>
+        void Complete(ISagaEntity saga);
     }
 }

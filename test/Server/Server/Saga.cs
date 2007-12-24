@@ -6,16 +6,21 @@ using NServiceBus.Saga;
 
 namespace Server
 {
+    [Serializable]
     public class Saga : ISaga<PriceQuoteRequest>
     {
         #region ISaga<PriceQuoteRequest> Members
 
-        private Guid id = Guid.NewGuid();
+        private Guid id;
         public Guid Id
         {
             get
             {
                 return id;
+            }
+            set
+            {
+                id = value;
             }
         }
 
@@ -98,12 +103,14 @@ namespace Server
 
         #region config info
 
+        [NonSerialized]
         private Reminder reminder;
         public Reminder Reminder
         {
             set { reminder = value; }
         }
 
+        [NonSerialized]
         private IBus bus;
         public IBus Bus
         {

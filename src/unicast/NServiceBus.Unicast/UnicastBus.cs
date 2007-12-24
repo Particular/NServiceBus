@@ -449,7 +449,7 @@ namespace NServiceBus.Unicast
                     
                     log.Debug(messageHandlerType.Name + " Done.");
 
-                    if (!doNotContinueDispatchingCurrentMessageToHandlers)
+                    if (doNotContinueDispatchingCurrentMessageToHandlers)
                         return false;
                 }
                 catch (Exception e)

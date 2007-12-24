@@ -6,11 +6,16 @@ namespace InMemorySagaPersister
 {
     public class InMemorySagaPersister : ISagaPersister
     {
-        #region IWorkflowPersister Members
+        #region ISagaPersister Members
 
-        public void Save(ISagaEntity wf)
+        public void Save(ISagaEntity saga)
         {
-            this.lookup[wf.Id] = wf;
+            this.lookup[saga.Id] = saga;
+        }
+
+        public void Update(ISagaEntity saga)
+        {
+            this.lookup[saga.Id] = saga;
         }
 
         public ISagaEntity Get(Guid sagaId)

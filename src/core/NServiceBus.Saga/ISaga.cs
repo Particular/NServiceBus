@@ -26,13 +26,15 @@ namespace NServiceBus.Saga
     public interface ISagaEntity
     {
         /// <summary>
-        /// Gets the Id of the workflow.
+        /// Gets/sets the Id of the workflow. Do NOT generate this value in your code.
+        /// The value of the Id will be generated automatically to provide the
+        /// best performance for saving in a database.
         /// </summary>
 		/// <remarks>
 		/// The reason Guid is used for workflow Id is that messages containing this Id need
 		/// to be sent by the workflow even before it is persisted.
 		/// </remarks>
-        Guid Id { get; }
+        Guid Id { get; set; }
 
 		/// <summary>
 		/// Gets whether or not the workflow has completed.

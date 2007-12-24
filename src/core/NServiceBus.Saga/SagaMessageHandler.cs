@@ -48,6 +48,8 @@ namespace NServiceBus.Saga
                 return;
             }
 
+            saga.Id = GuidCombGenerator.Generate();
+
 		    using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
             {
                 HandleMessageOnSaga(saga, message);

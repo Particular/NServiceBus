@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C1DE5465-4694-475A-8D06-E17733C41D69}</ProjectGuid>
+    <ProjectGuid>{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Saga</RootNamespace>
-    <AssemblyName>NServiceBus.Saga</AssemblyName>
+    <RootNamespace>DbBlobSagaPersister</RootNamespace>
+    <AssemblyName>DbBlobSagaPersister</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,14 +28,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+    <Reference Include="NServiceBus, Version=1.0.0.40176, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\build\core\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ObjectBuilder, Version=1.0.2.41164, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ObjectBuilder, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -43,21 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GuidCombGenerator.cs" />
-    <Compile Include="ISaga.cs" />
-    <Compile Include="ISagaMessage.cs" />
-    <Compile Include="ISagaPersister.cs" />
+    <Compile Include="Persister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reminder.cs" />
-    <Compile Include="TimeoutMessage.cs" />
-    <Compile Include="SagaMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867D40-8CBB-48E9-BFFA-12BBDD48A341}</Project>
-      <Name>NServiceBus</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <Content Include="TableDefinitions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -68,6 +63,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\build\core\"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\..\build\impl\SagaPersisters"</PostBuildEvent>
   </PropertyGroup>
 </Project>
