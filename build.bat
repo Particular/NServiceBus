@@ -10,6 +10,8 @@ cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq
 msbuild
 cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Transport.WCF
 msbuild
+cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
+msbuild
 cd ..\..\..\..\src\multicast\NServiceBus.Multicast
 msbuild
 cd ..\..\..\src\impl\multicast\NServiceBus.Multicast.Transport.Udp
