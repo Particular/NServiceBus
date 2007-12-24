@@ -1,4 +1,6 @@
-cd src\core
+cd src\ObjectBuilder
+msbuild
+cd ..\..\src\core
 msbuild 
 cd ..\..\src\utils
 msbuild
@@ -11,6 +13,8 @@ msbuild
 cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Transport.WCF
 msbuild
 cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
+msbuild
+cd ..\..\..\..\src\impl\ObjectBuilder.SpringFramework
 msbuild
 cd ..\..\..\..\src\multicast\NServiceBus.Multicast
 msbuild
