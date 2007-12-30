@@ -549,6 +549,7 @@ namespace NServiceBus.Unicast
             catch (Exception ex)
             {
                 log.Error("Failed handling message.", GetInnermostException(ex));
+                throw;
             }
         }
 

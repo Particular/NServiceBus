@@ -122,6 +122,21 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { distributorControlAddress = value; }
         }
 
+	    private int maxRetries = 5;
+
+        /// <summary>
+        /// Sets the maximum number of times a message will be retried
+        /// when an exception is thrown as a result of handling the message.
+        /// This value is only relevant when <see cref="IsTransactional"/> is true.
+        /// </summary>
+        /// <remarks>
+        /// Default value is 5.
+        /// </remarks>
+	    public int MaxRetries
+	    {
+	        set { maxRetries = value; }
+	    }
+
         #endregion
 
         #region ITransport Members
@@ -244,24 +259,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (this.distributorControlAddress != null)
                 if (!sentReadyMessage)
-                {
-                    ReadyMessage rm = new ReadyMessage();
-
-                    lock (readyMessageLocker)
-                        if (readyMessageStartup)
-                        {
-                            rm.ClearPreviousFromThisAddress = true;
-                            readyMessageStartup = false;
-                        }
-
-                    Msg ready = new Msg();
-                    ready.Body = new IMessage[] { rm };
-                    ready.ReturnAddress = this.Address;
-                    ready.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
-
-                    this.Send(ready, this.distributorControlAddress);
-                    sentReadyMessage = true;
-                }
+                    SendReadyMessage();
 
             IAsyncResult ar = this.queue.BeginPeek();
             ar.AsyncWaitHandle.WaitOne();
@@ -272,7 +270,27 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 this.ReceiveFromQueue();
         }
 
-		/// <summary>
+	    private void SendReadyMessage()
+	    {
+	        ReadyMessage rm = new ReadyMessage();
+
+	        lock (readyMessageLocker)
+	            if (readyMessageStartup)
+	            {
+	                rm.ClearPreviousFromThisAddress = true;
+	                readyMessageStartup = false;
+	            }
+
+	        Msg ready = new Msg();
+	        ready.Body = new IMessage[] { rm };
+	        ready.ReturnAddress = this.Address;
+	        ready.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
+
+	        this.Send(ready, this.distributorControlAddress);
+	        sentReadyMessage = true;
+	    }
+
+	    /// <summary>
 		/// Receives a message from the input queue.
 		/// </summary>
 		/// <remarks>
@@ -280,36 +298,61 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ReceiveFromQueue()
         {
+	        Message m = new Message();
+
             try
             {
-                Message m = this.queue.Receive(this.GetTransactionTypeForReceive());
+                m = this.queue.Receive(this.GetTransactionTypeForReceive());
 
                 Msg result = Convert(m);
 
-                try
+                if (this.skipDeserialization)
+                    result.BodyStream = m.BodyStream;
+                else
                 {
-                    if (this.skipDeserialization)
-                        result.BodyStream = m.BodyStream;
-                    else
+                    try
+                    {
                         result.Body = Extract(m);
-                }
-                catch(Exception e)
-                {
-                    logger.Error("Could not deserialize message.", e);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error("Could not extract message data.", e);
 
-                    if (this.errorQueue != null)
-                        this.errorQueue.Send(m, this.GetTransactionTypeForSend());
+                        if (this.errorQueue != null)
+                            this.errorQueue.Send(m, this.GetTransactionTypeForSend());
 
-                    return;
+                        return;
+                    }
                 }
 
                 if (this.MsgReceived != null)
                     this.MsgReceived(this, new MsgReceivedEventArgs(result));
+
+                this.failuresPerMessage.Remove(m.Id);
             }
             catch (MessageQueueException mqe)
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return;
+            }
+            catch
+            {
+                if (this.isTransactional)
+                    lock (this.failuresPerMessage)
+                    {
+                        if (!this.failuresPerMessage.ContainsKey(m.Id))
+                            this.failuresPerMessage[m.Id] = 1;
+                        else
+                            this.failuresPerMessage[m.Id] = this.failuresPerMessage[m.Id] + 1;
+
+                        if (this.failuresPerMessage[m.Id] == this.maxRetries)
+                        {
+                            this.failuresPerMessage.Remove(m.Id);
+                            return;
+                        }
+                    }
+
+                throw;
             }
 
             sentReadyMessage = false;
@@ -486,13 +529,18 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private MessageQueue errorQueue;
         readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
         private XmlSerializer xmlSerializer = null;
-        private BinaryFormatter binaryFormatter = new BinaryFormatter();
+        private readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
 
         /// <summary>
         /// ThreadStatic
         /// </summary>
         [ThreadStatic]
         static bool sentReadyMessage;
+
+        /// <summary>
+        /// Accessed by multiple threads - lock before using.
+        /// </summary>
+	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 
         static bool readyMessageStartup;
         static readonly object readyMessageLocker = new object();

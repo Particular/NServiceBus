@@ -8,6 +8,9 @@ namespace Server
     {
         public override void Handle(UpdateCustomerMessage message)
         {
+            //try uncommenting the following line to see the retry behavior
+            //throw new Exception();
+
             Console.WriteLine("Trying to update customer {0}", message.CustomerId);
             if (new Random(DateTime.Now.Millisecond).Next(10) > 5)
             {

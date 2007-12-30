@@ -319,12 +319,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SagaPersisters", "SagaPersi
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbBlobSagaPersister", "..\..\..\..\..\DEV\NServiceBus\src\impl\SagaPersisters\DbBlobSagaPersister\DbBlobSagaPersister.csproj", "{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ObjectBuilder", "ObjectBuilder", "{5B85CA4F-0E58-413A-932E-2FF6A757DB74}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -344,6 +338,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ObjectBuilder", "ObjectBuil
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.SpringFramework", "src\impl\ObjectBuilder.SpringFramework\ObjectBuilder.SpringFramework.csproj", "{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbBlobSagaPersister", "src\impl\SagaPersisters\DbBlobSagaPersister\DbBlobSagaPersister.csproj", "{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -491,10 +491,6 @@ Global
 		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{562F1C2D-8279-482D-8474-30CDE9EE3269}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C831B94E-6D08-404C-BA80-B8E8442EA9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C831B94E-6D08-404C-BA80-B8E8442EA9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C831B94E-6D08-404C-BA80-B8E8442EA9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -503,6 +499,10 @@ Global
 		{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
