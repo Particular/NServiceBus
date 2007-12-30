@@ -348,6 +348,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                         if (this.failuresPerMessage[m.Id] == this.maxRetries)
                         {
                             this.failuresPerMessage.Remove(m.Id);
+
+                            if (this.errorQueue != null)
+                                this.errorQueue.Send(m, this.GetTransactionTypeForSend());
+
                             return;
                         }
                     }
