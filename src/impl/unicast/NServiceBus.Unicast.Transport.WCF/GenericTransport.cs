@@ -89,6 +89,11 @@ namespace NServiceBus.Unicast.Transport.WCF
             throw new NotImplementedException();
         }
 
+        public void Dispose()
+        {
+            this.host.Close();
+        }
+
         #endregion
 
         #region helper methods

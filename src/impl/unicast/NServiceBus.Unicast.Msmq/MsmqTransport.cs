@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	/// A transport is used by NServiceBus as a high level abstraction from the 
 	/// underlying messaging service being used to transfer messages.
 	/// </remarks>
-    public class MsmqTransport : ITransport, IDisposable
+    public class MsmqTransport : ITransport
     {
         #region config info
 
@@ -101,11 +101,15 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
 		/// <summary>
 		/// Sets the number of concurrent threads that should be
-		/// created for processing the queue.
+		/// created for processing the queue. This value will be used by the <see cref="Start"/>
+		/// method only and will have no effect if called afterwards.
 		/// </summary>
         public int NumberOfWorkerThreads
         {
-            set { numberOfWorkerThreads = value; }
+            set
+            {
+                numberOfWorkerThreads = value;
+            }
         }
 
         private string distributorControlAddress;
@@ -185,10 +189,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 readyMessageStartup = true;
 
             for (int i = 0; i < this.numberOfWorkerThreads; i++)
-                this.workerThreads.Add(new WorkerThread(this.Receive));
-
-            foreach (WorkerThread w in this.workerThreads)
-                w.Start();
+                this.AddWorkerThread().Start();
         }
 
 		/// <summary>
@@ -197,7 +198,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="m">The message to process later.</param>
 		/// <remarks>
 		/// Note that this method will place the message onto the back of the queue
-		/// which will break message ordering.
+		/// which may break message ordering.
 		/// </remarks>
         public void ReceiveMessageLater(Msg m)
         {
@@ -247,6 +248,25 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #region helper methods
 
+        private WorkerThread AddWorkerThread()
+        {
+            lock (this.workerThreads)
+            {
+                WorkerThread result = new WorkerThread(this.Receive);
+
+                this.workerThreads.Add(result);
+
+                result.Stopped += delegate(object sender, EventArgs e)
+                                      {
+                                          WorkerThread wt = sender as WorkerThread;
+                                          lock (this.workerThreads)
+                                              this.workerThreads.Remove(wt);
+                                      };
+
+                return result;
+            }
+        }
+
 		/// <summary>
 		/// Waits for a message to become available on the input queue
 		/// and then receives it.
@@ -258,7 +278,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private void Receive()
         {
             if (this.distributorControlAddress != null)
-                if (!sentReadyMessage)
+                if (!sentReadyMessage && !disabled)
                     SendReadyMessage();
 
             IAsyncResult ar = this.queue.BeginPeek();
@@ -325,8 +345,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                 }
 
-                if (this.MsgReceived != null)
-                    this.MsgReceived(this, new MsgReceivedEventArgs(result));
+                this.HandleChangeNumberOfWorkerThreads(result);
+                this.HandleGetNumberOfWorkerThreads(result);
+
+                if (!this.disabled)
+                    if (this.MsgReceived != null)
+                        this.MsgReceived(this, new MsgReceivedEventArgs(result));
+
+                this.ReturnMessageToQueueIfWeAreDisabled(result);
 
                 this.failuresPerMessage.Remove(m.Id);
             }
@@ -361,6 +387,89 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             sentReadyMessage = false;
             return;
+        }
+
+        private void HandleGetNumberOfWorkerThreads(Msg result)
+        {
+            if (result.Body == null)
+                return;
+
+            if (result.Body.Length != 1)
+                return;
+            
+            GetNumberOfWorkerThreadsMessage message = result.Body[0] as GetNumberOfWorkerThreadsMessage;
+            if (message == null)
+                return;
+
+            Msg response = new Msg();
+            response.CorrelationId = result.Id;
+            response.ReturnAddress = this.Address;
+            response.WindowsIdentityName = result.WindowsIdentityName;
+            response.Recoverable = result.Recoverable;
+            response.TimeToBeReceived = result.TimeToBeReceived;
+            
+            lock(this.workerThreads)
+                response.Body = new IMessage[] { new GotNumberOfWorkerThreadsMessage(this.workerThreads.Count) };
+
+            this.Send(response, result.ReturnAddress);
+        }
+
+        private void ReturnMessageToQueueIfWeAreDisabled(Msg result)
+        {
+            bool returnToQueue = this.disabled;
+
+            if (returnToQueue)
+                if (result.Body.Length == 1)
+                    returnToQueue = !(result.Body[0] is ChangeNumberOfWorkerThreadsMessage);
+                
+            if (returnToQueue)
+                this.Send(result, this.Address);
+        }
+
+        private void HandleChangeNumberOfWorkerThreads(Msg result)
+        {
+            if (result.Body == null)
+                return;
+
+            if (result.Body.Length != 1)
+                return;
+
+            ChangeNumberOfWorkerThreadsMessage message = result.Body[0] as ChangeNumberOfWorkerThreadsMessage;
+            if (message == null)
+                return;
+
+            lock(this.workerThreads)
+            {
+                int target = message.NumberOfWorkerThreads;
+                int current = this.workerThreads.Count;
+
+                if (target <= 0)
+                {
+                    this.disabled = true;
+                    target = 1; // always leave one thread to receive requests to increase thread count again
+                }
+                else
+                    this.disabled = false;
+
+                if (target == current)
+                    return;
+
+                if (target < current)
+                {
+                    for(int i=target; i < current; i++)
+                        this.workerThreads[i].Stop();
+
+                    return;
+                }
+
+                if (target > current)
+                {
+                    for (int i = current; i < target; i++)
+                        this.AddWorkerThread().Start();
+
+                    return;
+                }
+            }
         }
 
 		/// <summary>
@@ -505,6 +614,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (!types.Contains(typeof(List<object>)))
                 types.Add(typeof(List<object>));
+            if (!types.Contains(typeof(ChangeNumberOfWorkerThreadsMessage)))
+                types.Add(typeof(ChangeNumberOfWorkerThreadsMessage));
+            if (!types.Contains(typeof(GetNumberOfWorkerThreadsMessage  )))
+                types.Add(typeof(GetNumberOfWorkerThreadsMessage));
+            if (!types.Contains(typeof(GotNumberOfWorkerThreadsMessage)))
+                types.Add(typeof(GotNumberOfWorkerThreadsMessage));
 
             return types.ToArray();
         }
@@ -531,7 +646,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
-        readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+        private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
         private XmlSerializer xmlSerializer = null;
         private readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
 
@@ -548,6 +663,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         static bool readyMessageStartup;
         static readonly object readyMessageLocker = new object();
+
+	    private bool disabled = false;
+
         private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
 
         #endregion
@@ -555,10 +673,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
         #region IDisposable Members
 
 		/// <summary>
-		/// Disposes the MSMQ queue of the transport.
+		/// Stops all worker threads and disposes the MSMQ queue.
 		/// </summary>
         public void Dispose()
         {
+            lock (this.workerThreads)
+                for (int i = 0; i < workerThreads.Count; i++)
+                    this.workerThreads[i].Stop();
+
             this.queue.Dispose();
         }
 

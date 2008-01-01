@@ -94,7 +94,7 @@ namespace NServiceBus.Saga
                 if (saga.Completed)
                     persister.Complete(saga);
                 else
-                    persister.Save(saga);
+                    persister.Update(saga);
             }
 
             LogIfSagaCompleted(saga);

@@ -356,6 +356,11 @@ namespace NServiceBus.Unicast
             this.SendLocal(new CompletionMessage());
         }
 
+        public virtual void Dispose()
+        {
+            this.transport.Dispose();
+        }
+
 		/// <summary>
 		/// Tells the bus to stop dispatching the current message to additional
 		/// handlers.
@@ -371,22 +376,6 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region receiving and handling
-
-        //private void ReceiveAndHandle()
-        //{
-        //    if (this.distributorControlAddress != null)
-        //        if (!sentReadyMessage)
-        //        {
-        //            this.Send(new Messages.ReadyMessage(), this.distributorControlAddress);
-        //            sentReadyMessage = true;
-        //        }
-
-        //    Msg msg = this.transport.Receive(this.timeToWaitForReceive);
-        //    if (msg == null)
-        //        return;
-
-
-        //}
 
         /// <summary>
         /// Handles a received message.

@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Transport
 	/// <summary>
 	/// Defines the basic functionality of a transport to be used by NServiceBus.
 	/// </summary>
-    public interface ITransport
+    public interface ITransport : IDisposable
     {
 		/// <summary>
 		/// Starts the transport.
@@ -44,7 +44,7 @@ namespace NServiceBus.Unicast.Transport
 
 	/// <summary>
 	/// Defines the arguments passed to the event handler of the
-	/// <see cref="MsgReceived"/> event.
+	/// <see cref="ITransport.MsgReceived"/> event.
 	/// </summary>
     public class MsgReceivedEventArgs : EventArgs
     {
@@ -57,7 +57,7 @@ namespace NServiceBus.Unicast.Transport
             this.message = m;
         }
 
-        private Msg message;
+        private readonly Msg message;
 
 		/// <summary>
 		/// Gets the message received.

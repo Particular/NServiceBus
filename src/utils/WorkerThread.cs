@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using Common.Logging;
 
@@ -16,8 +14,8 @@ namespace Utils
 	/// </summary>
     public class WorkerThread
     {
-        private Callback methodToRunInLoop;
-        private Thread thread;
+        private readonly Callback methodToRunInLoop;
+        private readonly Thread thread;
 
 		/// <summary>
 		/// Initializes a new WorkerThread for the specified method to run.
@@ -26,10 +24,13 @@ namespace Utils
         public WorkerThread(Callback methodToRunInLoop)
         {
             this.methodToRunInLoop = methodToRunInLoop;
-            this.thread = new Thread(new ThreadStart(this.Loop));
+            this.thread = new Thread(this.Loop);
             this.thread.SetApartmentState(ApartmentState.MTA);
             this.thread.Name = "Worker";
+		    this.thread.IsBackground = true;
         }
+
+	    public event EventHandler Stopped;
 
 		/// <summary>
 		/// Starts the worker thread.
@@ -66,6 +67,9 @@ namespace Utils
                     log.Error("Exception reached top level.", e);
                 }
             }
+
+            if (this.Stopped != null)
+                this.Stopped(this, null);
         }
 
 		/// <summary>
@@ -82,9 +86,9 @@ namespace Utils
                 return result;
             }
         }
-        private bool _stopRequested;
-        private object _toLock = new object();
+        private volatile bool _stopRequested;
+        private readonly object _toLock = new object();
 
-        private static ILog log = LogManager.GetLogger(typeof(WorkerThread));
+        private readonly static ILog log = LogManager.GetLogger(typeof(WorkerThread));
     }
 }

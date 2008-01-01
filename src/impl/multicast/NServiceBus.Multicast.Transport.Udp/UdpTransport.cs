@@ -112,6 +112,14 @@ namespace NServiceBus.Multicast.Transport.Udp
 
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
 
+        public void Dispose()
+        {
+            foreach(WorkerThread thread in this.threads)
+                thread.Stop();
+
+            this.receiver.Close();
+        }
+
         #endregion
 
         #region helper methods
