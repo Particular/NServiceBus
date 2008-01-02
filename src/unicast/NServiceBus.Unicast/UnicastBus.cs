@@ -482,6 +482,9 @@ namespace NServiceBus.Unicast
             CompletionMessage errorMessage = msg.Body[0] as CompletionMessage;
             if (errorMessage != null)
             {
+                if (msg.CorrelationId == null)
+                    return true;
+
                 BusAsyncResult busAsyncResult;
 
                 lock (this.messageIdToAsyncResultLookup)
