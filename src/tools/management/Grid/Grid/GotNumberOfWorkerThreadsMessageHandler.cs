@@ -1,5 +1,5 @@
 using NServiceBus;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Grid.Messages;
 
 namespace Grid
 {

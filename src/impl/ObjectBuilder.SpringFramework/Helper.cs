@@ -32,7 +32,8 @@ namespace ObjectBuilder.SpringFramework
             MethodInfo method = typeToBuild.GetMethod(methodName);
             object obj = Build(typeToBuild, context);
 
-            method.Invoke(obj, methodArgs);
+            if (obj != null)
+                method.Invoke(obj, methodArgs);
         }
 
     }

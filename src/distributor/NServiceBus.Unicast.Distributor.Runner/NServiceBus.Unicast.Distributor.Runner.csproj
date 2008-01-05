@@ -48,6 +48,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.MessageHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Grid.Messages, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.Messages.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast, Version=1.0.0.18112, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Distributor, Version=1.0.0.1680, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\build\NServiceBus.Unicast.Distributor.dll</HintPath>

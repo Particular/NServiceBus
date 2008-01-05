@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using NServiceBus.Async;
 
 namespace NServiceBus.Unicast
 {
@@ -19,9 +18,10 @@ namespace NServiceBus.Unicast
             this.sync = new ManualResetEvent(false);
         }
 
-        public void Complete(int errorCode)
+        public void Complete(int errorCode, params IMessage[] messages)
         {
             this.result.errorCode = errorCode;
+            this.result.messages = messages;
             this.completed = true;
             this.sync.Set();
 

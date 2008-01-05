@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
-using NServiceBus.Messages;
-using System.Threading;
 using Common.Logging;
 
 namespace NServiceBus.Unicast.Distributor
@@ -16,15 +12,15 @@ namespace NServiceBus.Unicast.Distributor
     {
         #region config info
 
-        private ITransport subscriptionInfoTransport;
+        private IBus controlBus;
 
 		/// <summary>
-		/// Sets the <see cref="ITransport"/> implementation that will be used
-		/// for transporting subscription information.
+		/// Sets the <see cref="IBus"/> implementation that will be used
+		/// for transporting control information.
 		/// </summary>
-        public ITransport SubscriptionInfoTransport
+        public IBus ControlBus
         {
-            set { subscriptionInfoTransport = value; }
+            set { controlBus = value; }
         }
 
         private ITransport messageBusTransport;
@@ -58,12 +54,16 @@ namespace NServiceBus.Unicast.Distributor
 		/// </summary>
         public void Start()
         {
-            this.subscriptionInfoTransport.MessageTypesToBeReceived = new List<Type>(new Type[] { typeof(ReadyMessage) });
+		    GridInterceptingMessageHandler.DisabledChanged += 
+                delegate
+                  {
+                      disabled =
+                          GridInterceptingMessageHandler.Disabled;
+                  };
 
-            this.messageBusTransport.MsgReceived += new EventHandler<MsgReceivedEventArgs>(messageBusTransport_MsgReceived);
-            this.subscriptionInfoTransport.MsgReceived += new EventHandler<MsgReceivedEventArgs>(subscriptionInfoTransport_MsgReceived);
+            this.messageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
 
-            this.subscriptionInfoTransport.Start();
+            this.controlBus.Start();
             this.messageBusTransport.Start();
         }
 
@@ -78,34 +78,7 @@ namespace NServiceBus.Unicast.Distributor
 
         #region helper methods
 
-        /// <summary>
-        /// Occurs when a <see cref="ReadyMessage"/> arrives on the subscriptionInfoTransport
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks>
-        /// Stores information about availability of a worker.
-        /// May clear previous availability information - in the case
-        /// where a worker is just starting up.
-        /// </remarks>
-        void subscriptionInfoTransport_MsgReceived(object sender, MsgReceivedEventArgs e)
-        {
-            if (e.Message.Body != null)
-                if (e.Message.Body.Length == 1)
-                    if (e.Message.Body[0] is ReadyMessage)
-                    {
-                        ReadyMessage rm = e.Message.Body[0] as ReadyMessage;
-
-                        logger.Debug("Server available: " + e.Message.ReturnAddress);
-
-                        if (rm.ClearPreviousFromThisAddress)
-                            this.workerManager.ClearAvailabilityForWorker(e.Message.ReturnAddress);
-
-                        this.workerManager.WorkerAvailable(e.Message.ReturnAddress);
-                    }
-        }
-
-		/// <summary>
+ 		/// <summary>
 		/// Handles reciept of a message on the bus to distribute for.
 		/// </summary>
 		/// <param name="sender"></param>
@@ -114,9 +87,15 @@ namespace NServiceBus.Unicast.Distributor
 		/// This method checks whether a worker is available to handle the message and
 		/// forwards it if one is found.
 		/// </remarks>
-        void messageBusTransport_MsgReceived(object sender, MsgReceivedEventArgs e)
+        void messageBusTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            string destination = this.workerManager.PopAvailableWorker();
+            if (disabled)
+            {
+                this.messageBusTransport.ReceiveMessageLater(e.Message);
+                return;
+            }
+
+ 		    string destination = this.workerManager.PopAvailableWorker();
 
             if (destination == null)
                 this.messageBusTransport.ReceiveMessageLater(e.Message);
@@ -131,7 +110,8 @@ namespace NServiceBus.Unicast.Distributor
 
         #region members
 
-        private static ILog logger = LogManager.GetLogger(typeof(Distributor));
+	    private volatile bool disabled;
+        private readonly static ILog logger = LogManager.GetLogger(typeof(Distributor));
 
         #endregion
     }

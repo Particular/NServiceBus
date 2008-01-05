@@ -7,12 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "src\core\NSe
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Async", "src\core\NServiceBus.Async\NServiceBus.Async.csproj", "{B9B861C6-100A-4808-9ECE-339C22A0EF6E}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{4A182899-5624-4FF0-8753-D2E8E31AF140}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -349,6 +343,54 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbBlobSagaPersister", "src\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grid", "grid", "{B46133C5-7441-4F05-BC44-7E67B5EDAA4D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Grid.Messages", "src\grid\NServiceBus.Grid.Messages\NServiceBus.Grid.Messages.csproj", "{1C22F3DF-F020-491D-A680-5AE98D390140}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Grid.MessageHandlers", "src\grid\NServiceBus.Grid.MessageHandlers\NServiceBus.Grid.MessageHandlers.csproj", "{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{51E8903A-31C8-42CC-AEB9-AD813EE282F4}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "management", "management", "{50CF4253-AABB-475D-87DD-D8A2C7CF236D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grid", "grid", "{058A28C7-57DE-44B4-AA26-CE8A57FF7147}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grid", "src\tools\management\Grid\Grid\Grid.csproj", "{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "src\tools\management\Grid\UI\UI.csproj", "{211C2BF6-5146-4019-8972-6AC87C90745B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -359,10 +401,6 @@ Global
 		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -503,6 +541,22 @@ Global
 		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C22F3DF-F020-491D-A680-5AE98D390140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C22F3DF-F020-491D-A680-5AE98D390140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C22F3DF-F020-491D-A680-5AE98D390140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C22F3DF-F020-491D-A680-5AE98D390140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -515,7 +569,7 @@ Global
 		{2BC45674-F407-45D5-B299-BF314DAF88BE} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{AE680ED6-74D9-4D85-834F-E9F20DE9C2B4} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{5B85CA4F-0E58-413A-932E-2FF6A757DB74} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
-		{B9B861C6-100A-4808-9ECE-339C22A0EF6E} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
+		{B46133C5-7441-4F05-BC44-7E67B5EDAA4D} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{73867D40-8CBB-48E9-BFFA-12BBDD48A341} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{C1DE5465-4694-475A-8D06-E17733C41D69} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{740CBD5E-C88F-43A6-B811-2E9D6E31C381} = {D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}
@@ -563,5 +617,11 @@ Global
 		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C} = {12392715-B9A3-433E-B395-C0031569A864}
 		{C831B94E-6D08-404C-BA80-B8E8442EA9DE} = {5B85CA4F-0E58-413A-932E-2FF6A757DB74}
 		{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0} = {102BD992-A123-4B71-B9C7-7FFAA515FACE}
+		{1C22F3DF-F020-491D-A680-5AE98D390140} = {B46133C5-7441-4F05-BC44-7E67B5EDAA4D}
+		{02D21488-C00A-4DD2-97BE-C0EA1CDB7206} = {B46133C5-7441-4F05-BC44-7E67B5EDAA4D}
+		{50CF4253-AABB-475D-87DD-D8A2C7CF236D} = {51E8903A-31C8-42CC-AEB9-AD813EE282F4}
+		{058A28C7-57DE-44B4-AA26-CE8A57FF7147} = {50CF4253-AABB-475D-87DD-D8A2C7CF236D}
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651} = {058A28C7-57DE-44B4-AA26-CE8A57FF7147}
+		{211C2BF6-5146-4019-8972-6AC87C90745B} = {058A28C7-57DE-44B4-AA26-CE8A57FF7147}
 	EndGlobalSection
 EndGlobal

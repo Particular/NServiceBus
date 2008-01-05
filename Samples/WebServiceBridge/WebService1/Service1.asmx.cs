@@ -2,9 +2,7 @@ using System.Web.Services;
 using System.ComponentModel;
 using Messages;
 using NServiceBus;
-using System.Threading;
 using System;
-using NServiceBus.Async;
 
 namespace WebService1
 {

@@ -17,6 +17,8 @@ namespace Server
             {
                 IBus bServer = builder.Build<IBus>();
                 bServer.Start();
+
+                Console.Read();
             }
             catch (Exception e)
             {

@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast
                 this.storage = value;
 
                 if (this.storage != null)
-                    foreach (Msg m in this.storage.GetAllMessages())
+                    foreach (TransportMessage m in this.storage.GetAllMessages())
                         this.HandledSubscriptionMessage(m, false);
             }
         }
@@ -93,7 +93,7 @@ namespace NServiceBus.Unicast
 		/// </summary>
 		/// <param name="msg">The message to attempt to handle.</param>
 		/// <returns>true if the message was a valid subscription message, otherwise false.</returns>
-        public bool HandledSubscriptionMessage(Msg msg)
+        public bool HandledSubscriptionMessage(TransportMessage msg)
         {
             return this.HandledSubscriptionMessage(msg, true);
         }
@@ -105,7 +105,7 @@ namespace NServiceBus.Unicast
 		/// <param name="msg">The message to attempt to handle.</param>
 		/// <param name="updateQueue">Whether or not the subscription persistence store should be updated.</param>
 		/// <returns>true if the message was a valid subscription message, otherwise false.</returns>
-        private bool HandledSubscriptionMessage(Msg msg, bool updateQueue)
+        private bool HandledSubscriptionMessage(TransportMessage msg, bool updateQueue)
         {
             IMessage[] messages = msg.Body;
             if (messages == null)
@@ -143,7 +143,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messageType">The message type being subscribed to.</param>
 		/// <param name="subMessage">A subscription message.</param>
 		/// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
-        private void HandleAddSubscription(Msg msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
+        private void HandleAddSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
             if (subMessage.subscriptionType == SubscriptionType.Add)
             {
@@ -168,7 +168,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messageType">The message type being subscribed to.</param>
 		/// <param name="subMessage">A subscription message.</param>
 		/// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
-        private void HandleRemoveSubscription(Msg msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
+        private void HandleRemoveSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
             if (subMessage.subscriptionType == SubscriptionType.Remove)
             {
@@ -206,7 +206,7 @@ namespace NServiceBus.Unicast
 			/// </summary>
 			/// <param name="messageType"></param>
 			/// <param name="msg"></param>
-            public Entry(Type messageType, Msg msg)
+            public Entry(Type messageType, TransportMessage msg)
             {
                 this.msg = msg;
                 this.messageType = messageType;
@@ -222,12 +222,12 @@ namespace NServiceBus.Unicast
                 get { return messageType; }
             }
 
-            private Msg msg;
+            private TransportMessage msg;
 
 			/// <summary>
 			/// Gets the subscription request message.
 			/// </summary>
-            public Msg Msg
+            public TransportMessage Msg
             {
                 get { return msg; }
             }

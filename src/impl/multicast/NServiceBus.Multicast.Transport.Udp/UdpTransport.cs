@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using NServiceBus.Unicast.Transport;
@@ -14,12 +13,6 @@ namespace NServiceBus.Multicast.Transport.Udp
     public class UdpTransport : IMulticastTransport
     {
         #region config info
-
-        private int numberOfWorkerThreads;
-        public int NumberOfWorkerThreads
-        {
-            set { numberOfWorkerThreads = value; }
-        }
 
         private IPAddress localAddress = IPAddress.Parse("127.0.0.1");
         public string LocalAddress
@@ -47,7 +40,7 @@ namespace NServiceBus.Multicast.Transport.Udp
             this.receiver.DropMulticastGroup(IPAddress.Parse(address));
         }
 
-        public void Publish(Msg message, string address)
+        public void Publish(TransportMessage message, string address)
         {
             MemoryStream ms = new MemoryStream();
 
@@ -61,6 +54,32 @@ namespace NServiceBus.Multicast.Transport.Udp
 
         #region ITransport Members
 
+        private int _numberOfWorkerThreads;
+        public int NumberOfWorkerThreads
+        {
+            get
+            {
+                lock (this.workerThreads)
+                    return this.workerThreads.Count;
+            }
+            set
+            {
+                _numberOfWorkerThreads = value;
+            }
+        }
+
+        public IList<Type> MessageTypesToBeReceived
+        {
+            set { }
+        }
+
+        public string Address
+        {
+            get { return Dns.GetHostAddresses(Dns.GetHostName())[0].ToString(); }
+        }
+
+        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
+
         public void Start()
         {
             this.sender = new UdpClient();
@@ -72,25 +91,53 @@ namespace NServiceBus.Multicast.Transport.Udp
             this.receiver.Client.MulticastLoopback = false;
             this.receiver.Client.Bind(new IPEndPoint(this.localAddress, this.port));
 
-            this.threads = new List<WorkerThread>(this.numberOfWorkerThreads);
-            for (int i = 0; i < this.numberOfWorkerThreads; i++)
-                threads.Add(new WorkerThread(ReceiveMessage));
-
-            foreach (WorkerThread thread in this.threads)
-                thread.Start();
+            for (int i = 0; i < this._numberOfWorkerThreads; i++)
+                this.AddWorkerThread().Start();
         }
 
-        public IList<Type> MessageTypesToBeReceived
+        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            set {  }
+            lock (this.workerThreads)
+            {
+                int current = this.workerThreads.Count;
+
+                if (targetNumberOfWorkerThreads == current)
+                    return;
+
+                if (targetNumberOfWorkerThreads < current)
+                {
+                    for (int i = targetNumberOfWorkerThreads; i < current; i++)
+                        this.workerThreads[i].Stop();
+
+                    return;
+                }
+
+                if (targetNumberOfWorkerThreads > current)
+                {
+                    for (int i = current; i < targetNumberOfWorkerThreads; i++)
+                        this.AddWorkerThread().Start();
+
+                    return;
+                }
+            }
         }
 
-        public void Send(Msg m, string destination)
+        public void StopSendingReadyMessages()
+        {
+            this.canSendReadyMessages = false;
+        }
+
+        public void ContinueSendingReadyMessages()
+        {
+            this.canSendReadyMessages = true;
+        }
+
+        public void Send(TransportMessage m, string destination)
         {
             this.Send(m, destination, false, TimeSpan.MaxValue);
         }
 
-        public void Send(Msg m, string destination, bool recoverable, TimeSpan timeToBeReceived)
+        public void Send(TransportMessage m, string destination, bool recoverable, TimeSpan timeToBeReceived)
         {
             MemoryStream stream = new MemoryStream();
             this.formatter.Serialize(stream, m);
@@ -100,21 +147,14 @@ namespace NServiceBus.Multicast.Transport.Udp
             this.sender.Send(toSend, toSend.Length, destination, this.port);
         }
 
-        public void ReceiveMessageLater(Msg m)
+        public void ReceiveMessageLater(TransportMessage m)
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public string Address
-        {
-            get { return Dns.GetHostAddresses(Dns.GetHostName())[0].ToString(); }
-        }
-
-        public event EventHandler<MsgReceivedEventArgs> MsgReceived;
-
         public void Dispose()
         {
-            foreach(WorkerThread thread in this.threads)
+            foreach(WorkerThread thread in this.workerThreads)
                 thread.Stop();
 
             this.receiver.Close();
@@ -124,7 +164,7 @@ namespace NServiceBus.Multicast.Transport.Udp
 
         #region helper methods
 
-        private void ReceiveMessage()
+        private void Receive()
         {
             IPEndPoint from = null;
             byte[] message = this.receiver.Receive(ref from);
@@ -132,10 +172,10 @@ namespace NServiceBus.Multicast.Transport.Udp
             try
             {
                 MemoryStream stream = new MemoryStream(message);
-                Msg result = this.formatter.Deserialize(stream) as Msg;
+                TransportMessage result = this.formatter.Deserialize(stream) as TransportMessage;
 
-                if (this.MsgReceived != null)
-                    this.MsgReceived(this, new MsgReceivedEventArgs(result));
+                if (this.TransportMessageReceived != null)
+                    this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
             }
             catch (Exception ex)
             {
@@ -144,14 +184,38 @@ namespace NServiceBus.Multicast.Transport.Udp
             }
         }
 
+        private WorkerThread AddWorkerThread()
+        {
+            lock (this.workerThreads)
+            {
+                WorkerThread result = new WorkerThread(this.Receive);
+
+                this.workerThreads.Add(result);
+
+                result.Stopped += delegate(object sndr, EventArgs e)
+                                      {
+                                          WorkerThread wt = sndr as WorkerThread;
+                                          lock (this.workerThreads)
+                                              this.workerThreads.Remove(wt);
+                                      };
+
+                return result;
+            }
+        }
+
         #endregion
 
         #region fields
 
         private BinaryFormatter formatter = new BinaryFormatter();
-        private IList<WorkerThread> threads;
+        private IList<WorkerThread> workerThreads = new List<WorkerThread>();
         private UdpClient sender;
         private UdpClient receiver;
+
+        /// <summary>
+        /// Accessed by multiple threads.
+        /// </summary>
+        private volatile bool canSendReadyMessages = true;
 
         private static ILog logger = LogManager.GetLogger(typeof(UdpTransport).Name);
         private static ILog unhandledMessages = LogManager.GetLogger(typeof(UdpTransport).Name + ":Unhandled");

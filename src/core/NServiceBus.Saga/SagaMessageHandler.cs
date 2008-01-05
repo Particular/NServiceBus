@@ -50,15 +50,11 @@ namespace NServiceBus.Saga
 
             saga.Id = GuidCombGenerator.Generate();
 
-		    using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-            {
-                HandleMessageOnSaga(saga, message);
+            HandleMessageOnSaga(saga, message);
 
-                if (saga.Completed)
-                    persister.Complete(saga);
-                else
+            if (!saga.Completed)
+    		    using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
                     persister.Save(saga);
-            }
 
             LogIfSagaCompleted(saga);
         }

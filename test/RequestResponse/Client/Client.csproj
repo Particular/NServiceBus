@@ -52,10 +52,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Async, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Async.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>

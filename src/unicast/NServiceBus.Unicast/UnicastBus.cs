@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast
             {
                 transport = value;
 
-                this.transport.MsgReceived += transport_MsgReceived;
+                this.transport.TransportMessageReceived += transport_TransportMessageReceived;
             }
         }
 
@@ -50,7 +50,7 @@ namespace NServiceBus.Unicast
 		/// event.
 		/// </summary>
 		/// <param name="message">The message received.</param>
-        public delegate void MessageReceivedDelegate(Msg message);
+        public delegate void MessageReceivedDelegate(TransportMessage message);
 
 		/// <summary>
 		/// Event raised when a message is received.
@@ -98,7 +98,7 @@ namespace NServiceBus.Unicast
 		/// Sets whether or not the bus should impersonate the sender
 		/// of a message it has received when re-sending the message.
 		/// What occurs is that the thread sets its current principal
-        /// to the value found in the <see cref="Msg.WindowsIdentityName" />
+        /// to the value found in the <see cref="TransportMessage.WindowsIdentityName" />
         /// when that thread handles a message.
 		/// </summary>
         public bool ImpersonateSender
@@ -235,7 +235,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">The messages to send.</param>
         public void Reply(params IMessage[] messages)
         {
-            Msg toSend = this.GetMsgFor(messages);
+            TransportMessage toSend = this.GetTransportMessageFor(messages);
 
             toSend.CorrelationId = messageBeingHandled.Id;
 
@@ -271,7 +271,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">The messages to handle later.</param>
         public void HandleMessagesLater(params IMessage[] messages)
         {
-            Msg m = this.GetMsgFor(messages);
+            TransportMessage m = this.GetTransportMessageFor(messages);
 
             this.HandleMsgLater(m);
         }
@@ -282,7 +282,7 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
-            Msg m = this.GetMsgFor(messages);
+            TransportMessage m = this.GetTransportMessageFor(messages);
 
             this.transport.ReceiveMessageLater(m);
         }
@@ -315,7 +315,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
         public ICallback Send(string destination, params IMessage[] messages)
         {
-            Msg toSend = this.GetMsgFor(messages);
+            TransportMessage toSend = this.GetTransportMessageFor(messages);
             this.transport.Send(toSend, destination);
 
             Callback result = new Callback(toSend.Id);
@@ -385,15 +385,14 @@ namespace NServiceBus.Unicast
 		/// run by multiple threads so must be thread safe
 		/// public for testing
 		/// </remarks>
-		public void HandleMessage(Msg m)
+		public void HandleMessage(TransportMessage m)
         {
             if (this.subscriptionsManager.HandledSubscriptionMessage(m))
                 return;
 
             this.ForwardMessageIfNecessary(m);
 
-            if (this.HandledCompletionMessage(m))
-                return;
+            this.HandleCorellatedMessage(m);
 
             if (this.impersonateSender)
                 Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]);
@@ -439,7 +438,10 @@ namespace NServiceBus.Unicast
                     log.Debug(messageHandlerType.Name + " Done.");
 
                     if (doNotContinueDispatchingCurrentMessageToHandlers)
+                    {
+                        doNotContinueDispatchingCurrentMessageToHandlers = false;
                         return false;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -470,53 +472,52 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Returns whether or not the message is a completion message.
+		/// If the message contains a correlationId, attempts to
+		/// invoke callbacks for that Id.
 		/// </summary>
 		/// <param name="msg">The message to evaluate.</param>
-		/// <returns>true if the message is an ErrorMessage, otherwise false.</returns>
-        private bool HandledCompletionMessage(Msg msg)
+        private void HandleCorellatedMessage(TransportMessage msg)
         {
-            if (msg.Body.Length != 1)
-                return false;
+            if (msg.CorrelationId == null)
+                return;
 
-            CompletionMessage errorMessage = msg.Body[0] as CompletionMessage;
-            if (errorMessage != null)
+            BusAsyncResult busAsyncResult;
+
+            lock (this.messageIdToAsyncResultLookup)
             {
-                if (msg.CorrelationId == null)
-                    return true;
-
-                BusAsyncResult busAsyncResult;
-
-                lock (this.messageIdToAsyncResultLookup)
-                {
-                    this.messageIdToAsyncResultLookup.TryGetValue(msg.CorrelationId, out busAsyncResult);
-                    this.messageIdToAsyncResultLookup.Remove(msg.CorrelationId);
-                }
-
-                if (busAsyncResult != null)
-                    busAsyncResult.Complete(errorMessage.ErrorCode);
-
-                return true;
+                this.messageIdToAsyncResultLookup.TryGetValue(msg.CorrelationId, out busAsyncResult);
+                this.messageIdToAsyncResultLookup.Remove(msg.CorrelationId);
             }
 
-            return false;
+            if (busAsyncResult != null)
+                if (msg.Body != null)
+                {
+                    if (msg.Body.Length == 1)
+                    {
+                        CompletionMessage cm = msg.Body[0] as CompletionMessage;
+                        if (cm != null)
+                            busAsyncResult.Complete(cm.ErrorCode, null);
+                    }
+                    else
+                        busAsyncResult.Complete(int.MinValue, msg.Body);
+                }
         }
 
 		/// <summary>
-		/// Handles the <see cref="ITransport.MsgReceived"/> event from the <see cref="ITransport"/> used
+        /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
 		/// for the bus.
 		/// </summary>
 		/// <param name="sender">The sender of the event.</param>
 		/// <param name="e">The arguments for the event.</param>
 		/// <remarks>
-		/// When the transport passes up the <see cref="Msg"/> its received,
+        /// When the transport passes up the <see cref="TransportMessage"/> its received,
 		/// the bus checks for initializiation, 
 		/// sets the message as that which is currently being handled for the current thread
 		/// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
 		/// </remarks>
-        private void transport_MsgReceived(object sender, MsgReceivedEventArgs e)
+        private void transport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            Msg msg = e.Message;
+            TransportMessage msg = e.Message;
 
             if (IsInitializationMessage(msg))
             {
@@ -552,7 +553,7 @@ namespace NServiceBus.Unicast
 		/// <returns>true if the message is an initialization message, otherwise false.</returns>
 		/// <remarks>
 		/// A <see cref="CompletionMessage"/> is used out of convenience as the initialization message.</remarks>
-        private bool IsInitializationMessage(Msg msg)
+        private bool IsInitializationMessage(TransportMessage msg)
         {
             if (!msg.ReturnAddress.Contains(this.transport.Address))
                 return false;
@@ -606,7 +607,7 @@ namespace NServiceBus.Unicast
         /// if it isn't null.
         /// </summary>
         /// <param name="m">The message to forward</param>
-        private void ForwardMessageIfNecessary(Msg m)
+        private void ForwardMessageIfNecessary(TransportMessage m)
         {
             if (this.forwardReceivedMessagesTo != null)
                 this.transport.Send(m, this.forwardReceivedMessagesTo);
@@ -616,7 +617,7 @@ namespace NServiceBus.Unicast
 		/// Requeues a message to be handled later.
 		/// </summary>
 		/// <param name="m">The message to requeue.</param>
-        private void HandleMsgLater(Msg m)
+        private void HandleMsgLater(TransportMessage m)
         {
             if (this.distributorDataAddress != null)
                 if (messageBeingHandled != null)
@@ -707,9 +708,9 @@ namespace NServiceBus.Unicast
 		/// </summary>
 		/// <param name="messages">The messages to wrap.</param>
 		/// <returns>The envelope containing the messages.</returns>
-        protected Msg GetMsgFor(params IMessage[] messages)
+        protected TransportMessage GetTransportMessageFor(params IMessage[] messages)
         {
-            Msg result = new Msg();
+            TransportMessage result = new TransportMessage();
             result.Body = messages;
             result.ReturnAddress = this.transport.Address;
             result.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
@@ -745,25 +746,44 @@ namespace NServiceBus.Unicast
             Type parent = t.BaseType;
             while (parent != typeof(Object))
             {
-                if (parent.IsGenericType)
+                Type messageType = this.GetMessageTypeFromMessageHandler(parent);
+                if (messageType != null)
                 {
-                    Type[] args = parent.GetGenericArguments();
-                    if (args.Length != 1)
-                        continue;
-
-                    if (!typeof(IMessage).IsAssignableFrom(args[0]))
-                        continue;
-
-                    Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
-                    if (handlerType.IsAssignableFrom(parent))
-                    {
-                        this.RegisterHandlerTypeForMessageType(t, args[0]);
-                        break;
-                    }
+                    this.RegisterHandlerTypeForMessageType(t, messageType);
+                    return;
                 }
 
                 parent = parent.BaseType;
             }
+
+            foreach(Type interfaceType in t.GetInterfaces())
+            {
+                Type messageType = this.GetMessageTypeFromMessageHandler(interfaceType);
+                if (messageType != null)
+                {
+                    this.RegisterHandlerTypeForMessageType(t, messageType);
+                    return;
+                }
+            }
+        }
+
+        private Type GetMessageTypeFromMessageHandler(Type t)
+        {
+            if (t.IsGenericType)
+            {
+                Type[] args = t.GetGenericArguments();
+                if (args.Length != 1)
+                    return null;
+
+                if (!typeof(IMessage).IsAssignableFrom(args[0]))
+                    return null;
+
+                Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
+                if (handlerType.IsAssignableFrom(t))
+                    return args[0];
+            }
+
+            return null;
         }
 
 		/// <summary>
@@ -843,7 +863,7 @@ namespace NServiceBus.Unicast
         /// ThreadStatic
 		/// </remarks>
         [ThreadStatic]
-        static Msg messageBeingHandled;
+        static TransportMessage messageBeingHandled;
 
         private static ILog log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion

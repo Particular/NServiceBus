@@ -26,12 +26,22 @@ cd ..\..\..\src\distributor\MsmqWorkerAvailabilityManager
 msbuild
 cd ..\..\..\src\distributor\NServiceBus.Unicast.Distributor.Runner
 msbuild
-cd ..\..\..\test\Messages
+cd ..\..\..\src\grid
+msbuild
+cd ..\..\src\tools\management\Grid
+msbuild
+cd ..\..\..\..\test\Messages
 msbuild
 cd ..\..\test\Client
 msbuild
 cd ..\..\test\Server
 msbuild
 cd ..\..\test\Worker
+msbuild
+cd ..\..\test\RequestResponse
+msbuild
+cd ..\..\Samples\AsyncPages
+msbuild
+cd ..\..\Samples\WebServiceBridge
 msbuild
 cd ..\..\

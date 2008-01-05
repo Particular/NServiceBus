@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using NServiceBus.Unicast.Transport;
 using System.Messaging;
 using NServiceBus.Unicast.Transport.Msmq;
@@ -19,14 +18,14 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Gets all messages from the subscription store.
 		/// </summary>
 		/// <returns>A list of all the messages in the subscription store.</returns>
-        public IList<Msg> GetAllMessages()
+        public IList<TransportMessage> GetAllMessages()
         {
-            Message[] msgs = this.q.GetAllMessages();
+            Message[] TransportMessages = this.q.GetAllMessages();
 
-            IList<Msg> result = new List<Msg>(msgs.Length);
-            foreach (Message m in msgs)
+            IList<TransportMessage> result = new List<TransportMessage>(TransportMessages.Length);
+            foreach (Message m in TransportMessages)
             {
-                Msg toAdd = m.Body as Msg;
+                TransportMessage toAdd = m.Body as TransportMessage;
 
                 result.Add(toAdd);
             }
@@ -38,7 +37,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Adds a message to the subscription store.
 		/// </summary>
 		/// <param name="m">The message to add.</param>
-        public void Add(Msg m)
+        public void Add(TransportMessage m)
         {
             Message toSend = new Message(m, this.q.Formatter);
             toSend.Recoverable = true;
@@ -56,9 +55,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Removes a message from the subscription store.
 		/// </summary>
 		/// <param name="m">The message to remove.</param>
-        public void Remove(Msg m)
+        public void Remove(TransportMessage m)
         {
-            string messageId = null;
+            string messageId;
 
             lock (this.lookup)
             {
@@ -133,7 +132,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// </summary>
 		/// <param name="m">The message to add to the lookup.</param>
 		/// <param name="messageId">The id of the message.</param>
-        private void AddToLookup(Msg m, string messageId)
+        private void AddToLookup(TransportMessage m, string messageId)
         {
             lock (this.lookup)
             {
@@ -150,9 +149,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// </summary>
         private void Init()
         {
-            IList<Msg> messages = this.GetAllMessages();
+            IList<TransportMessage> messages = this.GetAllMessages();
 
-            foreach (Msg m in messages)
+            foreach (TransportMessage m in messages)
                 this.AddToLookup(m, m.Id);
         }
 

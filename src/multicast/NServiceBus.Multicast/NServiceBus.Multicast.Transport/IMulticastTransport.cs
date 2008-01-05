@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Multicast.Transport
@@ -11,6 +8,6 @@ namespace NServiceBus.Multicast.Transport
 
         void Unsubscribe(string address);
 
-        void Publish(Msg message, string address);
+        void Publish(TransportMessage message, string address);
     }
 }

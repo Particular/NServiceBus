@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.Xml;
@@ -10,7 +9,6 @@ namespace NServiceBus.Unicast.Transport.WCF
     public class XmlSerializerWrapper : XmlObjectSerializer
     {
         private XmlSerializer serializer;
-        private const string xmlNamespace = "http://tempuri.org/";
 
         public XmlSerializerWrapper(Type type, IEnumerable<Type> extraTypes)
         {
@@ -69,7 +67,7 @@ namespace NServiceBus.Unicast.Transport.WCF
         {
             object result = this.serializer.Deserialize(reader);
 
-            Msg m = result as Msg;
+            TransportMessage m = result as TransportMessage;
             if (m != null)
                 m.CopyMessagesToBody();
 

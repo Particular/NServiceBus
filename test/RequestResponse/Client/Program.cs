@@ -2,7 +2,6 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
-using NServiceBus.Async;
 
 namespace Client
 {

@@ -2,7 +2,6 @@ using System;
 using System.Web.UI;
 using Messages;
 using NServiceBus;
-using NServiceBus.Async;
 
 namespace WebApplication1
 {

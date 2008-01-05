@@ -97,21 +97,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { purgeOnStartup = value; }
         }
 
-        private int numberOfWorkerThreads;
-
-		/// <summary>
-		/// Sets the number of concurrent threads that should be
-		/// created for processing the queue. This value will be used by the <see cref="Start"/>
-		/// method only and will have no effect if called afterwards.
-		/// </summary>
-        public int NumberOfWorkerThreads
-        {
-            set
-            {
-                numberOfWorkerThreads = value;
-            }
-        }
-
         private string distributorControlAddress;
 
 		/// <summary>
@@ -145,10 +130,38 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #region ITransport Members
 
+        private int _numberOfWorkerThreads;
+
+        /// <summary>
+        /// Gets/sets the number of concurrent threads that should be
+        /// created for processing the queue.
+        /// 
+        /// Get returns the actual number of running worker threads, which may
+        /// be different than the originally configured value.
+        /// 
+        /// When used as a setter, this value will be used by the <see cref="Start"/>
+        /// method only and will have no effect if called afterwards.
+        /// 
+        /// To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads"/>.
+        /// </summary>
+        public int NumberOfWorkerThreads
+        {
+            get
+            {
+                lock (this.workerThreads)
+                    return this.workerThreads.Count;
+            }
+            set
+            {
+                _numberOfWorkerThreads = value;
+            }
+        }
+
+
 		/// <summary>
 		/// Event raised when a message has been received in the input queue.
 		/// </summary>
-        public event EventHandler<MsgReceivedEventArgs> MsgReceived;
+        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
 		/// <summary>
 		/// Gets the address of the input queue.
@@ -177,7 +190,44 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-		/// <summary>
+        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
+        {
+            lock (this.workerThreads)
+            {
+                int current = this.workerThreads.Count;
+
+                if (targetNumberOfWorkerThreads == current)
+                    return;
+
+                if (targetNumberOfWorkerThreads < current)
+                {
+                    for (int i = targetNumberOfWorkerThreads; i < current; i++)
+                        this.workerThreads[i].Stop();
+
+                    return;
+                }
+
+                if (targetNumberOfWorkerThreads > current)
+                {
+                    for (int i = current; i < targetNumberOfWorkerThreads; i++)
+                        this.AddWorkerThread().Start();
+
+                    return;
+                }
+            }
+        }
+
+        public void StopSendingReadyMessages()
+        {
+            this.canSendReadyMessages = false;
+        }
+
+        public void ContinueSendingReadyMessages()
+        {
+            this.canSendReadyMessages = true;
+        }
+
+	    /// <summary>
 		/// Starts the transport.
 		/// </summary>
         public void Start()
@@ -188,7 +238,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             lock(readyMessageLocker)
                 readyMessageStartup = true;
 
-            for (int i = 0; i < this.numberOfWorkerThreads; i++)
+            for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
         }
 
@@ -200,7 +250,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Note that this method will place the message onto the back of the queue
 		/// which may break message ordering.
 		/// </remarks>
-        public void ReceiveMessageLater(Msg m)
+        public void ReceiveMessageLater(TransportMessage m)
         {
             this.Send(m, this.Address);
         }
@@ -210,7 +260,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
 		/// <param name="m">The message to send.</param>
 		/// <param name="destination">The address of the destination to send the message to.</param>
-        public void Send(Msg m, string destination)
+        public void Send(TransportMessage m, string destination)
         {
             string address = Resolve(destination);
 
@@ -278,13 +328,20 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private void Receive()
         {
             if (this.distributorControlAddress != null)
-                if (!sentReadyMessage && !disabled)
+                if (!sentReadyMessage && this.canSendReadyMessages)
                     SendReadyMessage();
 
-            IAsyncResult ar = this.queue.BeginPeek();
-            ar.AsyncWaitHandle.WaitOne();
+            try
+            {
+                this.queue.Peek(TimeSpan.FromMilliseconds(1000));
+            }
+            catch (MessageQueueException mqe)
+            {
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                    return;
+            }
 
-            if (this.isTransactional)
+		    if (this.isTransactional)
                 new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue);
             else
                 this.ReceiveFromQueue();
@@ -301,7 +358,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	                readyMessageStartup = false;
 	            }
 
-	        Msg ready = new Msg();
+	        TransportMessage ready = new TransportMessage();
 	        ready.Body = new IMessage[] { rm };
 	        ready.ReturnAddress = this.Address;
 	        ready.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
@@ -314,7 +371,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Receives a message from the input queue.
 		/// </summary>
 		/// <remarks>
-		/// If a message is received the <see cref="MsgReceived"/> event will be raised.
+		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
 		/// </remarks>
         public void ReceiveFromQueue()
         {
@@ -324,7 +381,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 m = this.queue.Receive(this.GetTransactionTypeForReceive());
 
-                Msg result = Convert(m);
+                TransportMessage result = Convert(m);
 
                 if (this.skipDeserialization)
                     result.BodyStream = m.BodyStream;
@@ -345,14 +402,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                 }
 
-                this.HandleChangeNumberOfWorkerThreads(result);
-                this.HandleGetNumberOfWorkerThreads(result);
-
-                if (!this.disabled)
-                    if (this.MsgReceived != null)
-                        this.MsgReceived(this, new MsgReceivedEventArgs(result));
-
-                this.ReturnMessageToQueueIfWeAreDisabled(result);
+                if (this.TransportMessageReceived != null)
+                    this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
 
                 this.failuresPerMessage.Remove(m.Id);
             }
@@ -389,89 +440,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return;
         }
 
-        private void HandleGetNumberOfWorkerThreads(Msg result)
-        {
-            if (result.Body == null)
-                return;
-
-            if (result.Body.Length != 1)
-                return;
-            
-            GetNumberOfWorkerThreadsMessage message = result.Body[0] as GetNumberOfWorkerThreadsMessage;
-            if (message == null)
-                return;
-
-            Msg response = new Msg();
-            response.CorrelationId = result.Id;
-            response.ReturnAddress = this.Address;
-            response.WindowsIdentityName = result.WindowsIdentityName;
-            response.Recoverable = result.Recoverable;
-            response.TimeToBeReceived = result.TimeToBeReceived;
-            
-            lock(this.workerThreads)
-                response.Body = new IMessage[] { new GotNumberOfWorkerThreadsMessage(this.workerThreads.Count) };
-
-            this.Send(response, result.ReturnAddress);
-        }
-
-        private void ReturnMessageToQueueIfWeAreDisabled(Msg result)
-        {
-            bool returnToQueue = this.disabled;
-
-            if (returnToQueue)
-                if (result.Body.Length == 1)
-                    returnToQueue = !(result.Body[0] is ChangeNumberOfWorkerThreadsMessage);
-                
-            if (returnToQueue)
-                this.Send(result, this.Address);
-        }
-
-        private void HandleChangeNumberOfWorkerThreads(Msg result)
-        {
-            if (result.Body == null)
-                return;
-
-            if (result.Body.Length != 1)
-                return;
-
-            ChangeNumberOfWorkerThreadsMessage message = result.Body[0] as ChangeNumberOfWorkerThreadsMessage;
-            if (message == null)
-                return;
-
-            lock(this.workerThreads)
-            {
-                int target = message.NumberOfWorkerThreads;
-                int current = this.workerThreads.Count;
-
-                if (target <= 0)
-                {
-                    this.disabled = true;
-                    target = 1; // always leave one thread to receive requests to increase thread count again
-                }
-                else
-                    this.disabled = false;
-
-                if (target == current)
-                    return;
-
-                if (target < current)
-                {
-                    for(int i=target; i < current; i++)
-                        this.workerThreads[i].Stop();
-
-                    return;
-                }
-
-                if (target > current)
-                {
-                    for (int i = current; i < target; i++)
-                        this.AddWorkerThread().Start();
-
-                    return;
-                }
-            }
-        }
-
 		/// <summary>
 		/// Checks whether or not a queue is local by its path.
 		/// </summary>
@@ -494,9 +462,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
 		/// <param name="m">The MSMQ message to convert.</param>
 		/// <returns>An NServiceBus message.</returns>
-        public static Msg Convert(Message m)
+        public static TransportMessage Convert(Message m)
         {
-            Msg result = new Msg();
+            TransportMessage result = new TransportMessage();
             result.Id = m.Id;
             result.CorrelationId = (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0" ? null : m.CorrelationId);
             result.Recoverable = m.Recoverable;
@@ -614,12 +582,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (!types.Contains(typeof(List<object>)))
                 types.Add(typeof(List<object>));
-            if (!types.Contains(typeof(ChangeNumberOfWorkerThreadsMessage)))
-                types.Add(typeof(ChangeNumberOfWorkerThreadsMessage));
-            if (!types.Contains(typeof(GetNumberOfWorkerThreadsMessage  )))
-                types.Add(typeof(GetNumberOfWorkerThreadsMessage));
-            if (!types.Contains(typeof(GotNumberOfWorkerThreadsMessage)))
-                types.Add(typeof(GotNumberOfWorkerThreadsMessage));
 
             return types.ToArray();
         }
@@ -657,14 +619,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
         static bool sentReadyMessage;
 
         /// <summary>
+        /// Accessed by multiple threads.
+        /// </summary>
+	    private volatile bool canSendReadyMessages = true;
+
+        /// <summary>
         /// Accessed by multiple threads - lock before using.
         /// </summary>
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 
         static bool readyMessageStartup;
         static readonly object readyMessageLocker = new object();
-
-	    private bool disabled = false;
 
         private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
 

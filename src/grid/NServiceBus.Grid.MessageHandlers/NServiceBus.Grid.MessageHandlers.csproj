@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D142D372-C9FA-4505-A6EB-E919746F0FF1}</ProjectGuid>
+    <ProjectGuid>{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Distributor</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Distributor</AssemblyName>
+    <RootNamespace>NServiceBus.Grid.MessageHandlers</RootNamespace>
+    <AssemblyName>NServiceBus.Grid.MessageHandlers</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,35 +28,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+    <Reference Include="NServiceBus, Version=1.0.0.32740, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.779, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.17439, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.MessageHandlers.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Distributor.cs" />
-    <Compile Include="IWorkerAvailabilityManager.cs" />
+    <Compile Include="ChangeNumberOfWorkerThreadsMessageHandler.cs" />
+    <Compile Include="GetNumberOfWorkerThreadsMessageHandler.cs" />
+    <Compile Include="GridInterceptingMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadyMessageHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Grid.Messages\NServiceBus.Grid.Messages.csproj">
+      <Project>{1C22F3DF-F020-491D-A680-5AE98D390140}</Project>
+      <Name>NServiceBus.Grid.Messages</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -67,6 +64,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\build"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\build\grid\core\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

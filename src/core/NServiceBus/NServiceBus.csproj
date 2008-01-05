@@ -34,19 +34,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseMessageHandler.cs" />
+    <Compile Include="CompletionResult.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="ICallback.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Async\NServiceBus.Async.csproj">
-      <Project>{B9B861C6-100A-4808-9ECE-339C22A0EF6E}</Project>
-      <Name>NServiceBus.Async</Name>
-      <Private>False</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

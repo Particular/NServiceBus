@@ -32,6 +32,7 @@ namespace UI
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.ManagedEndpointList = new System.Windows.Forms.ListBox();
+            this.DeleteManagedEndpoint = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.MessagesInEndpoint = new System.Windows.Forms.Label();
             this.ClearManagedEndpoint = new System.Windows.Forms.Button();
@@ -43,6 +44,7 @@ namespace UI
             this.label1 = new System.Windows.Forms.Label();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.WorkerList = new System.Windows.Forms.ListBox();
+            this.DeleteWorker = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.DecreaseWorkerThreads = new System.Windows.Forms.Button();
             this.IncreaseWorkerThreads = new System.Windows.Forms.Button();
@@ -56,8 +58,6 @@ namespace UI
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DeleteWorker = new System.Windows.Forms.Button();
-            this.DeleteManagedEndpoint = new System.Windows.Forms.Button();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.splitContainer1.Panel1.SuspendLayout();
@@ -126,6 +126,16 @@ namespace UI
             this.ManagedEndpointList.Size = new System.Drawing.Size(254, 186);
             this.ManagedEndpointList.TabIndex = 0;
             this.ManagedEndpointList.SelectedIndexChanged += new System.EventHandler(this.ManagedEndpointList_SelectedIndexChanged);
+            // 
+            // DeleteManagedEndpoint
+            // 
+            this.DeleteManagedEndpoint.Location = new System.Drawing.Point(99, 94);
+            this.DeleteManagedEndpoint.Name = "DeleteManagedEndpoint";
+            this.DeleteManagedEndpoint.Size = new System.Drawing.Size(61, 23);
+            this.DeleteManagedEndpoint.TabIndex = 14;
+            this.DeleteManagedEndpoint.Text = "Delete";
+            this.DeleteManagedEndpoint.UseVisualStyleBackColor = true;
+            this.DeleteManagedEndpoint.Click += new System.EventHandler(this.DeleteManagedEndpoint_Click);
             // 
             // groupBox1
             // 
@@ -241,6 +251,16 @@ namespace UI
             this.WorkerList.Size = new System.Drawing.Size(301, 212);
             this.WorkerList.TabIndex = 0;
             this.WorkerList.SelectedIndexChanged += new System.EventHandler(this.WorkersList_SelectedIndexChanged);
+            // 
+            // DeleteWorker
+            // 
+            this.DeleteWorker.Location = new System.Drawing.Point(125, 71);
+            this.DeleteWorker.Name = "DeleteWorker";
+            this.DeleteWorker.Size = new System.Drawing.Size(61, 23);
+            this.DeleteWorker.TabIndex = 13;
+            this.DeleteWorker.Text = "Delete";
+            this.DeleteWorker.UseVisualStyleBackColor = true;
+            this.DeleteWorker.Click += new System.EventHandler(this.DeleteWorker_Click);
             // 
             // groupBox2
             // 
@@ -368,30 +388,10 @@ namespace UI
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // DeleteWorker
-            // 
-            this.DeleteWorker.Location = new System.Drawing.Point(125, 71);
-            this.DeleteWorker.Name = "DeleteWorker";
-            this.DeleteWorker.Size = new System.Drawing.Size(61, 23);
-            this.DeleteWorker.TabIndex = 13;
-            this.DeleteWorker.Text = "Delete";
-            this.DeleteWorker.UseVisualStyleBackColor = true;
-            this.DeleteWorker.Click += new System.EventHandler(this.DeleteWorker_Click);
-            // 
-            // DeleteManagedEndpoint
-            // 
-            this.DeleteManagedEndpoint.Location = new System.Drawing.Point(99, 94);
-            this.DeleteManagedEndpoint.Name = "DeleteManagedEndpoint";
-            this.DeleteManagedEndpoint.Size = new System.Drawing.Size(61, 23);
-            this.DeleteManagedEndpoint.TabIndex = 14;
-            this.DeleteManagedEndpoint.Text = "Delete";
-            this.DeleteManagedEndpoint.UseVisualStyleBackColor = true;
-            this.DeleteManagedEndpoint.Click += new System.EventHandler(this.DeleteManagedEndpoint_Click);
-            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 

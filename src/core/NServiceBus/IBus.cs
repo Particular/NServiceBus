@@ -75,10 +75,10 @@ namespace NServiceBus
 
 
 		/// <summary>
-		/// Returns an completion message with the specified error code to the sender
+		/// Returns a completion message with the specified error code to the sender
 		/// of the message being handled.
 		/// </summary>
-		/// <param name="errorCode">An code specifying the result.</param>
+		/// <param name="errorCode">A code specifying the result.</param>
         void Return(int errorCode);
 
 		/// <summary>

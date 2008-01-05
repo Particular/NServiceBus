@@ -27,18 +27,42 @@ namespace NServiceBus.Unicast.Transport.WCF
 
             this.host = new ServiceHost(typeof(OneWayService), new Uri(baseAddress));
 
-            ServiceEndpoint endpoint = this.host.AddServiceEndpoint(typeof(IOneWay), binding, address);
+            this.endpoint = this.host.AddServiceEndpoint(typeof(IOneWay), binding, address);
 
             this.address = endpoint.Address.Uri.AbsoluteUri;
         }
 
         void service_MessageReceived(object sender, MessageEventArgs e)
         {
-            if (this.MsgReceived != null)
-                this.MsgReceived(this, new MsgReceivedEventArgs(this.Convert(e.Message)));
+            if (this.TransportMessageReceived != null)
+                this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(this.Convert(e.Message)));
         }
 
         #region ITransport Members
+
+        public int NumberOfWorkerThreads
+        {
+            get
+            {
+                //TODO: Implement this using ServiceThrottlingBehavior 
+                return 1;
+            }
+        }
+
+        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
+        {
+            //TODO: Implement this using ServiceThrottlingBehavior 
+        }
+
+        public void StopSendingReadyMessages()
+        {
+            //TODO: Implement this
+        }
+
+        public void ContinueSendingReadyMessages()
+        {
+            //TODO: Implement this
+        }
 
         private readonly string address;
         public string Address
@@ -55,18 +79,18 @@ namespace NServiceBus.Unicast.Transport.WCF
             {
                 ConstructorInfo ci = this.xmlObjectSerializerType.GetConstructor(new Type[] { typeof(Type), typeof(IEnumerable<Type>) });
                 if (ci != null)
-                    this.serializer = ci.Invoke(new object[] { typeof(Msg), value }) as XmlObjectSerializer;
+                    this.serializer = ci.Invoke(new object[] { typeof(TransportMessage), value }) as XmlObjectSerializer;
             }
         }
 
-        public event EventHandler<MsgReceivedEventArgs> MsgReceived;
+        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         public void Start()
         {
             this.host.Open();
         }
 
-        public void Send(Msg m, string destination)
+        public void Send(TransportMessage m, string destination)
         {
             ICommunicationObject comm = this.channelFactory;
             if (comm.State != CommunicationState.Opened)
@@ -84,7 +108,7 @@ namespace NServiceBus.Unicast.Transport.WCF
             ((ICommunicationObject) sendChannel).BeginClose(null, null);
         }
 
-        public void ReceiveMessageLater(Msg m)
+        public void ReceiveMessageLater(TransportMessage m)
         {
             throw new NotImplementedException();
         }
@@ -98,12 +122,12 @@ namespace NServiceBus.Unicast.Transport.WCF
 
         #region helper methods
 
-        private Message Convert(Msg msg)
+        private Message Convert(TransportMessage TransportMessage)
         {
-            object body = msg.Body;
+            object body = TransportMessage.Body;
 
             if (binding.MessageVersion.Addressing == AddressingVersion.None)
-                body = msg;
+                body = TransportMessage;
 
             Message wcfMessage = Message.CreateMessage(binding.MessageVersion, "*", body, this.serializer);
 
@@ -112,31 +136,31 @@ namespace NServiceBus.Unicast.Transport.WCF
                 wcfMessage.Headers.ReplyTo = new EndpointAddress(new Uri(this.address));
                 wcfMessage.Headers.MessageId = new System.Xml.UniqueId(Guid.NewGuid());
 
-                if (msg.CorrelationId != null)
-                    wcfMessage.Headers.RelatesTo = new System.Xml.UniqueId(msg.CorrelationId);
+                if (TransportMessage.CorrelationId != null)
+                    wcfMessage.Headers.RelatesTo = new System.Xml.UniqueId(TransportMessage.CorrelationId);
             }
 
             return wcfMessage;
         }
 
-        private Msg Convert(Message m)
+        private TransportMessage Convert(Message m)
         {
-            Msg msg = new Msg();
+            TransportMessage TransportMessage = new TransportMessage();
 
             if (binding.MessageVersion.Addressing == AddressingVersion.None)
-                msg = m.GetBody<Msg>(this.serializer);
+                TransportMessage = m.GetBody<TransportMessage>(this.serializer);
             else
             {
-                msg.Body = m.GetBody<IMessage[]>(this.serializer);
+                TransportMessage.Body = m.GetBody<IMessage[]>(this.serializer);
 
-                msg.ReturnAddress = m.Headers.ReplyTo.Uri.AbsoluteUri;
-                msg.Id = m.Headers.MessageId.ToString();
+                TransportMessage.ReturnAddress = m.Headers.ReplyTo.Uri.AbsoluteUri;
+                TransportMessage.Id = m.Headers.MessageId.ToString();
 
                 if (m.Headers.RelatesTo != null)
-                    msg.CorrelationId = m.Headers.RelatesTo.ToString();
+                    TransportMessage.CorrelationId = m.Headers.RelatesTo.ToString();
             }
 
-            return msg;
+            return TransportMessage;
         }
 
         #endregion
@@ -144,6 +168,7 @@ namespace NServiceBus.Unicast.Transport.WCF
         #region members
 
         private readonly ServiceHost host;
+        private readonly ServiceEndpoint endpoint;
         private readonly IChannelFactory<IOneWay> channelFactory;
         private readonly Binding binding;
         private XmlObjectSerializer serializer;

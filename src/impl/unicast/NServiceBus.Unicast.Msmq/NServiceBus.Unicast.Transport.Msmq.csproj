@@ -55,9 +55,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangeNumberOfWorkerThreadsMessage.cs" />
-    <Compile Include="GetNumberOfWorkerThreadsMessage.cs" />
-    <Compile Include="GotNumberOfWorkerThreadsMessage.cs" />
     <Compile Include="MsmqTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

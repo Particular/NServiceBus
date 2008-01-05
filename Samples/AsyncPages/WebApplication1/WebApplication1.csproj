@@ -53,10 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Async, Version=1.0.0.19923, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Async.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.19929, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
@@ -124,7 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{ED855B92-C7EB-4BE7-9072-5C2260C329FC}</Project>
+      <Project>{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}</Project>
       <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>

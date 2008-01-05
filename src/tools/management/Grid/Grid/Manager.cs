@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Grid.Messages;
 using NServiceBus;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
