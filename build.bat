@@ -16,7 +16,7 @@ cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
 msbuild
 cd ..\..\..\..\src\impl\ObjectBuilder.SpringFramework
 msbuild
-cd ..\..\..\..\src\multicast\NServiceBus.Multicast
+cd ..\..\..\src\multicast\NServiceBus.Multicast
 msbuild
 cd ..\..\..\src\impl\multicast\NServiceBus.Multicast.Transport.Udp
 msbuild
