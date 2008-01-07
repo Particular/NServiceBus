@@ -121,7 +121,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}</Project>
-      <Name>Messages</Name>
+      <Name>Messages %28Samples\AsyncPages\Messages%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

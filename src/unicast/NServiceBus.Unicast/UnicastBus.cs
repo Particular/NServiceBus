@@ -491,16 +491,14 @@ namespace NServiceBus.Unicast
 
             if (busAsyncResult != null)
                 if (msg.Body != null)
-                {
                     if (msg.Body.Length == 1)
                     {
                         CompletionMessage cm = msg.Body[0] as CompletionMessage;
                         if (cm != null)
                             busAsyncResult.Complete(cm.ErrorCode, null);
+                        else
+                            busAsyncResult.Complete(int.MinValue, msg.Body);
                     }
-                    else
-                        busAsyncResult.Complete(int.MinValue, msg.Body);
-                }
         }
 
 		/// <summary>
@@ -712,7 +710,13 @@ namespace NServiceBus.Unicast
         {
             TransportMessage result = new TransportMessage();
             result.Body = messages;
+            
             result.ReturnAddress = this.transport.Address;
+
+            //if we are a worker, have responses come back through the distributor
+            if (this.distributorDataAddress != null)
+                result.ReturnAddress = this.distributorDataAddress;
+
             result.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
 
             if (this.propogateReturnAddressOnSend)
