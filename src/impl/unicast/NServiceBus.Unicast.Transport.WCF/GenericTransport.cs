@@ -64,6 +64,12 @@ namespace NServiceBus.Unicast.Transport.WCF
             //TODO: Implement this
         }
 
+        public int GetNumberOfPendingMessages()
+        {
+            //TODO: Implement this
+            throw new NotImplementedException();
+        }
+
         private readonly string address;
         public string Address
         {

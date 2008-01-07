@@ -44,16 +44,11 @@ namespace Grid
 
                     endpoints = result as List<ManagedEndpoint>;
                 }
-#pragma warning disable EmptyGeneralCatchClause
                 catch(Exception)
-#pragma warning restore EmptyGeneralCatchClause
                 {
-                    // intenationally swallow exception
+                    // intentionally swallow exception
                 }
             }
-
-            //perfCounter.CategoryName = "MSMQ Queue";
-            //perfCounter.CounterName = "Messages in Queue";
 
             timer.Change(0, refreshInterval*1000);
         }

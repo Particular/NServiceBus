@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NServiceBus.Messages
 {
@@ -11,16 +9,15 @@ namespace NServiceBus.Messages
     [Serializable]
     public class ReadyMessage : IMessage 
     {
-        private bool clearPreviousFromThisAddress;
+        /// <summary>
+        /// Exposes whether or not previous ready messages from the same
+        /// sender should be cleared.
+        /// </summary>
+        public bool ClearPreviousFromThisAddress;
 
-		/// <summary>
-		/// Gets/sets whether or not previous ready messages from the same
-		/// sender should be cleared.
-		/// </summary>
-        public bool ClearPreviousFromThisAddress
-        {
-            get { return clearPreviousFromThisAddress; }
-            set { clearPreviousFromThisAddress = value; }
-        }
+        /// <summary>
+        /// Exposes the number of worker threads the sender is currently running.
+        /// </summary>
+	    public int NumberOfWorkerThreads;
     }
 }

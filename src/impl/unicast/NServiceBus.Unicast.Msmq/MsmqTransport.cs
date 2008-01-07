@@ -130,8 +130,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #region ITransport Members
 
-        private int _numberOfWorkerThreads;
-
         /// <summary>
         /// Gets/sets the number of concurrent threads that should be
         /// created for processing the queue.
@@ -156,6 +154,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 _numberOfWorkerThreads = value;
             }
         }
+        private int _numberOfWorkerThreads;
 
 
 		/// <summary>
@@ -294,6 +293,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
+        public int GetNumberOfPendingMessages()
+        {
+            MSMQ.MSMQManagementClass qMgmt = new MSMQ.MSMQManagementClass();
+            object machine = Environment.MachineName;
+            object missing = Type.Missing;
+            object formatName = this.queue.FormatName;
+
+            qMgmt.Init(ref machine, ref missing, ref formatName);
+            return qMgmt.MessageCount;
+        }
+
         #endregion
 
         #region helper methods
@@ -350,6 +360,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    private void SendReadyMessage()
 	    {
 	        ReadyMessage rm = new ReadyMessage();
+            rm.NumberOfWorkerThreads = this.NumberOfWorkerThreads;
 
 	        lock (readyMessageLocker)
 	            if (readyMessageStartup)

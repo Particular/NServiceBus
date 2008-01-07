@@ -60,6 +60,12 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
 	    void ContinueSendingReadyMessages();
 
+        /// <summary>
+        /// Access the underlying technology to get the number of unhandled messages.
+        /// </summary>
+        /// <returns>The number of pending messages.</returns>
+	    int GetNumberOfPendingMessages();
+
 		/// <summary>
 		/// Gets the address at which the transport receives messages.
 		/// </summary>

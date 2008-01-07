@@ -152,6 +152,11 @@ namespace NServiceBus.Multicast.Transport.Udp
             throw new Exception("The method or operation is not implemented.");
         }
 
+        public int GetNumberOfPendingMessages()
+        {
+            return 1; //TODO: Implement GetNumberOfPendingMessages
+        }
+
         public void Dispose()
         {
             foreach(WorkerThread thread in this.workerThreads)
