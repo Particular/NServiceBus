@@ -48,10 +48,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\Common.Logging.Log4Net.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Logging.Log4Net129, Version=1.0.2.1, Culture=neutral, PublicKeyToken=af08829b84f0328e">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.Log4Net129.dll</HintPath>
-    </Reference>
     <Reference Include="DbBlobSagaPersister, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\impl\SagaPersisters\DbBlobSagaPersister.dll</HintPath>

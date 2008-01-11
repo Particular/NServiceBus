@@ -44,10 +44,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ChangeNumberOfWorkerThreadsMessageHandler.cs" />
     <Compile Include="GetNumberOfWorkerThreadsMessageHandler.cs" />
     <Compile Include="GridInterceptingMessageHandler.cs" />

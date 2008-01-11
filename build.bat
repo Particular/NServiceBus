@@ -40,8 +40,6 @@ cd ..\..\test\Server
 msbuild
 cd ..\..\test\Worker
 msbuild
-cd ..\..\test\RequestResponse
-msbuild
 cd ..\..\Samples\AsyncPages
 msbuild
 cd ..\..\Samples\WebServiceBridge

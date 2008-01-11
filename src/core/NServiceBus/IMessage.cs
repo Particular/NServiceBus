@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
 
 namespace NServiceBus
 {
@@ -48,7 +45,7 @@ namespace NServiceBus
             this.timeToBeReceived = TimeSpan.Parse(timeSpan);
         }
 
-        private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
+        private readonly TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
 		/// <summary>
 		/// Gets the maximum time in which a message must be received.

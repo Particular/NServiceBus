@@ -99,6 +99,8 @@ namespace NServiceBus.Unicast.Transport.WCF
             Message toSend = this.Convert(m);
             sendChannel.Process(toSend);
 
+            logger.Debug("Sent message to " + destination);
+
             m.Id = toSend.Headers.MessageId.ToString();
 
             ((ICommunicationObject) sendChannel).BeginClose(null, null);

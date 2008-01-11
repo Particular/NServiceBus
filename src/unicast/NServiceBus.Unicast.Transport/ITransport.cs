@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NServiceBus.Messages;
 
 namespace NServiceBus.Unicast.Transport
 {

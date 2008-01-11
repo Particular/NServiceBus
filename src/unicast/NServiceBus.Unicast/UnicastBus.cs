@@ -919,14 +919,14 @@ namespace NServiceBus.Unicast
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
-        List<Type> messageTypes = new List<Type>();
-        IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
-        IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
+        private readonly List<Type> messageTypes = new List<Type>();
+        private readonly IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
+        private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
 		/// </remarks>
-        IDictionary<Type, string> messageTypeToDestinationLookup = new Dictionary<Type, string>();
+        private readonly IDictionary<Type, string> messageTypeToDestinationLookup = new Dictionary<Type, string>();
 
 		/// <remarks>
         /// ThreadStatic
