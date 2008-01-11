@@ -9,6 +9,7 @@ CreateQueue ".\private$\subscriptions"
 CreateQueue ".\private$\distributorStorage"
 CreateQueue ".\private$\distributorcontrolbus"
 CreateQueue ".\private$\distributordatabus"
+CreateQueue ".\private$\timeoutmanager"
 CreateQueue ".\private$\worker"
 CreateQueue ".\private$\worker2"
 

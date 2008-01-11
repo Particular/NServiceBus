@@ -54,20 +54,10 @@ namespace NServiceBus.Unicast.Transport.WCF
             //TODO: Implement this using ServiceThrottlingBehavior 
         }
 
-        public void StopSendingReadyMessages()
-        {
-            //TODO: Implement this
-        }
-
-        public void ContinueSendingReadyMessages()
-        {
-            //TODO: Implement this
-        }
-
         public int GetNumberOfPendingMessages()
         {
             //TODO: Implement this
-            throw new NotImplementedException();
+            return 1;
         }
 
         private readonly string address;
@@ -116,7 +106,7 @@ namespace NServiceBus.Unicast.Transport.WCF
 
         public void ReceiveMessageLater(TransportMessage m)
         {
-            throw new NotImplementedException();
+            //TODO: Implement this
         }
 
         public void Dispose()

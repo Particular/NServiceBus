@@ -49,18 +49,6 @@ namespace NServiceBus.Unicast.Transport
         void ReceiveMessageLater(TransportMessage m);
 
         /// <summary>
-        /// Instructs the transport to stop sending <see cref="ReadyMessage"/>s
-        /// when it has a distributor configured.
-        /// </summary>
-	    void StopSendingReadyMessages();
-
-        /// <summary>
-        /// Instructs the transport to continue sending <see cref="ReadyMessage"/>s
-        /// when it has a distributor configured.
-        /// </summary>
-	    void ContinueSendingReadyMessages();
-
-        /// <summary>
         /// Access the underlying technology to get the number of unhandled messages.
         /// </summary>
         /// <returns>The number of pending messages.</returns>

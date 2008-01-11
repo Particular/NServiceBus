@@ -1,7 +1,6 @@
-
-
 using Common.Logging;
 using NServiceBus.Messages;
+
 namespace NServiceBus.Unicast.Distributor
 {
     public class ReadyMessageHandler : BaseMessageHandler<ReadyMessage>
@@ -10,11 +9,13 @@ namespace NServiceBus.Unicast.Distributor
         {
             logger.Debug("Server available: " + this.Bus.SourceOfMessageBeingHandled);
 
-            if (message.ClearPreviousFromThisAddress)
+            if (message.ClearPreviousFromThisAddress) //indicates worker started up
                 this.workerManager.ClearAvailabilityForWorker(this.Bus.SourceOfMessageBeingHandled);
 
-            this.workerManager.WorkerAvailable(this.Bus.SourceOfMessageBeingHandled);
+            lock(typeof(Worker))
+                Worker.Threads[this.Bus.SourceOfMessageBeingHandled] = message.NumberOfWorkerThreads;
 
+            this.workerManager.WorkerAvailable(this.Bus.SourceOfMessageBeingHandled);
         }
 
         private IWorkerAvailabilityManager workerManager;

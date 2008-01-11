@@ -1,6 +1,8 @@
+using System;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
 using Common.Logging;
+using System.Threading;
 
 namespace NServiceBus.Unicast.Distributor
 {
@@ -44,6 +46,12 @@ namespace NServiceBus.Unicast.Distributor
         {
             set { workerManager = value; }
         }
+
+	    private int millisToWaitIfCannotDispatchToWorker = 50;
+	    public int MillisToWaitIfCannotDispatchToWorker
+	    {
+            set { this.millisToWaitIfCannotDispatchToWorker = value; }
+	    }
 
         #endregion
 
@@ -90,20 +98,25 @@ namespace NServiceBus.Unicast.Distributor
         void messageBusTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             if (disabled)
-            {
-                this.messageBusTransport.ReceiveMessageLater(e.Message);
-                return;
-            }
+                this.Rollback();
 
  		    string destination = this.workerManager.PopAvailableWorker();
 
             if (destination == null)
-                this.messageBusTransport.ReceiveMessageLater(e.Message);
+                this.Rollback();
             else
             {
                 logger.Debug("Sending message to: " + destination);
                 this.messageBusTransport.Send(e.Message, destination);
             }
+        }
+
+        private void Rollback()
+        {
+            Thread.Sleep(this.millisToWaitIfCannotDispatchToWorker);
+
+            throw new ApplicationException(
+                "[OK] Intentionally causing the transaction to rollback so the message goes back to the transport.");
         }
 
         #endregion

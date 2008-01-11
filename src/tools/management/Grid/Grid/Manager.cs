@@ -153,7 +153,24 @@ namespace Grid
         public static void RefreshNumberOfWorkerThreads(string queue)
         {
             GetNumberOfWorkerThreadsMessage message = new GetNumberOfWorkerThreadsMessage();
-            bus.Send(Format(queue), message);
+            bus.Send(Format(queue), message).Register(
+                delegate(IAsyncResult aResult)
+                    {
+                        CompletionResult result =
+                            aResult.AsyncState as CompletionResult;
+                        if (result == null)
+                            return;
+                        if (result.messages == null)
+                            return;
+                        if (result.messages.Length != 1)
+                            return;
+                        GotNumberOfWorkerThreadsMessage response = result.messages[0] as GotNumberOfWorkerThreadsMessage;
+                        if (response == null)
+                            return;
+                        string q = result.state as string;
+
+                        UpdateNumberOfWorkerThreads(q, response.NumberOfWorkerThreads);
+                    }, queue);
         }
 
         public static void SetNumberOfWorkerThreads(string queue, int number)

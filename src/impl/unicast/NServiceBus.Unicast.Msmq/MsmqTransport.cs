@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Messaging;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
 using System.Transactions;
 using System.Xml.Serialization;
 using Common.Logging;
-using NServiceBus.Messages;
 using Utils;
 
 namespace NServiceBus.Unicast.Transport.Msmq
@@ -95,20 +93,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         public bool PurgeOnStartup
         {
             set { purgeOnStartup = value; }
-        }
-
-        private string distributorControlAddress;
-
-		/// <summary>
-		/// Sets the address of the distributor control queue.
-		/// </summary>
-		/// <remarks>
-		/// Used in the <see cref="Receive"/> method. Notifies the given distributor
-		/// when a thread is now available to handle a new message.
-		/// </remarks>
-        public string DistributorControlAddress
-        {
-            set { distributorControlAddress = value; }
         }
 
 	    private int maxRetries = 5;
@@ -216,16 +200,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-        public void StopSendingReadyMessages()
-        {
-            this.canSendReadyMessages = false;
-        }
-
-        public void ContinueSendingReadyMessages()
-        {
-            this.canSendReadyMessages = true;
-        }
-
 	    /// <summary>
 		/// Starts the transport.
 		/// </summary>
@@ -233,9 +207,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (this.purgeOnStartup)
                 this.queue.Purge();
-
-            lock(readyMessageLocker)
-                readyMessageStartup = true;
 
             for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
@@ -337,10 +308,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         private void Receive()
         {
-            if (this.distributorControlAddress != null)
-                if (!sentReadyMessage && this.canSendReadyMessages)
-                    SendReadyMessage();
-
             try
             {
                 this.queue.Peek(TimeSpan.FromMilliseconds(1000));
@@ -356,27 +323,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             else
                 this.ReceiveFromQueue();
         }
-
-	    private void SendReadyMessage()
-	    {
-	        ReadyMessage rm = new ReadyMessage();
-            rm.NumberOfWorkerThreads = this.NumberOfWorkerThreads;
-
-	        lock (readyMessageLocker)
-	            if (readyMessageStartup)
-	            {
-	                rm.ClearPreviousFromThisAddress = true;
-	                readyMessageStartup = false;
-	            }
-
-	        TransportMessage ready = new TransportMessage();
-	        ready.Body = new IMessage[] { rm };
-	        ready.ReturnAddress = this.Address;
-	        ready.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
-
-	        this.Send(ready, this.distributorControlAddress);
-	        sentReadyMessage = true;
-	    }
 
 	    /// <summary>
 		/// Receives a message from the input queue.
@@ -447,7 +393,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 throw;
             }
 
-            sentReadyMessage = false;
             return;
         }
 
@@ -630,17 +575,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
         static bool sentReadyMessage;
 
         /// <summary>
-        /// Accessed by multiple threads.
-        /// </summary>
-	    private volatile bool canSendReadyMessages = true;
-
-        /// <summary>
         /// Accessed by multiple threads - lock before using.
         /// </summary>
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
-
-        static bool readyMessageStartup;
-        static readonly object readyMessageLocker = new object();
 
         private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
 

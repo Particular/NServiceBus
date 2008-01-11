@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
+    <Compile Include="IUnicastBus.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

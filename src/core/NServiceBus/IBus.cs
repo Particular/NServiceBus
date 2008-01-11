@@ -88,13 +88,6 @@ namespace NServiceBus
         void HandleCurrentMessageLater();
 
 		/// <summary>
-		/// Moves the specified messages to the back of the list of available 
-		/// messages so they can be handled later.
-		/// </summary>
-		/// <param name="messages">The messages to handle later.</param>
-        void HandleMessagesLater(params IMessage[] messages);
-
-		/// <summary>
 		/// Tells the bus to stop dispatching the current message to additional
 		/// handlers.
 		/// </summary>

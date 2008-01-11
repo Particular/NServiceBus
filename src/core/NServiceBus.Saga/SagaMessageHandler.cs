@@ -68,6 +68,12 @@ namespace NServiceBus.Saga
         {
             TimeoutMessage tm = message as TimeoutMessage;
 
+            if (tm != null && tm.HasNotExpired())
+            {
+                this.Bus.HandleCurrentMessageLater();
+                return;
+            }
+
             ISagaEntity saga;
             using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
             {
@@ -75,12 +81,6 @@ namespace NServiceBus.Saga
                 
                 if (saga == null)
                     return;
-
-                if (tm != null && tm.HasNotExpired())
-                {
-                    this.Bus.HandleCurrentMessageLater();
-                    return;
-                }
 
                 if (tm != null)
                     saga.Timeout(tm.State);

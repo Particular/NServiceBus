@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Subscriptions;
 using Common.Logging;
@@ -157,6 +156,8 @@ namespace NServiceBus.Unicast
                         this.storage.Add(msg);
 
                     this.entries.Add(new Entry(messageType, msg));
+
+                    log.Debug("Subscriber " + msg.ReturnAddress + " added for message " + messageType.FullName + ".");
                 }
             }
         }
@@ -181,6 +182,8 @@ namespace NServiceBus.Unicast
                                 this.storage.Remove(e.Msg);
 
                             this.entries.Remove(e);
+
+                            log.Debug("Subscriber " + msg.ReturnAddress + " removed for message " + messageType.FullName + ".");
                         }
                 }
             }

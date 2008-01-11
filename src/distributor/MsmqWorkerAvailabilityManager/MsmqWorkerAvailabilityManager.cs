@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 
@@ -71,7 +69,7 @@ namespace MsmqWorkerAvailabilityManager
                 {
                     string path = existing[0].ResponseQueue.Path;
 
-                    Message m = this.storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
+                    this.storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
 
                     return path;
                 }

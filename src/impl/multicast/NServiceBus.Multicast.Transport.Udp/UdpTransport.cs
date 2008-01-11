@@ -122,16 +122,6 @@ namespace NServiceBus.Multicast.Transport.Udp
             }
         }
 
-        public void StopSendingReadyMessages()
-        {
-            this.canSendReadyMessages = false;
-        }
-
-        public void ContinueSendingReadyMessages()
-        {
-            this.canSendReadyMessages = true;
-        }
-
         public void Send(TransportMessage m, string destination)
         {
             this.Send(m, destination, false, TimeSpan.MaxValue);
@@ -216,11 +206,6 @@ namespace NServiceBus.Multicast.Transport.Udp
         private IList<WorkerThread> workerThreads = new List<WorkerThread>();
         private UdpClient sender;
         private UdpClient receiver;
-
-        /// <summary>
-        /// Accessed by multiple threads.
-        /// </summary>
-        private volatile bool canSendReadyMessages = true;
 
         private static ILog logger = LogManager.GetLogger(typeof(UdpTransport).Name);
         private static ILog unhandledMessages = LogManager.GetLogger(typeof(UdpTransport).Name + ":Unhandled");

@@ -21,7 +21,9 @@ namespace NServiceBus.Multicast
 
         public override void Publish<T>(params T[] messages)
         {
-            TransportMessage m = this.GetTransportMessageFor(messages as IMessage[]);
+            TransportMessage m = this.GetTransportMessageFor(string.Empty, messages as IMessage[]);
+            m.ReturnAddress = this.transport.Address;
+
             string address = this.GetDestinationForMessageType(messages[0].GetType());
 
             ((IMulticastTransport)this.transport).Publish(m, address);

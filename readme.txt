@@ -10,6 +10,8 @@ In order to build the source, open a SDK Command Prompt, navigate to the directo
 
 4. Run the script "msmq install.vbs" to install the queues used by the sample
 
+5. In order to run samples that make use of sagas, specifically the DbBlobSagaPersister (found in \src\impl\SagaPersisters\DbBlobSagaPersister) you will need a database with the tables defined in TableDefinitions.txt.
+
 
 [Optional 1] To play around with the different WCF transport options, delete the App.config
 files in the projects ClientRunner and ServerRunner. Then copy the *App.config file of your choice

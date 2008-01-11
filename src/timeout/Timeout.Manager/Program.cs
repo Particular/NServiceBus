@@ -2,7 +2,7 @@ using System;
 using NServiceBus;
 using Common.Logging;
 
-namespace Worker
+namespace TimeoutManager
 {
     class Program
     {
@@ -15,10 +15,6 @@ namespace Worker
             {
                 IBus bServer = builder.Build<IBus>();
                 bServer.Start();
-
-                bServer.Subscribe(typeof(Messages.Event));
-
-                Console.Read();
             }
             catch (Exception e)
             {
@@ -26,6 +22,7 @@ namespace Worker
                 Console.Read();
             }
 
+            Console.Read();
         }
     }
 }

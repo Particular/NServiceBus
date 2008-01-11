@@ -415,6 +415,24 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Samples\FullDuple
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "timeout", "timeout", "{3D1ACC82-B571-400D-AECA-C50B97E17845}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.MessageHandlers", "src\timeout\Timeout.MessageHandlers\Timeout.MessageHandlers.csproj", "{7EA93511-0B01-4E6B-95C4-A3069A4A107A}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.Manager", "src\timeout\Timeout.Manager\Timeout.Manager.csproj", "{B67A336D-A5F4-429F-931C-3A949AF42D26}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -593,6 +611,14 @@ Global
 		{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B67A336D-A5F4-429F-931C-3A949AF42D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B67A336D-A5F4-429F-931C-3A949AF42D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B67A336D-A5F4-429F-931C-3A949AF42D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B67A336D-A5F4-429F-931C-3A949AF42D26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -606,6 +632,7 @@ Global
 		{AE680ED6-74D9-4D85-834F-E9F20DE9C2B4} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{5B85CA4F-0E58-413A-932E-2FF6A757DB74} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{B46133C5-7441-4F05-BC44-7E67B5EDAA4D} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
+		{3D1ACC82-B571-400D-AECA-C50B97E17845} = {6CEB2C22-90CC-4161-952D-7ED706BB8387}
 		{73867D40-8CBB-48E9-BFFA-12BBDD48A341} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{C1DE5465-4694-475A-8D06-E17733C41D69} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{740CBD5E-C88F-43A6-B811-2E9D6E31C381} = {D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}
@@ -663,5 +690,7 @@ Global
 		{9F8E556C-0AFA-4C5D-B64F-AE9376ABF145} = {BE42D213-AE26-4C5D-9766-39A18BB166B9}
 		{20F613ED-C871-477C-B1E4-48B96CACF794} = {BE42D213-AE26-4C5D-9766-39A18BB166B9}
 		{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6} = {BE42D213-AE26-4C5D-9766-39A18BB166B9}
+		{7EA93511-0B01-4E6B-95C4-A3069A4A107A} = {3D1ACC82-B571-400D-AECA-C50B97E17845}
+		{B67A336D-A5F4-429F-931C-3A949AF42D26} = {3D1ACC82-B571-400D-AECA-C50B97E17845}
 	EndGlobalSection
 EndGlobal

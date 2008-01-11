@@ -21,7 +21,7 @@ namespace NServiceBus.Saga
             msg.Expires = DateTime.Now + span;
             msg.SagaId = saga.Id;
 
-            this.bus.HandleMessagesLater(msg);
+            this.bus.Send(this.timeoutManagerAddress, msg);
         }
 
         #region config info
@@ -36,6 +36,16 @@ namespace NServiceBus.Saga
             get { return bus; }
             set { bus = value; }
         }
+
+	    private string timeoutManagerAddress;
+
+        /// <summary>
+        /// Sets the address of the endpoint where the TimeoutManager process is running.
+        /// </summary>
+	    public string TimeoutManagerAddress
+	    {
+            set { timeoutManagerAddress = value; }
+	    }
 
         #endregion
     }

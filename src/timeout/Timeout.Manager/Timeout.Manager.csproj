@@ -4,11 +4,19 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}</ProjectGuid>
+    <ProjectGuid>{B67A336D-A5F4-429F-931C-3A949AF42D26}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Server</RootNamespace>
-    <AssemblyName>Server</AssemblyName>
+    <RootNamespace>Timeout.Manager</RootNamespace>
+    <AssemblyName>Timeout.Manager</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,35 +56,55 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.0.0.779, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
+      <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.MessageHandlers.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Grid.Messages, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Subscriptions.dll</HintPath>
+      <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
+      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
+      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
-    <Reference Include="ObjectBuilder, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.0.0.1678, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1550, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.WCF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.WCF.dll</HintPath>
+    </Reference>
+    <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BUILD\Utils\Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectBuilder, Version=1.0.2.41164, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="ObjectBuilder.SpringFramework, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ObjectBuilder.SpringFramework, Version=1.0.2.42066, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.SpringFramework.dll</HintPath>
     </Reference>
@@ -85,25 +113,23 @@
       <HintPath>..\..\..\external-bin\Spring.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\utils\Utils.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestDataMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\test\RequestResponse\Messages\Messages.csproj">
-      <Project>{54DD21D6-0E27-4C86-BE8C-3A1D1C8BDB12}</Project>
-      <Name>Messages %28test\RequestResponse\Messages%29</Name>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Timeout.MessageHandlers\Timeout.MessageHandlers.csproj">
+      <Project>{7EA93511-0B01-4E6B-95C4-A3069A4A107A}</Project>
+      <Name>Timeout.MessageHandlers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -114,4 +140,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\build\timeout"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

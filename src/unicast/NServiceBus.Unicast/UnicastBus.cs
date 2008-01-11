@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast
 	/// <summary>
 	/// A unicast implementation of <see cref="IBus"/> for NServiceBus.
 	/// </summary>
-    public class UnicastBus : IBus
+    public class UnicastBus : IUnicastBus
     {
         #region config properties
 
@@ -115,7 +115,22 @@ namespace NServiceBus.Unicast
         public string DistributorDataAddress
         {
             set { distributorDataAddress = value; }
+        }        
+        
+        private string distributorControlAddress;
+
+        /// <summary>
+        /// Sets the address of the distributor control queue.
+        /// </summary>
+        /// <remarks>
+        /// Notifies the given distributor
+        /// when a thread is now available to handle a new message.
+        /// </remarks>
+        public string DistributorControlAddress
+        {
+            set { distributorControlAddress = value; }
         }
+
 
 	    private string forwardReceivedMessagesTo;
 
@@ -171,6 +186,20 @@ namespace NServiceBus.Unicast
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region IUnicastBus Members
+
+        public void StopSendingReadyMessages()
+        {
+            this.canSendReadyMessages = false;
+        }
+
+        public void ContinueSendingReadyMessages()
+        {
+            this.canSendReadyMessages = true;
         }
 
         #endregion
@@ -235,7 +264,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">The messages to send.</param>
         public void Reply(params IMessage[] messages)
         {
-            TransportMessage toSend = this.GetTransportMessageFor(messages);
+            TransportMessage toSend = this.GetTransportMessageFor(messageBeingHandled.ReturnAddress, messages);
 
             toSend.CorrelationId = messageBeingHandled.Id;
 
@@ -261,19 +290,10 @@ namespace NServiceBus.Unicast
 		/// </summary>
         public void HandleCurrentMessageLater()
         {
-            HandleMsgLater(messageBeingHandled);
-        }
-
-		/// <summary>
-		/// Moves the specified messages to the back of the list of available 
-		/// messages so they can be handled later.
-		/// </summary>
-		/// <param name="messages">The messages to handle later.</param>
-        public void HandleMessagesLater(params IMessage[] messages)
-        {
-            TransportMessage m = this.GetTransportMessageFor(messages);
-
-            this.HandleMsgLater(m);
+            if (this.distributorDataAddress != null)
+                this.transport.Send(messageBeingHandled, this.distributorDataAddress);
+            else
+                this.transport.ReceiveMessageLater(messageBeingHandled);
         }
 
         /// <summary>
@@ -282,9 +302,19 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
-            TransportMessage m = this.GetTransportMessageFor(messages);
+            //if we're a worker, send to the distributor data bus
+            if (this.distributorDataAddress != null)
+            {
+                TransportMessage m = this.GetTransportMessageFor(this.distributorDataAddress, messages);
 
-            this.transport.ReceiveMessageLater(m);
+                this.transport.Send(m, this.distributorDataAddress);
+            }
+            else
+            {
+                TransportMessage m = this.GetTransportMessageFor(this.transport.Address, messages);
+
+                this.transport.ReceiveMessageLater(m);
+            }
         }
 
 		/// <summary>
@@ -309,14 +339,12 @@ namespace NServiceBus.Unicast
 		/// </summary>
 		/// <param name="destination">The address of the destination to send the messages to.</param>
         /// <param name="messages">The list of messages to send.</param>
-        /// <remarks>
-		/// All the messages will be sent to the destination configured for the
-		/// first message in the list.
-		/// </remarks>
         public ICallback Send(string destination, params IMessage[] messages)
         {
-            TransportMessage toSend = this.GetTransportMessageFor(messages);
+            TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
             this.transport.Send(toSend, destination);
+
+            log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
 
             Callback result = new Callback(toSend.Id);
 		    result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
@@ -353,7 +381,45 @@ namespace NServiceBus.Unicast
 
             this.transport.Start();
 
-            this.SendLocal(new CompletionMessage());
+		    this.InitializeSelf();
+
+            for (int i = 0; i < this.transport.NumberOfWorkerThreads; i++)
+                this.SendReadyMessage(i == 0);
+        }
+
+        private void InitializeSelf()
+        {
+            TransportMessage toSend = this.GetTransportMessageFor(this.transport.Address, new CompletionMessage());
+            toSend.ReturnAddress = this.transport.Address; // to cancel out worker behavior
+
+            this.transport.ReceiveMessageLater(toSend);
+        }
+
+        /// <summary>
+        /// If this bus is configured to feed off of a distributor,
+        /// it will send a <see cref="ReadyMessage"/> to its control address.
+        /// </summary>
+        /// <param name="startup"></param>
+        private void SendReadyMessage(bool startup)
+        {
+            if (this.distributorControlAddress == null)
+                return;
+
+            if (!this.canSendReadyMessages)
+                return;
+
+            ReadyMessage rm = new ReadyMessage();
+            rm.NumberOfWorkerThreads = this.transport.NumberOfWorkerThreads;
+
+            if (startup)
+                rm.ClearPreviousFromThisAddress = true;
+
+            TransportMessage toSend = this.GetTransportMessageFor(this.distributorControlAddress, rm);
+            toSend.ReturnAddress = this.transport.Address;
+
+            this.transport.Send(toSend, this.distributorControlAddress);
+
+            log.Debug("Sending ReadyMessage.");
         }
 
         public virtual void Dispose()
@@ -535,6 +601,8 @@ namespace NServiceBus.Unicast
                 if (!this.disableMessageHandling)
                     this.HandleMessage(msg);
 
+                this.SendReadyMessage(false);
+
                 log.Debug("Finished handling message.");
             }
             catch (Exception ex)
@@ -609,23 +677,6 @@ namespace NServiceBus.Unicast
         {
             if (this.forwardReceivedMessagesTo != null)
                 this.transport.Send(m, this.forwardReceivedMessagesTo);
-        }
-
-		/// <summary>
-		/// Requeues a message to be handled later.
-		/// </summary>
-		/// <param name="m">The message to requeue.</param>
-        private void HandleMsgLater(TransportMessage m)
-        {
-            if (this.distributorDataAddress != null)
-                if (messageBeingHandled != null)
-                    if (messageBeingHandled.Body == m.Body)
-                    {
-                        this.transport.Send(m, this.distributorDataAddress);
-                        return;
-                    }
-
-            this.transport.ReceiveMessageLater(m);
         }
 
 		/// <summary>
@@ -704,18 +755,15 @@ namespace NServiceBus.Unicast
 		/// <summary>
 		/// Wraps the provided messages in an NServiceBus envelope.
 		/// </summary>
-		/// <param name="messages">The messages to wrap.</param>
-		/// <returns>The envelope containing the messages.</returns>
-        protected TransportMessage GetTransportMessageFor(params IMessage[] messages)
+        /// <param name="destination">The destination to which to send the messages.</param>
+        /// <param name="messages">The messages to wrap.</param>
+        /// <returns>The envelope containing the messages.</returns>
+        protected TransportMessage GetTransportMessageFor(string destination, params IMessage[] messages)
         {
             TransportMessage result = new TransportMessage();
             result.Body = messages;
-            
-            result.ReturnAddress = this.transport.Address;
 
-            //if we are a worker, have responses come back through the distributor
-            if (this.distributorDataAddress != null)
-                result.ReturnAddress = this.distributorDataAddress;
+            result.ReturnAddress = this.GetReturnAddressFor(destination);
 
             result.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
 
@@ -734,6 +782,23 @@ namespace NServiceBus.Unicast
             }
 
             result.TimeToBeReceived = timeToBeReceived;
+
+            return result;
+        }
+
+        private string GetReturnAddressFor(string destination)
+        {
+            string result = this.transport.Address;
+
+            // if we're a worker
+            if (this.distributorDataAddress != null)
+            {
+                result = this.distributorDataAddress;
+
+                //if we're sending a message to the control bus, then use our own address
+                if (destination == this.distributorControlAddress)
+                    result = this.transport.Address;
+            }
 
             return result;
         }
@@ -869,7 +934,12 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         static TransportMessage messageBeingHandled;
 
-        private static ILog log = LogManager.GetLogger(typeof(UnicastBus));
+        /// <summary>
+        /// Accessed by multiple threads.
+        /// </summary>
+        private volatile bool canSendReadyMessages = true;
+
+        private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion
     }
 }

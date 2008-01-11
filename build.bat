@@ -22,15 +22,17 @@ cd ..\..\..\src\impl\multicast\NServiceBus.Multicast.Transport.Udp
 msbuild
 cd ..\..\..\..\src\grid
 msbuild
-cd ..\..\..\src\distributor\NServiceBus.Unicast.Distributor
+cd ..\..\src\distributor\NServiceBus.Unicast.Distributor
 msbuild
 cd ..\..\..\src\distributor\MsmqWorkerAvailabilityManager
 msbuild
 cd ..\..\..\src\distributor\NServiceBus.Unicast.Distributor.Runner
 msbuild
-cd ..\..\src\tools\management\Grid
+cd ..\..\..\src\tools\management\Grid
 msbuild
-cd ..\..\..\..\test\Messages
+cd ..\..\..\..\src\timeout
+msbuild
+cd ..\..\test\Messages
 msbuild
 cd ..\..\test\Client
 msbuild

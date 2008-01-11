@@ -1,19 +1,18 @@
 using NServiceBus;
 using NServiceBus.Grid.Messages;
+using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 
 
 namespace NServiceBus.Grid.MessageHandlers
 {
     /// <summary>
-    /// Handles <see cref="ChangeNumberOfWorkerThreadsMessage"/> and <see cref="IMessage"/>.
-    /// Should be configured to run before regular logic to enable
-    /// stopping and restarting the bus remotely.
+    /// Handles <see cref="ChangeNumberOfWorkerThreadsMessage"/>.
     /// </summary>
     public class ChangeNumberOfWorkerThreadsMessageHandler : 
-        BaseMessageHandler<ChangeNumberOfWorkerThreadsMessage>
+        IMessageHandler<ChangeNumberOfWorkerThreadsMessage>
     {
-        public override void Handle(ChangeNumberOfWorkerThreadsMessage message)
+        public void Handle(ChangeNumberOfWorkerThreadsMessage message)
         {
             int target = message.NumberOfWorkerThreads;
             if (target <= 0)
@@ -21,19 +20,37 @@ namespace NServiceBus.Grid.MessageHandlers
             else
             {
                 GridInterceptingMessageHandler.Disabled = false;
-                this.transport.ContinueSendingReadyMessages();
+                this.unicastBus.ContinueSendingReadyMessages();
             }
 
             this.transport.ChangeNumberOfWorkerThreads(target);
 
             if (message.NumberOfWorkerThreads == 0)
             {
-                this.transport.StopSendingReadyMessages();
+                this.unicastBus.StopSendingReadyMessages();
                 GridInterceptingMessageHandler.Disabled = true;
             }
         }
 
+        private IUnicastBus unicastBus;
+        public IUnicastBus UnicastBus
+        {
+            set
+            {
+                this.unicastBus = value;
+            }
+        }
+
         private ITransport transport;
+
+        /// <summary>
+        /// This is kept separate from the bus because the distributor
+        /// will be using this class on its control bus to change the
+        /// number of worker threads on its data bus.
+        /// 
+        /// For regular cases, the transport should be the same as is
+        /// configured for the bus.
+        /// </summary>
         public ITransport Transport
         {
             set
