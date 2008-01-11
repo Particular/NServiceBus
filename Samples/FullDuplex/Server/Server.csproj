@@ -101,9 +101,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\test\RequestResponse\Messages\Messages.csproj">
-      <Project>{54DD21D6-0E27-4C86-BE8C-3A1D1C8BDB12}</Project>
-      <Name>Messages %28test\RequestResponse\Messages%29</Name>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
+      <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
