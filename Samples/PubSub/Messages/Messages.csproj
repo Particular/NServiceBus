@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7A6E1C0F-8E0D-45AD-90C4-FD841DCA2124}</ProjectGuid>
+    <ProjectGuid>{20F613ED-C871-477C-B1E4-48B96CACF794}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Transport.WCF</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Transport.WCF</AssemblyName>
+    <RootNamespace>Messages</RootNamespace>
+    <AssemblyName>Messages</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,35 +28,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+    <Reference Include="NServiceBus, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.779, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.Serialization, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
-    <Reference Include="System.ServiceModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="IOneWay.cs" />
-    <Compile Include="OneWayService.cs" />
-    <Compile Include="XmlSerializerWrapper.cs" />
-    <Compile Include="GenericTransport.cs" />
+    <Compile Include="Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -67,7 +48,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\..\build\unicast\impl"</PostBuildEvent>
-  </PropertyGroup>
 </Project>

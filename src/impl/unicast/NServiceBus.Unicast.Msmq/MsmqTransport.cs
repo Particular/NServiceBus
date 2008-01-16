@@ -23,20 +23,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
 		/// <summary>
 		/// Sets the path to the queue the transport will read from.
+		/// Only specify the name of the queue - msmq specific address not required.
+		/// When using MSMQ v3, only local queues are supported.
 		/// </summary>
-		/// <exception cref="ApplicationException">
-		/// Thrown if the queue specified is not a local queue.
-		/// </exception>
         public string InputQueue
         {
             set
             {
-                MessageQueue q = new MessageQueue(value);
+                string path = GetFullPath(value);
+                MessageQueue q = new MessageQueue(path);
 
-                if (!QueueIsLocal(value))
-                    throw new ApplicationException("Cannot work transactionally with remote queue.");
-                else
-                    SetLocalQueue(q);
+                SetLocalQueue(q);
             }
         }
 
@@ -48,7 +45,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             set
             {
-                this.errorQueue = new MessageQueue(value);
+                string path = GetFullPath(value);
+                this.errorQueue = new MessageQueue(path);
             }
         }
 
@@ -153,7 +151,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             get
             {
-                return this.queue.Path;
+                return GetIndependentAddressForQueue(this.queue);
             }
         }
 
@@ -232,7 +230,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
-            string address = Resolve(destination);
+		    string address = GetFullPath(destination);
 
             using (MessageQueue q = new MessageQueue(address, QueueAccessMode.Send))
             {
@@ -252,7 +250,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     toSend.CorrelationId = m.CorrelationId;
 
                 toSend.Recoverable = m.Recoverable;
-                toSend.ResponseQueue = new MessageQueue(m.ReturnAddress);
+                toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
                 toSend.Label = m.WindowsIdentityName;
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
@@ -318,10 +316,19 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     return;
             }
 
-		    if (this.isTransactional)
-                new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue);
-            else
-                this.ReceiveFromQueue();
+		    needToAbort = false;
+
+            try
+            {
+                if (this.isTransactional)
+                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue);
+                else
+                    this.ReceiveFromQueue();
+            }
+            catch(AbortHandlingCurrentMessageException)
+            {
+                //in case AbortHandlingCurrentMessage occurred
+            }
         }
 
 	    /// <summary>
@@ -393,7 +400,15 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 throw;
             }
 
+            if (needToAbort)
+                throw new AbortHandlingCurrentMessageException();
+
             return;
+        }
+
+        public void AbortHandlingCurrentMessage()
+        {
+            needToAbort = true;
         }
 
 		/// <summary>
@@ -405,7 +420,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             string machineName = Environment.MachineName.ToLower();
 
-            value = value.Replace("FormatName:DIRECT=OS:", "");
+            value = value.ToLower().Replace(PREFIX.ToLower(), "");
             int index = value.IndexOf('\\');
 
             string queueMachineName = value.Substring(0, index).ToLower();
@@ -427,34 +442,21 @@ namespace NServiceBus.Unicast.Transport.Msmq
             result.TimeToBeReceived = m.TimeToBeReceived;
 
             if (m.ResponseQueue != null)
-                result.ReturnAddress = m.ResponseQueue.Path;
+            {
+                string[] arr = m.ResponseQueue.QueueName.Split('\\');
+                result.ReturnAddress = arr[1];
+            }
 
-            result.WindowsIdentityName = m.Label;
+		    result.WindowsIdentityName = m.Label;
 
             return result;
         }
 
-		/// <summary>
-		/// Resolves a destination MSMQ queue address.
-		/// </summary>
-		/// <param name="destination">The MSMQ address to resolve.</param>
-		/// <returns>The direct format name of the queue.</returns>
-        private static string Resolve(string destination)
-        {
-            string dest = destination.ToUpper().Replace("FORMATNAME:DIRECT=OS:", "");
-
-            MessageQueue q = new MessageQueue(dest);
-            if (QueueIsLocal(dest))
-                q.MachineName = Environment.MachineName;
-
-            return "FormatName:DIRECT=OS:" + q.Path;
-        }
-
-		/// <summary>
-		/// Extracts the messages from an MSMQ <see cref="Message"/>.
-		/// </summary>
-		/// <param name="message">The MSMQ message to extract from.</param>
-		/// <returns>An array of handleable messages.</returns>
+        /// <summary>
+        /// Extracts the messages from an MSMQ <see cref="Message"/>.
+        /// </summary>
+        /// <param name="message">The MSMQ message to extract from.</param>
+        /// <returns>An array of handleable messages.</returns>
         private IMessage[] Extract(Message message)
         {
             List<object> body;
@@ -560,7 +562,60 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #endregion
 
+        #region static conversion methods
+
+        ///// <summary>
+        ///// Resolves a destination MSMQ queue address.
+        ///// </summary>
+        ///// <param name="destination">The MSMQ address to resolve.</param>
+        ///// <returns>The direct format name of the queue.</returns>
+        //public static string Resolve(string destination)
+        //{
+        //    string dest = destination.ToLower().Replace(PREFIX.ToLower(), "");
+
+        //    string[] arr = dest.Split('\\');
+        //    if (arr.Length == 1)
+        //        dest = Environment.MachineName + "\\private$\\" + dest;
+
+        //    MessageQueue q = new MessageQueue(dest);
+        //    if (q.MachineName.ToLower() == Environment.MachineName.ToLower())
+        //        q.MachineName = Environment.MachineName;
+
+        //    return PREFIX + q.Path;
+        //}
+
+        /// <summary>
+        /// Turns a '@' separated value into a full msmq path.
+        /// Format is 'queue@machine'.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullPath(string value)
+        {
+            string[] arr = value.Split('@');
+
+            string queue = arr[0];
+            string machine = Environment.MachineName;
+
+            if (arr.Length == 2)
+                if (arr[1] != "." && arr[1].ToLower() != "localhost")
+                    machine = arr[1];
+
+            return PREFIX + machine + "\\private$\\" + queue;
+        }
+
+        public static string GetIndependentAddressForQueue(MessageQueue q)
+        {
+            string[] arr = q.QueueName.Split('\\');
+
+            return arr[1] + "@" + q.MachineName;
+        }
+
+        #endregion
+
         #region members
+
+        private readonly static string PREFIX = "FormatName:DIRECT=OS:";
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
@@ -569,15 +624,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
 
         /// <summary>
-        /// ThreadStatic
-        /// </summary>
-        [ThreadStatic]
-        static bool sentReadyMessage;
-
-        /// <summary>
         /// Accessed by multiple threads - lock before using.
         /// </summary>
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
+
+	    [ThreadStatic] 
+        private static volatile bool needToAbort;
 
         private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
 

@@ -75,7 +75,7 @@ namespace Grid
                 MSMQ.MSMQManagementClass qMgmt = new MSMQ.MSMQManagementClass();
                 object machine = Environment.MachineName;
                 object missing = Type.Missing;
-                object formatName = FormatFull(endpoint.Queue);
+                object formatName = "DIRECT=OS:" + Environment.MachineName + "\\private$\\" + endpoint.Queue;
 
                 qMgmt.Init(ref machine, ref missing, ref formatName);
                 endpoint.SetNumberOfMessages(qMgmt.MessageCount);
@@ -87,21 +87,6 @@ namespace Grid
             due = (due < 0 ? 0 : due);
 
             timer.Change(due, refreshInterval*1000);
-        }
-
-        private static string Format(string queue)
-        {
-            if (queue.Contains("\\"))
-                return queue;
-
-            return Environment.MachineName + "\\private$\\" + queue;
-        }
-
-        private static string FormatFull(string queue)
-        {
-            string s = Format(queue);
-
-            return "DIRECT=OS:" + s;
         }
 
         public static void Save()
@@ -153,7 +138,7 @@ namespace Grid
         public static void RefreshNumberOfWorkerThreads(string queue)
         {
             GetNumberOfWorkerThreadsMessage message = new GetNumberOfWorkerThreadsMessage();
-            bus.Send(Format(queue), message).Register(
+            bus.Send(queue, message).Register(
                 delegate(IAsyncResult aResult)
                     {
                         CompletionResult result =
@@ -176,7 +161,7 @@ namespace Grid
         public static void SetNumberOfWorkerThreads(string queue, int number)
         {
             ChangeNumberOfWorkerThreadsMessage message = new ChangeNumberOfWorkerThreadsMessage(number);
-            bus.Send(Format(queue), message);
+            bus.Send(queue, message);
 
             RefreshNumberOfWorkerThreads(queue);
         }

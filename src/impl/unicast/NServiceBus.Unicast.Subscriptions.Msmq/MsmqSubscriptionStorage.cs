@@ -1,3 +1,23 @@
+#region License
+
+/*
+ * Copyright © 2007-2008 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using NServiceBus.Unicast.Transport;
@@ -94,22 +114,19 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         }
 
 		/// <summary>
-		/// Sets the address of the MSMQ queue where subscription messages
-		/// will be stored.
+		/// Sets the address of the queue where subscription messages will be stored.
+		/// For a local queue, just use its name - msmq specific info isn't needed.
+		/// For a remote queue (supported MSMQ 4.0), use the format "queue@machine".
 		/// </summary>
         public string Queue
         {
             set
             {
-                if (!MsmqTransport.QueueIsLocal(value))
-                    throw new ArgumentException("Queue must be local (" + value + ").");
-                else
-                {
-                    q = new MessageQueue(value);
+                string path = MsmqTransport.GetFullPath(value);
+                q = new MessageQueue(path);
 
-                    if (!q.Transactional)
-                        throw new ArgumentException("Queue must be transactional (" + value + ").");
-                }
+                if (!q.Transactional)
+                    throw new ArgumentException("Queue must be transactional (" + value + ").");
 
                 MessagePropertyFilter mpf = new MessagePropertyFilter();
                 mpf.SetAll();

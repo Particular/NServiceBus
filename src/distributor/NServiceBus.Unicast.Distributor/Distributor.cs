@@ -1,4 +1,3 @@
-using System;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
 using Common.Logging;
@@ -115,8 +114,7 @@ namespace NServiceBus.Unicast.Distributor
         {
             Thread.Sleep(this.millisToWaitIfCannotDispatchToWorker);
 
-            throw new ApplicationException(
-                "[OK] Intentionally causing the transaction to rollback so the message goes back to the transport.");
+            this.messageBusTransport.AbortHandlingCurrentMessage();
         }
 
         #endregion

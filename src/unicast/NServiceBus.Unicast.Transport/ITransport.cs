@@ -62,6 +62,11 @@ namespace NServiceBus.Unicast.Transport
 		/// Raised when a message is received at the transport's <see cref="Address"/>.
 		/// </summary>
         event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
+
+        /// <summary>
+        /// Causes the current message being handled to return to the queue.
+        /// </summary>
+	    void AbortHandlingCurrentMessage();
     }
 
 	/// <summary>

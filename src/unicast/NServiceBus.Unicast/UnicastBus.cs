@@ -419,7 +419,7 @@ namespace NServiceBus.Unicast
 
             this.transport.Send(toSend, this.distributorControlAddress);
 
-            log.Debug("Sending ReadyMessage.");
+            log.Debug("Sending ReadyMessage to " + this.distributorControlAddress);
         }
 
         public virtual void Dispose()
@@ -589,27 +589,19 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            try
-            {
-                log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
+            log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
 
-                messageBeingHandled = msg;
+            messageBeingHandled = msg;
 
-                if (this.MessageReceived != null)
-                    this.MessageReceived(msg);
+            if (this.MessageReceived != null)
+                this.MessageReceived(msg);
 
-                if (!this.disableMessageHandling)
-                    this.HandleMessage(msg);
+            if (!this.disableMessageHandling)
+                this.HandleMessage(msg);
 
-                this.SendReadyMessage(false);
+            this.SendReadyMessage(false);
 
-                log.Debug("Finished handling message.");
-            }
-            catch (Exception ex)
-            {
-                log.Error("Failed handling message.", GetInnermostException(ex));
-                throw;
-            }
+            log.Debug("Finished handling message.");
         }
 
 		/// <summary>

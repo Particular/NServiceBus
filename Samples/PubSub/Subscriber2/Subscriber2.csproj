@@ -4,19 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{08B3BA09-935C-47AB-98AF-C501F4D01EDC}</ProjectGuid>
+    <ProjectGuid>{6A699A4E-F2FD-4B71-AF73-199B499482BD}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClientRunner</RootNamespace>
-    <AssemblyName>ClientRunner</AssemblyName>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
+    <RootNamespace>Subscriber2</RootNamespace>
+    <AssemblyName>Subscriber2</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,55 +44,27 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Messages, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BIN\Messages.dll</HintPath>
+      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.779, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Multicast, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\NServiceBus.Multicast.dll</HintPath>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Multicast.Transport, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\NServiceBus.Multicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Multicast.Transport.Udp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\IMPL\NServiceBus.Multicast.Transport.Udp.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Subscriptions.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1550, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.WCF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.WCF.dll</HintPath>
-    </Reference>
-    <Reference Include="ObjectBuilder, Version=1.0.2.41164, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ObjectBuilder, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="ObjectBuilder.SpringFramework, Version=1.0.2.42066, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ObjectBuilder.SpringFramework, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.SpringFramework.dll</HintPath>
     </Reference>
@@ -109,15 +73,15 @@
       <HintPath>..\..\..\external-bin\Spring.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UTILS\Utils.dll</HintPath>
+      <HintPath>..\..\..\build\utils\Utils.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventMessageHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -125,9 +89,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Client\Client.csproj">
-      <Project>{D6234E14-4405-4521-9C55-82A30D71D1A6}</Project>
-      <Name>Client %28test\full\Client\Client%29</Name>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
+      <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

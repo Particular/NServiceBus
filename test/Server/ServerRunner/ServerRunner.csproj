@@ -122,12 +122,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BasicHTTP App.config" />
     <None Include="App.config" />
-    <None Include="Multicast UDP App.config" />
-    <None Include="WS Dual App.config" />
-    <None Include="NetTcp App.config" />
-    <None Include="NonWCF MSMQ App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InMemorySagaPersister\InMemorySagaPersister.csproj">

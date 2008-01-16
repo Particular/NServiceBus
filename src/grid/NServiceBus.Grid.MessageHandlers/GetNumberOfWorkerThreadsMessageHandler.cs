@@ -1,4 +1,3 @@
-using System;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport;
 
@@ -9,8 +8,12 @@ namespace NServiceBus.Grid.MessageHandlers
     {
         public override void Handle(GetNumberOfWorkerThreadsMessage message)
         {
+            int result = this.transport.NumberOfWorkerThreads;
+            if (result == 1 && GridInterceptingMessageHandler.Disabled)
+                result = 0;
+
             this.Bus.Reply(
-                new GotNumberOfWorkerThreadsMessage(this.transport.NumberOfWorkerThreads)
+                new GotNumberOfWorkerThreadsMessage(result)
             );
         }
 

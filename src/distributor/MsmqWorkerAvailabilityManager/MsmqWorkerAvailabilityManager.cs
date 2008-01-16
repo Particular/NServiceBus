@@ -1,6 +1,7 @@
 using System;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
+using NServiceBus.Unicast.Transport.Msmq;
 
 namespace MsmqWorkerAvailabilityManager
 {
@@ -23,7 +24,8 @@ namespace MsmqWorkerAvailabilityManager
         {
             set 
             {
-                MessageQueue q = new MessageQueue(value);
+                string path = MsmqTransport.GetFullPath(value);
+                MessageQueue q = new MessageQueue(path);
 
                 if (!q.Transactional)
                     throw new Exception("Queue must be transactional.");
@@ -45,11 +47,14 @@ namespace MsmqWorkerAvailabilityManager
 		/// </param>
         public void ClearAvailabilityForWorker(string address)
         {
-            Message[] existing = this.storageQueue.GetAllMessages();
+            lock (locker)
+            {
+                Message[] existing = this.storageQueue.GetAllMessages();
 
-            foreach (Message m in existing)
-                if (m.ResponseQueue.Path == address)
-                    this.storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                foreach (Message m in existing)
+                    if (MsmqTransport.GetIndependentAddressForQueue(m.ResponseQueue) == address)
+                        this.storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+            }
         }
 
 		/// <summary>
@@ -67,11 +72,9 @@ namespace MsmqWorkerAvailabilityManager
                     return null;
                 else
                 {
-                    string path = existing[0].ResponseQueue.Path;
-
                     this.storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
 
-                    return path;
+                    return MsmqTransport.GetIndependentAddressForQueue(existing[0].ResponseQueue);
                 }
             }
         }
@@ -87,7 +90,7 @@ namespace MsmqWorkerAvailabilityManager
             lock (locker)
             {
                 Message msg = new Message();
-                msg.ResponseQueue = new MessageQueue(address);
+                msg.ResponseQueue = new MessageQueue(MsmqTransport.GetFullPath(address));
 
                 this.storageQueue.Send(msg, MessageQueueTransactionType.Automatic);
             }

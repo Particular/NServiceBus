@@ -10,17 +10,13 @@ cd ..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
 msbuild
 cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq
 msbuild
-cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Transport.WCF
-msbuild
 cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
 msbuild
 cd ..\..\..\..\src\impl\ObjectBuilder.SpringFramework
 msbuild
 cd ..\..\..\src\multicast\NServiceBus.Multicast
 msbuild
-cd ..\..\..\src\impl\multicast\NServiceBus.Multicast.Transport.Udp
-msbuild
-cd ..\..\..\..\src\grid
+cd ..\..\..\src\grid
 msbuild
 cd ..\..\src\distributor\NServiceBus.Unicast.Distributor
 msbuild
