@@ -68,10 +68,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\MULTICAST\NServiceBus.Multicast.Transport.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Multicast.Transport.Udp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\IMPL\NServiceBus.Multicast.Transport.Udp.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
@@ -91,10 +87,6 @@
     <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1550, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.WCF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Transport.WCF.dll</HintPath>
     </Reference>
     <Reference Include="ObjectBuilder, Version=1.0.2.41164, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
