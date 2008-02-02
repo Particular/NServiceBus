@@ -8,6 +8,8 @@ namespace Server
     {
         public override void Handle(RequestDataMessage message)
         {
+            Console.WriteLine("Received request {0}.", message.DataId);
+
             DataResponseMessage response = new DataResponseMessage();
             response.DataId = message.DataId;
             response.Description = (message.DataId.ToString("N"));
