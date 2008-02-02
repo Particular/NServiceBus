@@ -27,6 +27,18 @@ namespace NServiceBus.Unicast.Transport
             set { id = value; }
         }
 
+
+	    private string idForCorrelation;
+
+        /// <summary>
+        /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
+        /// </summary>
+	    public string IdForCorrelation
+	    {
+            get { return idForCorrelation; }
+            set { idForCorrelation = value; }
+	    }
+
         private string correlationId;
 
 		/// <summary>

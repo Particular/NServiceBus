@@ -251,7 +251,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 toSend.Recoverable = m.Recoverable;
                 toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
-                toSend.Label = m.WindowsIdentityName;
+                toSend.Label = m.IdForCorrelation + ":" + m.WindowsIdentityName;
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = m.TimeToBeReceived;
@@ -447,9 +447,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 result.ReturnAddress = arr[1];
             }
 
-		    result.WindowsIdentityName = m.Label;
+            if (m.Label != null)
+            {
+                string[] arr = m.Label.Split(':');
+                result.IdForCorrelation = arr[0];
+                result.WindowsIdentityName = arr[1];
+            }
 
-            return result;
+            if (result.IdForCorrelation == null || result.IdForCorrelation == string.Empty)
+                result.IdForCorrelation = result.Id;
+
+		    return result;
         }
 
         /// <summary>

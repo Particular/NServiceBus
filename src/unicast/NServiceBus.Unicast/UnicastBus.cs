@@ -266,7 +266,7 @@ namespace NServiceBus.Unicast
         {
             TransportMessage toSend = this.GetTransportMessageFor(messageBeingHandled.ReturnAddress, messages);
 
-            toSend.CorrelationId = messageBeingHandled.Id;
+            toSend.CorrelationId = messageBeingHandled.IdForCorrelation;
 
             this.transport.Send(toSend, messageBeingHandled.ReturnAddress);
         }
