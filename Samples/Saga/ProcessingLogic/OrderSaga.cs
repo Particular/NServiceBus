@@ -118,6 +118,8 @@ namespace ProcessingLogic
         {
             this.completed = true;
 
+            this.SendUpdate(OrderStatus.Accepted);
+
             OrderAcceptedMessage accepted = new OrderAcceptedMessage();
             accepted.Products = new List<Guid>(this.orderItems.Count);
             accepted.Amounts = new List<float>(this.orderItems.Count);

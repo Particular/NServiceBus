@@ -82,7 +82,14 @@ namespace ProcessLogic.Tests
 
             Assert.IsFalse(orderSaga.Completed);
 
-            Saga.ExpectPublish<OrderAcceptedMessage>(
+            Saga.ExpectSendToDestination<OrderStatusUpdatedMessage>(
+                    delegate(string destination, OrderStatusUpdatedMessage m)
+                    {
+                        return (destination == clientAddress &&
+                                m.OrderId == externalOrderId &&
+                                m.Status == OrderStatus.Accepted);
+                    })
+                .ExpectPublish<OrderAcceptedMessage>(
                     delegate(OrderAcceptedMessage m)
                     {
                         return (m.CustomerId == customerId);
