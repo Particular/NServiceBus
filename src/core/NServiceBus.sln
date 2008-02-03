@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Saga", "NServic
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Testing", "NServiceBus.Testing\NServiceBus.Testing.csproj", "{8B815173-9AFA-4D95-BAB4-686C298F17DA}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,10 @@ Global
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
