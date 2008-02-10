@@ -37,7 +37,7 @@ namespace Server
                 this.timeoutInSeconds /= 2;
                 if (this.timeoutInSeconds != 0)
                 {
-                    this.reminder.ExpireIn(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null);
+                    this.bus.Send(new TimeoutMessage(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null));
                     return;
                 }
             }
@@ -64,7 +64,7 @@ namespace Server
 
             this.NumberOfPendingResponses = this.numberOfPartners;
 
-            this.reminder.ExpireIn(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null);
+            this.bus.Send(new TimeoutMessage(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null));
         }
 
         public void Handle(PartnerQuoteMessage message)
@@ -102,13 +102,6 @@ namespace Server
         #endregion
 
         #region config info
-
-        [NonSerialized]
-        private Reminder reminder;
-        public Reminder Reminder
-        {
-            set { reminder = value; }
-        }
 
         [NonSerialized]
         private IBus bus;

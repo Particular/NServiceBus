@@ -130,7 +130,7 @@ namespace DbBlobSagaPersister
 
         #region db helper
 
-       private void InsertOrUpdate(DbTransaction tx, string sql, ISagaEntity saga)
+       private static void InsertOrUpdate(DbTransaction tx, string sql, ISagaEntity saga)
         {
             DbCommand command = tx.Connection.CreateCommand();
             command.Transaction = tx;
@@ -143,7 +143,7 @@ namespace DbBlobSagaPersister
 
             DbParameter valueParam = command.CreateParameter();
             valueParam.ParameterName = "@Value";
-            valueParam.Value = this.Serialize(saga);
+            valueParam.Value = Serialize(saga);
             command.Parameters.Add(valueParam);
 
             command.CommandText = sql;
@@ -155,14 +155,14 @@ namespace DbBlobSagaPersister
 
         #region Serialization
 
-        private byte[] Serialize(ISagaEntity saga)
+        private static byte[] Serialize(ISagaEntity saga)
         {
             MemoryStream stream = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
 
             formatter.Serialize(stream, saga);
 
-            return stream.GetBuffer();
+            return stream.ToArray();
         }
 
         private ISagaEntity Deserialize(byte[] buffer)

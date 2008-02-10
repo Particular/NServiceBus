@@ -29,7 +29,11 @@ namespace ObjectBuilder.SpringFramework
 
         public static void BuildAndDispatch(Type typeToBuild, Spring.Context.IApplicationContext context, string methodName, params object[] methodArgs)
         {
-            MethodInfo method = typeToBuild.GetMethod(methodName);
+            Type[] types = new Type[methodArgs.Length];
+            for(int i=0; i < methodArgs.Length; i++)
+                types[i] = methodArgs[i].GetType();
+
+            MethodInfo method = typeToBuild.GetMethod(methodName, types);
             object obj = Build(typeToBuild, context);
 
             if (obj != null)

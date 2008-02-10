@@ -1,34 +1,33 @@
-
 using ExternalOrderMessages;
 using NServiceBus;
 using NServiceBus.Saga;
 using OrderQueryLogic;
-using ObjectBuilder;
 
 namespace MessageHandlers
 {
-    public class CreateOrderMessageHandler : IMessageHandler<CreateOrderMessage>
+    public class OrderMessageHandler : SagaMessageHandler
     {
-        public void Handle(CreateOrderMessage message)
+        public override bool NeedToHandle(IMessage message)
         {
-            ISaga<CreateOrderMessage> saga = this.query.Find<CreateOrderMessage>(message.OrderId);
+            if (message is CreateOrderMessage || message is CancelOrderMessage)
+                return true;
+            else
+                return base.NeedToHandle(message);
+        }
 
-            if (saga == null)
-                saga = this.builer.Build(typeof (ISaga<CreateOrderMessage>)) as ISaga<CreateOrderMessage>;
-
-            saga.Handle(message);        
+        public override ISagaEntity FindSagaUsing(IMessage message)
+        {
+            IMessageWithOrderId order = message as IMessageWithOrderId;
+            if (order != null)
+                return this.query.Find(order.OrderId);
+            else 
+                return base.FindSagaUsing(message);
         }
 
         private IQuerySagasByOrderIds query;
         public IQuerySagasByOrderIds Query
         {
             set { this.query = value; }
-        }
-
-        private IBuilder builer;
-        public IBuilder Builder
-        {
-            set { this.builer = value; }
         }
     }
 }

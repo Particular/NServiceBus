@@ -19,7 +19,7 @@ namespace NServiceBus.Testing
             bus = b;
         }
 
-        public static Saga Test<T>(out T saga, string timeoutManagerAddress) where T : ISagaEntity, new()
+        public static Saga Test<T>(out T saga) where T : ISagaEntity, new()
         {
             saga = new T();
             saga.Id = Guid.NewGuid();
@@ -28,18 +28,8 @@ namespace NServiceBus.Testing
             IBus bus = mocks.DynamicMock<IBus>();
 
             foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
-            {
                 if (typeof(IBus).IsAssignableFrom(field.FieldType))
                     field.SetValue(saga, bus);
-                if (typeof(Reminder).IsAssignableFrom(field.FieldType))
-                {
-                    Reminder r = new Reminder();
-                    r.Bus = bus;
-                    r.TimeoutManagerAddress = timeoutManagerAddress;
-
-                    field.SetValue(saga, r);
-                }
-            }
 
             return new Saga(mocks, bus);
         }

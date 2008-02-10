@@ -521,8 +521,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="q">The MSMQ queue to set.</param>
         private void SetLocalQueue(MessageQueue q)
         {
-            q.MachineName = Environment.MachineName; // just in case we were given "localhost"
-
+            //q.MachineName = Environment.MachineName; // just in case we were given "localhost"
             if (!q.Transactional)
                 throw new ArgumentException("Queue must be transactional (" + q.Path + ").");
             else

@@ -328,7 +328,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
         public ICallback Send(params IMessage[] messages)
         {
-            string destination = this.messageTypeToDestinationLookup[messages[0].GetType()];
+		    string destination = this.GetDestinationForMessageType(messages[0].GetType());
 
             return this.Send(destination, messages);
         }

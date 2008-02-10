@@ -22,13 +22,6 @@ namespace ProcessingLogic
             set { this.bus = value; }
         }
 
-        [NonSerialized]
-        private Reminder reminder;
-        public Reminder Reminder
-        {
-            set { this.reminder = value; }
-        }
-
         #endregion
 
         private Guid id;
@@ -59,7 +52,7 @@ namespace ProcessingLogic
 
             this.SendUpdate(OrderStatus.Recieved);
 
-            this.reminder.ExpireIn(message.ProvideBy - DateTime.Now, this, null);
+            this.bus.Send(new TimeoutMessage(message.ProvideBy, this, null));
         }
 
         public void Timeout(object state)

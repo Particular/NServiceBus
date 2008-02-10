@@ -1,12 +1,17 @@
 using System;
-using NServiceBus;
 
 namespace ExternalOrderMessages
 {
     [Serializable]
-    public class CancelOrderMessage : IMessage
+    public class CancelOrderMessage : IMessageWithOrderId
     {
-        public Guid OrderId;
+        private Guid orderId;
         public Guid CustomerId;
+
+        public Guid OrderId
+        {
+            get { return orderId; }
+            set { orderId = value; }
+        }
     }
 }

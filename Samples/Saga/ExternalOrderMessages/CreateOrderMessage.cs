@@ -3,18 +3,29 @@
 using System;
 using System.Collections.Generic;
 using NServiceBus;
-using NServiceBus.Saga;
 
 namespace ExternalOrderMessages
 {
     [Serializable]
-    public class CreateOrderMessage : IMessage
+    public class CreateOrderMessage : IMessageWithOrderId
     {
         public List<Guid> Products;
         public List<float> Amounts;
         public Guid CustomerId;
-        public Guid OrderId;
         public bool Completed;
         public DateTime ProvideBy;
+
+        private Guid orderId;
+
+        public Guid OrderId
+        {
+            get { return orderId; }
+            set { orderId = value; }
+        }
+    }
+
+    public interface IMessageWithOrderId : IMessage
+    {
+        Guid OrderId { get; }
     }
 }

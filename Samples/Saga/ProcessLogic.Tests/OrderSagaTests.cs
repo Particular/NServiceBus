@@ -13,14 +13,12 @@ namespace ProcessLogic.Tests
     public class OrderSagaTests
     {
         private OrderSaga orderSaga = null;
-        private string timeoutAddress;
         private Saga Saga;
         
         [SetUp]
         public void Setup()
         {
-            timeoutAddress = "timeout";
-            Saga = Saga.Test(out orderSaga, timeoutAddress);
+            Saga = Saga.Test(out orderSaga);
         }
 
         [Test]
@@ -55,11 +53,11 @@ namespace ProcessLogic.Tests
                     {
                         return m.OrderId == externalOrderId && destination == clientAddress;
                     })
-                .ExpectSendToDestination<TimeoutMessage>(
-                    delegate(string destination, TimeoutMessage m)
+                .ExpectSend<TimeoutMessage>(
+                    delegate(TimeoutMessage m)
                     {
                         timeoutMessage = m;
-                        return m.SagaId == orderSaga.Id && destination == timeoutAddress;
+                        return m.SagaId == orderSaga.Id;
                     })
                 .When(delegate { orderSaga.Handle(createOrderMsg); });
 

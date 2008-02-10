@@ -44,4 +44,6 @@ cd ..\..\Samples\FullDuplex
 msbuild
 cd ..\..\Samples\PubSub
 msbuild
+cd ..\..\Samples\Saga
+msbuild
 cd ..\..\

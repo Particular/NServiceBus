@@ -49,7 +49,6 @@
     <Compile Include="ISagaMessage.cs" />
     <Compile Include="ISagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reminder.cs" />
     <Compile Include="TimeoutMessage.cs" />
     <Compile Include="SagaMessageHandler.cs" />
   </ItemGroup>
