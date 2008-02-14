@@ -443,8 +443,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (m.ResponseQueue != null)
             {
-                string[] arr = m.ResponseQueue.QueueName.Split('\\');
-                result.ReturnAddress = arr[1];
+                string[] arr = m.ResponseQueue.FormatName.Split('\\');
+                result.ReturnAddress = arr[arr.Length - 1];
             }
 
             if (m.Label != null)

@@ -1,4 +1,5 @@
 using System;
+using NServiceBus;
 
 namespace NServiceBus.Saga
 {
@@ -42,11 +43,12 @@ namespace NServiceBus.Saga
         bool Completed { get; }
 
 		/// <summary>
-		/// Notifies the workflow that the <see cref="Reminder" />
-		/// it previously requested has passed.
+		/// Notifies the workflow that the timeout it previously requested
+		/// by calling <see cref="IBus"/>.Send(new <see cref="TimeoutMessage"/>())
+		/// occurred.
 		/// </summary>
 		/// <param name="state">The object passed as a parameter <see cref="state" />
-		/// to the ExpireIn method of <see cref="Reminder"/>.</param>
+		/// to the constructor of <see cref="TimeoutMessage"/>.</param>
         void Timeout(object state);
     }
 }

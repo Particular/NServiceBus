@@ -60,8 +60,8 @@ namespace NServiceBus.Saga
         private object state;
 
         /// <summary>
-        /// Contains the object passed as the state parameter
-        /// to the ExpireIn method of <see cref="Reminder"/>.
+        /// Should be used for data to differentiate between various
+        /// timeout occurrences.
         /// </summary>
         public object State
         {
