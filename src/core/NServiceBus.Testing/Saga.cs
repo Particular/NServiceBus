@@ -62,6 +62,49 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        public Saga ExpectReply<T>(SendPredicate<T> check) where T : IMessage
+        {
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    ExpectCallToReply(
+                        delegate(IMessage[] msgs)
+                        {
+                            foreach (T msg in msgs)
+                                if (!check(msg))
+                                    return false;
+
+                            return true;
+                        }
+                        );
+                }
+            );
+
+            this.delegates.Add(d);
+            return this;
+        }
+
+        public Saga ExpectReturn(ReturnPredicate check)
+        {
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    ExpectCallToReturn(
+                        delegate(int returnCode)
+                        {
+                            if (!check(returnCode))
+                                return false;
+
+                            return true;
+                        }
+                        );
+                }
+            );
+
+            this.delegates.Add(d);
+            return this;
+        }
+
         public Saga ExpectSendToDestination<T>(SendToDestinationPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -122,6 +165,24 @@ namespace NServiceBus.Testing
             m.BackToRecordAll();
 
             this.delegates.Clear();
+        }
+
+        private void ExpectCallToReturn(ReturnPredicate callback)
+        {
+            int returnCode = -1;
+
+            Expect.Call(delegate { bus.Return(returnCode); })
+                .IgnoreArguments().Return(null)
+                .Callback(callback);
+        }
+
+        private void ExpectCallToReply(BusSendDelegate callback)
+        {
+            IMessage[] messages = null;
+
+            Expect.Call(delegate { bus.Reply(messages); })
+                .IgnoreArguments().Return(null)
+                .Callback(callback);
         }
 
         private void ExpectCallToSend(BusSendDelegate callback)

@@ -1,5 +1,7 @@
 namespace NServiceBus.Testing
 {
+    public delegate bool ReturnPredicate(int returnCode);
+
     public delegate bool PublishPredicate<T>(T message) where T : IMessage;
 
     public delegate bool SendPredicate<T>(T message) where T : IMessage;
