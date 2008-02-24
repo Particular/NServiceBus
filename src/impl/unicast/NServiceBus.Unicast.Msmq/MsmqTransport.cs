@@ -34,6 +34,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 MessageQueue q = new MessageQueue(path);
 
                 SetLocalQueue(q);
+
+                if (this.purgeOnStartup)
+                    this.queue.Purge();
             }
         }
 
@@ -90,7 +93,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public bool PurgeOnStartup
         {
-            set { purgeOnStartup = value; }
+            set
+            {
+                purgeOnStartup = value;
+
+                if (this.purgeOnStartup && this.queue != null)
+                    this.queue.Purge();
+            }
         }
 
 	    private int maxRetries = 5;
@@ -203,8 +212,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Start()
         {
-            if (this.purgeOnStartup)
-                this.queue.Purge();
+            //don't purge on startup here
 
             for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
