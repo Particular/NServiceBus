@@ -72,10 +72,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BUILD\UNICAST\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.0.0.1678, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>

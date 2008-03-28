@@ -77,8 +77,15 @@ namespace Grid
                 object missing = Type.Missing;
                 object formatName = "DIRECT=OS:" + Environment.MachineName + "\\private$\\" + endpoint.Queue;
 
-                qMgmt.Init(ref machine, ref missing, ref formatName);
-                endpoint.SetNumberOfMessages(qMgmt.MessageCount);
+                try
+                {
+                    qMgmt.Init(ref machine, ref missing, ref formatName);
+                    endpoint.SetNumberOfMessages(qMgmt.MessageCount);
+                }
+                catch
+                {
+                    //intentionally swallow bad endpoints
+                }
             }
 
             watch.Stop();

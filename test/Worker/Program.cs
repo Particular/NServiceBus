@@ -1,6 +1,9 @@
 using System;
 using NServiceBus;
 using Common.Logging;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Transport.Msmq.Config;
+using ObjectBuilder;
 
 namespace Worker
 {
@@ -13,10 +16,25 @@ namespace Worker
 
             try
             {
-                IBus bServer = builder.Build<IBus>();
-                bServer.Start();
+                builder.ConfigureComponent(typeof (PartnerQuoteMessageHandler), ComponentCallModelEnum.Singlecall)
+                    .ConfigureProperty("MaxRandomSecondsToSleep", 5);
 
-                bServer.Subscribe(typeof(Messages.Event));
+                new ConfigMsmqTransport(builder)
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                    .UseXmlSerialization(false);
+
+                new ConfigUnicastBus(builder)
+                    .ImpersonateSender(false)
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        "NServiceBus.Grid.MessageHandlers",
+                        "Worker"
+                    );
+
+                IBus bus = builder.Build<IBus>();
+                bus.Start();
+
+                bus.Subscribe(typeof(Messages.Event));
 
                 Console.Read();
             }

@@ -18,13 +18,9 @@ namespace WebService1
         [WebMethod]
         public ErrorCodes Process(Command request)
         {
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-
-            IBus bClient = builder.Build<IBus>();
-
             object result = ErrorCodes.None;
 
-            IAsyncResult sync = bClient.Send(request).Register(
+            IAsyncResult sync = Global.Bus.Send(request).Register(
                 delegate(IAsyncResult asyncResult)
                   {
                       CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;

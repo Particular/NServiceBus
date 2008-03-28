@@ -7,6 +7,8 @@ namespace ObjectBuilder
     {
         bool JoinSynchronizationDomain { set; }
 
+        IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
+
         object Build(Type typeToBuild);
         T Build<T>();
 

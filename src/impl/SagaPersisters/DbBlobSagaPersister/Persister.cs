@@ -11,35 +11,76 @@ namespace DbBlobSagaPersister
 {
     public class Persister : ISagaPersister
     {
-        public Persister(IBuilder builder, string providerInvariantName, string connectionString, string onlineTableName, string completedTableName, string idColumnName, string valueColumnName)
-        {
-            this.builder = builder;
-
-            DbProviderFactory factory = DbProviderFactories.GetFactory(providerInvariantName);
-            this.connection = factory.CreateConnection();
-            this.connection.ConnectionString = connectionString;
-
-            this.onlineTableName = onlineTableName;
-            this.completedTableName = completedTableName;
-            this.idColumnName = idColumnName;
-            this.valueColumnName = valueColumnName;
-
-            this.connection.Open();
-        }
-
-        private readonly IBuilder builder;
-        private readonly DbConnection connection;
-        private readonly string onlineTableName;
-        private readonly string completedTableName;
-        private readonly string idColumnName;
-        private readonly string valueColumnName;
-
+        private IBuilder builder;
+        private DbConnection connection;
+        private string onlineTableName;
+        private string completedTableName;
+        private string idColumnName;
+        private string valueColumnName;
+        private string connectionString;
         private IsolationLevel isolationLevel = IsolationLevel.ReadCommitted;
+
         public IsolationLevel IsolationLevel
         {
             set
             {
                 this.isolationLevel = value;
+            }
+        }
+
+        public string ValueColumnName
+        {
+            set { valueColumnName = value; }
+        }
+
+        public string IdColumnName
+        {
+            set { idColumnName = value; }
+        }
+
+        public string CompletedTableName
+        {
+            set { completedTableName = value; }
+        }
+
+        public string OnlineTableName
+        {
+            set { onlineTableName = value; }
+        }
+
+        public IBuilder Builder
+        {
+            set { builder = value; }
+        }
+
+        public string ProviderInvariantName
+        {
+            set
+            {
+                DbProviderFactory factory = DbProviderFactories.GetFactory(value);
+                this.connection = factory.CreateConnection();
+
+                InitializeConnection();
+            }
+        }
+
+        private void InitializeConnection()
+        {
+            if (this.connectionString != null && this.connection != null)
+            {
+                this.connection.ConnectionString = this.connectionString;
+                this.connection.Open();
+            }
+        }
+
+        public string ConnectionString
+        {
+            get { return connectionString; }
+            set
+            {
+                connectionString = value;
+
+                InitializeConnection();
             }
         }
 

@@ -5,7 +5,7 @@ namespace ObjectBuilder.SpringFramework
 {
     public class Builder : IBuilder
     {
-        private IBuilderInternal builder = new RegularBuilder();
+        public IBuilderInternal builder = new RegularBuilder();
 
         #region IBuilder Members
 
@@ -39,7 +39,10 @@ namespace ObjectBuilder.SpringFramework
             this.builder.BuildAndDispatch(typeToBuild, methodName, methodArgs);
         }
 
-
+        public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            return this.builder.ConfigureComponent(concreteComponent, callModel);
+        }
         #endregion
     }
 }

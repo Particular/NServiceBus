@@ -1,6 +1,8 @@
 using System;
 using System.Web;
 using NServiceBus;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Transport.Msmq.Config;
 
 namespace WebApplication1
 {
@@ -10,6 +12,15 @@ namespace WebApplication1
         protected void Application_Start(object sender, EventArgs e)
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
+            builder.Build<IBus>();
+
+            new ConfigMsmqTransport(builder)
+                .IsTransactional(false)
+                .PurgeOnStartup(false)
+                .UseXmlSerialization(false);
+
+            new ConfigUnicastBus(builder)
+                .ImpersonateSender(false);
 
             IBus bus = builder.Build<IBus>();
             bus.Start();

@@ -1,8 +1,12 @@
 using System;
 using NServiceBus;
 using Common.Logging;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
+using Timeout.MessageHandlers;
 
-namespace TimeoutManager
+namespace Timeout.Manager
 {
     class Program
     {
@@ -13,8 +17,22 @@ namespace TimeoutManager
 
             try
             {
-                IBus bServer = builder.Build<IBus>();
-                bServer.Start();
+                Configure.With(builder).SagasAndMessageHandlersIn(typeof (TimeoutMessageHandler).Assembly);
+
+                new ConfigMsmqTransport(builder)
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                    .UseXmlSerialization(false);
+
+                new ConfigUnicastBus(builder)
+                    .ImpersonateSender(false)
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        "NServiceBus.Grid.MessageHandlers",
+                        "Timeout.MessageHandlers"
+                    );
+
+                IBus bus = builder.Build<IBus>();
+                bus.Start();
             }
             catch (Exception e)
             {

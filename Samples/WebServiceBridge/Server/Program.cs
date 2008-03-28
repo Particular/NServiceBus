@@ -1,6 +1,10 @@
 using System;
 using Common.Logging;
 using NServiceBus;
+using NServiceBus.Config;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Subscriptions.Msmq.Config;
+using NServiceBus.Unicast.Transport.Msmq.Config;
 
 namespace Server
 {
@@ -13,8 +17,21 @@ namespace Server
 
             try
             {
-                IBus bServer = builder.Build<IBus>();
-                bServer.Start();
+                Configure.With(builder).SagasAndMessageHandlersIn(typeof(CommandMessageHandler).Assembly);
+
+                new ConfigMsmqSubscriptionStorage(builder);
+
+                new ConfigMsmqTransport(builder)
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                    .UseXmlSerialization(false);
+
+                new ConfigUnicastBus(builder)
+                    .ImpersonateSender(false)
+                    .SetMessageHandlersFromAssembliesInOrder("Server");
+
+                IBus bus = builder.Build<IBus>();
+                bus.Start();
 
                 Console.Read();
             }

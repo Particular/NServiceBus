@@ -22,7 +22,8 @@ namespace NServiceBus.Unicast
         private bool disableMessageHandling = false;
 
 		/// <summary>
-		/// Disables the handling of incoming messages.
+        /// Should be used by programmer, not administrator.
+        /// Disables the handling of incoming messages.
 		/// </summary>
         public bool DisableMessageHandling
         {
@@ -32,7 +33,8 @@ namespace NServiceBus.Unicast
         protected ITransport transport;
 
 		/// <summary>
-		/// Sets an <see cref="ITransport"/> implementation to use as the
+        /// Should be used by programmer, not administrator.
+        /// Sets an <see cref="ITransport"/> implementation to use as the
 		/// message transport for the bus.
 		/// </summary>
         public ITransport Transport
@@ -58,7 +60,8 @@ namespace NServiceBus.Unicast
         public event MessageReceivedDelegate MessageReceived;
 
 		/// <summary>
-		/// Sets an <see cref="ISubscriptionStorage"/> implementation to
+        /// Should be used by programmer, not administrator.
+        /// Sets an <see cref="ISubscriptionStorage"/> implementation to
 		/// be used for subscription storage for the bus.
 		/// </summary>
         public ISubscriptionStorage SubscriptionStorage
@@ -72,7 +75,8 @@ namespace NServiceBus.Unicast
         private IBuilder builder;
 
 		/// <summary>
-		/// Sets <see cref="IBuilder"/> implementation that will be used to 
+        /// Should be used by programmer, not administrator.
+        /// Sets <see cref="IBuilder"/> implementation that will be used to 
 		/// dynamically instantiate and execute message handlers.
 		/// </summary>
         public IBuilder Builder
@@ -83,7 +87,8 @@ namespace NServiceBus.Unicast
         private bool propogateReturnAddressOnSend = false;
 
 		/// <summary>
-		/// Sets whether or not the return address of a received message 
+        /// Should be used by programmer, not administrator.
+        /// Sets whether or not the return address of a received message 
 		/// should be propogated when the message is forwarded. This field is
 		/// used primarily for the Distributor.
 		/// </summary>
@@ -95,7 +100,8 @@ namespace NServiceBus.Unicast
         private bool impersonateSender;
 
 		/// <summary>
-		/// Sets whether or not the bus should impersonate the sender
+        /// Should be used by programmer, not administrator.
+        /// Sets whether or not the bus should impersonate the sender
 		/// of a message it has received when re-sending the message.
 		/// What occurs is that the thread sets its current principal
         /// to the value found in the <see cref="TransportMessage.WindowsIdentityName" />
@@ -109,7 +115,8 @@ namespace NServiceBus.Unicast
         private string distributorDataAddress;
 
 		/// <summary>
-		/// Sets the address to which the messages received on this bus
+        /// Should be used by administrator, not programmer.
+        /// Sets the address to which the messages received on this bus
 		/// will be sent when the method HandleCurrentMessageLater is called.
 		/// </summary>
         public string DistributorDataAddress
@@ -120,6 +127,7 @@ namespace NServiceBus.Unicast
         private string distributorControlAddress;
 
         /// <summary>
+        /// Should be used by administrator, not programmer.
         /// Sets the address of the distributor control queue.
         /// </summary>
         /// <remarks>
@@ -135,6 +143,7 @@ namespace NServiceBus.Unicast
 	    private string forwardReceivedMessagesTo;
 
         /// <summary>
+        /// Should be used by administrator, not programmer.
         /// Sets the address to which all messages received on this bus will be 
         /// forwarded to (not including subscription messages). 
         /// This is primarily useful for smart client scenarios 
@@ -148,6 +157,7 @@ namespace NServiceBus.Unicast
 	    }
 
 		/// <summary>
+		/// Should be used by administrator, not programmer.
 		/// Sets the message types associated with the bus.
 		/// </summary>
 		/// <remarks>
@@ -184,6 +194,26 @@ namespace NServiceBus.Unicast
                     {
                         log.Error("Problems analyzing " + s, e);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Should be used by programmer, not administrator.
+        /// </summary>
+        /// <param name="handlerAssemblies"></param>
+        public void SetMessageHandlersInOrder(params string[] handlerAssemblies)
+        {
+            foreach(string s in handlerAssemblies)
+            {
+                try
+                {
+                    Assembly a = Assembly.Load(s);
+                    this.AddTypesFromAssembly(a);
+                }
+                catch
+                {
+                    
                 }
             }
         }
@@ -376,6 +406,8 @@ namespace NServiceBus.Unicast
         public virtual void Start()
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+
+            this.subscriptionsManager.Start();
 
             this.transport.MessageTypesToBeReceived = this.messageTypes;
 
@@ -653,11 +685,6 @@ namespace NServiceBus.Unicast
                 foreach (Type t in a.GetTypes())
                     this.RegisterMessageTypeToDestination(t, de.Value.ToString(), true);
             }
-
-            this.messageTypes.Add(typeof(CompletionMessage));
-            this.messageTypes.Add(typeof(SubscriptionMessage));
-            this.messageTypes.Add(typeof(ReadyMessage));
-            this.messageTypes.Add(typeof(IMessage[]));
         }
 
         /// <summary>
@@ -724,10 +751,39 @@ namespace NServiceBus.Unicast
                     return;
 
                 this.messageTypeToDestinationLookup[messageType] = destination;
-                this.messageTypes.Add(messageType);
+                this.AddMessageType(messageType);
 
                 return;
             }            
+        }
+
+        /// <summary>
+        /// Should be used by programmer, not administrator.
+        /// </summary>
+        /// <param name="messageType"></param>
+        public void AddMessageType(Type messageType)
+        {
+            if (!this.messageTypes.Contains(messageType))
+                this.messageTypes.Add(messageType);
+        }
+
+        /// <summary>
+        /// Should be used by programmer, not administrator.
+        /// </summary>
+        /// <param name="assembly"></param>
+        public void AddMessageTypesFrom(string assembly)
+        {
+            try
+            {
+                Assembly a = Assembly.Load(assembly);
+                foreach(Type t in a.GetTypes())
+                    if (typeof(IMessage).IsAssignableFrom(t))
+                        this.AddMessageType(t);
+            }
+            catch
+            {
+                
+            }
         }
 
 		/// <summary>
@@ -911,7 +967,8 @@ namespace NServiceBus.Unicast
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
-        private readonly List<Type> messageTypes = new List<Type>();
+        private readonly List<Type> messageTypes = new List<Type>(new Type[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
+
         private readonly IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
         private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 

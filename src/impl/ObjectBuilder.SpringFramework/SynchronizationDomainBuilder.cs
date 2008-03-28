@@ -11,19 +11,26 @@ namespace ObjectBuilder.SpringFramework
 
         public object Build(Type typeToBuild)
         {
-            return Helper.Build(typeToBuild, Spring.Context.Support.ContextRegistry.GetContext());
+            return helper.Build(typeToBuild);
         }
 
         public IEnumerable BuildAll(Type typeToBuild)
         {
-            return Helper.BuildAll(typeToBuild, Spring.Context.Support.ContextRegistry.GetContext());
+            return helper.BuildAll(typeToBuild);
         }
 
         public void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs)
         {
-            Helper.BuildAndDispatch(typeToBuild, Spring.Context.Support.ContextRegistry.GetContext(), methodName, methodArgs);
+            helper.BuildAndDispatch(typeToBuild, methodName, methodArgs);
+        }
+
+        public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            return helper.ConfigureComponent(concreteComponent, callModel);
         }
 
         #endregion
+
+        private readonly Helper helper = new Helper();
     }
 }

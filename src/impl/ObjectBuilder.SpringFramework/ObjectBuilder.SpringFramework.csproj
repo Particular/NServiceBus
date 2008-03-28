@@ -51,6 +51,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +59,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Builder.cs" />
+    <Compile Include="ComponentConfig.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="IBuilderInternal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

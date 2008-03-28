@@ -10,5 +10,7 @@ namespace ObjectBuilder.SpringFramework
         IEnumerable BuildAll(Type typeToBuild);
 
         void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs);
+
+        IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
     }
 }

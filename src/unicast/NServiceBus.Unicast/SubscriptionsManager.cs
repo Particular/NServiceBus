@@ -23,11 +23,14 @@ namespace NServiceBus.Unicast
             set
             {
                 this.storage = value;
-
-                if (this.storage != null)
-                    foreach (TransportMessage m in this.storage.GetAllMessages())
-                        this.HandledSubscriptionMessage(m, false);
             }
+        }
+
+        public void Start()
+        {
+            if (this.storage != null)
+                foreach (TransportMessage m in this.storage.GetAllMessages())
+                    this.HandledSubscriptionMessage(m, false);
         }
 
 		/// <summary>

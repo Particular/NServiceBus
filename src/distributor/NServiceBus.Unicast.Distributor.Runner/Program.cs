@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
 using Common.Logging;
+using NServiceBus.Unicast.Transport.Msmq;
+using ObjectBuilder;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -15,7 +18,43 @@ namespace NServiceBus.Unicast.Distributor.Runner
 
             try
             {
-                Distributor distributor = builder.Build<Distributor>();
+                MsmqTransport controlTransport = new MsmqTransport();
+                controlTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["ControlInputQueue"];
+                controlTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
+                controlTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
+                controlTransport.IsTransactional = true;
+                controlTransport.PurgeOnStartup = false;
+                controlTransport.UseXmlSerialization = false;
+
+                MsmqTransport dataTransport = new MsmqTransport();
+                dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
+                dataTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
+                dataTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
+                dataTransport.IsTransactional = true;
+                dataTransport.PurgeOnStartup = false;
+                dataTransport.UseXmlSerialization = false;
+                dataTransport.SkipDeserialization = true;
+
+                UnicastBus controlBus = new UnicastBus();
+                controlBus.Builder = builder;
+                controlBus.Transport = controlTransport;
+
+                ArrayList list = new ArrayList();
+                list.Add("NServiceBus.Grid.MessageHandlers");
+                list.Add("NServiceBus.Unicast.Distributor");
+                controlBus.MessageHandlerAssemblies = list;
+
+                builder.ConfigureComponent(
+                    typeof (MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager),
+                    ComponentCallModelEnum.Singleton)
+                    .ConfigureProperty("StorageQueue",
+                                       System.Configuration.ConfigurationManager.AppSettings["StorageQueue"]);
+
+                Distributor distributor = new Distributor();
+                distributor.ControlBus = controlBus;
+                distributor.MessageBusTransport = dataTransport;
+                distributor.WorkerManager = builder.Build < MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>();
+
                 distributor.Start();
 
                 Console.Read();

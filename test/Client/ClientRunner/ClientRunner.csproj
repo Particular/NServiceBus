@@ -60,13 +60,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Multicast, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Config, Version=1.7.1.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\NServiceBus.Multicast.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Multicast.Transport, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BUILD\MULTICAST\NServiceBus.Multicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\build\core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

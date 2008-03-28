@@ -43,7 +43,13 @@
       <HintPath>..\..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ObjectBuilder, Version=1.7.1.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
@@ -59,6 +65,8 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
+    <Compile Include="Config\ConfigMsmqTransport.cs" />
+    <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="MsmqTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

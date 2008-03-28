@@ -110,7 +110,7 @@ namespace Server
             set { bus = value; }
         }
 
-        private int numberOfPartners;
+        private int numberOfPartners = 10;
         public int NumberOfPartners
         {
             set { numberOfPartners = value; }

@@ -2,6 +2,8 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Transport.Msmq.Config;
 
 namespace Client
 {
@@ -11,10 +13,18 @@ namespace Client
         {
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-                
-            IBus bClient = builder.Build<IBus>();
 
-            bClient.Start();
+            new ConfigMsmqTransport(builder)
+                .IsTransactional(false)
+                .PurgeOnStartup(false)
+                .UseXmlSerialization(false);
+
+            new ConfigUnicastBus(builder)
+                .ImpersonateSender(false);
+
+            IBus bus = builder.Build<IBus>();
+
+            bus.Start();
 
             Console.WriteLine("Press 'Enter' to send a message. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")
@@ -25,7 +35,7 @@ namespace Client
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 
                 //notice that we're passing the message (m) as our state object
-                bClient.Send(m).Register(RequestDataComplete, m);
+                bus.Send(m).Register(RequestDataComplete, m);
             }
         }
 
