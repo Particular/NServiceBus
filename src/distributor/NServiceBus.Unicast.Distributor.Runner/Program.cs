@@ -3,6 +3,7 @@ using System.Collections;
 using Common.Logging;
 using NServiceBus.Unicast.Transport.Msmq;
 using ObjectBuilder;
+using NServiceBus.Grid.MessageHandlers;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -40,8 +41,8 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 controlBus.Transport = controlTransport;
 
                 ArrayList list = new ArrayList();
-                list.Add("NServiceBus.Grid.MessageHandlers");
-                list.Add("NServiceBus.Unicast.Distributor");
+                list.Add(typeof(GridInterceptingMessageHandler).Assembly);
+                list.Add(typeof(ReadyMessageHandler).Assembly);
                 controlBus.MessageHandlerAssemblies = list;
 
                 builder.ConfigureComponent(
@@ -53,7 +54,10 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 Distributor distributor = new Distributor();
                 distributor.ControlBus = controlBus;
                 distributor.MessageBusTransport = dataTransport;
-                distributor.WorkerManager = builder.Build < MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>();
+                distributor.WorkerManager = builder.Build<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>();
+
+                builder.ConfigureComponent(typeof (ReadyMessageHandler), ComponentCallModelEnum.Singlecall)
+                    .ConfigureProperty("Bus", controlBus);
 
                 distributor.Start();
 

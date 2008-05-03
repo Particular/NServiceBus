@@ -24,7 +24,9 @@ namespace Subscriber2
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false)
-                .SetMessageHandlersFromAssembliesInOrder("Subscriber2");
+                .SetMessageHandlersFromAssembliesInOrder(
+                    typeof(EventMessageHandler).Assembly
+                );
 
             IBus bClient = builder.Build<IBus>();
 

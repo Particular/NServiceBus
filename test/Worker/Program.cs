@@ -4,6 +4,7 @@ using Common.Logging;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
+using NServiceBus.Grid.MessageHandlers;
 
 namespace Worker
 {
@@ -27,8 +28,8 @@ namespace Worker
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)
                     .SetMessageHandlersFromAssembliesInOrder(
-                        "NServiceBus.Grid.MessageHandlers",
-                        "Worker"
+                        typeof(GridInterceptingMessageHandler).Assembly,
+                        typeof(PartnerQuoteMessageHandler).Assembly
                     );
 
                 IBus bus = builder.Build<IBus>();

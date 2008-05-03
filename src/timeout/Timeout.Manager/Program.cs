@@ -1,6 +1,7 @@
 using System;
 using NServiceBus;
 using Common.Logging;
+using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Config;
@@ -27,8 +28,8 @@ namespace Timeout.Manager
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)
                     .SetMessageHandlersFromAssembliesInOrder(
-                        "NServiceBus.Grid.MessageHandlers",
-                        "Timeout.MessageHandlers"
+                        typeof(GridInterceptingMessageHandler).Assembly,
+                        typeof(TimeoutMessageHandler).Assembly
                     );
 
                 IBus bus = builder.Build<IBus>();

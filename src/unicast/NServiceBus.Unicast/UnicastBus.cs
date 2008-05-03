@@ -176,44 +176,23 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Sets the list of assembly names which contain a message handlers
+        /// Sets the list of assemblies which contain a message handlers
 		/// for the bus.
         /// </summary>
         public IList MessageHandlerAssemblies
         {
             set
             {
-                foreach (string s in value)
+                foreach (Assembly a in value)
                 {
                     try
                     {
-                        Assembly a = Assembly.Load(s);
                         this.AddTypesFromAssembly(a);
                     }
                     catch(Exception e)
                     {
-                        log.Error("Problems analyzing " + s, e);
+                        log.Error("Problems analyzing " + a.FullName, e);
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// </summary>
-        /// <param name="handlerAssemblies"></param>
-        public void SetMessageHandlersInOrder(params string[] handlerAssemblies)
-        {
-            foreach(string s in handlerAssemblies)
-            {
-                try
-                {
-                    Assembly a = Assembly.Load(s);
-                    this.AddTypesFromAssembly(a);
-                }
-                catch
-                {
-                    
                 }
             }
         }
@@ -767,25 +746,6 @@ namespace NServiceBus.Unicast
         {
             if (!this.messageTypes.Contains(messageType))
                 this.messageTypes.Add(messageType);
-        }
-
-        /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// </summary>
-        /// <param name="assembly"></param>
-        public void AddMessageTypesFrom(string assembly)
-        {
-            try
-            {
-                Assembly a = Assembly.Load(assembly);
-                foreach(Type t in a.GetTypes())
-                    if (typeof(IMessage).IsAssignableFrom(t))
-                        this.AddMessageType(t);
-            }
-            catch
-            {
-                
-            }
         }
 
 		/// <summary>

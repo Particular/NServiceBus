@@ -29,7 +29,9 @@ namespace Server
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder("Server");
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        typeof(RequestDataMessageHandler).Assembly
+                        );
 
                 IBus bus = builder.Build<IBus>();
                 bus.Start();

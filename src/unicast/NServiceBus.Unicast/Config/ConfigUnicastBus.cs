@@ -1,6 +1,7 @@
 using System.Configuration;
 using ObjectBuilder;
 using System.Collections;
+using System.Reflection;
 
 namespace NServiceBus.Unicast.Config
 {
@@ -32,7 +33,7 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-        public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params string[] assemblies)
+        public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params Assembly[] assemblies)
         {
             config.ConfigureProperty("MessageHandlerAssemblies", new ArrayList(assemblies));
             return this;

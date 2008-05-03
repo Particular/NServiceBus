@@ -10,6 +10,7 @@ using ServerFirst;
 using Server;
 using NServiceBus.Saga;
 using NServiceBus.Grid.MessageHandlers;
+using System.Reflection;
 
 namespace ServerRunner
 {
@@ -39,10 +40,10 @@ namespace ServerRunner
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)
                     .SetMessageHandlersFromAssembliesInOrder(
-                        "NServiceBus.Grid.MessageHandlers",
-                        "NServiceBus.Saga",
-                        "ServerFirst",
-                        "Server"
+                        typeof(GridInterceptingMessageHandler).Assembly,
+                        typeof(ISagaEntity).Assembly,
+                        typeof(HandleCommandFirstMessageHandler).Assembly,
+                        typeof(Saga).Assembly
                     );
 
                 new ConfigSagaPersister(builder)

@@ -29,7 +29,9 @@ namespace ClientRunner
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder("Client");
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        typeof(EventMessageHandler).Assembly
+                    );
 
                 IBus bus = builder.Build<IBus>();
 
