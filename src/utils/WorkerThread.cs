@@ -26,7 +26,7 @@ namespace Utils
             this.methodToRunInLoop = methodToRunInLoop;
             this.thread = new Thread(this.Loop);
             this.thread.SetApartmentState(ApartmentState.MTA);
-            this.thread.Name = "Worker";
+            this.thread.Name = String.Format("Worker.{0}", this.thread.ManagedThreadId);
 		    this.thread.IsBackground = true;
         }
 
