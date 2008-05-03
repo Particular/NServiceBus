@@ -485,15 +485,17 @@ namespace NServiceBus.Unicast
 		/// </remarks>
 		public void HandleMessage(TransportMessage m)
         {
+            if (this.impersonateSender)
+                Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]);
+            else
+                Thread.CurrentPrincipal = null;
+
             if (this.subscriptionsManager.HandledSubscriptionMessage(m))
                 return;
 
             this.ForwardMessageIfNecessary(m);
 
             this.HandleCorellatedMessage(m);
-
-            if (this.impersonateSender)
-                Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]);
 
             foreach (IMessage toHandle in m.Body)
             {
