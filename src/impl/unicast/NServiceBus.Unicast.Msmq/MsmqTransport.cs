@@ -259,6 +259,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 toSend.Recoverable = m.Recoverable;
                 toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
+                toSend.ResponseQueue.MachineName = Environment.MachineName; 
                 toSend.Label = m.IdForCorrelation + ":" + m.WindowsIdentityName;
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
@@ -452,7 +453,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (m.ResponseQueue != null)
             {
                 string[] arr = m.ResponseQueue.FormatName.Split('\\');
-                result.ReturnAddress = arr[arr.Length - 1];
+                result.ReturnAddress = arr[arr.Length - 1] + '@' + m.ResponseQueue.MachineName;
             }
 
             if (m.Label != null)
