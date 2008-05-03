@@ -62,11 +62,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             Message toSend = new Message(m, this.q.Formatter);
             toSend.Recoverable = true;
 
-            MessageQueueTransactionType t = MessageQueueTransactionType.Automatic;
-            if (this.dontUseExternalTransaction)
-                t = MessageQueueTransactionType.Single;
-
-            this.q.Send(toSend, t);
+            this.q.Send(toSend, GetTransactionType());
 
             this.AddToLookup(m, toSend.Id);
         }
@@ -90,14 +86,18 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                     return;
             }
 
-            MessageQueueTransactionType t = MessageQueueTransactionType.Automatic;
-            if (this.dontUseExternalTransaction)
-                t = MessageQueueTransactionType.Single;
-
-            this.q.ReceiveById(messageId, t);
+		    this.q.ReceiveById(messageId, GetTransactionType());
         }
 
-        #endregion
+	    private MessageQueueTransactionType GetTransactionType()
+	    {
+	        MessageQueueTransactionType t = MessageQueueTransactionType.Automatic;
+	        if (this.dontUseExternalTransaction)
+	            t = MessageQueueTransactionType.Single;
+	        return t;
+	    }
+
+	    #endregion
 
         #region config info
 
