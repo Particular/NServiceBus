@@ -384,18 +384,29 @@ namespace NServiceBus.Unicast
 		/// </summary>
         public virtual void Start()
         {
-            AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            if (this.started)
+                return;
 
-            this.subscriptionsManager.Start();
+            lock (this.startLocker)
+            {
+                if (this.started)
+                    return;
 
-            this.transport.MessageTypesToBeReceived = this.messageTypes;
+                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            this.transport.Start();
+                this.subscriptionsManager.Start();
 
-		    this.InitializeSelf();
+                this.transport.MessageTypesToBeReceived = this.messageTypes;
 
-            for (int i = 0; i < this.transport.NumberOfWorkerThreads; i++)
-                this.SendReadyMessage(i == 0);
+                this.transport.Start();
+
+                this.InitializeSelf();
+
+                for (int i = 0; i < this.transport.NumberOfWorkerThreads; i++)
+                    this.SendReadyMessage(i == 0);
+
+                this.started = true;
+            }
         }
 
         private void InitializeSelf()
@@ -949,6 +960,9 @@ namespace NServiceBus.Unicast
         /// Accessed by multiple threads.
         /// </summary>
         private volatile bool canSendReadyMessages = true;
+
+	    private volatile bool started = false;
+        private object startLocker = new object();
 
         private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion
