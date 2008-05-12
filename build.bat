@@ -1,3 +1,5 @@
+call "%VS80COMNTOOLS%vsvars32.bat"
+call "%VS90COMNTOOLS%vsvars32.bat"
 cd src\ObjectBuilder
 msbuild
 cd ..\..\src\core
