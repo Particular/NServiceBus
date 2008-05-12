@@ -833,26 +833,12 @@ namespace NServiceBus.Unicast
             if (t.IsAbstract)
                 return;
 
-            Type parent = t.BaseType;
-            while (parent != typeof(Object))
-            {
-                Type messageType = this.GetMessageTypeFromMessageHandler(parent);
-                if (messageType != null)
-                {
-                    this.RegisterHandlerTypeForMessageType(t, messageType);
-                    return;
-                }
-
-                parent = parent.BaseType;
-            }
-
             foreach(Type interfaceType in t.GetInterfaces())
             {
                 Type messageType = this.GetMessageTypeFromMessageHandler(interfaceType);
                 if (messageType != null)
                 {
                     this.RegisterHandlerTypeForMessageType(t, messageType);
-                    return;
                 }
             }
         }
