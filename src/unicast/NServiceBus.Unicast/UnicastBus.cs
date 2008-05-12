@@ -739,6 +739,10 @@ namespace NServiceBus.Unicast
 
             if (typeof(IMessage).IsAssignableFrom(messageType))
             {
+                if (!IsSerializable(messageType))
+                    throw new InvalidOperationException("Cannot register a non-serializable message: " +
+                                                        messageType.FullName);
+
                 if (this.MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
                     return;
 
@@ -749,7 +753,19 @@ namespace NServiceBus.Unicast
             }            
         }
 
-        /// <summary>
+	    private bool IsSerializable(Type type)
+	    {
+	        object[] attributes = type.GetCustomAttributes(typeof (SerializableAttribute), true);
+            
+            if (attributes == null)
+                return false;
+            if (attributes.Length == 0)
+                return false;
+
+	        return true;
+	    }
+
+	    /// <summary>
         /// Should be used by programmer, not administrator.
         /// </summary>
         /// <param name="messageType"></param>
