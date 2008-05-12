@@ -450,11 +450,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             result.Recoverable = m.Recoverable;
             result.TimeToBeReceived = m.TimeToBeReceived;
 
-            if (m.ResponseQueue != null)
-            {
-                string[] arr = m.ResponseQueue.FormatName.Split('\\');
-                result.ReturnAddress = arr[arr.Length - 1] + '@' + m.ResponseQueue.MachineName;
-            }
+            result.ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue);
 
             if (m.Label != null)
             {
@@ -622,16 +618,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         public static string GetIndependentAddressForQueue(MessageQueue q)
         {
-            string[] arr = q.QueueName.Split('\\');
+            if (q == null)
+                return null;
 
-            return arr[1] + "@" + q.MachineName;
+            string[] arr = q.FormatName.Split('\\');
+            string queueName = arr[arr.Length - 1];
+
+            int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
+            return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+
         }
 
         #endregion
 
         #region members
 
-        private readonly static string PREFIX = "FormatName:DIRECT=OS:";
+	    private static readonly string DIRECTPREFIX = "DIRECT=OS:";
+        private readonly static string PREFIX = "FormatName:" + DIRECTPREFIX;
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
