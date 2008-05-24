@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace NServiceBus.Serialization
@@ -7,7 +6,7 @@ namespace NServiceBus.Serialization
     public interface IMessageSerializer
     {
         void Initialize(params Type[] types);
-        void Serialize(IEnumerable<IMessage> messages, Stream stream);
-        IEnumerable<IMessage> Deserialize(Stream stream);
+        void Serialize(IMessage[] messages, Stream stream);
+        IMessage[] Deserialize(Stream stream);
     }
 }
