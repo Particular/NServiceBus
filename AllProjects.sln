@@ -463,6 +463,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Samples\PubSub\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Samples\PubSub\Server\Server.csproj", "{7036A49B-359F-4BC7-AFBA-DE3C7AB41986}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -665,6 +671,10 @@ Global
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -743,5 +753,6 @@ Global
 		{4AD91F9A-1714-45B4-9265-B906081DAC3E} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
 		{6A371C96-2858-4446-AF9B-2D7DDE4658C3} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8} = {5931F01B-C194-4720-A181-458B1672581A}
+		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986} = {5931F01B-C194-4720-A181-458B1672581A}
 	EndGlobalSection
 EndGlobal
