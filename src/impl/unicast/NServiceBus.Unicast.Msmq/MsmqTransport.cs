@@ -315,6 +315,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     return;
             }
 
+            this.OnStartedMessageProcessing();
+
 		    needToAbort = false;
 
             try
@@ -328,6 +330,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 //in case AbortHandlingCurrentMessage occurred
             }
+
+            this.OnFinishedMessageProcessing();
         }
 
 	    /// <summary>
@@ -605,9 +609,27 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #endregion
 
+        #region Events
+
+	    public event EventHandler StartedMessageProcessing;
+	    public event EventHandler FinishedMessageProcessing;
+
+        private void OnStartedMessageProcessing()
+        {
+            if (this.StartedMessageProcessing != null)
+                this.StartedMessageProcessing(this, null);
+        }
+
+        private void OnFinishedMessageProcessing()
+        {
+            if (this.FinishedMessageProcessing != null)
+                this.FinishedMessageProcessing(this, null);
+        }
+        #endregion
+
         #region members
 
-	    private static readonly string DIRECTPREFIX = "DIRECT=OS:";
+        private static readonly string DIRECTPREFIX = "DIRECT=OS:";
         private readonly static string PREFIX = "FormatName:" + DIRECTPREFIX;
 
         private MessageQueue queue;
