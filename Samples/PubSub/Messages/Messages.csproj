@@ -4,7 +4,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{20F613ED-C871-477C-B1E4-48B96CACF794}</ProjectGuid>
+    <ProjectGuid>{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Messages</RootNamespace>
