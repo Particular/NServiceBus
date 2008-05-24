@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Bin
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Configure", "NServiceBus.Serializers.Configure\NServiceBus.Serializers.Configure.csproj", "{7DFD74A0-FA55-419D-A2B2-4034F4612557}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,10 @@ Global
 		{4AB4015A-2DBF-44F9-9119-0E095703EC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AB4015A-2DBF-44F9-9119-0E095703EC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AB4015A-2DBF-44F9-9119-0E095703EC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DFD74A0-FA55-419D-A2B2-4034F4612557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DFD74A0-FA55-419D-A2B2-4034F4612557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DFD74A0-FA55-419D-A2B2-4034F4612557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DFD74A0-FA55-419D-A2B2-4034F4612557}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
