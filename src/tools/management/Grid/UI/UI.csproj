@@ -143,7 +143,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Grid\Grid.csproj">
       <Project>{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}</Project>
-      <Name>Grid</Name>
+      <Name>Grid %28tools\management\grid\Grid%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

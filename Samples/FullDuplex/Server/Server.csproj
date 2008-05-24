@@ -119,7 +119,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
-      <Name>Messages</Name>
+      <Name>Messages %28Samples\FullDuplex\Messages%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
