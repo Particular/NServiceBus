@@ -38,5 +38,17 @@ namespace NServiceBus.Unicast.Config
             config.ConfigureProperty("MessageHandlerAssemblies", new ArrayList(assemblies));
             return this;
         }
+
+        public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
+        {
+            config.ConfigureProperty("PropogateReturnAddressOnSend", value);
+            return this;
+        }
+
+        public ConfigUnicastBus ForwardReceivedMessagesTo(string  value)
+        {
+            config.ConfigureProperty("ForwardReceivedMessagesTo", value);
+            return this;
+        }
     }
 }
