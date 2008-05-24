@@ -20,10 +20,12 @@ namespace Worker
                 builder.ConfigureComponent(typeof (PartnerQuoteMessageHandler), ComponentCallModelEnum.Singlecall)
                     .ConfigureProperty("MaxRandomSecondsToSleep", 5);
 
+                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
                 new ConfigMsmqTransport(builder)
                     .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                    .UseXmlSerialization(false);
+                    .PurgeOnStartup(false);
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)

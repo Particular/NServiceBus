@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Messaging;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Transactions;
-using System.Xml.Serialization;
 using Common.Logging;
 using Utils;
+using NServiceBus.Serialization;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -51,17 +50,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 string path = GetFullPath(value);
                 this.errorQueue = new MessageQueue(path);
             }
-        }
-
-        private bool useXmlSerialization;
-
-		/// <summary>
-		/// Sets whether or not Xml serialization should be used for 
-		/// the body of the message when placing it onto the queue.
-		/// </summary>
-        public bool UseXmlSerialization
-        {
-            set { useXmlSerialization = value; }
         }
 
         private bool isTransactional;
@@ -115,6 +103,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    public int MaxRetries
 	    {
 	        set { maxRetries = value; }
+	    }
+
+	    private IMessageSerializer messageSerializer;
+
+        /// <summary>
+        /// Sets the object which will be used to serialize and deserialize messages.
+        /// </summary>
+	    public IMessageSerializer MessageSerializer
+	    {
+            set { this.messageSerializer = value; }
 	    }
 
         #endregion
@@ -171,12 +169,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             set
             {
-                if (this.useXmlSerialization)
-                {
-                    Type[] messageTypes = GetExtraTypes(value);
+                Type[] messageTypes = GetExtraTypes(value);
 
-                    this.xmlSerializer = new XmlSerializer(typeof(object), new List<Type>(messageTypes).ToArray());
-                }
+                this.messageSerializer.Initialize(messageTypes);
             }
         }
 
@@ -223,7 +218,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
 		/// <param name="m">The message to process later.</param>
 		/// <remarks>
-		/// Note that this method will place the message onto the back of the queue
+		/// This method will place the message onto the back of the queue
 		/// which may break message ordering.
 		/// </remarks>
         public void ReceiveMessageLater(TransportMessage m)
@@ -247,12 +242,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (m.Body == null && m.BodyStream != null)
                     toSend.BodyStream = m.BodyStream;
                 else
-                {
-                    if (this.useXmlSerialization)
-                        this.xmlSerializer.Serialize(toSend.BodyStream, new List<object>(m.Body));
-                    else
-                        this.binaryFormatter.Serialize(toSend.BodyStream, new List<object>(m.Body));
-                }
+                    this.messageSerializer.Serialize(m.Body, toSend.BodyStream);
 
                 if (m.CorrelationId != null)
                     toSend.CorrelationId = m.CorrelationId;
@@ -472,23 +462,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <returns>An array of handleable messages.</returns>
         private IMessage[] Extract(Message message)
         {
-            List<object> body;
-
-            if (this.useXmlSerialization)
-                body = this.xmlSerializer.Deserialize(message.BodyStream) as List<object>;
-            else
-                body = this.binaryFormatter.Deserialize(message.BodyStream) as List<object>;
-
-            if (body == null)
-                return null;
-
-            IMessage[] result = new IMessage[body.Count];
-
-            int i = 0;
-            foreach (IMessage m in body)
-                result[i++] = m;
-
-            return result;
+            return this.messageSerializer.Deserialize(message.BodyStream);
         }
 
 		/// <summary>
@@ -639,8 +613,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private MessageQueue queue;
         private MessageQueue errorQueue;
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
-        private XmlSerializer xmlSerializer = null;
-        private readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
 
         /// <summary>
         /// Accessed by multiple threads - lock before using.

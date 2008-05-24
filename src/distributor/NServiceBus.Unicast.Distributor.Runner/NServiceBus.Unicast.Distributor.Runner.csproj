@@ -56,6 +56,22 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\grid\core\NServiceBus.Grid.Messages.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Serialization, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.Binary, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.Binary.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.Configure, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.Configure.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.XML, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.XML.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.18112, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
@@ -93,6 +109,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Initalizer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

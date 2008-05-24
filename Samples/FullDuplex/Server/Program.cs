@@ -22,10 +22,12 @@ namespace Server
 
                 new ConfigMsmqSubscriptionStorage(builder);
 
+                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
                 new ConfigMsmqTransport(builder)
                     .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                    .UseXmlSerialization(false);
+                    .PurgeOnStartup(false);
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)

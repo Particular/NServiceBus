@@ -22,10 +22,12 @@ namespace ClientRunner
 
                 Configure.With(builder).SagasAndMessageHandlersIn(typeof (EventMessageHandler).Assembly);
 
+                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
                 new ConfigMsmqTransport(builder)
                     .IsTransactional(false)
-                    .PurgeOnStartup(false)
-                    .UseXmlSerialization(false);
+                    .PurgeOnStartup(false);
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)

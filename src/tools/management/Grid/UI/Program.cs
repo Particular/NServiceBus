@@ -15,14 +15,14 @@ namespace UI
         [STAThread]
         static void Main()
         {
-            bool useXml = bool.Parse(System.Configuration.ConfigurationManager.AppSettings["UseXmlSerialization"]);
-
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
+
+            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
             new ConfigMsmqTransport(builder)
             .IsTransactional(false)
-            .PurgeOnStartup(false)
-            .UseXmlSerialization(useXml);
+            .PurgeOnStartup(false);
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false);

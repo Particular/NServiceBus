@@ -3,7 +3,6 @@ using Common.Logging;
 using NServiceBus;
 using Messages;
 using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Subscriptions.Msmq;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 
@@ -18,10 +17,12 @@ namespace Server
 
             new ConfigMsmqSubscriptionStorage(builder);
 
+            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
             new ConfigMsmqTransport(builder)
                 .IsTransactional(true)
-                .PurgeOnStartup(false)
-                .UseXmlSerialization(false);
+                .PurgeOnStartup(false);
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false);

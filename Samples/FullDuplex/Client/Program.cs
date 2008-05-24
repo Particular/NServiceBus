@@ -4,6 +4,7 @@ using NServiceBus;
 using Messages;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
+using ObjectBuilder;
 
 namespace Client
 {
@@ -14,10 +15,12 @@ namespace Client
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
+            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
             new ConfigMsmqTransport(builder)
                 .IsTransactional(false)
-                .PurgeOnStartup(false)
-                .UseXmlSerialization(false);
+                .PurgeOnStartup(false);
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false);

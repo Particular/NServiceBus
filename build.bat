@@ -14,7 +14,9 @@ cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq
 msbuild
 cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
 msbuild
-cd ..\..\..\..\src\impl\ObjectBuilder.SpringFramework
+cd ..\..\..\..\src\impl\Serializers
+msbuild
+cd ..\..\..\src\impl\ObjectBuilder.SpringFramework
 msbuild
 cd ..\..\..\src\multicast\NServiceBus.Multicast
 msbuild

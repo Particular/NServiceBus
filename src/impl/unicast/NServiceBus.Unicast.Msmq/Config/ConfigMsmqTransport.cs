@@ -36,11 +36,5 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             config.ConfigureProperty("PurgeOnStartup", value);
             return this;
         }
-
-        public ConfigMsmqTransport UseXmlSerialization(bool value)
-        {
-            config.ConfigureProperty("UseXmlSerialization", value);
-            return this;
-        }
     }
 }
