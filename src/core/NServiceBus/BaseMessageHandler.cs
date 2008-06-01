@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace NServiceBus
 {
@@ -28,6 +26,6 @@ namespace NServiceBus
 		/// <remarks>
 		/// The Bus can be used for sending or replying to messages or sending return codes.
 		/// </remarks>
-        public IBus Bus { get { return this.bus; } set { this.bus = value; } }
+        public virtual IBus Bus { get { return this.bus; } set { this.bus = value; } }
     }
 }

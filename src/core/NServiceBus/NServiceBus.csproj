@@ -29,6 +29,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -36,6 +38,7 @@
     </Compile>
     <Compile Include="BaseMessageHandler.cs" />
     <Compile Include="CompletionResult.cs" />
+    <Compile Include="FilteredHandler.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="ICallback.cs" />
     <Compile Include="IMessage.cs" />
