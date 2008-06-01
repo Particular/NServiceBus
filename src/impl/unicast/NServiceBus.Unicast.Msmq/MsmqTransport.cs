@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Only specify the name of the queue - msmq specific address not required.
 		/// When using MSMQ v3, only local queues are supported.
 		/// </summary>
-        public string InputQueue
+        public virtual string InputQueue
         {
             set
             {
@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Sets the path to the queue the transport will transfer
 		/// errors to.
 		/// </summary>
-        public string ErrorQueue
+        public virtual string ErrorQueue
         {
             set
             {
@@ -57,7 +57,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <summary>
 		/// Sets whether or not the transport is transactional.
 		/// </summary>
-        public bool IsTransactional
+        public virtual bool IsTransactional
         {
             set { this.isTransactional = value; }
         }
@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Sets whether or not the transport should deserialize
 		/// the body of the message placed on the queue.
 		/// </summary>
-        public bool SkipDeserialization
+        public virtual bool SkipDeserialization
         {
             set { skipDeserialization = value; }
         }
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Sets whether or not the transport should purge the input
 		/// queue when it is started.
 		/// </summary>
-        public bool PurgeOnStartup
+        public virtual bool PurgeOnStartup
         {
             set
             {
@@ -100,7 +100,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <remarks>
         /// Default value is 5.
         /// </remarks>
-	    public int MaxRetries
+        public virtual int MaxRetries
 	    {
 	        set { maxRetries = value; }
 	    }
@@ -110,7 +110,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <summary>
         /// Sets the object which will be used to serialize and deserialize messages.
         /// </summary>
-	    public IMessageSerializer MessageSerializer
+        public virtual IMessageSerializer MessageSerializer
 	    {
             set { this.messageSerializer = value; }
 	    }
@@ -131,7 +131,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// 
         /// To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads"/>.
         /// </summary>
-        public int NumberOfWorkerThreads
+        public virtual int NumberOfWorkerThreads
         {
             get
             {

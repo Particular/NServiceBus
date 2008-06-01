@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
     {
         public ConfigMsmqTransport(IBuilder builder)
         {
-            this.config = builder.ConfigureComponent(typeof(MsmqTransport), ComponentCallModelEnum.Singleton);
+            transport = builder.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
             MsmqTransportConfig cfg =
                 ConfigurationManager.GetSection("MsmqTransportConfig") as MsmqTransportConfig;
@@ -15,25 +15,24 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for Msmq Transport.");
 
-            config
-                .ConfigureProperty("InputQueue", cfg.InputQueue)
-                .ConfigureProperty("NumberOfWorkerThreads", cfg.NumberOfWorkerThreads)
-                .ConfigureProperty("ErrorQueue", cfg.ErrorQueue)
-                .ConfigureProperty("MaxRetries", cfg.MaxRetries);
+            transport.InputQueue = cfg.InputQueue;
+            transport.NumberOfWorkerThreads = cfg.NumberOfWorkerThreads;
+            transport.ErrorQueue = cfg.ErrorQueue;
+            transport.MaxRetries = cfg.MaxRetries;
         }
 
-        private readonly IComponentConfig config;
+        private readonly MsmqTransport transport;
 
 
         public ConfigMsmqTransport IsTransactional(bool value)
         {
-            config.ConfigureProperty("IsTransactional", value);
+            transport.IsTransactional = value;
             return this;
         }
 
         public ConfigMsmqTransport PurgeOnStartup(bool value)
         {
-            config.ConfigureProperty("PurgeOnStartup", value);
+            transport.PurgeOnStartup = value;
             return this;
         }
     }
