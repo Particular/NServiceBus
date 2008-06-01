@@ -20,7 +20,7 @@ namespace DbBlobSagaPersister
         private string connectionString;
         private IsolationLevel isolationLevel = IsolationLevel.ReadCommitted;
 
-        public IsolationLevel IsolationLevel
+        public virtual IsolationLevel IsolationLevel
         {
             set
             {
@@ -28,32 +28,32 @@ namespace DbBlobSagaPersister
             }
         }
 
-        public string ValueColumnName
+        public virtual string ValueColumnName
         {
             set { valueColumnName = value; }
         }
 
-        public string IdColumnName
+        public virtual string IdColumnName
         {
             set { idColumnName = value; }
         }
 
-        public string CompletedTableName
+        public virtual string CompletedTableName
         {
             set { completedTableName = value; }
         }
 
-        public string OnlineTableName
+        public virtual string OnlineTableName
         {
             set { onlineTableName = value; }
         }
 
-        public IBuilder Builder
+        public virtual IBuilder Builder
         {
             set { builder = value; }
         }
 
-        public string ProviderInvariantName
+        public virtual string ProviderInvariantName
         {
             set
             {
@@ -73,7 +73,7 @@ namespace DbBlobSagaPersister
             }
         }
 
-        public string ConnectionString
+        public virtual string ConnectionString
         {
             get { return connectionString; }
             set

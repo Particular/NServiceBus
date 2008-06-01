@@ -7,41 +7,40 @@ namespace DbBlobSagaPersister.Config
     {
         public ConfigSagaPersister(IBuilder builder)
         {
-            this.config = builder.ConfigureComponent(typeof(Persister), ComponentCallModelEnum.Singlecall);
+            this.persister = builder.ConfigureComponent<Persister>(ComponentCallModelEnum.Singlecall);
 
             SagaPersisterConfig cfg = ConfigurationManager.GetSection("SagaPersisterConfig") as SagaPersisterConfig;
 
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for DB Blob Saga Persister.");
 
-            config
-                .ConfigureProperty("ConnectionString", cfg.ConnectionString)
-                .ConfigureProperty("ProviderInvariantName", cfg.ProviderInvariantName);
+            persister.ConnectionString = cfg.ConnectionString;
+            persister.ProviderInvariantName = cfg.ProviderInvariantName;
         }
 
-        private readonly IComponentConfig config;
+        private readonly Persister persister;
 
         public ConfigSagaPersister OnlineTableName(string value)
         {
-            config.ConfigureProperty("OnlineTableName", value);
+            persister.OnlineTableName = value;
             return this;
         }
 
         public ConfigSagaPersister CompletedTableName(string value)
         {
-            config.ConfigureProperty("CompletedTableName", value);
+            persister.CompletedTableName = value;
             return this;
         }
 
         public ConfigSagaPersister IdColumnName(string value)
         {
-            config.ConfigureProperty("IdColumnName", value);
+            persister.IdColumnName = value;
             return this;
         }
 
         public ConfigSagaPersister ValueColumnName(string value)
         {
-            config.ConfigureProperty("ValueColumnName", value);
+            persister.ValueColumnName = value;
             return this;
         }
     }
