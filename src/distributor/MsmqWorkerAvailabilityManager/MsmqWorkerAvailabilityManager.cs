@@ -20,7 +20,7 @@ namespace MsmqWorkerAvailabilityManager
 		/// worker availability.
 		/// </summary>
 		/// <remarks>The queue provided must be transactional.</remarks>
-        public string StorageQueue
+        public virtual string StorageQueue
         {
             set 
             {
