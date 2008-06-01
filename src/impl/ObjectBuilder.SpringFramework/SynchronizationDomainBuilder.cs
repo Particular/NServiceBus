@@ -29,6 +29,11 @@ namespace ObjectBuilder.SpringFramework
             return helper.ConfigureComponent(concreteComponent, callModel);
         }
 
+        public object Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            return helper.Configure(concreteComponent, callModel);
+        }
+
         #endregion
 
         private readonly Helper helper = new Helper();

@@ -43,6 +43,11 @@ namespace ObjectBuilder.SpringFramework
         {
             return this.builder.ConfigureComponent(concreteComponent, callModel);
         }
+
+        public T ConfigureComponent<T>(ComponentCallModelEnum callModel)
+        {
+            return (T)this.builder.Configure(typeof(T), callModel);
+        }
         #endregion
     }
 }

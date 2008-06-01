@@ -12,5 +12,7 @@ namespace ObjectBuilder.SpringFramework
         void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs);
 
         IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
+
+        object Configure(Type concreteComponent, ComponentCallModelEnum callModel);
     }
 }

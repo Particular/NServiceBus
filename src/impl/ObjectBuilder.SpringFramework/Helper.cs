@@ -1,10 +1,14 @@
 using System;
 using System.Collections;
 using System.Reflection;
+using Spring.Aop;
+using Spring.Aop.Support;
 using Spring.Context.Support;
 using Spring.Objects.Factory.Support;
 using Spring.Objects.Factory.Config;
 using System.Collections.Generic;
+using AopAlliance.Intercept;
+using Spring.Aop.Framework;
 
 namespace ObjectBuilder.SpringFramework
 {
@@ -23,7 +27,7 @@ namespace ObjectBuilder.SpringFramework
             if (initialized)
                 return;
 
-            this.ConfigureComponent(typeof (Builder), ComponentCallModelEnum.Singleton);
+            this.ConfigureComponent(typeof(Builder), ComponentCallModelEnum.Singleton);
 
             foreach(Type t in this.componentProperties.Keys)
             {
@@ -36,6 +40,8 @@ namespace ObjectBuilder.SpringFramework
                 IObjectDefinition def = builder.ObjectDefinition;
                 context.RegisterObjectDefinition(t.FullName, def);
             }
+
+            this.initialized = true;
         }
 
         #endregion
@@ -50,6 +56,23 @@ namespace ObjectBuilder.SpringFramework
             typeHandleLookup[concreteComponent] = callModel;
 
             return result;
+        }
+
+        public object Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            ComponentConfig config = new ComponentConfig();
+
+            componentProperties[concreteComponent] = config;
+            typeHandleLookup[concreteComponent] = callModel;
+
+            object instance = Activator.CreateInstance(concreteComponent);
+
+            ProxyFactory pf = new ProxyFactory(instance);
+            pf.AddAdvisor(new ConfigAdvisor(concreteComponent, config));
+            pf.AddIntroduction(new DefaultIntroductionAdvisor(new ConfigAdvice(config)));
+            pf.ProxyTargetType = true;
+
+            return pf.GetProxy();
         }
 
         public object Build(Type typeToBuild)
@@ -89,5 +112,68 @@ namespace ObjectBuilder.SpringFramework
         }
 
         #endregion
+    }
+
+    public class ConfigAdvisor : DefaultPointcutAdvisor
+    {
+        public ConfigAdvisor(Type type, IComponentConfig config)
+            : base(new SetterPointcut(type), new ConfigAdvice(config))
+        { }
+
+        private class SetterPointcut : IPointcut
+        {
+            private IMethodMatcher methodMatcher = TrueMethodMatcher.True;
+            private ITypeFilter typeFilter;
+
+            public SetterPointcut(Type type)
+            {
+                typeFilter = new RootTypeFilter(type);
+            }
+
+            public ITypeFilter TypeFilter
+            {
+                get { return typeFilter; }
+            }
+
+            public IMethodMatcher MethodMatcher
+            {
+                get { return methodMatcher; }
+            }
+        }
+    }
+
+    public class ConfigAdvice : IMethodInterceptor
+    {
+        private readonly IComponentConfig config;
+
+        public ConfigAdvice(IComponentConfig config)
+        {
+            this.config = config;
+        }
+
+        public virtual Object Invoke(IMethodInvocation invocation)
+        {
+            MethodInfo method = invocation.Method;
+
+            if (IsSetter(method))
+            {
+                string name = GetName(invocation.Method.Name);
+                config.ConfigureProperty(name, invocation.Arguments[0]);
+
+                Common.Logging.LogManager.GetLogger(typeof(IBuilder)).Debug(method.DeclaringType.Name + "." + name + " = " + invocation.Arguments[0]);
+            }
+
+            return null;
+        }
+
+        private static bool IsSetter(MethodInfo method)
+        {
+            return (method.Name.StartsWith("set_")) && (method.GetParameters().Length == 1);
+        }
+
+        private static string GetName(string setterName)
+        {
+            return setterName.Replace("set_","");
+        }
     }
 }
