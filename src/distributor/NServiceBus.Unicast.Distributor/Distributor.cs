@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Distributor
 		/// Sets the <see cref="IBus"/> implementation that will be used
 		/// for transporting control information.
 		/// </summary>
-        public IBus ControlBus
+        public virtual IBus ControlBus
         {
             set { controlBus = value; }
         }
@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Distributor
 		/// Sets the <see cref="ITransport"/> implementation that will be used
 		/// to access the bus containing messages to distribute.
 		/// </summary>
-        public ITransport MessageBusTransport
+        public virtual ITransport MessageBusTransport
         {
             set { messageBusTransport = value; }
         }
@@ -41,13 +41,13 @@ namespace NServiceBus.Unicast.Distributor
 		/// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
 		/// used to determine whether or not a worker is available.
 		/// </summary>
-        public IWorkerAvailabilityManager WorkerManager
+        public virtual IWorkerAvailabilityManager WorkerManager
         {
             set { workerManager = value; }
         }
 
 	    private int millisToWaitIfCannotDispatchToWorker = 50;
-	    public int MillisToWaitIfCannotDispatchToWorker
+        public virtual int MillisToWaitIfCannotDispatchToWorker
 	    {
             set { this.millisToWaitIfCannotDispatchToWorker = value; }
 	    }
