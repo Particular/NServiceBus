@@ -167,12 +167,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public IList<Type> MessageTypesToBeReceived
         {
-            set
-            {
-                Type[] messageTypes = GetExtraTypes(value);
-
-                this.messageSerializer.Initialize(messageTypes);
-            }
+            set { this.messageSerializer.Initialize(GetExtraTypes(value)); }
         }
 
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
@@ -603,7 +598,25 @@ namespace NServiceBus.Unicast.Transport.Msmq
             string queueName = arr[arr.Length - 1];
 
             int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
-            return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+            if (directPrefixIndex >= 0)
+            {
+                return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+            }
+
+            try
+            {
+                // the pessimistic approach failed, try the optimistic approach
+                arr = q.QueueName.Split('\\');
+                queueName = arr[arr.Length - 1];
+                return queueName + '@' + q.MachineName;
+            }
+            catch
+            {
+                throw new Exception(string.Concat("MessageQueueException: '",
+                DIRECTPREFIX, "' is missing. ",
+                "FormatName='", q.FormatName, "'"));
+            }
+
 
         }
 
