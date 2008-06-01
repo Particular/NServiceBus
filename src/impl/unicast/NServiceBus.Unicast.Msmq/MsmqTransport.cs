@@ -165,7 +165,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <summary>
 		/// Sets a list of the message types the transport will receive.
 		/// </summary>
-        public IList<Type> MessageTypesToBeReceived
+        public virtual IList<Type> MessageTypesToBeReceived
         {
             set { this.messageSerializer.Initialize(GetExtraTypes(value)); }
         }
