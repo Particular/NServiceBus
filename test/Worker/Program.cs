@@ -17,8 +17,8 @@ namespace Worker
 
             try
             {
-                builder.ConfigureComponent(typeof (PartnerQuoteMessageHandler), ComponentCallModelEnum.Singlecall)
-                    .ConfigureProperty("MaxRandomSecondsToSleep", 5);
+                PartnerQuoteMessageHandler handler = builder.ConfigureComponent<PartnerQuoteMessageHandler>(ComponentCallModelEnum.Singlecall);
+                handler.MaxRandomSecondsToSleep = 5;
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);

@@ -19,7 +19,7 @@ namespace Worker
         }
 
         private int maxRandomSecondsToSleep = 5;
-        public int MaxRandomSecondsToSleep
+        public virtual int MaxRandomSecondsToSleep
         {
             set { maxRandomSecondsToSleep = value; }
         }
