@@ -40,19 +40,16 @@ namespace NServiceBus.Unicast.Distributor.Runner
             list.Add(typeof(ReadyMessageHandler).Assembly);
             controlBus.MessageHandlerAssemblies = list;
 
-            builder.ConfigureComponent(
-                typeof(MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager),
-                ComponentCallModelEnum.Singleton)
-                .ConfigureProperty("StorageQueue",
-                                   System.Configuration.ConfigurationManager.AppSettings["StorageQueue"]);
+            MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager mgr = builder.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton);
+            mgr.StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];
 
             Distributor distributor = new Distributor();
             distributor.ControlBus = controlBus;
             distributor.MessageBusTransport = dataTransport;
             distributor.WorkerManager = builder.Build<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>();
 
-            builder.ConfigureComponent(typeof(ReadyMessageHandler), ComponentCallModelEnum.Singlecall)
-                .ConfigureProperty("Bus", controlBus);
+            ReadyMessageHandler readyHandler = builder.ConfigureComponent<ReadyMessageHandler>(ComponentCallModelEnum.Singlecall);
+            readyHandler.Bus = controlBus;
 
             return distributor;
 
