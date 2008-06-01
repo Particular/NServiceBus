@@ -169,7 +169,7 @@ namespace NServiceBus.Saga
 		/// the <see cref="ISagaPersister"/> implementation to be used for
 		/// saga persistence.
 		/// </summary>
-        public IBuilder Builder
+        public virtual IBuilder Builder
         {
             get { return builder; }
             set { builder = value; }
