@@ -887,6 +887,9 @@ namespace NServiceBus.Unicast
         {
             if (!this.messageTypeToHandlerTypeLookup.ContainsKey(messageType))
                 this.messageTypeToHandlerTypeLookup.Add(messageType, new List<Type>());
+
+            if (handlerType == null)
+                return;
                 
             if (!this.messageTypeToHandlerTypeLookup[messageType].Contains(handlerType))
             {
