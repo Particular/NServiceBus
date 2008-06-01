@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Distributor
         }
 
         private IWorkerAvailabilityManager workerManager;
-        public IWorkerAvailabilityManager WorkerManager
+        public virtual IWorkerAvailabilityManager WorkerManager
         {
             set { workerManager = value; }
         }
