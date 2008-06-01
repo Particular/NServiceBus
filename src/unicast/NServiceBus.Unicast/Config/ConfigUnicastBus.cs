@@ -19,35 +19,36 @@ namespace NServiceBus.Unicast.Config
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                 hashtable[mapping.Messages] = mapping.Endpoint;
 
-            config = builder.ConfigureComponent(typeof (UnicastBus), ComponentCallModelEnum.Singleton)
-                .ConfigureProperty("DistributorControlAddress", cfg.DistributorControlAddress)
-                .ConfigureProperty("DistributorDataAddress", cfg.DistributorDataAddress)
-                .ConfigureProperty("MessageOwners", hashtable);
+            bus = builder.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
+
+            bus.DistributorControlAddress = cfg.DistributorControlAddress;
+            bus.DistributorDataAddress = cfg.DistributorDataAddress;
+            bus.MessageOwners = hashtable;
         }
 
-        private readonly IComponentConfig config;
+        private readonly UnicastBus bus;
 
         public ConfigUnicastBus ImpersonateSender(bool value)
         {
-            config.ConfigureProperty("ImpersonateSender", value);
+            bus.ImpersonateSender = value;
             return this;
         }
 
         public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params Assembly[] assemblies)
         {
-            config.ConfigureProperty("MessageHandlerAssemblies", new ArrayList(assemblies));
+            bus.MessageHandlerAssemblies = new ArrayList(assemblies);
             return this;
         }
 
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
-            config.ConfigureProperty("PropogateReturnAddressOnSend", value);
+            bus.PropogateReturnAddressOnSend = value;
             return this;
         }
 
         public ConfigUnicastBus ForwardReceivedMessagesTo(string  value)
         {
-            config.ConfigureProperty("ForwardReceivedMessagesTo", value);
+            bus.ForwardReceivedMessagesTo = value;
             return this;
         }
     }

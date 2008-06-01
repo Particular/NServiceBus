@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
 		/// </summary>
-        public bool DisableMessageHandling
+        public virtual bool DisableMessageHandling
         {
             set { disableMessageHandling = value; }
         }
@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast
         /// Sets an <see cref="ITransport"/> implementation to use as the
 		/// message transport for the bus.
 		/// </summary>
-        public ITransport Transport
+        public virtual ITransport Transport
         {
             set
             {
@@ -64,7 +64,7 @@ namespace NServiceBus.Unicast
         /// Sets an <see cref="ISubscriptionStorage"/> implementation to
 		/// be used for subscription storage for the bus.
 		/// </summary>
-        public ISubscriptionStorage SubscriptionStorage
+        public virtual ISubscriptionStorage SubscriptionStorage
         {
             set
             {
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
 		/// dynamically instantiate and execute message handlers.
 		/// </summary>
-        public IBuilder Builder
+        public virtual IBuilder Builder
         {
             set { builder = value; }
         }
@@ -92,7 +92,7 @@ namespace NServiceBus.Unicast
 		/// should be propogated when the message is forwarded. This field is
 		/// used primarily for the Distributor.
 		/// </summary>
-        public bool PropogateReturnAddressOnSend
+        public virtual bool PropogateReturnAddressOnSend
         {
             set { propogateReturnAddressOnSend = value; }
         }
@@ -107,7 +107,7 @@ namespace NServiceBus.Unicast
         /// to the value found in the <see cref="TransportMessage.WindowsIdentityName" />
         /// when that thread handles a message.
 		/// </summary>
-        public bool ImpersonateSender
+        public virtual bool ImpersonateSender
         {
             set { impersonateSender = value; }
         }
@@ -119,7 +119,7 @@ namespace NServiceBus.Unicast
         /// Sets the address to which the messages received on this bus
 		/// will be sent when the method HandleCurrentMessageLater is called.
 		/// </summary>
-        public string DistributorDataAddress
+        public virtual string DistributorDataAddress
         {
             set { distributorDataAddress = value; }
         }        
@@ -134,7 +134,7 @@ namespace NServiceBus.Unicast
         /// Notifies the given distributor
         /// when a thread is now available to handle a new message.
         /// </remarks>
-        public string DistributorControlAddress
+        public virtual string DistributorControlAddress
         {
             set { distributorControlAddress = value; }
         }
@@ -151,7 +151,7 @@ namespace NServiceBus.Unicast
         /// device. The server software will have this field set to the address
         /// of the real server.
         /// </summary>
-	    public string ForwardReceivedMessagesTo
+	    public virtual string ForwardReceivedMessagesTo
 	    {
 	        set { forwardReceivedMessagesTo = value; }
 	    }
@@ -167,7 +167,7 @@ namespace NServiceBus.Unicast
 		/// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
 		/// will be registered against the address defined in the value of the entry.
 		/// </remarks>
-        public IDictionary MessageOwners
+        public virtual IDictionary MessageOwners
         {
             set
             {
@@ -179,7 +179,7 @@ namespace NServiceBus.Unicast
         /// Sets the list of assemblies which contain a message handlers
 		/// for the bus.
         /// </summary>
-        public IList MessageHandlerAssemblies
+        public virtual IList MessageHandlerAssemblies
         {
             set
             {
