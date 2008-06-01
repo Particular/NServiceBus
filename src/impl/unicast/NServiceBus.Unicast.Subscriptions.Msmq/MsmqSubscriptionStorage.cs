@@ -107,7 +107,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Gets/sets whether or not to use a trasaction started outside the 
 		/// subscription store.
 		/// </summary>
-        public bool DontUseExternalTransaction
+        public virtual bool DontUseExternalTransaction
         {
             get { return dontUseExternalTransaction; }
             set { dontUseExternalTransaction = value; }
@@ -118,7 +118,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// For a local queue, just use its name - msmq specific info isn't needed.
 		/// For a remote queue (supported MSMQ 4.0), use the format "queue@machine".
 		/// </summary>
-        public string Queue
+        public virtual string Queue
         {
             set
             {
