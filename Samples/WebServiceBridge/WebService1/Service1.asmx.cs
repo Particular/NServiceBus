@@ -26,7 +26,7 @@ namespace WebService1
                       CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
                       if (completionResult != null)
                       {
-                          result = (ErrorCodes) completionResult.errorCode;
+                          result = (ErrorCodes) completionResult.ErrorCode;
                       }
                   },
                   null

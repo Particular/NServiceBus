@@ -18,7 +18,7 @@ namespace WebApplication1
             if (result == null)
                 return;
 
-            Label1.Text = Enum.GetName(typeof (ErrorCodes), result.errorCode);
+            Label1.Text = Enum.GetName(typeof (ErrorCodes), result.ErrorCode);
         }
 
         private IAsyncResult beginning(object sender, EventArgs e, AsyncCallback cb, object extraData)

@@ -152,14 +152,14 @@ namespace Grid
                             aResult.AsyncState as CompletionResult;
                         if (result == null)
                             return;
-                        if (result.messages == null)
+                        if (result.Messages == null)
                             return;
-                        if (result.messages.Length != 1)
+                        if (result.Messages.Length != 1)
                             return;
-                        GotNumberOfWorkerThreadsMessage response = result.messages[0] as GotNumberOfWorkerThreadsMessage;
+                        GotNumberOfWorkerThreadsMessage response = result.Messages[0] as GotNumberOfWorkerThreadsMessage;
                         if (response == null)
                             return;
-                        string q = result.state as string;
+                        string q = result.State as string;
 
                         UpdateNumberOfWorkerThreads(q, response.NumberOfWorkerThreads);
                     }, queue);

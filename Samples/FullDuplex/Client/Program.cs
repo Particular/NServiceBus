@@ -48,18 +48,18 @@ namespace Client
 
             if (result == null)
                 return;
-            if (result.messages == null)
+            if (result.Messages == null)
                 return;
-            if (result.messages.Length == 0)
+            if (result.Messages.Length == 0)
                 return;
-            if (result.state == null)
+            if (result.State == null)
                 return;
 
-            RequestDataMessage request = result.state as RequestDataMessage;
+            RequestDataMessage request = result.State as RequestDataMessage;
             if (request == null)
                 return;
 
-            DataResponseMessage response = result.messages[0] as DataResponseMessage;
+            DataResponseMessage response = result.Messages[0] as DataResponseMessage;
             if (response == null)
                 return;
 

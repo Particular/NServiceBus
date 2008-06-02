@@ -14,14 +14,14 @@ namespace NServiceBus.Unicast
         {
             this.callback = callback;
             this.result = new CompletionResult();
-            this.result.state = state;
+            this.result.State = state;
             this.sync = new ManualResetEvent(false);
         }
 
         public void Complete(int errorCode, params IMessage[] messages)
         {
-            this.result.errorCode = errorCode;
-            this.result.messages = messages;
+            this.result.ErrorCode = errorCode;
+            this.result.Messages = messages;
             this.completed = true;
             this.sync.Set();
 
