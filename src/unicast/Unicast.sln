@@ -2,10 +2,28 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast", "NServiceBus.Unicast\NServiceBus.Unicast.csproj", "{EB2C42A2-70FD-4469-959B-C577470B001B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions", "NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj", "{CD9FA43E-A56D-4B62-8245-F911B137EC09}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport", "NServiceBus.Unicast.Transport\NServiceBus.Unicast.Transport.csproj", "{D9628493-605A-4259-ADD3-7732F0DEFFBB}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Config", "NServiceBus.Unicast.Config\NServiceBus.Unicast.Config.csproj", "{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +43,10 @@ Global
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
