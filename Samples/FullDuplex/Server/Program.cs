@@ -4,7 +4,6 @@ using NServiceBus;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
-using NServiceBus.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 
 namespace Server
@@ -18,8 +17,6 @@ namespace Server
 
             try
             {
-                Configure.With(builder).SagasAndMessageHandlersIn(typeof(RequestDataMessageHandler).Assembly);
-
                 new ConfigMsmqSubscriptionStorage(builder);
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);

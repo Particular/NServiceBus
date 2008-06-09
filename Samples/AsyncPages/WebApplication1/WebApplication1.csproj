@@ -69,6 +69,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Config, Version=1.8.1.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.19924, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>

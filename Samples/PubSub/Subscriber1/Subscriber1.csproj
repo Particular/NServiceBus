@@ -48,10 +48,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config, Version=1.7.1.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Config.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
@@ -71,6 +67,10 @@
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Config, Version=1.8.1.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

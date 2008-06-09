@@ -2,7 +2,6 @@ using System;
 using Common.Logging;
 using Messages;
 using NServiceBus;
-using NServiceBus.Config;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 
@@ -14,8 +13,6 @@ namespace Subscriber1
         {
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-
-            Configure.With(builder).SagasAndMessageHandlersIn(typeof(EventMessageHandler).Assembly);
 
             NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
             //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
