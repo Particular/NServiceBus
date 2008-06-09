@@ -60,10 +60,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config, Version=1.7.1.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Config.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Saga, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
@@ -87,6 +83,10 @@
     <Reference Include="NServiceBus.Unicast, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Config, Version=1.8.1.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.0.0.1443, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

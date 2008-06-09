@@ -5,7 +5,6 @@ using NServiceBus;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Config;
 using ServerFirst;
 using Server;
 using NServiceBus.Saga;
@@ -22,13 +21,6 @@ namespace ServerRunner
 
             try
             {
-                Configure.With(builder).SagasAndMessageHandlersIn(
-                    typeof(HandleCommandFirstMessageHandler).Assembly,
-                    typeof(CommandMessageHandler).Assembly,
-                    typeof(ISagaEntity).Assembly,
-                    typeof(ChangeNumberOfWorkerThreadsMessageHandler).Assembly
-                    );
-
                 new ConfigMsmqSubscriptionStorage(builder);
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
@@ -44,6 +36,7 @@ namespace ServerRunner
                         typeof(GridInterceptingMessageHandler).Assembly,
                         typeof(ISagaEntity).Assembly,
                         typeof(HandleCommandFirstMessageHandler).Assembly,
+                        typeof(CommandMessageHandler).Assembly,
                         typeof(Saga).Assembly
                     );
 

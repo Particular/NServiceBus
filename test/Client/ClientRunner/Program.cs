@@ -4,7 +4,6 @@ using NServiceBus;
 using Common.Logging;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Config;
 using Client;
 
 namespace ClientRunner
@@ -19,8 +18,6 @@ namespace ClientRunner
                 ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
                 string sendWF = System.Configuration.ConfigurationManager.AppSettings["SendWF"];
-
-                Configure.With(builder).SagasAndMessageHandlersIn(typeof (EventMessageHandler).Assembly);
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
