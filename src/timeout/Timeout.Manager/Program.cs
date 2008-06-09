@@ -4,7 +4,6 @@ using Common.Logging;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Config;
 using Timeout.MessageHandlers;
 
 namespace Timeout.Manager
@@ -18,8 +17,6 @@ namespace Timeout.Manager
 
             try
             {
-                Configure.With(builder).SagasAndMessageHandlersIn(typeof (TimeoutMessageHandler).Assembly);
-
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
