@@ -48,6 +48,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Saga, Version=1.8.2.24199, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
@@ -117,7 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
+      <Project>{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}</Project>
       <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>

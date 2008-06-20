@@ -47,10 +47,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             set
             {
-                string path = GetFullPath(value);
-                this.errorQueue = new MessageQueue(path);
+                errorQueuePath = value;
+                this.errorQueue = new MessageQueue(GetFullPath(value));
+            }
+            get
+            {
+                return errorQueuePath;
             }
         }
+
+	    private string errorQueuePath;
 
         private bool isTransactional;
 
