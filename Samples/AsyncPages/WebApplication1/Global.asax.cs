@@ -12,7 +12,6 @@ namespace WebApplication1
         protected void Application_Start(object sender, EventArgs e)
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-            builder.Build<IBus>();
 
             NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
             //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
