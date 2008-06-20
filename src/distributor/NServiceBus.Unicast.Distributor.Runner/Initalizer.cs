@@ -3,6 +3,8 @@ using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
 using ObjectBuilder;
+using NServiceBus.Unicast.Transport.Msmq.Config;
+using System.Threading;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -15,13 +17,9 @@ namespace NServiceBus.Unicast.Distributor.Runner
         /// <returns></returns>
         public static Distributor Init(IBuilder builder)
         {
-            MsmqTransport controlTransport = new MsmqTransport();
-            controlTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["ControlInputQueue"];
-            controlTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
-            controlTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
-            controlTransport.IsTransactional = true;
-            controlTransport.PurgeOnStartup = false;
-            controlTransport.MessageSerializer = builder.Build<IMessageSerializer>();
+            new ConfigMsmqTransport(builder)
+                .IsTransactional(true)
+                .PurgeOnStartup(false);
 
             MsmqTransport dataTransport = new MsmqTransport();
             dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
@@ -31,28 +29,24 @@ namespace NServiceBus.Unicast.Distributor.Runner
             dataTransport.PurgeOnStartup = false;
             dataTransport.SkipDeserialization = true;
 
-            UnicastBus controlBus = new UnicastBus();
-            controlBus.Builder = builder;
-            controlBus.Transport = controlTransport;
-
-            ArrayList list = new ArrayList();
-            list.Add(typeof(GridInterceptingMessageHandler).Assembly);
-            list.Add(typeof(ReadyMessageHandler).Assembly);
-            controlBus.MessageHandlerAssemblies = list;
+            new Config.ConfigUnicastBus(builder)
+                .SetMessageHandlersFromAssembliesInOrder(
+                    typeof(GridInterceptingMessageHandler).Assembly,
+                    typeof (ReadyMessageHandler).Assembly);
 
             MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager mgr = builder.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton);
             mgr.StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];
 
-            Distributor distributor = new Distributor();
-            distributor.ControlBus = controlBus;
-            distributor.MessageBusTransport = dataTransport;
-            distributor.WorkerManager = builder.Build<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>();
+            builder.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
 
-            ReadyMessageHandler readyHandler = builder.ConfigureComponent<ReadyMessageHandler>(ComponentCallModelEnum.Singlecall);
-            readyHandler.Bus = controlBus;
+            builder.ConfigureComponent<ReadyMessageHandler>(ComponentCallModelEnum.Singlecall);
 
-            return distributor;
+            Thread.Sleep(100);
 
+            Distributor d = builder.Build<Distributor>();
+            d.MessageBusTransport = dataTransport;
+
+            return d;
         }
     }
 }

@@ -20,9 +20,11 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
-                Distributor distributor = Initalizer.Init(builder);
+                Initalizer.Init(builder);
 
-                distributor.Start();
+                Distributor d = builder.Build<Distributor>();
+
+                d.Start();
 
                 Console.Read();
             }
