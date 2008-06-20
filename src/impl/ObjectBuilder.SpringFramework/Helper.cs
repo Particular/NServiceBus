@@ -60,6 +60,15 @@ namespace ObjectBuilder.SpringFramework
 
         public object Configure(Type concreteComponent, ComponentCallModelEnum callModel)
         {
+            List<string> problematicProperties = new List<string>();
+            foreach(PropertyInfo prop in concreteComponent.GetProperties(BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance))
+                if (prop.GetSetMethod() != null)
+                    if (!prop.GetSetMethod().IsVirtual)
+                        problematicProperties.Add(prop.Name);
+
+            if (problematicProperties.Count > 0)
+                Common.Logging.LogManager.GetLogger(typeof(Builder)).Warn(String.Format("Non virtual properties of {0} ({1}) may not be able to be configured.", concreteComponent.FullName, string.Join(", ", problematicProperties.ToArray())));
+
             ComponentConfig config = new ComponentConfig();
 
             componentProperties[concreteComponent] = config;
