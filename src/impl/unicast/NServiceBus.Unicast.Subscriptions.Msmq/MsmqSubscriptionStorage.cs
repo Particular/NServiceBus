@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using NServiceBus.Unicast.Transport;
 using System.Messaging;
 using NServiceBus.Unicast.Transport.Msmq;
+using Common.Logging;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
@@ -34,7 +35,131 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         #region ISubscriptionStorage Members
 
-		/// <summary>
+        public void Init()
+        {
+            IList<TransportMessage> messages = this.GetAllMessages();
+
+            foreach (TransportMessage m in messages)
+                this.HandledSubscriptionMessage(m, false);
+        }
+
+        /// <summary>
+        /// Gets a list of the addresses of subscribers for the specified message.
+        /// </summary>
+        /// <param name="message">The message to get subscribers for.</param>
+        /// <returns>A list of subscriber addresses.</returns>
+        public IList<string> GetSubscribersForMessage(IMessage message)
+        {
+            List<string> result = new List<string>();
+
+            lock (this.locker)
+                foreach (Entry e in this.entries)
+                    if (e.MessageType == message.GetType())
+                        result.Add(e.Msg.ReturnAddress);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Attempts to handle a subscription message.
+        /// </summary>
+        /// <param name="msg">The message to attempt to handle.</param>
+        /// <returns>true if the message was a valid subscription message, otherwise false.</returns>
+        public bool HandledSubscriptionMessage(TransportMessage msg)
+        {
+            return this.HandledSubscriptionMessage(msg, true);
+        }
+
+        /// <summary>
+        /// Attempts to handle a subscription message allowing specification of whether or not
+        /// the subscription persistence store should be updated.
+        /// </summary>
+        /// <param name="msg">The message to attempt to handle.</param>
+        /// <param name="updateQueue">Whether or not the subscription persistence store should be updated.</param>
+        /// <returns>true if the message was a valid subscription message, otherwise false.</returns>
+        private bool HandledSubscriptionMessage(TransportMessage msg, bool updateQueue)
+        {
+            IMessage[] messages = msg.Body;
+            if (messages == null)
+                return false;
+
+            if (messages.Length != 1)
+                return false;
+
+            SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
+
+            if (subMessage != null)
+            {
+                Type messageType = Type.GetType(subMessage.typeName, false);
+                if (messageType == null)
+                    log.Debug("Could not handle subscription for message type: " + subMessage.typeName + ". Type not available on this endpoint.");
+                else
+                {
+                    this.HandleAddSubscription(msg, messageType, subMessage, updateQueue);
+                    this.HandleRemoveSubscription(msg, messageType, subMessage, updateQueue);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks the subscription type, and if it is 'Add', then adds the subscriber.
+        /// </summary>
+        /// <param name="msg">The message to handle.</param>
+        /// <param name="messageType">The message type being subscribed to.</param>
+        /// <param name="subMessage">A subscription message.</param>
+        /// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
+        private void HandleAddSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
+        {
+            if (subMessage.subscriptionType == SubscriptionType.Add)
+            {
+                lock (this.locker)
+                {
+                    // if already subscribed, do nothing
+                    foreach (Entry e in this.entries)
+                        if (e.MessageType == messageType && e.Msg.ReturnAddress == msg.ReturnAddress)
+                            return;
+
+                    if (updateQueue)
+                        this.Add(msg);
+
+                    this.entries.Add(new Entry(messageType, msg));
+
+                    log.Debug("Subscriber " + msg.ReturnAddress + " added for message " + messageType.FullName + ".");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles a removing a subscription.
+        /// </summary>
+        /// <param name="msg">The message to handle.</param>
+        /// <param name="messageType">The message type being subscribed to.</param>
+        /// <param name="subMessage">A subscription message.</param>
+        /// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
+        private void HandleRemoveSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
+        {
+            if (subMessage.subscriptionType == SubscriptionType.Remove)
+            {
+                lock (this.locker)
+                {
+                    foreach (Entry e in this.entries.ToArray())
+                        if (e.MessageType == messageType && e.Msg.ReturnAddress == msg.ReturnAddress)
+                        {
+                            if (updateQueue)
+                                this.Remove(e.Msg);
+
+                            this.entries.Remove(e);
+
+                            log.Debug("Subscriber " + msg.ReturnAddress + " removed for message " + messageType.FullName + ".");
+                        }
+                }
+            }
+        }
+	    /// <summary>
 		/// Gets all messages from the subscription store.
 		/// </summary>
 		/// <returns>A list of all the messages in the subscription store.</returns>
@@ -134,8 +259,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 this.q.Formatter = new BinaryMessageFormatter();
 
                 this.q.MessageReadPropertyFilter = mpf;
-
-                this.Init();
             }
         }
 
@@ -161,17 +284,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-		/// <summary>
-		/// Initializes the lookup from the queue.
-		/// </summary>
-        private void Init()
-        {
-            IList<TransportMessage> messages = this.GetAllMessages();
-
-            foreach (TransportMessage m in messages)
-                this.AddToLookup(m, m.Id);
-        }
-
         #endregion
 
         #region members
@@ -182,6 +294,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// lookup from subscriber, to message type, to message id
         /// </summary>
         private Dictionary<string, Dictionary<string, string>> lookup = new Dictionary<string, Dictionary<string, string>>();
+
+        private List<Entry> entries = new List<Entry>();
+        private object locker = new object();
+
+	    private ILog log = LogManager.GetLogger(typeof (ISubscriptionStorage));
 
         #endregion
     }

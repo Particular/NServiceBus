@@ -8,22 +8,26 @@ namespace NServiceBus.Unicast.Subscriptions
 	/// </summary>
     public interface ISubscriptionStorage
     {
-		/// <summary>
-		/// Gets all messages in the subscription store.
-		/// </summary>
-		/// <returns></returns>
-        IList<TransportMessage> GetAllMessages();
+        /// <summary>
+        /// Check to see if <see cref="msg"/> is a <see cref="SubscriptionMessage"/>.
+        /// If so, performs the relevant subscribe/unsubscribe.
+        /// </summary>
+        /// <param name="msg">The message received in the bus.</param>
+        /// <returns>True if <see cref="msg"/> is a <see cref="SubscriptionMessage"/>.</returns>
+	    bool HandledSubscriptionMessage(TransportMessage msg);
 
-		/// <summary>
-		/// Adds a message to the subscription store.
-		/// </summary>
-		/// <param name="m">The message to add.</param>
-        void Add(TransportMessage m);
+        /// <summary>
+        /// Returns a list of addresses of subscribers that previously requested to be notified
+        /// of messages of the same type as <see cref="message"/>.
+        /// </summary>
+        /// <param name="message">The logical message that the bus wishes to publish.</param>
+        /// <returns>List of addresses of subscribers.</returns>
+        IList<string> GetSubscribersForMessage(IMessage message);
 
-		/// <summary>
-		/// Removes a message from the subscription store.
-		/// </summary>
-		/// <param name="m">The message to remove.</param>
-        void Remove(TransportMessage m);
+        /// <summary>
+        /// Notifies the subscription storage that now is the time to perform
+        /// any initialization work
+        /// </summary>
+	    void Init();
     }
 }

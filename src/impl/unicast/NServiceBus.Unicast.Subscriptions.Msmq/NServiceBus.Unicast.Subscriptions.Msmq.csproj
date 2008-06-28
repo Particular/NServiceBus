@@ -28,6 +28,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus, Version=1.0.0.779, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
@@ -65,6 +70,7 @@
     </Compile>
     <Compile Include="Config\ConfigMsmqSubscriptionStorage.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
+    <Compile Include="Entry.cs" />
     <Compile Include="MsmqSubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

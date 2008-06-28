@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast
         {
             set
             {
-                this.subscriptionsManager.Storage = value;
+                this.subscriptionStorage = value;
             }
         }
 
@@ -221,7 +221,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">A list of messages.  Only the first will be published.</param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
-            foreach (string subscriber in this.subscriptionsManager.GetSubscribersForMessage(messages[0]))
+            foreach (string subscriber in this.subscriptionStorage.GetSubscribersForMessage(messages[0]))
                 try
                 {
                     this.Send(subscriber, messages as IMessage[]);
@@ -394,7 +394,8 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-                this.subscriptionsManager.Start();
+                if (this.subscriptionStorage != null)
+                    this.subscriptionStorage.Init();
 
                 this.transport.MessageTypesToBeReceived = this.messageTypes;
 
@@ -480,8 +481,9 @@ namespace NServiceBus.Unicast
             else
                 Thread.CurrentPrincipal = null;
 
-            if (this.subscriptionsManager.HandledSubscriptionMessage(m))
-                return;
+            if (IsSubscriptionMessage(m))
+                if (this.subscriptionStorage.HandledSubscriptionMessage(m))
+                    return;
 
             this.ForwardMessageIfNecessary(m);
 
@@ -501,6 +503,22 @@ namespace NServiceBus.Unicast
                 if (this.DispatchMessageToHandlersBasedOnType(toHandle, typeof(IMessage)))
                     this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
             }
+        }
+
+        private static bool IsSubscriptionMessage(TransportMessage m)
+        {
+            IMessage[] messages = m.Body;
+            if (messages == null)
+                return false;
+
+            if (messages.Length != 1)
+                return false;
+
+            SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
+            if (subMessage != null)
+                return true;
+
+            return false;
         }
 
 		/// <summary>
@@ -739,7 +757,7 @@ namespace NServiceBus.Unicast
 
             if (typeof(IMessage).IsAssignableFrom(messageType))
             {
-                if (!IsSerializable(messageType))
+                if (!messageType.IsSerializable)
                     throw new InvalidOperationException("Cannot register a non-serializable message: " +
                                                         messageType.FullName);
 
@@ -752,18 +770,6 @@ namespace NServiceBus.Unicast
                 return;
             }            
         }
-
-	    private bool IsSerializable(Type type)
-	    {
-	        object[] attributes = type.GetCustomAttributes(typeof (SerializableAttribute), true);
-            
-            if (attributes == null)
-                return false;
-            if (attributes.Length == 0)
-                return false;
-
-	        return true;
-	    }
 
 	    /// <summary>
         /// Should be used by programmer, not administrator.
@@ -944,6 +950,8 @@ namespace NServiceBus.Unicast
 		/// Gets/sets the subscription manager to use for the bus.
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
+
+	    protected ISubscriptionStorage subscriptionStorage;
 
         private readonly List<Type> messageTypes = new List<Type>(new Type[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
 
