@@ -12,6 +12,8 @@ cd ..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
 msbuild
 cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq
 msbuild
+cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.DB
+msbuild
 cd ..\..\..\..\src\impl\SagaPersisters\DbBlobSagaPersister
 msbuild
 cd ..\..\..\..\src\impl\Serializers

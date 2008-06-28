@@ -493,6 +493,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{D59A3D
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.DB", "src\impl\unicast\NServiceBus.Unicast.Subscriptions.DB\NServiceBus.Unicast.Subscriptions.DB.csproj", "{FF96F021-897B-49D6-AF24-5533BB0961B9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -711,6 +717,10 @@ Global
 		{E78DDB90-374B-4E4E-AFD5-26BFBDADDB02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E78DDB90-374B-4E4E-AFD5-26BFBDADDB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E78DDB90-374B-4E4E-AFD5-26BFBDADDB02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -740,6 +750,7 @@ Global
 		{487809CE-0B5D-4425-A6CA-06F7C444DBCC} = {D8B58938-14AF-4FA2-BAC3-7FE59721B7E0}
 		{6657A1B8-3773-46A4-88F2-A421E074D35F} = {D8B58938-14AF-4FA2-BAC3-7FE59721B7E0}
 		{E78DDB90-374B-4E4E-AFD5-26BFBDADDB02} = {D8B58938-14AF-4FA2-BAC3-7FE59721B7E0}
+		{FF96F021-897B-49D6-AF24-5533BB0961B9} = {D8B58938-14AF-4FA2-BAC3-7FE59721B7E0}
 		{7A3C001F-28A5-4FCE-9FA1-FCC79DB879BE} = {651BC6B0-4412-4A5C-9331-4A78C9913D94}
 		{7FF2A661-39A8-4595-B122-4EC4F58A4405} = {7A3C001F-28A5-4FCE-9FA1-FCC79DB879BE}
 		{16EDF9F2-1CB1-4321-9249-15DC8A925FD9} = {7A3C001F-28A5-4FCE-9FA1-FCC79DB879BE}

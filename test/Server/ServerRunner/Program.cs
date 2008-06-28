@@ -3,6 +3,7 @@ using Common.Logging;
 using DbBlobSagaPersister.Config;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Subscriptions.DB.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ServerFirst;
@@ -21,7 +22,11 @@ namespace ServerRunner
 
             try
             {
-                new ConfigMsmqSubscriptionStorage(builder);
+                //new ConfigMsmqSubscriptionStorage(builder);
+                new ConfigDbSubscriptionStorage(builder)
+                    .Table("Subscriptions")
+                    .SubscriberEndpointParameterName("SubscriberEndpoint")
+                    .MessageTypeParameterName("MessageType");
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);

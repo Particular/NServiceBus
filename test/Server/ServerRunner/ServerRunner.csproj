@@ -100,6 +100,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions.DB, Version=1.9.0.38991, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Subscriptions.DB.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.0.0.1678, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BUILD\UNICAST\IMPL\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
