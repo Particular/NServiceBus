@@ -111,6 +111,20 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	        set { maxRetries = value; }
 	    }
 
+	    private int secondsToWaitForMessage = 10;
+
+        /// <summary>
+        /// Sets the maximum interval of time for when a thread thinks there is a message in the queue
+        /// that it tries to receive, until it gives up.
+        /// 
+        /// Default value is 10.
+        /// </summary>
+        private int SecondsToWaitForMessage
+        {
+            get { return secondsToWaitForMessage; }
+            set { secondsToWaitForMessage = value; }
+        }
+
 	    private IMessageSerializer messageSerializer;
 
         /// <summary>
@@ -346,7 +360,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             try
             {
-                m = this.queue.Receive(this.GetTransactionTypeForReceive());
+                m = this.queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), this.GetTransactionTypeForReceive());
 
                 TransportMessage result = Convert(m);
 
@@ -409,7 +423,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return;
         }
 
-        public void AbortHandlingCurrentMessage()
+	    public void AbortHandlingCurrentMessage()
         {
             needToAbort = true;
         }
