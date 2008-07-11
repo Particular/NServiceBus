@@ -119,7 +119,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// 
         /// Default value is 10.
         /// </summary>
-        private int SecondsToWaitForMessage
+        public virtual int SecondsToWaitForMessage
         {
             get { return secondsToWaitForMessage; }
             set { secondsToWaitForMessage = value; }
