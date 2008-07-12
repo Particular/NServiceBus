@@ -37,10 +37,14 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         public void Init()
         {
-            IList<TransportMessage> messages = this.GetAllMessages();
+            foreach (Message m in this.q.GetAllMessages())
+            {
+                string subscriber = m.Label;
+                string messageType = m.Body as string;
 
-            foreach (TransportMessage m in messages)
-                this.HandledSubscriptionMessage(m, false);
+                this.entries.Add(new Entry(messageType, subscriber));
+                this.AddToLookup(subscriber, messageType, m.Id);
+            }
         }
 
         /// <summary>
@@ -54,8 +58,8 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
             lock (this.locker)
                 foreach (Entry e in this.entries)
-                    if (e.MessageType == message.GetType())
-                        result.Add(e.Msg.ReturnAddress);
+                    if (e.Matches(message))
+                        result.Add(e.Subscriber);
 
             return result;
         }
@@ -120,11 +124,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 {
                     // if already subscribed, do nothing
                     foreach (Entry e in this.entries)
-                        if (e.MessageType == messageType && e.Msg.ReturnAddress == msg.ReturnAddress)
+                        if (e.Matches(messageType) && e.Subscriber == msg.ReturnAddress)
                             return;
 
                     if (updateQueue)
-                        this.Add(msg);
+                        this.Add(msg.ReturnAddress, subMessage.typeName);
 
                     this.entries.Add(new Entry(messageType, msg));
 
@@ -147,10 +151,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 lock (this.locker)
                 {
                     foreach (Entry e in this.entries.ToArray())
-                        if (e.MessageType == messageType && e.Msg.ReturnAddress == msg.ReturnAddress)
+                        if (e.Matches(messageType) && e.Subscriber == msg.ReturnAddress)
                         {
                             if (updateQueue)
-                                this.Remove(e.Msg);
+                                this.Remove(e.Subscriber, e.MessageType);
 
                             this.entries.Remove(e);
 
@@ -159,53 +163,37 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 }
             }
         }
-	    /// <summary>
-		/// Gets all messages from the subscription store.
-		/// </summary>
-		/// <returns>A list of all the messages in the subscription store.</returns>
-        public IList<TransportMessage> GetAllMessages()
-        {
-            Message[] TransportMessages = this.q.GetAllMessages();
-
-            IList<TransportMessage> result = new List<TransportMessage>(TransportMessages.Length);
-            foreach (Message m in TransportMessages)
-            {
-                TransportMessage toAdd = m.Body as TransportMessage;
-
-                result.Add(toAdd);
-            }
-
-            return result;
-        }
 
 		/// <summary>
 		/// Adds a message to the subscription store.
 		/// </summary>
-		/// <param name="m">The message to add.</param>
-        public void Add(TransportMessage m)
+        public void Add(string subscriber, string typeName)
         {
-            Message toSend = new Message(m, this.q.Formatter);
+		    Message toSend = new Message();
+		    toSend.Formatter = q.Formatter;
             toSend.Recoverable = true;
+
+		    toSend.Label = subscriber;
+		    toSend.Body = typeName;
 
             this.q.Send(toSend, GetTransactionType());
 
-            this.AddToLookup(m, toSend.Id);
+            this.AddToLookup(subscriber, typeName, toSend.Id);
         }
 
 		/// <summary>
 		/// Removes a message from the subscription store.
 		/// </summary>
-		/// <param name="m">The message to remove.</param>
-        public void Remove(TransportMessage m)
+        public void Remove(string subscriber, string typeName)
         {
             string messageId;
 
             lock (this.lookup)
             {
-                if (!this.lookup.ContainsKey(m.ReturnAddress))
+                if (!this.lookup.ContainsKey(subscriber))
                     return;
 
-                this.lookup[m.ReturnAddress].TryGetValue(((SubscriptionMessage)m.Body[0]).typeName, out messageId);
+                this.lookup[subscriber].TryGetValue(typeName, out messageId);
 
                 if (messageId == null)
                     return;
@@ -256,7 +244,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 MessagePropertyFilter mpf = new MessagePropertyFilter();
                 mpf.SetAll();
 
-                this.q.Formatter = new BinaryMessageFormatter();
+                this.q.Formatter = new XmlMessageFormatter(new Type[] { typeof(string) });
 
                 this.q.MessageReadPropertyFilter = mpf;
             }
@@ -270,17 +258,15 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Adds a message to the lookup to find message from
 		/// subscriber, to message type, to message id
 		/// </summary>
-		/// <param name="m">The message to add to the lookup.</param>
-		/// <param name="messageId">The id of the message.</param>
-        private void AddToLookup(TransportMessage m, string messageId)
+        private void AddToLookup(string subscriber, string typeName, string messageId)
         {
             lock (this.lookup)
             {
-                if (!this.lookup.ContainsKey(m.ReturnAddress))
-                    this.lookup.Add(m.ReturnAddress, new Dictionary<string, string>());
+                if (!this.lookup.ContainsKey(subscriber))
+                    this.lookup.Add(subscriber, new Dictionary<string, string>());
 
-                if (!this.lookup[m.ReturnAddress].ContainsKey(((SubscriptionMessage)m.Body[0]).typeName))
-                    this.lookup[m.ReturnAddress].Add(((SubscriptionMessage)m.Body[0]).typeName, messageId);
+                if (!this.lookup[subscriber].ContainsKey(typeName))
+                    this.lookup[subscriber].Add(typeName, messageId);
             }
         }
 
