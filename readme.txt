@@ -1,6 +1,12 @@
-In order to build the source, open a SDK Command Prompt, navigate to the directory where you extracted NServiceBus, and run "build" (you don't need NAnt for this).
+In order to build the source, run "build.bat" (you don't need NAnt for this).
 
+NServiceBus is a non-trivial framework that takes time to understand.
 
+The best way to get up and running is from the Samples. Run them, change them a bit, look at what references what. If you want to do your own thing, copy one of the samples (like FullDuplex), and change from there.
+
+=====================
+= MSMQ Installation =
+=====================
 
 1. In order to run some of the samples, MSMQ is required.
 
@@ -10,13 +16,12 @@ In order to build the source, open a SDK Command Prompt, navigate to the directo
 
 4. Run the script "msmq install.vbs" to install the queues used by the sample
 
-5. In order to run samples that make use of sagas, specifically the DbBlobSagaPersister (found in \src\impl\SagaPersisters\DbBlobSagaPersister) you will need a database with the tables defined in TableDefinitions.txt.
+=====================
+
+In order to run samples that make use of sagas, specifically the DbBlobSagaPersister (found in \src\impl\SagaPersisters\DbBlobSagaPersister) or the DB subscription storage (found in \src\impl\unicast\NServiceBus.Unicast.Subscriptions.DB) you will need a database with the tables defined in TableDefinitions.txt.
 
 
-[Optional 1] To play around with the different WCF transport options, delete the App.config
-files in the projects ClientRunner and ServerRunner. Then copy the *App.config file of your choice
-and rename as App.config. The App.config file that the sample originally comes with is
-a copy of NonWCF MSMQ App.config. Make sure you use the same file name for client and server.
+
 
 [Optional 2] To increase the number of workers involved in workflow, try copying the runtime files of the 
 Worker project to another directory, change the Worker.exe.config file as follows: under the section

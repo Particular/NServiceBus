@@ -462,6 +462,28 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         private static bool doNotContinueDispatchingCurrentMessageToHandlers = false;
 
+	    [ThreadStatic] 
+        private static IDictionary<string, string> outgoingHeaders;
+
+	    public IDictionary<string, string> OutgoingHeaders
+	    {
+            get
+            {
+                if (outgoingHeaders == null)
+                    outgoingHeaders = new Dictionary<string, string>();
+
+                return outgoingHeaders;
+            }
+	    }
+
+	    public IDictionary<string, string> IncomingHeaders
+	    {
+            get
+            {
+                return new HeaderAdapter(messageBeingHandled.Headers);
+            }
+	    }
+
         #endregion
 
         #region receiving and handling
@@ -811,6 +833,8 @@ namespace NServiceBus.Unicast
 
             if (this.propogateReturnAddressOnSend)
                 result.ReturnAddress = this.transport.Address;
+
+		    result.Headers = HeaderAdapter.From(OutgoingHeaders);
 
             TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 

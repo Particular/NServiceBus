@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NServiceBus
 {
@@ -97,5 +98,19 @@ namespace NServiceBus
         /// Gets the address from which the message being handled was sent.
         /// </summary>
         string SourceOfMessageBeingHandled { get; }
+
+        /// <summary>
+        /// Gets the list of key/value pairs that will be in the header of
+        /// messages being sent by the same thread.
+        /// 
+        /// This value will be cleared when a thread receives a message.
+        /// </summary>
+        IDictionary<string, string> OutgoingHeaders { get; }
+
+        /// <summary>
+        /// Gets the list of key/value pairs found in the header of the message
+        /// being handled by the current thread.
+        /// </summary>
+        IDictionary<string, string> IncomingHeaders { get; }
     }
 }

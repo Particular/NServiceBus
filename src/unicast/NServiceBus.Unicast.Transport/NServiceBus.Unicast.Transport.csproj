@@ -34,6 +34,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +42,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CompletionMessage.cs" />
+    <Compile Include="HeaderInfo.cs" />
     <Compile Include="ITransport.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

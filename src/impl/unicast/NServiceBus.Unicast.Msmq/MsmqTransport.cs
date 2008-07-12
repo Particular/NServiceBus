@@ -5,6 +5,8 @@ using System.Transactions;
 using Common.Logging;
 using Utils;
 using NServiceBus.Serialization;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -269,6 +271,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = m.TimeToBeReceived;
 
+                if (m.Headers.Count > 0)
+                {
+                    MemoryStream stream = new MemoryStream();
+                    headerSerializer.Serialize(stream, m.Headers);
+                    toSend.Extension = stream.GetBuffer();
+                }
+
                 q.Send(toSend, this.GetTransactionTypeForSend());
 
                 m.Id = toSend.Id;
@@ -450,7 +459,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
 		/// <param name="m">The MSMQ message to convert.</param>
 		/// <returns>An NServiceBus message.</returns>
-        public static TransportMessage Convert(Message m)
+        public TransportMessage Convert(Message m)
         {
             TransportMessage result = new TransportMessage();
             result.Id = m.Id;
@@ -469,6 +478,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (result.IdForCorrelation == null || result.IdForCorrelation == string.Empty)
                 result.IdForCorrelation = result.Id;
+
+            if (m.Extension != null)
+                if (m.Extension.Length > 0)
+                {
+                    MemoryStream stream = new MemoryStream(m.Extension);
+                    object o = headerSerializer.Deserialize(stream);
+                    result.Headers = o as List<HeaderInfo>;
+                }
 
 		    return result;
         }
@@ -678,6 +695,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
 
+        private XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         #endregion
 
         #region IDisposable Members

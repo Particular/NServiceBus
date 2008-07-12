@@ -58,6 +58,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.XML" />
     <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\BUILD\UTILS\Utils.dll</HintPath>

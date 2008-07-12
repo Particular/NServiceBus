@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
+    <Compile Include="HeaderAdapter.cs" />
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />

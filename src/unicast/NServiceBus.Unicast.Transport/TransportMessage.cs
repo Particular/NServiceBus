@@ -98,6 +98,17 @@ namespace NServiceBus.Unicast.Transport
             set { timeToBeReceived = value; }
         }
 
+        private List<HeaderInfo> headers;
+
+        /// <summary>
+        /// Gets/sets other applicative out-of-band information.
+        /// </summary>
+        public List<HeaderInfo> Headers
+        {
+            get { return headers; }
+            set { headers = value; }
+        }
+
         private IMessage[] body;
 
 		/// <summary>
