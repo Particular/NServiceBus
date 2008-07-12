@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace NServiceBus.Unicast
 {
     /// <summary>
-    /// Manages subscriptions for published messages.
+    /// Manages subscriptions and predicates for messages published by other endpoints
+    /// and subscribed to by the local bus.
     /// </summary>
 	/// <remarks>
 	/// Thread safe.
