@@ -503,6 +503,8 @@ namespace NServiceBus.Unicast
             else
                 Thread.CurrentPrincipal = null;
 
+            OutgoingHeaders.Clear();
+
             this.ForwardMessageIfNecessary(m);
 
             if (IsSubscriptionMessage(m))
