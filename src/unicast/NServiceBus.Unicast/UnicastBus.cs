@@ -500,8 +500,7 @@ namespace NServiceBus.Unicast
                     }
                 }
 
-                if (this.DispatchMessageToHandlersBasedOnType(toHandle, typeof(IMessage)))
-                    this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
+                this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
             }
         }
 
@@ -533,7 +532,7 @@ namespace NServiceBus.Unicast
 		/// this prevents the message from being further dispatched.
 		/// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
 		/// </remarks>
-        private bool DispatchMessageToHandlersBasedOnType(IMessage toHandle, Type messageType)
+        private void DispatchMessageToHandlersBasedOnType(IMessage toHandle, Type messageType)
         {
             foreach (Type messageHandlerType in this.GetHandlerTypes(messageType))
             {
@@ -548,7 +547,7 @@ namespace NServiceBus.Unicast
                     if (doNotContinueDispatchingCurrentMessageToHandlers)
                     {
                         doNotContinueDispatchingCurrentMessageToHandlers = false;
-                        return false;
+                        return;
                     }
                 }
                 catch (Exception e)
@@ -559,7 +558,7 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            return true;
+            return;
         }
 
 		/// <summary>
@@ -855,53 +854,41 @@ namespace NServiceBus.Unicast
             if (t.IsAbstract)
                 return;
 
-            foreach(Type interfaceType in t.GetInterfaces())
+            foreach(Type messageType in GetMessageTypesIfIsMessageHandler(t))
             {
-                Type messageType = this.GetMessageTypeFromMessageHandler(interfaceType);
-                if (messageType != null)
+                if (!handlerList.ContainsKey(t))
+                    handlerList.Add(t, new List<Type>());
+
+                if (!(handlerList[t].Contains(messageType)))
                 {
-                    this.RegisterHandlerTypeForMessageType(t, messageType);
+                    handlerList[t].Add(messageType);
+                    log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, t));
                 }
             }
         }
 
-        private Type GetMessageTypeFromMessageHandler(Type t)
+        /// <summary>
+        /// If the type is a message handler, returns all the message types that it handles
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
-            if (t.IsGenericType)
+            foreach (Type t in type.GetInterfaces())
             {
-                Type[] args = t.GetGenericArguments();
-                if (args.Length != 1)
-                    return null;
+                if (t.IsGenericType)
+                {
+                    Type[] args = t.GetGenericArguments();
+                    if (args.Length != 1)
+                        continue;
 
-                if (!typeof(IMessage).IsAssignableFrom(args[0]))
-                    return null;
+                    if (!typeof (IMessage).IsAssignableFrom(args[0]))
+                        continue;
 
-                Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
-                if (handlerType.IsAssignableFrom(t))
-                    return args[0];
-            }
-
-            return null;
-        }
-
-		/// <summary>
-		/// Registers a relationship between a message type and a handler for that type.
-		/// </summary>
-		/// <param name="handlerType">The type of the handler.</param>
-		/// <param name="messageType">The type of the message to associate with the handler.</param>
-        private void RegisterHandlerTypeForMessageType(Type handlerType, Type messageType)
-        {
-            if (!this.messageTypeToHandlerTypeLookup.ContainsKey(messageType))
-                this.messageTypeToHandlerTypeLookup.Add(messageType, new List<Type>());
-
-            if (handlerType == null)
-                return;
-                
-            if (!this.messageTypeToHandlerTypeLookup[messageType].Contains(handlerType))
-            {
-                this.messageTypeToHandlerTypeLookup[messageType].Add(handlerType);
-                if (log.IsDebugEnabled)
-                    log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, handlerType));
+                    Type handlerType = typeof (IMessageHandler<>).MakeGenericType(args[0]);
+                    if (handlerType.IsAssignableFrom(t))
+                        yield return args[0];
+                }
             }
         }
 
@@ -910,15 +897,15 @@ namespace NServiceBus.Unicast
 		/// </summary>
 		/// <param name="messageType">The type of message to get the handlers for.</param>
 		/// <returns>The list of handler types associated with the message type.</returns>
-        private IList<Type> GetHandlerTypes(Type messageType)
+        private IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
-            IList<Type> result;
-            this.messageTypeToHandlerTypeLookup.TryGetValue(messageType, out result);
-
-            if (result == null)
-                result = new List<Type>();
-
-            return result;
+            foreach (Type handlerType in this.handlerList.Keys)
+                foreach (Type msgTypeHandled in this.handlerList[handlerType])
+                    if (msgTypeHandled.IsAssignableFrom(messageType))
+                    {
+                        yield return handlerType;
+                        break;
+                    }
         }
 
 		/// <summary>
@@ -955,7 +942,7 @@ namespace NServiceBus.Unicast
 
         private readonly List<Type> messageTypes = new List<Type>(new Type[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
 
-        private readonly IDictionary<Type, IList<Type>> messageTypeToHandlerTypeLookup = new Dictionary<Type, IList<Type>>();
+        private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
         private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
         /// <remarks>
