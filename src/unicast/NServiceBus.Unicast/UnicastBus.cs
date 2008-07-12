@@ -481,11 +481,11 @@ namespace NServiceBus.Unicast
             else
                 Thread.CurrentPrincipal = null;
 
+            this.ForwardMessageIfNecessary(m);
+
             if (IsSubscriptionMessage(m))
                 if (this.subscriptionStorage.HandledSubscriptionMessage(m))
                     return;
-
-            this.ForwardMessageIfNecessary(m);
 
             this.HandleCorellatedMessage(m);
 
