@@ -17,15 +17,7 @@ namespace Client
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
+            ConfigureSelfWith(builder);
 
             bus = builder.Build<IBus>();
 
@@ -44,6 +36,19 @@ namespace Client
                 //notice that we're passing the message (m) as our state object
                 bus.Send(m).Register(RequestDataComplete, m);
             }
+        }
+
+        private static void ConfigureSelfWith(IBuilder builder)
+        {
+            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
+            new ConfigMsmqTransport(builder)
+                .IsTransactional(false)
+                .PurgeOnStartup(false);
+
+            new ConfigUnicastBus(builder)
+                .ImpersonateSender(false);
         }
 
         private static void RequestDataComplete(IAsyncResult asyncResult)
