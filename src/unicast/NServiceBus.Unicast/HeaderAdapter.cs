@@ -7,11 +7,12 @@ namespace NServiceBus.Unicast
 {
     public class HeaderAdapter : IDictionary<string, string>
     {
-        private List<HeaderInfo> headers;
+        private readonly List<HeaderInfo> headers = new List<HeaderInfo>();
 
         public HeaderAdapter(List<HeaderInfo> headers)
         {
-            this.headers = headers;
+            if (headers != null)
+                this.headers = headers;
         }
 
         public static List<HeaderInfo> From(IDictionary<string, string> source)
