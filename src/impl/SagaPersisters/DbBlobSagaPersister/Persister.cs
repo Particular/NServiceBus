@@ -18,7 +18,7 @@ namespace DbBlobSagaPersister
         private string idColumnName;
         private string valueColumnName;
         private string connectionString;
-        private IsolationLevel isolationLevel = IsolationLevel.ReadCommitted;
+        private IsolationLevel isolationLevel = IsolationLevel.RepeatableRead;
 
         public virtual IsolationLevel IsolationLevel
         {
