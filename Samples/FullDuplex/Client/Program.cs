@@ -38,19 +38,6 @@ namespace Client
             }
         }
 
-        private static void ConfigureSelfWith(IBuilder builder)
-        {
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
-        }
-
         private static void RequestDataComplete(IAsyncResult asyncResult)
         {
             Console.Out.WriteLine("Header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.IncomingHeaders["Test"], bus.IncomingHeaders["1"], bus.IncomingHeaders["2"]);
@@ -76,6 +63,19 @@ namespace Client
 
             System.Diagnostics.Debug.Assert(request.DataId == response.DataId);
             Console.WriteLine("Response received with description: {0}",response.Description);
+        }
+
+        private static void ConfigureSelfWith(IBuilder builder)
+        {
+            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+
+            new ConfigMsmqTransport(builder)
+                .IsTransactional(false)
+                .PurgeOnStartup(false);
+
+            new ConfigUnicastBus(builder)
+                .ImpersonateSender(false);
         }
     }
 }
