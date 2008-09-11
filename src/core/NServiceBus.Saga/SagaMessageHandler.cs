@@ -42,6 +42,9 @@ namespace NServiceBus.Saga
                 // if this happens every time, the message will be moved to the
                 // error queue, and the admin will know that this endpoint isn't
                 // configured properly.
+                if (saga == null)
+                    throw new Exception("Saga not found to handle message of type " + message.GetType().AssemblyQualifiedName);
+
                 saga.Id = this.GenerateSagaId();
 
                 sagaIsPersistent = false;
@@ -91,7 +94,7 @@ namespace NServiceBus.Saga
 
         #region helper methods
 
-        private void HaveSagaHandleMessage(ISagaEntity saga, IMessage message, bool sagaIsPersistent)
+        protected virtual void HaveSagaHandleMessage(ISagaEntity saga, IMessage message, bool sagaIsPersistent)
         {
             TimeoutMessage tm = message as TimeoutMessage;
             if (tm != null)
@@ -120,7 +123,7 @@ namespace NServiceBus.Saga
 
         }
 
-	    private void NotifyTimeoutManagerThatSagaHasCompleted(ISagaEntity saga)
+	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISagaEntity saga)
 	    {
 	        this.Bus.Send(new TimeoutMessage(saga, true));
 	    }
@@ -129,7 +132,7 @@ namespace NServiceBus.Saga
 		/// Logs that a saga has completed.
 		/// </summary>
 		/// <param name="saga">The saga that completed.</param>
-        private static void LogIfSagaCompleted(ISagaEntity saga)
+        protected virtual void LogIfSagaCompleted(ISagaEntity saga)
         {
             if (saga.Completed)
                 logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Id));
@@ -140,7 +143,7 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="message">The message to get the saga type for.</param>
         /// <returns>The saga type associated with the message.</returns>
-        private static Type GetSagaTypeForMessage(IMessage message)
+        protected virtual Type GetSagaTypeForMessage(IMessage message)
         {
             return typeof(ISaga<>).MakeGenericType(message.GetType());
         }
@@ -150,7 +153,7 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="saga">The saga on which to call the handle method.</param>
 		/// <param name="message">The message to pass to the handle method.</param>
-        private static void CallHandleMethodOnSaga(ISagaEntity saga, IMessage message)
+        protected virtual void CallHandleMethodOnSaga(ISagaEntity saga, IMessage message)
         {
             MethodInfo method = saga.GetType().GetMethod("Handle", new Type[] { message.GetType() });
 
@@ -177,6 +180,6 @@ namespace NServiceBus.Saga
 
         #endregion
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
+        protected readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
     }
 }
