@@ -110,6 +110,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// </remarks>
         public virtual int MaxRetries
 	    {
+                get { return maxRetries; }
 	        set { maxRetries = value; }
 	    }
 
@@ -271,7 +272,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = m.TimeToBeReceived;
 
-                if (m.Headers.Count > 0)
+                if (m.Headers != null && m.Headers.Count > 0)
                 {
                     MemoryStream stream = new MemoryStream();
                     headerSerializer.Serialize(stream, m.Headers);
@@ -336,6 +337,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return;
+
+                throw;
             }
 
             this.OnStartedMessageProcessing();
@@ -388,7 +391,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                         if (this.errorQueue != null)
                             this.errorQueue.Send(m, this.GetTransactionTypeForSend());
 
-                        return;
+                        return; // deserialization failed - no reason to try again, so don't throw
                     }
                 }
 
@@ -401,6 +404,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return;
+
+                throw;
             }
             catch
             {
