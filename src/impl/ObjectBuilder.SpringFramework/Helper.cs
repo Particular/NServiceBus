@@ -174,7 +174,22 @@ namespace ObjectBuilder.SpringFramework
                 string name = GetName(invocation.Method.Name);
                 config.ConfigureProperty(name, invocation.Arguments[0]);
 
-                Common.Logging.LogManager.GetLogger(typeof(IBuilder)).Debug(method.DeclaringType.Name + "." + name + " = " + invocation.Arguments[0]);
+                string message = method.DeclaringType.Name + "." + name + " = ";
+                if (invocation.Arguments[0] is IEnumerable && !(invocation.Arguments[0] is string))
+                {
+                    message += "{";
+
+                    foreach (object o in (IEnumerable)invocation.Arguments[0])
+                        if (o is DictionaryEntry)
+                            message += "<" + ((DictionaryEntry)o).Key + ", " + ((DictionaryEntry)o).Value + ">, ";
+                        else
+                            message += o + ", ";
+
+                    message += "}";
+                }
+                else message += invocation.Arguments[0];
+
+                Common.Logging.LogManager.GetLogger(typeof(IBuilder)).Debug(message);
             }
 
             return null;
