@@ -388,8 +388,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     {
                         logger.Error("Could not extract message data.", e);
 
-                        if (this.errorQueue != null)
-                            this.errorQueue.Send(m, this.GetTransactionTypeForSend());
+                        MoveToErrorQueue(m);
 
                         return; // deserialization failed - no reason to try again, so don't throw
                     }
@@ -421,8 +420,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                         {
                             this.failuresPerMessage.Remove(m.Id);
 
-                            if (this.errorQueue != null)
-                                this.errorQueue.Send(m, this.GetTransactionTypeForSend());
+                            MoveToErrorQueue(m);
 
                             return;
                         }
@@ -436,6 +434,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             return;
         }
+
+	    protected void MoveToErrorQueue(Message m)
+	    {
+	        if (this.errorQueue != null)
+                this.errorQueue.Send(m, MessageQueueTransactionType.Single);
+	    }
 
 	    public void AbortHandlingCurrentMessage()
         {
