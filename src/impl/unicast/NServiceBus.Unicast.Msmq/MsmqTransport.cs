@@ -128,6 +128,30 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { secondsToWaitForMessage = value; }
         }
 
+	    private TimeSpan transactionTimeout;
+
+        /// <summary>
+        /// Property for getting/setting the period of time when the transaction times out.
+        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// </summary>
+        public virtual TimeSpan TransactionTimeout
+        {
+            get { return transactionTimeout; }
+            set { transactionTimeout = value; }
+        }
+
+	    private IsolationLevel isolationLevel;
+        
+        /// <summary>
+        /// Property for getting/setting the isolation level of the transaction scope.
+        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// </summary>
+	    public virtual IsolationLevel IsolationLevel
+	    {
+            get { return isolationLevel; }
+            set { this.isolationLevel = value; }
+	    }
+
 	    private IMessageSerializer messageSerializer;
 
         /// <summary>
@@ -193,7 +217,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { this.messageSerializer.Initialize(GetExtraTypes(value)); }
         }
 
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
+	    public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
             lock (this.workerThreads)
             {
@@ -348,7 +372,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             try
             {
                 if (this.isTransactional)
-                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue);
+                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue, isolationLevel, transactionTimeout);
                 else
                     this.ReceiveFromQueue();
             }

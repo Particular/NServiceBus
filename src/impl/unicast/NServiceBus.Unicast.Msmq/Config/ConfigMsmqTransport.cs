@@ -1,5 +1,7 @@
+using System;
 using ObjectBuilder;
 using System.Configuration;
+using System.Transactions;
 
 namespace NServiceBus.Unicast.Transport.Msmq.Config
 {
@@ -33,6 +35,18 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         public ConfigMsmqTransport PurgeOnStartup(bool value)
         {
             transport.PurgeOnStartup = value;
+            return this;
+        }
+
+        public ConfigMsmqTransport IsolationLevel(IsolationLevel isolationLevel)
+        {
+            transport.IsolationLevel = isolationLevel;
+            return this;
+        }
+
+        public ConfigMsmqTransport TransactionTimeout(TimeSpan transactionTimeout)
+        {
+            transport.TransactionTimeout = transactionTimeout;
             return this;
         }
     }
