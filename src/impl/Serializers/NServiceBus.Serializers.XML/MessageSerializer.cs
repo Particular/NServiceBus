@@ -10,6 +10,11 @@ namespace NServiceBus.Serializers.XML
     {
         public void Initialize(params Type[] types)
         {
+            foreach(Type t in types)
+                if (!t.IsSerializable)
+                    throw new InvalidOperationException("Cannot register a non-serializable type: " +
+                                                        t.FullName);
+
             this.xmlSerializer = new XmlSerializer(typeof(object), types);
         }
 
