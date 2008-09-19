@@ -775,15 +775,8 @@ namespace NServiceBus.Unicast
             if (typeof(IMessage) == messageType)
                 return;
 
-            if (messageType.IsAbstract)
-                return;
-
             if (typeof(IMessage).IsAssignableFrom(messageType))
             {
-                if (!messageType.IsSerializable)
-                    throw new InvalidOperationException("Cannot register a non-serializable message: " +
-                                                        messageType.FullName);
-
                 if (this.MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
                     return;
 
