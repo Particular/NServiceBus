@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -23,22 +24,57 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             foreach (Type t in types)
             {
-                if (t.IsInterface)
-                {
-                    Type mapped = CreateTypeFrom(t, moduleBuilder);
-                    TypeMapping[t] = mapped;
-                }
-
-                nameToType[t.FullName] = t;
+                InitType(t, moduleBuilder);
             }
 
             assemblyBuilder.Save(name + ".dll");
         }
 
+        public void InitType(Type t, ModuleBuilder moduleBuilder)
+        {
+            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid))
+                return;
+
+            if (typeof(IEnumerable).IsAssignableFrom(t))
+            {
+                foreach (Type g in t.GetGenericArguments())
+                    InitType(g, moduleBuilder);
+
+                return;
+            }
+
+            //already defined this type in the module builder
+            if (moduleBuilder.GetType(GetNewTypeName(t)) != null)
+                return;
+
+            if (t.IsInterface)
+            {
+                Type mapped = CreateTypeFrom(t, moduleBuilder);
+                interfaceToConcreteTypeMapping[t] = mapped;
+                concreteToInterfaceTypeMapping[mapped] = t;
+                typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
+            }
+            else
+                typeToConstructor[t] = t.GetConstructor(Type.EmptyTypes);
+
+            nameToType[t.FullName] = t;
+
+            foreach (FieldInfo field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+                InitType(field.FieldType, moduleBuilder);
+
+            foreach (PropertyInfo prop in t.GetProperties())
+                InitType(prop.PropertyType, moduleBuilder);
+        }
+
+        public string GetNewTypeName(Type t)
+        {
+            return t.Namespace + SUFFIX + "." + t.Name;
+        }
+
         public Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
         {
             TypeBuilder typeBuilder = moduleBuilder.DefineType(
-                t.Namespace + SUFFIX + "." + t.Name,
+                GetNewTypeName(t),
                 TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
                 typeof(object)
                 );
@@ -106,17 +142,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             if (t.IsClass)
             {
-                if (t.Namespace.EndsWith(SUFFIX))
-                {
-                    string s = t.Namespace.Replace(SUFFIX, "") + "." + t.Name;
-                    return GetMappedTypeFor(s);
-                }
+                Type result;
+                concreteToInterfaceTypeMapping.TryGetValue(t, out result);
+                if (result != null)
+                    return result;
 
                 return t;
             }
 
-            if (TypeMapping.ContainsKey(t))
-                return TypeMapping[t];
+            if (interfaceToConcreteTypeMapping.ContainsKey(t))
+                return interfaceToConcreteTypeMapping[t];
 
             return null;
         }
@@ -126,7 +161,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             if (nameToType.ContainsKey(typeName))
                 return nameToType[typeName];
 
-            return null;
+            return Type.GetType(typeName);
         }
 
         public T CreateInstance<T>() where T : IMessage
@@ -136,12 +171,20 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         public object CreateInstance(Type t)
         {
-            return Activator.CreateInstance(GetMappedTypeFor(t));
+            Type mapped = GetMappedTypeFor(t);
+
+            ConstructorInfo constructor = null;
+            typeToConstructor.TryGetValue(mapped, out constructor);
+            if (constructor != null)
+                return constructor.Invoke(null);
+
+            return Activator.CreateInstance(mapped);
         }
 
         private static readonly string SUFFIX = ".__Impl";
-        private static readonly Dictionary<Type, Type> TypeMapping = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
         private static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-
+        private static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
     }
 }
