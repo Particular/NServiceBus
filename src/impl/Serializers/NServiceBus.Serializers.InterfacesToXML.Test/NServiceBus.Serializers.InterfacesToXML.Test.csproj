@@ -32,6 +32,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\core\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.16269, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\core\NServiceBus.MessageInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.18662, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\impl\MessageInterfaces\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.9.0.28051, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
@@ -48,6 +56,10 @@
     <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
       <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
       <Name>NServiceBus.Serializers.InterfacesToXML</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
+      <Project>{4D9A660B-C2AF-42A8-AEB4-E2F97ED1CB3C}</Project>
+      <Name>NServiceBus.Serializers.XML</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

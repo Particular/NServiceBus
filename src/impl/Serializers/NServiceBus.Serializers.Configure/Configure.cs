@@ -11,7 +11,7 @@ namespace NServiceBus.Serializers
             get
             {
                 Configure c = new Configure();
-                c.xml = true;
+                c.serializerType = SerializerTypeEnum.XML;
 
                 return c;
             }
@@ -22,7 +22,18 @@ namespace NServiceBus.Serializers
             get
             {
                 Configure c = new Configure();
-                c.binary = true;
+                c.serializerType = SerializerTypeEnum.Binary;
+
+                return c;
+            }
+        }
+
+        public static IWith InterfaceToXMLSerializer
+        {
+            get
+            {
+                Configure c = new Configure();
+                c.serializerType = SerializerTypeEnum.InterfaceToXML;
 
                 return c;
             }
@@ -30,14 +41,15 @@ namespace NServiceBus.Serializers
 
         public void With(IBuilder builder)
         {
-            if ((xml && binary) || (!xml && !binary))
-                throw new InvalidOperationException("Must define either XML or Binary, not both.");
-
-            if (this.xml)
-                builder.ConfigureComponent(typeof(XML.MessageSerializer), ComponentCallModelEnum.Singleton);
-
-            if (this.binary)
-                builder.ConfigureComponent(typeof(Binary.MessageSerializer), ComponentCallModelEnum.Singleton);
+            switch(serializerType)
+            {
+                case SerializerTypeEnum.InterfaceToXML: builder.ConfigureComponent(typeof(InterfacesToXML.MessageSerializer), ComponentCallModelEnum.Singleton);
+                    break;
+                case SerializerTypeEnum.XML: builder.ConfigureComponent(typeof(XML.MessageSerializer), ComponentCallModelEnum.Singleton);
+                    break;
+                case SerializerTypeEnum.Binary: builder.ConfigureComponent(typeof(Binary.MessageSerializer), ComponentCallModelEnum.Singleton);
+                    break;
+            }
         }
 
         private Configure()
@@ -45,8 +57,15 @@ namespace NServiceBus.Serializers
             
         }
 
-        private bool xml;
-        private bool binary;
+
+        private SerializerTypeEnum serializerType;
+    }
+
+    public enum SerializerTypeEnum
+    {
+        XML,
+        Binary,
+        InterfaceToXML
     }
 
     public interface IWith
