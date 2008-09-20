@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -66,17 +67,17 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         #region ISubscriptionStorage Members
 
-        public IList<string> GetSubscribersForMessage(IMessage message)
+        public IList<string> GetSubscribersForMessage(Type messageType)
         {
             List<string> result = new List<string>();
-            string messageType = message.GetType().AssemblyQualifiedName;
+            string typeName = messageType.AssemblyQualifiedName;
 
             DbCommand command = this.GetConnection().CreateCommand();
             command.CommandType = CommandType.Text;
 
             DbParameter msgParam = command.CreateParameter();
             msgParam.ParameterName = "@" + messageTypeParameterName;
-            msgParam.Value = messageType;
+            msgParam.Value = typeName;
             command.Parameters.Add(msgParam);
 
             command.CommandText =

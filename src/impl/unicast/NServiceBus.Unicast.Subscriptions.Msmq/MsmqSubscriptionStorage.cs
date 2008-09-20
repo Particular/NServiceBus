@@ -50,15 +50,15 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <summary>
         /// Gets a list of the addresses of subscribers for the specified message.
         /// </summary>
-        /// <param name="message">The message to get subscribers for.</param>
+        /// <param name="messageType">The message type to get subscribers for.</param>
         /// <returns>A list of subscriber addresses.</returns>
-        public IList<string> GetSubscribersForMessage(IMessage message)
+        public IList<string> GetSubscribersForMessage(Type messageType)
         {
             List<string> result = new List<string>();
 
             lock (this.locker)
                 foreach (Entry e in this.entries)
-                    if (e.Matches(message))
+                    if (e.Matches(messageType))
                         result.Add(e.Subscriber);
 
             return result;
