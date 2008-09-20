@@ -9,6 +9,7 @@ using NServiceBus.Messages;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using ObjectBuilder;
+using NServiceBus.MessageInterfaces;
 
 namespace NServiceBus.Unicast
 {
@@ -83,6 +84,14 @@ namespace NServiceBus.Unicast
         {
             set { builder = value; }
         }
+
+        private IMessageMapper messageMapper;
+
+	    public virtual IMessageMapper MessageMapper
+	    {
+            get { return messageMapper; }
+            set { messageMapper = value; }
+	    }
 
         private bool propogateReturnAddressOnSend = false;
 
@@ -221,7 +230,11 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">A list of messages.  Only the first will be published.</param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
-            foreach (string subscriber in this.subscriptionStorage.GetSubscribersForMessage(messages[0]))
+		    Type leadingType = messages[0].GetType();
+            if (messageMapper != null)
+                leadingType = messageMapper.GetMappedTypeFor(leadingType);
+
+            foreach (string subscriber in this.subscriptionStorage.GetSubscribersForMessage(leadingType))
                 try
                 {
                     this.Send(subscriber, messages as IMessage[]);
@@ -353,7 +366,8 @@ namespace NServiceBus.Unicast
             TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
             this.transport.Send(toSend, destination);
 
-            log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
+            if (log.IsDebugEnabled)
+                log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
 
             Callback result = new Callback(toSend.Id);
 		    result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
@@ -939,13 +953,21 @@ namespace NServiceBus.Unicast
             lock (this.messageTypeToDestinationLookup)
                 this.messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
 
-			//WHY: Shouldn't a null check be done here?
-			if (destination == null)
-				throw new ConfigurationException(
-					string.Format("No destination could be found for message type {0}.", messageType)
-					);
+            if (destination == null)
+            {
+                if (messageMapper != null)
+                {
+                    Type t = messageMapper.GetMappedTypeFor(messageType);
+                    if (t != null)
+                        return GetDestinationForMessageType(t);
+                }
 
-            return destination;
+                throw new ConfigurationException(
+                    string.Format("No destination could be found for message type {0}.", messageType)
+                    );
+            }
+
+		    return destination;
         }
 
         #endregion

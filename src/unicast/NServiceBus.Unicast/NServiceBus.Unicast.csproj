@@ -38,6 +38,10 @@
       <HintPath>..\..\..\BUILD\CORE\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.16269, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\core\NServiceBus.MessageInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="ObjectBuilder, Version=1.0.2.41164, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
