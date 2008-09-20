@@ -2,9 +2,12 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
+using NServiceBus.Serialization;
+using NServiceBus.MessageInterfaces;
 
 namespace Client
 {
@@ -29,12 +32,17 @@ namespace Client
             while (Console.ReadLine().ToLower() != "q")
             {
                 RequestDataMessage m = new RequestDataMessage();
+                IRequestDataMessage r =
+                    builder.Build<IMessageCreator>().CreateInstance<IRequestDataMessage>();
+
                 m.DataId = Guid.NewGuid();
+                r.DataId = m.DataId;
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 
-                //notice that we're passing the message (m) as our state object
+                //notice that we're passing the message as our state object
                 bus.Send(m).Register(RequestDataComplete, m);
+                bus.Send(r).Register(RequestDataComplete, r);
             }
         }
 
@@ -53,21 +61,16 @@ namespace Client
             if (result.State == null)
                 return;
 
-            RequestDataMessage request = result.State as RequestDataMessage;
-            if (request == null)
-                return;
-
             DataResponseMessage response = result.Messages[0] as DataResponseMessage;
             if (response == null)
                 return;
 
-            System.Diagnostics.Debug.Assert(request.DataId == response.DataId);
             Console.WriteLine("Response received with description: {0}",response.Description);
         }
 
         private static void ConfigureSelfWith(IBuilder builder)
         {
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
             //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
             new ConfigMsmqTransport(builder)
@@ -76,6 +79,8 @@ namespace Client
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false);
+
+            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
         }
     }
 }

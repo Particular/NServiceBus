@@ -1,6 +1,7 @@
 using System;
 using Common.Logging;
 using NServiceBus;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
@@ -35,7 +36,7 @@ namespace Server
         {
             new ConfigMsmqSubscriptionStorage(builder);
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
             //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
             new ConfigMsmqTransport(builder)
@@ -47,6 +48,8 @@ namespace Server
                 .SetMessageHandlersFromAssembliesInOrder(
                     typeof(RequestDataMessageHandler).Assembly
                     );
+
+            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
         }
     }
 }

@@ -8,4 +8,9 @@ namespace Messages
     {
         public Guid EventId;
     }
+
+    public interface IEvent : IMessage
+    {
+        Guid EventId { get; set; }
+    }
 }

@@ -2,8 +2,10 @@ using System;
 using Common.Logging;
 using Messages;
 using NServiceBus;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
+using ObjectBuilder;
 
 namespace Subscriber2
 {
@@ -14,7 +16,9 @@ namespace Subscriber2
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
+
+            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
             //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
             new ConfigMsmqTransport(builder)
@@ -27,11 +31,12 @@ namespace Subscriber2
                     typeof(EventMessageHandler).Assembly
                 );
 
-            IBus bClient = builder.Build<IBus>();
+            IBus bus = builder.Build<IBus>();
 
-            bClient.Start();
+            bus.Start();
 
-            bClient.Subscribe(typeof(EventMessage));
+            bus.Subscribe(typeof(EventMessage));
+            bus.Subscribe(typeof(IEvent));
 
             Console.WriteLine("Listening for events. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")

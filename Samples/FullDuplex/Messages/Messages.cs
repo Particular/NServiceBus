@@ -17,4 +17,9 @@ namespace Messages
 
         // other data
     }
+
+    public interface IRequestDataMessage : IMessage
+    {
+        Guid DataId { get; set; }
+    }
 }
