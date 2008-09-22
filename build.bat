@@ -6,6 +6,8 @@ cd ..\..\src\core
 msbuild 
 cd ..\..\src\utils
 msbuild
+cd ..\..\src\messageInterfaces
+msbuild
 cd ..\..\src\unicast
 msbuild 
 cd ..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
