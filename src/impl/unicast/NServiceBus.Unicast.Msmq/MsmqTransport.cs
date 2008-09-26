@@ -166,6 +166,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #region ITransport Members
 
+        public event EventHandler StartedMessageProcessing;
+        public event EventHandler FinishedMessageProcessing;
+
         /// <summary>
         /// Gets/sets the number of concurrent threads that should be
         /// created for processing the queue.
@@ -365,8 +368,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 throw;
             }
 
-            this.OnStartedMessageProcessing();
-
 		    needToAbort = false;
 
             try
@@ -376,12 +377,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 else
                     this.ReceiveFromQueue();
             }
-            catch(AbortHandlingCurrentMessageException)
+            catch (AbortHandlingCurrentMessageException)
             {
                 //in case AbortHandlingCurrentMessage occurred
             }
-
-            this.OnFinishedMessageProcessing();
         }
 
 	    /// <summary>
@@ -392,7 +391,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ReceiveFromQueue()
         {
-	        Message m = new Message();
+            this.OnStartedMessageProcessing();
+
+            Message m = new Message();
 
             try
             {
@@ -433,6 +434,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             catch
             {
                 if (this.isTransactional)
+                {
                     lock (this.failuresPerMessage)
                     {
                         if (!this.failuresPerMessage.ContainsKey(m.Id))
@@ -446,11 +448,20 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                             MoveToErrorQueue(m);
 
+                            this.OnFinishedMessageProcessing();
+
                             return;
                         }
                     }
 
-                throw;
+                    throw;
+                }
+                else
+                {
+                    this.OnFinishedMessageProcessing();
+
+                    throw;
+                }
             }
 
             if (needToAbort)
@@ -594,6 +605,18 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return types.ToArray();
         }
 
+        private void OnStartedMessageProcessing()
+        {
+            if (this.StartedMessageProcessing != null)
+                this.StartedMessageProcessing(this, null);
+        }
+
+        private void OnFinishedMessageProcessing()
+        {
+            if (this.FinishedMessageProcessing != null)
+                this.FinishedMessageProcessing(this, null);
+        }
+
         #endregion
 
         #region static conversion methods
@@ -669,24 +692,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         }
 
-        #endregion
-
-        #region Events
-
-	    public event EventHandler StartedMessageProcessing;
-	    public event EventHandler FinishedMessageProcessing;
-
-        private void OnStartedMessageProcessing()
-        {
-            if (this.StartedMessageProcessing != null)
-                this.StartedMessageProcessing(this, null);
-        }
-
-        private void OnFinishedMessageProcessing()
-        {
-            if (this.FinishedMessageProcessing != null)
-                this.FinishedMessageProcessing(this, null);
-        }
         #endregion
 
         #region members

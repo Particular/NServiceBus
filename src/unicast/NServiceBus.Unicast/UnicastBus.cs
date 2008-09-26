@@ -45,6 +45,7 @@ namespace NServiceBus.Unicast
                 transport = value;
 
                 this.transport.TransportMessageReceived += transport_TransportMessageReceived;
+                this.transport.FinishedMessageProcessing += transport_FinishedMessageProcessing;
             }
         }
 
@@ -678,9 +679,17 @@ namespace NServiceBus.Unicast
             if (!this.disableMessageHandling)
                 this.HandleMessage(msg);
 
-            this.SendReadyMessage(false);
-
             log.Debug("Finished handling message.");
+        }
+
+        /// <summary>
+        /// Handles the FinishedMessageProcessing event of ITransport.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void transport_FinishedMessageProcessing(object sender, EventArgs e)
+        {
+            this.SendReadyMessage(false);
         }
 
 		/// <summary>

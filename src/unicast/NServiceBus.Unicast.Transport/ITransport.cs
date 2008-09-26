@@ -64,6 +64,16 @@ namespace NServiceBus.Unicast.Transport
         event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         /// <summary>
+        /// Raised when a message is available but before <see cref="TransportMessageReceived"/> is raised.
+        /// </summary>
+	    event EventHandler StartedMessageProcessing;
+
+        /// <summary>
+        /// Raised after message processing was completed, even in case of an exception in message processing.
+        /// </summary>
+        event EventHandler FinishedMessageProcessing;
+
+        /// <summary>
         /// Causes the current message being handled to return to the queue.
         /// </summary>
 	    void AbortHandlingCurrentMessage();

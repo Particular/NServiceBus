@@ -75,6 +75,8 @@ namespace NServiceBus.Unicast.Transport.Http
         #region ITransport events
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
+        public event EventHandler StartedMessageProcessing;
+        public event EventHandler FinishedMessageProcessing;
 
         #endregion
 
@@ -160,8 +162,12 @@ namespace NServiceBus.Unicast.Transport.Http
 
             context.Response.Close();
 
+            this.OnStartedMessageProcessing();
+
             if (this.TransportMessageReceived != null)
                 this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+
+            this.OnFinishedMessageProcessing();
         }
 
         private void SendFromQueue()
@@ -247,30 +253,11 @@ namespace NServiceBus.Unicast.Transport.Http
         private static Type[] GetExtraTypes(IEnumerable<Type> value)
         {
             List<Type> types = new List<Type>(value);
-            foreach (Type t in value)
-                if (CantSerializeType(t))
-                    types.Remove(t);
 
             if (!types.Contains(typeof(List<object>)))
                 types.Add(typeof(List<object>));
 
             return types.ToArray();
-        }
-
-        /// <summary>
-        /// Indicates whether or not the specified type is serializable.
-        /// </summary>
-        /// <param name="t">The type to check.</param>
-        /// <returns>true if the type is not serializable, otherwise false.</returns>
-        private static bool CantSerializeType(Type t)
-        {
-            if (t.IsInterface || t.IsAbstract)
-                return true;
-
-            if (t.IsArray)
-                return CantSerializeType(t.GetElementType());
-
-            return false;
         }
 
         private static TransportMessage GetTransportMessage(HttpListenerContext context, IMessageSerializer serializer)
@@ -287,6 +274,18 @@ namespace NServiceBus.Unicast.Transport.Http
 
             transportMessage.Body = serializer.Deserialize(context.Request.InputStream);
             return transportMessage;
+        }
+
+        private void OnStartedMessageProcessing()
+        {
+            if (this.StartedMessageProcessing != null)
+                this.StartedMessageProcessing(this, null);
+        }
+
+        private void OnFinishedMessageProcessing()
+        {
+            if (this.FinishedMessageProcessing != null)
+                this.FinishedMessageProcessing(this, null);
         }
 
         #endregion
