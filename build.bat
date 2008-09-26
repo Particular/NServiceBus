@@ -10,7 +10,9 @@ cd ..\..\src\messageInterfaces
 msbuild
 cd ..\..\src\unicast
 msbuild 
-cd ..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
+cd ..\..\src\impl\messageInterfaces
+msbuild
+cd ..\..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
 msbuild
 cd ..\..\..\..\src\impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq
 msbuild
