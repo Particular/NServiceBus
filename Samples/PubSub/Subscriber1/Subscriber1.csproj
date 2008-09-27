@@ -44,53 +44,61 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.0.0.1017, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.16269, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.MessageInterfaces.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.29118, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.28790, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\impl\MessageInterfaces\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Saga, Version=1.8.2.24199, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Serialization.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serialization, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serializers.Binary, Version=1.9.0.28840, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Serializers.Binary.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serializers.Binary, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serializers.Configure, Version=1.9.0.29021, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.Binary.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Serializers.Configure.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serializers.Configure, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serializers.InterfacesToXML, Version=1.9.0.28923, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.Configure.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Serializers.InterfacesToXML.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serializers.XML, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serializers.XML, Version=1.9.0.28877, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\impl\Serializers\NServiceBus.Serializers.XML.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Serializers.XML.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.0.0.20432, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast, Version=1.9.0.38095, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Config, Version=1.8.1.2, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Config, Version=1.9.0.38149, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Config.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.0.0.1019, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.9.0.38057, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.0.0.1020, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\impl\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.9.0.38472, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Utils, Version=1.9.0.38365, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Utils.dll</HintPath>
     </Reference>
     <Reference Include="ObjectBuilder, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -107,10 +115,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\utils\Utils.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventMessageHandler.cs" />

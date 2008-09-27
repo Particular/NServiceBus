@@ -28,21 +28,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=1.9.0.32385, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.16269, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.MessageInterfaces.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.18662, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.28790, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\impl\MessageInterfaces\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28051, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.InterfacesToXML, Version=1.9.0.28923, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.InterfacesToXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.XML, Version=1.9.0.28877, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.XML.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -51,16 +59,6 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
-      <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
-      <Name>NServiceBus.Serializers.InterfacesToXML</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
-      <Project>{4D9A660B-C2AF-42A8-AEB4-E2F97ED1CB3C}</Project>
-      <Name>NServiceBus.Serializers.XML</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

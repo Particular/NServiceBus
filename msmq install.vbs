@@ -12,6 +12,7 @@ CreateQueue ".\private$\distributordatabus"
 CreateQueue ".\private$\timeoutmanager"
 CreateQueue ".\private$\worker"
 CreateQueue ".\private$\worker2"
+CreateQueue ".\private$\hr"
 
 Sub DeleteQueue(queueName)
 	On Error Resume Next

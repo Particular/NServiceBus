@@ -28,18 +28,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=1.9.0.32385, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.16269, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.MessageInterfaces.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28051, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\core\NServiceBus.Serialization.dll</HintPath>
+      <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -60,4 +61,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(ProjectDir)bin\debug\*.*" "$(ProjectDir)..\..\..\..\build\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

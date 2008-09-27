@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Messaging;
 using System.Transactions;
 using Common.Logging;
-using Utils;
 using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
+using Utils;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {

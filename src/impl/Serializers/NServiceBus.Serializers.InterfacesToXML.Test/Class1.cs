@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serialization;
@@ -65,7 +64,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
         public void TestXml()
         {
-            IMessageSerializer serializer = new NServiceBus.Serializers.XML.MessageSerializer();
+            IMessageSerializer serializer = new XML.MessageSerializer();
 
             serializer.Initialize(typeof(M2), typeof(M1), typeof(List<object>));
 
