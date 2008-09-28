@@ -49,8 +49,12 @@ namespace NServiceBus.Serializers.InterfacesToXML
             foreach(FieldInfo field in fields)
                 InitType(field.FieldType);
 
-            foreach(PropertyInfo prop in props)
+            foreach (PropertyInfo prop in props)
+            {
                 InitType(prop.PropertyType);
+
+                propToSetMethod[prop] = prop.GetSetMethod(false);
+            }
         }
 
         #region Deserialize
@@ -95,7 +99,11 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 {
                     object result = GetPropertyOrFieldValue(prop.PropertyType, n);
                     if (result != null)
-                        prop.SetValue(parent, result, null);
+                    {
+                        //prop.SetValue(parent, result, null);
+                        MethodInfo meth = propToSetMethod[prop];
+                        meth.Invoke(parent, BindingFlags.Instance | BindingFlags.Public, null, new object[] {result}, null);
+                    }
                 }
                 else
                 {
@@ -230,7 +238,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
-            if (type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(Guid))
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type.IsEnum)
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
                 return;
@@ -263,6 +271,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
         private static readonly string XMLTYPE = XMLPREFIX + ":type";
         private static readonly Dictionary<Type, FieldInfo[]> typeToFields = new Dictionary<Type, FieldInfo[]>();
         private static readonly Dictionary<Type, PropertyInfo[]> typeToProperties = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<PropertyInfo, MethodInfo> propToSetMethod = new Dictionary<PropertyInfo, MethodInfo>();
 
         #endregion
     }
