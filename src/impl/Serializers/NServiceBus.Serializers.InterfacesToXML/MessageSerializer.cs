@@ -112,7 +112,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public PropertyInfo GetProperty(Type t, string name)
         {
-            PropertyInfo[] props = null;
+            PropertyInfo[] props;
             typeToProperties.TryGetValue(t, out props);
 
             if (props == null)
@@ -127,7 +127,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public FieldInfo GetField(Type t, string name)
         {
-            FieldInfo[] fields = null;
+            FieldInfo[] fields;
             typeToFields.TryGetValue(t, out fields);
 
             if (fields == null)
@@ -144,7 +144,10 @@ namespace NServiceBus.Serializers.InterfacesToXML
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
-                if (type.IsPrimitive || type == typeof (string))
+                if (type == typeof(string))
+                    return n.ChildNodes[0].InnerText;
+
+                if (type.IsPrimitive)
                     return Convert.ChangeType(n.ChildNodes[0].InnerText, type);
 
                 if (type == typeof (Guid))
