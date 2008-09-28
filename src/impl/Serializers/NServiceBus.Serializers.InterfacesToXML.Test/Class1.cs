@@ -6,6 +6,8 @@ using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serialization;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Collections;
 
 namespace NServiceBus.Serializers.InterfacesToXML.Test
 {
@@ -21,6 +23,9 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
             Debug.WriteLine("XML");
             TestXml();
+
+            Debug.WriteLine("DataContractSerializer");
+            TestDataContractSerializer();
         }
 
         public void TestInterfaces()
@@ -72,6 +77,73 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
             serializer.Initialize(typeof(M2), typeof(M1));
 
+            M2 o = CreateM2();
+
+            IMessage[] messages = new IMessage[] { o };
+
+            Time(messages, serializer);
+        }
+
+        private void TestDataContractSerializer()
+        {
+            M2 o = CreateM2();
+            IMessage[] messages = new IMessage[] { o };
+
+            DataContractSerializer dcs = new DataContractSerializer(typeof(ArrayList), new Type[] { typeof(M2), typeof(SomeEnum), typeof(M1), typeof(Risk), typeof(List<M1>) });
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            XmlWriterSettings xws = new XmlWriterSettings();
+            xws.OmitXmlDeclaration = false;
+            XmlReaderSettings xrs = new XmlReaderSettings();
+            xrs.IgnoreProcessingInstructions = true;
+            xrs.ValidationType = ValidationType.None;
+            xrs.IgnoreWhitespace = true;
+            xrs.CheckCharacters = false;
+            xrs.ConformanceLevel = ConformanceLevel.Auto;
+            
+            for (int i = 0; i < numberOfIterations; i++)
+                using (MemoryStream stream = new MemoryStream())
+                    DataContractSerialize(xws, dcs, messages, stream);
+
+            sw.Stop();
+            Debug.WriteLine("serialization " + sw.Elapsed);
+
+            sw.Reset();
+
+            File.Delete("a.xml");
+            using (FileStream fs = File.Open("a.xml", FileMode.OpenOrCreate))
+                DataContractSerialize(xws, dcs, messages, fs);
+
+            MemoryStream s = new MemoryStream();
+            DataContractSerialize(xws, dcs, messages, s);
+            byte[] buffer = s.GetBuffer();
+            s.Dispose();
+
+            sw.Start();
+
+            for (int i = 0; i < numberOfIterations; i++)
+                using (XmlReader reader = XmlReader.Create(new MemoryStream(buffer), xrs))
+                    dcs.ReadObject(reader);
+
+            sw.Stop();
+            Debug.WriteLine("deserializing: " + sw.Elapsed);
+        }
+
+        private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
+        {
+            ArrayList o = new ArrayList(messages);
+            using (XmlWriter xwr = XmlWriter.Create(str, xws))
+            {
+                dcs.WriteStartObject(xwr, o);
+                dcs.WriteObjectContent(xwr, o);
+                dcs.WriteEndObject(xwr);
+            }
+        }
+
+        private M2 CreateM2()
+        {
             M2 o = new M2();
             o.Id = Guid.NewGuid();
             o.Age = 10;
@@ -101,9 +173,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
                 m1.Risk = new Risk(0.15D, true);
             }
 
-            IMessage[] messages = new IMessage[] { o };
-
-            Time(messages, serializer);
+            return o;
         }
 
         private void Time(IMessage[] messages, IMessageSerializer serializer)
@@ -112,12 +182,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             watch.Start();
 
             for (int i = 0; i < numberOfIterations; i++)
-            {
-                MemoryStream stream = new MemoryStream();
-                serializer.Serialize(messages, stream);
-
-                stream.Close();
-            }
+                using (MemoryStream stream = new MemoryStream())
+                    serializer.Serialize(messages, stream);
 
             watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);
@@ -132,13 +198,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             watch.Start();
 
             for (int i = 0; i < numberOfIterations; i++)
-            {
-
-                MemoryStream forDeserializing = new MemoryStream(buffer);
-
-                object result = serializer.Deserialize(forDeserializing);
-                forDeserializing.Close();
-            }
+                using (MemoryStream forDeserializing = new MemoryStream(buffer))
+                    serializer.Deserialize(forDeserializing);
 
             watch.Stop();
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
@@ -169,7 +230,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
     }
 
     [Serializable]
-    public class M2 : M1, ISerializable
+    public class M2 : M1
     {
         private Guid id;
         private List<M1> names;
@@ -200,36 +261,36 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             set { some = value; }
         }
 
-        #region ISerializable Members
+        //#region ISerializable Members
 
-        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("id", id);
-            info.AddValue("some", some);
-            info.AddValue("parent", parent);
-            info.AddValue("names", names);
+        //void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    info.AddValue("id", id);
+        //    info.AddValue("some", some);
+        //    info.AddValue("parent", parent);
+        //    info.AddValue("names", names);
 
-            base.GetObjectData(info, context);
-        }
+        //    base.GetObjectData(info, context);
+        //}
 
-        public M2(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            id = (Guid)info.GetValue("id", typeof (Guid));
-            some = (SomeEnum) info.GetValue("some", typeof (SomeEnum));
-            parent = (M1) info.GetValue("parent", typeof (M1));
-            names = (List<M1>) info.GetValue("names", typeof (List<M1>));
-        }
+        //public M2(SerializationInfo info, StreamingContext context) : base(info, context)
+        //{
+        //    id = (Guid)info.GetValue("id", typeof (Guid));
+        //    some = (SomeEnum) info.GetValue("some", typeof (SomeEnum));
+        //    parent = (M1) info.GetValue("parent", typeof (M1));
+        //    names = (List<M1>) info.GetValue("names", typeof (List<M1>));
+        //}
 
-        public M2()
-        {
+        //public M2()
+        //{
             
-        }
+        //}
 
-        #endregion
+        //#endregion
     }
 
     [Serializable]
-    public class M1 : IMessage, ISerializable
+    public class M1 : IMessage
     {
         private int age;
         private int intt;
@@ -267,32 +328,32 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             set { risk = value; }
         }
 
-        #region ISerializable Members
+        //#region ISerializable Members
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("address", address);
-            info.AddValue("age", age);
-            info.AddValue("intt", intt);
-            info.AddValue("name", name);
-            info.AddValue("risk", risk);
-        }
+        //public void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    info.AddValue("address", address);
+        //    info.AddValue("age", age);
+        //    info.AddValue("intt", intt);
+        //    info.AddValue("name", name);
+        //    info.AddValue("risk", risk);
+        //}
 
-        public M1(SerializationInfo info, StreamingContext context)
-        {
-            address = info.GetString("address");
-            age = info.GetInt32("age");
-            intt = info.GetInt32("intt");
-            name = info.GetString("name");
-            risk = (Risk)info.GetValue("risk", typeof (Risk));
-        }
+        //public M1(SerializationInfo info, StreamingContext context)
+        //{
+        //    address = info.GetString("address");
+        //    age = info.GetInt32("age");
+        //    intt = info.GetInt32("intt");
+        //    name = info.GetString("name");
+        //    risk = (Risk)info.GetValue("risk", typeof (Risk));
+        //}
 
-        public M1()
-        {
+        //public M1()
+        //{
             
-        }
+        //}
 
-        #endregion
+        //#endregion
     }
 
     [Serializable]
