@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -10,12 +11,23 @@ namespace NServiceBus.Serializers.XML
     {
         public void Initialize(params Type[] types)
         {
-            foreach(Type t in types)
-                if (!t.IsSerializable)
-                    throw new InvalidOperationException("Cannot register a non-serializable type: " +
-                                                        t.FullName);
+            List<Type> known = new List<Type>();
+            foreach (Type t in types)
+            {
+                if (t.IsInterface || t.IsAbstract)
+                    continue;
 
-            this.xmlSerializer = new XmlSerializer(typeof(object), types);
+                if (t.IsArray)
+                {
+                    Type arr = t.GetElementType();
+                    if (arr.IsInterface || arr.IsAbstract)
+                        continue;
+                }
+
+                known.Add(t);
+            }
+
+            this.xmlSerializer = new XmlSerializer(typeof(List<object>), known.ToArray());
         }
 
         public void Serialize(IMessage[] messages, Stream stream)
