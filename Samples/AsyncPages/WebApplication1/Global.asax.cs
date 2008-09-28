@@ -13,8 +13,7 @@ namespace WebApplication1
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+            NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
             new ConfigMsmqTransport(builder)
                 .IsTransactional(false)

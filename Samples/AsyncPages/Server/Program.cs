@@ -18,8 +18,7 @@ namespace Server
             {
                 new ConfigMsmqSubscriptionStorage(builder);
 
-                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+                NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
                 
                 new ConfigMsmqTransport(builder)
                     .IsTransactional(true)
