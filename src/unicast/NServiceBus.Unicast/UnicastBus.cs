@@ -733,13 +733,13 @@ namespace NServiceBus.Unicast
                 Type messageType = Type.GetType(de.Key.ToString(), false);
                 if (messageType != null)
                 {
-                    this.RegisterMessageTypeToDestination(messageType, de.Value.ToString(), false);
+                    this.RegisterMessageType(messageType, de.Value.ToString(), false);
                     continue;
                 }
 
                 Assembly a = Assembly.Load(de.Key.ToString());
                 foreach (Type t in a.GetTypes())
-                    this.RegisterMessageTypeToDestination(t, de.Value.ToString(), true);
+                    this.RegisterMessageType(t, de.Value.ToString(), true);
             }
         }
 
@@ -793,7 +793,7 @@ namespace NServiceBus.Unicast
 		/// and via its assembly to a different address, the <see cref="configuredByAssembly"/>
 		/// parameter dictates that the specific message type data is to be used.
 		/// </remarks>
-        public void RegisterMessageTypeToDestination(Type messageType, string destination, bool configuredByAssembly)
+        public void RegisterMessageType(Type messageType, string destination, bool configuredByAssembly)
         {
             if (typeof(IMessage) == messageType)
                 return;
@@ -805,6 +805,12 @@ namespace NServiceBus.Unicast
 
                 this.messageTypeToDestinationLookup[messageType] = destination;
                 this.AddMessageType(messageType);
+
+                if (messageType.GetCustomAttributes(typeof(RecoverableAttribute), true).Length > 0)
+                    recoverableMessageTypes.Add(messageType);
+
+                foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
+                    timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
 
                 return;
             }            
@@ -858,11 +864,14 @@ namespace NServiceBus.Unicast
 
             foreach (IMessage message in messages)
             {
-                if (message.GetType().GetCustomAttributes(typeof(RecoverableAttribute), true).Length > 0)
+                if (recoverableMessageTypes.Contains(message.GetType()))
                     result.Recoverable = true;
 
-                foreach (TimeToBeReceivedAttribute a in message.GetType().GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
-                    timeToBeReceived = (a.TimeToBeReceived < timeToBeReceived ? a.TimeToBeReceived : timeToBeReceived);
+                if (timeToBeReceivedPerMessageType.ContainsKey(message.GetType()))
+                {
+                    TimeSpan span = timeToBeReceivedPerMessageType[message.GetType()];
+                    timeToBeReceived = (span < timeToBeReceived ? span : timeToBeReceived);
+                }
             }
 
             result.TimeToBeReceived = timeToBeReceived;
@@ -994,6 +1003,8 @@ namespace NServiceBus.Unicast
 
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
         private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
+	    private readonly IList<Type> recoverableMessageTypes = new List<Type>();
+	    private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
 
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
