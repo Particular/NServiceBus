@@ -150,10 +150,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return t;
             }
 
-            if (interfaceToConcreteTypeMapping.ContainsKey(t))
-                return interfaceToConcreteTypeMapping[t];
+            Type toReturn = null;
+            interfaceToConcreteTypeMapping.TryGetValue(t, out toReturn);
 
-            return null;
+            return toReturn;
         }
 
         public Type GetMappedTypeFor(string typeName)
