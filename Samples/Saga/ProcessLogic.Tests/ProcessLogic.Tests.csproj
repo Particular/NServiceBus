@@ -32,21 +32,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Saga, Version=1.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=1.9.0.28588, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\core\NServiceBus.Saga.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Saga.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Testing, Version=1.7.0.3, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Testing, Version=1.9.0.28636, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\testing\NServiceBus.Testing.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Testing.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast, Version=1.9.0.17205, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\unicast\NServiceBus.Unicast.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Unicast.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.4.1.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <SpecificVersion>False</SpecificVersion>
