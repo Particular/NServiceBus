@@ -10,10 +10,10 @@ namespace NServiceBus.Serializers.Binary
     {
         public void Initialize(params Type[] types)
         {
-            foreach (Type t in types)
-                if (!t.IsSerializable)
-                    throw new InvalidOperationException("Cannot register a non-serializable type: " +
-                                                        t.FullName);
+            //foreach (Type t in types)
+            //    if (!t.IsSerializable)
+            //        throw new InvalidOperationException("Cannot register a non-serializable type: " +
+            //                                            t.FullName);
         }
 
         public void Serialize(IMessage[] messages, Stream stream)

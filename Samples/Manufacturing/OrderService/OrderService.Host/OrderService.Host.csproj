@@ -1,0 +1,180 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{03E59C83-170A-4BF6-86FB-A05B75DE9510}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OrderService.Host</RootNamespace>
+    <AssemblyName>OrderService.Host</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="antlr.runtime, Version=2.7.6.2, Culture=neutral, PublicKeyToken=65e474d141e25e07, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\antlr.runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Log4Net, Version=1.2.0.2, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Common.Logging.Log4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.MSMQ, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\Interop.MSMQ.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.9.0.18087, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Grid.MessageHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Grid.Messages, Version=1.9.0.39225, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Grid.Messages.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.0.20007, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Saga, Version=1.9.0.28588, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Saga.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.Binary, Version=1.9.0.28840, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.Binary.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.Configure, Version=1.9.0.16475, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.Configure.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.InterfacesToXML, Version=1.9.0.16472, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.InterfacesToXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Serializers.XML, Version=1.9.0.31647, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Serializers.XML.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast, Version=1.9.0.17205, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Config, Version=1.9.0.18082, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.9.0.38057, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Subscriptions.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions.DB, Version=1.9.0.18081, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Subscriptions.DB.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq, Version=1.9.0.38574, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.9.0.38472, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Utils, Version=1.9.0.38365, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectBuilder, Version=1.9.0.21573, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectBuilder.SpringFramework, Version=1.9.0.24789, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\ObjectBuilder.SpringFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Spring.Core, Version=1.1.2.20125, Culture=neutral, PublicKeyToken=65e474d141e25e07, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Spring.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HR.Messages\HR.Messages.csproj">
+      <Project>{BAC04722-7E15-485E-BA17-3EC46AB7FC3C}</Project>
+      <Name>HR.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OrderService.MessageHandlers\OrderService.MessageHandlers.csproj">
+      <Project>{53D36630-7B07-43D1-9815-43FC05328DC5}</Project>
+      <Name>OrderService.MessageHandlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OrderService.Messages\OrderService.Messages.csproj">
+      <Project>{A490D793-1D1D-486F-B808-827010EF8369}</Project>
+      <Name>OrderService.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OrderService\OrderService.csproj">
+      <Project>{452C5FEA-16C8-49E1-BC95-1EC55E49EECB}</Project>
+      <Name>OrderService %28Samples\Manufacturing\OrderService\OrderService%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SagaPersister.OrderSagaImplementation\SagaPersister.OrderSagaImplementation.csproj">
+      <Project>{313D095B-6657-4029-A4F4-CF9C5A5DED2B}</Project>
+      <Name>SagaPersister.OrderSagaImplementation</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

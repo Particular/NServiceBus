@@ -13,8 +13,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 {
     public class Class1
     {
-        private int number = 50;
-        private int numberOfIterations = 1000;
+        private int number = 1;
+        private int numberOfIterations = 1;
 
         public void Test()
         {
@@ -66,7 +66,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
                 m1.Risk = new Risk(0.15D, true);
             }
 
-            IMessage[] messages = new IMessage[] {o};
+            IMessage[] messages = new IMessage[] {o, o, o};
 
             Time(messages, serializer);
         }

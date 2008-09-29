@@ -50,21 +50,29 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 InitType(field.FieldType);
 
             foreach (PropertyInfo prop in props)
-            {
                 InitType(prop.PropertyType);
-
-                propToSetMethod[prop] = prop.GetSetMethod(false);
-            }
         }
 
         #region Deserialize
 
         public IMessage[] Deserialize(Stream stream)
         {
+            List<IMessage> result = new List<IMessage>();
+
+            //XmlReaderSettings settings = new XmlReaderSettings();
+            //settings.IgnoreWhitespace = true;
+            //settings.IgnoreProcessingInstructions = true;
+            //settings.IgnoreComments = true;
+
+            //XmlReader reader = XmlReader.Create(stream, settings);
+            //reader.ReadStartElement();
+
+            //while(!reader.EOF)
+            //    result.Add(Process(reader) as IMessage);
+
+
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
-
-            List<IMessage> result = new List<IMessage>();
 
             foreach (XmlNode node in doc.DocumentElement.ChildNodes)
             {
@@ -74,7 +82,34 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 result.Add(m as IMessage);
             }
 
+            //reader.Close();
             return result.ToArray();
+        }
+
+        private object Process(XmlReader reader)
+        {
+            object result = null;
+
+            if (reader.HasAttributes)
+            {
+                string attr = reader.GetAttribute(XMLTYPE);
+                Type t = messageMapper.GetMappedTypeFor(attr);
+                if (t != null)
+                    result = messageMapper.CreateInstance(t);
+
+                if (result != null)
+                {
+                    reader.Read();
+                    FillProperties(result, reader);
+                }
+            }
+
+            return result;
+        }
+
+        private void FillProperties(object result, XmlReader reader)
+        {
+            
         }
 
         private void Process(XmlNode node, ref object parent)
@@ -99,11 +134,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 {
                     object result = GetPropertyOrFieldValue(prop.PropertyType, n);
                     if (result != null)
-                    {
-                        //prop.SetValue(parent, result, null);
-                        MethodInfo meth = propToSetMethod[prop];
-                        meth.Invoke(parent, BindingFlags.Instance | BindingFlags.Public, null, new object[] {result}, null);
-                    }
+                        prop.SetValue(parent, result, null);
                 }
                 else
                 {
@@ -271,7 +302,6 @@ namespace NServiceBus.Serializers.InterfacesToXML
         private static readonly string XMLTYPE = XMLPREFIX + ":type";
         private static readonly Dictionary<Type, FieldInfo[]> typeToFields = new Dictionary<Type, FieldInfo[]>();
         private static readonly Dictionary<Type, PropertyInfo[]> typeToProperties = new Dictionary<Type, PropertyInfo[]>();
-        private static readonly Dictionary<PropertyInfo, MethodInfo> propToSetMethod = new Dictionary<PropertyInfo, MethodInfo>();
 
         #endregion
     }
