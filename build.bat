@@ -56,4 +56,6 @@ cd ..\..\Samples\PubSub
 msbuild
 cd ..\..\Samples\Saga
 msbuild
+cd ..\..\Samples\Manufacturing
+msbuild
 cd ..\..\
