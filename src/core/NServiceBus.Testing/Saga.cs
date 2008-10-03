@@ -169,10 +169,8 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToReturn(ReturnPredicate callback)
         {
-            int returnCode = -1;
-
-            Expect.Call(delegate { bus.Return(returnCode); })
-                .IgnoreArguments().Return(null)
+            Expect.Call(delegate { bus.Return(-1); })
+                .IgnoreArguments()
                 .Callback(callback);
         }
 
@@ -181,7 +179,7 @@ namespace NServiceBus.Testing
             IMessage[] messages = null;
 
             Expect.Call(delegate { bus.Reply(messages); })
-                .IgnoreArguments().Return(null)
+                .IgnoreArguments()
                 .Callback(callback);
         }
 
