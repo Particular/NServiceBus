@@ -21,9 +21,6 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             Debug.WriteLine("Interfaces");
             TestInterfaces();
 
-            Debug.WriteLine("XML");
-            TestXml();
-
             Debug.WriteLine("DataContractSerializer");
             TestDataContractSerializer();
         }
@@ -67,19 +64,6 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             }
 
             IMessage[] messages = new IMessage[] {o, o, o};
-
-            Time(messages, serializer);
-        }
-
-        public void TestXml()
-        {
-            IMessageSerializer serializer = new XML.MessageSerializer();
-
-            serializer.Initialize(typeof(M2), typeof(M1));
-
-            M2 o = CreateM2();
-
-            IMessage[] messages = new IMessage[] { o };
 
             Time(messages, serializer);
         }

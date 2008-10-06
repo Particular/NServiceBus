@@ -38,21 +38,6 @@
       <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Serializers.Binary, Version=1.9.0.28840, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Serializers.Binary.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Serializers.InterfacesToXML, Version=1.9.0.28923, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Serializers.InterfacesToXML.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Serializers.XML, Version=1.9.0.28877, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Serializers.XML.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="ObjectBuilder, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
@@ -66,6 +51,20 @@
     </Compile>
     <Compile Include="Configure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Serializers.Binary\NServiceBus.Serializers.Binary.csproj">
+      <Project>{4AB4015A-2DBF-44F9-9119-0E095703EC2D}</Project>
+      <Name>NServiceBus.Serializers.Binary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
+      <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
+      <Name>NServiceBus.Serializers.InterfacesToXML</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
+      <Project>{4D9A660B-C2AF-42A8-AEB4-E2F97ED1CB3C}</Project>
+      <Name>NServiceBus.Serializers.XML</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
