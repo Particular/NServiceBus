@@ -4,24 +4,24 @@ using ProcessingLogic;
 using ExternalOrderMessages;
 using InternalOrderMessages;
 using NServiceBus.Saga;
-using NUnit.Framework;
 using NServiceBus.Testing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ProcessLogic.Tests
 {
-    [TestFixture]
+    [TestClass]
     public class OrderSagaTests
     {
         private OrderSaga orderSaga = null;
         private Saga Saga;
         
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             Saga = Saga.Test(out orderSaga);
         }
 
-        [Test]
+        [TestMethod]
         public void OrderProcessingShouldCompleteAfterOneAuthorizationAndOneTimeout()
         {
             Guid externalOrderId = Guid.NewGuid();
