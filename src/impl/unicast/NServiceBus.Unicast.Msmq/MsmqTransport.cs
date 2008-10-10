@@ -399,6 +399,24 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 m = this.queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), this.GetTransactionTypeForReceive());
 
+                if (this.isTransactional)
+                {
+                    lock (this.failuresPerMessage)
+                    {
+                        if (this.failuresPerMessage.ContainsKey(m.Id) &&
+                            (this.failuresPerMessage[m.Id] == this.maxRetries))
+                        {
+                            this.failuresPerMessage.Remove(m.Id);
+
+                            MoveToErrorQueue(m);
+
+                            this.OnFinishedMessageProcessing();
+
+                            return;
+                        }
+                    }
+                }
+
                 TransportMessage result = Convert(m);
 
                 if (this.skipDeserialization)
@@ -441,17 +459,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                             this.failuresPerMessage[m.Id] = 1;
                         else
                             this.failuresPerMessage[m.Id] = this.failuresPerMessage[m.Id] + 1;
-
-                        if (this.failuresPerMessage[m.Id] == this.maxRetries)
-                        {
-                            this.failuresPerMessage.Remove(m.Id);
-
-                            MoveToErrorQueue(m);
-
-                            this.OnFinishedMessageProcessing();
-
-                            return;
-                        }
                     }
 
                     throw;
