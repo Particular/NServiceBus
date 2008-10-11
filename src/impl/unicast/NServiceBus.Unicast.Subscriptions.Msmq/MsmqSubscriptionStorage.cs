@@ -69,9 +69,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// </summary>
         /// <param name="msg">The message to attempt to handle.</param>
         /// <returns>true if the message was a valid subscription message, otherwise false.</returns>
-        public bool HandledSubscriptionMessage(TransportMessage msg)
+        public void HandleSubscriptionMessage(TransportMessage msg)
         {
-            return this.HandledSubscriptionMessage(msg, true);
+            this.HandleSubscriptionMessage(msg, true);
         }
 
         /// <summary>
@@ -81,14 +81,14 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <param name="msg">The message to attempt to handle.</param>
         /// <param name="updateQueue">Whether or not the subscription persistence store should be updated.</param>
         /// <returns>true if the message was a valid subscription message, otherwise false.</returns>
-        private bool HandledSubscriptionMessage(TransportMessage msg, bool updateQueue)
+        private void HandleSubscriptionMessage(TransportMessage msg, bool updateQueue)
         {
             IMessage[] messages = msg.Body;
             if (messages == null)
-                return false;
+                return;
 
             if (messages.Length != 1)
-                return false;
+                return;
 
             SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
 
@@ -102,11 +102,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                     this.HandleAddSubscription(msg, messageType, subMessage, updateQueue);
                     this.HandleRemoveSubscription(msg, messageType, subMessage, updateQueue);
                 }
-
-                return true;
             }
-
-            return false;
         }
 
         /// <summary>

@@ -522,10 +522,6 @@ namespace NServiceBus.Unicast
 
             this.ForwardMessageIfNecessary(m);
 
-            if (IsSubscriptionMessage(m))
-                if (this.subscriptionStorage.HandledSubscriptionMessage(m))
-                    return;
-
             this.HandleCorellatedMessage(m);
 
             foreach (IMessage toHandle in m.Body)
@@ -535,28 +531,12 @@ namespace NServiceBus.Unicast
                     if (condition(toHandle) == false)
                     {
                         log.Debug(string.Format("Condition {0} failed for message {1}", condition, toHandle.GetType().Name));
-                        return;
+                        continue;
                     }
                 }
 
                 this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
             }
-        }
-
-        private static bool IsSubscriptionMessage(TransportMessage m)
-        {
-            IMessage[] messages = m.Body;
-            if (messages == null)
-                return false;
-
-            if (messages.Length != 1)
-                return false;
-
-            SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
-            if (subMessage != null)
-                return true;
-
-            return false;
         }
 
 		/// <summary>
@@ -597,7 +577,8 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            return;
+            if (toHandle is SubscriptionMessage)
+                this.subscriptionStorage.HandleSubscriptionMessage(messageBeingHandled);
         }
 
 		/// <summary>

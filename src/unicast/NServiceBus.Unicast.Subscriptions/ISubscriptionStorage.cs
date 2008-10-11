@@ -14,8 +14,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// If so, performs the relevant subscribe/unsubscribe.
         /// </summary>
         /// <param name="msg">The message received in the bus.</param>
-        /// <returns>True if <see cref="msg"/> is a <see cref="SubscriptionMessage"/>.</returns>
-	    bool HandledSubscriptionMessage(TransportMessage msg);
+	    void HandleSubscriptionMessage(TransportMessage msg);
 
         /// <summary>
         /// Returns a list of addresses of subscribers that previously requested to be notified

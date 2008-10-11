@@ -97,18 +97,18 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             return result;
         }
 
-        public bool HandledSubscriptionMessage(TransportMessage msg)
+        public void HandleSubscriptionMessage(TransportMessage msg)
         {
             IMessage[] messages = msg.Body;
             if (messages == null)
-                return false;
+                return;
 
             if (messages.Length != 1)
-                return false;
+                return;
 
             SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
             if (subMessage == null)
-                return false;
+                return;
 
             using (DbConnection connection = GetConnection())
             using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
@@ -137,8 +137,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
                 tx.Commit();
             }
-
-            return true;
         }
 
         public void Init()
