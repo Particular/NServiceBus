@@ -29,16 +29,19 @@ namespace ObjectBuilder.SpringFramework
 
             this.ConfigureComponent(typeof(Builder), ComponentCallModelEnum.Singleton);
 
-            foreach(Type t in this.componentProperties.Keys)
+            lock (this.componentProperties)
             {
-                ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
-                    .SetAutowireMode(AutoWiringMode.AutoDetect)
-                    .SetSingleton(typeHandleLookup[t] == ComponentCallModelEnum.Singleton);
+                foreach (Type t in this.componentProperties.Keys)
+                {
+                    ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
+                        .SetAutowireMode(AutoWiringMode.AutoDetect)
+                        .SetSingleton(typeHandleLookup[t] == ComponentCallModelEnum.Singleton);
 
-                componentProperties[t].Configure(builder);
+                    componentProperties[t].Configure(builder);
 
-                IObjectDefinition def = builder.ObjectDefinition;
-                context.RegisterObjectDefinition(t.FullName, def);
+                    IObjectDefinition def = builder.ObjectDefinition;
+                    context.RegisterObjectDefinition(t.FullName, def);
+                }
             }
 
             this.initialized = true;
@@ -52,7 +55,9 @@ namespace ObjectBuilder.SpringFramework
         {
             ComponentConfig result = new ComponentConfig();
 
-            componentProperties[concreteComponent] = result;
+            lock(this.componentProperties)
+                componentProperties[concreteComponent] = result;
+
             typeHandleLookup[concreteComponent] = callModel;
 
             return result;
@@ -64,7 +69,9 @@ namespace ObjectBuilder.SpringFramework
 
             ComponentConfig config = new ComponentConfig();
 
-            componentProperties[concreteComponent] = config;
+            lock(this.componentProperties)
+                componentProperties[concreteComponent] = config;
+
             typeHandleLookup[concreteComponent] = callModel;
 
             object instance = Activator.CreateInstance(concreteComponent);
