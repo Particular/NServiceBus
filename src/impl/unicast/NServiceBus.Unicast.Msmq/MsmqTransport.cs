@@ -474,6 +474,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
+            this.OnFinishedMessageProcessing();
+
             return;
         }
 

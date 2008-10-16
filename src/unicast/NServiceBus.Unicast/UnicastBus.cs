@@ -617,7 +617,8 @@ namespace NServiceBus.Unicast
             }
 
             if (toHandle is SubscriptionMessage)
-                this.subscriptionStorage.HandleSubscriptionMessage(messageBeingHandled);
+                if (this.subscriptionStorage != null)
+                    this.subscriptionStorage.HandleSubscriptionMessage(messageBeingHandled);
         }
 
 		/// <summary>
