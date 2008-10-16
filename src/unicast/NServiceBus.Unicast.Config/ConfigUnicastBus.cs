@@ -60,6 +60,12 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
+        public ConfigUnicastBus DoNotAutoSubscribe()
+        {
+            bus.AutoSubscribe = false;
+            return this;
+        }
+
         private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
         {
             foreach (Assembly a in assemblies)

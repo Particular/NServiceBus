@@ -35,9 +35,6 @@ namespace Subscriber2
 
             bus.Start();
 
-            bus.Subscribe(typeof(EventMessage));
-            bus.Subscribe(typeof(IEvent));
-
             Console.WriteLine("Listening for events. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")
             {

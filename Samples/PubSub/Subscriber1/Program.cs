@@ -27,6 +27,7 @@ namespace Subscriber1
 
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false)
+                .DoNotAutoSubscribe()
                 .SetMessageHandlersFromAssembliesInOrder(
                     typeof(EventMessageHandler).Assembly
                 );
@@ -35,6 +36,7 @@ namespace Subscriber1
 
             bus.Start();
 
+            //if we were to auto subscribe, this would happen automatically in bus.Start
             bus.Subscribe(typeof(EventMessage));
             bus.Subscribe(typeof(IEvent));
 

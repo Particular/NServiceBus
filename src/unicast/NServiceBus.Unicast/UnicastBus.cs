@@ -20,6 +20,19 @@ namespace NServiceBus.Unicast
     {
         #region config properties
 
+	    private bool autoSubscribe = true;
+
+        /// <summary>
+        /// When set, when starting up, the bus performs 
+        /// a subscribe operation for message types for which it has
+        /// handlers and that are owned by a different endpoint.
+        /// Default is true.
+        /// </summary>
+	    public virtual bool AutoSubscribe
+	    {
+            set { autoSubscribe = value; }
+	    }
+
         private bool disableMessageHandling = false;
 
 		/// <summary>
@@ -267,7 +280,10 @@ namespace NServiceBus.Unicast
 
             string destination = this.GetDestinationForMessageType(messageType);
 
-            this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
+            if (destination == null)
+                log.Error(string.Format("No destination could be found for message type {0}.", messageType));
+            else
+                this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
         }
 
 		/// <summary>
@@ -353,6 +369,12 @@ namespace NServiceBus.Unicast
         {
 		    string destination = this.GetDestinationForMessageType(messages[0].GetType());
 
+            if (destination == null)
+            {
+                log.Error(string.Format("No destination could be found for message type {0}.", messages[0].GetType()));
+                return null;
+            }
+
             return this.Send(destination, messages);
         }
 
@@ -420,6 +442,23 @@ namespace NServiceBus.Unicast
 
                 for (int i = 0; i < this.transport.NumberOfWorkerThreads; i++)
                     this.SendReadyMessage(i == 0);
+
+                if (autoSubscribe)
+                {
+                    foreach (Type messageType in this.messageTypes)
+                    {
+                        string destination = this.GetDestinationForMessageType(messageType);
+                        if (destination != null && destination != this.transport.Address)
+                        {
+                            IEnumerable<Type> handlerTypes = this.GetHandlerTypes(messageType);
+
+                            if (handlerTypes.GetEnumerator().MoveNext())
+                            {
+                                this.Subscribe(messageType);
+                            }
+                        }
+                    }
+                }
 
                 this.started = true;
             }
@@ -957,13 +996,9 @@ namespace NServiceBus.Unicast
                 if (messageMapper != null)
                 {
                     Type t = messageMapper.GetMappedTypeFor(messageType);
-                    if (t != null)
+                    if (t != null && t != messageType)
                         return GetDestinationForMessageType(t);
                 }
-
-                throw new ConfigurationException(
-                    string.Format("No destination could be found for message type {0}.", messageType)
-                    );
             }
 
 		    return destination;
