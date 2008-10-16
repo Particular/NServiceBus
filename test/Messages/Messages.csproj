@@ -62,8 +62,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>del "$(TargetDir)*.xsd"
-xsd "$(TargetPath)"
-copy /Y "$(TargetDir)*.*" "$(ProjectDir)..\bin"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetDir)*.*" "$(ProjectDir)..\bin"</PostBuildEvent>
   </PropertyGroup>
 </Project>
