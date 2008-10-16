@@ -19,7 +19,7 @@ namespace NServiceBus
 	/// message is stored locally at every step along the route so that in the event of
 	/// a failure of a machine along the route a copy of the message will be recovered and
 	/// delivery will continue when the machine is brought back online.</remarks>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class RecoverableAttribute : Attribute
     {
     }
@@ -28,7 +28,7 @@ namespace NServiceBus
 	/// Attribute to indicate that a message has a period of time 
 	/// in which to be received.
 	/// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class TimeToBeReceivedAttribute : Attribute
     {
         /// <summary>

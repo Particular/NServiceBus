@@ -15,7 +15,7 @@ namespace NServiceBus.Saga
     }
 
 	/// <summary>
-	/// Indicates that the object starts a workflow.
+	/// Indicates that the object starts a long running process.
 	/// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class StartsSagaAttribute : Attribute
