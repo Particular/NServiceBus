@@ -1,17 +1,14 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Reflection;
 using NServiceBus.Saga;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using ObjectBuilder;
 
 namespace DbBlobSagaPersister
 {
     public class Persister : ISagaPersister
     {
-        private IBuilder builder;
         private DbConnection connection;
         private string onlineTableName;
         private string completedTableName;
@@ -46,11 +43,6 @@ namespace DbBlobSagaPersister
         public virtual string OnlineTableName
         {
             set { onlineTableName = value; }
-        }
-
-        public virtual IBuilder Builder
-        {
-            set { builder = value; }
         }
 
         public virtual string ProviderInvariantName
@@ -215,12 +207,6 @@ namespace DbBlobSagaPersister
             BinaryFormatter formatter = new BinaryFormatter();
 
             object result = formatter.Deserialize(stream);
-
-            object built = this.builder.Build(result.GetType());
-
-            foreach(FieldInfo fi in result.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
-                if (fi.GetCustomAttributes(typeof(NonSerializedAttribute), true).Length > 0)
-                    fi.SetValue(result, fi.GetValue(built));
 
             return result as ISagaEntity;
         }

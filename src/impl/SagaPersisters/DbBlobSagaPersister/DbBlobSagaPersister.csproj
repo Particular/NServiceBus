@@ -38,7 +38,7 @@
       <HintPath>..\..\..\..\build\NServiceBus.Saga.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ObjectBuilder, Version=1.0.2.20241, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ObjectBuilder, Version=1.9.0.4203, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
       <Private>False</Private>
