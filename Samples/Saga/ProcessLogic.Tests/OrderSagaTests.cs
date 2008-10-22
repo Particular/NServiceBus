@@ -14,11 +14,15 @@ namespace ProcessLogic.Tests
     {
         private OrderSaga orderSaga = null;
         private Saga Saga;
+        private Guid id;
         
         [TestInitialize]
         public void Setup()
         {
             Saga = Saga.Test(out orderSaga);
+
+            id = Guid.NewGuid();
+            orderSaga.Entity.Id = id;
         }
 
         [TestMethod]
@@ -41,12 +45,12 @@ namespace ProcessLogic.Tests
                 .ExpectSend<AuthorizeOrderRequestMessage>(
                     delegate(AuthorizeOrderRequestMessage m)
                     {
-                        return m.SagaId == orderSaga.Id;
+                        return m.SagaId == id;
                     })
                 .ExpectSend<AuthorizeOrderRequestMessage>(
                     delegate(AuthorizeOrderRequestMessage m)
                     {
-                        return m.SagaId == orderSaga.Id;
+                        return m.SagaId == id;
                     })
                 .ExpectSendToDestination<OrderStatusUpdatedMessage>(
                     delegate(string destination, OrderStatusUpdatedMessage m)
@@ -57,7 +61,7 @@ namespace ProcessLogic.Tests
                     delegate(TimeoutMessage m)
                     {
                         timeoutMessage = m;
-                        return m.SagaId == orderSaga.Id;
+                        return m.SagaId == id;
                     })
                 .When(delegate { orderSaga.Handle(createOrderMsg); });
 
@@ -67,7 +71,7 @@ namespace ProcessLogic.Tests
             AuthorizeOrderResponseMessage response = new AuthorizeOrderResponseMessage();
             response.ManagerId = Guid.NewGuid();
             response.Authorized = true;
-            response.SagaId = orderSaga.Id;
+            response.SagaId = id;
 
             Saga.ExpectSendToDestination<OrderStatusUpdatedMessage>(
                     delegate(string destination, OrderStatusUpdatedMessage m)

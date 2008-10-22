@@ -1,5 +1,6 @@
 using System.Configuration;
 using ObjectBuilder;
+using System.Data;
 
 namespace DbBlobSagaPersister.Config
 {
@@ -41,6 +42,12 @@ namespace DbBlobSagaPersister.Config
         public ConfigSagaPersister ValueColumnName(string value)
         {
             persister.ValueColumnName = value;
+            return this;
+        }
+
+        public ConfigSagaPersister IsolationLevel(IsolationLevel value)
+        {
+            persister.IsolationLevel = value;
             return this;
         }
     }

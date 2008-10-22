@@ -68,17 +68,12 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
         {
+            NServiceBus.Saga.Configure.With(builder).SagasInAssemblies(assemblies);
+
             foreach (Assembly a in assemblies)
                 foreach (Type t in a.GetTypes())
-                {
-                    if (t.IsInterface ||
-                        t.IsAbstract ||
-                        (!(typeof(ISagaEntity).IsAssignableFrom(t) || IsMessageHandler(t)))
-                        )
-                        continue;
-
-                    builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                }
+                    if (IsMessageHandler(t))
+                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
         }
 
         public static bool IsMessageHandler(Type t)
@@ -86,15 +81,8 @@ namespace NServiceBus.Unicast.Config
             if (t.IsAbstract)
                 return false;
 
-            Type parent = t.BaseType;
-            while (parent != typeof(Object))
-            {
-                Type messageType = GetMessageTypeFromMessageHandler(parent);
-                if (messageType != null)
-                    return true;
-
-                parent = parent.BaseType;
-            }
+            if (typeof(ISaga).IsAssignableFrom(t))
+                return false;
 
             foreach (Type interfaceType in t.GetInterfaces())
             {

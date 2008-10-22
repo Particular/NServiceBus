@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreateOrderMessageHandler.cs" />
+    <Compile Include="OrderSagaFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +57,10 @@
     <ProjectReference Include="..\OrderQueryLogic\OrderQueryLogic.csproj">
       <Project>{8DBA8E7E-AF72-475D-8888-0CAA44287773}</Project>
       <Name>OrderQueryLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProcessingLogic\ProcessingLogic.csproj">
+      <Project>{4AD91F9A-1714-45B4-9265-B906081DAC3E}</Project>
+      <Name>ProcessingLogic</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -39,16 +39,28 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Configure.cs" />
     <Compile Include="GuidCombGenerator.cs" />
-    <Compile Include="ISaga.cs" />
+    <Compile Include="HasCompleted.cs" />
+    <Compile Include="IFindSagas.cs" />
+    <Compile Include="ISaga.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ISagaEntity.cs" />
     <Compile Include="ISagaMessage.cs" />
     <Compile Include="ISagaPersister.cs" />
+    <Compile Include="ISagaStartedBy.cs" />
+    <Compile Include="ITimeoutable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saga.cs" />
+    <Compile Include="SagaEntityFinder.cs" />
     <Compile Include="TimeoutMessage.cs" />
     <Compile Include="SagaMessageHandler.cs" />
   </ItemGroup>

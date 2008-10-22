@@ -83,7 +83,7 @@ namespace OrderService.Tests
                     return Check(m, OrderStatusEnum.Accepted);
                 }
                 )
-            .When(delegate { orderSaga.Handle(new OrderAuthorizationResponseMessage(orderSaga.Id, true, hrLines)); });
+            .When(delegate { orderSaga.Handle(new OrderAuthorizationResponseMessage(orderSaga.Entity.Id, true, hrLines)); });
         }
 
         [TestMethod]
@@ -121,7 +121,7 @@ namespace OrderService.Tests
                     {
                         state = m.State;
 
-                        return m.SagaId == orderSaga.Id;
+                        return m.SagaId == orderSaga.Entity.Id;
                     }
                 )
                 .When(delegate { orderSaga.Handle(message); });

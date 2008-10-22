@@ -28,7 +28,6 @@ namespace Messages
     }
 
     [Serializable]
-    [StartsSaga]
     public class PriceQuoteRequest : IMessage
     {
 

@@ -10,6 +10,7 @@ using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using ObjectBuilder;
 using NServiceBus.MessageInterfaces;
+using NServiceBus.Saga;
 
 namespace NServiceBus.Unicast
 {
@@ -924,6 +925,9 @@ namespace NServiceBus.Unicast
         private void If_Type_Is_MessageHandler_Then_Load(Type t)
         {
             if (t.IsAbstract)
+                return;
+
+            if (typeof(ISaga).IsAssignableFrom(t))
                 return;
 
             foreach(Type messageType in GetMessageTypesIfIsMessageHandler(t))

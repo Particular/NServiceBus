@@ -8,6 +8,7 @@ using NServiceBus.Unicast.Transport.Msmq.Config;
 using OrderService.MessageHandlers;
 using SagaPersister.OrderSagaImplementation;
 using ObjectBuilder;
+using NServiceBus.Saga;
 
 namespace OrderService.Host
 {
@@ -33,7 +34,8 @@ namespace OrderService.Host
                     .ImpersonateSender(false)
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(GridInterceptingMessageHandler).Assembly
-                        , typeof(OrderMessageHandler).Assembly
+                        , typeof(SagaMessageHandler).Assembly
+                        , typeof(OrderFinder).Assembly
                         , typeof(OrderSaga).Assembly
                     );
 

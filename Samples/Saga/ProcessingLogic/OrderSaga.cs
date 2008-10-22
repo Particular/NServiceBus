@@ -8,77 +8,47 @@ using InternalOrderMessages;
 
 namespace ProcessingLogic
 {
-    [Serializable]
-    public class OrderSaga : ISaga<CreateOrderMessage>,
-        ISaga<AuthorizeOrderResponseMessage>,
-        ISaga<CancelOrderMessage>
+    public class OrderSaga : Saga<OrderSagaData>,
+        ISagaStartedBy<CreateOrderMessage>,
+        IMessageHandler<AuthorizeOrderResponseMessage>,
+        IMessageHandler<CancelOrderMessage>
     {
-        #region config info
-
-        [NonSerialized]
-        private IBus bus;
-        public IBus Bus
-        {
-            set { this.bus = value; }
-        }
-
-        #endregion
-
-        private Guid id;
-        private bool completed;
-        public string clientAddress;
-        public Guid externalOrderId;
-        public int numberOfPendingAuthorizations = 2;
-        public List<CreateOrderMessage> orderItems = new List<CreateOrderMessage>();
-
         public void Handle(CreateOrderMessage message)
         {
-            this.clientAddress = this.bus.SourceOfMessageBeingHandled;
-            this.externalOrderId = message.OrderId;
+            this.Data.ExternalOrderId = message.OrderId;
 
-            this.orderItems.Add(message);
+            this.Data.OrderItems.Add(message);
 
             if (message.Completed)
             {
-                for (int i = 0; i < this.numberOfPendingAuthorizations; i++)
+                for (int i = 0; i < this.Data.NumberOfPendingAuthorizations; i++)
                 {
                     AuthorizeOrderRequestMessage req = new AuthorizeOrderRequestMessage();
-                    req.SagaId = this.id;
-                    req.OrderData = orderItems;
+                    req.SagaId = this.Data.Id;
+                    req.OrderData = this.Data.OrderItems;
 
-                    this.bus.Send(req);
+                    this.Bus.Send(req);
                 }
             }
 
             this.SendUpdate(OrderStatus.Recieved);
 
-            this.bus.Send(new TimeoutMessage(message.ProvideBy, this, null));
+            this.RequestTimeout(message.ProvideBy, null);
         }
 
-        public void Timeout(object state)
+        public override void Timeout(object state)
         {
-            if (this.numberOfPendingAuthorizations <= 1)
+            if (this.Data.NumberOfPendingAuthorizations <= 1)
                 this.Complete();
-        }
-
-        public Guid Id
-        {
-            get { return id; }
-            set { id = value; }
-        }
-
-        public bool Completed
-        {
-            get { return completed; }
         }
 
         public void Handle(AuthorizeOrderResponseMessage message)
         {
             if (message.Authorized)
             {
-                this.numberOfPendingAuthorizations--;
+                this.Data.NumberOfPendingAuthorizations--;
 
-                if (this.numberOfPendingAuthorizations == 1)
+                if (this.Data.NumberOfPendingAuthorizations == 1)
                     this.SendUpdate(OrderStatus.Authorized1);
                 else
                 {
@@ -101,30 +71,30 @@ namespace ProcessingLogic
         private void SendUpdate(OrderStatus status)
         {
             OrderStatusUpdatedMessage update = new OrderStatusUpdatedMessage();
-            update.OrderId = this.externalOrderId;
+            update.OrderId = this.Data.ExternalOrderId;
             update.Status = status;
 
-            this.bus.Send(this.clientAddress, update);
+            this.ReplyToOriginator(update);
         }
 
         private void Complete()
         {
-            this.completed = true;
+            this.MarkAsComplete();
 
             this.SendUpdate(OrderStatus.Accepted);
 
             OrderAcceptedMessage accepted = new OrderAcceptedMessage();
-            accepted.Products = new List<Guid>(this.orderItems.Count);
-            accepted.Amounts = new List<float>(this.orderItems.Count);
+            accepted.Products = new List<Guid>(this.Data.OrderItems.Count);
+            accepted.Amounts = new List<float>(this.Data.OrderItems.Count);
 
-            this.orderItems.ForEach(delegate(CreateOrderMessage m)
+            this.Data.OrderItems.ForEach(delegate(CreateOrderMessage m)
                                         {
                                             accepted.Products.AddRange(m.Products);
                                             accepted.Amounts.AddRange(m.Amounts);
                                             accepted.CustomerId = m.CustomerId;
                                         });
 
-            this.bus.Publish(accepted);
+            this.Bus.Publish(accepted);
         }
     }
 }

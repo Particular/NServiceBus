@@ -8,68 +8,52 @@ using OrderLine=OrderService.Messages.OrderLine;
 
 namespace OrderService
 {
-    public class OrderSaga : ISaga<OrderMessage>,
-        ISaga<OrderAuthorizationResponseMessage>,
-        ISaga<CancelOrderMessage>
+    public class OrderSaga : Saga<OrderSagaData>,
+        ISagaStartedBy<OrderMessage>,
+        IMessageHandler<OrderAuthorizationResponseMessage>,
+        IMessageHandler<CancelOrderMessage>
     {
-        private IBus bus;
-        public IBus Bus
-        {
-            set { this.bus = value; }
-        }
-
-        private Guid id;
-        private bool completed;
-        private string purchaseOrderNumber;
-        private Guid partnerId;
-        private DateTime provideBy;
-        private string partnerAddress;
-        private Dictionary<Guid, float> orderData = new Dictionary<Guid, float>();
-        private Dictionary<Guid, float> authorizedOrderData = new Dictionary<Guid, float>();
-
-
         public void Handle(OrderMessage message)
         {
-            this.partnerAddress = this.bus.SourceOfMessageBeingHandled;
-            this.purchaseOrderNumber = message.PurchaseOrderNumber;
-            this.partnerId = message.PartnerId;
-            this.provideBy = message.ProvideBy;
+            this.Data.PurchaseOrderNumber = message.PurchaseOrderNumber;
+            this.Data.PartnerId = message.PartnerId;
+            this.Data.ProvideBy = message.ProvideBy;
 
             foreach (OrderLine ol in message.OrderLines)
-                orderData[ol.ProductId] = ol.Quantity;
+                this.Data.OrderData[ol.ProductId] = ol.Quantity;
 
-            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.purchaseOrderNumber, this.PartnerId, OrderStatusEnum.Recieved, GetOrderLines(this.orderData));
+            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, OrderStatusEnum.Recieved, GetOrderLines(this.Data.OrderData));
 
             if (message.Done)
             {
-                this.bus.Send(this.partnerAddress, m);
-                this.bus.Publish(m);
+                this.ReplyToOriginator(m);
+                this.Bus.Publish(m);
 
-                this.bus.Send(new RequestOrderAuthorizationMessage(this.id, this.PartnerId, Convert<OrderLine, HR.Messages.OrderLine>(m.OrderLines)));
+                this.Bus.Send(new RequestOrderAuthorizationMessage(this.Data.Id, this.Data.PartnerId, Convert<OrderLine, HR.Messages.OrderLine>(m.OrderLines)));
 
-                this.bus.Send(new TimeoutMessage(this.provideBy - TimeSpan.FromSeconds(2), this, null));
+                this.RequestTimeout(this.Data.ProvideBy - TimeSpan.FromSeconds(2), null);
             }
             else
             {
                 m.Status = OrderStatusEnum.Tentative;
-                this.bus.Publish(m);
+                this.Bus.Publish(m);
             }
         }
 
         public void Handle(OrderAuthorizationResponseMessage message)
         {
-            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.purchaseOrderNumber, this.PartnerId, (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected), Convert<HR.Messages.OrderLine, OrderLine>(message.OrderLines));
+            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected), Convert<HR.Messages.OrderLine, OrderLine>(message.OrderLines));
             
-            this.bus.Send(this.partnerAddress, m);
-            this.bus.Publish(m);
+            this.ReplyToOriginator(m);
+            this.Bus.Publish(m);
 
             foreach (HR.Messages.OrderLine ol in message.OrderLines)
                 if (message.Success)
-                    this.authorizedOrderData[ol.ProductId] = ol.Quantity;
+                    this.Data.AuthorizedOrderData[ol.ProductId] = ol.Quantity;
                 else
-                    this.orderData.Remove(ol.ProductId);
+                    this.Data.OrderData.Remove(ol.ProductId);
 
-            if (this.authorizedOrderData.Count == this.orderData.Count)
+            if (this.Data.AuthorizedOrderData.Count == this.Data.OrderData.Count)
                 Complete();
         }
 
@@ -81,12 +65,12 @@ namespace OrderService
         private void Complete()
         {
             OrderStatusChangedMessage finalStatus =
-                new OrderStatusChangedMessage(this.purchaseOrderNumber, this.PartnerId, OrderStatusEnum.Accepted,
-                                              GetOrderLines(authorizedOrderData));
-            this.bus.Publish(finalStatus);
-            this.bus.Send(this.partnerAddress, finalStatus);
+                new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, OrderStatusEnum.Accepted,
+                                              GetOrderLines(this.Data.AuthorizedOrderData));
+            this.Bus.Publish(finalStatus);
+            this.ReplyToOriginator(finalStatus);
 
-            this.completed = true;
+            this.MarkAsComplete();
         }
 
         private static List<K> Convert<T, K>(List<T> list) where T : IOrderLine where K : IOrderLine, new()
@@ -117,30 +101,9 @@ namespace OrderService
             return result;
         }
 
-        public void Timeout(object state)
+        public override void Timeout(object state)
         {
-            Complete();
-        }
-
-        public Guid Id
-        {
-            get { return id; }
-            set { id = value; }
-        }
-
-        public bool Completed
-        {
-            get { return completed; }
-        }
-
-        public Guid PartnerId
-        {
-            get { return this.partnerId; }
-        } 
-
-        public string PurchaseOrderNumber
-        {
-            get { return this.purchaseOrderNumber; }
+            this.Complete();
         }
     }
 }

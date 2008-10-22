@@ -12,31 +12,40 @@ namespace NServiceBus.Testing
         private readonly MockRepository m;
         private string clientAddress;
         private readonly List<Delegate> delegates = new List<Delegate>();
+        
+        private ISagaEntity sagaData;
 
-        private Saga(MockRepository mocks, IBus b)
+        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData)
         {
             m = mocks;
             bus = b;
+            this.sagaData = sagaData;
         }
 
-        public static Saga Test<T>(out T saga) where T : ISagaEntity, new()
+        public static Saga Test<T>(out T saga) where T : ISaga, new()
         {
-            saga = new T();
-            saga.Id = Guid.NewGuid();
+            saga = (T)Activator.CreateInstance(typeof (T));
+
+            PropertyInfo prop = typeof (T).GetProperty("Data");
+            ISagaEntity sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+
+            saga.Entity = sagaData;
+
+            saga.Entity.Id = Guid.NewGuid();
 
             MockRepository mocks = new MockRepository();
             IBus bus = mocks.DynamicMock<IBus>();
 
-            foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
-                if (typeof(IBus).IsAssignableFrom(field.FieldType))
-                    field.SetValue(saga, bus);
+            saga.Bus = bus;
 
-            return new Saga(mocks, bus);
+            return new Saga(mocks, bus, sagaData);
         }
 
         public Saga WhenReceivesMessageFrom(string client)
         {
             this.clientAddress = client;
+            this.sagaData.Originator = client;
+
             return this;
         }
 

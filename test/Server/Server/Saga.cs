@@ -7,37 +7,18 @@ using NServiceBus.Saga;
 namespace Server
 {
     [Serializable]
-    public class Saga : ISaga<PriceQuoteRequest>
+    public class Saga : Saga<SagaData>,
+        ISagaStartedBy<PriceQuoteRequest>,
+        IMessageHandler<PartnerQuoteMessage>
     {
-        #region ISaga<PriceQuoteRequest> Members
-
-        private Guid id;
-        public Guid Id
+        public override void Timeout(object state)
         {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = value;
-            }
-        }
-
-        private bool completed = false;
-        public bool Completed
-        {
-            get { return completed; }
-        }
-
-        public void Timeout(object state)
-        {
-            if (this.BestPartnerNumber == 0)
+            if (this.Data.BestPartnerNumber == 0)
             {
                 this.timeoutInSeconds /= 2;
                 if (this.timeoutInSeconds != 0)
                 {
-                    this.bus.Send(new TimeoutMessage(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null));
+                    this.RequestTimeout(TimeSpan.FromSeconds(this.timeoutInSeconds), null);
                     return;
                 }
             }
@@ -51,64 +32,54 @@ namespace Server
         {
             logger.Debug("Started.");
 
-            this.clientAddress = this.bus.SourceOfMessageBeingHandled;
-
             for (int i = 1; i <= this.numberOfPartners; i++)
             {
                 PartnerQuoteMessage msg = new PartnerQuoteMessage();
-                msg.SagaId = this.id;
+                msg.SagaId = this.Data.Id;
                 msg.PartnerNumber = i;
 
-                this.bus.Send(msg);
+                this.Bus.Send(msg);
             }
 
-            this.NumberOfPendingResponses = this.numberOfPartners;
+            this.Data.NumberOfPendingResponses = this.numberOfPartners;
 
-            this.bus.Send(new TimeoutMessage(TimeSpan.FromSeconds(this.timeoutInSeconds), this, null));
+            this.RequestTimeout(TimeSpan.FromSeconds(this.timeoutInSeconds), null);
         }
 
         public void Handle(PartnerQuoteMessage message)
         {
             logger.Debug(string.Format("Got response {0} from partner {1}.", message.Quote, message.PartnerNumber));
 
-            if (message.Quote < this.BestQuote)
+            if (message.Quote < this.Data.BestQuote)
             {
-                this.BestQuote = message.Quote;
-                this.BestPartnerNumber = message.PartnerNumber;
+                this.Data.BestQuote = message.Quote;
+                this.Data.BestPartnerNumber = message.PartnerNumber;
             }
 
-            this.NumberOfPendingResponses--;
+            this.Data.NumberOfPendingResponses--;
 
-            if (this.NumberOfPendingResponses == 0)
+            if (this.Data.NumberOfPendingResponses == 0)
                 this.AllDone();
         }
 
         private void AllDone()
         {
-            this.completed = true;
+            this.MarkAsComplete();
 
             this.SendResult();
         }
 
         private void SendResult()
         {
-            logger.Debug(string.Format("Partner {0} gave best quote of {1}.", this.BestPartnerNumber, this.BestQuote));
+            logger.Debug(string.Format("Partner {0} gave best quote of {1}.", this.Data.BestPartnerNumber, this.Data.BestQuote));
 
             PriceQuoteResponse msg = new PriceQuoteResponse();
-            msg.Quote = this.BestQuote;
+            msg.Quote = this.Data.BestQuote;
 
-            this.bus.Send(this.clientAddress, msg);
+            this.ReplyToOriginator(msg);
         }
-        #endregion
 
         #region config info
-
-        [NonSerialized]
-        private IBus bus;
-        public IBus Bus
-        {
-            set { bus = value; }
-        }
 
         private int numberOfPartners = 10;
         public int NumberOfPartners
@@ -121,16 +92,6 @@ namespace Server
         {
             set { timeoutInSeconds = value; }
         }
-
-        #endregion
-
-        #region data
-
-        public string clientAddress;
-        public int BestQuote = int.MaxValue;
-        public int BestPartnerNumber;
-
-        public int NumberOfPendingResponses;
 
         #endregion
 

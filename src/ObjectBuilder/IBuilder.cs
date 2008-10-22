@@ -48,6 +48,13 @@ namespace ObjectBuilder
         IEnumerable<T> BuildAll<T>();
 
         /// <summary>
+        /// For each type that is compatible with the given type, an instance is created with all dependencies injected.
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <returns></returns>
+        IEnumerable<object> BuildAll(Type typeToBuild);
+
+        /// <summary>
         /// Builds an instance of the defined type injecting it with all defined dependencies
         /// and invokes the given method on the instance passing in the given parameters.
         /// </summary>

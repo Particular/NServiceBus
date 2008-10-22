@@ -15,8 +15,8 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="message">The message to handle.</param>
 		/// <remarks>
-		/// If the message received is has the <see cref="StartsSagaAttribute"/> defined then a new
-		/// workflow instance will be created and will be saved using the <see cref="ISagaPersister"/>
+		/// If the message received needs to start a new saga, then a new
+		/// saga instance will be created and will be saved using the <see cref="ISagaPersister"/>
 		/// implementation provided in the configuration.  Any other message implementing 
 		/// <see cref="ISagaMessage"/> will cause the existing saga instance with which it is
 		/// associated to continue.</remarks>
@@ -25,35 +25,37 @@ namespace NServiceBus.Saga
             if (!this.NeedToHandle(message))
                 return;
 
-		    bool sagaIsPersistent = true;
-
-		    ISagaEntity saga = this.FindSagaUsing(message);
-            if (saga == null && message is ISagaMessage)
-                return; //couldn't find saga for ISagaMessage - do nothing
-
-            if (saga == null)
+            foreach (IFinder finder in builder.BuildAll<IFinder>())
             {
-                Type sagaType = GetSagaTypeForMessage(message);
-                saga = this.builder.Build(sagaType) as ISagaEntity;
+                ISaga saga;
+                bool sagaEntityIsPersistent = true;
+                ISagaEntity sagaEntity = UseFinderToFindSaga(finder, message);
 
-                // intentionally don't check for null - need to do handle this message
-                // if a saga couldn't be found or created, the exception will cause
-                // the message to return to the queue.
-                // if this happens every time, the message will be moved to the
-                // error queue, and the admin will know that this endpoint isn't
-                // configured properly.
-                if (saga == null)
-                    throw new Exception("Saga not found to handle message of type " + message.GetType().AssemblyQualifiedName);
+                if (sagaEntity == null)
+                {
+                    Type sagaToCreate = Configure.GetSagaTypeToStartIfMessageNotFoundByFinder(message, finder);
+                    if (sagaToCreate == null)
+                        continue;
 
-                saga.Id = this.GenerateSagaId();
+                    Type sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaToCreate);
+                    sagaEntity = Activator.CreateInstance(sagaEntityType) as ISagaEntity;
+                    sagaEntity.Id = this.GenerateSagaId();
+                    sagaEntity.Originator = Bus.SourceOfMessageBeingHandled;
 
-                sagaIsPersistent = false;
+                    sagaEntityIsPersistent = false;
+
+                    saga = builder.Build(sagaToCreate) as ISaga;
+                }
+                else
+                    saga = builder.Build(Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType())) as ISaga;
+
+                saga.Entity = sagaEntity;
+
+                HaveSagaHandleMessage(saga, message, sagaEntityIsPersistent);
             }
-
-            HaveSagaHandleMessage(saga, message, sagaIsPersistent);
         }
 
-	    public virtual bool NeedToHandle(IMessage message)
+	    public bool NeedToHandle(IMessage message)
 	    {
             if (message is ISagaMessage && !(message is TimeoutMessage))
                 return true;
@@ -70,21 +72,10 @@ namespace NServiceBus.Saga
                     return true;
             }
 
-	        if (message.GetType().GetCustomAttributes(typeof(StartsSagaAttribute), true).Length > 0)
+            if (Configure.IsMessageTypeHandledBySaga(message.GetType()))
                 return true;
 
-	        return false;
-	    }
-
-	    public virtual ISagaEntity FindSagaUsing(IMessage message)
-	    {
-	        ISagaMessage sagaMessage = message as ISagaMessage;
-
-            if (sagaMessage != null)
-                using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-                    return persister.Get(sagaMessage.SagaId);
-	        
-            return null;
+            return false;
 	    }
 
         public virtual Guid GenerateSagaId()
@@ -94,7 +85,13 @@ namespace NServiceBus.Saga
 
         #region helper methods
 
-        protected virtual void HaveSagaHandleMessage(ISagaEntity saga, IMessage message, bool sagaIsPersistent)
+        private ISagaEntity UseFinderToFindSaga(IFinder finder, IMessage message)
+        {
+            MethodInfo method = finder.GetType().GetMethod("FindBy", new Type[] {typeof (IMessage)});
+            return method.Invoke(finder, new object[] {message}) as ISagaEntity;
+        }
+
+        protected virtual void HaveSagaHandleMessage(ISaga saga, IMessage message, bool sagaIsPersistent)
         {
             TimeoutMessage tm = message as TimeoutMessage;
             if (tm != null)
@@ -106,46 +103,34 @@ namespace NServiceBus.Saga
             {
                 using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
                     if (!sagaIsPersistent)
-                        persister.Save(saga);
+                        persister.Save(saga.Entity);
                     else
-                        persister.Update(saga);
+                        persister.Update(saga.Entity);
             }
             else
             {
                 if (sagaIsPersistent)
                     using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-                        persister.Complete(saga);
+                        persister.Complete(saga.Entity);
 
                 NotifyTimeoutManagerThatSagaHasCompleted(saga);
             }
 
-            LogIfSagaCompleted(saga);
-
+            LogIfSagaIsFinished(saga);
         }
 
-	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISagaEntity saga)
+	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
 	    {
-	        this.Bus.Send(new TimeoutMessage(saga, true));
+	        this.Bus.Send(new TimeoutMessage(saga.Entity, true));
 	    }
 
 	    /// <summary>
 		/// Logs that a saga has completed.
 		/// </summary>
-		/// <param name="saga">The saga that completed.</param>
-        protected virtual void LogIfSagaCompleted(ISagaEntity saga)
+        protected virtual void LogIfSagaIsFinished(ISaga saga)
         {
             if (saga.Completed)
-                logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Id));
-        }
-
-		/// <summary>
-		/// Gets the type of saga associated with the specified message.
-		/// </summary>
-		/// <param name="message">The message to get the saga type for.</param>
-        /// <returns>The saga type associated with the message.</returns>
-        protected virtual Type GetSagaTypeForMessage(IMessage message)
-        {
-            return typeof(ISaga<>).MakeGenericType(message.GetType());
+                logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
         }
 
 		/// <summary>
@@ -153,7 +138,7 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="saga">The saga on which to call the handle method.</param>
 		/// <param name="message">The message to pass to the handle method.</param>
-        protected virtual void CallHandleMethodOnSaga(ISagaEntity saga, IMessage message)
+        protected virtual void CallHandleMethodOnSaga(object saga, IMessage message)
         {
             MethodInfo method = saga.GetType().GetMethod("Handle", new Type[] { message.GetType() });
 

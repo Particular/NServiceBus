@@ -30,8 +30,13 @@ namespace ObjectBuilder.SpringFramework
 
         public IEnumerable<T> BuildAll<T>()
         {
-            foreach(T val in this.builder.BuildAll(typeof(T)))
+            foreach (T val in BuildAll(typeof(T)))
                 yield return val;
+        }
+
+        public IEnumerable<object> BuildAll(Type typeToBuild)
+        {
+            return this.builder.BuildAll(typeToBuild);
         }
 
         public void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs)

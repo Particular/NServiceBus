@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace ObjectBuilder.SpringFramework
 {
@@ -7,7 +7,7 @@ namespace ObjectBuilder.SpringFramework
     {
         object Build(Type typeToBuild);
 
-        IEnumerable BuildAll(Type typeToBuild);
+        IEnumerable<object> BuildAll(Type typeToBuild);
 
         void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs);
 

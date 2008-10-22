@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IQuerySagasByPartnerIdAndPurchaseOrderNumber.cs" />
-    <Compile Include="OrderMessageHandler.cs" />
+    <Compile Include="OrderFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +50,10 @@
       <Project>{A490D793-1D1D-486F-B808-827010EF8369}</Project>
       <Name>OrderService.Messages</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\OrderService\OrderService.csproj">
+      <Project>{452C5FEA-16C8-49E1-BC95-1EC55E49EECB}</Project>
+      <Name>OrderService %28OrderService\OrderService%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

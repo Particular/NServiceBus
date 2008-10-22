@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.Remoting.Contexts;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace ObjectBuilder.SpringFramework
 {
@@ -14,7 +14,7 @@ namespace ObjectBuilder.SpringFramework
             return helper.Build(typeToBuild);
         }
 
-        public IEnumerable BuildAll(Type typeToBuild)
+        public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             return helper.BuildAll(typeToBuild);
         }

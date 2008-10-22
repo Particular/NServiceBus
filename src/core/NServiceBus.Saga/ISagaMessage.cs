@@ -13,12 +13,4 @@ namespace NServiceBus.Saga
 		/// </summary>
         Guid SagaId { get; set; }
     }
-
-	/// <summary>
-	/// Indicates that the object starts a long running process.
-	/// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-    public class StartsSagaAttribute : Attribute
-    {
-    }
 }

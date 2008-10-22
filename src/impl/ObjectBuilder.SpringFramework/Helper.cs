@@ -97,7 +97,7 @@ namespace ObjectBuilder.SpringFramework
             return (de.MoveNext() ? de.Value : null);
         }
 
-        public IEnumerable BuildAll(Type typeToBuild)
+        public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             this.Init();
             IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);

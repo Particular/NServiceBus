@@ -39,7 +39,7 @@ namespace SagaPersister.OrderSagaImplementation
         {
             foreach(ISagaEntity saga in storage.Values)
             {
-                OrderSaga os = saga as OrderSaga;
+                OrderSagaData os = saga as OrderSagaData;
                 if (os == null)
                     continue;
 
