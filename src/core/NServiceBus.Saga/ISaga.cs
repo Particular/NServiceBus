@@ -10,4 +10,9 @@ namespace NServiceBus.Saga
 
         IBus Bus { get; set; }
     }
+
+    public interface ISaga<T> : ISaga where T : ISagaEntity
+    {
+        T Data { get; set; }
+    }
 }

@@ -35,7 +35,7 @@ namespace OrderService.Host
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(GridInterceptingMessageHandler).Assembly
                         , typeof(SagaMessageHandler).Assembly
-                        , typeof(OrderFinder).Assembly
+                        , typeof(OrderSagaFinder).Assembly
                         , typeof(OrderSaga).Assembly
                     );
 

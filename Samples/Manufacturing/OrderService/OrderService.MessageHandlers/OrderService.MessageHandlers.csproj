@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IQuerySagasByPartnerIdAndPurchaseOrderNumber.cs" />
-    <Compile Include="OrderFinder.cs" />
+    <Compile Include="OrderSagaFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

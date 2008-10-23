@@ -4,7 +4,7 @@ using NServiceBus.Saga;
 
 namespace OrderService.MessageHandlers
 {
-    public class OrderFinder : IFindSagas<OrderSagaData>
+    public class OrderSagaFinder : IFindSagas<OrderSagaData>
     {
         private IQuerySagasByPartnerIdAndPurchaseOrderNumber query;
         public IQuerySagasByPartnerIdAndPurchaseOrderNumber Query

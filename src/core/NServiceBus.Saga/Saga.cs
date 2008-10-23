@@ -11,7 +11,7 @@ namespace NServiceBus.Saga
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
-    public abstract class Saga<T> : ISaga where T : ISagaEntity
+    public abstract class Saga<T> : ISaga<T> where T : ISagaEntity
     {
         private T data;
 

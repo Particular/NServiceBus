@@ -78,6 +78,10 @@ namespace NServiceBus.Saga
 
             if (messageTypes.Contains(message.GetType()))
                 return sagaType;
+            else
+                foreach (Type msgTypeHandleBySaga in messageTypes)
+                    if (msgTypeHandleBySaga.IsAssignableFrom(message.GetType()))
+                        return sagaType;
 
             return null;
         }
@@ -131,7 +135,14 @@ namespace NServiceBus.Saga
         /// <returns></returns>
         public static bool IsMessageTypeHandledBySaga(Type messageType)
         {
-            return messageTypeToSagaTypesLookup.Keys.Contains(messageType);
+            if (messageTypeToSagaTypesLookup.Keys.Contains(messageType))
+                return true;
+
+            foreach(Type msgHandledBySaga in messageTypeToSagaTypesLookup.Keys)
+                if (msgHandledBySaga.IsAssignableFrom(messageType))
+                    return true;
+
+            return false;
         }
 
         #endregion
