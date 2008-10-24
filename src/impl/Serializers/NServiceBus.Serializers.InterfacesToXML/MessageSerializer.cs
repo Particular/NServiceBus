@@ -29,7 +29,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void InitType(Type t)
         {
-            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid))
+            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime))
                 return;
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
@@ -192,6 +192,9 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 if (type == typeof (Guid))
                     return new Guid(n.ChildNodes[0].InnerText);
 
+                if (type == typeof(DateTime))
+                    return DateTime.Parse(n.ChildNodes[0].InnerText);
+
                 if (type.IsEnum)
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);
             }
@@ -269,7 +272,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type.IsEnum)
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type == typeof(DateTime) || type.IsEnum)
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
                 return;

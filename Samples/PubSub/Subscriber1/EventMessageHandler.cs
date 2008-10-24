@@ -16,6 +16,7 @@ namespace Subscriber1
         public void Handle(IEvent message)
         {
             Do(message.EventId);
+            Console.WriteLine("Message time: {0}.", message.Time);
         }
 
         #endregion

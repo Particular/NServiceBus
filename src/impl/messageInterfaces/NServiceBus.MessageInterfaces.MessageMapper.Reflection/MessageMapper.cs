@@ -32,7 +32,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         public void InitType(Type t, ModuleBuilder moduleBuilder)
         {
-            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid))
+            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime))
                 return;
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
