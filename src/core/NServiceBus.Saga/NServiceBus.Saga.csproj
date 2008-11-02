@@ -47,6 +47,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configure.cs" />
+    <Compile Include="EmptySagaFinder.cs" />
     <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="HasCompleted.cs" />
     <Compile Include="IFindSagas.cs" />

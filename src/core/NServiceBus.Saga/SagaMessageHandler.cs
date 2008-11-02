@@ -87,8 +87,12 @@ namespace NServiceBus.Saga
 
         private ISagaEntity UseFinderToFindSaga(IFinder finder, IMessage message)
         {
-            MethodInfo method = finder.GetType().GetMethod("FindBy", new Type[] {typeof (IMessage)});
-            return method.Invoke(finder, new object[] {message}) as ISagaEntity;
+            MethodInfo method = Configure.GetFindByMethodForFinder(finder);
+
+            if (method != null)
+                return method.Invoke(finder, new object[] {message}) as ISagaEntity;
+
+            return null;
         }
 
         protected virtual void HaveSagaHandleMessage(ISaga saga, IMessage message, bool sagaIsPersistent)
@@ -140,7 +144,7 @@ namespace NServiceBus.Saga
 		/// <param name="message">The message to pass to the handle method.</param>
         protected virtual void CallHandleMethodOnSaga(object saga, IMessage message)
         {
-            MethodInfo method = saga.GetType().GetMethod("Handle", new Type[] { message.GetType() });
+		    MethodInfo method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
 
             if (method != null)
                 method.Invoke(saga, new object[] { message });

@@ -33,15 +33,7 @@ namespace NServiceBus.Saga
                     if (IsSagaType(t))
                     {
                         builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-
-                        foreach(Type messageType in GetMessageTypesHandledBySaga(t))
-                            MapMessageTypeToSagaType(messageType, t);
-
-                        foreach(Type messageType in GetMessageTypesThatRequireStartingTheSaga(t))
-                            MessageTypeRequiresStartingSaga(messageType, t);
-
-                        PropertyInfo prop = t.GetProperty("Data");
-                        MapSagaTypeToSagaEntityType(t, prop.PropertyType);
+                        ConfigureSaga(t);
                     }
 
                     if (IsFinderType(t))
@@ -50,6 +42,24 @@ namespace NServiceBus.Saga
                         ConfigureFinder(t);
                     }
                 }
+
+            CreateAdditionalFindersAsNecessary();
+        }
+
+        private void CreateAdditionalFindersAsNecessary()
+        {
+            ICollection<Type> sagaEntityTypesWithFinders = finderTypeToSagaEntityTypeLookup.Values;
+
+            foreach(Type sagaType in sagaTypeToSagaEntityTypeLookup.Keys)
+            {
+                Type sagaEntityType = sagaTypeToSagaEntityTypeLookup[sagaType];
+                if (sagaEntityTypesWithFinders.Contains(sagaEntityType))
+                    continue;
+
+                Type newFinderType = typeof (EmptySagaFinder<>).MakeGenericType(sagaEntityType);
+                builder.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
+                ConfigureFinder(newFinderType);
+            }
         }
 
         #endregion
@@ -145,18 +155,58 @@ namespace NServiceBus.Saga
             return false;
         }
 
+        public static MethodInfo GetFindByMethodForFinder(IFinder finder)
+        {
+            MethodInfo result;
+            finderTypeToMethodInfoLookup.TryGetValue(finder.GetType(), out result);
+
+            return result;
+        }
+
+        public static MethodInfo GetHandleMethodForSagaAndMessage(object saga, IMessage message)
+        {
+            IDictionary<Type, MethodInfo> lookup;
+            sagaTypeToHandleMethodLookup.TryGetValue(saga.GetType(), out lookup);
+
+            if (lookup == null)
+                return null;
+
+            foreach (Type messageType in lookup.Keys)
+                if (messageType.IsAssignableFrom(message.GetType()))
+                    return lookup[messageType];
+
+            return null;
+        }
+
         #endregion
 
         #region helper methods
 
         private static bool IsSagaType(Type t)
         {
-            return typeof (ISaga).IsAssignableFrom(t) && t != typeof (ISaga) && !t.IsAbstract && !t.IsInterface;
+            return IsCompatible(t, typeof(ISaga));
         }
 
         private static bool IsFinderType(Type t)
         {
-            return typeof(IFinder).IsAssignableFrom(t) && t != typeof(IFinder) && !t.IsInterface && !t.IsAbstract;
+            return IsCompatible(t, typeof(IFinder));
+        }
+
+        private static bool IsCompatible(Type t, Type source)
+        {
+            return source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
+        }
+
+        private static void ConfigureSaga(Type t)
+        {
+            foreach (Type messageType in GetMessageTypesHandledBySaga(t))
+                MapMessageTypeToSagaType(messageType, t);
+
+            foreach (Type messageType in GetMessageTypesThatRequireStartingTheSaga(t))
+                MessageTypeRequiresStartingSaga(messageType, t);
+
+            PropertyInfo prop = t.GetProperty("Data");
+            MapSagaTypeToSagaEntityType(t, prop.PropertyType);
         }
 
         private static void ConfigureFinder(Type t)
@@ -175,6 +225,9 @@ namespace NServiceBus.Saga
                     continue;
 
                 finderTypeToSagaEntityTypeLookup[t] = args[0];
+
+                MethodInfo method = t.GetMethod("FindBy", new Type[] { typeof(IMessage) });
+                finderTypeToMethodInfoLookup[t] = method;
             }
         }
 
@@ -211,7 +264,20 @@ namespace NServiceBus.Saga
                 messageTypeToSagaTypesLookup[messageType] = sagas;
             }
 
-            sagas.Add(sagaType);
+            if (!sagas.Contains(sagaType))
+                sagas.Add(sagaType);
+
+            IDictionary<Type, MethodInfo> methods;
+            sagaTypeToHandleMethodLookup.TryGetValue(sagaType, out methods);
+
+            if (methods == null)
+            {
+                methods = new Dictionary<Type, MethodInfo>();
+                sagaTypeToHandleMethodLookup[sagaType] = methods;
+            }
+
+            MethodInfo handleMethod = sagaType.GetMethod("Handle", new Type[] { messageType });
+            methods[messageType] = handleMethod;
         }
 
         private static void MapSagaTypeToSagaEntityType(Type sagaType, Type sagaEntityType)
@@ -231,7 +297,8 @@ namespace NServiceBus.Saga
                 sagaTypeToMessagTypesRequiringSagaStartLookup[sagaType] = messages;
             }
 
-            messages.Add(messageType);
+            if (!messages.Contains(messageType))
+                messages.Add(messageType);
         }
 
         #endregion
@@ -239,11 +306,13 @@ namespace NServiceBus.Saga
         #region members
 
         private readonly static IDictionary<Type, List<Type>> messageTypeToSagaTypesLookup = new Dictionary<Type, List<Type>>();
+        private readonly static IDictionary<Type, IDictionary<Type, MethodInfo>> sagaTypeToHandleMethodLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
 
         private static readonly IDictionary<Type, Type> sagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
         private static readonly IDictionary<Type, Type> sagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
 
         private static readonly IDictionary<Type, Type> finderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
+        private static readonly IDictionary<Type, MethodInfo> finderTypeToMethodInfoLookup = new Dictionary<Type, MethodInfo>();
 
         private static readonly IDictionary<Type, List<Type>> sagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 
