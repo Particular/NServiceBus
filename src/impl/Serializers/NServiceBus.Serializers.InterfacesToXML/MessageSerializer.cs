@@ -19,6 +19,13 @@ namespace NServiceBus.Serializers.InterfacesToXML
             set { messageMapper = value; }
         }
 
+        private string nameSpace = "http://tempuri.net";
+        public string Namespace
+        {
+            get { return nameSpace; }
+            set { nameSpace = value; }
+        }
+
         public void Initialize(params Type[] types)
         {
             this.messageMapper.Initialize(types);
@@ -195,6 +202,9 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 if (type == typeof(DateTime))
                     return DateTime.Parse(n.ChildNodes[0].InnerText);
 
+                if (type == typeof(TimeSpan))
+                    return TimeSpan.Parse(n.ChildNodes[0].InnerText);
+
                 if (type.IsEnum)
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);
             }
@@ -231,7 +241,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
             builder.AppendLine(
-                "<Messages " + XMLTYPE + "=\"ArrayOfAnyType\" xmlns:" + XMLPREFIX + "=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
+                "<Messages " + XMLTYPE + "=\"ArrayOfAnyType\" xmlns:" + XMLPREFIX + "=\"" + nameSpace + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
                 );
 
             foreach (IMessage m in messages)
@@ -272,7 +282,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type == typeof(DateTime) || type.IsEnum)
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type.IsEnum)
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
                 return;
