@@ -235,6 +235,11 @@ namespace NServiceBus.Unicast
             this.canSendReadyMessages = true;
         }
 
+        public void SkipSendingReadyMessageOnce()
+        {
+            skipSendingReadyMessageOnce = true;
+        }
+
         #endregion
 
         #region IBus Members
@@ -441,8 +446,7 @@ namespace NServiceBus.Unicast
 
                 this.InitializeSelf();
 
-                for (int i = 0; i < this.transport.NumberOfWorkerThreads; i++)
-                    this.SendReadyMessage(i == 0);
+                this.SendReadyMessage(true);
 
                 if (autoSubscribe)
                 {
@@ -486,13 +490,26 @@ namespace NServiceBus.Unicast
             if (!this.canSendReadyMessages)
                 return;
 
-            ReadyMessage rm = new ReadyMessage();
-            rm.NumberOfWorkerThreads = this.transport.NumberOfWorkerThreads;
-
+            IMessage[] messages;
             if (startup)
-                rm.ClearPreviousFromThisAddress = true;
+            {
+                messages = new IMessage[this.transport.NumberOfWorkerThreads];
+                for(int i=0; i < this.transport.NumberOfWorkerThreads; i++)
+                {
+                    ReadyMessage rm = new ReadyMessage();
+                    rm.ClearPreviousFromThisAddress = (i == 0);
 
-            TransportMessage toSend = this.GetTransportMessageFor(this.distributorControlAddress, rm);
+                    messages[i] = rm;
+                }
+            }
+            else
+            {
+                messages = new IMessage[1];
+                messages[0] = new ReadyMessage();
+            }
+
+
+            TransportMessage toSend = this.GetTransportMessageFor(this.distributorControlAddress, messages);
             toSend.ReturnAddress = this.transport.Address;
 
             this.transport.Send(toSend, this.distributorControlAddress);
@@ -711,7 +728,10 @@ namespace NServiceBus.Unicast
         /// <param name="e"></param>
         void transport_FinishedMessageProcessing(object sender, EventArgs e)
         {
-            this.SendReadyMessage(false);
+            if (!skipSendingReadyMessageOnce)
+                this.SendReadyMessage(false);
+
+            skipSendingReadyMessageOnce = false;
         }
 
 		/// <summary>
@@ -1042,6 +1062,11 @@ namespace NServiceBus.Unicast
         /// Accessed by multiple threads.
         /// </summary>
         private volatile bool canSendReadyMessages = true;
+
+        /// <summary>
+        /// ThreadStatic
+        /// </summary>
+	    [ThreadStatic] private static bool skipSendingReadyMessageOnce;
 
 	    private volatile bool started = false;
         private object startLocker = new object();

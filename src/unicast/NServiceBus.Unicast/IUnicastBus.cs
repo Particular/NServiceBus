@@ -15,5 +15,12 @@ namespace NServiceBus.Unicast
         /// when it has a distributor configured.
         /// </summary>
         void ContinueSendingReadyMessages();
+
+        /// <summary>
+        /// Instructs the bus to not send a <see cref="ReadyMessage"/>
+        /// at the end of processing the current message on the specific thread
+        /// on which it was called.
+        /// </summary>
+        void SkipSendingReadyMessageOnce();
     }
 }

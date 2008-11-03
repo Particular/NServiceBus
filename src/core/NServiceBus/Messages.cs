@@ -14,10 +14,5 @@ namespace NServiceBus.Messages
         /// sender should be cleared.
         /// </summary>
         public bool ClearPreviousFromThisAddress;
-
-        /// <summary>
-        /// Exposes the number of worker threads the sender is currently running.
-        /// </summary>
-	    public int NumberOfWorkerThreads;
     }
 }

@@ -12,9 +12,6 @@ namespace NServiceBus.Unicast.Distributor
             if (message.ClearPreviousFromThisAddress) //indicates worker started up
                 this.workerManager.ClearAvailabilityForWorker(this.Bus.SourceOfMessageBeingHandled);
 
-            lock(typeof(Worker))
-                Worker.Threads[this.Bus.SourceOfMessageBeingHandled] = message.NumberOfWorkerThreads;
-
             this.workerManager.WorkerAvailable(this.Bus.SourceOfMessageBeingHandled);
         }
 

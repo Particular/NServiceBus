@@ -1,5 +1,6 @@
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport;
+using Common.Logging;
 
 
 namespace NServiceBus.Grid.MessageHandlers
@@ -15,6 +16,8 @@ namespace NServiceBus.Grid.MessageHandlers
             this.Bus.Reply(
                 new GotNumberOfWorkerThreadsMessage(result)
             );
+
+            logger.Info(string.Format("{0} worker threads.", result));
         }
 
         private ITransport transport;
@@ -25,5 +28,7 @@ namespace NServiceBus.Grid.MessageHandlers
                 this.transport = value;
             }
         }
+
+        private static readonly ILog logger = LogManager.GetLogger("NServicebus.Grid");
     }
 }

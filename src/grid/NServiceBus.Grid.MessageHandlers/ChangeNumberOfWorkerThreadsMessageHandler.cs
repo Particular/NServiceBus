@@ -1,3 +1,4 @@
+using Common.Logging;
 using NServiceBus;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast;
@@ -29,7 +30,11 @@ namespace NServiceBus.Grid.MessageHandlers
             {
                 this.unicastBus.StopSendingReadyMessages();
                 GridInterceptingMessageHandler.Disabled = true;
+
+                logger.Info("Disabling this endpoint.");
             }
+            else 
+                logger.Info(string.Format("{0} worker threads now running.", target));
         }
 
         private IUnicastBus unicastBus;
@@ -58,5 +63,7 @@ namespace NServiceBus.Grid.MessageHandlers
                 this.transport = value;
             }
         }
+
+        private static readonly ILog logger = LogManager.GetLogger("NServicebus.Grid");
     }
 }
