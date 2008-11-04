@@ -32,17 +32,16 @@ namespace Client
             while (Console.ReadLine().ToLower() != "q")
             {
                 RequestDataMessage m = new RequestDataMessage();
-                IRequestDataMessage r =
-                    builder.Build<IMessageCreator>().CreateInstance<IRequestDataMessage>();
+                //IRequestDataMessage r = builder.Build<IMessageCreator>().CreateInstance<IRequestDataMessage>();
 
                 m.DataId = Guid.NewGuid();
-                r.DataId = m.DataId;
+                //r.DataId = m.DataId;
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 
                 //notice that we're passing the message as our state object
                 bus.Send(m).Register(RequestDataComplete, m);
-                bus.Send(r).Register(RequestDataComplete, r);
+                //bus.Send(r).Register(RequestDataComplete, r);
             }
         }
 
@@ -70,8 +69,8 @@ namespace Client
 
         private static void ConfigureSelfWith(IBuilder builder)
         {
-            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+            //NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
 
             new ConfigMsmqTransport(builder)
                 .IsTransactional(false)
