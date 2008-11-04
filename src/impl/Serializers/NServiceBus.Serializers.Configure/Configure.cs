@@ -4,9 +4,9 @@ using ObjectBuilder;
 
 namespace NServiceBus.Serializers
 {
-    public class Configure : IWith
+    public class Configure : IWith, IWithNameSpace
     {
-        public static IWith XmlSerializer
+        public static IWithNameSpace XmlSerializer
         {
             get
             {
@@ -28,7 +28,7 @@ namespace NServiceBus.Serializers
             }
         }
 
-        public static IWith InterfaceToXMLSerializer
+        public static IWithNameSpace InterfaceToXMLSerializer
         {
             get
             {
@@ -43,9 +43,13 @@ namespace NServiceBus.Serializers
         {
             switch(serializerType)
             {
-                case SerializerTypeEnum.InterfaceToXML: builder.ConfigureComponent(typeof(InterfacesToXML.MessageSerializer), ComponentCallModelEnum.Singleton);
+                case SerializerTypeEnum.InterfaceToXML:
+                    builder.ConfigureComponent<InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                        .Namespace = this.ns;
                     break;
-                case SerializerTypeEnum.XML: builder.ConfigureComponent(typeof(XML.MessageSerializer), ComponentCallModelEnum.Singleton);
+                case SerializerTypeEnum.XML:
+                    builder.ConfigureComponent<XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                        .Namespace = this.ns;
                     break;
                 case SerializerTypeEnum.Binary: builder.ConfigureComponent(typeof(Binary.MessageSerializer), ComponentCallModelEnum.Singleton);
                     break;
@@ -59,6 +63,14 @@ namespace NServiceBus.Serializers
 
 
         private SerializerTypeEnum serializerType;
+
+        public IWith WithNameSpace(string nameSpace)
+        {
+            this.ns = nameSpace;
+            return this;
+        }
+
+        private string ns = "http://tempuri.net";
     }
 
     public enum SerializerTypeEnum
@@ -71,5 +83,10 @@ namespace NServiceBus.Serializers
     public interface IWith
     {
         void With(IBuilder builder);
+    }
+
+    public interface IWithNameSpace : IWith
+    {
+        IWith WithNameSpace(string nameSpace); 
     }
 }

@@ -20,7 +20,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
         }
 
         private string nameSpace = "http://tempuri.net";
-        public string Namespace
+        public virtual string Namespace
         {
             get { return nameSpace; }
             set { nameSpace = value; }

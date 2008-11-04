@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
     public class Class1
     {
         private int number = 1;
-        private int numberOfIterations = 1;
+        private int numberOfIterations = 100;
 
         public void Test()
         {
@@ -42,6 +42,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             o.Name = "udi";
             o.Risk = new Risk(0.15D, true);
             o.Some = SomeEnum.B;
+            o.Start = DateTime.Now;
+            o.Duration = TimeSpan.Parse("01:15:27.123");
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
@@ -80,6 +82,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = false;
+
             XmlReaderSettings xrs = new XmlReaderSettings();
             xrs.IgnoreProcessingInstructions = true;
             xrs.ValidationType = ValidationType.None;
@@ -211,6 +214,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
         IM1 Parent { get; set; }
         List<IM1> Names { get; set; }
         SomeEnum Some { get; set; }
+        DateTime Start { get; set; }
+        TimeSpan Duration { get; set; }
     }
 
     [Serializable]
@@ -244,33 +249,6 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             get { return some; }
             set { some = value; }
         }
-
-        //#region ISerializable Members
-
-        //void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("id", id);
-        //    info.AddValue("some", some);
-        //    info.AddValue("parent", parent);
-        //    info.AddValue("names", names);
-
-        //    base.GetObjectData(info, context);
-        //}
-
-        //public M2(SerializationInfo info, StreamingContext context) : base(info, context)
-        //{
-        //    id = (Guid)info.GetValue("id", typeof (Guid));
-        //    some = (SomeEnum) info.GetValue("some", typeof (SomeEnum));
-        //    parent = (M1) info.GetValue("parent", typeof (M1));
-        //    names = (List<M1>) info.GetValue("names", typeof (List<M1>));
-        //}
-
-        //public M2()
-        //{
-            
-        //}
-
-        //#endregion
     }
 
     [Serializable]
@@ -311,33 +289,6 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             get { return risk; }
             set { risk = value; }
         }
-
-        //#region ISerializable Members
-
-        //public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("address", address);
-        //    info.AddValue("age", age);
-        //    info.AddValue("intt", intt);
-        //    info.AddValue("name", name);
-        //    info.AddValue("risk", risk);
-        //}
-
-        //public M1(SerializationInfo info, StreamingContext context)
-        //{
-        //    address = info.GetString("address");
-        //    age = info.GetInt32("age");
-        //    intt = info.GetInt32("intt");
-        //    name = info.GetString("name");
-        //    risk = (Risk)info.GetValue("risk", typeof (Risk));
-        //}
-
-        //public M1()
-        //{
-            
-        //}
-
-        //#endregion
     }
 
     [Serializable]
