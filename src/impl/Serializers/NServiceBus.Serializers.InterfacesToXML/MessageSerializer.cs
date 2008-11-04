@@ -200,10 +200,10 @@ namespace NServiceBus.Serializers.InterfacesToXML
                     return new Guid(n.ChildNodes[0].InnerText);
 
                 if (type == typeof(DateTime))
-                    return DateTime.Parse(n.ChildNodes[0].InnerText);
+                    return XmlConvert.ToDateTime(n.ChildNodes[0].InnerText, XmlDateTimeSerializationMode.Utc);
 
                 if (type == typeof(TimeSpan))
-                    return TimeSpan.Parse(n.ChildNodes[0].InnerText);
+                    return XmlConvert.ToTimeSpan(n.ChildNodes[0].InnerText);
 
                 if (type.IsEnum)
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);

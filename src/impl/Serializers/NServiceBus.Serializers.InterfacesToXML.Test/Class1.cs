@@ -203,19 +203,15 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
         Risk Risk { get; set; }
     }
 
-    public interface IM2 : IMessage
+    public interface IM2 : IM1
     {
-        int Age { get; set; }
         Guid Id { get; set; }
-        int Int { get; set; }
-        string Name { get; set; }
-        string Address { get; set; }
-        Risk Risk { get; set; }
         IM1 Parent { get; set; }
         List<IM1> Names { get; set; }
         SomeEnum Some { get; set; }
         DateTime Start { get; set; }
         TimeSpan Duration { get; set; }
+        IM1[] MoreNames { get; set; }
     }
 
     [Serializable]
@@ -225,6 +221,8 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
         private List<M1> names;
         private M1 parent;
         private SomeEnum some;
+        private DateTime start;
+        private TimeSpan duration;
 
         public Guid Id
         {
@@ -248,6 +246,18 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
         {
             get { return some; }
             set { some = value; }
+        }
+
+        public DateTime Start
+        {
+            get { return start; }
+            set { start = value; }
+        }
+
+        public TimeSpan Duration
+        {
+            get { return duration; }
+            set { duration = value; }
         }
     }
 
