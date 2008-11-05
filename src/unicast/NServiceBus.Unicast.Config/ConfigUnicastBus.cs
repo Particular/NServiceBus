@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
         {
-            NServiceBus.Saga.Configure.With(builder).SagasInAssemblies(assemblies);
+            Configure.With(builder).SagasInAssemblies(assemblies);
 
             foreach (Assembly a in assemblies)
                 foreach (Type t in a.GetTypes())

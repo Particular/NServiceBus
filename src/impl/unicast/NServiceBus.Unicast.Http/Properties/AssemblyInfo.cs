@@ -1,7 +1,7 @@
 ﻿#region License
 
 /*
- * Copyright © 2002-2005 the original author or authors.
+ * See CommonAssemblyInfo under /src for copyright information.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Concrete Unicast Transport HTTP Implementation")]
-[assembly: AssemblyDescription("Implementation of the Unicast Transport abstraction using HTTP")]
+[assembly: AssemblyTitle("NServiceBus Concrete Unicast Transport HTTP Implementation - Proof of Concept.")]
+[assembly: AssemblyDescription("Proof of concept implementation of the Unicast Transport abstraction using HTTP")]
