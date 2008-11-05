@@ -7,15 +7,11 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
 {
     class Program
     {
-        private static string nameSpace = "http://tempuri.net/";
-
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             Assembly a = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, args[0]));
-            if (args.Length == 2)
-                nameSpace = args[1];
 
             Events.GuidDetected += delegate
                                        {
@@ -37,7 +33,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Console.WriteLine("Usage: first parameter [required], your assembly; second parameter [optional], your namespace.");
+            Console.WriteLine("Usage: first parameter [required], your assembly.");
         }
 
         private static string GetFileName()
@@ -54,17 +50,22 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
             StringBuilder builder = new StringBuilder();
 
             builder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            builder.AppendFormat(
-                "<xs:schema elementFormDefault=\"qualified\" xmlns=\"{0}\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n", nameSpace);
+            builder.AppendLine("<xs:schema elementFormDefault=\"qualified\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">");
 
             if (needToGenerateGuid)
                 builder.AppendLine("<xs:import namespace=\"http://microsoft.com/wsdl/types/\" />");
 
             foreach (ComplexType complex in Repository.ComplexTypes)
+            {
+                builder.AppendFormat("<xs:element name=\"{0}\" nillable=\"true\" type=\"{0}\" />\n", complex.Name);
                 builder.Append(ComplexTypeWriter.Write(complex));
+            }
 
             foreach (Type simple in Repository.SimpleTypes)
+            {
+                builder.AppendFormat("<xs:element name=\"{0}\" type=\"{0}\" />\n", simple.Name);
                 builder.Append(SimpleTypeWriter.Write(simple));
+            }
 
             builder.AppendLine("</xs:schema>");
 
