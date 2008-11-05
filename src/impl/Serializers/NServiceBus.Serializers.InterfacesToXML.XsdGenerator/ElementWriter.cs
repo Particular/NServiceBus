@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
@@ -7,10 +5,10 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
     public class ElementWriter
     {
         private readonly Element e;
-        private string startFormat = "<xs:element minOccurs=\"{0}\" maxOccurs=\"";
-        private string nameFormat = "\" name=\"{0}\" ";
-        private string namespaceFormat = "xmlns:" + Strings.NamespacePrefix + "=\"{0}\" ";
-        private string typeFormat = "type=\"{0}\" />\n";
+        private readonly string startFormat = "<xs:element minOccurs=\"{0}\" maxOccurs=\"";
+        private readonly string nameFormat = "\" name=\"{0}\" ";
+        private readonly string namespaceFormat = "xmlns:" + Strings.NamespacePrefix + "=\"{0}\" ";
+        private readonly string typeFormat = "type=\"{0}\" />\n";
 
         public static string Write(Element e)
         {

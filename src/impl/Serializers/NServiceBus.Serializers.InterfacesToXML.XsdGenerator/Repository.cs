@@ -6,9 +6,22 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
 {
     public static class Repository
     {
+        /// <summary>
+        /// Returns types in the order they were handled
+        /// </summary>
         public static IEnumerable<ComplexType> ComplexTypes
         {
-            get { return types.Values; }
+            get
+            {
+                List<Type> keys = new List<Type>(types.Keys);
+                for (int i = keys.Count - 1; i >= 0; i-- )
+                    yield return types[keys[i]];
+            }
+        }
+
+        public static IEnumerable<Type> SimpleTypes
+        {
+            get { return simpleTypesToCreate; }
         }
 
         public static void Handle(Type type)

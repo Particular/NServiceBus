@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
@@ -7,12 +5,12 @@ namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
     public class ComplexTypeWriter
     {
         private readonly ComplexType complex;
-        private string beginTopFormat = "<xs:complexType name=\"{0}\">\n";
-        private string beginBaseFormat = "<xs:complexContent mixed=\"false\">\n<xs:extension base=\"{0}\">\n";
-        private string beginSequence = "<xs:sequence>";
-        private string endSequence = "</xs:sequence>";
-        private string endBaseFormat = "</xs:extension>\n</xs:complexContent>\n";
-        private string endTopFormat = "</xs:complexType>\n";
+        private readonly string beginTopFormat = "<xs:complexType name=\"{0}\">\n";
+        private readonly string beginBaseFormat = "<xs:complexContent mixed=\"false\">\n<xs:extension base=\"{0}\">\n";
+        private readonly string beginSequence = "<xs:sequence>";
+        private readonly string endSequence = "</xs:sequence>";
+        private readonly string endBaseFormat = "</xs:extension>\n</xs:complexContent>\n";
+        private readonly string endTopFormat = "</xs:complexType>\n";
 
         public static string Write(ComplexType complex)
         {
