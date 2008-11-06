@@ -655,6 +655,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfilingTest", "src\impl\S
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate", "src\impl\SagaPersisters\NHibernateSagaPersister\NServiceBus.SagaPersisters.NHibernate\NServiceBus.SagaPersisters.NHibernate.csproj", "{4A904B94-8DC4-4C02-A4FD-374E78990374}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -957,6 +963,10 @@ Global
 		{CB32FA40-2A8A-4D40-81A2-C3EF1203A81D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB32FA40-2A8A-4D40-81A2-C3EF1203A81D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB32FA40-2A8A-4D40-81A2-C3EF1203A81D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A904B94-8DC4-4C02-A4FD-374E78990374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A904B94-8DC4-4C02-A4FD-374E78990374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A904B94-8DC4-4C02-A4FD-374E78990374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A904B94-8DC4-4C02-A4FD-374E78990374}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1022,6 +1032,7 @@ Global
 		{C9491F30-6CCA-41D5-A9E6-1DC8758C4BE1} = {B351256F-5A1C-435F-A81E-97EC2E4EB155}
 		{562F1C2D-8279-482D-8474-30CDE9EE3269} = {B351256F-5A1C-435F-A81E-97EC2E4EB155}
 		{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C} = {12392715-B9A3-433E-B395-C0031569A864}
+		{4A904B94-8DC4-4C02-A4FD-374E78990374} = {12392715-B9A3-433E-B395-C0031569A864}
 		{C831B94E-6D08-404C-BA80-B8E8442EA9DE} = {5B85CA4F-0E58-413A-932E-2FF6A757DB74}
 		{72F8926B-EBEB-43C1-BF07-B3BF0CD586C0} = {102BD992-A123-4B71-B9C7-7FFAA515FACE}
 		{1C22F3DF-F020-491D-A680-5AE98D390140} = {B46133C5-7441-4F05-BC44-7E67B5EDAA4D}
