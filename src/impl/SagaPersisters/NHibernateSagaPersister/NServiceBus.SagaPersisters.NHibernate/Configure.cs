@@ -9,10 +9,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
         {
             builder.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall);
 
-            Configuration config = new Configuration();
-            config.Configure();
-
-            SagaPersister.sessionFactory = config.BuildSessionFactory();
+            builder.ConfigureComponent<NHibernateMessageModule>(ComponentCallModelEnum.Singleton);
         }
     }
 }

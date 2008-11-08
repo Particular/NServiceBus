@@ -4,7 +4,6 @@ using HR.Messages;
 using NServiceBus.Saga;
 using NServiceBus.Testing;
 using OrderService.Messages;
-using OrderLine=OrderService.Messages.OrderLine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OrderService.Tests
@@ -19,7 +18,7 @@ namespace OrderService.Tests
         float quantity;
         Guid partnerId;
         string purchaseOrderNumber;
-        List<OrderLine> orderLines;
+        List<Messages.OrderLine> orderLines;
 
 
         [TestInitialize]
@@ -32,8 +31,8 @@ namespace OrderService.Tests
             quantity = 10.0F;
             partnerId = Guid.NewGuid();
             purchaseOrderNumber = Guid.NewGuid().ToString();
-            orderLines = new List<OrderLine>();
-            orderLines.Add(new OrderLine(productId, quantity));
+            orderLines = new List<Messages.OrderLine>();
+            orderLines.Add(new Messages.OrderLine(productId, quantity));
 
         }
 

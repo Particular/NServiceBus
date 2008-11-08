@@ -58,6 +58,7 @@ namespace NServiceBus.Unicast
             {
                 transport = value;
 
+                this.transport.StartedMessageProcessing += transport_StartedMessageProcessing;
                 this.transport.TransportMessageReceived += transport_TransportMessageReceived;
                 this.transport.FinishedMessageProcessing += transport_FinishedMessageProcessing;
             }
@@ -437,6 +438,8 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
+                this.modules.AddRange(builder.BuildAll<IMessageModule>());
+
                 if (this.subscriptionStorage != null)
                     this.subscriptionStorage.Init();
 
@@ -686,6 +689,12 @@ namespace NServiceBus.Unicast
                     }
         }
 
+        void transport_StartedMessageProcessing(object sender, EventArgs e)
+        {
+            foreach(IMessageModule module in this.modules)
+                module.HandleBeginMessage();
+        }
+
 		/// <summary>
         /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
 		/// for the bus.
@@ -732,6 +741,9 @@ namespace NServiceBus.Unicast
                 this.SendReadyMessage(false);
 
             skipSendingReadyMessageOnce = false;
+
+            foreach (IMessageModule module in this.modules)
+                module.HandleEndMessage();
         }
 
 		/// <summary>
@@ -1033,6 +1045,7 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
+	    protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 		/// <summary>
 		/// Gets/sets the subscription manager to use for the bus.
 		/// </summary>

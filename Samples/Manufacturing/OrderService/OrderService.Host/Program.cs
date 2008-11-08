@@ -5,10 +5,8 @@ using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
-using OrderService.MessageHandlers;
-using SagaPersister.OrderSagaImplementation;
-using ObjectBuilder;
 using NServiceBus.Saga;
+using OrderService.Persistence;
 
 namespace OrderService.Host
 {
@@ -39,7 +37,7 @@ namespace OrderService.Host
                         , typeof(OrderSaga).Assembly
                     );
 
-                builder.ConfigureComponent<OrderSagaPersister>(ComponentCallModelEnum.Singlecall);
+                new NServiceBus.SagaPersisters.NHibernate.Configure(builder);
 
 
                 IBus bServer = builder.Build<IBus>();

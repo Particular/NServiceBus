@@ -1,6 +1,7 @@
 using System;
 using NServiceBus.Saga;
 using NHibernate;
+using System.Threading;
 
 namespace NServiceBus.SagaPersisters.NHibernate
 {
@@ -8,7 +9,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
     {
         public void Save(ISagaEntity saga)
         {
-            session.SaveOrUpdate(saga);
+            session.Save(saga);
         }
 
         public void Update(ISagaEntity saga)
@@ -28,21 +29,14 @@ namespace NServiceBus.SagaPersisters.NHibernate
 
         public void Dispose()
         {
-            session.Close();
         }
 
-        private ISession _session;
         protected ISession session
         {
             get
             {
-                if (_session == null)
-                    _session = sessionFactory.OpenSession();
-
-                return _session;
+                return Thread.GetData(Thread.GetNamedDataSlot(typeof (ISession).Name)) as ISession;
             }
         }
-        public static ISessionFactory sessionFactory;
-
     }
 }

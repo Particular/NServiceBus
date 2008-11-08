@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{313D095B-6657-4029-A4F4-CF9C5A5DED2B}</ProjectGuid>
+    <ProjectGuid>{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SagaPersister.OrderSagaImplementation</RootNamespace>
-    <AssemblyName>SagaPersister.OrderSagaImplementation</AssemblyName>
+    <RootNamespace>OrderService.Persistence</RootNamespace>
+    <AssemblyName>OrderService.Persistence</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,33 +28,41 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NHibernate, Version=2.0.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\external-bin\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Saga, Version=1.9.0.28588, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.0.3073, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Saga.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Saga, Version=1.9.0.3132, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Saga.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OrderSagaPersister.cs" />
+    <Compile Include="OrderSagaFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OrderService.MessageHandlers\OrderService.MessageHandlers.csproj">
-      <Project>{53D36630-7B07-43D1-9815-43FC05328DC5}</Project>
-      <Name>OrderService.MessageHandlers</Name>
-      <Private>False</Private>
+    <ProjectReference Include="..\OrderService\OrderService.Messages\OrderService.Messages.csproj">
+      <Project>{A490D793-1D1D-486F-B808-827010EF8369}</Project>
+      <Name>OrderService.Messages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OrderService\OrderService.csproj">
+    <ProjectReference Include="..\OrderService\OrderService\OrderService.csproj">
       <Project>{452C5FEA-16C8-49E1-BC95-1EC55E49EECB}</Project>
-      <Name>OrderService %28Samples\Manufacturing\OrderService\OrderService%29</Name>
-      <Private>False</Private>
+      <Name>OrderService %28OrderService\OrderService%29</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="OrderSagaData.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="OrderLine.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

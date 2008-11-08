@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OrderService.MessageHandlers")]
+[assembly: AssemblyTitle("OrderService.Persistence")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("OrderService.MessageHandlers")]
+[assembly: AssemblyProduct("OrderService.Persistence")]
 [assembly: AssemblyCopyright("Copyright ©  2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b95da5bf-7a03-46a8-a203-1943cd04f480")]
+[assembly: Guid("f2f601a2-bfc6-4a44-a53e-e7324f66c8d5")]
 
 // Version information for an assembly consists of the following four values:
 //

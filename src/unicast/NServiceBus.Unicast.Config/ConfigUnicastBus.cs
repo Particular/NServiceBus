@@ -72,16 +72,22 @@ namespace NServiceBus.Unicast.Config
 
             foreach (Assembly a in assemblies)
                 foreach (Type t in a.GetTypes())
+                {
                     if (IsMessageHandler(t))
                         builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    if (IsMessageModule(t))
+                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singleton);
+                }
+        }
+
+        private static bool IsMessageModule(Type t)
+        {
+            return (typeof (IMessageModule).IsAssignableFrom(t));
         }
 
         public static bool IsMessageHandler(Type t)
         {
             if (t.IsAbstract)
-                return false;
-
-            if (typeof(ISaga).IsAssignableFrom(t))
                 return false;
 
             foreach (Type interfaceType in t.GetInterfaces())

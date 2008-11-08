@@ -4,7 +4,6 @@ using HR.Messages;
 using NServiceBus.Saga;
 using OrderService.Messages;
 using NServiceBus;
-using OrderLine=OrderService.Messages.OrderLine;
 
 namespace OrderService
 {
@@ -19,17 +18,17 @@ namespace OrderService
             this.Data.PartnerId = message.PartnerId;
             this.Data.ProvideBy = message.ProvideBy;
 
-            foreach (OrderLine ol in message.OrderLines)
-                this.Data.OrderData[ol.ProductId] = ol.Quantity;
+            foreach (Messages.OrderLine ol in message.OrderLines)
+                this.Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
-            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, OrderStatusEnum.Recieved, GetOrderLines(this.Data.OrderData));
+            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, OrderStatusEnum.Recieved, GetOrderLines(this.Data.Lines));
 
             if (message.Done)
             {
                 this.ReplyToOriginator(m);
                 this.Bus.Publish(m);
 
-                this.Bus.Send(new RequestOrderAuthorizationMessage(this.Data.Id, this.Data.PartnerId, Convert<OrderLine, HR.Messages.OrderLine>(m.OrderLines)));
+                this.Bus.Send(new RequestOrderAuthorizationMessage(this.Data.Id, this.Data.PartnerId, Convert<Messages.OrderLine, HR.Messages.OrderLine>(m.OrderLines)));
 
                 this.RequestTimeout(this.Data.ProvideBy - TimeSpan.FromSeconds(2), null);
             }
@@ -42,18 +41,15 @@ namespace OrderService
 
         public void Handle(OrderAuthorizationResponseMessage message)
         {
-            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected), Convert<HR.Messages.OrderLine, OrderLine>(message.OrderLines));
+            OrderStatusChangedMessage m = new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected), Convert<HR.Messages.OrderLine, Messages.OrderLine>(message.OrderLines));
             
             this.ReplyToOriginator(m);
             this.Bus.Publish(m);
 
             foreach (HR.Messages.OrderLine ol in message.OrderLines)
-                if (message.Success)
-                    this.Data.AuthorizedOrderData[ol.ProductId] = ol.Quantity;
-                else
-                    this.Data.OrderData.Remove(ol.ProductId);
+                this.Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
 
-            if (this.Data.AuthorizedOrderData.Count == this.Data.OrderData.Count)
+            if (this.Data.IsAuthorized)
                 Complete();
         }
 
@@ -66,7 +62,7 @@ namespace OrderService
         {
             OrderStatusChangedMessage finalStatus =
                 new OrderStatusChangedMessage(this.Data.PurchaseOrderNumber, this.Data.PartnerId, OrderStatusEnum.Accepted,
-                                              GetOrderLines(this.Data.AuthorizedOrderData));
+                                              GetOrderLines(this.Data.Lines));
             this.Bus.Publish(finalStatus);
             this.ReplyToOriginator(finalStatus);
 
@@ -91,12 +87,12 @@ namespace OrderService
             return result;
         }
 
-        private static List<OrderLine> GetOrderLines(Dictionary<Guid, float> data)
+        private static List<Messages.OrderLine> GetOrderLines(IEnumerable<OrderLine> lines)
         {
-            List<OrderLine> result = new List<OrderLine>(data.Count);
+            List<Messages.OrderLine> result = new List<Messages.OrderLine>();
 
-            foreach(Guid key in data.Keys)
-                result.Add(new OrderLine(key, data[key]));
+            foreach(OrderLine ol in lines)
+                result.Add(new Messages.OrderLine(ol.ProductId, ol.Quantity));
 
             return result;
         }

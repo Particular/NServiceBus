@@ -57,6 +57,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configure.cs" />
+    <Compile Include="NHibernateMessageModule.cs" />
     <Compile Include="SagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
