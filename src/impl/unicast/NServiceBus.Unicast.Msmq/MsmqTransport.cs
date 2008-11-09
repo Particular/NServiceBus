@@ -7,6 +7,7 @@ using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
 using Utils;
+using ObjectBuilder;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -162,6 +163,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { this.messageSerializer = value; }
 	    }
 
+	    private IBuilder builder;
+
+	    public virtual IBuilder Builder
+	    {
+            set { this.builder = value; }
+	    }
+
         #endregion
 
         #region ITransport Members
@@ -253,6 +261,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         public void Start()
         {
             //don't purge on startup here
+            this.modules.AddRange(builder.BuildAll<IMessageModule>());
 
             for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
@@ -391,13 +400,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ReceiveFromQueue()
         {
-            this.OnStartedMessageProcessing();
-
-            Message m = new Message();
+	        string messageId = string.Empty;
 
             try
             {
-                m = this.queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), this.GetTransactionTypeForReceive());
+                Message m = this.queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), this.GetTransactionTypeForReceive());
+                messageId = m.Id;
+
+                foreach (IMessageModule module in this.modules)
+                    module.HandleBeginMessage();
+
+                this.OnStartedMessageProcessing();
 
                 if (this.isTransactional)
                 {
@@ -440,7 +453,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (this.TransportMessageReceived != null)
                     this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
 
-                this.failuresPerMessage.Remove(m.Id);
+                foreach (IMessageModule module in this.modules)
+                    module.HandleEndMessage();
+
+                this.failuresPerMessage.Remove(messageId);
             }
             catch (MessageQueueException mqe)
             {
@@ -455,10 +471,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 {
                     lock (this.failuresPerMessage)
                     {
-                        if (!this.failuresPerMessage.ContainsKey(m.Id))
-                            this.failuresPerMessage[m.Id] = 1;
+                        if (!this.failuresPerMessage.ContainsKey(messageId))
+                            this.failuresPerMessage[messageId] = 1;
                         else
-                            this.failuresPerMessage[m.Id] = this.failuresPerMessage[m.Id] + 1;
+                            this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
                     }
 
                     throw;
@@ -711,6 +727,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private MessageQueue queue;
         private MessageQueue errorQueue;
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+
+        protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 
         /// <summary>
         /// Accessed by multiple threads - lock before using.
