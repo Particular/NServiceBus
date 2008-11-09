@@ -423,6 +423,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                             MoveToErrorQueue(m);
 
+                            ActivateEndMethodOnMessageModules();
+
                             this.OnFinishedMessageProcessing();
 
                             return;
@@ -450,13 +452,27 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                 }
 
+                List<Exception> exceptions = new List<Exception>();
+
                 if (this.TransportMessageReceived != null)
-                    this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
+                    try
+                    {
+                        this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
+                    }
+                    catch(Exception e)
+                    {
+                        exceptions.Add(e);
+                        logger.Error("Failed raising transport message received event.", e);
+                    }
 
-                foreach (IMessageModule module in this.modules)
-                    module.HandleEndMessage();
+                exceptions.AddRange(
+                    ActivateEndMethodOnMessageModules()
+                    );
 
-                this.failuresPerMessage.Remove(messageId);
+                if (exceptions.Count == 0)
+                    this.failuresPerMessage.Remove(messageId);
+                else 
+                    throw new ApplicationException(string.Format("{0} exceptions occured while processing message.", exceptions.Count));
             }
             catch (MessageQueueException mqe)
             {
@@ -493,6 +509,26 @@ namespace NServiceBus.Unicast.Transport.Msmq
             this.OnFinishedMessageProcessing();
 
             return;
+        }
+
+        protected IList<Exception> ActivateEndMethodOnMessageModules()
+        {
+            IList<Exception> result = new List<Exception>();
+
+            foreach (IMessageModule module in this.modules)
+                try
+                {
+                    module.HandleEndMessage();
+                }
+                catch (Exception e)
+                {
+                    result.Add(e);
+                    logger.Error(
+                        string.Format("Failure in HandleEndMessage of message module: {0}",
+                                      module.GetType().FullName), e);
+                }
+
+            return result;
         }
 
 	    protected void MoveToErrorQueue(Message m)
