@@ -1,7 +1,5 @@
-using System;
-using NHibernate.Cfg;
 using NHibernate;
-using System.Threading;
+using NHibernate.Context;
 
 namespace NServiceBus.SagaPersisters.NHibernate
 {
@@ -9,12 +7,12 @@ namespace NServiceBus.SagaPersisters.NHibernate
     {
         public void HandleBeginMessage()
         {
-            Thread.SetData(slot, sessionFactory.OpenSession());
+            ThreadStaticSessionContext.Bind(sessionFactory.OpenSession());
         }
 
         public void HandleEndMessage()
         {
-            ISession session = Thread.GetData(slot) as ISession;
+            ISession session = SessionFactory.GetCurrentSession();
 
             if (session == null)
                 return;
@@ -23,17 +21,12 @@ namespace NServiceBus.SagaPersisters.NHibernate
             session.Close();
         }
 
-        static NHibernateMessageModule()
+        private ISessionFactory sessionFactory;
+
+        public virtual ISessionFactory SessionFactory
         {
-            Configuration config = new Configuration();
-            config.Configure();
-
-            sessionFactory = config.BuildSessionFactory();
-
-            slot = Thread.AllocateNamedDataSlot(typeof(ISession).Name);
+            get { return sessionFactory; }
+            set { sessionFactory = value; }
         }
-
-        private static ISessionFactory sessionFactory;
-        private static LocalDataStoreSlot slot;
     }
 }

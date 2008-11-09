@@ -9,34 +9,34 @@ namespace NServiceBus.SagaPersisters.NHibernate
     {
         public void Save(ISagaEntity saga)
         {
-            session.Save(saga);
+            sessionFactory.GetCurrentSession().Save(saga);
         }
 
         public void Update(ISagaEntity saga)
         {
-            session.Update(saga);
+            sessionFactory.GetCurrentSession().Update(saga);
         }
 
         public ISagaEntity Get(Guid sagaId)
         {
-            return session.Get<ISagaEntity>(sagaId);
+            return sessionFactory.GetCurrentSession().Get<ISagaEntity>(sagaId);
         }
 
         public void Complete(ISagaEntity saga)
         {
-            session.Delete(saga);
+            sessionFactory.GetCurrentSession().Delete(saga);
         }
 
         public void Dispose()
         {
         }
 
-        protected ISession session
+        private ISessionFactory sessionFactory;
+
+        public virtual ISessionFactory SessionFactory
         {
-            get
-            {
-                return Thread.GetData(Thread.GetNamedDataSlot(typeof (ISession).Name)) as ISession;
-            }
+            get { return sessionFactory; }
+            set { sessionFactory = value; }
         }
     }
 }

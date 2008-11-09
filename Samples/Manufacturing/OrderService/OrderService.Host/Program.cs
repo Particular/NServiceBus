@@ -1,5 +1,6 @@
 using System;
 using Common.Logging;
+using NHibernate.Cfg;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
@@ -7,6 +8,8 @@ using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Saga;
 using OrderService.Persistence;
+using NHibernate;
+using ObjectBuilder;
 
 namespace OrderService.Host
 {
@@ -19,6 +22,11 @@ namespace OrderService.Host
 
             try
             {
+                Configuration config = new Configuration();
+                config.Configure();
+
+                ISessionFactory sessionFactory = config.BuildSessionFactory();
+
                 new ConfigMsmqSubscriptionStorage(builder);
 
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
@@ -37,8 +45,10 @@ namespace OrderService.Host
                         , typeof(OrderSaga).Assembly
                     );
 
-                new NServiceBus.SagaPersisters.NHibernate.Configure(builder);
+                new NServiceBus.SagaPersisters.NHibernate.Configure(builder, sessionFactory);
 
+                builder.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall)
+                    .SessionFactory = sessionFactory;
 
                 IBus bServer = builder.Build<IBus>();
                 bServer.Start();

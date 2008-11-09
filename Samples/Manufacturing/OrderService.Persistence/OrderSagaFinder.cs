@@ -1,4 +1,3 @@
-using System.Threading;
 using NServiceBus;
 using NServiceBus.Saga;
 using OrderService.Messages;
@@ -15,15 +14,18 @@ namespace OrderService.Persistence
             if (specific == null)
                 return null;
 
-            return session.CreateCriteria(typeof (OrderSagaData))
+            return sessionFactory.GetCurrentSession().CreateCriteria(typeof (OrderSagaData))
                 .Add(Expression.Eq("PurchaseOrderNumber", specific.PurchaseOrderNumber))
                 .Add(Expression.Eq("PartnerId", specific.PartnerId))
                 .UniqueResult<OrderSagaData>();
         }
 
-        ISession session
+        private ISessionFactory sessionFactory;
+
+        public virtual ISessionFactory SessionFactory
         {
-            get { return Thread.GetData(Thread.GetNamedDataSlot(typeof (ISession).Name)) as ISession; }
+            get { return sessionFactory; }
+            set { sessionFactory = value; }
         }
     }
 }
