@@ -1,8 +1,16 @@
-In order to build the source, run "build.bat" (you don't need NAnt for this).
-
 NServiceBus is a non-trivial framework that takes time to understand.
 
 The best way to get up and running is from the Samples. Run them, change them a bit, look at what references what. If you want to do your own thing, copy one of the samples (like FullDuplex), and change from there.
+
+
+============
+= Building =
+============
+
+In order to build the source, run the relevant build.bat (you don't need NAnt for this).
+
+If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\Microsoft SDKs\Windows\v6.0A' directory and create the 'lib' subdirectory.
+
 
 =====================
 = MSMQ Installation =
