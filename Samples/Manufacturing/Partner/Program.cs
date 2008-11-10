@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using Common.Logging;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
@@ -44,6 +45,9 @@ namespace Partner
                 string poId = Guid.NewGuid().ToString();
                 while ((line = Console.ReadLine().ToLower()) != "q")
                 {
+                    if (line == "simulate")
+                        Simulate(bus);
+
                     bool done = (line == "y");
                     orderlines = new List<OrderLine>(1);
 
@@ -74,6 +78,39 @@ namespace Partner
             {
                 LogManager.GetLogger("hello").Fatal("Exiting", e);
                 Console.Read();
+            }
+        }
+
+        private static void Simulate(IBus bus)
+        {
+            Guid partnerId = Guid.NewGuid();
+
+            int numberOfLines;
+            Guid productId;
+            int secondsToProvideBy;
+
+            while(true)
+            {
+                Random r = new Random();
+
+                numberOfLines = 5 + r.Next(0, 5);
+                secondsToProvideBy = 5 + r.Next(0, 5);
+                string purchaseOrderNumber = Guid.NewGuid().ToString();
+
+                for (int i = 0; i < numberOfLines; i++)
+                {
+                    bus.Send(new OrderMessage(
+                                 purchaseOrderNumber,
+                                 partnerId,
+                                 i == numberOfLines - 1,
+                                 DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy),
+                                 new List<OrderLine>(
+                                     new OrderLine[] {new OrderLine(Guid.NewGuid(), (float) (Math.Sqrt(2)*r.Next(10)))})
+                                 )
+                        );
+                }
+
+                Thread.Sleep(100);
             }
         }
     }
