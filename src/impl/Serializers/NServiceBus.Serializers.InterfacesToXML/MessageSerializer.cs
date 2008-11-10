@@ -282,7 +282,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type.IsEnum)
+            if (type.IsValueType)
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
                 return;
