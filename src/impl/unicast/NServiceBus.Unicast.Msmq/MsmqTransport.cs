@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Messaging;
+using System.Threading;
 using System.Transactions;
 using Common.Logging;
 using NServiceBus.Serialization;
@@ -261,7 +262,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
         public void Start()
         {
             //don't purge on startup here
-            this.modules.AddRange(builder.BuildAll<IMessageModule>());
+
+	        IEnumerable<IMessageModule> mods = builder.BuildAll<IMessageModule>();
+            if (mods != null)
+                this.modules.AddRange(mods);
 
             for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
@@ -414,22 +418,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 if (this.isTransactional)
                 {
-                    lock (this.failuresPerMessage)
+                    failuresPerMessageLocker.EnterUpgradeableReadLock();
+                    if (MessageHasFailedMaxRetries(m))
                     {
-                        if (this.failuresPerMessage.ContainsKey(m.Id) &&
-                            (this.failuresPerMessage[m.Id] == this.maxRetries))
-                        {
-                            this.failuresPerMessage.Remove(m.Id);
+                        failuresPerMessageLocker.EnterWriteLock();
+                        this.failuresPerMessage.Remove(m.Id);
+                        failuresPerMessageLocker.ExitWriteLock();
+                        failuresPerMessageLocker.ExitUpgradeableReadLock();
 
-                            MoveToErrorQueue(m);
+                        MoveToErrorQueue(m);
 
-                            ActivateEndMethodOnMessageModules();
+                        ActivateEndMethodOnMessageModules();
 
-                            this.OnFinishedMessageProcessing();
+                        this.OnFinishedMessageProcessing();
 
-                            return;
-                        }
+                        return;
                     }
+                    failuresPerMessageLocker.ExitUpgradeableReadLock();
                 }
 
                 TransportMessage result = Convert(m);
@@ -470,8 +475,18 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     );
 
                 if (exceptions.Count == 0)
-                    this.failuresPerMessage.Remove(messageId);
-                else 
+                {
+                    failuresPerMessageLocker.EnterUpgradeableReadLock();
+                    if (this.failuresPerMessage.ContainsKey(messageId))
+                    {
+                        failuresPerMessageLocker.EnterWriteLock();
+                        this.failuresPerMessage.Remove(messageId);
+                        failuresPerMessageLocker.ExitWriteLock();
+                    }
+                     
+                    failuresPerMessageLocker.ExitUpgradeableReadLock();
+                }
+                else
                     throw new ApplicationException(string.Format("{0} exceptions occured while processing message.", exceptions.Count));
             }
             catch (MessageQueueException mqe)
@@ -485,13 +500,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (this.isTransactional)
                 {
-                    lock (this.failuresPerMessage)
-                    {
-                        if (!this.failuresPerMessage.ContainsKey(messageId))
-                            this.failuresPerMessage[messageId] = 1;
-                        else
-                            this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
-                    }
+                    failuresPerMessageLocker.EnterWriteLock();
+                    if (!this.failuresPerMessage.ContainsKey(messageId))
+                        this.failuresPerMessage[messageId] = 1;
+                    else
+                        this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
+                    failuresPerMessageLocker.ExitWriteLock();
 
                     throw;
                 }
@@ -509,6 +523,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
             this.OnFinishedMessageProcessing();
 
             return;
+        }
+
+        private bool MessageHasFailedMaxRetries(Message m)
+        {
+            return this.failuresPerMessage.ContainsKey(m.Id) &&
+                   (this.failuresPerMessage[m.Id] == this.maxRetries);
         }
 
         protected IList<Exception> ActivateEndMethodOnMessageModules()
@@ -766,8 +786,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 
+        private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
         /// <summary>
-        /// Accessed by multiple threads - lock before using.
+        /// Accessed by multiple threads - lock using failuresPerMessageLocker.
         /// </summary>
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 

@@ -28,6 +28,7 @@ namespace NServiceBus.Unicast.Distributor.Runner
             dataTransport.IsTransactional = true;
             dataTransport.PurgeOnStartup = false;
             dataTransport.SkipDeserialization = true;
+            dataTransport.Builder = builder;
 
             new Config.ConfigUnicastBus(builder)
                 .SetMessageHandlersFromAssembliesInOrder(
