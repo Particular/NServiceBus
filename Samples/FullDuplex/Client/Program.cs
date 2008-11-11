@@ -6,8 +6,6 @@ using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
-using NServiceBus.Serialization;
-using NServiceBus.MessageInterfaces;
 
 namespace Client
 {
@@ -32,7 +30,7 @@ namespace Client
             while (Console.ReadLine().ToLower() != "q")
             {
                 RequestDataMessage m = new RequestDataMessage();
-                //IRequestDataMessage r = builder.Build<IMessageCreator>().CreateInstance<IRequestDataMessage>();
+                //IRequestDataMessage r = bus.CreateInstance<IRequestDataMessage>();
 
                 m.DataId = Guid.NewGuid();
                 //r.DataId = m.DataId;

@@ -6,7 +6,7 @@ namespace NServiceBus
 	/// <summary>
 	/// Defines a bus to be used with NServiceBus.
 	/// </summary>
-    public interface IBus : IDisposable
+    public interface IBus : IMessageCreator, IDisposable
     {
 		/// <summary>
 		/// Starts the bus.

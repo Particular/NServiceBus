@@ -245,6 +245,28 @@ namespace NServiceBus.Unicast
 
         #region IBus Members
 
+        /// <summary>
+        /// Creates an instance of the specified type.
+        /// Used primarily for instantiating interface-based messages.
+        /// </summary>
+        /// <typeparam name="T">The type to instantiate.</typeparam>
+        /// <returns>An instance of the specified type.</returns>
+        public T CreateInstance<T>() where T : IMessage
+        {
+            return messageMapper.CreateInstance<T>();
+        }
+
+        /// <summary>
+        /// Creates an instance of the specified type.
+        /// Used primarily for instantiating interface-based messages.
+        /// </summary>
+        /// <param name="messageType">The type to instantiate.</param>
+        /// <returns>An instance of the specified type.</returns>
+        public object CreateInstance(Type messageType)
+        {
+            return messageMapper.CreateInstance(messageType);
+        }
+
 		/// <summary>
 		/// Publishes the first message in the list to all subscribers of that message type.
 		/// </summary>

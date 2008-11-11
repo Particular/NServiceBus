@@ -7,7 +7,6 @@ using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using ObjectBuilder;
-using NServiceBus.MessageInterfaces;
 
 namespace Server
 {
@@ -35,8 +34,6 @@ namespace Server
             IBus bus = builder.Build<IBus>();
             bus.Start();
 
-            IMessageCreator creator = builder.Build<IMessageCreator>();
-
             Console.WriteLine("Press 'Enter' to publish a message. Enter a number to publish that number of events. To exit, press 'q' and then 'Enter'.");
             string read;
             while ((read = Console.ReadLine().ToLower()) != "q")
@@ -50,7 +47,7 @@ namespace Server
                     EventMessage eventMessage = new EventMessage();
                     eventMessage.EventId = Guid.NewGuid();
 
-                    IEvent ev = creator.CreateInstance<IEvent>();
+                    IEvent ev = bus.CreateInstance<IEvent>();
                     ev.EventId = eventMessage.EventId;
                     ev.Time = DateTime.Now;
 

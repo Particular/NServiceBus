@@ -1,6 +1,6 @@
 using System;
 
-namespace NServiceBus.MessageInterfaces
+namespace NServiceBus
 {
     public interface IMessageCreator
     {
