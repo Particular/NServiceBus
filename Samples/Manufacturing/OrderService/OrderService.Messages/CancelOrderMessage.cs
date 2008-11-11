@@ -1,9 +1,10 @@
 using System;
+using NServiceBus;
 
 namespace OrderService.Messages
 {
     [Serializable]
-    public class CancelOrderMessage : IOrderSagaIdentifyingMessage
+    public class CancelOrderMessage : IMessage
     {
         public CancelOrderMessage(string purchaseOrderNumber, Guid partnerId)
         {

@@ -38,7 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CancelOrderMessage.cs" />
-    <Compile Include="ISagaIdentifyingMessage.cs" />
     <Compile Include="OrderLine.cs" />
     <Compile Include="OrderMessage.cs" />
     <Compile Include="OrderStatusChangedMessage.cs" />

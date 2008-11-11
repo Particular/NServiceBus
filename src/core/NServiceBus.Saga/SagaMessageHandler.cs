@@ -25,7 +25,7 @@ namespace NServiceBus.Saga
             if (!this.NeedToHandle(message))
                 return;
 
-            foreach (IFinder finder in builder.BuildAll<IFinder>())
+            foreach (IFinder finder in Configure.GetFindersFor(message))
             {
                 ISaga saga;
                 bool sagaEntityIsPersistent = true;
@@ -87,7 +87,7 @@ namespace NServiceBus.Saga
 
         private ISagaEntity UseFinderToFindSaga(IFinder finder, IMessage message)
         {
-            MethodInfo method = Configure.GetFindByMethodForFinder(finder);
+            MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
                 return method.Invoke(finder, new object[] {message}) as ISagaEntity;

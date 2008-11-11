@@ -10,6 +10,7 @@ namespace NServiceBus.Saga
         #region setup
 
         private IBuilder builder;
+        private static IBuilder builderStatic;
 
         private Configure()
         {
@@ -17,6 +18,8 @@ namespace NServiceBus.Saga
 
         public static Configure With(IBuilder builder)
         {
+            builderStatic = builder;
+
             Configure c = new Configure();
             c.builder = builder;
 
@@ -155,10 +158,41 @@ namespace NServiceBus.Saga
             return false;
         }
 
-        public static MethodInfo GetFindByMethodForFinder(IFinder finder)
+        public static MethodInfo GetFindByMethodForFinder(IFinder finder, IMessage message)
         {
-            MethodInfo result;
-            finderTypeToMethodInfoLookup.TryGetValue(finder.GetType(), out result);
+            MethodInfo result = null;
+
+            IDictionary<Type, MethodInfo> methods;
+            finderTypeToMessageToMethodInfoLookup.TryGetValue(finder.GetType(), out methods);
+
+            if (methods != null)
+                methods.TryGetValue(message.GetType(), out result);
+
+            if (result == null)
+                foreach (Type messageType in methods.Keys)
+                    if (messageType.IsAssignableFrom(message.GetType()))
+                        result = methods[messageType];
+
+            return result;
+        }
+
+        public static IEnumerable<IFinder> GetFindersFor(IMessage m)
+        {
+            List<IFinder> result = new List<IFinder>();
+
+            foreach(Type finderType in finderTypeToMessageToMethodInfoLookup.Keys)
+            {
+                IDictionary<Type, MethodInfo> messageToMethodInfo = finderTypeToMessageToMethodInfoLookup[finderType];
+                if (messageToMethodInfo.ContainsKey(m.GetType()))
+                {
+                    result.Add(builderStatic.Build(finderType) as IFinder);
+                    continue;
+                }
+
+                foreach(Type messageType in messageToMethodInfo.Keys)
+                    if (messageType.IsAssignableFrom(m.GetType()))
+                        result.Add(builderStatic.Build(finderType) as IFinder);
+            }
 
             return result;
         }
@@ -214,20 +248,41 @@ namespace NServiceBus.Saga
             foreach (Type interfaceType in t.GetInterfaces())
             {
                 Type[] args = interfaceType.GetGenericArguments();
-                if (args.Length != 1)
+                if (args.Length != 2)
                     continue;
 
-                if (!typeof (ISagaEntity).IsAssignableFrom(args[0]) && args[0] != typeof(ISagaEntity))
+                Type sagaEntityType = null;
+                Type messageType = null;
+                foreach(Type typ in args)
+                {
+                    if (typeof (ISagaEntity).IsAssignableFrom(typ))
+                        sagaEntityType = typ;
+
+                    if (typeof (IMessage).IsAssignableFrom(typ))
+                        messageType = typ;
+                }
+
+                if (sagaEntityType == null || messageType == null)
                     continue;
 
-                Type finderType = typeof (IFindSagas<>).MakeGenericType(args[0]);
+                Type finderType = typeof (IFindSagas<>.Using<>).MakeGenericType(sagaEntityType, messageType);
                 if (!finderType.IsAssignableFrom(t))
                     continue;
 
-                finderTypeToSagaEntityTypeLookup[t] = args[0];
+                finderTypeToSagaEntityTypeLookup[t] = sagaEntityType;
 
-                MethodInfo method = t.GetMethod("FindBy", new Type[] { typeof(IMessage) });
-                finderTypeToMethodInfoLookup[t] = method;
+                MethodInfo method = t.GetMethod("FindBy", new Type[] { messageType });
+
+                IDictionary<Type, MethodInfo> methods;
+                finderTypeToMessageToMethodInfoLookup.TryGetValue(t, out methods);
+
+                if (methods == null)
+                {
+                    methods = new Dictionary<Type, MethodInfo>();
+                    finderTypeToMessageToMethodInfoLookup[t] = methods;
+                }
+
+                methods[messageType] = method;
             }
         }
 
@@ -312,7 +367,7 @@ namespace NServiceBus.Saga
         private static readonly IDictionary<Type, Type> sagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
 
         private static readonly IDictionary<Type, Type> finderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
-        private static readonly IDictionary<Type, MethodInfo> finderTypeToMethodInfoLookup = new Dictionary<Type, MethodInfo>();
+        private static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> finderTypeToMessageToMethodInfoLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
 
         private static readonly IDictionary<Type, List<Type>> sagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 

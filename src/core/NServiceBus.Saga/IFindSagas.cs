@@ -3,8 +3,11 @@ namespace NServiceBus.Saga
 {
     public interface IFinder { }
 
-    public interface IFindSagas<T> : IFinder where T : ISagaEntity
+    public class IFindSagas<T> where T : ISagaEntity
     {
-        T FindBy(IMessage message);
+        public interface Using<M> : IFinder where M : IMessage
+        {
+            T FindBy(M message);
+        }
     }
 }

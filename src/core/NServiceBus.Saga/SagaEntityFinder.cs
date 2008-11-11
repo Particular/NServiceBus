@@ -2,7 +2,7 @@ using ObjectBuilder;
 
 namespace NServiceBus.Saga
 {
-    public class SagaEntityFinder : IFindSagas<ISagaEntity>
+    public class SagaEntityFinder : IFindSagas<ISagaEntity>.Using<ISagaMessage>
     {
         private readonly IBuilder builder;
 
@@ -11,15 +11,10 @@ namespace NServiceBus.Saga
             this.builder = builder;
         }
 
-        public ISagaEntity FindBy(IMessage message)
+        public ISagaEntity FindBy(ISagaMessage message)
         {
-            ISagaMessage sagaMessage = message as ISagaMessage;
-
-            if (sagaMessage != null)
-                using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-                    return persister.Get(sagaMessage.SagaId);
-
-            return null;
+            using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
+                return persister.Get(message.SagaId);
         }
     }
 }
