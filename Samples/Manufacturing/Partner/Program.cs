@@ -110,7 +110,7 @@ namespace Partner
                         );
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
             }
         }
     }

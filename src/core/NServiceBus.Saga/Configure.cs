@@ -166,12 +166,14 @@ namespace NServiceBus.Saga
             finderTypeToMessageToMethodInfoLookup.TryGetValue(finder.GetType(), out methods);
 
             if (methods != null)
+            {
                 methods.TryGetValue(message.GetType(), out result);
 
-            if (result == null)
-                foreach (Type messageType in methods.Keys)
-                    if (messageType.IsAssignableFrom(message.GetType()))
-                        result = methods[messageType];
+                if (result == null)
+                    foreach (Type messageType in methods.Keys)
+                        if (messageType.IsAssignableFrom(message.GetType()))
+                            result = methods[messageType];
+            }
 
             return result;
         }
