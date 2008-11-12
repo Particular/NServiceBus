@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using Common.Logging;
 using NServiceBus;
@@ -86,7 +85,6 @@ namespace Partner
             Guid partnerId = Guid.NewGuid();
 
             int numberOfLines;
-            Guid productId;
             int secondsToProvideBy;
 
             while(true)

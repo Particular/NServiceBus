@@ -294,7 +294,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
                 Type baseType = typeof(object);
                 Type[] generics = type.GetGenericArguments();
-                if (generics != null)
+                if (generics != null && generics.Length > 0)
                     baseType = generics[0];
 
                 foreach (object obj in ((IEnumerable)value))
