@@ -282,9 +282,9 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
-            if (type.IsValueType)
+            if (type.IsValueType || type == typeof(string))
             {
-                builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
+                builder.AppendFormat("<{0}>{1}</{0}>\n", name, FormatAsString(value));
                 return;
             }
 
@@ -305,6 +305,23 @@ namespace NServiceBus.Serializers.InterfacesToXML
             }
 
             WriteObject(name, type, value, builder);
+        }
+
+        private string FormatAsString(object value)
+        {
+            if (value is string)
+                return value as string;
+            if (value is DateTime)
+                return ((DateTime) value).ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
+            if (value is TimeSpan)
+            {
+                TimeSpan ts = (TimeSpan) value;
+                return string.Format("P0Y0M{0}DT{1}H{2}M{3}S", ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
+            }
+            if (value is Guid)
+                return ((Guid) value).ToString();
+
+            return value as string;
         }
 
         #endregion

@@ -94,6 +94,12 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
             if (subMessage != null)
             {
+                if (subMessage.typeName == null)
+                {
+                    log.Debug("Blank subscription message received.");
+                    return;
+                }
+
                 Type messageType = Type.GetType(subMessage.typeName, false);
                 if (messageType == null)
                     log.Debug("Could not handle subscription for message type: " + subMessage.typeName + ". Type not available on this endpoint.");

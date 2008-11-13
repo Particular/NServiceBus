@@ -50,6 +50,7 @@ namespace Server
                     IEvent ev = bus.CreateInstance<IEvent>();
                     ev.EventId = eventMessage.EventId;
                     ev.Time = DateTime.Now;
+                    ev.Duration = TimeSpan.FromSeconds(99999D);
 
                     bus.Publish(eventMessage);
                     bus.Publish(ev);

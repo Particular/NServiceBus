@@ -13,5 +13,6 @@ namespace Messages
     {
         Guid EventId { get; set; }
         DateTime Time { get; set; }
+        TimeSpan Duration { get; set; }
     }
 }

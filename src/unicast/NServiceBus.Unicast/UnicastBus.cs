@@ -476,7 +476,21 @@ namespace NServiceBus.Unicast
                     foreach (Type messageType in this.messageTypes)
                     {
                         string destination = this.GetDestinationForMessageType(messageType);
-                        if (destination != null && destination != this.transport.Address)
+                        if (destination == null)
+                            continue;
+
+                        string[] arr = destination.Split('@');
+
+                        string queue = arr[0];
+                        string machine = Environment.MachineName;
+
+                        if (arr.Length == 2)
+                            if (arr[1] != "." && arr[1].ToLower() != "localhost")
+                                machine = arr[1];
+
+                        destination = queue + "@" + machine;
+
+                        if (destination != this.transport.Address)
                         {
                             IEnumerable<Type> handlerTypes = this.GetHandlerTypes(messageType);
 
