@@ -461,7 +461,7 @@ namespace NServiceBus.Unicast
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (this.subscriptionStorage != null)
-                    this.subscriptionStorage.Init();
+                    this.subscriptionStorage.Init(this.messageTypes);
 
                 this.transport.MessageTypesToBeReceived = this.messageTypes;
 

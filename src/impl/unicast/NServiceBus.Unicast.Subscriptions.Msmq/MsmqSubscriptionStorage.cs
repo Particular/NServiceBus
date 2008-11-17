@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         #region ISubscriptionStorage Members
 
-        public void Init()
+        public void Init(IList<Type> messageTypes)
         {
             foreach (Message m in this.q.GetAllMessages())
             {

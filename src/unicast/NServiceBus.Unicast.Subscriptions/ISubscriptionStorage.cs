@@ -28,6 +28,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// Notifies the subscription storage that now is the time to perform
         /// any initialization work
         /// </summary>
-	    void Init();
+        /// <param name="messageTypes">The logical message types that the bus will be publishing.</param>
+        void Init(IList<Type> messageTypes);
     }
 }

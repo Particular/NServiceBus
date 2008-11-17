@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using NServiceBus.Unicast.Transport;
+using System.Text;
 
 namespace NServiceBus.Unicast.Subscriptions.DB
 {
@@ -69,20 +70,36 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         public IList<string> GetSubscribersForMessage(Type messageType)
         {
+            List<Type> compatibles = new List<Type>();
+            compatibles.Add(messageType);
+            if (compatibleTypes.ContainsKey(messageType))
+                compatibles.AddRange(compatibleTypes[messageType]);
+
             List<string> result = new List<string>();
-            string typeName = messageType.AssemblyQualifiedName;
 
             DbCommand command = this.GetConnection().CreateCommand();
             command.CommandType = CommandType.Text;
 
-            DbParameter msgParam = command.CreateParameter();
-            msgParam.ParameterName = "@" + messageTypeParameterName;
-            msgParam.Value = typeName;
-            command.Parameters.Add(msgParam);
+            StringBuilder builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
+            for (int i = 0; i < compatibles.Count; i++)
+            {
+                string paramName = "@" + messageTypeParameterName + i;
+
+                DbParameter msgParam = command.CreateParameter();
+                msgParam.ParameterName = paramName;
+                msgParam.Value = compatibles[i].AssemblyQualifiedName;
+                command.Parameters.Add(msgParam);
+
+                builder.Append("{2}=");
+                builder.Append(paramName);
+
+                if (i != compatibles.Count - 1)
+                    builder.Append(" OR ");
+            }
 
             command.CommandText =
                 string.Format(
-                    "SELECT {0} FROM {1} WHERE {2}=@{2}", 
+                    builder.ToString(),
                     subscriberParameterName, this.table, messageTypeParameterName);
 
             using (command.Connection)
@@ -139,7 +156,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             }
         }
 
-        public void Init()
+        public void Init(IList<Type> messageTypes)
         {
             if (this.connectionString == null ||
                 this.factory == null ||
@@ -148,6 +165,41 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                 this.table == null)
                 throw new ConfigurationErrorsException(
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
+
+            foreach (Type msgType in messageTypes)
+            {
+                ScanBase(msgType);
+
+                foreach (Type interfaceType in msgType.GetInterfaces())
+                    if (typeof (IMessage).IsAssignableFrom(interfaceType) && typeof(IMessage) != interfaceType)
+                        RegisterMapping(msgType, interfaceType);
+            }
+        }
+
+        private void ScanBase(Type msgType)
+        {
+            if (msgType == null)
+                return;
+
+            Type baseType = msgType.BaseType;
+            if (typeof(IMessage).IsAssignableFrom(baseType))
+                RegisterMapping(msgType, baseType);
+
+            ScanBase(baseType);
+        }
+
+        private void RegisterMapping(Type specific, Type generic)
+        {
+            IList<Type> genericTypes;
+            this.compatibleTypes.TryGetValue(specific, out genericTypes);
+
+            if (genericTypes == null)
+            {
+                genericTypes = new List<Type>();
+                this.compatibleTypes[specific] = genericTypes;
+            }
+
+            genericTypes.Add(generic);
         }
 
         #endregion
@@ -186,5 +238,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         }
 
         #endregion
+
+        private IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
     }
 }

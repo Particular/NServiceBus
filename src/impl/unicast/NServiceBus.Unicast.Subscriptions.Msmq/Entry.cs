@@ -13,12 +13,14 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         {
             this.subscriber = msg.ReturnAddress;
             this.messageType = messageType.AssemblyQualifiedName;
+            this.TypeOfMessage = messageType;
         }
 
         public Entry(string messageType, string subscriber)
         {
             this.subscriber = subscriber;
             this.messageType = messageType;
+            this.TypeOfMessage = Type.GetType(messageType);
         }
 
         public Entry()
@@ -33,7 +35,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         public string MessageType
         {
             get { return messageType; }
-            set { messageType = value; }
+            set
+            {
+                messageType = value;
+                TypeOfMessage = Type.GetType(value);
+            }
         }
 
         private string subscriber;
@@ -47,6 +53,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             set { subscriber = value; }
         }
 
+        private Type TypeOfMessage;
+
+
         public bool Matches(object message)
         {
             return Matches(message.GetType());
@@ -54,7 +63,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         public bool Matches(Type msgType)
         {
-            return this.messageType == msgType.AssemblyQualifiedName;
+            return TypeOfMessage.IsAssignableFrom(msgType);
         }
     }
 }

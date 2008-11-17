@@ -1,6 +1,5 @@
 using System;
 using Common.Logging;
-using Messages;
 using NServiceBus;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;

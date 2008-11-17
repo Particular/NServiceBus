@@ -4,6 +4,7 @@ using NServiceBus;
 using Messages;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Subscriptions.DB.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using ObjectBuilder;
@@ -18,6 +19,10 @@ namespace Server
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             new ConfigMsmqSubscriptionStorage(builder);
+            //new ConfigDbSubscriptionStorage(builder)
+            //    .Table("Subscriptions")
+            //    .SubscriberEndpointParameterName("SubscriberEndpoint")
+            //    .MessageTypeParameterName("MessageType");
 
             builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
 
@@ -34,7 +39,10 @@ namespace Server
             IBus bus = builder.Build<IBus>();
             bus.Start();
 
+            Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message. Enter a number to publish that number of events. To exit, press 'q' and then 'Enter'.");
+
+            bool publishIEvent = true;
             string read;
             while ((read = Console.ReadLine().ToLower()) != "q")
             {
@@ -44,18 +52,21 @@ namespace Server
 
                 for (int i = 0; i < number; i++)
                 {
-                    EventMessage eventMessage = new EventMessage();
-                    eventMessage.EventId = Guid.NewGuid();
+                    IEvent eventMessage;
+                    if (publishIEvent)
+                        eventMessage = bus.CreateInstance<IEvent>();
+                    else 
+                        eventMessage = new EventMessage();
 
-                    IEvent ev = bus.CreateInstance<IEvent>();
-                    ev.EventId = eventMessage.EventId;
-                    ev.Time = DateTime.Now;
-                    ev.Duration = TimeSpan.FromSeconds(99999D);
+                    eventMessage.EventId = Guid.NewGuid();
+                    eventMessage.Time = DateTime.Now;
+                    eventMessage.Duration = TimeSpan.FromSeconds(99999D);
 
                     bus.Publish(eventMessage);
-                    bus.Publish(ev);
 
-                    Console.WriteLine("Published 2 events with Id {0}.", eventMessage.EventId);
+                    Console.WriteLine("Published event with Id {0}.", eventMessage.EventId);
+
+                    publishIEvent = !publishIEvent;
                 }
             }
         }
