@@ -48,6 +48,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.9.1.37568, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Grid.MessageHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Grid.Messages, Version=1.9.1.37567, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Grid.Messages.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>

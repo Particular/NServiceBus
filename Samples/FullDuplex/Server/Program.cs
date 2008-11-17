@@ -6,6 +6,7 @@ using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
+using NServiceBus.Grid.MessageHandlers;
 
 namespace Server
 {
@@ -46,6 +47,7 @@ namespace Server
             new ConfigUnicastBus(builder)
                 .ImpersonateSender(false)
                 .SetMessageHandlersFromAssembliesInOrder(
+                    typeof(GridInterceptingMessageHandler).Assembly,
                     typeof(RequestDataMessageHandler).Assembly
                     );
 

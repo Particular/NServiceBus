@@ -2,8 +2,13 @@ using System;
 using System.Windows.Forms;
 using NServiceBus;
 using Grid;
+using NServiceBus.Grid.MessageHandlers;
+using NServiceBus.Grid.Messages;
+using NServiceBus.Unicast;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport.Msmq.Config;
+using ObjectBuilder;
+using System.Reflection;
 
 namespace UI
 {
@@ -17,18 +22,21 @@ namespace UI
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+            //NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
 
             new ConfigMsmqTransport(builder)
             .IsTransactional(false)
             .PurgeOnStartup(false);
 
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
+            UnicastBus configBus = builder.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
+            configBus.ImpersonateSender = false;
 
+            UnicastBus bClient = builder.Build<UnicastBus>();
 
-            IBus bClient = builder.Build<IBus>();
+            foreach (Type t in typeof(GetNumberOfWorkerThreadsMessage).Assembly.GetTypes())
+                bClient.AddMessageType(t);
+
             bClient.Start();
 
             Manager.SetBus(bClient);

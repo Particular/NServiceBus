@@ -1001,6 +1001,10 @@ namespace NServiceBus.Unicast
                     handlerList[t].Add(messageType);
                     log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, t));
                 }
+
+                foreach(Type msgType in messageType.Assembly.GetTypes())
+                    if (typeof(IMessage).IsAssignableFrom(msgType))
+                        AddMessageType(msgType);
             }
         }
 
