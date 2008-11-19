@@ -307,7 +307,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 toSend.Recoverable = m.Recoverable;
                 toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
-                toSend.Label = m.IdForCorrelation + ":" + m.WindowsIdentityName;
+                FillLabel(toSend, m);
+                toSend.Label = string.Format("<IdForCorrelation>{0}</IdForCorrelation><WindowsIdentityName>{1}</WindowsIdentityName>", m.IdForCorrelation, m.WindowsIdentityName);
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = m.TimeToBeReceived;
@@ -594,12 +595,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             result.ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue);
 
-            if (m.Label != null)
-            {
-                string[] arr = m.Label.Split(':');
-                result.IdForCorrelation = arr[0];
-                result.WindowsIdentityName = arr[1];
-            }
+		    FillIdForCorrelationAndWindowsIdentity(result, m);
 
             if (result.IdForCorrelation == null || result.IdForCorrelation == string.Empty)
                 result.IdForCorrelation = result.Id;
@@ -613,6 +609,25 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 }
 
 		    return result;
+        }
+
+        private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, Message m)
+        {
+            if (m.Label != null)
+            {
+                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", IDFORCORRELATION)) + IDFORCORRELATION.Length + 2;
+                int idCount = m.Label.IndexOf(string.Format("</{0}>", IDFORCORRELATION)) - idStartIndex;
+                int winStartIndex = m.Label.IndexOf(string.Format("<{0}>", WINDOWSIDENTITYNAME)) + WINDOWSIDENTITYNAME.Length + 2;
+                int winCount = m.Label.IndexOf(string.Format("</{0}>", WINDOWSIDENTITYNAME)) - winStartIndex;
+
+                result.IdForCorrelation = m.Label.Substring(idStartIndex, idCount);
+                result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
+            }
+        }
+
+        private static void FillLabel(Message toSend, TransportMessage m)
+        {
+            toSend.Label = string.Format("<IdForCorrelation>{0}</IdForCorrelation><WindowsIdentityName>{1}</WindowsIdentityName>", m.IdForCorrelation, m.WindowsIdentityName);
         }
 
         /// <summary>
@@ -778,7 +793,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
         #region members
 
         private static readonly string DIRECTPREFIX = "DIRECT=OS:";
-        private readonly static string PREFIX = "FormatName:" + DIRECTPREFIX;
+        private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
+	    private static readonly string IDFORCORRELATION = "IdForCorrelation";
+	    private static readonly string WINDOWSIDENTITYNAME = "WindowsIdentityName";
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
