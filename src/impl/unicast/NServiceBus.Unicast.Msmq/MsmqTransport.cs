@@ -308,7 +308,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 toSend.Recoverable = m.Recoverable;
                 toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
                 FillLabel(toSend, m);
-                toSend.Label = string.Format("<IdForCorrelation>{0}</IdForCorrelation><WindowsIdentityName>{1}</WindowsIdentityName>", m.IdForCorrelation, m.WindowsIdentityName);
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = m.TimeToBeReceived;
@@ -554,6 +553,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
 	    protected void MoveToErrorQueue(Message m)
 	    {
+            m.Label = m.Label +
+                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, GetIndependentAddressForQueue(queue));
+
 	        if (this.errorQueue != null)
                 this.errorQueue.Send(m, MessageQueueTransactionType.Single);
 	    }
@@ -611,6 +613,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		    return result;
         }
 
+        public static string GetFailedQueue(Message m)
+        {
+            int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
+            int count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
+
+            return GetFullPath(m.Label.Substring(startIndex, count));
+        }
+
+        public static string GetLabelWithoutFailedQueue(Message m)
+        {
+            int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
+            int endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
+            endIndex += FAILEDQUEUE.Length + 3;
+
+            return m.Label.Remove(startIndex, endIndex - startIndex);
+        }
+
         private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, Message m)
         {
             if (m.Label != null)
@@ -627,7 +646,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static void FillLabel(Message toSend, TransportMessage m)
         {
-            toSend.Label = string.Format("<IdForCorrelation>{0}</IdForCorrelation><WindowsIdentityName>{1}</WindowsIdentityName>", m.IdForCorrelation, m.WindowsIdentityName);
+            toSend.Label = string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>",IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
         }
 
         /// <summary>
@@ -794,8 +813,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static readonly string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-	    private static readonly string IDFORCORRELATION = "IdForCorrelation";
-	    private static readonly string WINDOWSIDENTITYNAME = "WindowsIdentityName";
+	    private static readonly string IDFORCORRELATION = "CorrId";
+	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
+	    private static readonly string FAILEDQUEUE = "FailedQ";
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
