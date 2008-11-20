@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Proxy", "NServiceBus.Proxy\NServiceBus.Proxy.csproj", "{DE737CE6-63B7-4744-B247-4A9C17CB7C13}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Proxy.InMemoryProxyDataStorage", "NServiceBus.Proxy.InMemoryProxyDataStorage\NServiceBus.Proxy.InMemoryProxyDataStorage.csproj", "{4532771F-19B5-4804-975D-BFC5E313D5F9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Proxy.Host", "NServiceBus.Proxy.Host\NServiceBus.Proxy.Host.csproj", "{127551C0-BAA8-4B33-8747-3743D26ABAF8}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE737CE6-63B7-4744-B247-4A9C17CB7C13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE737CE6-63B7-4744-B247-4A9C17CB7C13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE737CE6-63B7-4744-B247-4A9C17CB7C13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE737CE6-63B7-4744-B247-4A9C17CB7C13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4532771F-19B5-4804-975D-BFC5E313D5F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4532771F-19B5-4804-975D-BFC5E313D5F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4532771F-19B5-4804-975D-BFC5E313D5F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4532771F-19B5-4804-975D-BFC5E313D5F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{127551C0-BAA8-4B33-8747-3743D26ABAF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{127551C0-BAA8-4B33-8747-3743D26ABAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{127551C0-BAA8-4B33-8747-3743D26ABAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{127551C0-BAA8-4B33-8747-3743D26ABAF8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
