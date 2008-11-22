@@ -15,19 +15,29 @@ namespace NServiceBus.Proxy
             set { subscribers = value; }
         }
 
-        private ITransport transport;
-        public virtual ITransport Transport
+        private ITransport externalTransport;
+        public virtual ITransport ExternalTransport
         {
             set
             {
-                this.transport = value;
-                this.transport.MessageTypesToBeReceived =
-                    new List<Type>(new Type[] {typeof (SubscriptionMessage), typeof (ReadyMessage)});
+                this.externalTransport = value;
 
-                this.transport.TransportMessageReceived += transport_TransportMessageReceived;
+                this.externalTransport.TransportMessageReceived += externalTransport_TransportMessageReceived;
             }
         }
 
+        private ITransport internalTransport;
+        public virtual ITransport InternalTransport
+        {
+            set
+            {
+                this.internalTransport = value;
+                this.internalTransport.MessageTypesToBeReceived =
+                    new List<Type>(new Type[] { typeof(SubscriptionMessage), typeof(ReadyMessage) });
+
+                this.internalTransport.TransportMessageReceived += internalTransport_TransportMessageReceived;
+            }
+        }
         private IProxyDataStorage storage;
         public virtual IProxyDataStorage Storage
         {
@@ -58,45 +68,51 @@ namespace NServiceBus.Proxy
 
         public void Start()
         {
-            this.transport.Start();
+            this.internalTransport.Start();
+            this.externalTransport.Start();
         }
 
-        void transport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void externalTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             ProxyData data = null;
             
             if (e.Message.CorrelationId != null)
                 data = this.storage.GetAndRemove(e.Message.CorrelationId);
 
-            if (data == null) // first message
+            if (data == null)
             {
-                if (HandledSubscription(e.Message))
-                    return;
-
                 if (HandledPublish(e.Message))
                     return;
-
-                data = new ProxyData();
-                data.Id = GenerateId();
-                data.ClientAddress = e.Message.ReturnAddress;
-                data.CorrelationId = e.Message.IdForCorrelation;
-
-                this.storage.Save(data);
-
-                e.Message.IdForCorrelation = data.Id;
-                e.Message.ReturnAddress = this.transport.Address;
-
-                this.transport.Send(e.Message, remoteServer);
-
-                return;
             }
+            else
+            {
+                // response from server
+                e.Message.CorrelationId = data.CorrelationId;
 
-            // response from server
-            e.Message.CorrelationId = data.CorrelationId;
-            e.Message.ReturnAddress = this.transport.Address;
-
-            this.transport.Send(e.Message, data.ClientAddress);
+                this.internalTransport.Send(e.Message, data.ClientAddress);
+            }
         }
+
+        void internalTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        {
+            if (HandledSubscription(e.Message))
+                return;
+
+            ProxyData data = new ProxyData();
+            data.Id = GenerateId();
+            data.ClientAddress = e.Message.ReturnAddress;
+            data.CorrelationId = e.Message.IdForCorrelation;
+
+            this.storage.Save(data);
+
+            e.Message.IdForCorrelation = data.Id;
+            e.Message.ReturnAddress = this.externalTransport.Address;
+
+            this.externalTransport.Send(e.Message, remoteServer);
+
+            return;
+        }
+
 
         /// <summary>
         /// Assumes that no data could be found using correlation id.
@@ -109,7 +125,7 @@ namespace NServiceBus.Proxy
                 return false;
 
             foreach(string sub in subscribers.GetAllSubscribers())
-                this.transport.Send(message, sub);
+                this.internalTransport.Send(message, sub);
 
             return true;
         }
@@ -128,15 +144,15 @@ namespace NServiceBus.Proxy
             if (sub.subscriptionType == SubscriptionType.Remove)
                 subscribers.Remove(transportMessage.ReturnAddress);
 
-            transportMessage.ReturnAddress = this.transport.Address;
-            this.transport.Send(transportMessage, remoteServer);
+            transportMessage.ReturnAddress = this.externalTransport.Address;
+            this.externalTransport.Send(transportMessage, remoteServer);
 
             return true;
         }
 
         private static string GenerateId()
         {
-            return Guid.NewGuid().ToString() + "\\0";
+            return Guid.NewGuid() + "\\0";
         }
 
     }
