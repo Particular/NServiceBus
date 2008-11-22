@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4532771F-19B5-4804-975D-BFC5E313D5F9}</ProjectGuid>
+    <ProjectGuid>{89ECB12D-0093-4C26-926E-FC0B71F1E616}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Proxy.InMemoryProxyDataStorage</RootNamespace>
-    <AssemblyName>NServiceBus.Proxy.InMemoryProxyDataStorage</AssemblyName>
+    <RootNamespace>NServiceBus.Proxy.InMemoryImpl</RootNamespace>
+    <AssemblyName>NServiceBus.Proxy.InMemoryImpl</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,8 +33,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Storage.cs" />
+    <Compile Include="ProxyDataStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubscriberStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Proxy\NServiceBus.Proxy.csproj">

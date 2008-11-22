@@ -1,6 +1,8 @@
 using System;
 using System.Configuration;
 using Common.Logging;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+using NServiceBus.Proxy.InMemoryImpl;
 using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Unicast.Transport.Msmq.Config;
 using ObjectBuilder;
@@ -36,21 +38,24 @@ namespace NServiceBus.Proxy.Host
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
-            //NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
-            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            builder.ConfigureComponent<MessageMapper>(
+                ComponentCallModelEnum.Singleton);
+
+            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            //NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
 
             new ConfigMsmqTransport(builder)
                 .IsTransactional(true)
                 .PurgeOnStartup(false);
 
-            builder.ConfigureComponent<InMemoryProxyDataStorage.Storage>(
-                ComponentCallModelEnum.Singleton);
+            builder.ConfigureComponent<ProxyDataStorage>(ComponentCallModelEnum.Singleton);
+            builder.ConfigureComponent<SubscriberStorage>(ComponentCallModelEnum.Singleton);
 
             builder.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                 .RemoteServer = cfg.RemoteServer;
 
             Proxy p = builder.Build<Proxy>();
-            builder.Build<MsmqTransport>().SkipDeserialization = true;
+            //builder.Build<MsmqTransport>().SkipDeserialization = true;
 
             return p;
         }

@@ -147,9 +147,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Proxy.InMemoryProxyDataStorage\NServiceBus.Proxy.InMemoryProxyDataStorage.csproj">
-      <Project>{4532771F-19B5-4804-975D-BFC5E313D5F9}</Project>
-      <Name>NServiceBus.Proxy.InMemoryProxyDataStorage</Name>
+    <ProjectReference Include="..\NServiceBus.Proxy.InMemoryImpl\NServiceBus.Proxy.InMemoryImpl.csproj">
+      <Project>{89ECB12D-0093-4C26-926E-FC0B71F1E616}</Project>
+      <Name>NServiceBus.Proxy.InMemoryImpl</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Proxy\NServiceBus.Proxy.csproj">
       <Project>{DE737CE6-63B7-4744-B247-4A9C17CB7C13}</Project>

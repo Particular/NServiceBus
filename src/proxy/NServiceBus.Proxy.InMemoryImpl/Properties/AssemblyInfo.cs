@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Proxy Host Process")]
-[assembly: AssemblyDescription("Hosts the proxy logic for nServiceBus.")]
+[assembly: AssemblyTitle("NServiceBus Proxy In-memory Implementations")]
+[assembly: AssemblyDescription("Implementations of ProxyDataStorage and SubscriberStorage in memory.")]
