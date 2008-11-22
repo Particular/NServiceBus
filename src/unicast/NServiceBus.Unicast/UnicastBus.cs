@@ -1063,6 +1063,9 @@ namespace NServiceBus.Unicast
 
             if (destination == null)
             {
+                if (messageType == typeof(IMessage))
+                    return null;
+
                 if (messageMapper != null)
                 {
                     Type t = messageMapper.GetMappedTypeFor(messageType);
