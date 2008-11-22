@@ -1,5 +1,6 @@
 using System;
 using Common.Logging;
+using ObjectBuilder;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -15,10 +16,24 @@ namespace NServiceBus.Unicast.Distributor.Runner
 
             try
             {
-                // this only affects control messages
-                // data messages aren't deserialized.
-                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
+                string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
+                string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
+
+                switch(serialization)
+                {
+                    case "interfaces" :
+                        builder.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
+                        NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace(nameSpace).With(builder);
+                        break;
+                    case "xml" :
+                        NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace(nameSpace).With(builder);
+                        break;
+                    case "binary" :
+                        NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                        break;
+                    default:
+                        throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
+                }
 
                 Initalizer.Init(builder);
 

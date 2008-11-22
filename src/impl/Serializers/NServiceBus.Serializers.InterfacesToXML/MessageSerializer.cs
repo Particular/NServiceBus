@@ -13,7 +13,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
     public class MessageSerializer : IMessageSerializer
     {
         private IMessageMapper messageMapper;
-        public IMessageMapper MessageMapper
+        public virtual IMessageMapper MessageMapper
         {
             get { return messageMapper; }
             set { messageMapper = value; }

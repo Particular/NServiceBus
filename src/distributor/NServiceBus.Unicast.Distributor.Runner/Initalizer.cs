@@ -40,8 +40,6 @@ namespace NServiceBus.Unicast.Distributor.Runner
 
             builder.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
 
-            builder.ConfigureComponent<ReadyMessageHandler>(ComponentCallModelEnum.Singlecall);
-
             Thread.Sleep(100);
 
             Distributor d = builder.Build<Distributor>();

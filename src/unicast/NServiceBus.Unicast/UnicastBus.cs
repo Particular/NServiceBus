@@ -1063,7 +1063,7 @@ namespace NServiceBus.Unicast
 
             if (destination == null)
             {
-                if (messageType == typeof(IMessage))
+                if (messageType.IsInterface)
                     return null;
 
                 if (messageMapper != null)
