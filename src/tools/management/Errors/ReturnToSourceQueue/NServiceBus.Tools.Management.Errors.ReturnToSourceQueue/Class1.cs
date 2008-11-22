@@ -28,6 +28,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             }
         }
 
+        public void ReturnAll()
+        {
+            foreach(Message m in queue.GetAllMessages())
+                ReturnMessageToSourceQueue(m.Id);
+        }
+
         /// <summary>
         /// May throw a timeout exception if a message with the given id cannot be found.
         /// </summary>

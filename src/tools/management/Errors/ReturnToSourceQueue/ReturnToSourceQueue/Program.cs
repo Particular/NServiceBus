@@ -28,7 +28,7 @@ namespace ReturnToSourceQueue
 
             if (messageId == null)
             {
-                Console.WriteLine("Please enter the id of the message you'd like to return to its source queue.");
+                Console.WriteLine("Please enter the id of the message you'd like to return to its source queue, or 'all' to do so for all messages in the queue.");
                 messageId = Console.ReadLine();
 
                 Console.WriteLine("Attempting to return message to source queue. Please stand by.");
@@ -38,7 +38,11 @@ namespace ReturnToSourceQueue
 
             try
             {
-                c.ReturnMessageToSourceQueue(messageId);
+                if (messageId == "all")
+                    c.ReturnAll();
+                else
+                    c.ReturnMessageToSourceQueue(messageId);
+
                 Console.WriteLine("Success.");
 
                 if (args == null || args.Length == 0)
