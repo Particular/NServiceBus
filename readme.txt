@@ -29,10 +29,3 @@ If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\
 In order to run samples that make use of sagas, specifically the DbBlobSagaPersister (found in \src\impl\SagaPersisters\DbBlobSagaPersister) or the DB subscription storage (found in \src\impl\unicast\NServiceBus.Unicast.Subscriptions.DB) you will need a database with the tables defined in TableDefinitions.txt.
 
 
-
-
-[Optional] In the 'test' directory, to increase the number of workers involved in workflow, try copying the runtime files of the 
-Worker project to another directory, change the Worker.exe.config file as follows: change the property InputQueue to 
-"worker2". Run Worker.exe in the new directory.
-Notice how the work automatically gets distributed between the two workers.
-
