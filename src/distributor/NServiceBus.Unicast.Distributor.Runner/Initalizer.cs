@@ -1,4 +1,3 @@
-using System.Collections;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;

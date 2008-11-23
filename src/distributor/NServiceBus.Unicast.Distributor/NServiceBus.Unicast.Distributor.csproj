@@ -33,29 +33,9 @@
       <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.1.22852, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Grid.MessageHandlers, Version=1.9.0.39290, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Grid.MessageHandlers.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Grid.Messages, Version=1.9.0.39225, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Grid.Messages.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.9.1.27258, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Unicast.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\external-bin\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

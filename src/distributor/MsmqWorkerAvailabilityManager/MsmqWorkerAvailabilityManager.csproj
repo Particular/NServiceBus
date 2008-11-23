@@ -28,19 +28,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus, Version=1.9.1.22852, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\external-bin\NServiceBus.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Distributor, Version=1.0.0.1680, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\build\NServiceBus.Unicast.Distributor.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport.Msmq, Version=1.9.0.16538, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Unicast.Transport.Msmq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Messaging" />

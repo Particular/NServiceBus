@@ -63,6 +63,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         public bool Matches(Type msgType)
         {
+            if (TypeOfMessage == null)
+                return false;
+
             return TypeOfMessage.IsAssignableFrom(msgType);
         }
     }

@@ -75,14 +75,7 @@ namespace NServiceBus.Unicast.Config
                 {
                     if (IsMessageHandler(t))
                         builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                    if (IsMessageModule(t))
-                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singleton);
                 }
-        }
-
-        private static bool IsMessageModule(Type t)
-        {
-            return (typeof (IMessageModule).IsAssignableFrom(t));
         }
 
         public static bool IsMessageHandler(Type t)
