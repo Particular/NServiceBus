@@ -6,10 +6,7 @@ namespace NServiceBus.Saga
     /// Defines the basic functionality of a persister for storing 
 	/// and retrieving a saga.
     /// </summary>
-	/// <remarks>
-	/// Use per-instance (single-call) semantics for instantiation rather than singleton.
-	/// </remarks>
-    public interface ISagaPersister : IDisposable
+    public interface ISagaPersister
     {
 		/// <summary>
 		/// Saves the saga entity to the persistence store.

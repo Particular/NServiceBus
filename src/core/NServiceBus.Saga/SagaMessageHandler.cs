@@ -105,17 +105,15 @@ namespace NServiceBus.Saga
 
             if (!saga.Completed)
             {
-                using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-                    if (!sagaIsPersistent)
-                        persister.Save(saga.Entity);
-                    else
-                        persister.Update(saga.Entity);
+                if (!sagaIsPersistent)
+                    persister.Save(saga.Entity);
+                else
+                    persister.Update(saga.Entity);
             }
             else
             {
                 if (sagaIsPersistent)
-                    using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
-                        persister.Complete(saga.Entity);
+                    persister.Complete(saga.Entity);
 
                 NotifyTimeoutManagerThatSagaHasCompleted(saga);
             }
@@ -166,6 +164,13 @@ namespace NServiceBus.Saga
             get { return builder; }
             set { builder = value; }
         }
+
+	    private ISagaPersister persister;
+
+	    public virtual ISagaPersister Persister
+	    {
+            set { this.persister = value; }
+	    }
 
         #endregion
 

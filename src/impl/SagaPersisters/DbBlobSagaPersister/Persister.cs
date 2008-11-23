@@ -9,7 +9,9 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 {
     public class Persister : ISagaPersister
     {
-        private DbConnection connection;
+        #region config info
+
+        private DbProviderFactory factory;
         private string onlineTableName;
         private string completedTableName;
         private string idColumnName;
@@ -47,42 +49,25 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 
         public virtual string ProviderInvariantName
         {
-            set
-            {
-                DbProviderFactory factory = DbProviderFactories.GetFactory(value);
-                this.connection = factory.CreateConnection();
-
-                InitializeConnection();
-            }
-        }
-
-        private void InitializeConnection()
-        {
-            if (this.connectionString != null && this.connection != null)
-            {
-                this.connection.ConnectionString = this.connectionString;
-                this.connection.Open();
-            }
+            set { factory = DbProviderFactories.GetFactory(value); }
         }
 
         public virtual string ConnectionString
         {
             get { return connectionString; }
-            set
-            {
-                connectionString = value;
-
-                InitializeConnection();
-            }
+            set { connectionString = value; }
         }
+
+        #endregion
 
         #region ISagaPersister Members
 
         public void Complete(ISagaEntity saga)
         {
+            using (DbConnection connection = OpenConnection())
             using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
             {
-                DbCommand command = this.connection.CreateCommand();
+                DbCommand command = connection.CreateCommand();
                 command.Transaction = tx;
                 command.CommandType = CommandType.Text;
 
@@ -110,26 +95,30 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 
         public ISagaEntity Get(Guid sagaId)
         {
-            DbCommand command = this.connection.CreateCommand();
-            command.CommandType = CommandType.Text;
+            using (DbConnection connection = OpenConnection())
+            {
+                DbCommand command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
 
-            DbParameter idParam = command.CreateParameter();
-            idParam.ParameterName = "@Id";
-            idParam.Value = sagaId;
-            command.Parameters.Add(idParam);
+                DbParameter idParam = command.CreateParameter();
+                idParam.ParameterName = "@Id";
+                idParam.Value = sagaId;
+                command.Parameters.Add(idParam);
 
-            command.CommandText =
-    string.Format("SELECT {0} FROM {1} WHERE {2}=@Id",
-        this.valueColumnName, this.onlineTableName, this.idColumnName);
+                command.CommandText =
+                    string.Format("SELECT {0} FROM {1} WHERE {2}=@Id",
+                                  this.valueColumnName, this.onlineTableName, this.idColumnName);
 
-            object result = command.ExecuteScalar();
-            byte[] buffer = result as byte[];
+                object result = command.ExecuteScalar();
+                byte[] buffer = result as byte[];
 
-            return Deserialize(buffer);
+                return Deserialize(buffer);
+            }
         }
 
         public void Save(ISagaEntity saga)
         {
+            using (DbConnection connection = OpenConnection())
             using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
             {
                 InsertOrUpdate(
@@ -145,6 +134,7 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 
         public void Update(ISagaEntity saga)
         {
+            using (DbConnection connection = OpenConnection())
             using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
             {
                 InsertOrUpdate(
@@ -163,7 +153,16 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 
         #region db helper
 
-       private static void InsertOrUpdate(DbTransaction tx, string sql, ISagaEntity saga)
+        private DbConnection OpenConnection()
+        {
+            DbConnection result = factory.CreateConnection();
+            result.ConnectionString = this.connectionString;
+            result.Open();
+
+            return result;
+        }
+
+        private static void InsertOrUpdate(DbTransaction tx, string sql, ISagaEntity saga)
         {
             DbCommand command = tx.Connection.CreateCommand();
             command.Transaction = tx;
@@ -209,15 +208,6 @@ namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
             object result = formatter.Deserialize(stream);
 
             return result as ISagaEntity;
-        }
-
-        #endregion
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            this.connection.Dispose();
         }
 
         #endregion

@@ -1,20 +1,20 @@
-using ObjectBuilder;
 
 namespace NServiceBus.Saga
 {
     public class SagaEntityFinder : IFindSagas<ISagaEntity>.Using<ISagaMessage>
     {
-        private readonly IBuilder builder;
-
-        public SagaEntityFinder(IBuilder builder)
+        private ISagaPersister persister;
+        public virtual ISagaPersister Persister
         {
-            this.builder = builder;
+            set { this.persister = value; }
         }
 
         public ISagaEntity FindBy(ISagaMessage message)
         {
-            using (ISagaPersister persister = this.builder.Build<ISagaPersister>())
+            if (persister != null)
                 return persister.Get(message.SagaId);
+
+            return null;
         }
     }
 }

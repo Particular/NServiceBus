@@ -32,13 +32,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.9.0.3073, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.1.22852, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Saga, Version=1.9.0.3132, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Saga.dll</HintPath>
+      <HintPath>..\..\..\external-bin\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.Saga;
 using NHibernate;
-using System.Threading;
 
 namespace NServiceBus.SagaPersisters.NHibernate
 {
@@ -25,10 +24,6 @@ namespace NServiceBus.SagaPersisters.NHibernate
         public void Complete(ISagaEntity saga)
         {
             sessionFactory.GetCurrentSession().Delete(saga);
-        }
-
-        public void Dispose()
-        {
         }
 
         private ISessionFactory sessionFactory;

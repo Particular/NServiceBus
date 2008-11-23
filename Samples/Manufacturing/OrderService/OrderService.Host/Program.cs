@@ -47,6 +47,9 @@ namespace OrderService.Host
 
                 new NServiceBus.SagaPersisters.NHibernate.Configure(builder, sessionFactory);
 
+                builder.ConfigureComponent<NServiceBus.SagaPersisters.NHibernate.NHibernateMessageModule>(ComponentCallModelEnum.Singleton)
+                    .SessionFactory = sessionFactory;
+
                 builder.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall)
                     .SessionFactory = sessionFactory;
 
