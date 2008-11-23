@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace DbBlobSagaPersister.Config
+namespace NServiceBus.SagaPersisters.DbBlobSagaPersister.Config
 {
     public class SagaPersisterConfig : ConfigurationSection
     {

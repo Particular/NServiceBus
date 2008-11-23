@@ -2,7 +2,7 @@ using System.Configuration;
 using ObjectBuilder;
 using System.Data;
 
-namespace DbBlobSagaPersister.Config
+namespace NServiceBus.SagaPersisters.DbBlobSagaPersister.Config
 {
     public class ConfigSagaPersister
     {

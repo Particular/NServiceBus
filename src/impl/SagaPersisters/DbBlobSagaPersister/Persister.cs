@@ -5,7 +5,7 @@ using NServiceBus.Saga;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace DbBlobSagaPersister
+namespace NServiceBus.SagaPersisters.DbBlobSagaPersister
 {
     public class Persister : ISagaPersister
     {

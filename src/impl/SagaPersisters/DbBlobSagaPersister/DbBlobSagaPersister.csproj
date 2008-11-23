@@ -7,8 +7,8 @@
     <ProjectGuid>{7887FCB4-C1A4-4B89-8D3A-A559C5A6875C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DbBlobSagaPersister</RootNamespace>
-    <AssemblyName>DbBlobSagaPersister</AssemblyName>
+    <RootNamespace>NServiceBus.SagaPersisters.DbBlobSagaPersister</RootNamespace>
+    <AssemblyName>NServiceBus.SagaPersisters.DbBlobSagaPersister</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
