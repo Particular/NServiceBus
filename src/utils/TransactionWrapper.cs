@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Transactions;
 
-namespace Utils
+namespace NServiceBus.Utils
 {
 	/// <summary>
 	/// Provides functionality for executing a callback in a transaction.

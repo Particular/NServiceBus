@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Common.Logging;
 
-namespace Utils
+namespace NServiceBus.Utils
 {
 	/// <summary>
 	/// The delegate for a method to be run in a loop.
