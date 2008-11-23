@@ -28,6 +28,8 @@ cd ..\..\..\src\multicast\NServiceBus.Multicast
 msbuild
 cd ..\..\..\src\grid
 msbuild
+cd ..\..\src\testing
+msbuild
 cd ..\..\src\distributor\NServiceBus.Unicast.Distributor
 msbuild
 cd ..\..\..\src\distributor\MsmqWorkerAvailabilityManager
