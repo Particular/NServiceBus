@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Core interfaces")]
-[assembly: AssemblyDescription("Core interfaces for nServiceBus")]
+[assembly: AssemblyTitle("NServiceBus Core")]
+[assembly: AssemblyDescription("Enterprise application framework for publish/subscribe and long-running business processes.")]
