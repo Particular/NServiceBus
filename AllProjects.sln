@@ -19,12 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6CEB2C22-90C
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "distributor", "distributor", "{8C38D3A9-16E6-40A0-A813-818A45BF0374}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -133,66 +127,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{AE680ED6
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "full", "full", "{740CBD5E-C88F-43A6-B811-2E9D6E31C381}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{039524CA-58E9-47F7-A2D9-5692E64BDC44}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "test\Client\Client\Client.csproj", "{D6234E14-4405-4521-9C55-82A30D71D1A6}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientRunner", "test\Client\ClientRunner\ClientRunner.csproj", "{08B3BA09-935C-47AB-98AF-C501F4D01EDC}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "test\Server\Server\Server.csproj", "{9A5BF179-19C3-4332-B804-D1A986261CC0}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFirst", "test\Server\ServerFirst\ServerFirst.csproj", "{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerRunner", "test\Server\ServerRunner\ServerRunner.csproj", "{4017D287-BE83-4069-A2AE-718E3B63A42B}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "test\Messages\Messages.csproj", "{A630F8E1-124C-4E46-BEB8-E6628603D124}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker", "test\Worker\Worker.csproj", "{19E80020-C123-4B69-B5A5-A51BD4ADA50E}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -230,12 +164,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebService1", "Samples\WebS
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Saga", "src\core\NServiceBus.Saga\NServiceBus.Saga.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemorySagaPersister", "test\Server\InMemorySagaPersister\InMemorySagaPersister.csproj", "{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -392,48 +320,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.Manager", "src\time
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Testing", "src\core\NServiceBus.Testing\NServiceBus.Testing.csproj", "{8B815173-9AFA-4D95-BAB4-686C298F17DA}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Saga", "Saga", "{29E36A04-1962-41F7-8B98-A45FFDFB9B80}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalOrderMessages", "Samples\Saga\ExternalOrderMessages\ExternalOrderMessages.csproj", "{28559AEC-2B8A-4183-9395-EF2BB7C1567A}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternalOrderMessages", "Samples\Saga\InternalOrderMessages\InternalOrderMessages.csproj", "{B435D6F8-D983-4B8B-9BA8-4F446F34219E}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageHandlers", "Samples\Saga\MessageHandlers\MessageHandlers.csproj", "{584F391B-43B7-4C63-98E4-4D865396252B}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderQueryLogic", "Samples\Saga\OrderQueryLogic\OrderQueryLogic.csproj", "{8DBA8E7E-AF72-475D-8888-0CAA44287773}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessingLogic", "Samples\Saga\ProcessingLogic\ProcessingLogic.csproj", "{4AD91F9A-1714-45B4-9265-B906081DAC3E}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessLogic.Tests", "Samples\Saga\ProcessLogic.Tests\ProcessLogic.Tests.csproj", "{6A371C96-2858-4446-AF9B-2D7DDE4658C3}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -717,34 +603,6 @@ Global
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D6234E14-4405-4521-9C55-82A30D71D1A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D6234E14-4405-4521-9C55-82A30D71D1A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D6234E14-4405-4521-9C55-82A30D71D1A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D6234E14-4405-4521-9C55-82A30D71D1A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08B3BA09-935C-47AB-98AF-C501F4D01EDC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A5BF179-19C3-4332-B804-D1A986261CC0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4017D287-BE83-4069-A2AE-718E3B63A42B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4017D287-BE83-4069-A2AE-718E3B63A42B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4017D287-BE83-4069-A2AE-718E3B63A42B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4017D287-BE83-4069-A2AE-718E3B63A42B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A630F8E1-124C-4E46-BEB8-E6628603D124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A630F8E1-124C-4E46-BEB8-E6628603D124}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A630F8E1-124C-4E46-BEB8-E6628603D124}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A630F8E1-124C-4E46-BEB8-E6628603D124}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19E80020-C123-4B69-B5A5-A51BD4ADA50E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED855B92-C7EB-4BE7-9072-5C2260C329FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -765,10 +623,6 @@ Global
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F1A46A2-D1CE-4DB1-9E75-45D41CCA7EA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -833,30 +687,6 @@ Global
 		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B815173-9AFA-4D95-BAB4-686C298F17DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28559AEC-2B8A-4183-9395-EF2BB7C1567A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28559AEC-2B8A-4183-9395-EF2BB7C1567A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28559AEC-2B8A-4183-9395-EF2BB7C1567A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28559AEC-2B8A-4183-9395-EF2BB7C1567A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B435D6F8-D983-4B8B-9BA8-4F446F34219E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B435D6F8-D983-4B8B-9BA8-4F446F34219E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B435D6F8-D983-4B8B-9BA8-4F446F34219E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B435D6F8-D983-4B8B-9BA8-4F446F34219E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{584F391B-43B7-4C63-98E4-4D865396252B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{584F391B-43B7-4C63-98E4-4D865396252B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{584F391B-43B7-4C63-98E4-4D865396252B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{584F391B-43B7-4C63-98E4-4D865396252B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DBA8E7E-AF72-475D-8888-0CAA44287773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DBA8E7E-AF72-475D-8888-0CAA44287773}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DBA8E7E-AF72-475D-8888-0CAA44287773}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DBA8E7E-AF72-475D-8888-0CAA44287773}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AD91F9A-1714-45B4-9265-B906081DAC3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AD91F9A-1714-45B4-9265-B906081DAC3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AD91F9A-1714-45B4-9265-B906081DAC3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AD91F9A-1714-45B4-9265-B906081DAC3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A371C96-2858-4446-AF9B-2D7DDE4658C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A371C96-2858-4446-AF9B-2D7DDE4658C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A371C96-2858-4446-AF9B-2D7DDE4658C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A371C96-2858-4446-AF9B-2D7DDE4658C3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -992,7 +822,6 @@ Global
 		{C1DE5465-4694-475A-8D06-E17733C41D69} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{8B815173-9AFA-4D95-BAB4-686C298F17DA} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
 		{F7563AAC-BA9E-4762-888D-27DB9399AF54} = {4A182899-5624-4FF0-8753-D2E8E31AF140}
-		{740CBD5E-C88F-43A6-B811-2E9D6E31C381} = {D4A7F059-9056-4CC8-A67C-893AAAEB9A9D}
 		{A60CA2C3-0B28-4D03-9F0B-19FE56D27689} = {8C38D3A9-16E6-40A0-A813-818A45BF0374}
 		{D142D372-C9FA-4505-A6EB-E919746F0FF1} = {8C38D3A9-16E6-40A0-A813-818A45BF0374}
 		{D72C6682-16CE-4424-A875-435418118B61} = {8C38D3A9-16E6-40A0-A813-818A45BF0374}
@@ -1014,20 +843,9 @@ Global
 		{D9628493-605A-4259-ADD3-7732F0DEFFBB} = {2BC45674-F407-45D5-B299-BF314DAF88BE}
 		{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095} = {2BC45674-F407-45D5-B299-BF314DAF88BE}
 		{2616579A-202F-48F6-8A7F-6A6AA9288CA7} = {AE680ED6-74D9-4D85-834F-E9F20DE9C2B4}
-		{039524CA-58E9-47F7-A2D9-5692E64BDC44} = {740CBD5E-C88F-43A6-B811-2E9D6E31C381}
-		{D63DA721-5B4B-4B0C-A8B8-3E0D47515E19} = {740CBD5E-C88F-43A6-B811-2E9D6E31C381}
-		{A630F8E1-124C-4E46-BEB8-E6628603D124} = {740CBD5E-C88F-43A6-B811-2E9D6E31C381}
-		{19E80020-C123-4B69-B5A5-A51BD4ADA50E} = {740CBD5E-C88F-43A6-B811-2E9D6E31C381}
-		{D6234E14-4405-4521-9C55-82A30D71D1A6} = {039524CA-58E9-47F7-A2D9-5692E64BDC44}
-		{08B3BA09-935C-47AB-98AF-C501F4D01EDC} = {039524CA-58E9-47F7-A2D9-5692E64BDC44}
-		{9A5BF179-19C3-4332-B804-D1A986261CC0} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
-		{F7D7C650-4F7A-4C74-AB98-74FD7AE9556D} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
-		{4017D287-BE83-4069-A2AE-718E3B63A42B} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
-		{32A98A3D-A0DF-4E1E-8C85-EC09357A596C} = {D63DA721-5B4B-4B0C-A8B8-3E0D47515E19}
 		{EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{B351256F-5A1C-435F-A81E-97EC2E4EB155} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{BE42D213-AE26-4C5D-9766-39A18BB166B9} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
-		{29E36A04-1962-41F7-8B98-A45FFDFB9B80} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{5931F01B-C194-4720-A181-458B1672581A} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{8C092982-A337-4013-A277-481813BD09D6} = {4ECE40D6-7EA4-4D65-89FE-2D0915D29B5E}
 		{ED855B92-C7EB-4BE7-9072-5C2260C329FC} = {EE641ACE-ABE5-4ACE-9AAE-DC52C55B51F9}
@@ -1053,12 +871,6 @@ Global
 		{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6} = {BE42D213-AE26-4C5D-9766-39A18BB166B9}
 		{7EA93511-0B01-4E6B-95C4-A3069A4A107A} = {3D1ACC82-B571-400D-AECA-C50B97E17845}
 		{B67A336D-A5F4-429F-931C-3A949AF42D26} = {3D1ACC82-B571-400D-AECA-C50B97E17845}
-		{28559AEC-2B8A-4183-9395-EF2BB7C1567A} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
-		{B435D6F8-D983-4B8B-9BA8-4F446F34219E} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
-		{584F391B-43B7-4C63-98E4-4D865396252B} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
-		{8DBA8E7E-AF72-475D-8888-0CAA44287773} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
-		{4AD91F9A-1714-45B4-9265-B906081DAC3E} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
-		{6A371C96-2858-4446-AF9B-2D7DDE4658C3} = {29E36A04-1962-41F7-8B98-A45FFDFB9B80}
 		{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8} = {5931F01B-C194-4720-A181-458B1672581A}
 		{7036A49B-359F-4BC7-AFBA-DE3C7AB41986} = {5931F01B-C194-4720-A181-458B1672581A}
 		{28DE496A-3885-410E-A0B8-004FAEFF9378} = {5931F01B-C194-4720-A181-458B1672581A}
