@@ -7,7 +7,7 @@ using Common.Logging;
 using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
-using Utils;
+using NServiceBus.Utils;
 using ObjectBuilder;
 
 namespace NServiceBus.Unicast.Transport.Msmq

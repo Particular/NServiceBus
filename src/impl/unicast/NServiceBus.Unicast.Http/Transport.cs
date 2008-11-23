@@ -5,7 +5,7 @@ using NServiceBus.Unicast.Transport;
 using System.Net;
 using NServiceBus.Serialization;
 using nsoftware.IPWorks;
-using Utils;
+using NServiceBus.Utils;
 
 namespace NServiceBus.Unicast.Transport.Http
 {
