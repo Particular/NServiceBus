@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Distributor.Runner", "NServiceBus.Unicast.Distributor.Runner.csproj", "{D72C6682-16CE-4424-A875-435418118B61}"
 EndProject
 Global
