@@ -5,7 +5,7 @@ del external-bin\NServiceBus.xml
 cd src\ObjectBuilder
 msbuild
 cd ..\..\src\core
-msbuild 
+msbuild
 cd ..\..\src\utils
 msbuild
 cd ..\..\src\messageInterfaces
@@ -13,6 +13,8 @@ msbuild
 cd ..\..\src\unicast
 msbuild 
 cd ..\..\src\impl\messageInterfaces
+msbuild
+cd ..\..\..\src\config\NServiceBus.Config
 msbuild
 cd ..\..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
 msbuild
@@ -35,7 +37,7 @@ msbuild
 cd ..\..
 xcopy build build\merge /Q /Y
 xcopy external-bin build\merge /Q /Y
-external-bin\ilmerge /log:build\output.txt /target:library /xmldocs /out:NServiceBus.dll build\merge\NServiceBus.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.DbBlobSagaPersister.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Configure.dll build\merge\NServiceBus.Serializers.InterfacesToXML.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Utils.dll
+external-bin\ilmerge /log:build\output.txt /target:library /xmldocs /out:NServiceBus.dll build\merge\NServiceBus.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.DbBlobSagaPersister.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Configure.dll build\merge\NServiceBus.Serializers.InterfacesToXML.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll
 del build\merge\*.* /Q
 move NServiceBus.dll external-bin
 move NServiceBus.pdb external-bin

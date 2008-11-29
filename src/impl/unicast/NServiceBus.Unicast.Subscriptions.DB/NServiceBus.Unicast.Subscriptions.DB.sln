@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.DB", "NServiceBus.Unicast.Subscriptions.DB.csproj", "{FF96F021-897B-49D6-AF24-5533BB0961B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.DB.Config", "NServiceBus.Unicast.Subscriptions.DB.Config\NServiceBus.Unicast.Subscriptions.DB.Config.csproj", "{4A178990-A30D-437C-A7B2-775348ABF5DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF96F021-897B-49D6-AF24-5533BB0961B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A178990-A30D-437C-A7B2-775348ABF5DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A178990-A30D-437C-A7B2-775348ABF5DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A178990-A30D-437C-A7B2-775348ABF5DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A178990-A30D-437C-A7B2-775348ABF5DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

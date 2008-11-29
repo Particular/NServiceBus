@@ -1,19 +1,17 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FF96F021-897B-49D6-AF24-5533BB0961B9}</ProjectGuid>
+    <ProjectGuid>{2D3D9033-200C-423E-BF8A-8FB40D8D1572}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Subscriptions.DB</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Subscriptions.DB</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
+    <RootNamespace>NServiceBus.Unicast.Transport.Msmq.Config</RootNamespace>
+    <AssemblyName>NServiceBus.Unicast.Transport.Msmq.Config</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,47 +31,50 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.2.7562, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast, Version=1.9.0.38095, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Config, Version=1.9.2.1653, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Unicast.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\NServiceBus.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.9.0.38057, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.2.7610, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Subscriptions.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ObjectBuilder, Version=1.9.2.7647, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ObjectBuilder, Version=1.8.2.24196, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
+    <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="SubscriptionStorage.cs" />
+    <Compile Include="ConfigMsmqTransport.cs" />
+    <Compile Include="ConfigureMsmqTransport.cs" />
+    <Compile Include="MsmqTransportConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TableDefinitions.txt" />
+    <ProjectReference Include="..\NServiceBus.Unicast.Transport.Msmq.csproj">
+      <Project>{487809CE-0B5D-4425-A6CA-06F7C444DBCC}</Project>
+      <Name>NServiceBus.Unicast.Transport.Msmq</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -82,6 +83,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

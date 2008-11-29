@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{487809CE-0B5D-4425-A6CA-06F7C444DBCC}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -76,8 +76,6 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
-    <Compile Include="Config\ConfigMsmqTransport.cs" />
-    <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="MsmqTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

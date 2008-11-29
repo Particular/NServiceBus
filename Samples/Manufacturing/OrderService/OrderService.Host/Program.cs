@@ -2,10 +2,10 @@ using System;
 using Common.Logging;
 using NHibernate.Cfg;
 using NServiceBus;
+using NServiceBus.Config;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Subscriptions.Msmq.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Saga;
 using OrderService.Persistence;
 using NHibernate;
@@ -32,9 +32,12 @@ namespace OrderService.Host
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
-                new ConfigMsmqTransport(builder)
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false);
+                NServiceBus.Config.Configure.With(builder)
+                    .MsmqTransport()
+                        .IsTransactional(true)
+                        .PurgeOnStartup(false)
+                        .Done()
+                    ;
 
                 new ConfigUnicastBus(builder)
                     .ImpersonateSender(false)

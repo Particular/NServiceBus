@@ -4,9 +4,11 @@ using System.Data;
 
 namespace NServiceBus.Unicast.Subscriptions.DB.Config
 {
-    public class ConfigDbSubscriptionStorage
+    public class ConfigDbSubscriptionStorage : NServiceBus.Config.Configure
     {
-        public ConfigDbSubscriptionStorage(IBuilder builder)
+        public ConfigDbSubscriptionStorage() : base() { }
+
+        public void Configure(IBuilder builder)
         {
             this.storage = builder.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 
@@ -47,6 +49,11 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         public ConfigDbSubscriptionStorage IsolationLevel(IsolationLevel value)
         {
             this.storage.IsolationLevel = value;
+            return this;
+        }
+
+        public NServiceBus.Config.Configure Done()
+        {
             return this;
         }
     }

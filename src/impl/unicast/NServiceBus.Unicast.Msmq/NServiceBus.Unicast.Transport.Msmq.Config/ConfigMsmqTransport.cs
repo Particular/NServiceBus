@@ -5,9 +5,11 @@ using System.Transactions;
 
 namespace NServiceBus.Unicast.Transport.Msmq.Config
 {
-    public class ConfigMsmqTransport
+    public class ConfigMsmqTransport : NServiceBus.Config.Configure
     {
-        public ConfigMsmqTransport(IBuilder builder)
+        public ConfigMsmqTransport() : base() { }
+
+        public void Configure(IBuilder builder)
         {
             transport = builder.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
@@ -23,7 +25,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             transport.MaxRetries = cfg.MaxRetries;
         }
 
-        private readonly MsmqTransport transport;
+        private MsmqTransport transport;
 
 
         public ConfigMsmqTransport IsTransactional(bool value)
@@ -47,6 +49,11 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         public ConfigMsmqTransport TransactionTimeout(TimeSpan transactionTimeout)
         {
             transport.TransactionTimeout = transactionTimeout;
+            return this;
+        }
+
+        public NServiceBus.Config.Configure Done()
+        {
             return this;
         }
     }
