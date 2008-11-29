@@ -1,6 +1,7 @@
 using ObjectBuilder;
 using System.Configuration;
 using System.Data;
+using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.DB.Config
 {

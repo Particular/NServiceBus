@@ -2,6 +2,7 @@ using System;
 using ObjectBuilder;
 using System.Configuration;
 using System.Transactions;
+using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Msmq.Config
 {

@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
+namespace NServiceBus.Config
 {
     public class MsmqSubscriptionStorageConfig : ConfigurationSection
     {

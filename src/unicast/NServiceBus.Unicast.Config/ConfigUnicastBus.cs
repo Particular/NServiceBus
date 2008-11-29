@@ -3,6 +3,7 @@ using System.Configuration;
 using ObjectBuilder;
 using System.Collections;
 using System.Reflection;
+using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Config
 {

@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.Unicast.Config
+namespace NServiceBus.Config
 {
     public class UnicastBusConfig : ConfigurationSection
     {

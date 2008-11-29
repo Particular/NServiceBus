@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.Unicast.Subscriptions.DB.Config
+namespace NServiceBus.Config
 {
     public class DbSubscriptionStorageConfig : ConfigurationSection
     {

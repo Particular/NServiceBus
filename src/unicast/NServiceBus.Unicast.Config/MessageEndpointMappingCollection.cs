@@ -2,7 +2,7 @@ using System;
 using System.Configuration;
 using System.Collections;
 
-namespace NServiceBus.Unicast.Config
+namespace NServiceBus.Config
 {
     public class MessageEndpointMappingCollection : ConfigurationElementCollection
     {

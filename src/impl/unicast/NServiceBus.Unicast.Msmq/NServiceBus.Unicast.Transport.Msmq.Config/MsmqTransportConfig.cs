@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.Unicast.Transport.Msmq.Config
+namespace NServiceBus.Config
 {
     public class MsmqTransportConfig : ConfigurationSection
     {

@@ -14,7 +14,6 @@ namespace WebApplication1
 
             NServiceBus.Config.Configure.With(builder)
                 .XmlSerializer()
-                .MsmqSubscriptionStorage()
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(false)
