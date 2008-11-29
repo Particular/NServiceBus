@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7DFD74A0-FA55-419D-A2B2-4034F4612557}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,6 +14,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,6 +39,11 @@
       <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Config, Version=1.9.2.1943, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.Config.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
@@ -49,26 +55,34 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Configure.cs" />
+    <Compile Include="ConfigureSerializers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Serializers.Binary\NServiceBus.Serializers.Binary.csproj">
       <Project>{4AB4015A-2DBF-44F9-9119-0E095703EC2D}</Project>
       <Name>NServiceBus.Serializers.Binary</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
       <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
       <Name>NServiceBus.Serializers.InterfacesToXML</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
       <Project>{4D9A660B-C2AF-42A8-AEB4-E2F97ED1CB3C}</Project>
       <Name>NServiceBus.Serializers.XML</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

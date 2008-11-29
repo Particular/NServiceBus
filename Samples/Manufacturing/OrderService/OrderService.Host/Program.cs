@@ -25,10 +25,8 @@ namespace OrderService.Host
 
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
-                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
                 NServiceBus.Config.Configure.With(builder)
+                    .BinarySerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
