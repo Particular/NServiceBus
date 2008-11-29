@@ -1,8 +1,7 @@
 using System;
 using System.Web;
 using NServiceBus;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 
 namespace WebApplication1
 {
@@ -13,14 +12,14 @@ namespace WebApplication1
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
+            NServiceBus.Config.Configure.With(builder)
+                .XmlSerializer()
+                .MsmqSubscriptionStorage()
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false);
 
             IBus bus = builder.Build<IBus>();
             bus.Start();

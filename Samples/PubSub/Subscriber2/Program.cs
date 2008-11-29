@@ -1,9 +1,7 @@
 using System;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 
 namespace Subscriber2
@@ -15,20 +13,18 @@ namespace Subscriber2
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
+            NServiceBus.Config.Configure.With(builder)
+                .InterfaceToXMLSerializer()
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false)
+                    .DoNotAutoSubscribe()
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        typeof(EventMessageHandler).Assembly
+                    );
 
-            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false)
-                .SetMessageHandlersFromAssembliesInOrder(
-                    typeof(EventMessageHandler).Assembly
-                );
 
             IBus bus = builder.Build<IBus>();
 

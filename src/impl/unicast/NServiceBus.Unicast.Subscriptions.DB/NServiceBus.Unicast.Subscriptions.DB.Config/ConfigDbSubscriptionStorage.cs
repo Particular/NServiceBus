@@ -10,6 +10,8 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
 
         public void Configure(IBuilder builder)
         {
+            this.builder = builder;
+
             this.storage = builder.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 
             DbSubscriptionStorageConfig cfg = ConfigurationManager.GetSection("DbSubscriptionStorageConfig") as DbSubscriptionStorageConfig;

@@ -3,8 +3,7 @@ using Common.Logging;
 using NServiceBus;
 using Messages;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 
 namespace Client
@@ -67,17 +66,14 @@ namespace Client
 
         private static void ConfigureSelfWith(IBuilder builder)
         {
-            //NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
-            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            NServiceBus.Config.Configure.With(builder)
+                .XmlSerializer("http://www.UdiDahan.com")
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false);
 
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
-
-            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
         }
     }
 }

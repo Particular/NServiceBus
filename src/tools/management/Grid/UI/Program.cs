@@ -4,11 +4,11 @@ using NServiceBus;
 using Grid;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Grid.Messages;
-using NServiceBus.Unicast;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 using System.Reflection;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+using Common.Logging;
 
 namespace UI
 {
@@ -22,20 +22,36 @@ namespace UI
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            //NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
+            string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
 
-            new ConfigMsmqTransport(builder)
-            .IsTransactional(false)
-            .PurgeOnStartup(false);
+            switch (serialization)
+            {
+                case "interfaces":
+                    builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
+                    builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                        .Namespace = nameSpace;
+                    break;
+                case "xml":
+                    builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                        .Namespace = nameSpace;
+                    break;
+                case "binary":
+                    builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
+                    break;
+                default:
+                    throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
+            }
 
-            UnicastBus configBus = builder.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
-            configBus.ImpersonateSender = false;
+            NServiceBus.Config.Configure.With(builder)
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false);
 
-            UnicastBus bClient = builder.Build<UnicastBus>();
+            IBus bClient = builder.Build<IBus>();
 
-            foreach (Type t in typeof(GetNumberOfWorkerThreadsMessage).Assembly.GetTypes())
-                bClient.AddMessageType(t);
 
             bClient.Start();
 

@@ -2,11 +2,7 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Subscriptions.DB.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Unicast.Subscriptions.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 
 namespace Server
@@ -18,23 +14,18 @@ namespace Server
             LogManager.GetLogger("hello").Debug("Started.");
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            new ConfigMsmqSubscriptionStorage(builder);
-            //new ConfigDbSubscriptionStorage(builder)
-            //    .Table("Subscriptions")
-            //    .SubscriberEndpointParameterName("SubscriberEndpoint")
-            //    .MessageTypeParameterName("MessageType");
-
-            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-
-            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(true)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
+            NServiceBus.Config.Configure.With(builder)
+                .MsmqSubscriptionStorage()
+                //.DbSubscriptionStorage()
+                //    .Table("Subscriptions")
+                //    .SubscriberEndpointParameterName("SubscriberEndpoint")
+                //    .MessageTypeParameterName("MessageType")
+                .InterfaceToXMLSerializer()
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false);
 
             IBus bus = builder.Build<IBus>();
             bus.Start();

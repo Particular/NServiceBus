@@ -31,6 +31,7 @@ namespace NServiceBus.Config
 
         public static Configure InterfaceToXMLSerializer(this Configure config)
         {
+            config.builder.ConfigureComponent<NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
             config.builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton);
 
             return config;
@@ -38,6 +39,7 @@ namespace NServiceBus.Config
 
         public static Configure InterfaceToXMLSerializer(this Configure config, string nameSpace)
         {
+            config.builder.ConfigureComponent<NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
             config.builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
                 .Namespace = nameSpace;
 

@@ -44,6 +44,16 @@
       <HintPath>..\..\..\..\build\NServiceBus.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.2.7681, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=1.9.2.7715, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>

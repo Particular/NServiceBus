@@ -1,6 +1,7 @@
 using System;
 using Common.Logging;
 using ObjectBuilder;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -21,15 +22,17 @@ namespace NServiceBus.Unicast.Distributor.Runner
 
                 switch(serialization)
                 {
-                    case "interfaces" :
-                        builder.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-                        NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace(nameSpace).With(builder);
+                    case "interfaces":
+                        builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
+                        builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                            .Namespace = nameSpace;
                         break;
-                    case "xml" :
-                        NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace(nameSpace).With(builder);
+                    case "xml":
+                        builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                            .Namespace = nameSpace;
                         break;
-                    case "binary" :
-                        NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                    case "binary":
+                        builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
                         break;
                     default:
                         throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");

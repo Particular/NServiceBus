@@ -1,7 +1,6 @@
 using System;
 using NServiceBus;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 
 namespace WebService1
 {
@@ -13,15 +12,13 @@ namespace WebService1
         {
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(false)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false);
+            NServiceBus.Config.Configure.With(builder)
+                .BinarySerializer()
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false);
 
             Bus = builder.Build<IBus>();
 
@@ -30,7 +27,7 @@ namespace WebService1
 
         protected void Application_End(object sender, EventArgs e)
         {
-
+            Bus.Dispose();
         }
     }
 }

@@ -11,6 +11,8 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
 
         public void Configure(IBuilder builder)
         {
+            this.builder = builder;
+
             transport = builder.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
             MsmqTransportConfig cfg =

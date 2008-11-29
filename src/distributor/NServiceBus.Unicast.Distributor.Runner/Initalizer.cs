@@ -2,7 +2,7 @@ using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
 using ObjectBuilder;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using System.Threading;
 
 namespace NServiceBus.Unicast.Distributor.Runner
@@ -16,9 +16,14 @@ namespace NServiceBus.Unicast.Distributor.Runner
         /// <returns></returns>
         public static Distributor Init(IBuilder builder)
         {
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(true)
-                .PurgeOnStartup(false);
+            NServiceBus.Config.Configure.With(builder)
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        typeof(GridInterceptingMessageHandler).Assembly,
+                        typeof(ReadyMessageHandler).Assembly);
 
             MsmqTransport dataTransport = new MsmqTransport();
             dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
@@ -29,10 +34,6 @@ namespace NServiceBus.Unicast.Distributor.Runner
             dataTransport.SkipDeserialization = true;
             dataTransport.Builder = builder;
 
-            new Config.ConfigUnicastBus(builder)
-                .SetMessageHandlersFromAssembliesInOrder(
-                    typeof(GridInterceptingMessageHandler).Assembly,
-                    typeof (ReadyMessageHandler).Assembly);
 
             MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager mgr = builder.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton);
             mgr.StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];

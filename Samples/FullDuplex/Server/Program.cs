@@ -2,10 +2,8 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
-using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Grid.MessageHandlers;
 
 namespace Server
@@ -35,23 +33,18 @@ namespace Server
 
         static void ConfigureSelfWith(IBuilder builder)
         {
-            new ConfigMsmqSubscriptionStorage(builder);
-
-            //NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
-            NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
-
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(true)
-                .PurgeOnStartup(false);
-
-            new ConfigUnicastBus(builder)
-                .ImpersonateSender(false)
-                .SetMessageHandlersFromAssembliesInOrder(
-                    typeof(GridInterceptingMessageHandler).Assembly,
-                    typeof(RequestDataMessageHandler).Assembly
-                    );
-
-            builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
+            NServiceBus.Config.Configure.With(builder)
+                .MsmqSubscriptionStorage()
+                .XmlSerializer("http://www.UdiDahan.com")
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false)
+                    .SetMessageHandlersFromAssembliesInOrder(
+                        typeof(GridInterceptingMessageHandler).Assembly,
+                        typeof(RequestDataMessageHandler).Assembly
+                        );
         }
     }
 }

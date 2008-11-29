@@ -10,6 +10,8 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 
         public void Configure(IBuilder builder)
         {
+            this.builder = builder;
+
             MsmqSubscriptionStorageConfig cfg =
                 ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig") as MsmqSubscriptionStorageConfig;
 

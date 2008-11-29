@@ -2,11 +2,10 @@ using System;
 using NServiceBus;
 using Common.Logging;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 using Timeout.MessageHandlers;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 namespace Timeout.Manager
 {
@@ -26,27 +25,30 @@ namespace Timeout.Manager
                 {
                     case "interfaces":
                         builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-                        NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace(nameSpace).With(builder);
+                        builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                            .Namespace = nameSpace;
                         break;
                     case "xml":
-                        NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace(nameSpace).With(builder);
+                        builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                            .Namespace = nameSpace;
                         break;
                     case "binary":
-                        NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
+                        builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
                         break;
                     default:
                         throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
                 }
-                new ConfigMsmqTransport(builder)
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false);
 
-                new ConfigUnicastBus(builder)
-                    .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(GridInterceptingMessageHandler).Assembly,
-                        typeof(TimeoutMessageHandler).Assembly
-                    );
+                NServiceBus.Config.Configure.With(builder)
+                    .MsmqTransport()
+                        .IsTransactional(true)
+                        .PurgeOnStartup(false)
+                    .UnicastBus()
+                        .ImpersonateSender(false)
+                        .SetMessageHandlersFromAssembliesInOrder(
+                            typeof(GridInterceptingMessageHandler).Assembly
+                            , typeof(TimeoutMessageHandler).Assembly
+                        );
 
                 IBus bus = builder.Build<IBus>();
                 bus.Start();
