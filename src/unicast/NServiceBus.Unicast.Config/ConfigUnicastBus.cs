@@ -1,15 +1,16 @@
 using System;
 using System.Configuration;
-using NServiceBus.Saga;
 using ObjectBuilder;
 using System.Collections;
 using System.Reflection;
 
 namespace NServiceBus.Unicast.Config
 {
-    public class ConfigUnicastBus
+    public class ConfigUnicastBus : NServiceBus.Config.Configure
     {
-        public ConfigUnicastBus(IBuilder builder)
+        public ConfigUnicastBus() : base() {}
+
+        public void Configure(IBuilder builder)
         {
             this.builder = builder;
 
@@ -30,8 +31,7 @@ namespace NServiceBus.Unicast.Config
             bus.MessageOwners = hashtable;
         }
 
-        private readonly UnicastBus bus;
-        private readonly IBuilder builder;
+        private UnicastBus bus;
 
         public ConfigUnicastBus ImpersonateSender(bool value)
         {
@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
         {
-            Configure.With(builder).SagasInAssemblies(assemblies);
+            NServiceBus.Saga.Configure.With(builder).SagasInAssemblies(assemblies);
 
             foreach (Assembly a in assemblies)
                 foreach (Type t in a.GetTypes())

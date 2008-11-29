@@ -4,7 +4,6 @@ using NHibernate.Cfg;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Unicast.Config;
 using NServiceBus.Saga;
 using OrderService.Persistence;
 using NHibernate;
@@ -34,16 +33,14 @@ namespace OrderService.Host
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
                     .MsmqSubscriptionStorage()
-                    ;
-
-                new ConfigUnicastBus(builder)
-                    .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(GridInterceptingMessageHandler).Assembly
-                        , typeof(SagaMessageHandler).Assembly
-                        , typeof(OrderSagaFinder).Assembly
-                        , typeof(OrderSaga).Assembly
-                    );
+                    .UnicastBus()
+                        .ImpersonateSender(false)
+                        .SetMessageHandlersFromAssembliesInOrder(
+                            typeof(GridInterceptingMessageHandler).Assembly
+                            , typeof(SagaMessageHandler).Assembly
+                            , typeof(OrderSagaFinder).Assembly
+                            , typeof(OrderSaga).Assembly
+                        );
 
                 new NServiceBus.SagaPersisters.NHibernate.Configure(builder, sessionFactory);
 
