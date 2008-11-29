@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using OrderService.Messages;
 
 namespace Partner
@@ -18,18 +17,16 @@ namespace Partner
 
             try
             {
-                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-                new ConfigMsmqTransport(builder)
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false);
-
-                new ConfigUnicastBus(builder)
-                    .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(OrderStatusChangedMessageHandler).Assembly
-                    );
+                NServiceBus.Config.Configure.With(builder)
+                    .BinarySerializer()
+                    .MsmqTransport()
+                        .IsTransactional(true)
+                        .PurgeOnStartup(false)
+                    .UnicastBus()
+                        .ImpersonateSender(false)
+                        .SetMessageHandlersFromAssembliesInOrder(
+                            typeof(OrderStatusChangedMessageHandler).Assembly
+                        );
 
                 IBus bus = builder.Build<IBus>();
                 bus.Start();

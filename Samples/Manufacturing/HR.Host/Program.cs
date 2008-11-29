@@ -2,8 +2,7 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using HR.MessageHandlers;
 
 namespace HR.Host
@@ -17,19 +16,17 @@ namespace HR.Host
 
             try
             {
-                NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
-                //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
-
-                new ConfigMsmqTransport(builder)
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false);
-
-                new ConfigUnicastBus(builder)
-                    .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(GridInterceptingMessageHandler).Assembly,
-                        typeof(RequestOrderAuthorizationMessageHandler).Assembly
-                    );
+                NServiceBus.Config.Configure.With(builder)
+                    .BinarySerializer()
+                    .MsmqTransport()
+                        .IsTransactional(true)
+                        .PurgeOnStartup(false)
+                    .UnicastBus()
+                        .ImpersonateSender(false)
+                        .SetMessageHandlersFromAssembliesInOrder(
+                            typeof(GridInterceptingMessageHandler).Assembly
+                            , typeof(RequestOrderAuthorizationMessageHandler).Assembly
+                        );
 
                 IBus bServer = builder.Build<IBus>();
                 bServer.Start();
