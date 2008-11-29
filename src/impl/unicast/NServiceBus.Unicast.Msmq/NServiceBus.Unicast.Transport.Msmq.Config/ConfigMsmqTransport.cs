@@ -51,10 +51,5 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             transport.TransactionTimeout = transactionTimeout;
             return this;
         }
-
-        public NServiceBus.Config.Configure Done()
-        {
-            return this;
-        }
     }
 }

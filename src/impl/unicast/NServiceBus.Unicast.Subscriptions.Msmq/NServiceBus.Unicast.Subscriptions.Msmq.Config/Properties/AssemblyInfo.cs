@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Concrete Unicast Transport HTTP Implementation - Proof of Concept.")]
-[assembly: AssemblyDescription("Proof of concept implementation of the Unicast Transport abstraction using HTTP")]
+[assembly: AssemblyTitle("NServiceBus Msmq Subscription Storage Config")]
+[assembly: AssemblyDescription("NServiceBus Msmq Subscription Storage Config")]

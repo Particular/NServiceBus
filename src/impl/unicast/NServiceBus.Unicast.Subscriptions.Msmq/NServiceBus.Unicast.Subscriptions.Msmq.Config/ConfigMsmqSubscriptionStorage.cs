@@ -4,9 +4,11 @@ using ObjectBuilder;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
-    public class ConfigMsmqSubscriptionStorage
+    public class ConfigMsmqSubscriptionStorage : NServiceBus.Config.Configure
     {
-        public ConfigMsmqSubscriptionStorage(IBuilder builder)
+        public ConfigMsmqSubscriptionStorage() : base() { }
+
+        public void Configure(IBuilder builder)
         {
             MsmqSubscriptionStorageConfig cfg =
                 ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig") as MsmqSubscriptionStorageConfig;

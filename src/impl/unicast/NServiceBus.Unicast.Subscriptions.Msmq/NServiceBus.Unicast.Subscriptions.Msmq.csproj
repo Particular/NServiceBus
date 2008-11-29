@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{6657A1B8-3773-46A4-88F2-A421E074D35F}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -73,8 +73,6 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Config\ConfigMsmqSubscriptionStorage.cs" />
-    <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Entry.cs" />
     <Compile Include="MsmqSubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

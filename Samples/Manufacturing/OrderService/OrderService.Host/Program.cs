@@ -5,7 +5,6 @@ using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Subscriptions.Msmq.Config;
 using NServiceBus.Saga;
 using OrderService.Persistence;
 using NHibernate;
@@ -27,8 +26,6 @@ namespace OrderService.Host
 
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
-                new ConfigMsmqSubscriptionStorage(builder);
-
                 NServiceBus.Serializers.Configure.BinarySerializer.With(builder);
                 //NServiceBus.Serializers.Configure.XmlSerializer.With(builder);
 
@@ -36,7 +33,7 @@ namespace OrderService.Host
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
-                        .Done()
+                    .MsmqSubscriptionStorage()
                     ;
 
                 new ConfigUnicastBus(builder)
