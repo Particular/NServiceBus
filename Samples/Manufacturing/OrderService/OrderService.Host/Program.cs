@@ -31,6 +31,7 @@ namespace OrderService.Host
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
                     .MsmqSubscriptionStorage()
+                    .NHibernateSagaPersister(sessionFactory)
                     .UnicastBus()
                         .ImpersonateSender(false)
                         .SetMessageHandlersFromAssembliesInOrder(
@@ -39,8 +40,6 @@ namespace OrderService.Host
                             , typeof(OrderSagaFinder).Assembly
                             , typeof(OrderSaga).Assembly
                         );
-
-                new NServiceBus.SagaPersisters.NHibernate.Configure(builder, sessionFactory);
 
                 builder.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall)
                     .SessionFactory = sessionFactory;

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4A904B94-8DC4-4C02-A4FD-374E78990374}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -61,7 +61,6 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Configure.cs" />
     <Compile Include="NHibernateMessageModule.cs" />
     <Compile Include="SagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
