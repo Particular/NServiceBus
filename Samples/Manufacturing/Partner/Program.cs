@@ -18,7 +18,7 @@ namespace Partner
             try
             {
                 NServiceBus.Config.Configure.With(builder)
-                    .BinarySerializer()
+                    .InterfaceToXMLSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)

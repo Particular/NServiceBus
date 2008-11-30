@@ -26,11 +26,11 @@ namespace OrderService.Host
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
                 NServiceBus.Config.Configure.With(builder)
-                    .BinarySerializer()
+                    .InterfaceToXMLSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
-                    .MsmqSubscriptionStorage()
+                    .DbSubscriptionStorage()
                     .NHibernateSagaPersister(sessionFactory)
                     .UnicastBus()
                         .ImpersonateSender(false)

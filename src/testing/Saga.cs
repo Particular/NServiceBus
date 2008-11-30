@@ -10,16 +10,18 @@ namespace NServiceBus.Testing
     {
         private readonly IBus bus;
         private readonly MockRepository m;
+        private readonly IMessageCreator messageCreator;
         private string clientAddress;
         private readonly List<Delegate> delegates = new List<Delegate>();
         
         private ISagaEntity sagaData;
 
-        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData)
+        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData, IMessageCreator messageCreator)
         {
             m = mocks;
             bus = b;
             this.sagaData = sagaData;
+            this.messageCreator = messageCreator;
         }
 
         public static Saga Test<T>(out T saga) where T : ISaga, new()
@@ -38,7 +40,39 @@ namespace NServiceBus.Testing
 
             saga.Bus = bus;
 
-            return new Saga(mocks, bus, sagaData);
+            var mapper = new NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+            var typesToMap = new List<Type>();
+            foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                try
+                {
+                    foreach (Type t in a.GetTypes())
+                        if (typeof(IMessage).IsAssignableFrom(t))
+                            if (!typesToMap.Contains(t))
+                                typesToMap.Add(t);
+                }
+                catch
+                {
+                    //swallow exceptions on purpose
+                }
+
+            mapper.Initialize(typesToMap.ToArray());
+
+            var result = new Saga(mocks, bus, sagaData, mapper);
+
+            foreach (Type t in typesToMap)
+                typeof(Saga).GetMethod("SetupResultForBusCreateInstance").MakeGenericMethod(t).Invoke(result, null);
+
+            return result;
+        }
+
+        public T CreateInstance<T>() where T : IMessage
+        {
+            return messageCreator.CreateInstance<T>();
+        }
+
+        public T CreateInstance<T>(Action<T> action) where T : IMessage
+        {
+            return messageCreator.CreateInstance<T>(action);
         }
 
         public Saga WhenReceivesMessageFrom(string client)
@@ -216,6 +250,31 @@ namespace NServiceBus.Testing
             T[] messages = null;
 
             Expect.Call(delegate { bus.Publish(messages); }).IgnoreArguments().Callback(callback);
+        }
+
+        public void SetupResultForBusCreateInstance<T>() where T : IMessage
+        {
+            T result = this.messageCreator.CreateInstance<T>();
+
+            CreateInstanceDelegate<T> callback = new CreateInstanceDelegate<T>(
+                delegate(Action<T> action)
+                {
+                    action(result);
+                    return true;
+                }
+            );
+
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    Action<T> act = null;
+                    SetupResult.For(bus.CreateInstance<T>(act)).IgnoreArguments().Return(result).Callback(callback);
+                }
+            );
+
+            this.delegates.Add(d);
+
+
         }
 
     }

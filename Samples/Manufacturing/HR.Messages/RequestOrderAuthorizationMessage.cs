@@ -4,31 +4,9 @@ using System.Collections.Generic;
 
 namespace HR.Messages
 {
-    [Serializable]
-    public class RequestOrderAuthorizationMessage : ISagaMessage
+    public interface RequestOrderAuthorizationMessage : ISagaMessage
     {
-        public RequestOrderAuthorizationMessage(Guid sagaId, Guid partnerId, List<OrderLine> orderLines)
-        {
-            this.sagaId = sagaId;
-            this.PartnerId = partnerId;
-            this.OrderLines = (orderLines ?? new List<OrderLine>());
-        }
-
-        public RequestOrderAuthorizationMessage()
-        {
-            
-        }
-
-        public Guid SagaId
-        {
-            get { return sagaId; }
-            set { sagaId = value; }
-        }
-
-        private Guid sagaId;
-
-        public Guid PartnerId;
-
-        public List<OrderLine> OrderLines;
+        Guid PartnerId { get; set; }
+        IList<IOrderLine> OrderLines { get; set; }
     }
 }

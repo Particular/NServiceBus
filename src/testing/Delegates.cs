@@ -1,3 +1,4 @@
+using System;
 namespace NServiceBus.Testing
 {
     public delegate bool ReturnPredicate(int returnCode);
@@ -15,4 +16,6 @@ namespace NServiceBus.Testing
     public delegate bool BusSendDelegate(IMessage[] msgs);
 
     public delegate void HandleMessageDelegate();
+
+    public delegate bool CreateInstanceDelegate<T>(Action<T> action) where T : IMessage;
 }

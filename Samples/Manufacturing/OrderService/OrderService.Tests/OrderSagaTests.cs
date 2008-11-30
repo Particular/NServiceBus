@@ -5,6 +5,7 @@ using NServiceBus.Saga;
 using NServiceBus.Testing;
 using OrderService.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NServiceBus;
 
 namespace OrderService.Tests
 {
@@ -86,13 +87,10 @@ namespace OrderService.Tests
 
         private OrderAuthorizationResponseMessage CreateResponse()
         {
-            List<HR.Messages.OrderLine> hrLines = new List<HR.Messages.OrderLine>(1);
-            hrLines.Add(new HR.Messages.OrderLine(productId, quantity));
+            var hrLines = new List<HR.Messages.IOrderLine>(1);
+            hrLines.Add(Saga.CreateInstance<HR.Messages.IOrderLine>(m => { m.ProductId = productId; m.Quantity = quantity; }));
 
-            return new OrderAuthorizationResponseMessage(
-                orderSaga.Entity.Id, 
-                true, 
-                hrLines);
+            return Saga.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = orderSaga.Entity.Id; m.Success = true; m.OrderLines = hrLines; });
         }
 
         private bool Check(OrderStatusChangedMessage m, OrderStatusEnum status)

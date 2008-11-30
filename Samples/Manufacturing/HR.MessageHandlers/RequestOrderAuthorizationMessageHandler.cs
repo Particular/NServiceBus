@@ -9,11 +9,13 @@ namespace HR.MessageHandlers
         public void Handle(RequestOrderAuthorizationMessage message)
         {
             if (message.OrderLines != null)
-                foreach(OrderLine ol in message.OrderLines)
+                foreach(IOrderLine ol in message.OrderLines)
                     if (ol.Quantity > 50F)
                         Thread.Sleep(10000);
 
-            this.bus.Reply(new OrderAuthorizationResponseMessage(message.SagaId, true, message.OrderLines));
+            var response = this.bus.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = message.SagaId; m.Success = true; m.OrderLines = message.OrderLines; });
+
+            this.bus.Reply(response);
         }
 
         private IBus bus;

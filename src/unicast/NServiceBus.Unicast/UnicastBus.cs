@@ -260,6 +260,18 @@ namespace NServiceBus.Unicast
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
         /// </summary>
+        /// <typeparam name="T">The type to instantiate.</typeparam>
+        /// <param name="action">An action to perform on the result</param>
+        /// <returns></returns>
+        public T CreateInstance<T>(Action<T> action) where T : IMessage
+        {
+            return messageMapper.CreateInstance<T>(action);
+        }
+
+        /// <summary>
+        /// Creates an instance of the specified type.
+        /// Used primarily for instantiating interface-based messages.
+        /// </summary>
         /// <param name="messageType">The type to instantiate.</param>
         /// <returns>An instance of the specified type.</returns>
         public object CreateInstance(Type messageType)

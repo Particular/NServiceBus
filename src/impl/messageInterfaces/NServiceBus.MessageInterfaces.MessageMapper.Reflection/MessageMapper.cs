@@ -188,7 +188,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         public object CreateInstance(Type t)
         {
-            Type mapped = GetMappedTypeFor(t);
+            Type mapped = t;
+            if (t.IsInterface || t.IsAbstract)
+                mapped = GetMappedTypeFor(t);
 
             ConstructorInfo constructor = null;
             typeToConstructor.TryGetValue(mapped, out constructor);

@@ -6,38 +6,11 @@ namespace OrderService
 {
     public class OrderSagaData : ISagaEntity
     {
-        private Guid id;
-        private string originator;
-
-        public virtual Guid Id
-        {
-            get { return id; }
-            set { id = value; }
-        }
-
-        public virtual string Originator
-        {
-            get { return originator; }
-            set { originator = value; }
-        }
-
-        public virtual string PurchaseOrderNumber
-        {
-            get { return purchaseOrderNumber; }
-            set { purchaseOrderNumber = value; }
-        }
-
-        public virtual Guid PartnerId
-        {
-            get { return partnerId; }
-            set { partnerId = value; }
-        }
-
-        public virtual DateTime ProvideBy
-        {
-            get { return provideBy; }
-            set { provideBy = value; }
-        }
+        public virtual Guid Id { get; set; }
+        public virtual string Originator { get; set; }
+        public virtual string PurchaseOrderNumber { get; set; }
+        public virtual Guid PartnerId { get; set; }
+        public virtual DateTime ProvideBy { get; set; }
 
         public virtual void UpdateOrderLine(Guid productId, float quantity)
         {
@@ -51,7 +24,7 @@ namespace OrderService
                 }
 
             if (!found)
-                orderLines.Add(new OrderLine(this, productId, quantity));
+                orderLines.Add(new OrderLine { Order = this, ProductId = productId, Quantity = quantity });
         }
 
         public virtual void UpdateAuthorization(bool authorized, Guid productId, float quantity)
@@ -86,61 +59,15 @@ namespace OrderService
             get { return orderLines; }
         }
 
-        private string purchaseOrderNumber;
-        private Guid partnerId;
-        private DateTime provideBy;
-
         private IList<OrderLine> orderLines = new List<OrderLine>();
     }
 
     public class OrderLine
     {
-        public OrderLine() { }
-        public OrderLine(OrderSagaData parent, Guid productId, float quantity)
-        {
-            this.order = parent;
-            this.productId = productId;
-            this.quantity = quantity;
-        }
-
-        private Guid id;
-
-        public virtual Guid Id
-        {
-            get { return id; }
-            set { id = value; }
-        }
-
-        private OrderSagaData order;
-
-        public virtual OrderSagaData Order
-        {
-            get { return order; }
-            set { order = value; }
-        }
-
-        private Guid productId;
-
-        public virtual Guid ProductId
-        {
-            get { return productId; }
-            set { productId = value; }
-        }
-
-        private float quantity;
-
-        public virtual float Quantity
-        {
-            get { return quantity; }
-            set { quantity = value; }
-        }
-
-        public virtual float AuthorizedQuantity
-        {
-            get { return authorizedQuantity; }
-            set { authorizedQuantity = value; }
-        }
-
-        private float authorizedQuantity;
+        public virtual Guid Id { get; set; }
+        public virtual OrderSagaData Order { get; set; }
+        public virtual Guid ProductId { get; set; }
+        public virtual float Quantity { get; set; }
+        public virtual float AuthorizedQuantity { get; set; }
     }
 }
