@@ -81,7 +81,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
 
-            foreach (PropertyInfo prop in t.GetProperties())
+            foreach (PropertyInfo prop in GetAllProperties(t))
             {
                 Type propertyType = prop.PropertyType;
                 nameToType[propertyType.FullName] = propertyType;
@@ -138,6 +138,15 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return typeBuilder.CreateType();
         }
 
+        private IEnumerable<PropertyInfo> GetAllProperties(Type t)
+        {
+            List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
+            foreach (Type interfaceType in t.GetInterfaces())
+                result.AddRange(GetAllProperties(interfaceType));
+
+            return result;
+        }
+
         public Type GetMappedTypeFor(Type t)
         {
             if (t.IsClass)
@@ -162,6 +171,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return nameToType[typeName];
 
             return Type.GetType(typeName);
+        }
+
+        public T CreateInstance<T>(Action<T> action) where T : IMessage
+        {
+            T result = CreateInstance<T>();
+            action(result);
+
+            return result;
         }
 
         public T CreateInstance<T>() where T : IMessage
