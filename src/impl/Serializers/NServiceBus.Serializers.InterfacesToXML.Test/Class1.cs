@@ -184,9 +184,11 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
             watch.Start();
 
+            IMessage[] result = null;
+
             for (int i = 0; i < numberOfIterations; i++)
                 using (MemoryStream forDeserializing = new MemoryStream(buffer))
-                    serializer.Deserialize(forDeserializing);
+                    result = serializer.Deserialize(forDeserializing);
 
             watch.Stop();
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
@@ -196,7 +198,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
 
     public interface IM1 : IMessage
     {
-        int Age { get; set; }
+        float Age { get; set; }
         int Int { get; set; }
         string Name { get; set; }
         string Address { get; set; }
@@ -262,15 +264,15 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
     }
 
     [Serializable]
-    public class M1 : IMessage
+    public class M1 : IM1
     {
-        private int age;
+        private float age;
         private int intt;
         private string name;
         private string address;
         private Risk risk;
 
-        public int Age
+        public float Age
         {
             get { return age; }
             set { age = value; }

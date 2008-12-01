@@ -41,23 +41,31 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
+                if (t.IsArray)
+                    typesToCreateForArrays[t] = typeof(List<>).MakeGenericType(t.GetElementType());
+
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g);
 
                 return;
             }
 
-            FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-            typeToFields[t] = fields;
-
-            PropertyInfo[] props = t.GetProperties();
+            IEnumerable<PropertyInfo> props = GetAllPropertiesForType(t);
             typeToProperties[t] = props;
-
-            foreach(FieldInfo field in fields)
-                InitType(field.FieldType);
 
             foreach (PropertyInfo prop in props)
                 InitType(prop.PropertyType);
+        }
+
+        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t)
+        {
+            List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
+
+            if (t.IsInterface)
+                foreach (Type interfaceType in t.GetInterfaces())
+                    result.AddRange(GetAllPropertiesForType(interfaceType));
+
+            return result;
         }
 
         #region Deserialize
@@ -139,26 +147,16 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 PropertyInfo prop = GetProperty(t, n.Name);
                 if (prop != null)
                 {
-                    object result = GetPropertyOrFieldValue(prop.PropertyType, n);
+                    object result = GetPropertyValue(prop.PropertyType, n);
                     if (result != null)
                         prop.SetValue(parent, result, null);
-                }
-                else
-                {
-                    FieldInfo field = GetField(t, n.Name);
-                    if (field != null)
-                    {
-                        object result = GetPropertyOrFieldValue(field.FieldType, n);
-                        if (result != null)
-                            field.SetValue(parent, result);
-                    }
                 }
             }
         }
 
         public PropertyInfo GetProperty(Type t, string name)
         {
-            PropertyInfo[] props;
+            IEnumerable<PropertyInfo> props;
             typeToProperties.TryGetValue(t, out props);
 
             if (props == null)
@@ -171,22 +169,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
             return null;
         }
 
-        public FieldInfo GetField(Type t, string name)
-        {
-            FieldInfo[] fields;
-            typeToFields.TryGetValue(t, out fields);
-
-            if (fields == null)
-                return null;
-
-            foreach (FieldInfo field in fields)
-                if (field.Name == name)
-                    return field;
-
-            return null;
-        }
-
-        public object GetPropertyOrFieldValue(Type type, XmlNode n)
+        public object GetPropertyValue(Type type, XmlNode n)
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
@@ -211,7 +194,13 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
-                IList list = Activator.CreateInstance(type) as IList;
+                bool isArray = type.IsArray;
+
+                Type typeToCreate = type;
+                if (isArray)
+                    typeToCreate = typesToCreateForArrays[type];
+
+                IList list = Activator.CreateInstance(typeToCreate) as IList;
 
                 foreach (XmlNode xn in n.ChildNodes)
                 {
@@ -222,7 +211,10 @@ namespace NServiceBus.Serializers.InterfacesToXML
                         list.Add(newParent);
                 }
 
-                return list;
+                if (isArray)
+                    return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                else
+                    return list;
             }
 
             object result = null;
@@ -264,11 +256,6 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 WriteEntry(prop.Name, prop.PropertyType, prop.GetValue(obj, null), builder);
             }
 
-            foreach (FieldInfo field in typeToFields[t])
-            {
-                WriteEntry(field.Name, field.FieldType, field.GetValue(obj), builder);
-            }
-
         }
 
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
@@ -297,8 +284,9 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 if (generics != null && generics.Length > 0)
                     baseType = generics[0];
 
-                foreach (object obj in ((IEnumerable)value))
-                    WriteObject("e", baseType, obj, builder);
+                if (value != null)
+                    foreach (object obj in ((IEnumerable)value))
+                        WriteObject("e", baseType, obj, builder);
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
@@ -321,7 +309,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
             if (value is Guid)
                 return ((Guid) value).ToString();
 
-            return value as string;
+            return value.ToString();
         }
 
         #endregion
@@ -330,8 +318,8 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         private static readonly string XMLPREFIX = "d1p1";
         private static readonly string XMLTYPE = XMLPREFIX + ":type";
-        private static readonly Dictionary<Type, FieldInfo[]> typeToFields = new Dictionary<Type, FieldInfo[]>();
-        private static readonly Dictionary<Type, PropertyInfo[]> typeToProperties = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
+        private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
 
         #endregion
     }
