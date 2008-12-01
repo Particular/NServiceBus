@@ -279,6 +279,11 @@ namespace NServiceBus.Unicast
             return messageMapper.CreateInstance(messageType);
         }
 
+        public void Publish<T>(Action<T> messageConstructor) where T : IMessage
+        {
+            Publish(CreateInstance<T>(messageConstructor));
+        }
+
 		/// <summary>
 		/// Publishes the first message in the list to all subscribers of that message type.
 		/// </summary>
@@ -300,6 +305,11 @@ namespace NServiceBus.Unicast
                 }
         }
 
+        public void Subscribe<T>() where T : IMessage
+        {
+            Subscribe(typeof(T));
+        }
+
 		/// <summary>
 		/// Subcribes to recieve published messages of the specified type.
 		/// </summary>
@@ -307,6 +317,20 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType)
         {
             this.Subscribe(messageType, null);
+        }
+
+        public void Subscribe<T>(Predicate<T> condition) where T : IMessage
+        {
+            Predicate<IMessage> p = new Predicate<IMessage>(m =>
+            {
+                if (m is T)
+                    return condition((T)m);
+                else
+                    return true;
+            }
+            );
+
+            Subscribe(typeof(T), p);
         }
 
 		/// <summary>
@@ -325,6 +349,11 @@ namespace NServiceBus.Unicast
                 log.Error(string.Format("No destination could be found for message type {0}.", messageType));
             else
                 this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
+        }
+
+        public void Unsubscribe<T>() where T : IMessage
+        {
+            Unsubscribe(typeof(T));
         }
 
 		/// <summary>
@@ -349,6 +378,11 @@ namespace NServiceBus.Unicast
             toSend.CorrelationId = messageBeingHandled.IdForCorrelation;
 
             this.transport.Send(toSend, messageBeingHandled.ReturnAddress);
+        }
+
+        public void Reply<T>(Action<T> messageConstructor) where T : IMessage
+        {
+            Reply(CreateInstance<T>(messageConstructor));
         }
 
 		/// <summary>
@@ -376,6 +410,11 @@ namespace NServiceBus.Unicast
                 this.transport.ReceiveMessageLater(messageBeingHandled);
         }
 
+        public void SendLocal<T>(Action<T> messageConstructor) where T : IMessage
+        {
+            SendLocal(CreateInstance<T>(messageConstructor));
+        }
+
         /// <summary>
         /// Sends the list of messages back to the current bus.
         /// </summary>
@@ -395,6 +434,11 @@ namespace NServiceBus.Unicast
 
                 this.transport.ReceiveMessageLater(m);
             }
+        }
+
+        public ICallback Send<T>(Action<T> messageConstructor) where T : IMessage
+        {
+            return Send(CreateInstance<T>(messageConstructor));
         }
 
 		/// <summary>
@@ -417,6 +461,11 @@ namespace NServiceBus.Unicast
             }
 
             return this.Send(destination, messages);
+        }
+
+        public ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage
+        {
+            return Send(destination, CreateInstance<T>(messageConstructor));
         }
 
 		/// <summary>
