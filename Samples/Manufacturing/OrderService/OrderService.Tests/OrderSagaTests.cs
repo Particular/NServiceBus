@@ -36,7 +36,7 @@ namespace OrderService.Tests
             partnerId = Guid.NewGuid();
             purchaseOrderNumber = Guid.NewGuid().ToString();
             orderLines = new List<Messages.OrderLine>();
-            orderLines.Add(new Messages.OrderLine(productId, quantity));
+            orderLines.Add(new Messages.OrderLine { ProductId = productId, Quantity = quantity });
 
         }
 
@@ -82,7 +82,14 @@ namespace OrderService.Tests
 
         private OrderMessage CreateRequest()
         {
-            return new OrderMessage(purchaseOrderNumber, partnerId, true, DateTime.Now, orderLines);
+            return new OrderMessage
+            {
+                PurchaseOrderNumber = purchaseOrderNumber,
+                PartnerId = partnerId,
+                Done = true,
+                ProvideBy = DateTime.Now,
+                OrderLines = orderLines
+            };
         }
 
         private OrderAuthorizationResponseMessage CreateResponse()

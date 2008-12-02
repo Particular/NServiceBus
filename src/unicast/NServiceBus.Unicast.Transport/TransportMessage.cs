@@ -16,75 +16,38 @@ namespace NServiceBus.Unicast.Transport
     [Serializable]
     public class TransportMessage
     {
-        private string id;
-
 		/// <summary>
 		/// Gets/sets the identifier of this message bundle.
 		/// </summary>
-        public string Id
-        {
-            get { return id; }
-            set { id = value; }
-        }
-
-
-	    private string idForCorrelation;
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
         /// </summary>
-	    public string IdForCorrelation
-	    {
-            get { return idForCorrelation; }
-            set { idForCorrelation = value; }
-	    }
-
-        private string correlationId;
+        public string IdForCorrelation { get; set; }
 
 		/// <summary>
 		/// Gets/sets the uniqe identifier of another message bundle
 		/// this message bundle is associated with.
 		/// </summary>
-        public string CorrelationId
-        {
-            get { return correlationId; }
-            set { correlationId = value; }
-        }
-
-        private string returnAddress;
+        public string CorrelationId { get; set; }
 
 		/// <summary>
 		/// Gets/sets the return address of the message bundle.
 		/// </summary>
-        public string ReturnAddress
-        {
-            get { return returnAddress; }
-            set { returnAddress = value; }
-        }
-
-        private string windowsIdentityName;
+        public string ReturnAddress { get; set; }
 
 		/// <summary>
 		/// Gets/sets the name of the Windows identity the message
 		/// is being sent as.
 		/// </summary>
-        public string WindowsIdentityName
-        {
-            get { return windowsIdentityName; }
-            set { windowsIdentityName = value; }
-        }
-
-        private bool recoverable;
+        public string WindowsIdentityName { get; set; }
 
 		/// <summary>
 		/// Gets/sets whether or not the message is supposed to
 		/// be guaranteed deliverable.
 		/// </summary>
-        public bool Recoverable
-        {
-            get { return recoverable; }
-            set { recoverable = value; }
-        }
+        public bool Recoverable { get; set; }
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
@@ -98,16 +61,10 @@ namespace NServiceBus.Unicast.Transport
             set { timeToBeReceived = value; }
         }
 
-        private List<HeaderInfo> headers;
-
         /// <summary>
         /// Gets/sets other applicative out-of-band information.
         /// </summary>
-        public List<HeaderInfo> Headers
-        {
-            get { return headers; }
-            set { headers = value; }
-        }
+        public List<HeaderInfo> Headers { get; set; }
 
         private IMessage[] body;
 

@@ -11,6 +11,6 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Gets/sets a code specifying the type of error that occurred.
 		/// </summary>
-        public int ErrorCode;
+        public int ErrorCode { get; set; }
     }
 }

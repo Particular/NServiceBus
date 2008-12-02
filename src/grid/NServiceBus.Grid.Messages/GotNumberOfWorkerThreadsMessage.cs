@@ -9,18 +9,6 @@ namespace NServiceBus.Grid.Messages
     [Serializable]
     public class GotNumberOfWorkerThreadsMessage : IMessage
     {
-        public GotNumberOfWorkerThreadsMessage() {}
-
-        public GotNumberOfWorkerThreadsMessage(int numberOfWorkerThreads)
-        {
-            this.numberOfWorkerThreads = numberOfWorkerThreads;
-        }
-
-        private readonly int numberOfWorkerThreads;
-
-        public int NumberOfWorkerThreads
-        {
-            get { return this.numberOfWorkerThreads; }
-        }
+        public int NumberOfWorkerThreads { get; set; }
     }
 }

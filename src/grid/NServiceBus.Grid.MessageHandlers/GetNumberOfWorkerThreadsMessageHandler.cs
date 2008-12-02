@@ -13,9 +13,7 @@ namespace NServiceBus.Grid.MessageHandlers
             if (result == 1 && GridInterceptingMessageHandler.Disabled)
                 result = 0;
 
-            this.Bus.Reply(
-                new GotNumberOfWorkerThreadsMessage(result)
-            );
+            this.Bus.Reply(new GotNumberOfWorkerThreadsMessage { NumberOfWorkerThreads = result } );
 
             logger.Info(string.Format("{0} worker threads.", result));
         }

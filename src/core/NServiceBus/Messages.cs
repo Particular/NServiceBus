@@ -13,6 +13,6 @@ namespace NServiceBus.Messages
         /// Exposes whether or not previous ready messages from the same
         /// sender should be cleared.
         /// </summary>
-        public bool ClearPreviousFromThisAddress;
+        public bool ClearPreviousFromThisAddress { get; set; }
     }
 }

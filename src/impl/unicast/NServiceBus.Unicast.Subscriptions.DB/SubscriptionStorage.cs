@@ -130,7 +130,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             using (DbConnection connection = GetConnection())
             using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
             {
-                if (subMessage.subscriptionType == SubscriptionType.Add)
+                if (subMessage.SubscriptionType == SubscriptionType.Add)
                     Execute(
                         tx,
                         string.Format(
@@ -140,16 +140,16 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                         "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
                                       this.table, subscriberParameterName, messageTypeParameterName),
                         msg.ReturnAddress,
-                        subMessage.typeName
+                        subMessage.TypeName
                         );
 
-                if (subMessage.subscriptionType == SubscriptionType.Remove)
+                if (subMessage.SubscriptionType == SubscriptionType.Remove)
                     Execute(
                         tx,
                         string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
                                       this.table, subscriberParameterName, messageTypeParameterName),
                         msg.ReturnAddress,
-                        subMessage.typeName
+                        subMessage.TypeName
                         );
 
                 tx.Commit();

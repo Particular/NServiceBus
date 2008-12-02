@@ -22,21 +22,21 @@ namespace NServiceBus.Unicast.Transport
 		/// <param name="subscriptionType"></param>
         public SubscriptionMessage(string typeName, SubscriptionType subscriptionType)
         {
-            this.typeName = typeName;
-            this.subscriptionType = subscriptionType;
+            this.TypeName = typeName;
+            this.SubscriptionType = subscriptionType;
         }
 
 		/// <summary>
 		/// Gets/sets the name of the message type to subscribe to or 
 		/// unsubscribe from.
 		/// </summary>
-        public string typeName;
+        public string TypeName { get; set; }
 
 		/// <summary>
 		/// Gets/sets whether the SubscriptionMessage is to add or
 		/// remove a subscription.
 		/// </summary>
-        public SubscriptionType subscriptionType;
+        public SubscriptionType SubscriptionType { get; set; }
     }
 
 	/// <summary>

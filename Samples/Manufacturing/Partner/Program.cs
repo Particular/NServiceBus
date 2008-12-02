@@ -50,17 +50,10 @@ namespace Partner
                     if (!done)
                     {
                         float.TryParse(line, out quantity);
-                        orderlines.Add(new OrderLine(productId, quantity));
+                        orderlines.Add(new OrderLine { ProductId = productId, Quantity = quantity });
                     }
 
-                    OrderMessage m = new OrderMessage(
-                        poId, 
-                        partnerId,
-                        done,
-                        DateTime.Now + TimeSpan.FromSeconds(10),
-                        orderlines
-                        );
-                    
+                    OrderMessage m = new OrderMessage { PurchaseOrderNumber = poId, PartnerId = partnerId, Done = done, ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10), OrderLines = orderlines };
 
                     bus.Send(m);
 
@@ -94,15 +87,15 @@ namespace Partner
 
                 for (int i = 0; i < numberOfLines; i++)
                 {
-                    bus.Send(new OrderMessage(
-                                 purchaseOrderNumber,
-                                 partnerId,
-                                 i == numberOfLines - 1,
-                                 DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy),
-                                 new List<OrderLine>(
-                                     new OrderLine[] {new OrderLine(Guid.NewGuid(), (float) (Math.Sqrt(2)*r.Next(10)))})
-                                 )
-                        );
+                    var m = new OrderMessage { 
+                        PurchaseOrderNumber = purchaseOrderNumber, 
+                        PartnerId = partnerId, 
+                        Done = (i == numberOfLines - 1), 
+                        ProvideBy = DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy), 
+                        OrderLines = new List<OrderLine> {new OrderLine { ProductId = Guid.NewGuid(), Quantity = (float) (Math.Sqrt(2)*r.Next(10)) } }
+                    };
+
+                    bus.Send(m);
                 }
 
                 Thread.Sleep(1000);

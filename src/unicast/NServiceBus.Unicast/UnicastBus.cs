@@ -1049,11 +1049,19 @@ namespace NServiceBus.Unicast
             if (t.IsAbstract)
                 return;
 
+            bool skipHandlerRegistration = false;
             if (typeof(ISaga).IsAssignableFrom(t))
-                return;
+                skipHandlerRegistration = true;
 
             foreach(Type messageType in GetMessageTypesIfIsMessageHandler(t))
             {
+                foreach (Type msgType in messageType.Assembly.GetTypes())
+                    if (typeof(IMessage).IsAssignableFrom(msgType))
+                        AddMessageType(msgType);
+
+                if (skipHandlerRegistration)
+                    continue;
+
                 if (!handlerList.ContainsKey(t))
                     handlerList.Add(t, new List<Type>());
 
@@ -1062,10 +1070,6 @@ namespace NServiceBus.Unicast
                     handlerList[t].Add(messageType);
                     log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, t));
                 }
-
-                foreach(Type msgType in messageType.Assembly.GetTypes())
-                    if (typeof(IMessage).IsAssignableFrom(msgType))
-                        AddMessageType(msgType);
             }
         }
 

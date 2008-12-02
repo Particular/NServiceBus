@@ -7,6 +7,6 @@ namespace HR.Messages
     public interface RequestOrderAuthorizationMessage : ISagaMessage
     {
         Guid PartnerId { get; set; }
-        IList<IOrderLine> OrderLines { get; set; }
+        List<IOrderLine> OrderLines { get; set; }
     }
 }

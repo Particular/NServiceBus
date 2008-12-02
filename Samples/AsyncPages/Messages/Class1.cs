@@ -6,7 +6,7 @@ namespace Messages
     [Serializable]
     public class Command : IMessage
     {
-        public int Id;
+        public int Id { get; set; }
     }
 
     public enum ErrorCodes

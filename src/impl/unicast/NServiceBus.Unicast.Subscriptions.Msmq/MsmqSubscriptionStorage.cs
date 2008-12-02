@@ -94,15 +94,15 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
             if (subMessage != null)
             {
-                if (subMessage.typeName == null)
+                if (subMessage.TypeName == null)
                 {
                     log.Debug("Blank subscription message received.");
                     return;
                 }
 
-                Type messageType = Type.GetType(subMessage.typeName, false);
+                Type messageType = Type.GetType(subMessage.TypeName, false);
                 if (messageType == null)
-                    log.Debug("Could not handle subscription for message type: " + subMessage.typeName + ". Type not available on this endpoint.");
+                    log.Debug("Could not handle subscription for message type: " + subMessage.TypeName + ". Type not available on this endpoint.");
                 else
                 {
                     this.HandleAddSubscription(msg, messageType, subMessage, updateQueue);
@@ -120,7 +120,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
         private void HandleAddSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
-            if (subMessage.subscriptionType == SubscriptionType.Add)
+            if (subMessage.SubscriptionType == SubscriptionType.Add)
             {
                 lock (this.locker)
                 {
@@ -130,7 +130,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                             return;
 
                     if (updateQueue)
-                        this.Add(msg.ReturnAddress, subMessage.typeName);
+                        this.Add(msg.ReturnAddress, subMessage.TypeName);
 
                     this.entries.Add(new Entry(messageType, msg));
 
@@ -148,7 +148,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <param name="updateQueue">Whether or not to update the subscription persistence store.</param>
         private void HandleRemoveSubscription(TransportMessage msg, Type messageType, SubscriptionMessage subMessage, bool updateQueue)
         {
-            if (subMessage.subscriptionType == SubscriptionType.Remove)
+            if (subMessage.SubscriptionType == SubscriptionType.Remove)
             {
                 lock (this.locker)
                 {
