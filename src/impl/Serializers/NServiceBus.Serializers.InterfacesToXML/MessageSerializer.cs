@@ -12,12 +12,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 {
     public class MessageSerializer : IMessageSerializer
     {
-        private IMessageMapper messageMapper;
-        public virtual IMessageMapper MessageMapper
-        {
-            get { return messageMapper; }
-            set { messageMapper = value; }
-        }
+        public virtual IMessageMapper MessageMapper { get; set; }
 
         private string nameSpace = "http://tempuri.net";
         public virtual string Namespace
@@ -28,7 +23,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void Initialize(params Type[] types)
         {
-            this.messageMapper.Initialize(types);
+            this.MessageMapper.Initialize(types);
 
             foreach (Type t in types)
                 InitType(t);
@@ -74,20 +69,20 @@ namespace NServiceBus.Serializers.InterfacesToXML
         {
             List<IMessage> result = new List<IMessage>();
 
-            //XmlReaderSettings settings = new XmlReaderSettings();
-            //settings.IgnoreWhitespace = true;
-            //settings.IgnoreProcessingInstructions = true;
-            //settings.IgnoreComments = true;
-
-            //XmlReader reader = XmlReader.Create(stream, settings);
-            //reader.ReadStartElement();
-
-            //while(!reader.EOF)
-            //    result.Add(Process(reader) as IMessage);
-
-
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
+
+            string nameSpace = null;
+            string fullNameSpace = null;
+            foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
+            {
+                if (attr.Name == "xmlns")
+                    nameSpace = attr.Value + "/";
+                if (attr.Name == "xmlns:extended")
+                    fullNameSpace = attr.Value;
+            }
+
+            domainSpecificNameSpace = fullNameSpace.Replace(nameSpace, string.Empty);
 
             foreach (XmlNode node in doc.DocumentElement.ChildNodes)
             {
@@ -97,61 +92,36 @@ namespace NServiceBus.Serializers.InterfacesToXML
                 result.Add(m as IMessage);
             }
 
-            //reader.Close();
+            domainSpecificNameSpace = null;
+
             return result.ToArray();
-        }
-
-        private object Process(XmlReader reader)
-        {
-            object result = null;
-
-            if (reader.HasAttributes)
-            {
-                string attr = reader.GetAttribute(XMLTYPE);
-                Type t = messageMapper.GetMappedTypeFor(attr);
-                if (t != null)
-                    result = messageMapper.CreateInstance(t);
-
-                if (result != null)
-                {
-                    reader.Read();
-                    FillProperties(result, reader);
-                }
-            }
-
-            return result;
-        }
-
-        private void FillProperties(object result, XmlReader reader)
-        {
-            
         }
 
         private void Process(XmlNode node, ref object parent)
         {
-            if (node.Attributes.Count == 0)
-                return;
-
-            XmlAttribute attribute = node.Attributes[XMLTYPE];
-            if (attribute == null)
-                return;
-
-            Type t = messageMapper.GetMappedTypeFor(attribute.Value);
+            Type t = MessageMapper.GetMappedTypeFor(domainSpecificNameSpace + "." + node.Name);
             if (t == null)
                 return;
 
-            parent = messageMapper.CreateInstance(t);
+            parent = GetObjectOfTypeFromNode(t, node);
+        }
+
+        public object GetObjectOfTypeFromNode(Type t, XmlNode node)
+        {
+            object result = MessageMapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
             {
                 PropertyInfo prop = GetProperty(t, n.Name);
                 if (prop != null)
                 {
-                    object result = GetPropertyValue(prop.PropertyType, n);
-                    if (result != null)
-                        prop.SetValue(parent, result, null);
+                    object val = GetPropertyValue(prop.PropertyType, n);
+                    if (val != null)
+                        prop.SetValue(result, val, null);
                 }
             }
+
+            return result;
         }
 
         public PropertyInfo GetProperty(Type t, string name)
@@ -217,10 +187,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
                     return list;
             }
 
-            object result = null;
-            Process(n, ref result);
-
-            return result;
+            return GetObjectOfTypeFromNode(type, n);
         }
 
         #endregion
@@ -231,16 +198,18 @@ namespace NServiceBus.Serializers.InterfacesToXML
         {
             StringBuilder builder = new StringBuilder();
 
+            Type leadingType = this.MessageMapper.GetMappedTypeFor(messages[0].GetType());
+
             builder.AppendLine("<?xml version=\"1.0\" ?>");
             builder.AppendLine(
-                "<Messages " + XMLTYPE + "=\"ArrayOfAnyType\" xmlns:" + XMLPREFIX + "=\"" + nameSpace + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
+                "<Messages xmlns=\"" + nameSpace + "\" xmlns:extended=\"" + nameSpace + "/" + leadingType.Namespace + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
                 );
 
             foreach (IMessage m in messages)
             {
-                Type t = messageMapper.GetMappedTypeFor(m.GetType());
+                Type t = MessageMapper.GetMappedTypeFor(m.GetType());
 
-                WriteObject("m", t, m, builder);
+                WriteObject(t.Name, t, m, builder);
             }
 
             builder.AppendLine("</Messages>");
@@ -260,7 +229,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
-            builder.AppendFormat("<{0} " + XMLTYPE + "=\"{1}\">\n", name, type);
+            builder.AppendFormat("<{0}>\n", name);
 
             Write(builder, type, value);
 
@@ -277,7 +246,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
             if (typeof(IEnumerable).IsAssignableFrom(type))
             {
-                builder.AppendFormat("<{0} " + XMLTYPE + "=\"ArrayOfAnyType\">\n", name);
+                builder.AppendFormat("<{0}>\n", name);
 
                 Type baseType = typeof(object);
                 Type[] generics = type.GetGenericArguments();
@@ -286,7 +255,7 @@ namespace NServiceBus.Serializers.InterfacesToXML
 
                 if (value != null)
                     foreach (object obj in ((IEnumerable)value))
-                        WriteObject("e", baseType, obj, builder);
+                        WriteObject(baseType.Name, baseType, obj, builder);
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
@@ -321,6 +290,8 @@ namespace NServiceBus.Serializers.InterfacesToXML
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
 
+        [ThreadStatic]
+        private static string domainSpecificNameSpace;
         #endregion
     }
 }

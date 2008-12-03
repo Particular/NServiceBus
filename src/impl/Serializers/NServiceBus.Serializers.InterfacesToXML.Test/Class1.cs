@@ -65,7 +65,7 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
                 m1.Risk = new Risk { Percent = 0.15D, Annum = true };
             }
 
-            IMessage[] messages = new IMessage[] {o, o, o};
+            IMessage[] messages = new IMessage[] { o };
 
             Time(messages, serializer);
         }
@@ -194,6 +194,24 @@ namespace NServiceBus.Serializers.InterfacesToXML.Test
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
         }
 
+        public void TestSchemaValidation()
+        {
+            try
+            {
+                XmlReaderSettings settings = new XmlReaderSettings();
+                settings.Schemas.Add(null, "schema0.xsd");
+                settings.Schemas.Add(null, "schema1.xsd");
+                settings.ValidationType = ValidationType.Schema;
+                XmlDocument document = new XmlDocument();
+                document.Load("XMLFile1.xml");
+                XmlReader rdr = XmlReader.Create(new StringReader(document.InnerXml), settings);
+                while (rdr.Read()) { }
+            }
+            catch(Exception e)
+            {
+                string s = e.Message;
+            }
+        }
     }
 
     public interface IM1 : IMessage

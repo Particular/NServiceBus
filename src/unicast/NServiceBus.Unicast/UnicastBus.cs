@@ -352,7 +352,7 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 log.Error(string.Format("No destination could be found for message type {0}.", messageType));
             else
-                this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
+                this.Send(destination, new SubscriptionMessage(messageType.FullName, SubscriptionType.Add));
         }
 
         public void Unsubscribe<T>() where T : IMessage

@@ -87,7 +87,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
                 DbParameter msgParam = command.CreateParameter();
                 msgParam.ParameterName = paramName;
-                msgParam.Value = compatibles[i].AssemblyQualifiedName;
+                msgParam.Value = compatibles[i].FullName;
                 command.Parameters.Add(msgParam);
 
                 builder.Append("{2}=");
