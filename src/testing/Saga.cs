@@ -14,6 +14,8 @@ namespace NServiceBus.Testing
         private string clientAddress;
         private readonly List<Delegate> delegates = new List<Delegate>();
         private readonly List<Type> messageTypes = new List<Type>();
+        private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
+        private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
         
         private ISagaEntity sagaData;
 
@@ -81,6 +83,18 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        public Saga SetIncomingHeaders(IDictionary<string, string> headers)
+        {
+            this.incomingHeaders = headers;
+
+            return this;
+        }
+
+        public IDictionary<string, string> OutgoingHeaders
+        {
+            get { return outgoingHeaders; }
+        }
+
         public Saga ExpectSend<T>(SendPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -109,6 +123,28 @@ namespace NServiceBus.Testing
                 delegate
                 {
                     ExpectCallToReply(
+                        delegate(IMessage[] msgs)
+                        {
+                            foreach (T msg in msgs)
+                                if (!check(msg))
+                                    return false;
+
+                            return true;
+                        }
+                        );
+                }
+            );
+
+            this.delegates.Add(d);
+            return this;
+        }
+
+        public Saga ExpectSendLocal<T>(SendPredicate<T> check) where T : IMessage
+        {
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    ExpectCallToSendLocal(
                         delegate(IMessage[] msgs)
                         {
                             foreach (T msg in msgs)
@@ -195,12 +231,11 @@ namespace NServiceBus.Testing
             using (m.Record())
             {
                 foreach (Type t in messageTypes)
-                {
-                    typeof(Saga).GetMethod("SetupResultForBusCreateInstance").MakeGenericMethod(t).Invoke(this, null);
-                    typeof(Saga).GetMethod("SetupResultForBusGenericMethods").MakeGenericMethod(t).Invoke(this, null);
-                }
+                    typeof(Saga).GetMethod("PrepareBusGenericMethods").MakeGenericMethod(t).Invoke(this, null);
 
                 SetupResult.For(bus.SourceOfMessageBeingHandled).Return(this.clientAddress);
+                SetupResult.For(bus.IncomingHeaders).Return(this.incomingHeaders);
+                SetupResult.For(bus.OutgoingHeaders).Return(this.outgoingHeaders);
 
                 foreach (Delegate d in this.delegates)
                     d.DynamicInvoke();
@@ -230,6 +265,15 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
+        private void ExpectCallToSendLocal(BusSendDelegate callback)
+        {
+            IMessage[] messages = null;
+
+            Expect.Call(delegate { bus.SendLocal(messages); })
+                .IgnoreArguments()
+                .Callback(callback);
+        }
+
         private void ExpectCallToSend(BusSendDelegate callback)
         {
             IMessage[] messages = null;
@@ -253,65 +297,74 @@ namespace NServiceBus.Testing
         {
             T[] messages = null;
 
-            Expect.Call(delegate { bus.Publish(messages); }).IgnoreArguments().Callback(callback);
+            Expect.Call(delegate { bus.Publish(messages); })
+                .IgnoreArguments()
+                .Callback(callback);
         }
 
-        public void SetupResultForBusCreateInstance<T>() where T : IMessage
+        public void PrepareBusGenericMethods<T>() where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
                 delegate
                 {
                     Action<T> act = null;
-                    bus.CreateInstance<T>(act);
-
-                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
-                        {
-                            Action<T> action = mi.Arguments[0] as Action<T>;
-                            mi.ReturnValue = this.messageCreator.CreateInstance<T>(action);
-                        }
-                        );
-                        
-                }
-            );
-
-            this.delegates.Add(d);
-        }
-
-        public void SetupResultForBusGenericMethods<T>() where T : IMessage
-        {
-            Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    Action<T> act = null;
-                    bus.Send<T>(act);
-
-                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
-                        {
-                            Action<T> action = mi.Arguments[0] as Action<T>;
-                            bus.Send(this.messageCreator.CreateInstance<T>(action));
-                        }
-                        );
-                    
                     string destination = null;
-                    bus.Send<T>(destination, act);
 
+                    bus.CreateInstance<T>();
                     LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
-                        {
-                            string dest = mi.Arguments[0] as string;
-                            Action<T> action = mi.Arguments[1] as Action<T>;
-                            bus.Send(dest, this.messageCreator.CreateInstance<T>(action));
-                        }
-                        );
+                    {
+                        mi.ReturnValue = this.messageCreator.CreateInstance<T>();
+                    }
+                    );
+
+                    bus.CreateInstance<T>(act);
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                    {
+                        Action<T> action = mi.Arguments[0] as Action<T>;
+                        mi.ReturnValue = this.messageCreator.CreateInstance<T>(action);
+                    }
+                    );
+
+                    bus.Reply<T>(act);
+                    LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
+                    {
+                        Action<T> action = mi.Arguments[0] as Action<T>;
+                        bus.Reply(this.messageCreator.CreateInstance<T>(action));
+                    }
+                    );
+
+                    bus.Send<T>(act);
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                    {
+                        Action<T> action = mi.Arguments[0] as Action<T>;
+                        bus.Send(this.messageCreator.CreateInstance<T>(action));
+                    }
+                    );
+                    
+                    bus.Send<T>(destination, act);
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                    {
+                        string dest = mi.Arguments[0] as string;
+                        Action<T> action = mi.Arguments[1] as Action<T>;
+                        bus.Send(dest, this.messageCreator.CreateInstance<T>(action));
+                    }
+                    );
+
+                    bus.SendLocal<T>(act);
+                    LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
+                    {
+                        Action<T> action = mi.Arguments[0] as Action<T>;
+                        bus.SendLocal(this.messageCreator.CreateInstance<T>(action));
+                    }
+                    );
 
                     bus.Publish<T>(act);
-                    LastCall.Repeat.Any().IgnoreArguments().Callback(
-                        delegate(Action<T> action)
-                        {
-                            T result = this.messageCreator.CreateInstance<T>(action);
-                            bus.Publish(result);
-                            return true;
-                        }
-                        );
+                    LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
+                    {
+                        Action<T> action = mi.Arguments[0] as Action<T>;
+                        bus.Publish(this.messageCreator.CreateInstance<T>(action));
+                    }
+                    );
 
                 }
             );
