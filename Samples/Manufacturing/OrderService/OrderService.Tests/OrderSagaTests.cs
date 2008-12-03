@@ -36,7 +36,7 @@ namespace OrderService.Tests
             partnerId = Guid.NewGuid();
             purchaseOrderNumber = Guid.NewGuid().ToString();
             orderLines = new List<Messages.OrderLine>();
-            orderLines.Add(new Messages.OrderLine { ProductId = productId, Quantity = quantity });
+            orderLines.Add<Messages.OrderLine>(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
 
         }
 
@@ -82,14 +82,14 @@ namespace OrderService.Tests
 
         private OrderMessage CreateRequest()
         {
-            return new OrderMessage
+            return Saga.CreateInstance<OrderMessage>(m =>
             {
-                PurchaseOrderNumber = purchaseOrderNumber,
-                PartnerId = partnerId,
-                Done = true,
-                ProvideBy = DateTime.Now,
-                OrderLines = orderLines
-            };
+                m.PurchaseOrderNumber = purchaseOrderNumber;
+                m.PartnerId = partnerId;
+                m.Done = true;
+                m.ProvideBy = DateTime.Now;
+                m.OrderLines = orderLines;
+            });
         }
 
         private OrderAuthorizationResponseMessage CreateResponse()

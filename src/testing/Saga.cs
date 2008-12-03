@@ -13,15 +13,18 @@ namespace NServiceBus.Testing
         private readonly IMessageCreator messageCreator;
         private string clientAddress;
         private readonly List<Delegate> delegates = new List<Delegate>();
+        private readonly List<Type> messageTypes = new List<Type>();
         
         private ISagaEntity sagaData;
 
-        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData, IMessageCreator messageCreator)
+        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData, IMessageCreator messageCreator, List<Type> types)
         {
             m = mocks;
             bus = b;
             this.sagaData = sagaData;
             this.messageCreator = messageCreator;
+            ExtensionMethods.MessageCreator = messageCreator;
+            messageTypes = types;
         }
 
         public static Saga Test<T>(out T saga) where T : ISaga, new()
@@ -57,12 +60,7 @@ namespace NServiceBus.Testing
 
             mapper.Initialize(typesToMap.ToArray());
 
-            var result = new Saga(mocks, bus, sagaData, mapper);
-
-            foreach (Type t in typesToMap)
-                typeof(Saga).GetMethod("SetupResultForBusCreateInstance").MakeGenericMethod(t).Invoke(result, null);
-
-            return result;
+            return new Saga(mocks, bus, sagaData, mapper, typesToMap);
         }
 
         public T CreateInstance<T>() where T : IMessage
@@ -196,6 +194,12 @@ namespace NServiceBus.Testing
         {
             using (m.Record())
             {
+                foreach (Type t in messageTypes)
+                {
+                    typeof(Saga).GetMethod("SetupResultForBusCreateInstance").MakeGenericMethod(t).Invoke(this, null);
+                    typeof(Saga).GetMethod("SetupResultForBusGenericMethods").MakeGenericMethod(t).Invoke(this, null);
+                }
+
                 SetupResult.For(bus.SourceOfMessageBeingHandled).Return(this.clientAddress);
 
                 foreach (Delegate d in this.delegates)
@@ -254,27 +258,65 @@ namespace NServiceBus.Testing
 
         public void SetupResultForBusCreateInstance<T>() where T : IMessage
         {
-            T result = this.messageCreator.CreateInstance<T>();
-
-            CreateInstanceDelegate<T> callback = new CreateInstanceDelegate<T>(
-                delegate(Action<T> action)
-                {
-                    action(result);
-                    return true;
-                }
-            );
-
             Delegate d = new HandleMessageDelegate(
                 delegate
                 {
                     Action<T> act = null;
-                    SetupResult.For(bus.CreateInstance<T>(act)).IgnoreArguments().Return(result).Callback(callback);
+                    bus.CreateInstance<T>(act);
+
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                        {
+                            Action<T> action = mi.Arguments[0] as Action<T>;
+                            mi.ReturnValue = this.messageCreator.CreateInstance<T>(action);
+                        }
+                        );
+                        
                 }
             );
 
             this.delegates.Add(d);
+        }
 
+        public void SetupResultForBusGenericMethods<T>() where T : IMessage
+        {
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    Action<T> act = null;
+                    bus.Send<T>(act);
 
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                        {
+                            Action<T> action = mi.Arguments[0] as Action<T>;
+                            bus.Send(this.messageCreator.CreateInstance<T>(action));
+                        }
+                        );
+                    
+                    string destination = null;
+                    bus.Send<T>(destination, act);
+
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
+                        {
+                            string dest = mi.Arguments[0] as string;
+                            Action<T> action = mi.Arguments[1] as Action<T>;
+                            bus.Send(dest, this.messageCreator.CreateInstance<T>(action));
+                        }
+                        );
+
+                    bus.Publish<T>(act);
+                    LastCall.Repeat.Any().IgnoreArguments().Callback(
+                        delegate(Action<T> action)
+                        {
+                            T result = this.messageCreator.CreateInstance<T>(action);
+                            bus.Publish(result);
+                            return true;
+                        }
+                        );
+
+                }
+            );
+
+            this.delegates.Add(d);
         }
 
     }

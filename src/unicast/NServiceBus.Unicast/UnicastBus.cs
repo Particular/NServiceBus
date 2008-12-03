@@ -106,7 +106,11 @@ namespace NServiceBus.Unicast
 	    public virtual IMessageMapper MessageMapper
 	    {
             get { return messageMapper; }
-            set { messageMapper = value; }
+            set 
+            { 
+                messageMapper = value;
+                ExtensionMethods.MessageCreator = messageMapper;
+            }
 	    }
 
         private bool propogateReturnAddressOnSend = false;
@@ -1146,7 +1150,7 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
-		/// <summary>
+        /// <summary>
 		/// Gets/sets the subscription manager to use for the bus.
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();

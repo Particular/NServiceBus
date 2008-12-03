@@ -55,6 +55,11 @@ namespace NServiceBus.Saga
             bus.Send(data.Originator, messages);
         }
 
+        protected void ReplyToOriginator<K>(Action<K> messageConstructor) where K : IMessage
+        {
+            bus.Send<K>(data.Originator, messageConstructor);
+        }
+
         protected void MarkAsComplete()
         {
             this.completed = true;

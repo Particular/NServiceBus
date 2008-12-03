@@ -13,9 +13,7 @@ namespace HR.MessageHandlers
                     if (ol.Quantity > 50F)
                         Thread.Sleep(10000);
 
-            var response = this.bus.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = message.SagaId; m.Success = true; m.OrderLines = message.OrderLines; });
-
-            this.bus.Reply(response);
+            this.bus.Reply<OrderAuthorizationResponseMessage>(m => { m.SagaId = message.SagaId; m.Success = true; m.OrderLines = message.OrderLines; });
         }
 
         private IBus bus;

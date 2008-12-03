@@ -4,13 +4,12 @@ using NServiceBus;
 
 namespace OrderService.Messages
 {
-    [Serializable]
-    public class OrderMessage : IMessage
+    public interface OrderMessage : IMessage
     {
-        public bool Done { get; set; }
-        public DateTime ProvideBy { get; set; }
-        public List<OrderLine> OrderLines { get; set; }
-        public string PurchaseOrderNumber { get; set; }
-        public Guid PartnerId { get; set; }
+        bool Done { get; set; }
+        DateTime ProvideBy { get; set; }
+        List<OrderLine> OrderLines { get; set; }
+        string PurchaseOrderNumber { get; set; }
+        Guid PartnerId { get; set; }
     }
 }

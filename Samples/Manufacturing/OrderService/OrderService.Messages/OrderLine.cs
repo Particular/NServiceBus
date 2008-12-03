@@ -1,12 +1,12 @@
 using System;
 using HR.Messages;
+using NServiceBus;
 
 namespace OrderService.Messages
 {
-    [Serializable]
-    public class OrderLine : IOrderLine
+    public interface OrderLine : IMessage
     {
-        public Guid ProductId { get; set; }
-        public float Quantity { get; set; }
+        Guid ProductId { get; set; }
+        float Quantity { get; set; }
     }
 }

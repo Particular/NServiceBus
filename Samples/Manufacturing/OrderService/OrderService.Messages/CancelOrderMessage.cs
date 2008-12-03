@@ -3,10 +3,9 @@ using NServiceBus;
 
 namespace OrderService.Messages
 {
-    [Serializable]
-    public class CancelOrderMessage : IMessage
+    public interface CancelOrderMessage : IMessage
     {
-        public string PurchaseOrderNumber { get; set; }
-        public Guid PartnerId { get; set; }
+        string PurchaseOrderNumber { get; set; }
+        Guid PartnerId { get; set; }
     }
 }

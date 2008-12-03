@@ -50,14 +50,19 @@ namespace Partner
                     if (!done)
                     {
                         float.TryParse(line, out quantity);
-                        orderlines.Add(new OrderLine { ProductId = productId, Quantity = quantity });
+                        orderlines.Add<OrderLine>(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
                     }
 
-                    OrderMessage m = new OrderMessage { PurchaseOrderNumber = poId, PartnerId = partnerId, Done = done, ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10), OrderLines = orderlines };
+                    bus.Send<OrderMessage>(m =>
+                    {
+                        m.PurchaseOrderNumber = poId;
+                        m.PartnerId = partnerId;
+                        m.Done = done;
+                        m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10);
+                        m.OrderLines = orderlines;
+                    });
 
-                    bus.Send(m);
-
-                    Console.WriteLine("Send PO Number {0}.", m.PurchaseOrderNumber);
+                    Console.WriteLine("Send PO Number {0}.", poId);
 
                     if (done)
                         poId = Guid.NewGuid().ToString();
@@ -87,15 +92,19 @@ namespace Partner
 
                 for (int i = 0; i < numberOfLines; i++)
                 {
-                    var m = new OrderMessage { 
-                        PurchaseOrderNumber = purchaseOrderNumber, 
-                        PartnerId = partnerId, 
-                        Done = (i == numberOfLines - 1), 
-                        ProvideBy = DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy), 
-                        OrderLines = new List<OrderLine> {new OrderLine { ProductId = Guid.NewGuid(), Quantity = (float) (Math.Sqrt(2)*r.Next(10)) } }
-                    };
-
-                    bus.Send(m);
+                    bus.Send<OrderMessage>(m =>
+                    {
+                        m.PurchaseOrderNumber = purchaseOrderNumber;
+                        m.PartnerId = partnerId;
+                        m.Done = (i == numberOfLines - 1);
+                        m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy);
+                        m.OrderLines = new List<OrderLine> {
+                            bus.CreateInstance<OrderLine>(ol => { 
+                                ol.ProductId = Guid.NewGuid(); 
+                                ol.Quantity = (float) (Math.Sqrt(2)*r.Next(10));
+                            })
+                        };
+                    });
                 }
 
                 Thread.Sleep(1000);

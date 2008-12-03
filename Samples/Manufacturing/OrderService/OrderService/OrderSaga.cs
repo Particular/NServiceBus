@@ -21,7 +21,7 @@ namespace OrderService
             foreach (Messages.OrderLine ol in message.OrderLines)
                 this.Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
-            var status = new OrderStatusChangedMessage { PurchaseOrderNumber = this.Data.PurchaseOrderNumber, PartnerId = this.Data.PartnerId, Status = OrderStatusEnum.Recieved, OrderLines = GetOrderLines(this.Data.Lines) };
+            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(this.Data.Lines));
 
             if (message.Done)
             {
@@ -41,10 +41,12 @@ namespace OrderService
 
         public void Handle(OrderAuthorizationResponseMessage message)
         {
-            var m = new OrderStatusChangedMessage { PurchaseOrderNumber = this.Data.PurchaseOrderNumber, PartnerId = this.Data.PartnerId, Status = (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected), OrderLines = GetOrderLines(message.OrderLines) };
-            
-            this.ReplyToOriginator(m);
-            this.Bus.Publish(m);
+            var status = GetStatus(
+                (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected),
+                GetOrderLines(message.OrderLines));
+
+            this.ReplyToOriginator(status);
+            this.Bus.Publish(status);
 
             foreach (HR.Messages.IOrderLine ol in message.OrderLines)
                 this.Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
@@ -60,7 +62,7 @@ namespace OrderService
 
         private void Complete()
         {
-            var finalStatus = new OrderStatusChangedMessage { PurchaseOrderNumber = this.Data.PurchaseOrderNumber, PartnerId = this.Data.PartnerId, Status = OrderStatusEnum.Accepted, OrderLines = GetOrderLines(this.Data.Lines) };
+            var finalStatus = GetStatus(OrderStatusEnum.Accepted, GetOrderLines(this.Data.Lines));
 
             this.Bus.Publish(finalStatus);
             this.ReplyToOriginator(finalStatus);
@@ -87,9 +89,20 @@ namespace OrderService
             var result = new List<Messages.OrderLine>();
 
             foreach (OrderLine ol in lines)
-                result.Add(new Messages.OrderLine { ProductId = ol.ProductId, Quantity = ol.Quantity });
+                result.Add<Messages.OrderLine>(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
 
             return result;
+        }
+
+        private OrderStatusChangedMessage GetStatus(OrderStatusEnum status, List<Messages.OrderLine> lines)
+        {
+            return this.Bus.CreateInstance<OrderStatusChangedMessage>(m =>
+            {
+                m.PurchaseOrderNumber = this.Data.PurchaseOrderNumber;
+                m.PartnerId = this.Data.PartnerId;
+                m.Status = status;
+                m.OrderLines = lines;
+            });
         }
 
         private static List<Messages.OrderLine> GetOrderLines(IEnumerable<IOrderLine> lines)
@@ -97,7 +110,7 @@ namespace OrderService
             var result = new List<Messages.OrderLine>();
 
             foreach (IOrderLine ol in lines)
-                result.Add(new Messages.OrderLine { ProductId = ol.ProductId, Quantity = ol.Quantity });
+                result.Add<Messages.OrderLine>(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
 
             return result;
         }
