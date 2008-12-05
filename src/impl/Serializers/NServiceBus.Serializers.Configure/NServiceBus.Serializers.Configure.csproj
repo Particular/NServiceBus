@@ -84,10 +84,9 @@
       <Name>NServiceBus.Serializers.Binary</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
+    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
       <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
-      <Name>NServiceBus.Serializers.InterfacesToXML</Name>
-      <Private>False</Private>
+      <Name>NServiceBus.Serializers.XML</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -7,8 +7,8 @@
     <ProjectGuid>{45CC79AE-C0DE-486C-953B-7697C6E09E94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Serializers.InterfacesToXML.Test</RootNamespace>
-    <AssemblyName>NServiceBus.Serializers.InterfacesToXML.Test</AssemblyName>
+    <RootNamespace>NServiceBus.Serializers.XML.Test</RootNamespace>
+    <AssemblyName>NServiceBus.Serializers.XML.Test</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -60,9 +60,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML\NServiceBus.Serializers.InterfacesToXML.csproj">
+    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
       <Project>{5B5C8921-AD84-4067-8423-515FB3269062}</Project>
-      <Name>NServiceBus.Serializers.InterfacesToXML</Name>
+      <Name>NServiceBus.Serializers.XML</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

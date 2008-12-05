@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using System.Collections;
 
-namespace NServiceBus.Serializers.InterfacesToXML.Test
+namespace NServiceBus.Serializers.XML.Test
 {
     public class Class1
     {

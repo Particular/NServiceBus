@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
+namespace NServiceBus.Serializers.XML.XsdGenerator
 {
     public class ElementWriter
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using NServiceBus.Serializers.InterfacesToXML.Test;
+using NServiceBus.Serializers.XML.Test;
 
 namespace ProfilingTest
 {

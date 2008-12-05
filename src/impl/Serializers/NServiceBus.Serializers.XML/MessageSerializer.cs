@@ -8,7 +8,7 @@ using System.Xml;
 using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
 
-namespace NServiceBus.Serializers.InterfacesToXML
+namespace NServiceBus.Serializers.XML
 {
     public class MessageSerializer : IMessageSerializer
     {

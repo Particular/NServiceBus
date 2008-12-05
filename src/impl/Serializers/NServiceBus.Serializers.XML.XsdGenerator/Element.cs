@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
+namespace NServiceBus.Serializers.XML.XsdGenerator
 {
     public class Element
     {

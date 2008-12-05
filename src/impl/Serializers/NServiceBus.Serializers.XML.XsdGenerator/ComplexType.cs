@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
+namespace NServiceBus.Serializers.XML.XsdGenerator
 {
     public class ComplexType
     {

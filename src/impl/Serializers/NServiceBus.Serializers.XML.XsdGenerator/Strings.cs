@@ -1,5 +1,5 @@
 
-namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
+namespace NServiceBus.Serializers.XML.XsdGenerator
 {
     public static class Strings
     {

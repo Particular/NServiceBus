@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Reflection;
 
-namespace NServiceBus.Serializers.InterfacesToXML.XsdGenerator
+namespace NServiceBus.Serializers.XML.XsdGenerator
 {
     class Program
     {

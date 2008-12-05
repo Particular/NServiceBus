@@ -7,7 +7,7 @@
     <ProjectGuid>{85118B5C-6CAA-44B4-87EA-419DC6F4F2FB}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Serializers.InterfacesToXML.XsdGenerator</RootNamespace>
+    <RootNamespace>NServiceBus.Serializers.XML.XsdGenerator</RootNamespace>
     <AssemblyName>XsdGenerator</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{CB32FA40-2A8A-4D40-81A2-C3EF1203A81D}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -42,9 +42,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Serializers.InterfacesToXML.Test\NServiceBus.Serializers.InterfacesToXML.Test.csproj">
+    <ProjectReference Include="..\NServiceBus.Serializers.XML.Test\NServiceBus.Serializers.XML.Test.csproj">
       <Project>{45CC79AE-C0DE-486C-953B-7697C6E09E94}</Project>
-      <Name>NServiceBus.Serializers.InterfacesToXML.Test</Name>
+      <Name>NServiceBus.Serializers.XML.Test</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
