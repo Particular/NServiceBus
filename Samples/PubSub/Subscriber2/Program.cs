@@ -3,6 +3,7 @@ using Common.Logging;
 using NServiceBus;
 using NServiceBus.Config;
 using ObjectBuilder;
+using Messages;
 
 namespace Subscriber2
 {
@@ -27,8 +28,9 @@ namespace Subscriber2
 
 
             IBus bus = builder.Build<IBus>();
-
             bus.Start();
+
+            bus.Subscribe<IEvent>();
 
             Console.WriteLine("Listening for events. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")

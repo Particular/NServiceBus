@@ -16,10 +16,6 @@ namespace Server
 
             NServiceBus.Config.Configure.With(builder)
                 .MsmqSubscriptionStorage()
-                //.DbSubscriptionStorage()
-                //    .Table("Subscriptions")
-                //    .SubscriberEndpointParameterName("SubscriberEndpoint")
-                //    .MessageTypeParameterName("MessageType")
                 .InterfaceToXMLSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)
