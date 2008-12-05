@@ -615,6 +615,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         public static string GetFailedQueue(Message m)
         {
+            if (m.Label == null)
+                return null;
+
+            if (!m.Label.Contains(FAILEDQUEUE))
+                return null;
+
             int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
             int count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
 
@@ -623,6 +629,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         public static string GetLabelWithoutFailedQueue(Message m)
         {
+            if (m.Label == null)
+                return null;
+
+            if (!m.Label.Contains(FAILEDQUEUE))
+                return m.Label;
+
             int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
             int endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
             endIndex += FAILEDQUEUE.Length + 3;
@@ -632,14 +644,22 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, Message m)
         {
-            if (m.Label != null)
+            if (m.Label == null)
+                return;
+
+            if (m.Label.Contains(IDFORCORRELATION))
             {
                 int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", IDFORCORRELATION)) + IDFORCORRELATION.Length + 2;
                 int idCount = m.Label.IndexOf(string.Format("</{0}>", IDFORCORRELATION)) - idStartIndex;
+
+                result.IdForCorrelation = m.Label.Substring(idStartIndex, idCount);
+            }
+
+            if (m.Label.Contains(WINDOWSIDENTITYNAME))
+            {
                 int winStartIndex = m.Label.IndexOf(string.Format("<{0}>", WINDOWSIDENTITYNAME)) + WINDOWSIDENTITYNAME.Length + 2;
                 int winCount = m.Label.IndexOf(string.Format("</{0}>", WINDOWSIDENTITYNAME)) - winStartIndex;
 
-                result.IdForCorrelation = m.Label.Substring(idStartIndex, idCount);
                 result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
             }
         }
