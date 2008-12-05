@@ -17,7 +17,7 @@ namespace HR.Host
             try
             {
                 NServiceBus.Config.Configure.With(builder)
-                    .InterfaceToXMLSerializer()
+                    .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)

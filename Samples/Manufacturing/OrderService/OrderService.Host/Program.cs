@@ -26,7 +26,7 @@ namespace OrderService.Host
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
                 NServiceBus.Config.Configure.With(builder)
-                    .InterfaceToXMLSerializer()
+                    .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)

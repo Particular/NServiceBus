@@ -16,7 +16,7 @@ namespace Server
 
             NServiceBus.Config.Configure.With(builder)
                 .MsmqSubscriptionStorage()
-                .InterfaceToXMLSerializer()
+                .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)

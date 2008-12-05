@@ -16,7 +16,7 @@ namespace Subscriber1
             ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             NServiceBus.Config.Configure.With(builder)
-                .InterfaceToXMLSerializer()
+                .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(false)
