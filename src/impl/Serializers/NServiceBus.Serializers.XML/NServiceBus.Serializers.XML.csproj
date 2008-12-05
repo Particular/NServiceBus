@@ -7,8 +7,8 @@
     <ProjectGuid>{5B5C8921-AD84-4067-8423-515FB3269062}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Serializers.InterfacesToXML</RootNamespace>
-    <AssemblyName>NServiceBus.Serializers.InterfacesToXML</AssemblyName>
+    <RootNamespace>NServiceBus.Serializers.XML</RootNamespace>
+    <AssemblyName>NServiceBus.Serializers.XML</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
