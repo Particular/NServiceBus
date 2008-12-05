@@ -12,9 +12,9 @@ namespace NServiceBus.Saga
         public TimeoutMessage() { }
         public TimeoutMessage(DateTime expiration, ISagaEntity saga, object state)
         {
-            this.expires = expiration;
-            this.sagaId = saga.Id;
-            this.state = state;
+            this.expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
+            this.SagaId = saga.Id;
+            this.State = state;
         }
 
 	    public TimeoutMessage(TimeSpan expireIn, ISagaEntity saga, object state) :
@@ -31,8 +31,8 @@ namespace NServiceBus.Saga
         /// <param name="clear"></param>
         public TimeoutMessage(ISagaEntity saga, bool clear)
         {
-            this.sagaId = saga.Id;
-            this.clearTimeout = clear;
+            this.SagaId = saga.Id;
+            this.ClearTimeout = clear;
         }
 
         private DateTime expires;
@@ -43,43 +43,25 @@ namespace NServiceBus.Saga
         public DateTime Expires
         {
             get { return expires; }
-            set { expires = value; }
+            set { expires = DateTime.SpecifyKind(value, DateTimeKind.Utc); }
         }
-
-        private Guid sagaId;
 
 		/// <summary>
 		/// Gets/sets the Id of the workflow the TimeoutMessage is connected to.
 		/// </summary>
-        public Guid SagaId
-        {
-            get { return sagaId; }
-            set { sagaId = value; }
-        }
-
-        private object state;
+        public Guid SagaId { get; set; }
 
         /// <summary>
         /// Should be used for data to differentiate between various
         /// timeout occurrences.
         /// </summary>
-        public object State
-        {
-            get { return state; }
-            set { state = value; }
-        }
+        public object State { get; set; }
 
         /// <summary>
         /// When true, signals to the timeout manager that all other <see cref="TimeoutMessage"/> objects
         /// can be cleared for the given <see cref="SagaId"/>.
         /// </summary>
-	    public bool ClearTimeout
-	    {
-	        get { return clearTimeout; }
-	        set { clearTimeout = value; }
-	    }
-
-	    private bool clearTimeout;
+        public bool ClearTimeout { get; set; }
 
 		/// <summary>
 		/// Gets whether or not the TimeoutMessage has expired.
