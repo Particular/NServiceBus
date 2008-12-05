@@ -9,6 +9,7 @@ using ObjectBuilder;
 using System.Reflection;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using Common.Logging;
+using System.Collections.Generic;
 
 namespace UI
 {
@@ -31,12 +32,21 @@ namespace UI
                     builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
                     builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
                         .Namespace = nameSpace;
+                    
+                    List<Type> additionalTypes = new List<Type>{
+                        typeof(ChangeNumberOfWorkerThreadsMessage),
+                        typeof(GetNumberOfWorkerThreadsMessage),
+                        typeof(GotNumberOfWorkerThreadsMessage)
+                    };
+
+                    builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                        .AdditionalTypes = additionalTypes;
                     break;
                 case "binary":
                     builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
                     break;
                 default:
-                    throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
+                    throw new ConfigurationException("Serialization can only be either 'xml', or 'binary'.");
             }
 
             NServiceBus.Config.Configure.With(builder)

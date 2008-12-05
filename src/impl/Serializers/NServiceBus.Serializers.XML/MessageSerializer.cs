@@ -21,11 +21,17 @@ namespace NServiceBus.Serializers.XML
             set { nameSpace = value; }
         }
 
+        public virtual List<Type> AdditionalTypes { get; set; }
+
         public void Initialize(params Type[] types)
         {
-            this.MessageMapper.Initialize(types);
+            if (AdditionalTypes == null)
+                AdditionalTypes = new List<Type>();
 
-            foreach (Type t in types)
+            AdditionalTypes.AddRange(types);
+            this.MessageMapper.Initialize(AdditionalTypes.ToArray());
+
+            foreach (Type t in AdditionalTypes)
                 InitType(t);
         }
 
