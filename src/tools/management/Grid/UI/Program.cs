@@ -27,12 +27,8 @@ namespace UI
 
             switch (serialization)
             {
-                case "interfaces":
-                    builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-                    builder.ConfigureComponent<NServiceBus.Serializers.InterfacesToXML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                        .Namespace = nameSpace;
-                    break;
                 case "xml":
+                    builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
                     builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
                         .Namespace = nameSpace;
                     break;
