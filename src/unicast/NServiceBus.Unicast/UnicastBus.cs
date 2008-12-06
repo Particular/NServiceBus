@@ -480,6 +480,12 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The list of messages to send.</param>
         public ICallback Send(string destination, params IMessage[] messages)
         {
+            if (destination == null)
+            {
+                log.Info("No destination specified. Not sending messages.");
+                return null;
+            }
+
             TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
             this.transport.Send(toSend, destination);
 
@@ -530,8 +536,6 @@ namespace NServiceBus.Unicast
 
                 this.transport.MessageTypesToBeReceived = this.messageTypes;
 
-                this.transport.Start();
-
                 this.InitializeSelf();
 
                 this.SendReadyMessage(true);
@@ -566,6 +570,8 @@ namespace NServiceBus.Unicast
                         }
                     }
                 }
+
+                this.transport.Start();
 
                 this.started = true;
             }
@@ -849,6 +855,9 @@ namespace NServiceBus.Unicast
 		/// A <see cref="CompletionMessage"/> is used out of convenience as the initialization message.</remarks>
         private bool IsInitializationMessage(TransportMessage msg)
         {
+            if (msg.ReturnAddress == null)
+                return false;
+
             if (!msg.ReturnAddress.Contains(this.transport.Address))
                 return false;
 

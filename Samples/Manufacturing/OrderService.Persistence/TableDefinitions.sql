@@ -6,7 +6,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[OrderSagaData](
 	[Id] [uniqueidentifier] NOT NULL,
-	[Originator] [varchar](50) COLLATE Latin1_General_CI_AS NOT NULL,
+	[Originator] [varchar](50) COLLATE Latin1_General_CI_AS,
 	[PurchaseOrderNumber] [varchar](50) COLLATE Latin1_General_CI_AS NOT NULL,
 	[PartnerId] [uniqueidentifier] NOT NULL,
 	[ProvideBy] [datetime] NOT NULL,

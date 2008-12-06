@@ -94,12 +94,22 @@ namespace NServiceBus.Serializers.XML
                 }
             }
 
-            foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+            if (doc.DocumentElement.Name.ToLower() != "messages")
             {
                 object m = null;
-                Process(node, ref m);
+                Process(doc.DocumentElement, ref m);
 
                 result.Add(m as IMessage);
+            }
+            else
+            {
+                foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+                {
+                    object m = null;
+                    Process(node, ref m);
+
+                    result.Add(m as IMessage);
+                }
             }
 
             defaultNameSpace = null;
@@ -232,7 +242,7 @@ namespace NServiceBus.Serializers.XML
 
             for (int i = 0; i < namespaces.Count; i++)
             {
-                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (i == namespaces.Count - 1 ? ":q" + i : ""), nameSpace, namespaces[i]);
+                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (i != namespaces.Count - 1 ? ":q" + i : ""), nameSpace, namespaces[i]);
                 namespacesToPrefix[namespaces[i]] = i;
             }
 
@@ -263,7 +273,8 @@ namespace NServiceBus.Serializers.XML
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
             string element = name;
-            int i = namespacesToPrefix[type.Namespace];
+            int i;
+            namespacesToPrefix.TryGetValue(type.Namespace, out i);
 
             if (i > 0)
                 element = "q" + i + ":" + name;
