@@ -20,6 +20,8 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 [assembly: ComVisible(false)]
+[assembly: AllowPartiallyTrustedCallers]
 [assembly: AssemblyTitle("NServiceBus Object Builder Interfaces")]
 [assembly: AssemblyDescription("Interfaces for abstracting object creation in nServiceBus")]
