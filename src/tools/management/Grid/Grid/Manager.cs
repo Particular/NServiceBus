@@ -73,7 +73,7 @@ namespace Grid
             foreach(ManagedEndpoint endpoint in myList)
             {
                 MSMQ.MSMQManagementClass qMgmt = new MSMQ.MSMQManagementClass();
-                object machine = Environment.MachineName;
+                object machine = Type.Missing;
                 object missing = Type.Missing;
                 object formatName = "DIRECT=OS:" + Environment.MachineName + "\\private$\\" + endpoint.Queue;
 
