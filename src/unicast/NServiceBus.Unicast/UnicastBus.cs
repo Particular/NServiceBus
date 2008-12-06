@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast
 	/// <summary>
 	/// A unicast implementation of <see cref="IBus"/> for NServiceBus.
 	/// </summary>
-    public class UnicastBus : IUnicastBus
+    public class UnicastBus : IUnicastBus, IStartableBus
     {
         #region config properties
 

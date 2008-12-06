@@ -6,13 +6,8 @@ namespace NServiceBus
 	/// <summary>
 	/// Defines a bus to be used with NServiceBus.
 	/// </summary>
-    public interface IBus : IMessageCreator, IDisposable
+    public interface IBus : IMessageCreator
     {
-		/// <summary>
-		/// Starts the bus.
-		/// </summary>
-        void Start();
-
 	    /// <summary>
 	    /// Publishes the list of messages to subscribers.
 	    /// If publishing multiple messages, they should all be of the same type

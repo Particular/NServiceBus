@@ -28,7 +28,7 @@ namespace HR.Host
                             , typeof(RequestOrderAuthorizationMessageHandler).Assembly
                         );
 
-                IBus bServer = builder.Build<IBus>();
+                var bServer = builder.Build<IStartableBus>();
                 bServer.Start();
             }
             catch (Exception e)

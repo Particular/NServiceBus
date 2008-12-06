@@ -23,8 +23,8 @@ namespace Server
                 .UnicastBus()
                     .ImpersonateSender(false);
 
-            IBus bus = builder.Build<IBus>();
-            bus.Start();
+            var bus = builder.Build<IBus>();
+            builder.Build<IStartableBus>().Start();
 
             Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message. Enter a number to publish that number of events. To exit, press 'q' and then 'Enter'.");

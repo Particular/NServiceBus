@@ -4,7 +4,7 @@ using Common.Logging;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Proxy.InMemoryImpl;
 using NServiceBus.Unicast.Transport.Msmq;
-using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Config;
 using ObjectBuilder;
 
 namespace NServiceBus.Proxy.Host
@@ -38,15 +38,13 @@ namespace NServiceBus.Proxy.Host
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
-            builder.ConfigureComponent<MessageMapper>(
-                ComponentCallModelEnum.Singleton);
 
-            NServiceBus.Serializers.Configure.InterfaceToXMLSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
-            //NServiceBus.Serializers.Configure.XmlSerializer.WithNameSpace("http://www.UdiDahan.com").With(builder);
+            NServiceBus.Config.Configure.With(builder)
+                .XmlSerializer("http://UdiDahan.com")
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false);
 
-            new ConfigMsmqTransport(builder)
-                .IsTransactional(true)
-                .PurgeOnStartup(false);
 
             builder.ConfigureComponent<ProxyDataStorage>(ComponentCallModelEnum.Singleton);
             builder.ConfigureComponent<SubscriberStorage>(ComponentCallModelEnum.Singleton);

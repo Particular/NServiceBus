@@ -27,8 +27,8 @@ namespace Subscriber2
                     );
 
 
-            IBus bus = builder.Build<IBus>();
-            bus.Start();
+            var bus = builder.Build<IBus>();
+            builder.Build<IStartableBus>().Start();
 
             bus.Subscribe<IEvent>();
 

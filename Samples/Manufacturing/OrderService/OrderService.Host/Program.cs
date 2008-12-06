@@ -47,7 +47,7 @@ namespace OrderService.Host
                 builder.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall)
                     .SessionFactory = sessionFactory;
 
-                IBus bServer = builder.Build<IBus>();
+                var bServer = builder.Build<IStartableBus>();
                 bServer.Start();
             }
             catch (Exception e)

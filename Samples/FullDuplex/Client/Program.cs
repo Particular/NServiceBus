@@ -21,7 +21,7 @@ namespace Client
 
             bus = builder.Build<IBus>();
 
-            bus.Start();
+            builder.Build <IStartableBus>().Start();
 
             bus.OutgoingHeaders["Test"] = "client";
 

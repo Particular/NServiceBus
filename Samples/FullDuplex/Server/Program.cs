@@ -19,7 +19,7 @@ namespace Server
             {
                 ConfigureSelfWith(builder);
 
-                IBus bus = builder.Build<IBus>();
+                var bus = builder.Build<IStartableBus>();
                 bus.Start();
 
                 Console.Read();

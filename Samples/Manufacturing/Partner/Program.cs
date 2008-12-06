@@ -29,7 +29,7 @@ namespace Partner
                         );
 
                 IBus bus = builder.Build<IBus>();
-                bus.Start();
+                builder.Build<IStartableBus>().Start();
 
                 Guid partnerId = Guid.NewGuid();
                 Guid productId = Guid.NewGuid();

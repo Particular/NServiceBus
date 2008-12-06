@@ -20,7 +20,7 @@ namespace WebApplication1
                 .UnicastBus()
                     .ImpersonateSender(false);
 
-            IBus bus = builder.Build<IBus>();
+            var bus = builder.Build<IStartableBus>();
             bus.Start();
         }
 

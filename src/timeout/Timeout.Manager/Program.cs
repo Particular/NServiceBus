@@ -46,7 +46,7 @@ namespace Timeout.Manager
                             , typeof(TimeoutMessageHandler).Assembly
                         );
 
-                IBus bus = builder.Build<IBus>();
+                IStartableBus bus = builder.Build<IStartableBus>();
                 bus.Start();
             }
             catch (Exception e)

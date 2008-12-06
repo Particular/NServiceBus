@@ -1,18 +1,20 @@
 using System;
 using NServiceBus;
 using NServiceBus.Config;
+using ObjectBuilder;
 
 namespace WebService1
 {
     public class Global : System.Web.HttpApplication
     {
         public static IBus Bus;
+        public static IBuilder Builder;
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
+            Builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Config.Configure.With(builder)
+            NServiceBus.Config.Configure.With(Builder)
                 .BinarySerializer()
                 .MsmqTransport()
                     .IsTransactional(false)
@@ -20,14 +22,14 @@ namespace WebService1
                 .UnicastBus()
                     .ImpersonateSender(false);
 
-            Bus = builder.Build<IBus>();
+            Bus = Builder.Build<IBus>();
 
-            Bus.Start();
+            Builder.Build<IStartableBus>().Start();
         }
 
         protected void Application_End(object sender, EventArgs e)
         {
-            Bus.Dispose();
+            Builder.Build<IStartableBus>().Dispose();
         }
     }
 }

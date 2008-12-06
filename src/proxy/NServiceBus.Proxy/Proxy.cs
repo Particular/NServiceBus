@@ -139,9 +139,9 @@ namespace NServiceBus.Proxy
             if (sub == null)
                 return false;
 
-            if (sub.subscriptionType == SubscriptionType.Add)
+            if (sub.SubscriptionType == SubscriptionType.Add)
                 subscribers.Store(transportMessage.ReturnAddress);
-            if (sub.subscriptionType == SubscriptionType.Remove)
+            if (sub.SubscriptionType == SubscriptionType.Remove)
                 subscribers.Remove(transportMessage.ReturnAddress);
 
             transportMessage.ReturnAddress = this.externalTransport.Address;

@@ -172,9 +172,6 @@ namespace NServiceBus.Serializers.XML
 
         public object GetPropertyValue(Type type, XmlNode n)
         {
-            if (n.ChildNodes.Count == 0)
-                return null;
-
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
                 if (type == typeof(string))
@@ -220,6 +217,10 @@ namespace NServiceBus.Serializers.XML
                 else
                     return list;
             }
+
+            if (n.ChildNodes.Count == 0)
+                return null;
+
 
             return GetObjectOfTypeFromNode(type, n);
         }

@@ -56,12 +56,12 @@ namespace UI
                 .UnicastBus()
                     .ImpersonateSender(false);
 
-            IBus bClient = builder.Build<IBus>();
+            IStartableBus bClient = builder.Build<IStartableBus>();
 
 
             bClient.Start();
 
-            Manager.SetBus(bClient);
+            Manager.SetBus(builder.Build<IBus>());
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

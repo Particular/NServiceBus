@@ -22,17 +22,13 @@ namespace Subscriber1
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .ImpersonateSender(false)
-                    .DoNotAutoSubscribe()
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(EventMessageHandler).Assembly
                     );
 
-            IBus bus = builder.Build<IBus>();
+            var bus = builder.Build<IStartableBus>();
 
             bus.Start();
-
-            //if we were to auto subscribe, this would happen automatically in bus.Start
-            bus.Subscribe(typeof(EventMessage));
 
             Console.WriteLine("Listening for events. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")

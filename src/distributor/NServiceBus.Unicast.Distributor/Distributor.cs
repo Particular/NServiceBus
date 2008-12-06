@@ -13,13 +13,13 @@ namespace NServiceBus.Unicast.Distributor
     {
         #region config info
 
-        private IBus controlBus;
+        private IStartableBus controlBus;
 
 		/// <summary>
 		/// Sets the <see cref="IBus"/> implementation that will be used
 		/// for transporting control information.
 		/// </summary>
-        public virtual IBus ControlBus
+        public virtual IStartableBus ControlBus
         {
             set { controlBus = value; }
         }
