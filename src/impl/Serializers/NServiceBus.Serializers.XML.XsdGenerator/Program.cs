@@ -13,6 +13,9 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
             Assembly a = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, args[0]));
 
+            if (args.Length == 2)
+                baseNameSpace = args[1];
+
             Events.GuidDetected += delegate
                                        {
                                            needToGenerateGuid = true;
@@ -33,7 +36,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Console.WriteLine("Usage: first parameter [required], your assembly.");
+            Console.WriteLine("Usage: first parameter [required], your assembly. second parameter [optional] the base namespace (or http://tempuri.net will be used).");
         }
 
         private static string GetFileName()
@@ -50,7 +53,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             StringBuilder builder = new StringBuilder();
 
             builder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            builder.AppendLine("<xs:schema elementFormDefault=\"qualified\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">");
+            builder.AppendLine("<xs:schema elementFormDefault=\"qualified\" targetNamespace=\"" + baseNameSpace + "/" + nameSpace + "\" xmlns=\"" + baseNameSpace + "/" + nameSpace + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">");
 
             if (needToGenerateGuid)
                 builder.AppendLine("<xs:import namespace=\"http://microsoft.com/wsdl/types/\" />");
@@ -77,7 +80,20 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         public static void TopLevelScan(Type type)
         {
             if (typeof(IMessage).IsAssignableFrom(type))
+            {
+                if (nameSpace == null)
+                    nameSpace = type.Namespace;
+                else
+                    if (type.Namespace != nameSpace)
+                    {
+                        Console.WriteLine("WARNING: Not all types are in the same namespace. This may cause serialization to fail and is not supported.");
+                        Console.ReadLine();
+
+                        throw new InvalidOperationException("Not all types are in the same namespace");
+                    }                 
+
                 Scan(type);
+            }
         }
 
         public static void Scan(Type type)
@@ -95,5 +111,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         }
 
         private static bool needToGenerateGuid;
+        private static string nameSpace;
+        private static string baseNameSpace = "http://tempuri.net";
     }
 }

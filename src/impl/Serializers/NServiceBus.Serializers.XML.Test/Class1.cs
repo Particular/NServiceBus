@@ -34,6 +34,7 @@ namespace NServiceBus.Serializers.XML.Test
             serializer.Initialize(typeof(IM2), typeof(IM1));
 
             IM2 o = mapper.CreateInstance<IM2>();
+            var o2 = mapper.CreateInstance<IM1>();
 
             o.Id = Guid.NewGuid();
             o.Age = 10;
@@ -65,7 +66,7 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Risk = new Risk { Percent = 0.15D, Annum = true };
             }
 
-            IMessage[] messages = new IMessage[] { o };
+            IMessage[] messages = new IMessage[] { o, o2 };
 
             Time(messages, serializer);
         }
@@ -214,15 +215,6 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    public interface IM1 : IMessage
-    {
-        float Age { get; set; }
-        int Int { get; set; }
-        string Name { get; set; }
-        string Address { get; set; }
-        Risk Risk { get; set; }
-    }
-
     public interface IM2 : IM1
     {
         Guid Id { get; set; }
@@ -255,16 +247,29 @@ namespace NServiceBus.Serializers.XML.Test
         public Risk Risk { get; set; }
     }
 
+    public enum SomeEnum
+    {
+        A,
+        B
+    }
+}
+
+namespace NServiceBus.Serializers.XML
+{
+
+    public interface IM1 : IMessage
+    {
+        float Age { get; set; }
+        int Int { get; set; }
+        string Name { get; set; }
+        string Address { get; set; }
+        Risk Risk { get; set; }
+    }
+
     [Serializable]
     public class Risk
     {
         public bool Annum { get; set; }
         public double Percent { get; set; }
-    }
-
-    public enum SomeEnum
-    {
-        A,
-        B
     }
 }

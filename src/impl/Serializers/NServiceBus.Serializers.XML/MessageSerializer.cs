@@ -73,22 +73,26 @@ namespace NServiceBus.Serializers.XML
 
         public IMessage[] Deserialize(Stream stream)
         {
+            prefixesToNamespaces = new Dictionary<string, string>();
             List<IMessage> result = new List<IMessage>();
 
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
 
-            string nameSpace = null;
-            string fullNameSpace = null;
             foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
             {
                 if (attr.Name == "xmlns")
-                    nameSpace = attr.Value + "/";
-                if (attr.Name == "xmlns:extended")
-                    fullNameSpace = attr.Value;
+                    defaultNameSpace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
+                else
+                {
+                    if (attr.Name.Contains("xmlns:"))
+                    {
+                        int colonIndex = attr.Name.LastIndexOf(":");
+                        string prefix = attr.Name.Substring(colonIndex + 1);
+                        prefixesToNamespaces[prefix] = attr.Value;
+                    }
+                }
             }
-
-            domainSpecificNameSpace = fullNameSpace.Replace(nameSpace, string.Empty);
 
             foreach (XmlNode node in doc.DocumentElement.ChildNodes)
             {
@@ -98,14 +102,25 @@ namespace NServiceBus.Serializers.XML
                 result.Add(m as IMessage);
             }
 
-            domainSpecificNameSpace = null;
+            defaultNameSpace = null;
 
             return result.ToArray();
         }
 
         private void Process(XmlNode node, ref object parent)
         {
-            Type t = MessageMapper.GetMappedTypeFor(domainSpecificNameSpace + "." + node.Name);
+            string typeName = defaultNameSpace + "." + node.Name;
+            if (node.Name.Contains(":"))
+            {
+                int colonIndex = node.Name.IndexOf(":");
+                string name = node.Name.Substring(colonIndex + 1);
+                string prefix = node.Name.Substring(0, colonIndex);
+                string nameSpace = prefixesToNamespaces[prefix];
+
+                typeName = nameSpace.Substring(nameSpace.LastIndexOf("/") + 1) + "." + name;
+            }
+
+            Type t = MessageMapper.GetMappedTypeFor(typeName);
             if (t == null)
                 return;
 
@@ -147,6 +162,9 @@ namespace NServiceBus.Serializers.XML
 
         public object GetPropertyValue(Type type, XmlNode n)
         {
+            if (n.ChildNodes.Count == 0)
+                return null;
+
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
                 if (type == typeof(string))
@@ -202,14 +220,23 @@ namespace NServiceBus.Serializers.XML
 
         public void Serialize(IMessage[] messages, Stream stream)
         {
+            namespacesToPrefix = new Dictionary<string, int>();
+
             StringBuilder builder = new StringBuilder();
 
-            Type leadingType = this.MessageMapper.GetMappedTypeFor(messages[0].GetType());
+            List<string> namespaces = GetNamespaces(messages, MessageMapper);
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
-            builder.AppendLine(
-                "<Messages xmlns=\"" + nameSpace + "\" xmlns:extended=\"" + nameSpace + "/" + leadingType.Namespace + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
-                );
+            
+            builder.Append("<Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"");
+
+            for (int i = 0; i < namespaces.Count; i++)
+            {
+                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (i == namespaces.Count - 1 ? ":q" + i : ""), nameSpace, namespaces[i]);
+                namespacesToPrefix[namespaces[i]] = i;
+            }
+
+            builder.Append(">\n");
 
             foreach (IMessage m in messages)
             {
@@ -226,20 +253,26 @@ namespace NServiceBus.Serializers.XML
 
         public void Write(StringBuilder builder, Type t, object obj)
         {
-            foreach (PropertyInfo prop in typeToProperties[t])
-            {
-                WriteEntry(prop.Name, prop.PropertyType, prop.GetValue(obj, null), builder);
-            }
+            if (obj == null)
+                return;
 
+            foreach (PropertyInfo prop in typeToProperties[t])
+                WriteEntry(prop.Name, prop.PropertyType, prop.GetValue(obj, null), builder);
         }
 
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
-            builder.AppendFormat("<{0}>\n", name);
+            string element = name;
+            int i = namespacesToPrefix[type.Namespace];
+
+            if (i > 0)
+                element = "q" + i + ":" + name;
+
+            builder.AppendFormat("<{0}>\n", element);
 
             Write(builder, type, value);
 
-            builder.AppendFormat("</{0}>\n", name);
+            builder.AppendFormat("</{0}>\n", element);
         }
 
         public void WriteEntry(string name, Type type, object value, StringBuilder builder)
@@ -272,6 +305,8 @@ namespace NServiceBus.Serializers.XML
 
         private string FormatAsString(object value)
         {
+            if (value == null)
+                return string.Empty;
             if (value is string)
                 return value as string;
             if (value is DateTime)
@@ -287,6 +322,20 @@ namespace NServiceBus.Serializers.XML
             return value.ToString();
         }
 
+        private static List<string> GetNamespaces(IMessage[] messages, IMessageMapper mapper)
+        {
+            List<string> result = new List<string>();
+
+            foreach (IMessage m in messages)
+            {
+                string ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
+                if (!result.Contains(ns))
+                    result.Add(ns);
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region members
@@ -297,7 +346,20 @@ namespace NServiceBus.Serializers.XML
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
 
         [ThreadStatic]
-        private static string domainSpecificNameSpace;
+        private static string defaultNameSpace;
+
+        /// <summary>
+        /// Used for serialization
+        /// </summary>
+        [ThreadStatic]
+        private static IDictionary<string, int> namespacesToPrefix;
+
+        /// <summary>
+        /// Used for deserialization
+        /// </summary>
+        [ThreadStatic]
+        private static IDictionary<string, string> prefixesToNamespaces;
+
         #endregion
     }
 }
