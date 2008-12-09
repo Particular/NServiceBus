@@ -224,6 +224,7 @@ namespace NServiceBus.Serializers.XML.Test
         DateTime Start { get; set; }
         TimeSpan Duration { get; set; }
         IM1[] MoreNames { get; set; }
+        object State { get; set; }
     }
 
     [Serializable]

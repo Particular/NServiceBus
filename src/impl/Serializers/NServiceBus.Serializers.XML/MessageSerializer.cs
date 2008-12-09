@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
+using System.Runtime.Serialization;
 
 namespace NServiceBus.Serializers.XML
 {
@@ -50,6 +51,10 @@ namespace NServiceBus.Serializers.XML
 
                 return;
             }
+
+            FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            if (fields.Length > 0 && !t.IsEnum)
+                throw new ArgumentException(t.Name + " has public fields. These are not serializable.");
 
             IEnumerable<PropertyInfo> props = GetAllPropertiesForType(t);
             typeToProperties[t] = props;
@@ -99,6 +104,9 @@ namespace NServiceBus.Serializers.XML
                 object m = null;
                 Process(doc.DocumentElement, ref m);
 
+                if (m == null)
+                    throw new SerializationException("Could not deserialize message.");
+
                 result.Add(m as IMessage);
             }
             else
@@ -132,7 +140,7 @@ namespace NServiceBus.Serializers.XML
 
             Type t = MessageMapper.GetMappedTypeFor(typeName);
             if (t == null)
-                return;
+                throw new TypeLoadException("Could not load type '" + typeName + "'.");
 
             parent = GetObjectOfTypeFromNode(t, node);
         }
@@ -231,7 +239,7 @@ namespace NServiceBus.Serializers.XML
 
         public void Serialize(IMessage[] messages, Stream stream)
         {
-            namespacesToPrefix = new Dictionary<string, int>();
+            namespacesToPrefix = new Dictionary<string, string>();
 
             StringBuilder builder = new StringBuilder();
 
@@ -243,8 +251,12 @@ namespace NServiceBus.Serializers.XML
 
             for (int i = 0; i < namespaces.Count; i++)
             {
-                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (i != namespaces.Count - 1 ? ":q" + i : ""), nameSpace, namespaces[i]);
-                namespacesToPrefix[namespaces[i]] = i;
+                string prefix = "q" + i;
+                if (i == 0)
+                    prefix = "";
+
+                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace, namespaces[i]);
+                namespacesToPrefix[namespaces[i]] = prefix;
             }
 
             builder.Append(">\n");
@@ -274,11 +286,11 @@ namespace NServiceBus.Serializers.XML
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
             string element = name;
-            int i;
-            namespacesToPrefix.TryGetValue(type.Namespace, out i);
+            string prefix = null;
+            namespacesToPrefix.TryGetValue(type.Namespace, out prefix);
 
-            if (i > 0)
-                element = "q" + i + ":" + name;
+            if (prefix != null && prefix != "")
+                element = prefix + ":" + name;
 
             builder.AppendFormat("<{0}>\n", element);
 
@@ -364,7 +376,7 @@ namespace NServiceBus.Serializers.XML
         /// Used for serialization
         /// </summary>
         [ThreadStatic]
-        private static IDictionary<string, int> namespacesToPrefix;
+        private static IDictionary<string, string> namespacesToPrefix;
 
         /// <summary>
         /// Used for deserialization
