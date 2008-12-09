@@ -101,8 +101,7 @@ namespace NServiceBus.Serializers.XML
 
             if (doc.DocumentElement.Name.ToLower() != "messages")
             {
-                object m = null;
-                Process(doc.DocumentElement, ref m);
+                object m = Process(doc.DocumentElement, null);
 
                 if (m == null)
                     throw new SerializationException("Could not deserialize message.");
@@ -113,8 +112,7 @@ namespace NServiceBus.Serializers.XML
             {
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
-                    object m = null;
-                    Process(node, ref m);
+                    object m = Process(node, null);
 
                     result.Add(m as IMessage);
                 }
@@ -125,24 +123,43 @@ namespace NServiceBus.Serializers.XML
             return result.ToArray();
         }
 
-        private void Process(XmlNode node, ref object parent)
+        private object Process(XmlNode node, object parent)
         {
-            string typeName = defaultNameSpace + "." + node.Name;
-            if (node.Name.Contains(":"))
+            string name = node.Name;
+            string typeName = defaultNameSpace + "." + name;
+
+            if (name.Contains(":"))
             {
                 int colonIndex = node.Name.IndexOf(":");
-                string name = node.Name.Substring(colonIndex + 1);
+                name = name.Substring(colonIndex + 1);
                 string prefix = node.Name.Substring(0, colonIndex);
                 string nameSpace = prefixesToNamespaces[prefix];
 
                 typeName = nameSpace.Substring(nameSpace.LastIndexOf("/") + 1) + "." + name;
             }
 
+            if (parent != null)
+            {
+                if (parent is IEnumerable)
+                {
+                    if (parent.GetType().IsArray)
+                        return GetObjectOfTypeFromNode(parent.GetType().GetElementType(), node);
+
+                    var args = parent.GetType().GetGenericArguments();
+                    if (args.Length == 1)
+                        return GetObjectOfTypeFromNode(args[0], node);
+                }
+
+                PropertyInfo prop = parent.GetType().GetProperty(name);
+                if (prop != null)
+                    return GetObjectOfTypeFromNode(prop.PropertyType, node);
+            }
+
             Type t = MessageMapper.GetMappedTypeFor(typeName);
             if (t == null)
                 throw new TypeLoadException("Could not load type '" + typeName + "'.");
 
-            parent = GetObjectOfTypeFromNode(t, node);
+            return GetObjectOfTypeFromNode(t, node);
         }
 
         public object GetObjectOfTypeFromNode(Type t, XmlNode node)
@@ -154,7 +171,7 @@ namespace NServiceBus.Serializers.XML
                 PropertyInfo prop = GetProperty(t, n.Name);
                 if (prop != null)
                 {
-                    object val = GetPropertyValue(prop.PropertyType, n);
+                    object val = GetPropertyValue(prop.PropertyType, n, result);
                     if (val != null)
                         prop.SetValue(result, val, null);
                 }
@@ -178,7 +195,7 @@ namespace NServiceBus.Serializers.XML
             return null;
         }
 
-        public object GetPropertyValue(Type type, XmlNode n)
+        public object GetPropertyValue(Type type, XmlNode n, object parent)
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
@@ -213,11 +230,10 @@ namespace NServiceBus.Serializers.XML
 
                 foreach (XmlNode xn in n.ChildNodes)
                 {
-                    object newParent = null;
-                    Process(xn, ref newParent);
+                    object m = Process(xn, list);
 
                     if (list != null)
-                        list.Add(newParent);
+                        list.Add(m);
                 }
 
                 if (isArray)

@@ -31,9 +31,9 @@ namespace NServiceBus.Serializers.XML.Test
             MessageSerializer serializer = new MessageSerializer();
             serializer.MessageMapper = mapper;
 
-            serializer.Initialize(typeof(IM2), typeof(IM1));
+            serializer.Initialize(typeof(IM2));
 
-            IM2 o = mapper.CreateInstance<IM2>();
+            var o = mapper.CreateInstance<IM2>();
             var o2 = mapper.CreateInstance<IM1>();
 
             o.Id = Guid.NewGuid();
@@ -66,7 +66,7 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Risk = new Risk { Percent = 0.15D, Annum = true };
             }
 
-            IMessage[] messages = new IMessage[] { o, o2 };
+            IMessage[] messages = new IMessage[] { o };
 
             Time(messages, serializer);
         }
