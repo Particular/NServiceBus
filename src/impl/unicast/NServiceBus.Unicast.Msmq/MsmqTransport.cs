@@ -425,7 +425,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                         failuresPerMessageLocker.EnterWriteLock();
                         this.failuresPerMessage.Remove(m.Id);
                         failuresPerMessageLocker.ExitWriteLock();
-                        failuresPerMessageLocker.ExitUpgradeableReadLock();
 
                         MoveToErrorQueue(m);
 
