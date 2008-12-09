@@ -18,7 +18,8 @@
     <SccProvider>
     </SccProvider>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -81,7 +82,9 @@
     <Compile Include="SynchronizationDomainBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NServiceBus.snk" />
+    <None Include="..\..\..\NServiceBus.snk">
+      <Link>NServiceBus.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
