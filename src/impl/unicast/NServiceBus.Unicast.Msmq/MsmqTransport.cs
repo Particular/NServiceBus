@@ -418,9 +418,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 if (this.isTransactional)
                 {
-                    failuresPerMessageLocker.EnterUpgradeableReadLock();
+                    failuresPerMessageLocker.EnterReadLock();
                     if (MessageHasFailedMaxRetries(m))
                     {
+                        failuresPerMessageLocker.ExitReadLock();
                         failuresPerMessageLocker.EnterWriteLock();
                         this.failuresPerMessage.Remove(m.Id);
                         failuresPerMessageLocker.ExitWriteLock();
@@ -434,7 +435,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                         return;
                     }
-                    failuresPerMessageLocker.ExitUpgradeableReadLock();
+                    else
+                        failuresPerMessageLocker.ExitReadLock();
                 }
 
                 TransportMessage result = Convert(m);
@@ -476,15 +478,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 if (exceptions.Count == 0)
                 {
-                    failuresPerMessageLocker.EnterUpgradeableReadLock();
+                    failuresPerMessageLocker.EnterReadLock();
                     if (this.failuresPerMessage.ContainsKey(messageId))
                     {
+                        failuresPerMessageLocker.ExitReadLock();
                         failuresPerMessageLocker.EnterWriteLock();
                         this.failuresPerMessage.Remove(messageId);
                         failuresPerMessageLocker.ExitWriteLock();
                     }
-                     
-                    failuresPerMessageLocker.ExitUpgradeableReadLock();
+                    else
+                        failuresPerMessageLocker.ExitReadLock();
                 }
                 else
                     throw new ApplicationException(string.Format("{0} exceptions occured while processing message.", exceptions.Count));
@@ -501,11 +504,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (this.isTransactional)
                 {
                     failuresPerMessageLocker.EnterWriteLock();
-                    if (!this.failuresPerMessage.ContainsKey(messageId))
-                        this.failuresPerMessage[messageId] = 1;
-                    else
-                        this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
-                    failuresPerMessageLocker.ExitWriteLock();
+                    try
+                    {
+                        if (!this.failuresPerMessage.ContainsKey(messageId))
+                            this.failuresPerMessage[messageId] = 1;
+                        else
+                            this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
+                    }
+                    finally
+                    {
+                        failuresPerMessageLocker.ExitWriteLock();
+                    }
 
                     throw;
                 }
