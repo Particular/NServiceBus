@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.IO;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
@@ -17,17 +18,13 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName(name),
-                AssemblyBuilderAccess.RunAndSave
+                AssemblyBuilderAccess.Run
                 );
 
-            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name, name + ".dll");
+            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
             foreach (Type t in types)
-            {
                 InitType(t, moduleBuilder);
-            }
-
-            assemblyBuilder.Save(name + ".dll");
         }
 
         public void InitType(Type t, ModuleBuilder moduleBuilder)
