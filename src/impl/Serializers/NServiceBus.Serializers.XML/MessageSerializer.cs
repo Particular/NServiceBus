@@ -347,6 +347,8 @@ namespace NServiceBus.Serializers.XML
         {
             if (value == null)
                 return string.Empty;
+            if (value is bool)
+                return value.ToString().ToLower();
             if (value is string)
                 return value as string;
             if (value is DateTime)
