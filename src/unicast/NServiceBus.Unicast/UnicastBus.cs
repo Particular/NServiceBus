@@ -345,6 +345,8 @@ namespace NServiceBus.Unicast
 		/// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<IMessage> condition)
         {
+            AssertBusIsStarted();
+
             this.subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
             string destination = this.GetDestinationForMessageType(messageType);
@@ -480,6 +482,7 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The list of messages to send.</param>
         public ICallback Send(string destination, params IMessage[] messages)
         {
+            AssertBusIsStarted();
             if (destination == null)
             {
                 log.Info("No destination specified. Not sending messages.");
@@ -529,6 +532,7 @@ namespace NServiceBus.Unicast
                 if (this.started)
                     return;
 
+                starting = true;
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (this.subscriptionStorage != null)
@@ -1155,6 +1159,12 @@ namespace NServiceBus.Unicast
 		    return destination;
         }
 
+        protected void AssertBusIsStarted()
+        {
+            if(starting == false)
+                throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
+        }
+
         #endregion
 
         #region Fields
@@ -1195,7 +1205,8 @@ namespace NServiceBus.Unicast
 	    [ThreadStatic] private static bool skipSendingReadyMessageOnce;
 
 	    private volatile bool started = false;
-        private object startLocker = new object();
+        private volatile bool starting = false;
+        private readonly object startLocker = new object();
 
         private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion
