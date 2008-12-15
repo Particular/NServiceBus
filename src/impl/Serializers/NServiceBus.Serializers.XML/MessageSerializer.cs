@@ -52,15 +52,16 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
-            if (fields.Length > 0 && !t.IsEnum)
-                throw new ArgumentException(t.Name + " has public fields. These are not serializable.");
-
-            IEnumerable<PropertyInfo> props = GetAllPropertiesForType(t);
+            var props = GetAllPropertiesForType(t);
             typeToProperties[t] = props;
+            var fields = GetAllFieldsForType(t);
+            typeToFields[t] = fields;
 
             foreach (PropertyInfo prop in props)
                 InitType(prop.PropertyType);
+
+            foreach (FieldInfo field in fields)
+                InitType(field.FieldType);
         }
 
         IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t)
@@ -72,6 +73,11 @@ namespace NServiceBus.Serializers.XML
                     result.AddRange(GetAllPropertiesForType(interfaceType));
 
             return result;
+        }
+
+        IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
+        {
+            return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
         #region Deserialize
@@ -175,6 +181,14 @@ namespace NServiceBus.Serializers.XML
                     if (val != null)
                         prop.SetValue(result, val, null);
                 }
+
+                FieldInfo field = GetField(t, n.Name);
+                if (field != null)
+                {
+                    object val = GetPropertyValue(field.FieldType, n, result);
+                    if (val != null)
+                        field.SetValue(result, val);
+                }
             }
 
             return result;
@@ -191,6 +205,21 @@ namespace NServiceBus.Serializers.XML
             foreach (PropertyInfo prop in props)
                 if (prop.Name == name)
                     return prop;
+
+            return null;
+        }
+
+        public FieldInfo GetField(Type t, string name)
+        {
+            IEnumerable<FieldInfo> fields;
+            typeToFields.TryGetValue(t, out fields);
+
+            if (fields == null)
+                return null;
+
+            foreach (FieldInfo f in fields)
+                if (f.Name == name)
+                    return f;
 
             return null;
         }
@@ -297,6 +326,9 @@ namespace NServiceBus.Serializers.XML
 
             foreach (PropertyInfo prop in typeToProperties[t])
                 WriteEntry(prop.Name, prop.PropertyType, prop.GetValue(obj, null), builder);
+
+            foreach(FieldInfo field in typeToFields[t])
+                WriteEntry(field.Name, field.FieldType, field.GetValue(obj), builder);
         }
 
         public void WriteObject(string name, Type type, object value, StringBuilder builder)
@@ -385,6 +417,7 @@ namespace NServiceBus.Serializers.XML
         private static readonly string XMLPREFIX = "d1p1";
         private static readonly string XMLTYPE = XMLPREFIX + ":type";
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
+        private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
 
         [ThreadStatic]
