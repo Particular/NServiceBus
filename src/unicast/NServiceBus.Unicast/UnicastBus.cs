@@ -542,8 +542,6 @@ namespace NServiceBus.Unicast
 
                 this.InitializeSelf();
 
-                this.SendReadyMessage(true);
-
                 if (autoSubscribe)
                 {
                     foreach (Type messageType in this.messageTypes)
@@ -576,6 +574,8 @@ namespace NServiceBus.Unicast
                 }
 
                 this.transport.Start();
+
+                this.SendReadyMessage(true);
 
                 this.started = true;
             }
