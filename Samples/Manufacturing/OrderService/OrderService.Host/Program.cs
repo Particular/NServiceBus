@@ -25,7 +25,7 @@ namespace OrderService.Host
 
                 var bus = NServiceBus.Configure.With()
                     .SpringBuilder(
-                        ((cfg, bld) => { cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory; })
+                        (cfg => cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory)
                     )
                     .XmlSerializer()
                     .MsmqTransport()
@@ -50,7 +50,6 @@ namespace OrderService.Host
             catch (Exception e)
             {
                 LogManager.GetLogger("hello").Fatal("Exiting", e);
-                Console.Read();
             }
 
             Console.Read();

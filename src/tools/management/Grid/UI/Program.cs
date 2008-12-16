@@ -4,12 +4,10 @@ using NServiceBus;
 using Grid;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Grid.Messages;
-using NServiceBus.Config;
-using ObjectBuilder;
 using System.Reflection;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using Common.Logging;
 using System.Collections.Generic;
+using ObjectBuilder;
 
 namespace UI
 {
@@ -21,54 +19,55 @@ namespace UI
         [STAThread]
         static void Main()
         {
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-
             string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
             string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
+
+            Func<Configure, Configure> func;
 
             switch (serialization)
             {
                 case "xml":
-                    builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-                    builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                        .Namespace = nameSpace;
-                    
-                    List<Type> additionalTypes = new List<Type>{
-                        typeof(ChangeNumberOfWorkerThreadsMessage),
-                        typeof(GetNumberOfWorkerThreadsMessage),
-                        typeof(GotNumberOfWorkerThreadsMessage)
-                    };
+                    func = (cfg =>
+                        {
+                            List<Type> additionalTypes = new List<Type>{
+                                typeof(ChangeNumberOfWorkerThreadsMessage),
+                                typeof(GetNumberOfWorkerThreadsMessage),
+                                typeof(GotNumberOfWorkerThreadsMessage)
+                            };
 
-                    builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                        .AdditionalTypes = additionalTypes;
+                            cfg.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                                .AdditionalTypes = additionalTypes;
+
+                            return cfg.XmlSerializer(nameSpace);
+                        });
                     break;
                 case "binary":
-                    builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
+                    func = cfg => cfg.BinarySerializer();
                     break;
                 default:
-                    throw new ConfigurationException("Serialization can only be either 'xml', or 'binary'.");
+                    throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
             }
 
-            NServiceBus.Config.Configure.With(builder)
+            var busMgr = func(NServiceBus.Configure.With()
+                .SynchronizedBuilder()
+                .SpringBuilder())
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(false)
                 .UnicastBus()
-                    .ImpersonateSender(false);
+                    .ImpersonateSender(false)
+                .CreateBus();
 
-            IStartableBus bClient = builder.Build<IStartableBus>();
+            var bus = busMgr.Start();
 
-
-            bClient.Start();
-
-            Manager.SetBus(builder.Build<IBus>());
+            Manager.SetBus(bus);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             Form1 f = new Form1();
 
-            f.Closed += delegate { bClient.Dispose(); };
+            f.Closed += delegate { busMgr.Dispose(); };
 
             Application.Run(f);
         }
