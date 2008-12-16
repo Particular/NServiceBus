@@ -9,21 +9,21 @@ namespace NServiceBus.Saga
     {
         #region setup
 
-        private IBuilder builder;
+        private IConfigureComponents configurer;
         private static IBuilder builderStatic;
 
         private Configure()
         {
         }
 
-        public static Configure With(IBuilder builder)
+        public static Configure With(IConfigureComponents configurer, IBuilder builder)
         {
             builderStatic = builder;
 
             Configure c = new Configure();
-            c.builder = builder;
+            c.configurer = configurer;
 
-            builder.ConfigureComponent(typeof (SagaEntityFinder), ComponentCallModelEnum.Singleton);
+            configurer.ConfigureComponent(typeof (SagaEntityFinder), ComponentCallModelEnum.Singleton);
 
             return c;
         }
@@ -35,13 +35,13 @@ namespace NServiceBus.Saga
                 {
                     if (IsSagaType(t))
                     {
-                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                        configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
                         ConfigureSaga(t);
                     }
 
                     if (IsFinderType(t))
                     {
-                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                        configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
                         ConfigureFinder(t);
                     }
                 }
@@ -60,7 +60,7 @@ namespace NServiceBus.Saga
                     continue;
 
                 Type newFinderType = typeof (EmptySagaFinder<>).MakeGenericType(sagaEntityType);
-                builder.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
+                configurer.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
                 ConfigureFinder(newFinderType);
             }
         }

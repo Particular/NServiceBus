@@ -2,7 +2,6 @@ using System;
 using NServiceBus;
 using Common.Logging;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Config;
 using ObjectBuilder;
 using Timeout.MessageHandlers;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
@@ -14,28 +13,28 @@ namespace Timeout.Manager
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
                 string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
                 string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
 
+                Func<Configure, Configure> func;
+
                 switch (serialization)
                 {
                     case "xml":
-                        builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-                        builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                            .Namespace = nameSpace;
+                        func = cfg => cfg.XmlSerializer(nameSpace);
                         break;
                     case "binary":
-                        builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
+                        func = cfg => cfg.BinarySerializer();
                         break;
                     default:
                         throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
                 }
 
-                NServiceBus.Config.Configure.With(builder)
+                var bus = func(NServiceBus.Configure.With()
+                    .SpringBuilder())
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
@@ -44,9 +43,9 @@ namespace Timeout.Manager
                         .SetMessageHandlersFromAssembliesInOrder(
                             typeof(GridInterceptingMessageHandler).Assembly
                             , typeof(TimeoutMessageHandler).Assembly
-                        );
+                        )
+                    .CreateBus();
 
-                IStartableBus bus = builder.Build<IStartableBus>();
                 bus.Start();
             }
             catch (Exception e)

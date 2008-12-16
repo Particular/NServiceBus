@@ -1,7 +1,6 @@
 using System;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.Config;
 
 namespace Server
 {
@@ -10,11 +9,11 @@ namespace Server
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
-                NServiceBus.Config.Configure.With(builder)
+                var bus = NServiceBus.Configure.With()
+                    .SpringBuilder()
                     .XmlSerializer()
                     .MsmqSubscriptionStorage()
                     .MsmqTransport()
@@ -24,10 +23,9 @@ namespace Server
                         .ImpersonateSender(false)
                         .SetMessageHandlersFromAssembliesInOrder(
                             typeof(CommandMessageHandler).Assembly
-                            );
-
-                var bus = builder.Build<IStartableBus>();
-                bus.Start();
+                            )
+                    .CreateBus()
+                    .Start();
 
                 Console.Read();
             }

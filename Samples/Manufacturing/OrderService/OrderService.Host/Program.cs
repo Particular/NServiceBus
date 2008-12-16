@@ -2,7 +2,6 @@ using System;
 using Common.Logging;
 using NHibernate.Cfg;
 using NServiceBus;
-using NServiceBus.Config;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
 using OrderService.Persistence;
@@ -16,7 +15,6 @@ namespace OrderService.Host
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Order Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
@@ -25,7 +23,10 @@ namespace OrderService.Host
 
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
-                NServiceBus.Config.Configure.With(builder)
+                var bus = NServiceBus.Configure.With()
+                    .SpringBuilder(
+                        (cfg => cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory)
+                    )
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
@@ -42,13 +43,9 @@ namespace OrderService.Host
                             , typeof(SagaMessageHandler).Assembly
                             , typeof(OrderSagaFinder).Assembly
                             , typeof(OrderSaga).Assembly
-                        );
-
-                builder.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall)
-                    .SessionFactory = sessionFactory;
-
-                var bServer = builder.Build<IStartableBus>();
-                bServer.Start();
+                        )
+                    .CreateBus()
+                    .Start();
             }
             catch (Exception e)
             {

@@ -5,9 +5,11 @@ using Common.Logging;
 
 namespace NServiceBus.Grid.MessageHandlers
 {
-    public class GetNumberOfWorkerThreadsMessageHandler : BaseMessageHandler<GetNumberOfWorkerThreadsMessage>
+    public class GetNumberOfWorkerThreadsMessageHandler : IMessageHandler<GetNumberOfWorkerThreadsMessage>
     {
-        public override void Handle(GetNumberOfWorkerThreadsMessage message)
+        public IBus Bus { get; set; }
+
+        public void Handle(GetNumberOfWorkerThreadsMessage message)
         {
             int result = this.transport.NumberOfWorkerThreads;
             if (result == 1 && GridInterceptingMessageHandler.Disabled)

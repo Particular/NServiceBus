@@ -23,14 +23,11 @@ namespace WebApplication1
 
         private IAsyncResult beginning(object sender, EventArgs e, AsyncCallback cb, object extraData)
         {
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
-            IBus bus = builder.Build<IBus>();
-
             int number = int.Parse(TextBox1.Text);
             Command command = new Command();
             command.Id = number;
 
-            return bus.Send(command).Register(cb, null);
+            return Global.Bus.Send(command).Register(cb, null);
         }
 
         protected void Button1_Click(object sender, EventArgs e)

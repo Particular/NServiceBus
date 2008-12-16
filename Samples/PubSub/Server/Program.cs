@@ -2,8 +2,6 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
-using NServiceBus.Config;
-using ObjectBuilder;
 
 namespace Server
 {
@@ -12,19 +10,18 @@ namespace Server
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Config.Configure.With(builder)
+            var bus = NServiceBus.Configure.With()
+                .SpringBuilder()
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()
-                    .ImpersonateSender(false);
-
-            var bus = builder.Build<IBus>();
-            builder.Build<IStartableBus>().Start();
+                    .ImpersonateSender(false)
+                .CreateBus()
+                .Start();
 
             Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message. Enter a number to publish that number of events. To exit, press 'q' and then 'Enter'.");

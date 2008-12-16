@@ -22,7 +22,7 @@ cd ..\..\..\..\src\impl\SagaPersisters\NHibernateSagaPersister
 msbuild
 cd ..\..\..\..\src\impl\Serializers
 msbuild
-cd ..\..\..\src\impl\ObjectBuilder.SpringFramework
+cd ..\..\..\src\impl\ObjectBuilder
 msbuild
 cd ..\..\..\src\multicast\NServiceBus.Multicast
 msbuild

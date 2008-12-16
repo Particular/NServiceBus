@@ -2,7 +2,6 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Config;
 using HR.MessageHandlers;
 
 namespace HR.Host
@@ -12,11 +11,11 @@ namespace HR.Host
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("HR Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
-                NServiceBus.Config.Configure.With(builder)
+                var bus = NServiceBus.Configure.With()
+                    .SpringBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
@@ -26,10 +25,9 @@ namespace HR.Host
                         .SetMessageHandlersFromAssembliesInOrder(
                             typeof(GridInterceptingMessageHandler).Assembly
                             , typeof(RequestOrderAuthorizationMessageHandler).Assembly
-                        );
-
-                var bServer = builder.Build<IStartableBus>();
-                bServer.Start();
+                        )
+                    .CreateBus()
+                    .Start();
             }
             catch (Exception e)
             {

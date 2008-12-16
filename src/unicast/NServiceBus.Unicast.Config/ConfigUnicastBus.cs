@@ -7,13 +7,14 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Config
 {
-    public class ConfigUnicastBus : NServiceBus.Config.Configure
+    public class ConfigUnicastBus : Configure
     {
         public ConfigUnicastBus() : base() {}
 
-        public void Configure(IBuilder builder)
+        public void Configure(Configure config)
         {
-            this.builder = builder;
+            this.Builder = config.Builder;
+            this.Configurer = config.Configurer;
 
             UnicastBusConfig cfg = ConfigurationManager.GetSection("UnicastBusConfig") as UnicastBusConfig;
 
@@ -25,7 +26,7 @@ namespace NServiceBus.Unicast.Config
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                 hashtable[mapping.Messages] = mapping.Endpoint;
 
-            bus = builder.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
+            bus = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
             bus.DistributorControlAddress = cfg.DistributorControlAddress;
             bus.DistributorDataAddress = cfg.DistributorDataAddress;
@@ -69,13 +70,13 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
         {
-            NServiceBus.Saga.Configure.With(builder).SagasInAssemblies(assemblies);
+            NServiceBus.Saga.Configure.With(this.Configurer, this.Builder).SagasInAssemblies(assemblies);
 
             foreach (Assembly a in assemblies)
                 foreach (Type t in a.GetTypes())
                 {
                     if (IsMessageHandler(t))
-                        builder.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                        this.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
                 }
         }
 

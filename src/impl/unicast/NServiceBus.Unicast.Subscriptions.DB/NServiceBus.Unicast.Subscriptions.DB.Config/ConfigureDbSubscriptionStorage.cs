@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using NServiceBus.Unicast.Subscriptions.DB.Config;
 
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     public static class ConfigureDbSubscriptionStorage
     {
-        public static ConfigDbSubscriptionStorage DbSubscriptionStorage(this NServiceBus.Config.Configure config)
+        public static ConfigDbSubscriptionStorage DbSubscriptionStorage(this Configure config)
         {
             ConfigDbSubscriptionStorage cfg = new ConfigDbSubscriptionStorage();
-            cfg.Configure(config.builder);
+            cfg.Configure(config);
 
             return cfg;
         }

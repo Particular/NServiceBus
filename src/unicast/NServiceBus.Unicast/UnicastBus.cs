@@ -522,15 +522,15 @@ namespace NServiceBus.Unicast
 		/// <summary>
 		/// Starts the bus.
 		/// </summary>
-        public virtual void Start()
+        public virtual IBus Start()
         {
             if (this.started)
-                return;
+                return this;
 
             lock (this.startLocker)
             {
                 if (this.started)
-                    return;
+                    return this;
 
                 starting = true;
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -579,6 +579,8 @@ namespace NServiceBus.Unicast
 
                 this.started = true;
             }
+
+            return this;
         }
 
         private void InitializeSelf()
@@ -728,7 +730,7 @@ namespace NServiceBus.Unicast
                 {
                     log.Debug("Activating: " + messageHandlerType.Name);
 
-                    this.builder.BuildAndDispatch(messageHandlerType, "Handle", toHandle);
+                    this.builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
                     
                     log.Debug(messageHandlerType.Name + " Done.");
 
@@ -749,6 +751,18 @@ namespace NServiceBus.Unicast
             if (toHandle is SubscriptionMessage)
                 if (this.subscriptionStorage != null)
                     this.subscriptionStorage.HandleSubscriptionMessage(messageBeingHandled);
+        }
+
+        private Action<object> GetAction<T>(T message) where T : IMessage
+        {
+            return (o => 
+                {
+                    var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[o.GetType()];
+                    foreach(Type messageType in messageTypesToMethods.Keys)
+                        if (messageType.IsAssignableFrom(message.GetType()))
+                            messageTypesToMethods[messageType].Invoke(o, new object[1] { message });
+                }
+            );
         }
 
 		/// <summary>
@@ -1087,6 +1101,12 @@ namespace NServiceBus.Unicast
                     handlerList[t].Add(messageType);
                     log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, t));
                 }
+
+                if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(t))
+                    handlerToMessageTypeToHandleMethodMap.Add(t, new Dictionary<Type, MethodInfo>());
+
+                if (!(handlerToMessageTypeToHandleMethodMap[t].ContainsKey(messageType)))
+                    handlerToMessageTypeToHandleMethodMap[t].Add(messageType, t.GetMethod("Handle", new Type[1] { messageType }));
             }
         }
 
@@ -1179,6 +1199,7 @@ namespace NServiceBus.Unicast
         private readonly List<Type> messageTypes = new List<Type>(new Type[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
 
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
+        private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
         private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 	    private readonly IList<Type> recoverableMessageTypes = new List<Type>();
 	    private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();

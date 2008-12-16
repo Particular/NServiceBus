@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.Config;
 using OrderService.Messages;
 
 namespace Partner
@@ -13,11 +12,11 @@ namespace Partner
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Partner Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
-                NServiceBus.Config.Configure.With(builder)
+                var bus = NServiceBus.Configure.With()
+                    .SpringBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
@@ -26,10 +25,9 @@ namespace Partner
                         .ImpersonateSender(false)
                         .SetMessageHandlersFromAssembliesInOrder(
                             typeof(OrderStatusChangedMessageHandler).Assembly
-                        );
-
-                IBus bus = builder.Build<IBus>();
-                builder.Build<IStartableBus>().Start();
+                        )
+                    .CreateBus()
+                    .Start();
 
                 Guid partnerId = Guid.NewGuid();
                 Guid productId = Guid.NewGuid();

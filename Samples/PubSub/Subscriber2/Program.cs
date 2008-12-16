@@ -1,8 +1,6 @@
 using System;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.Config;
-using ObjectBuilder;
 using Messages;
 
 namespace Subscriber2
@@ -12,9 +10,9 @@ namespace Subscriber2
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Config.Configure.With(builder)
+            var bus = NServiceBus.Configure.With()
+                .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(false)
@@ -24,11 +22,9 @@ namespace Subscriber2
                     .DoNotAutoSubscribe()
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(EventMessageHandler).Assembly
-                    );
-
-
-            var bus = builder.Build<IBus>();
-            builder.Build<IStartableBus>().Start();
+                    )
+                .CreateBus()
+                .Start();
 
             bus.Subscribe<IEvent>();
 

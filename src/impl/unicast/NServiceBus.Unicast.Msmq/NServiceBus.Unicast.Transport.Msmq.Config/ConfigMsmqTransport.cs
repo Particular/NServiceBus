@@ -6,15 +6,16 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Msmq.Config
 {
-    public class ConfigMsmqTransport : NServiceBus.Config.Configure
+    public class ConfigMsmqTransport : Configure
     {
         public ConfigMsmqTransport() : base() { }
 
-        public void Configure(IBuilder builder)
+        public void Configure(Configure config)
         {
-            this.builder = builder;
+            this.Builder = config.Builder;
+            this.Configurer = config.Configurer;
 
-            transport = builder.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
+            transport = this.Configurer.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
             MsmqTransportConfig cfg =
                 ConfigurationManager.GetSection("MsmqTransportConfig") as MsmqTransportConfig;

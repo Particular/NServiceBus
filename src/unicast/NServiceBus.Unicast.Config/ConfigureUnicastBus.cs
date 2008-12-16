@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using NServiceBus.Unicast.Config;
 
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     public static class ConfigureUnicastBus
     {
-        public static ConfigUnicastBus UnicastBus(this NServiceBus.Config.Configure config)
+        public static ConfigUnicastBus UnicastBus(this Configure config)
         {
             ConfigUnicastBus cfg = new ConfigUnicastBus();
-            cfg.Configure(config.builder);
+            cfg.Configure(config);
 
             return cfg;
         } 

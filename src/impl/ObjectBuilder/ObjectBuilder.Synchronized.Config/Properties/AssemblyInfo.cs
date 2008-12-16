@@ -20,8 +20,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
 [assembly: ComVisible(false)]
-[assembly: AllowPartiallyTrustedCallers]
-[assembly: AssemblyTitle("NServiceBus Concrete Object Builder Functionality using SpringFramework.net")]
-[assembly: AssemblyDescription("Implementation of Object Builder interfaces using SpringFramwork.net")]
+[assembly: AssemblyTitle("NServiceBus Synchronized Object Builder Configuration")]
+[assembly: AssemblyDescription("Configuration of synchronized context bound object builder.")]

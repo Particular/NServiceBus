@@ -48,12 +48,14 @@ namespace NServiceBus.Multicast
             ((IMulticastTransport)this.transport).Unsubscribe(address);
         }
 
-        public override void Start()
+        public override IBus Start()
         {
             base.Start();
 
             foreach (string topic in this.subscribeToTopics)
                 ((IMulticastTransport)this.transport).Subscribe(topic);
+
+            return this;
         }
     }
 }

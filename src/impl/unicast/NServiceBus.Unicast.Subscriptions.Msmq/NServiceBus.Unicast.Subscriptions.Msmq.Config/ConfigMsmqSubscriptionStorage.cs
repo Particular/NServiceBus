@@ -5,13 +5,14 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
-    public class ConfigMsmqSubscriptionStorage : NServiceBus.Config.Configure
+    public class ConfigMsmqSubscriptionStorage : Configure
     {
         public ConfigMsmqSubscriptionStorage() : base() { }
 
-        public void Configure(IBuilder builder)
+        public void Configure(Configure config)
         {
-            this.builder = builder;
+            this.Builder = config.Builder;
+            this.Configurer = config.Configurer;
 
             MsmqSubscriptionStorageConfig cfg =
                 ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig") as MsmqSubscriptionStorageConfig;
@@ -19,7 +20,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for Msmq Subscription Storage.");
 
-            MsmqSubscriptionStorage storage = builder.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton);
+            MsmqSubscriptionStorage storage = this.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton);
             storage.Queue = cfg.Queue;
         }
     }

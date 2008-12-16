@@ -7,8 +7,10 @@ using NServiceBus.Unicast;
 
 namespace NServiceBus.Grid.MessageHandlers
 {
-    public class GridInterceptingMessageHandler : BaseMessageHandler<IMessage>
+    public class GridInterceptingMessageHandler : IMessageHandler<IMessage>
     {
+        public IBus Bus { get; set; }
+
         private static volatile bool disabled;
         public static bool Disabled
         {
@@ -30,7 +32,7 @@ namespace NServiceBus.Grid.MessageHandlers
 
         public static event EventHandler DisabledChanged;
 
-        public override void Handle(IMessage message)
+        public void Handle(IMessage message)
         {
             if (message is GetNumberOfWorkerThreadsMessage ||
                 message is ChangeNumberOfWorkerThreadsMessage ||

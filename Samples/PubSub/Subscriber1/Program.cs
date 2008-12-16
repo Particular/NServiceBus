@@ -2,9 +2,6 @@ using System;
 using Common.Logging;
 using Messages;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Unicast.Transport.Msmq.Config;
-using ObjectBuilder;
 
 namespace Subscriber1
 {
@@ -13,9 +10,9 @@ namespace Subscriber1
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            NServiceBus.Config.Configure.With(builder)
+            var bus = NServiceBus.Configure.With()
+                .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(false)
@@ -24,11 +21,9 @@ namespace Subscriber1
                     .ImpersonateSender(false)
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(EventMessageHandler).Assembly
-                    );
-
-            var bus = builder.Build<IStartableBus>();
-
-            bus.Start();
+                    )
+                .CreateBus()
+                .Start();
 
             Console.WriteLine("Listening for events. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")

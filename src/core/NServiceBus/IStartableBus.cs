@@ -10,6 +10,6 @@ namespace NServiceBus
         /// <summary>
         /// Starts the bus.
         /// </summary>
-        void Start();
+        IBus Start();
     }
 }

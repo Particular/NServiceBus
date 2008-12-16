@@ -4,20 +4,23 @@ using System.Linq;
 using System.Text;
 using ObjectBuilder;
 
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     public class Configure
     {
-        public IBuilder builder;
+        public IBuilder Builder { get; set; }
+        public IConfigureComponents Configurer { get; set; }
 
         protected Configure() { }
 
-        public static Configure With(IBuilder builder)
+        public static Configure With()
         {
-            Configure result = new Configure();
-            result.builder = builder;
+            return new Configure();
+        }
 
-            return result;
+        public IStartableBus CreateBus()
+        {
+            return Builder.Build<IStartableBus>();
         }
     }
 }

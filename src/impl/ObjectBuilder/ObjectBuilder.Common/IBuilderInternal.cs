@@ -1,7 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ObjectBuilder;
 
-namespace ObjectBuilder.SpringFramework
+namespace NServiceBus.ObjectBuilder.Common
 {
     public interface IBuilderInternal
     {
@@ -9,7 +12,7 @@ namespace ObjectBuilder.SpringFramework
 
         IEnumerable<object> BuildAll(Type typeToBuild);
 
-        void BuildAndDispatch(Type typeToBuild, string methodName, params object[] methodArgs);
+        void BuildAndDispatch(Type typeToBuild, Action<object> action);
 
         IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
 

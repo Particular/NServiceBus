@@ -6,16 +6,16 @@ using NHibernate;
 using ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     public static class ConfigureNHibernateSagaPersister
     {
         public static Configure NHibernateSagaPersister(this Configure config, ISessionFactory sessionFactory)
         {
-            config.builder.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall)
+            config.Configurer.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall)
                 .SessionFactory = sessionFactory;
 
-            config.builder.ConfigureComponent<NHibernateMessageModule>(ComponentCallModelEnum.Singleton)
+            config.Configurer.ConfigureComponent<NHibernateMessageModule>(ComponentCallModelEnum.Singleton)
                 .SessionFactory = sessionFactory;
 
             return config;

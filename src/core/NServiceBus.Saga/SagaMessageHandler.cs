@@ -8,8 +8,10 @@ namespace NServiceBus.Saga
 	/// <summary>
     /// A message handler that supports sagas.
 	/// </summary>
-    public class SagaMessageHandler : BaseMessageHandler<IMessage>
+    public class SagaMessageHandler : IMessageHandler<IMessage>
     {
+        public IBus Bus { get; set; }
+
 		/// <summary>
 		/// Handles a message.
 		/// </summary>
@@ -20,7 +22,7 @@ namespace NServiceBus.Saga
 		/// implementation provided in the configuration.  Any other message implementing 
 		/// <see cref="ISagaMessage"/> will cause the existing saga instance with which it is
 		/// associated to continue.</remarks>
-        public override void Handle(IMessage message)
+        public void Handle(IMessage message)
         {
             if (!this.NeedToHandle(message))
                 return;

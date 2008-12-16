@@ -5,15 +5,16 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.DB.Config
 {
-    public class ConfigDbSubscriptionStorage : NServiceBus.Config.Configure
+    public class ConfigDbSubscriptionStorage : Configure
     {
         public ConfigDbSubscriptionStorage() : base() { }
 
-        public void Configure(IBuilder builder)
+        public void Configure(Configure config)
         {
-            this.builder = builder;
+            this.Builder = config.Builder;
+            this.Configurer = config.Configurer;
 
-            this.storage = builder.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
+            this.storage = this.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 
             DbSubscriptionStorageConfig cfg = ConfigurationManager.GetSection("DbSubscriptionStorageConfig") as DbSubscriptionStorageConfig;
 
@@ -52,11 +53,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         public ConfigDbSubscriptionStorage IsolationLevel(IsolationLevel value)
         {
             this.storage.IsolationLevel = value;
-            return this;
-        }
-
-        public NServiceBus.Config.Configure Done()
-        {
             return this;
         }
     }

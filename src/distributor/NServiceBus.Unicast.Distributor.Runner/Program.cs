@@ -13,28 +13,27 @@ namespace NServiceBus.Unicast.Distributor.Runner
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
             try
             {
                 string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
                 string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
 
+                Func<Configure, Configure> func;
+
                 switch(serialization)
                 {
                     case "xml":
-                        builder.ConfigureComponent<MessageMapper>(ComponentCallModelEnum.Singleton);
-                        builder.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                            .Namespace = nameSpace;
+                        func = cfg => cfg.XmlSerializer(nameSpace);
                         break;
                     case "binary":
-                        builder.ConfigureComponent<NServiceBus.Serializers.Binary.MessageSerializer>(ComponentCallModelEnum.Singleton);
+                        func = cfg => cfg.BinarySerializer();
                         break;
                     default:
                         throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
                 }
 
-                Initalizer.Init(builder);
+                Initalizer.Init(func);
 
                 Distributor d = builder.Build<Distributor>();
 

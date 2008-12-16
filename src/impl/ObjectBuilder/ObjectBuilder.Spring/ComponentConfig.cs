@@ -1,7 +1,11 @@
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Spring.Objects.Factory.Support;
+using ObjectBuilder;
 
-namespace ObjectBuilder.SpringFramework
+namespace NServiceBus.ObjectBuilder.Spring
 {
     class ComponentConfig : IComponentConfig
     {

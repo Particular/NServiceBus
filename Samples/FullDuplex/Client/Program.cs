@@ -3,7 +3,6 @@ using Common.Logging;
 using NServiceBus;
 using Messages;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Config;
 using ObjectBuilder;
 
 namespace Client
@@ -15,13 +14,17 @@ namespace Client
         static void Main()
         {
             LogManager.GetLogger("hello").Debug("Started.");
-            ObjectBuilder.SpringFramework.Builder builder = new ObjectBuilder.SpringFramework.Builder();
 
-            ConfigureSelfWith(builder);
-
-            bus = builder.Build<IBus>();
-
-            builder.Build <IStartableBus>().Start();
+            bus = NServiceBus.Configure.With()
+                .SpringBuilder()
+                .XmlSerializer("http://www.UdiDahan.com")
+                .MsmqTransport()
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false)
+                .CreateBus()
+                .Start();
 
             bus.OutgoingHeaders["Test"] = "client";
 
@@ -29,16 +32,13 @@ namespace Client
             while (Console.ReadLine().ToLower() != "q")
             {
                 RequestDataMessage m = new RequestDataMessage();
-                //IRequestDataMessage r = bus.CreateInstance<IRequestDataMessage>();
 
                 m.DataId = Guid.NewGuid();
-                //r.DataId = m.DataId;
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 
                 //notice that we're passing the message as our state object
                 bus.Send(m).Register(RequestDataComplete, m);
-                //bus.Send(r).Register(RequestDataComplete, r);
             }
         }
 
@@ -62,18 +62,6 @@ namespace Client
                 return;
 
             Console.WriteLine("Response received with description: {0}",response.Description);
-        }
-
-        private static void ConfigureSelfWith(IBuilder builder)
-        {
-            NServiceBus.Config.Configure.With(builder)
-                .XmlSerializer("http://www.UdiDahan.com")
-                .MsmqTransport()
-                    .IsTransactional(false)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false);
-
         }
     }
 }

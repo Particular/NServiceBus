@@ -4,6 +4,7 @@ using NServiceBus.Unicast.Transport.Msmq;
 using ObjectBuilder;
 using NServiceBus.Config;
 using System.Threading;
+using System;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -14,9 +15,10 @@ namespace NServiceBus.Unicast.Distributor.Runner
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static Distributor Init(IBuilder builder)
+        public static Distributor Init(Func<Configure, Configure> setupSerialization)
         {
-            NServiceBus.Config.Configure.With(builder)
+            setupSerialization(NServiceBus.Configure.With()
+                .SpringBuilder())
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
