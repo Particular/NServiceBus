@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Object Builder Castle Implementation")]
-[assembly: AssemblyDescription("Implementation of object building functionality on top of Castle Windsor.")]
+[assembly: AssemblyTitle("NServiceBus Castle Windsor Object Builder Configuration")]
+[assembly: AssemblyDescription("Configuration functionality for the Castle Windsor implementation of object building functionality.")]

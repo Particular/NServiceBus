@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Castle.Core.Interceptor;
+using ObjectBuilder;
 
-namespace ObjectBuilder.CastleWindsor
+namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
     public class RecordPropertySet : IInterceptor
     {

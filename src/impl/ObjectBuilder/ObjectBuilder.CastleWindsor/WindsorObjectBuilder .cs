@@ -6,22 +6,19 @@ using NServiceBus.ObjectBuilder.Common;
 using Castle.DynamicProxy;
 using Castle.Windsor;
 using Castle.MicroKernel;
+using ObjectBuilder;
 
-namespace ObjectBuilder.CastleWindsor
+namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
     public class WindsorObjectBuilder : IBuilderInternal
     {
-        private readonly IWindsorContainer container;
-        private readonly ProxyGenerator proxyGenerator = new ProxyGenerator();
+        public IWindsorContainer Container { get; set; }
 
-        public WindsorObjectBuilder(IWindsorContainer container)
-        {
-            this.container = container;
-        }
+        private readonly ProxyGenerator proxyGenerator = new ProxyGenerator();
 
         public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum ignored)
         {
-            var handler = container.Kernel.GetAssignableHandlers(typeof(object))
+            var handler = Container.Kernel.GetAssignableHandlers(typeof(object))
                 .Where(h => h.ComponentModel.Implementation == concreteComponent)
                 .FirstOrDefault();
             if (handler == null)
@@ -38,22 +35,12 @@ namespace ObjectBuilder.CastleWindsor
 
         public object Build(Type typeToBuild)
         {
-            return container.Resolve(typeToBuild);
-        }
-
-        public T Build<T>()
-        {
-            return container.Resolve<T>();
-        }
-
-        public IEnumerable<T> BuildAll<T>()
-        {
-            return container.ResolveAll<T>();
+            return Container.Resolve(typeToBuild);
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            foreach (var component in container.ResolveAll(typeToBuild))
+            foreach (var component in Container.ResolveAll(typeToBuild))
             {
                 yield return component;
             }
