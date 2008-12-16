@@ -24,7 +24,7 @@ namespace OrderService.Host
                 ISessionFactory sessionFactory = config.BuildSessionFactory();
 
                 var bus = NServiceBus.Configure.With()
-                    .SpringBuilder(
+                    .CastleWindsorBuilder(
                         (cfg => cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory)
                     )
                     .XmlSerializer()
