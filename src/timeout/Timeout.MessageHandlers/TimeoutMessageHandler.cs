@@ -5,9 +5,11 @@ using System.Collections.Generic;
 
 namespace Timeout.MessageHandlers
 {
-    public class TimeoutMessageHandler : BaseMessageHandler<TimeoutMessage>
+    public class TimeoutMessageHandler : IMessageHandler<TimeoutMessage>
     {
-        public override void Handle(TimeoutMessage message)
+        public IBus Bus { get; set; }
+
+        public void Handle(TimeoutMessage message)
         {
             if (message.ClearTimeout)
             {

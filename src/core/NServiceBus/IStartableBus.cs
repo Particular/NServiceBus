@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ObjectBuilder;
 
 namespace NServiceBus
 {
@@ -10,6 +11,6 @@ namespace NServiceBus
         /// <summary>
         /// Starts the bus.
         /// </summary>
-        IBus Start();
+        IBus Start(params Action<IBuilder>[] startupActions);
     }
 }

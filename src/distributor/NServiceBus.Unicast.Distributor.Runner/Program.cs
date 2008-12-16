@@ -1,7 +1,5 @@
 using System;
 using Common.Logging;
-using ObjectBuilder;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
@@ -34,10 +32,6 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 }
 
                 Initalizer.Init(func);
-
-                Distributor d = builder.Build<Distributor>();
-
-                d.Start();
 
                 Console.Read();
             }

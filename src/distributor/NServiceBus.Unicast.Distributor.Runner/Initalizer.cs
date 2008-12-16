@@ -15,39 +15,46 @@ namespace NServiceBus.Unicast.Distributor.Runner
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static Distributor Init(Func<Configure, Configure> setupSerialization)
+        public static void Init(Func<Configure, Configure> setupSerialization)
         {
+            MsmqTransport dataTransport = null;
+
             setupSerialization(NServiceBus.Configure.With()
-                .SpringBuilder())
+                .SpringBuilder(
+                (cfg =>
+                {
+                    dataTransport = new MsmqTransport();
+                    dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
+                    dataTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
+                    dataTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
+                    dataTransport.IsTransactional = true;
+                    dataTransport.PurgeOnStartup = false;
+                    dataTransport.SkipDeserialization = true;
+
+                    cfg.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton)
+                        .StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];
+
+                    cfg.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
+                }
+                )))
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .SetMessageHandlersFromAssembliesInOrder(
                         typeof(GridInterceptingMessageHandler).Assembly,
-                        typeof(ReadyMessageHandler).Assembly);
+                        typeof(ReadyMessageHandler).Assembly)
+                .CreateBus()
+                .Start(builder =>
+                    {
+                        dataTransport.Builder = builder;
 
-            MsmqTransport dataTransport = new MsmqTransport();
-            dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
-            dataTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
-            dataTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
-            dataTransport.IsTransactional = true;
-            dataTransport.PurgeOnStartup = false;
-            dataTransport.SkipDeserialization = true;
-            dataTransport.Builder = builder;
+                        var d = builder.Build<Distributor>();
+                        d.MessageBusTransport = dataTransport;
 
-
-            MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager mgr = builder.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton);
-            mgr.StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];
-
-            builder.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
-
-            Thread.Sleep(100);
-
-            Distributor d = builder.Build<Distributor>();
-            d.MessageBusTransport = dataTransport;
-
-            return d;
+                        d.Start();
+                    }
+                );
         }
     }
 }

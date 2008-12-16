@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NServiceBus.Unicast;
 using NServiceBus.Multicast.Transport;
 using NServiceBus.Unicast.Transport;
+using ObjectBuilder;
 
 namespace NServiceBus.Multicast
 {
@@ -48,9 +49,9 @@ namespace NServiceBus.Multicast
             ((IMulticastTransport)this.transport).Unsubscribe(address);
         }
 
-        public override IBus Start()
+        public override IBus Start(params Action<IBuilder>[] startupActions)
         {
-            base.Start();
+            base.Start(startupActions);
 
             foreach (string topic in this.subscribeToTopics)
                 ((IMulticastTransport)this.transport).Subscribe(topic);

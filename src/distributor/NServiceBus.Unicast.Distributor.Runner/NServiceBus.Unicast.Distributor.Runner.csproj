@@ -62,10 +62,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="ObjectBuilder.SpringFramework, Version=1.0.2.42066, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\ObjectBuilder.SpringFramework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">

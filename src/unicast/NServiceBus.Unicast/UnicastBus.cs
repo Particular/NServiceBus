@@ -522,7 +522,7 @@ namespace NServiceBus.Unicast
 		/// <summary>
 		/// Starts the bus.
 		/// </summary>
-        public virtual IBus Start()
+        public virtual IBus Start(params Action<IBuilder>[] startupActions)
         {
             if (this.started)
                 return this;
@@ -533,6 +533,10 @@ namespace NServiceBus.Unicast
                     return this;
 
                 starting = true;
+
+                foreach (var action in startupActions)
+                    action(this.builder);
+
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (this.subscriptionStorage != null)

@@ -25,7 +25,7 @@ namespace OrderService.Host
 
                 var bus = NServiceBus.Configure.With()
                     .SpringBuilder(
-                        (cfg => cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory)
+                        ((cfg, bld) => { cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).SessionFactory = sessionFactory; })
                     )
                     .XmlSerializer()
                     .MsmqTransport()

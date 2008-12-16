@@ -3,9 +3,11 @@ using NServiceBus.Messages;
 
 namespace NServiceBus.Unicast.Distributor
 {
-    public class ReadyMessageHandler : BaseMessageHandler<ReadyMessage>
+    public class ReadyMessageHandler : IMessageHandler<ReadyMessage>
     {
-        public override void Handle(ReadyMessage message)
+        public IBus Bus { get; set; }
+
+        public void Handle(ReadyMessage message)
         {
             logger.Debug("Server available: " + this.Bus.SourceOfMessageBeingHandled);
 
