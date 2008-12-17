@@ -231,7 +231,7 @@ namespace NServiceBus.Serializers.XML
                 if (type == typeof(string))
                     return n.ChildNodes[0].InnerText;
 
-                if (type.IsPrimitive)
+                if (type.IsPrimitive || type == typeof(decimal))
                     return Convert.ChangeType(n.ChildNodes[0].InnerText, type);
 
                 if (type == typeof (Guid))

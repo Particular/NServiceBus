@@ -41,7 +41,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Address = Guid.NewGuid().ToString();
             o.Int = 7;
             o.Name = "udi";
-            o.Risk = new Risk { Percent = 0.15D, Annum = true };
+            o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             o.Some = SomeEnum.B;
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("01:15:27.123");
@@ -52,7 +52,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Parent.Address = Guid.NewGuid().ToString();
             o.Parent.Int = 7;
             o.Parent.Name = "-1";
-            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true };
+            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
 
             o.Names = new List<IM1>();
             for (int i = 0; i < number; i++)
@@ -63,7 +63,7 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Address = Guid.NewGuid().ToString();
                 m1.Int = 7;
                 m1.Name = i.ToString();
-                m1.Risk = new Risk { Percent = 0.15D, Annum = true };
+                m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             }
 
             IMessage[] messages = new IMessage[] { o };
@@ -138,7 +138,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Address = Guid.NewGuid().ToString();
             o.Int = 7;
             o.Name = "udi";
-            o.Risk = new Risk { Percent = 0.15D, Annum = true };
+            o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             o.Some = SomeEnum.B;
 
             o.Parent = new M1();
@@ -147,7 +147,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Parent.Address = Guid.NewGuid().ToString();
             o.Parent.Int = 7;
             o.Parent.Name = "-1";
-            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true };
+            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
 
             o.Names = new List<M1>();
             for (int i = 0; i < number; i++)
@@ -158,7 +158,7 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Address = Guid.NewGuid().ToString();
                 m1.Int = 7;
                 m1.Name = i.ToString();
-                m1.Risk = new Risk { Percent = 0.15D, Annum = true };
+                m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             }
 
             return o;
@@ -272,5 +272,6 @@ namespace NServiceBus.Serializers.XML
     {
         public bool Annum { get; set; }
         public double Percent { get; set; }
+        public decimal Accuracy { get; set; }
     }
 }
