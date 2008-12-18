@@ -39,8 +39,8 @@ namespace Partner
                 string poId = Guid.NewGuid().ToString();
                 while ((line = Console.ReadLine().ToLower()) != "q")
                 {
-                    if (line == "simulate")
-                        Simulate(bus);
+                    if (line.ToLower().Contains("simulate"))
+                        Simulate(bus, line.ToLower().Contains("step"));
 
                     bool done = (line == "y");
                     orderlines = new List<OrderLine>(1);
@@ -73,7 +73,7 @@ namespace Partner
             }
         }
 
-        private static void Simulate(IBus bus)
+        private static void Simulate(IBus bus, bool step)
         {
             Guid partnerId = Guid.NewGuid();
 
@@ -106,6 +106,8 @@ namespace Partner
                 }
 
                 Thread.Sleep(1000);
+                if (step)
+                    Console.ReadLine();
             }
         }
     }

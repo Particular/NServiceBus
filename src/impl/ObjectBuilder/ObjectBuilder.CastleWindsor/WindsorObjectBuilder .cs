@@ -32,10 +32,10 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             {
                 LifestyleType lifestyle = GetLifestyleTypeFrom(callModel);
 
-                Container.Kernel.Register(
-                    Component.For(GetAllServiceTypesFor(concreteComponent))
-                        .ImplementedBy(concreteComponent)
-                    );
+                ComponentRegistration<object> reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
+                reg.LifeStyle.Is(lifestyle);
+                        
+                Container.Kernel.Register(reg);
 
                 handler = Container.Kernel.GetAssignableHandlers(typeof(object))
                     .Where(h => h.ComponentModel.Implementation == concreteComponent)
