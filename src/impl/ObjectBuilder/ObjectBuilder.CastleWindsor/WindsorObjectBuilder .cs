@@ -16,9 +16,13 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
     {
         public IWindsorContainer Container { get; set; }
 
-        public WindsorObjectBuilder()
+        public WindsorObjectBuilder() : this(new WindsorContainer())
         {
-            this.Container = new WindsorContainer();
+        }
+
+        public WindsorObjectBuilder(IWindsorContainer container)
+        {
+            this.Container = container;
         }
 
         private readonly ProxyGenerator proxyGenerator = new ProxyGenerator();

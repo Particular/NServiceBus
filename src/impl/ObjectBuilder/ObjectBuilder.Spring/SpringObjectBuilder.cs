@@ -17,6 +17,17 @@ namespace NServiceBus.ObjectBuilder.Spring
 {
     public class SpringObjectBuilder : IBuilderInternal
     {
+        private static GenericApplicationContext context;
+
+        public SpringObjectBuilder() : this(new GenericApplicationContext())
+        {
+        }
+
+        public SpringObjectBuilder(GenericApplicationContext container)
+        {
+            context = container;
+        }
+
         #region IBuilderInternal Members
 
         public object Build(Type typeToBuild)
@@ -121,7 +132,6 @@ namespace NServiceBus.ObjectBuilder.Spring
                 LogManager.GetLogger("ObjectBuilder").Warn(String.Format("Non virtual properties of {0} ({1}) may not be able to be configured.", concreteComponent.FullName, string.Join(", ", problematicProperties.ToArray())));
         }
 
-        private static GenericApplicationContext context = new GenericApplicationContext();
         private readonly Dictionary<Type, ComponentCallModelEnum> typeHandleLookup = new Dictionary<Type, ComponentCallModelEnum>();
         private readonly Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
         private bool initialized;

@@ -8,7 +8,7 @@ namespace NServiceBus.ObjectBuilder.Common.Config
 {
     public static class ConfigureCommon
     {
-        public static void With<T>(Configure config) where T : IBuilderInternal, new()
+        public static void With(Configure config, IBuilderInternal builder, params Action<IConfigureComponents>[] configActions)
         {
             if (config.Builder == null)
             {
@@ -24,20 +24,21 @@ namespace NServiceBus.ObjectBuilder.Common.Config
                 var internalContainer = containBuilder.Builder as IContainInternalBuilder;
                 if (internalContainer != null)
                 {
-                    internalContainer.Builder = new T();
+                    internalContainer.Builder = builder;
                 }
                 else
                 {
                     if (containBuilder.Builder != null)
                         throw new InvalidOperationException("Builder already configured.");
 
-                    T builder = new T();
-
                     containBuilder.Builder = builder;
                 }
 
                 config.Configurer.ConfigureComponent<CommonObjectBuilder>(ComponentCallModelEnum.Singleton)
                     .Builder = containBuilder.Builder;
+
+                foreach (var a in configActions)
+                    a(config.Configurer);
             }
         }
     }

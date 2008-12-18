@@ -6,6 +6,7 @@ using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Common.Config;
 using ObjectBuilder;
+using Spring.Context.Support;
 
 namespace NServiceBus
 {
@@ -13,10 +14,14 @@ namespace NServiceBus
     {
         public static Configure SpringBuilder(this Configure config, params Action<IConfigureComponents>[] configActions)
         {
-            ConfigureCommon.With<SpringObjectBuilder>(config);
+            ConfigureCommon.With(config, new SpringObjectBuilder(), configActions);
 
-            foreach (var a in configActions)
-                a(config.Configurer);
+            return config;
+        }
+
+        public static Configure SpringBuilder(this Configure config, GenericApplicationContext container, params Action<IConfigureComponents>[] configActions)
+        {
+            ConfigureCommon.With(config, new SpringObjectBuilder(container), configActions);
 
             return config;
         }
