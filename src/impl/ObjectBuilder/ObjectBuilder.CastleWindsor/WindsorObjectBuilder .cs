@@ -8,6 +8,7 @@ using Castle.Windsor;
 using Castle.MicroKernel;
 using ObjectBuilder;
 using Castle.Core;
+using Castle.MicroKernel.Registration;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
@@ -31,8 +32,10 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             {
                 LifestyleType lifestyle = GetLifestyleTypeFrom(callModel);
 
-                foreach(Type serviceType in GetAllInterfacesFor(concreteComponent))
-                    Container.Kernel.AddComponent(concreteComponent.Name + Guid.NewGuid().ToString("N"), serviceType, concreteComponent, lifestyle);
+                Container.Kernel.Register(
+                    Component.For(GetAllServiceTypesFor(concreteComponent))
+                        .ImplementedBy(concreteComponent)
+                    );
 
                 handler = Container.Kernel.GetAssignableHandlers(typeof(object))
                     .Where(h => h.ComponentModel.Implementation == concreteComponent)
@@ -53,14 +56,16 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return LifestyleType.Undefined;
         }
 
-        private IEnumerable<Type> GetAllInterfacesFor(Type t)
+        private IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
             if (t == null)
                 return new List<Type>();
 
             List<Type> result = new List<Type>(t.GetInterfaces());
+            result.Add(t);
+
             foreach (Type interfaceType in t.GetInterfaces())
-                result.AddRange(GetAllInterfacesFor(interfaceType));
+                result.AddRange(GetAllServiceTypesFor(interfaceType));
 
             return result;
         }
