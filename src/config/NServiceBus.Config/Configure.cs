@@ -8,6 +8,11 @@ namespace NServiceBus
 {
     public class Configure
     {
+        public static IBuilder ObjectBuilder
+        {
+            get { return instance.Builder; }
+        }
+        
         public IBuilder Builder { get; set; }
         public IConfigureComponents Configurer { get; set; }
 
@@ -15,12 +20,15 @@ namespace NServiceBus
 
         public static Configure With()
         {
-            return new Configure();
+            instance = new Configure();
+            return instance;
         }
 
         public IStartableBus CreateBus()
         {
             return Builder.Build<IStartableBus>();
         }
+
+        private static Configure instance;
     }
 }
