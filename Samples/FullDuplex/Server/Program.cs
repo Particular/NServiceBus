@@ -17,7 +17,6 @@ namespace Server
             {
                 var bus = NServiceBus.Configure.With()
                     .SpringBuilder()
-                    .MsmqSubscriptionStorage()
                     .XmlSerializer("http://www.UdiDahan.com")
                     .MsmqTransport()
                         .IsTransactional(true)
