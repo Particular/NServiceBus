@@ -10,6 +10,9 @@ namespace NServiceBus.Saga
 	/// </summary>
     public class SagaMessageHandler : IMessageHandler<IMessage>
     {
+        /// <summary>
+        /// Used to notify timeout manager of sagas that have completed.
+        /// </summary>
         public IBus Bus { get; set; }
 
 		/// <summary>
@@ -46,10 +49,10 @@ namespace NServiceBus.Saga
 
                     sagaEntityIsPersistent = false;
 
-                    saga = builder.Build(sagaToCreate) as ISaga;
+                    saga = Builder.Build(sagaToCreate) as ISaga;
                 }
                 else
-                    saga = builder.Build(Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType())) as ISaga;
+                    saga = Builder.Build(Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType())) as ISaga;
 
                 saga.Entity = sagaEntity;
 
@@ -57,6 +60,11 @@ namespace NServiceBus.Saga
             }
         }
 
+        /// <summary>
+        /// Decides whether the given message should be handled by the saga infrastructure
+        /// </summary>
+        /// <param name="message">The message being processed</param>
+        /// <returns></returns>
 	    public bool NeedToHandle(IMessage message)
 	    {
             if (message is ISagaMessage && !(message is TimeoutMessage))
@@ -80,6 +88,10 @@ namespace NServiceBus.Saga
             return false;
 	    }
 
+        /// <summary>
+        /// Generates a new id for a saga.
+        /// </summary>
+        /// <returns></returns>
         public virtual Guid GenerateSagaId()
         {
             return GuidCombGenerator.Generate();
@@ -87,6 +99,12 @@ namespace NServiceBus.Saga
 
         #region helper methods
 
+        /// <summary>
+        /// Asks the given finder to find the saga entity using the given message.
+        /// </summary>
+        /// <param name="finder"></param>
+        /// <param name="message"></param>
+        /// <returns>The saga entity if found, otherwise null.</returns>
         private ISagaEntity UseFinderToFindSaga(IFinder finder, IMessage message)
         {
             MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
@@ -97,6 +115,13 @@ namespace NServiceBus.Saga
             return null;
         }
 
+        /// <summary>
+        /// Dispatches the message to the saga and, based on the saga's state
+        /// persists it or notifies of its completion to interested parties.
+        /// </summary>
+        /// <param name="saga"></param>
+        /// <param name="message"></param>
+        /// <param name="sagaIsPersistent"></param>
         protected virtual void HaveSagaHandleMessage(ISaga saga, IMessage message, bool sagaIsPersistent)
         {
             TimeoutMessage tm = message as TimeoutMessage;
@@ -108,14 +133,14 @@ namespace NServiceBus.Saga
             if (!saga.Completed)
             {
                 if (!sagaIsPersistent)
-                    persister.Save(saga.Entity);
+                    Persister.Save(saga.Entity);
                 else
-                    persister.Update(saga.Entity);
+                    Persister.Update(saga.Entity);
             }
             else
             {
                 if (sagaIsPersistent)
-                    persister.Complete(saga.Entity);
+                    Persister.Complete(saga.Entity);
 
                 NotifyTimeoutManagerThatSagaHasCompleted(saga);
             }
@@ -123,6 +148,10 @@ namespace NServiceBus.Saga
             LogIfSagaIsFinished(saga);
         }
 
+        /// <summary>
+        /// Notifies the timeout manager of the saga's completion by sending a timeout message.
+        /// </summary>
+        /// <param name="saga"></param>
 	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
 	    {
 	        this.Bus.Send(new TimeoutMessage(saga.Entity, true));
@@ -154,28 +183,21 @@ namespace NServiceBus.Saga
 
         #region config info
 
-        private IBuilder builder;
-
 		/// <summary>
-		/// Gets/sets an <see cref="IBuilder"/> that will be used for resolving
-		/// the <see cref="ISagaPersister"/> implementation to be used for
-		/// saga persistence.
+		/// Gets/sets the builder that will be used for instantiating sagas.
 		/// </summary>
-        public virtual IBuilder Builder
-        {
-            get { return builder; }
-            set { builder = value; }
-        }
+        public virtual IBuilder Builder { get; set; }
 
-	    private ISagaPersister persister;
-
-	    public virtual ISagaPersister Persister
-	    {
-            set { this.persister = value; }
-	    }
+        /// <summary>
+        /// Gets/sets the object used to persist and retrieve sagas.
+        /// </summary>
+        public virtual ISagaPersister Persister { get; set; }
 
         #endregion
 
+        /// <summary>
+        /// Object used to log information.
+        /// </summary>
         protected readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
     }
 }

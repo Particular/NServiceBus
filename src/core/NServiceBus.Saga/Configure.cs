@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace NServiceBus.Saga
 {
+    /// <summary>
+    /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
+    /// </summary>
     public class Configure
     {
         #region setup
