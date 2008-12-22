@@ -53,9 +53,9 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public ConfigDbSubscriptionStorage MessageTypeParameterName(string value)
+        public ConfigDbSubscriptionStorage MessageTypeColumnName(string value)
         {
-            this.storage.MessageTypeParameterName = value;
+            this.storage.MessageTypeColumnName = value;
             return this;
         }
 
@@ -64,9 +64,9 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public ConfigDbSubscriptionStorage SubscriberEndpointParameterName(string value)
+        public ConfigDbSubscriptionStorage SubscriberEndpointColumnName(string value)
         {
-            this.storage.SubscriberParameterName = value;
+            this.storage.SubscriberColumnName = value;
             return this;
         }
 

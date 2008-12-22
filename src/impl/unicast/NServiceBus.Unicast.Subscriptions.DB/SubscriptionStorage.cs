@@ -29,8 +29,8 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         #region config
 
         public virtual string Table { get; set; }
-        public virtual string MessageTypeParameterName { get; set; }
-        public virtual string SubscriberParameterName { get; set; }
+        public virtual string MessageTypeColumnName { get; set; }
+        public virtual string SubscriberColumnName { get; set; }
         public virtual IsolationLevel IsolationLevel { get; set; }
         public virtual string ProviderInvariantName { get; set; }
 
@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             StringBuilder builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
             for (int i = 0; i < compatibles.Count; i++)
             {
-                string paramName = "@" + MessageTypeParameterName + i;
+                string paramName = "@" + MessageTypeColumnName + i;
 
                 DbParameter msgParam = command.CreateParameter();
                 msgParam.ParameterName = paramName;
@@ -72,7 +72,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             command.CommandText =
                 string.Format(
                     builder.ToString(),
-                    SubscriberParameterName, Table, MessageTypeParameterName);
+                    SubscriberColumnName, Table, MessageTypeColumnName);
 
             using (command.Connection)
             {
@@ -110,7 +110,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                         "INSERT INTO {0} ({1}, {2}) " +
                         "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
                         "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
-                                      Table, SubscriberParameterName, MessageTypeParameterName),
+                                      Table, SubscriberColumnName, MessageTypeColumnName),
                         msg.ReturnAddress,
                         subMessage.TypeName
                         );
@@ -119,7 +119,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                     Execute(
                         tx,
                         string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
-                                      Table, SubscriberParameterName, MessageTypeParameterName),
+                                      Table, SubscriberColumnName, MessageTypeColumnName),
                         msg.ReturnAddress,
                         subMessage.TypeName
                         );
@@ -138,8 +138,8 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         {
             if (this.ConnectionString == null ||
                 this.factory == null ||
-                this.MessageTypeParameterName == null ||
-                this.SubscriberParameterName == null ||
+                this.MessageTypeColumnName == null ||
+                this.SubscriberColumnName == null ||
                 this.Table == null)
                 throw new ConfigurationErrorsException(
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
@@ -191,12 +191,12 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             command.CommandType = CommandType.Text;
 
             DbParameter subParam = command.CreateParameter();
-            subParam.ParameterName = "@" + SubscriberParameterName;
+            subParam.ParameterName = "@" + SubscriberColumnName;
             subParam.Value = subscriber;
             command.Parameters.Add(subParam);
 
             DbParameter msgParam = command.CreateParameter();
-            msgParam.ParameterName = "@" + MessageTypeParameterName;
+            msgParam.ParameterName = "@" + MessageTypeColumnName;
             msgParam.Value = messageType;
             command.Parameters.Add(msgParam);
 
