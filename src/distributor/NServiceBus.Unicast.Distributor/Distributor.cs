@@ -13,38 +13,24 @@ namespace NServiceBus.Unicast.Distributor
     {
         #region config info
 
-        private IStartableBus controlBus;
-
 		/// <summary>
-		/// Sets the <see cref="IBus"/> implementation that will be used
+		/// Sets the bus that will be used
 		/// for transporting control information.
 		/// </summary>
-        public virtual IStartableBus ControlBus
-        {
-            set { controlBus = value; }
-        }
-
-        private ITransport messageBusTransport;
+        public virtual IStartableBus ControlBus { get; set; }
 
 		/// <summary>
-		/// Sets the <see cref="ITransport"/> implementation that will be used
+		/// Sets the transport that will be used
 		/// to access the bus containing messages to distribute.
 		/// </summary>
-        public virtual ITransport MessageBusTransport
-        {
-            set { messageBusTransport = value; }
-        }
-
-        private IWorkerAvailabilityManager workerManager;
+        public virtual ITransport MessageBusTransport { get; set; }
 
 		/// <summary>
 		/// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
 		/// used to determine whether or not a worker is available.
 		/// </summary>
-        public virtual IWorkerAvailabilityManager WorkerManager
-        {
-            set { workerManager = value; }
-        }
+        public virtual IWorkerAvailabilityManager WorkerManager { get; set; }
+
 
 	    private int millisToWaitIfCannotDispatchToWorker = 50;
         public virtual int MillisToWaitIfCannotDispatchToWorker
@@ -68,10 +54,10 @@ namespace NServiceBus.Unicast.Distributor
                           GridInterceptingMessageHandler.Disabled;
                   };
 
-            this.messageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
+            this.MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
 
-            this.controlBus.Start();
-            this.messageBusTransport.Start();
+            this.ControlBus.Start();
+            this.MessageBusTransport.Start();
         }
 
 		/// <summary>
@@ -99,22 +85,25 @@ namespace NServiceBus.Unicast.Distributor
             if (disabled)
                 this.Rollback();
 
- 		    string destination = this.workerManager.PopAvailableWorker();
+ 		    string destination = this.WorkerManager.PopAvailableWorker();
 
             if (destination == null)
                 this.Rollback();
             else
             {
                 logger.Debug("Sending message to: " + destination);
-                this.messageBusTransport.Send(e.Message, destination);
+                this.MessageBusTransport.Send(e.Message, destination);
             }
         }
 
+        /// <summary>
+        /// Rolls back the message that arrived on the MessageBusTransport.
+        /// </summary>
         private void Rollback()
         {
             Thread.Sleep(this.millisToWaitIfCannotDispatchToWorker);
 
-            this.messageBusTransport.AbortHandlingCurrentMessage();
+            this.MessageBusTransport.AbortHandlingCurrentMessage();
         }
 
         #endregion

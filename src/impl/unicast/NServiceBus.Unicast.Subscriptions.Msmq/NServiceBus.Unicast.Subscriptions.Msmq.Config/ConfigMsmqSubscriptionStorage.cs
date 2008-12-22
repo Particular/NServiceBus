@@ -1,14 +1,23 @@
-
 using System.Configuration;
 using ObjectBuilder;
 using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
+    /// <summary>
+    /// Extends the base Configure class with MsmqSubscriptionStorage specific methods.
+    /// Reads administrator set values from the MsmqSubscriptionStorageConfig section
+    /// of the app.config.
+    /// </summary>
     public class ConfigMsmqSubscriptionStorage : Configure
     {
         public ConfigMsmqSubscriptionStorage() : base() { }
 
+        /// <summary>
+        /// Wraps the given configuration object but stores the same 
+        /// builder and configurer properties.
+        /// </summary>
+        /// <param name="config"></param>
         public void Configure(Configure config)
         {
             this.Builder = config.Builder;

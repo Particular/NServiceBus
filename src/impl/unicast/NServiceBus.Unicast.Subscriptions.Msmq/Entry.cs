@@ -11,14 +11,14 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         public Entry(Type messageType, TransportMessage msg)
         {
-            this.subscriber = msg.ReturnAddress;
+            this.Subscriber = msg.ReturnAddress;
             this.messageType = messageType.AssemblyQualifiedName;
             this.TypeOfMessage = messageType;
         }
 
         public Entry(string messageType, string subscriber)
         {
-            this.subscriber = subscriber;
+            this.Subscriber = subscriber;
             this.messageType = messageType;
             this.TypeOfMessage = Type.GetType(messageType);
         }
@@ -42,16 +42,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-        private string subscriber;
-
         /// <summary>
         /// Gets the subscription request message.
         /// </summary>
-        public string Subscriber
-        {
-            get { return subscriber; }
-            set { subscriber = value; }
-        }
+        public string Subscriber { get; set; }
 
         private Type TypeOfMessage;
 

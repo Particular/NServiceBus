@@ -8,61 +8,33 @@ using System.Text;
 
 namespace NServiceBus.Unicast.Subscriptions.DB
 {
+    /// <summary>
+    /// Database-backed implementation of <see cref="ISubscriptionStorage" />.
+    /// </summary>
     public class SubscriptionStorage : ISubscriptionStorage
     {
+        public SubscriptionStorage()
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted;
+        }
+
         #region members
 
-        private string table;
-        private string messageTypeParameterName;
-        private string subscriberParameterName;
-
-        private string connectionString;
         private DbProviderFactory factory;
-        private IsolationLevel isolationLevel = IsolationLevel.ReadCommitted;
+
+        private IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
 
         #endregion
 
         #region config
 
-        public virtual string Table
-        {
-            set
-            {
-                this.table = value;
-            }
-        }
+        public virtual string Table { get; set; }
+        public virtual string MessageTypeParameterName { get; set; }
+        public virtual string SubscriberParameterName { get; set; }
+        public virtual IsolationLevel IsolationLevel { get; set; }
+        public virtual string ProviderInvariantName { get; set; }
 
-        public virtual string MessageTypeParameterName
-        {
-            set { this.messageTypeParameterName = value; }
-        }
-
-        public virtual string SubscriberParameterName
-        {
-            set { this.subscriberParameterName = value; }
-        }
-
-        public virtual IsolationLevel IsolationLevel
-        {
-            set
-            {
-                this.isolationLevel = value;
-            }
-        }
-
-        public virtual string ProviderInvariantName
-        {
-            set
-            {
-                factory = DbProviderFactories.GetFactory(value);
-            }
-        }
-
-        public virtual string ConnectionString
-        {
-            get { return connectionString; }
-            set { connectionString = value; }
-        }
+        public virtual string ConnectionString { get; set; }
 
         #endregion
 
@@ -83,7 +55,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             StringBuilder builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
             for (int i = 0; i < compatibles.Count; i++)
             {
-                string paramName = "@" + messageTypeParameterName + i;
+                string paramName = "@" + MessageTypeParameterName + i;
 
                 DbParameter msgParam = command.CreateParameter();
                 msgParam.ParameterName = paramName;
@@ -100,7 +72,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             command.CommandText =
                 string.Format(
                     builder.ToString(),
-                    subscriberParameterName, this.table, messageTypeParameterName);
+                    SubscriberParameterName, Table, MessageTypeParameterName);
 
             using (command.Connection)
             {
@@ -128,7 +100,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                 return;
 
             using (DbConnection connection = GetConnection())
-            using (DbTransaction tx = connection.BeginTransaction(isolationLevel))
+            using (DbTransaction tx = connection.BeginTransaction(IsolationLevel))
             {
                 if (subMessage.SubscriptionType == SubscriptionType.Add)
                     Execute(
@@ -138,7 +110,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                         "INSERT INTO {0} ({1}, {2}) " +
                         "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
                         "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
-                                      this.table, subscriberParameterName, messageTypeParameterName),
+                                      Table, SubscriberParameterName, MessageTypeParameterName),
                         msg.ReturnAddress,
                         subMessage.TypeName
                         );
@@ -147,7 +119,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                     Execute(
                         tx,
                         string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
-                                      this.table, subscriberParameterName, messageTypeParameterName),
+                                      Table, SubscriberParameterName, MessageTypeParameterName),
                         msg.ReturnAddress,
                         subMessage.TypeName
                         );
@@ -156,13 +128,19 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             }
         }
 
+        /// <summary>
+        /// Initializes the storage.
+        /// Scans the given message types to find compatibilities between them
+        /// based on inheritance.
+        /// </summary>
+        /// <param name="messageTypes"></param>
         public void Init(IList<Type> messageTypes)
         {
-            if (this.connectionString == null ||
+            if (this.ConnectionString == null ||
                 this.factory == null ||
-                this.messageTypeParameterName == null ||
-                this.subscriberParameterName == null ||
-                this.table == null)
+                this.MessageTypeParameterName == null ||
+                this.SubscriberParameterName == null ||
+                this.Table == null)
                 throw new ConfigurationErrorsException(
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
 
@@ -213,12 +191,12 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             command.CommandType = CommandType.Text;
 
             DbParameter subParam = command.CreateParameter();
-            subParam.ParameterName = "@" + subscriberParameterName;
+            subParam.ParameterName = "@" + SubscriberParameterName;
             subParam.Value = subscriber;
             command.Parameters.Add(subParam);
 
             DbParameter msgParam = command.CreateParameter();
-            msgParam.ParameterName = "@" + messageTypeParameterName;
+            msgParam.ParameterName = "@" + MessageTypeParameterName;
             msgParam.Value = messageType;
             command.Parameters.Add(msgParam);
 
@@ -231,14 +209,12 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         {
             DbConnection connection = factory.CreateConnection();
 
-            connection.ConnectionString = this.connectionString;
+            connection.ConnectionString = ConnectionString;
             connection.Open();
 
             return connection;
         }
 
         #endregion
-
-        private IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
     }
 }

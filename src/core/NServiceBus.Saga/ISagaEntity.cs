@@ -19,7 +19,7 @@ namespace NServiceBus.Saga
         Guid Id { get; set; }
 
         /// <summary>
-        /// Contains the return address of the sender that caused the process to run.
+        /// Contains the return address of the endpoint that caused the process to run.
         /// </summary>
         string Originator { get; set; }
     }

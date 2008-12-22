@@ -6,7 +6,7 @@ using Common.Logging;
 namespace NServiceBus.Saga
 {
 	/// <summary>
-    /// A message handler that supports sagas.
+    /// A message handler central to the saga infrastructure.
 	/// </summary>
     public class SagaMessageHandler : IMessageHandler<IMessage>
     {

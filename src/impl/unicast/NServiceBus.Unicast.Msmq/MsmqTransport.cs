@@ -559,6 +559,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return result;
         }
 
+        /// <summary>
+        /// Moves the given message to the configured error queue.
+        /// </summary>
+        /// <param name="m"></param>
 	    protected void MoveToErrorQueue(Message m)
 	    {
             m.Label = m.Label +
@@ -568,6 +572,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 this.errorQueue.Send(m, MessageQueueTransactionType.Single);
 	    }
 
+        /// <summary>
+        /// Causes the processing of the current message to be aborted.
+        /// </summary>
 	    public void AbortHandlingCurrentMessage()
         {
             needToAbort = true;

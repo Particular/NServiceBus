@@ -2,6 +2,9 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// Contains the properties representing the MsmqTransport configuration section.
+    /// </summary>
     public class MsmqTransportConfig : ConfigurationSection
     {
         [ConfigurationProperty("InputQueue", IsRequired = true)]

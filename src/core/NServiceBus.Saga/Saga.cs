@@ -13,51 +13,42 @@ namespace NServiceBus.Saga
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
     public abstract class Saga<T> : ISaga<T> where T : ISagaEntity
     {
-        private T data;
-
-        public T Data
-        {
-            get { return data; }
-            set { data = value; }
-        }
+        public T Data { get; set; }
 
         public ISagaEntity Entity
         {
-            get { return data; }
-            set { data = (T)value; }
+            get { return Data; }
+            set { Data = (T)value; }
         }
 
-        private IBus bus;
-
-        public IBus Bus
-        {
-            get { return bus; }
-            set { bus = value; }
-        }
+        public IBus Bus { get; set; }
 
         public bool Completed
         {
             get { return completed; }
         }
 
-        protected void RequestTimeout(TimeSpan at, object withState)
-        {
-            bus.Send(new TimeoutMessage(at, data, withState));
-        }
-
         protected void RequestTimeout(DateTime at, object withState)
         {
-            bus.Send(new TimeoutMessage(at - DateTime.Now, data, withState));
+            RequestTimeout(at - DateTime.Now, withState);
+        }
+
+        protected void RequestTimeout(TimeSpan at, object withState)
+        {
+            if (at <= TimeSpan.Zero)
+                this.Timeout(withState);
+            else
+                Bus.Send(new TimeoutMessage(at, Data, withState));
         }
 
         protected void ReplyToOriginator(params IMessage[] messages)
         {
-            bus.Send(data.Originator, messages);
+            Bus.Send(Data.Originator, messages);
         }
 
         protected void ReplyToOriginator<K>(Action<K> messageConstructor) where K : IMessage
         {
-            bus.Send<K>(data.Originator, messageConstructor);
+            Bus.Send<K>(Data.Originator, messageConstructor);
         }
 
         protected void MarkAsComplete()

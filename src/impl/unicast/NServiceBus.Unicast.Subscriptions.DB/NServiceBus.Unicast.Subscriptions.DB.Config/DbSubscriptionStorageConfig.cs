@@ -2,6 +2,9 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// Contains the properties representing the DbSubscriptionStorage configuration section.
+    /// </summary>
     public class DbSubscriptionStorageConfig : ConfigurationSection
     {
         [ConfigurationProperty("ProviderInvariantName", IsRequired = true)]

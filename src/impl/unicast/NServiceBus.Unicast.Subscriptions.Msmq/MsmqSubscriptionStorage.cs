@@ -35,6 +35,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         #region ISubscriptionStorage Members
 
+        /// <summary>
+        /// Initializes the storage - doesn't make use of the given message types.
+        /// </summary>
+        /// <param name="messageTypes"></param>
         public void Init(IList<Type> messageTypes)
         {
             foreach (Message m in this.q.GetAllMessages())
@@ -204,10 +208,15 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		    this.q.ReceiveById(messageId, GetTransactionType());
         }
 
+        /// <summary>
+        /// Returns the transaction type (automatic or single) that should be used
+        /// based on the configuration of enlisting into external transactions.
+        /// </summary>
+        /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
 	        MessageQueueTransactionType t = MessageQueueTransactionType.Automatic;
-	        if (this.dontUseExternalTransaction)
+	        if (this.DontUseExternalTransaction)
 	            t = MessageQueueTransactionType.Single;
 	        return t;
 	    }
@@ -216,17 +225,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         #region config info
 
-        private bool dontUseExternalTransaction;
-
 		/// <summary>
 		/// Gets/sets whether or not to use a trasaction started outside the 
 		/// subscription store.
 		/// </summary>
-        public virtual bool DontUseExternalTransaction
-        {
-            get { return dontUseExternalTransaction; }
-            set { dontUseExternalTransaction = value; }
-        }
+        public virtual bool DontUseExternalTransaction { get; set; }
 
 		/// <summary>
 		/// Sets the address of the queue where subscription messages will be stored.

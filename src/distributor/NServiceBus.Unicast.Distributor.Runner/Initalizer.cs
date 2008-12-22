@@ -8,6 +8,9 @@ using System;
 
 namespace NServiceBus.Unicast.Distributor.Runner
 {
+    /// <summary>
+    /// Initializes the distributor's elements.
+    /// </summary>
     public static class Initalizer
     {
         /// <summary>
