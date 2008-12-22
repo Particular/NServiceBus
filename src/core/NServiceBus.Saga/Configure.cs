@@ -19,6 +19,12 @@ namespace NServiceBus.Saga
         {
         }
 
+        /// <summary>
+        /// Starts the configuration process for the saga infrastructure.
+        /// </summary>
+        /// <param name="configurer"></param>
+        /// <param name="builder"></param>
+        /// <returns></returns>
         public static Configure With(IConfigureComponents configurer, IBuilder builder)
         {
             builderStatic = builder;
@@ -31,6 +37,11 @@ namespace NServiceBus.Saga
             return c;
         }
 
+        /// <summary>
+        /// Scans the given assemblies for types relevant to the saga infrastructure.
+        /// These include implementers of <see cref="ISaga" /> and <see cref="IFindSagas{T}" />.
+        /// </summary>
+        /// <param name="assemblies"></param>
         public void SagasInAssemblies(params Assembly[] assemblies)
         {
             foreach (Assembly a in assemblies)
@@ -52,6 +63,9 @@ namespace NServiceBus.Saga
             CreateAdditionalFindersAsNecessary();
         }
 
+        /// <summary>
+        /// Creates an <see cref="EmptySagaFinder{T}" /> for each saga type that doesn't have a finder configured.
+        /// </summary>
         private void CreateAdditionalFindersAsNecessary()
         {
             ICollection<Type> sagaEntityTypesWithFinders = finderTypeToSagaEntityTypeLookup.Values;
@@ -72,6 +86,13 @@ namespace NServiceBus.Saga
 
         #region methods used at runtime
 
+        /// <summary>
+        /// Gets the saga type to instantiate and invoke if an existing saga couldn't be found by
+        /// the given finder using the given message.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="finder"></param>
+        /// <returns></returns>
         public static Type GetSagaTypeToStartIfMessageNotFoundByFinder(IMessage message, IFinder finder)
         {
             Type sagaEntityType;
@@ -161,6 +182,13 @@ namespace NServiceBus.Saga
             return false;
         }
 
+        /// <summary>
+        /// Gets a reference to the generic "FindBy" method of the given finder
+        /// for the given message type using a hashtable lookup rather than reflection.
+        /// </summary>
+        /// <param name="finder"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static MethodInfo GetFindByMethodForFinder(IFinder finder, IMessage message)
         {
             MethodInfo result = null;
@@ -181,6 +209,11 @@ namespace NServiceBus.Saga
             return result;
         }
 
+        /// <summary>
+        /// Returns a list of finder object capable of using the given message.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
         public static IEnumerable<IFinder> GetFindersFor(IMessage m)
         {
             List<IFinder> result = new List<IFinder>();
@@ -202,6 +235,13 @@ namespace NServiceBus.Saga
             return result;
         }
 
+        /// <summary>
+        /// Gets a reference to the generic "Handle" method on the given saga
+        /// for the given message type using a hashtable lookup rather than reflection.
+        /// </summary>
+        /// <param name="saga"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static MethodInfo GetHandleMethodForSagaAndMessage(object saga, IMessage message)
         {
             IDictionary<Type, MethodInfo> lookup;

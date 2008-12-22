@@ -164,18 +164,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { this.messageSerializer = value; }
 	    }
 
-	    private IBuilder builder;
-
-	    public virtual IBuilder Builder
-	    {
-            set { this.builder = value; }
-	    }
+        /// <summary>
+        /// Gets/sets the builder that will be used to create message modules.
+        /// </summary>
+        public virtual IBuilder Builder { get; set; }
 
         #endregion
 
         #region ITransport Members
 
+        /// <summary>
+        /// Event which indicates that message processing has started.
+        /// </summary>
         public event EventHandler StartedMessageProcessing;
+
+        /// <summary>
+        /// Event which indicates that message processing has completed.
+        /// </summary>
         public event EventHandler FinishedMessageProcessing;
 
         /// <summary>
@@ -229,6 +234,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { this.messageSerializer.Initialize(GetExtraTypes(value)); }
         }
 
+        /// <summary>
+        /// Changes the number of worker threads to the given target,
+        /// stopping or starting worker threads as needed.
+        /// </summary>
+        /// <param name="targetNumberOfWorkerThreads"></param>
 	    public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
             lock (this.workerThreads)
@@ -263,7 +273,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             //don't purge on startup here
 
-	        IEnumerable<IMessageModule> mods = builder.BuildAll<IMessageModule>();
+	        IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
             if (mods != null)
                 this.modules.AddRange(mods);
 
@@ -325,6 +335,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
+        /// <summary>
+        /// Returns the number of messages in the queue.
+        /// </summary>
+        /// <returns></returns>
         public int GetNumberOfPendingMessages()
         {
             MSMQ.MSMQManagementClass qMgmt = new MSMQ.MSMQManagementClass();
@@ -539,6 +553,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
                    (this.failuresPerMessage[m.Id] == this.maxRetries);
         }
 
+        /// <summary>
+        /// Calls the "HandleEndMessage" on all message modules
+        /// aggregating exceptions thrown and returning them.
+        /// </summary>
+        /// <returns></returns>
         protected IList<Exception> ActivateEndMethodOnMessageModules()
         {
             IList<Exception> result = new List<Exception>();
@@ -628,6 +647,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		    return result;
         }
 
+        /// <summary>
+        /// Returns the queue whose process failed processing the given message
+        /// by accessing the label of the message.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
         public static string GetFailedQueue(Message m)
         {
             if (m.Label == null)
@@ -642,6 +667,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return GetFullPath(m.Label.Substring(startIndex, count));
         }
 
+        /// <summary>
+        /// Gets the label of the message stripping out the failed queue.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
         public static string GetLabelWithoutFailedQueue(Message m)
         {
             if (m.Label == null)
@@ -811,6 +841,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return PREFIX + machine + "\\private$\\" + queue;
         }
 
+        /// <summary>
+        /// Gets an independent address for the queue in the form:
+        /// queue@machine.
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns></returns>
         public static string GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
@@ -856,6 +892,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private MessageQueue errorQueue;
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
 
+        /// <summary>
+        /// The list of message modules.
+        /// </summary>
         protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();

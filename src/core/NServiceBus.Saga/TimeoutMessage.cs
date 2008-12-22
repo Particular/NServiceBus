@@ -9,7 +9,17 @@ namespace NServiceBus.Saga
     [Recoverable]
     public class TimeoutMessage : ISagaMessage
     {
+        /// <summary>
+        /// Default constructor for serialization purposes.
+        /// </summary>
         public TimeoutMessage() { }
+
+        /// <summary>
+        /// Indicate a timeout at the expiration time for the given saga maintaining the given state.
+        /// </summary>
+        /// <param name="expiration"></param>
+        /// <param name="saga"></param>
+        /// <param name="state"></param>
         public TimeoutMessage(DateTime expiration, ISagaEntity saga, object state)
         {
             this.expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
@@ -17,6 +27,12 @@ namespace NServiceBus.Saga
             this.State = state;
         }
 
+        /// <summary>
+        /// Indicate a timeout within the given time for the given saga maintaing the given state.
+        /// </summary>
+        /// <param name="expireIn"></param>
+        /// <param name="saga"></param>
+        /// <param name="state"></param>
 	    public TimeoutMessage(TimeSpan expireIn, ISagaEntity saga, object state) :
 	        this(DateTime.Now + expireIn, saga, state)
 	    {
@@ -25,7 +41,7 @@ namespace NServiceBus.Saga
 
         /// <summary>
         /// Signal to the timeout manager that all other <see cref="TimeoutMessage"/>
-        /// objects can be cleared for the given <see cref="saga"/>.
+        /// objects can be cleared for the given <see cref="Saga"/>.
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="clear"></param>
@@ -39,6 +55,7 @@ namespace NServiceBus.Saga
 
 		/// <summary>
 		/// Gets/sets the date and time at which the timeout message is due to expire.
+        /// Values are stored as <see cref="DateTimeKind.Utc" />.
 		/// </summary>
         public DateTime Expires
         {
