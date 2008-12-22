@@ -701,16 +701,19 @@ namespace NServiceBus.Unicast
 
             foreach (IMessage toHandle in m.Body)
             {
+                bool canDispatch = true;
                 foreach (Predicate<IMessage> condition in this.subscriptionsManager.GetConditionsForMessage(toHandle))
                 {
                     if (condition(toHandle) == false)
                     {
                         log.Debug(string.Format("Condition {0} failed for message {1}", condition, toHandle.GetType().Name));
-                        continue;
+                        canDispatch = false;
+                        break;
                     }
                 }
 
-                this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
+                if (canDispatch)
+                    this.DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
             }
         }
 
