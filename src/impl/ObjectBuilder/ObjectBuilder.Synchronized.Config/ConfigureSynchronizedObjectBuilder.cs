@@ -7,8 +7,16 @@ using NServiceBus.ObjectBuilder.Synchronized;
 
 namespace NServiceBus
 {
+    /// <summary>
+    /// Contains extension methods for NServiceBus.Configure.
+    /// </summary>
     public static class ConfigureSynchronizedObjectBuilder
     {
+        /// <summary>
+        /// Use this for smart client applications to provide thread-safety facilities.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Configure SynchronizedBuilder(this Configure config)
         {
             if (config.Builder != null)

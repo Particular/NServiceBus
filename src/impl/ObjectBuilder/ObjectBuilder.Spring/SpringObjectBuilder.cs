@@ -15,14 +15,24 @@ using ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
+    /// <summary>
+    /// Implementation of IBuilderInternal using the Spring Framework container
+    /// </summary>
     public class SpringObjectBuilder : IBuilderInternal
     {
         private static GenericApplicationContext context;
 
+        /// <summary>
+        /// Instantiates the builder using a new GenericApplicationContext.
+        /// </summary>
         public SpringObjectBuilder() : this(new GenericApplicationContext())
         {
         }
 
+        /// <summary>
+        /// Instantiates the builder using the given container.
+        /// </summary>
+        /// <param name="container"></param>
         public SpringObjectBuilder(GenericApplicationContext container)
         {
             context = container;
@@ -30,6 +40,11 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         #region IBuilderInternal Members
 
+        /// <summary>
+        /// Returns an instance of the given type based on the previously configured call model for that type.
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <returns></returns>
         public object Build(Type typeToBuild)
         {
             this.Init();
@@ -43,6 +58,11 @@ namespace NServiceBus.ObjectBuilder.Spring
             return (de.MoveNext() ? de.Value : null);
         }
 
+        /// <summary>
+        /// Returns a list of objects whose type complies with the given type.
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <returns></returns>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             this.Init();
@@ -53,12 +73,24 @@ namespace NServiceBus.ObjectBuilder.Spring
                 yield return de.Entry.Value;
         }
 
+        /// <summary>
+        /// Performs the given action on an instance of the given type.
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <param name="action"></param>
         public void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
             object o = Build(typeToBuild);
             action(o);
         }
 
+        /// <summary>
+        /// Registers the given type in the container with the given call model, returning
+        /// a proxy that intercepts calls and forwards them to a component config.
+        /// </summary>
+        /// <param name="concreteComponent"></param>
+        /// <param name="callModel"></param>
+        /// <returns></returns>
         public object Configure(Type concreteComponent, ComponentCallModelEnum callModel)
         {
             WarnAboutNonVirtualProperties(concreteComponent);
@@ -75,6 +107,14 @@ namespace NServiceBus.ObjectBuilder.Spring
             return pf.GetProxy();
         }
 
+        /// <summary>
+        /// Registers the given type in the container with the given call model
+        /// returning an object that allows the user to set configuration values
+        /// for the properties of the type.
+        /// </summary>
+        /// <param name="concreteComponent"></param>
+        /// <param name="callModel"></param>
+        /// <returns></returns>
         public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
         {
             ComponentConfig result;

@@ -10,15 +10,29 @@ using ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
+    /// <summary>
+    /// Intercepts methods called on the proxy passed to the user for
+    /// setting configuration parameters.
+    /// </summary>
     public class ConfigAdvice : IMethodInterceptor
     {
         private readonly IComponentConfig config;
 
+        /// <summary>
+        /// Stores the given component config.
+        /// </summary>
+        /// <param name="config"></param>
         public ConfigAdvice(IComponentConfig config)
         {
             this.config = config;
         }
 
+        /// <summary>
+        /// Checks if the given invocation is a property setter, and if so,
+        /// stores the values as an entry in the previously provided component config.
+        /// </summary>
+        /// <param name="invocation"></param>
+        /// <returns></returns>
         public virtual Object Invoke(IMethodInvocation invocation)
         {
             MethodInfo method = invocation.Method;

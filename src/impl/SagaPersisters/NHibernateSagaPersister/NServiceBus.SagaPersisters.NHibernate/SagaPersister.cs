@@ -4,34 +4,55 @@ using NHibernate;
 
 namespace NServiceBus.SagaPersisters.NHibernate
 {
+    /// <summary>
+    /// Saga persister implementation using NHibernate.
+    /// </summary>
     public class SagaPersister : ISagaPersister
     {
+        /// <summary>
+        /// Saves the given saga entity using the current session of the
+        /// injected session factory.
+        /// </summary>
+        /// <param name="saga">the saga entity that will be saved.</param>
         public void Save(ISagaEntity saga)
         {
-            sessionFactory.GetCurrentSession().Save(saga);
+            SessionFactory.GetCurrentSession().Save(saga);
         }
 
+        /// <summary>
+        /// Updates the given saga entity using the current session of the
+        /// injected session factory.
+        /// </summary>
+        /// <param name="saga">the saga entity that will be updated.</param>
         public void Update(ISagaEntity saga)
         {
-            sessionFactory.GetCurrentSession().Update(saga);
+            SessionFactory.GetCurrentSession().Update(saga);
         }
 
+        /// <summary>
+        /// Gets a saga entity from the injected session factory's current session
+        /// using the given saga id.
+        /// </summary>
+        /// <param name="sagaId">The saga id to use in the lookup.</param>
+        /// <returns>The saga entity if found, otherwise null.</returns>
         public ISagaEntity Get(Guid sagaId)
         {
-            return sessionFactory.GetCurrentSession().Get<ISagaEntity>(sagaId);
+            return SessionFactory.GetCurrentSession().Get<ISagaEntity>(sagaId);
         }
 
+        /// <summary>
+        /// Deletes the given saga from the injected session factory's
+        /// current session.
+        /// </summary>
+        /// <param name="saga">The saga entity that will be deleted.</param>
         public void Complete(ISagaEntity saga)
         {
-            sessionFactory.GetCurrentSession().Delete(saga);
+            SessionFactory.GetCurrentSession().Delete(saga);
         }
 
-        private ISessionFactory sessionFactory;
-
-        public virtual ISessionFactory SessionFactory
-        {
-            get { return sessionFactory; }
-            set { sessionFactory = value; }
-        }
+        /// <summary>
+        /// Injected session factory.
+        /// </summary>
+        public virtual ISessionFactory SessionFactory { get; set; }
     }
 }

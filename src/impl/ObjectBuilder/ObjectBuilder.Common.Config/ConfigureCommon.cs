@@ -6,8 +6,19 @@ using ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Common.Config
 {
+    /// <summary>
+    /// Utility configuration class for implementers of IBuilderInternal.
+    /// </summary>
     public static class ConfigureCommon
     {
+        /// <summary>
+        /// Sets the Builder property of the given Configure object to an instance of CommonObjectBuilder.
+        /// Then, the given builder object is inserted in the relevant place of the builder chain.
+        /// Finally, the given actions are performed on the instance of CommonObjectBuilder.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="builder"></param>
+        /// <param name="configActions"></param>
         public static void With(Configure config, IBuilderInternal builder, params Action<IConfigureComponents>[] configActions)
         {
             if (config.Builder == null)
