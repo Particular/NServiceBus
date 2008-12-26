@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace ObjectBuilder
 {
+    /// <summary>
+    /// Used to instantiate types, so that all configured dependencies
+    /// and property values are set.
+    /// An abstraction on top of dependency injection frameworks.
+    /// </summary>
     public interface IBuilder
     {
         /// <summary>

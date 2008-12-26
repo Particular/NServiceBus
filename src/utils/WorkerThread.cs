@@ -30,6 +30,9 @@ namespace NServiceBus.Utils
 		    this.thread.IsBackground = true;
         }
 
+        /// <summary>
+        /// Event raised when the worker thread has stopped.
+        /// </summary>
 	    public event EventHandler Stopped;
 
 		/// <summary>
@@ -86,6 +89,7 @@ namespace NServiceBus.Utils
                 return result;
             }
         }
+
         private volatile bool _stopRequested;
         private readonly object _toLock = new object();
 

@@ -2,8 +2,14 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// A configuration section for UnicastBus specific settings.
+    /// </summary>
     public class UnicastBusConfig : ConfigurationSection
     {
+        /// <summary>
+        /// Gets/sets the address for sending control messages to the distributor.
+        /// </summary>
         [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
         public string DistributorControlAddress
         {
@@ -21,6 +27,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// Gets/sets the distributor's data address - used as the return address of messages sent by this endpoint.
+        /// </summary>
         [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
         public string DistributorDataAddress
         {
@@ -38,6 +47,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// Contains the mappings from message types (or groups of them) to endpoints.
+        /// </summary>
         [ConfigurationProperty("MessageEndpointMappings", IsRequired = false)]
         public MessageEndpointMappingCollection MessageEndpointMappings
         {

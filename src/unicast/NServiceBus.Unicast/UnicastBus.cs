@@ -45,6 +45,9 @@ namespace NServiceBus.Unicast
             set { disableMessageHandling = value; }
         }
 
+        /// <summary>
+        /// A reference to the transport.
+        /// </summary>
         protected ITransport transport;
 
 		/// <summary>
@@ -103,6 +106,9 @@ namespace NServiceBus.Unicast
 
         private IMessageMapper messageMapper;
 
+        /// <summary>
+        /// Gets/sets the message mapper.
+        /// </summary>
 	    public virtual IMessageMapper MessageMapper
 	    {
             get { return messageMapper; }
@@ -230,16 +236,25 @@ namespace NServiceBus.Unicast
 
         #region IUnicastBus Members
 
+        /// <summary>
+        /// Stops sending ready messages to the distributor, if one is configured.
+        /// </summary>
         public void StopSendingReadyMessages()
         {
             this.canSendReadyMessages = false;
         }
 
+        /// <summary>
+        /// Continues sending ready messages to the distributor, if one is configured.
+        /// </summary>
         public void ContinueSendingReadyMessages()
         {
             this.canSendReadyMessages = true;
         }
 
+        /// <summary>
+        /// Skips sending a ready message to the distributor once.
+        /// </summary>
         public void SkipSendingReadyMessageOnce()
         {
             skipSendingReadyMessageOnce = true;
@@ -283,15 +298,22 @@ namespace NServiceBus.Unicast
             return messageMapper.CreateInstance(messageType);
         }
 
+        /// <summary>
+        /// Creates an instance of the requested message type (T), 
+        /// performing the given action on the created message,
+        /// and then publishing it.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messageConstructor"></param>
         public void Publish<T>(Action<T> messageConstructor) where T : IMessage
         {
             Publish(CreateInstance<T>(messageConstructor));
         }
 
 		/// <summary>
-		/// Publishes the first message in the list to all subscribers of that message type.
+		/// Publishes the messages to all subscribers of the first message's type.
 		/// </summary>
-		/// <param name="messages">A list of messages.  Only the first will be published.</param>
+		/// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
 		    Type leadingType = messages[0].GetType();
@@ -309,6 +331,10 @@ namespace NServiceBus.Unicast
                 }
         }
 
+        /// <summary>
+        /// Subscribes to the given type - T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void Subscribe<T>() where T : IMessage
         {
             Subscribe(typeof(T));
@@ -323,6 +349,12 @@ namespace NServiceBus.Unicast
             this.Subscribe(messageType, null);
         }
 
+        /// <summary>
+        /// Subscribes to the given type T, registering a condition that all received
+        /// messages of that type should comply with, otherwise discarding them.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition"></param>
         public void Subscribe<T>(Predicate<T> condition) where T : IMessage
         {
             Predicate<IMessage> p = new Predicate<IMessage>(m =>
@@ -357,6 +389,10 @@ namespace NServiceBus.Unicast
                 this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
         }
 
+        /// <summary>
+        /// Unsubscribes from the given type of message - T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void Unsubscribe<T>() where T : IMessage
         {
             Unsubscribe(typeof(T));
@@ -386,6 +422,13 @@ namespace NServiceBus.Unicast
             this.transport.Send(toSend, messageBeingHandled.ReturnAddress);
         }
 
+        /// <summary>
+        /// Creates an instance of the given message type - T,
+        /// performing the given action on the created message,
+        /// and then sending it as a reply.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messageConstructor"></param>
         public void Reply<T>(Action<T> messageConstructor) where T : IMessage
         {
             Reply(CreateInstance<T>(messageConstructor));
@@ -416,6 +459,13 @@ namespace NServiceBus.Unicast
                 this.transport.ReceiveMessageLater(messageBeingHandled);
         }
 
+        /// <summary>
+        /// Creates an instance of the given message type - T,
+        /// performing the given action on the created message,
+        /// finally putting it in the back of this endpoint's input queue.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messageConstructor"></param>
         public void SendLocal<T>(Action<T> messageConstructor) where T : IMessage
         {
             SendLocal(CreateInstance<T>(messageConstructor));
@@ -442,6 +492,14 @@ namespace NServiceBus.Unicast
             }
         }
 
+        /// <summary>
+        /// Creates a message of the given message type  - T,
+        /// performing the given actions on the created message,
+        /// finally sending it to the configured destination.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messageConstructor"></param>
+        /// <returns></returns>
         public ICallback Send<T>(Action<T> messageConstructor) where T : IMessage
         {
             return Send(CreateInstance<T>(messageConstructor));
@@ -469,6 +527,15 @@ namespace NServiceBus.Unicast
             return this.Send(destination, messages);
         }
 
+        /// <summary>
+        /// Creates the given message type - T,
+        /// performing the requested action on the created message,
+        /// finally sending it to the given destination.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="destination"></param>
+        /// <param name="messageConstructor"></param>
+        /// <returns></returns>
         public ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage
         {
             return Send(destination, CreateInstance<T>(messageConstructor));
@@ -635,6 +702,9 @@ namespace NServiceBus.Unicast
             log.Debug("Sending ReadyMessage to " + this.distributorControlAddress);
         }
 
+        /// <summary>
+        /// Tells the transport to dispose.
+        /// </summary>
         public virtual void Dispose()
         {
             this.transport.Dispose();
@@ -655,6 +725,9 @@ namespace NServiceBus.Unicast
 	    [ThreadStatic] 
         private static IDictionary<string, string> outgoingHeaders;
 
+        /// <summary>
+        /// Gets the headers that will be attached to outgoing messages.
+        /// </summary>
 	    public IDictionary<string, string> OutgoingHeaders
 	    {
             get
@@ -666,6 +739,9 @@ namespace NServiceBus.Unicast
             }
 	    }
 
+        /// <summary>
+        /// Gets the headers that arrived with the current message being handled.
+        /// </summary>
 	    public IDictionary<string, string> IncomingHeaders
 	    {
             get
@@ -972,7 +1048,7 @@ namespace NServiceBus.Unicast
 		/// </param>
 		/// <remarks>
 		/// Since the same message type may be configured specifically to one address
-		/// and via its assembly to a different address, the <see cref="configuredByAssembly"/>
+		/// and via its assembly to a different address, the configuredByAssembly
 		/// parameter dictates that the specific message type data is to be used.
 		/// </remarks>
         public void RegisterMessageType(Type messageType, string destination, bool configuredByAssembly)
@@ -1079,7 +1155,7 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Evaluates a type and loads it if it implements IMessageHander<T>.
+		/// Evaluates a type and loads it if it implements IMessageHander{T}.
 		/// </summary>
 		/// <param name="t">The type to evaluate.</param>
         private void If_Type_Is_MessageHandler_Then_Load(Type t)
@@ -1186,6 +1262,9 @@ namespace NServiceBus.Unicast
 		    return destination;
         }
 
+        /// <summary>
+        /// Throws an exception if the bus hasn't begun the startup process.
+        /// </summary>
         protected void AssertBusIsStarted()
         {
             if(starting == false)
@@ -1201,6 +1280,9 @@ namespace NServiceBus.Unicast
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
+        /// <summary>
+        /// Gets/sets the subscription storage.
+        /// </summary>
 	    protected ISubscriptionStorage subscriptionStorage;
 
         private readonly List<Type> messageTypes = new List<Type>(new Type[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });

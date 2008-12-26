@@ -5,6 +5,10 @@ using System.Text;
 
 namespace ObjectBuilder
 {
+    /// <summary>
+    /// Used to configure components in the container.
+    /// Should primarily be used at startup/initialization time.
+    /// </summary>
     public interface IConfigureComponents
     {
         /// <summary>

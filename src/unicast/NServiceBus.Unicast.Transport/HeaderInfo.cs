@@ -2,20 +2,20 @@ using System;
 
 namespace NServiceBus.Unicast.Transport
 {
+    /// <summary>
+    /// Represents the structure of header information passed in a TransportMessage.
+    /// </summary>
     [Serializable]
     public class HeaderInfo
     {
-        public string Key;
-        public string Value;
+        /// <summary>
+        /// The key used to lookup the value in the header collection.
+        /// </summary>
+        public string Key { get; set; }
 
-        public HeaderInfo(string key, string value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public HeaderInfo()
-        {
-        }
+        /// <summary>
+        /// The value stored under the key in the header collection.
+        /// </summary>
+        public string Value { get; set; }
     }
 }

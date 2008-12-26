@@ -2,6 +2,9 @@ using NServiceBus.Messages;
 
 namespace NServiceBus.Unicast
 {
+    /// <summary>
+    /// Extension of the IBus interface for working with a distributor.
+    /// </summary>
     public interface IUnicastBus : IBus
     {
         /// <summary>

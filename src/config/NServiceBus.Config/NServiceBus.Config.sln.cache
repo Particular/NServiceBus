@@ -31,11 +31,11 @@
     <AspNetConfiguration>$(Configuration)</AspNetConfiguration>
   </PropertyGroup>
   <PropertyGroup>
-    <SolutionDir>C:\DEV\nsb\src\config\NServiceBus.Config\</SolutionDir>
+    <SolutionDir>C:\DEV\NServiceBus\src\config\NServiceBus.Config\</SolutionDir>
     <SolutionExt>.sln</SolutionExt>
     <SolutionFileName>NServiceBus.Config.sln</SolutionFileName>
     <SolutionName>NServiceBus.Config</SolutionName>
-    <SolutionPath>C:\DEV\nsb\src\config\NServiceBus.Config\NServiceBus.Config.sln</SolutionPath>
+    <SolutionPath>C:\DEV\NServiceBus\src\config\NServiceBus.Config\NServiceBus.Config.sln</SolutionPath>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and '$(MSBuildToolsVersion)' == '2.0'">v2.0</TargetFrameworkVersion>
