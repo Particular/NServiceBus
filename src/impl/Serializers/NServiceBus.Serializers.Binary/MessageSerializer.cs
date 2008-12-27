@@ -6,21 +6,34 @@ using NServiceBus.Serialization;
 
 namespace NServiceBus.Serializers.Binary
 {
+    /// <summary>
+    /// Binary implementation of the message serializer.
+    /// </summary>
     public class MessageSerializer : IMessageSerializer
     {
+        /// <summary>
+        /// Doesn't do anything.
+        /// </summary>
+        /// <param name="types"></param>
         public void Initialize(params Type[] types)
         {
-            //foreach (Type t in types)
-            //    if (!t.IsSerializable)
-            //        throw new InvalidOperationException("Cannot register a non-serializable type: " +
-            //                                            t.FullName);
         }
 
+        /// <summary>
+        /// Serializes the given messages to the given stream.
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <param name="stream"></param>
         public void Serialize(IMessage[] messages, Stream stream)
         {
             this.binaryFormatter.Serialize(stream, new List<object>(messages));
         }
 
+        /// <summary>
+        /// Deserializes the given stream returning an array of messages.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public IMessage[] Deserialize(Stream stream)
         {
             List<object> body = this.binaryFormatter.Deserialize(stream) as List<object>;

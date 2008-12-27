@@ -11,19 +11,36 @@ using System.Runtime.Serialization;
 
 namespace NServiceBus.Serializers.XML
 {
+    /// <summary>
+    /// Implementation of the message serializer over XML supporting interface-based messages.
+    /// </summary>
     public class MessageSerializer : IMessageSerializer
     {
+        /// <summary>
+        /// The message mapper used to translate between types.
+        /// </summary>
         public virtual IMessageMapper MessageMapper { get; set; }
 
         private string nameSpace = "http://tempuri.net";
+
+        /// <summary>
+        /// The namespace to place in outgoing XML.
+        /// </summary>
         public virtual string Namespace
         {
             get { return nameSpace; }
             set { nameSpace = value; }
         }
 
+        /// <summary>
+        /// Gets/sets additional types to be serialized on top of those detected by the caller of Initialize.
+        /// </summary>
         public virtual List<Type> AdditionalTypes { get; set; }
 
+        /// <summary>
+        /// Initializes the serializer, passing the given types in addition to those in AdditionalTypes to the message mapper.
+        /// </summary>
+        /// <param name="types"></param>
         public void Initialize(params Type[] types)
         {
             if (AdditionalTypes == null)
@@ -36,6 +53,10 @@ namespace NServiceBus.Serializers.XML
                 InitType(t);
         }
 
+        /// <summary>
+        /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
+        /// </summary>
+        /// <param name="t"></param>
         public void InitType(Type t)
         {
             if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime))
@@ -64,6 +85,11 @@ namespace NServiceBus.Serializers.XML
                 InitType(field.FieldType);
         }
 
+        /// <summary>
+        /// Gets a PropertyInfo for each property of the given type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t)
         {
             List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
@@ -75,6 +101,11 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
+        /// <summary>
+        /// Gets a FieldInfo for each field in the given type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
@@ -82,6 +113,11 @@ namespace NServiceBus.Serializers.XML
 
         #region Deserialize
 
+        /// <summary>
+        /// Deserializes the given stream to an array of messages which are returned.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public IMessage[] Deserialize(Stream stream)
         {
             prefixesToNamespaces = new Dictionary<string, string>();
@@ -168,7 +204,7 @@ namespace NServiceBus.Serializers.XML
             return GetObjectOfTypeFromNode(t, node);
         }
 
-        public object GetObjectOfTypeFromNode(Type t, XmlNode node)
+        private object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
             object result = MessageMapper.CreateInstance(t);
 
@@ -194,7 +230,7 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
-        public PropertyInfo GetProperty(Type t, string name)
+        private PropertyInfo GetProperty(Type t, string name)
         {
             IEnumerable<PropertyInfo> props;
             typeToProperties.TryGetValue(t, out props);
@@ -209,7 +245,7 @@ namespace NServiceBus.Serializers.XML
             return null;
         }
 
-        public FieldInfo GetField(Type t, string name)
+        private FieldInfo GetField(Type t, string name)
         {
             IEnumerable<FieldInfo> fields;
             typeToFields.TryGetValue(t, out fields);
@@ -224,7 +260,7 @@ namespace NServiceBus.Serializers.XML
             return null;
         }
 
-        public object GetPropertyValue(Type type, XmlNode n, object parent)
+        private object GetPropertyValue(Type type, XmlNode n, object parent)
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
@@ -282,6 +318,11 @@ namespace NServiceBus.Serializers.XML
 
         #region Serialize
 
+        /// <summary>
+        /// Serializes the given messages to the given stream.
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <param name="stream"></param>
         public void Serialize(IMessage[] messages, Stream stream)
         {
             namespacesToPrefix = new Dictionary<string, string>();
@@ -319,7 +360,7 @@ namespace NServiceBus.Serializers.XML
             stream.Write(buffer, 0, buffer.Length);
         }
 
-        public void Write(StringBuilder builder, Type t, object obj)
+        private void Write(StringBuilder builder, Type t, object obj)
         {
             if (obj == null)
                 return;
@@ -331,7 +372,7 @@ namespace NServiceBus.Serializers.XML
                 WriteEntry(field.Name, field.FieldType, field.GetValue(obj), builder);
         }
 
-        public void WriteObject(string name, Type type, object value, StringBuilder builder)
+        private void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
             string element = name;
             string prefix = null;
@@ -347,7 +388,7 @@ namespace NServiceBus.Serializers.XML
             builder.AppendFormat("</{0}>\n", element);
         }
 
-        public void WriteEntry(string name, Type type, object value, StringBuilder builder)
+        private void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
             if (type.IsValueType || type == typeof(string))
             {

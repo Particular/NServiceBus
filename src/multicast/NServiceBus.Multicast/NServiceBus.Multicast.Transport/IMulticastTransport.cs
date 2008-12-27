@@ -2,12 +2,28 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Multicast.Transport
 {
+    /// <summary>
+    /// Transport used by the Multicast Bus
+    /// </summary>
     public interface IMulticastTransport : ITransport
     {
-        void Subscribe(string address);
+        /// <summary>
+        /// Subscribes to the given topic.
+        /// </summary>
+        /// <param name="topic"></param>
+        void Subscribe(string topic);
 
-        void Unsubscribe(string address);
+        /// <summary>
+        /// Unsubscribes from the given topic.
+        /// </summary>
+        /// <param name="topic"></param>
+        void Unsubscribe(string topic);
 
-        void Publish(TransportMessage message, string address);
+        /// <summary>
+        /// Publishes the given message on the given topic.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="topic"></param>
+        void Publish(TransportMessage message, string topic);
     }
 }
