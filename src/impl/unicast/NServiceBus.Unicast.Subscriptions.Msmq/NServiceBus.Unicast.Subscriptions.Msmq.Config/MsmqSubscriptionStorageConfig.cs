@@ -7,6 +7,10 @@ namespace NServiceBus.Config
     /// </summary>
     public class MsmqSubscriptionStorageConfig : ConfigurationSection
     {
+        /// <summary>
+        /// The queue where subscription data will be stored.
+        /// Use the "queue@machine" convention.
+        /// </summary>
         [ConfigurationProperty("Queue", IsRequired = true)]
         public string Queue
         {

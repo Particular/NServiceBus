@@ -33,6 +33,11 @@ namespace NServiceBus.Unicast.Distributor
 
 
 	    private int millisToWaitIfCannotDispatchToWorker = 50;
+
+        /// <summary>
+        /// Milliseconds to sleep if no workers are available.
+        /// Prevents needless CPU churn.
+        /// </summary>
         public virtual int MillisToWaitIfCannotDispatchToWorker
 	    {
             set { this.millisToWaitIfCannotDispatchToWorker = value; }

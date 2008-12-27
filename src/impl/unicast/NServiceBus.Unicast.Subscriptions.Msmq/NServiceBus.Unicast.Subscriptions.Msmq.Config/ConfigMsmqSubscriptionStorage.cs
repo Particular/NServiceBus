@@ -11,6 +11,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
     /// </summary>
     public class ConfigMsmqSubscriptionStorage : Configure
     {
+        /// <summary>
+        /// Constructor needed since we have an additional constructor.
+        /// </summary>
         public ConfigMsmqSubscriptionStorage() : base() { }
 
         /// <summary>

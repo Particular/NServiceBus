@@ -51,10 +51,11 @@ namespace Timeout.Manager
             catch (Exception e)
             {
                 LogManager.GetLogger("hello").Fatal("Exiting", e);
+            }
+            finally
+            {
                 Console.Read();
             }
-
-            Console.Read();
         }
     }
 }

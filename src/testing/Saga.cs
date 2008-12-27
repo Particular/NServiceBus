@@ -6,6 +6,9 @@ using Rhino.Mocks;
 
 namespace NServiceBus.Testing
 {
+    /// <summary>
+    /// Saga unit testing framework.
+    /// </summary>
     public class Saga
     {
         private readonly IBus bus;
@@ -29,6 +32,13 @@ namespace NServiceBus.Testing
             messageTypes = types;
         }
 
+        /// <summary>
+        /// Begin the test script for a saga of type T.
+        /// Receive the instance of the saga in the out parameter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="saga"></param>
+        /// <returns></returns>
         public static Saga Test<T>(out T saga) where T : ISaga, new()
         {
             saga = (T)Activator.CreateInstance(typeof (T));
@@ -65,16 +75,33 @@ namespace NServiceBus.Testing
             return new Saga(mocks, bus, sagaData, mapper, typesToMap);
         }
 
+        /// <summary>
+        /// Instantiate a new message of type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T CreateInstance<T>() where T : IMessage
         {
             return messageCreator.CreateInstance<T>();
         }
 
+        /// <summary>
+        /// Instantiate a new message of type T performing the given action
+        /// on the created message.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <returns></returns>
         public T CreateInstance<T>(Action<T> action) where T : IMessage
         {
             return messageCreator.CreateInstance<T>(action);
         }
 
+        /// <summary>
+        /// Set the address of the client that caused the saga to be started.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public Saga WhenReceivesMessageFrom(string client)
         {
             this.clientAddress = client;
@@ -83,6 +110,11 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Set the headers on an incoming message.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <returns></returns>
         public Saga SetIncomingHeaders(IDictionary<string, string> headers)
         {
             this.incomingHeaders = headers;
@@ -90,11 +122,20 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Get the headers set by the saga when it sends a message.
+        /// </summary>
         public IDictionary<string, string> OutgoingHeaders
         {
             get { return outgoingHeaders; }
         }
 
+        /// <summary>
+        /// Check that the saga sends a message of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectSend<T>(SendPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -117,6 +158,12 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Check that the saga replies with the given message type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectReply<T>(SendPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -139,6 +186,13 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Check that the saga sends the given message type to its local queue
+        /// and that the message complies with the given predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectSendLocal<T>(SendPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -161,6 +215,11 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Check that the saga uses the bus to return the appropriate error code.
+        /// </summary>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectReturn(ReturnPredicate check)
         {
             Delegate d = new HandleMessageDelegate(
@@ -182,6 +241,12 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Check that the saga sends the given message type to the appropriate destination.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectSendToDestination<T>(SendToDestinationPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -204,6 +269,12 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Check that the saga publishes a message of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
         public Saga ExpectPublish<T>(PublishPredicate<T> check) where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
@@ -226,6 +297,10 @@ namespace NServiceBus.Testing
             return this;
         }
 
+        /// <summary>
+        /// Uses the given delegate to invoke the saga, checking all the expectations previously set up.
+        /// </summary>
+        /// <param name="handle"></param>
         public void When(HandleMessageDelegate handle)
         {
             using (m.Record())
@@ -302,7 +377,7 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
-        public void PrepareBusGenericMethods<T>() where T : IMessage
+        private void PrepareBusGenericMethods<T>() where T : IMessage
         {
             Delegate d = new HandleMessageDelegate(
                 delegate

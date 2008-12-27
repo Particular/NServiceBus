@@ -16,7 +16,6 @@ namespace NServiceBus.Unicast.Distributor.Runner
         /// <summary>
         /// Assumes that an <see cref="IMessageSerializer"/> was already configured in the given builder.
         /// </summary>
-        /// <param name="builder"></param>
         /// <returns></returns>
         public static void Init(Func<Configure, Configure> setupSerialization)
         {

@@ -13,6 +13,12 @@ namespace NServiceBus.Grid.MessageHandlers
     public class ChangeNumberOfWorkerThreadsMessageHandler : 
         IMessageHandler<ChangeNumberOfWorkerThreadsMessage>
     {
+        /// <summary>
+        /// If the target number of worker threads in the message is zero,
+        /// brings them down to one, and marks the endpoint as Disabled.
+        /// Otherwise, tells the transport to change the number of worker threads.
+        /// </summary>
+        /// <param name="message"></param>
         public void Handle(ChangeNumberOfWorkerThreadsMessage message)
         {
             int target = message.NumberOfWorkerThreads;
@@ -21,14 +27,14 @@ namespace NServiceBus.Grid.MessageHandlers
             else
             {
                 GridInterceptingMessageHandler.Disabled = false;
-                this.unicastBus.ContinueSendingReadyMessages();
+                this.UnicastBus.ContinueSendingReadyMessages();
             }
 
-            this.transport.ChangeNumberOfWorkerThreads(target);
+            this.Transport.ChangeNumberOfWorkerThreads(target);
 
             if (message.NumberOfWorkerThreads == 0)
             {
-                this.unicastBus.StopSendingReadyMessages();
+                this.UnicastBus.StopSendingReadyMessages();
                 GridInterceptingMessageHandler.Disabled = true;
 
                 logger.Info("Disabling this endpoint.");
@@ -37,16 +43,10 @@ namespace NServiceBus.Grid.MessageHandlers
                 logger.Info(string.Format("{0} worker threads now running.", target));
         }
 
-        private IUnicastBus unicastBus;
-        public IUnicastBus UnicastBus
-        {
-            set
-            {
-                this.unicastBus = value;
-            }
-        }
-
-        private ITransport transport;
+        /// <summary>
+        /// Used to stop sending ready messages to the distributor if one is configured.
+        /// </summary>
+        public IUnicastBus UnicastBus { get; set; }
 
         /// <summary>
         /// This is kept separate from the bus because the distributor
@@ -56,13 +56,7 @@ namespace NServiceBus.Grid.MessageHandlers
         /// For regular cases, the transport should be the same as is
         /// configured for the bus.
         /// </summary>
-        public ITransport Transport
-        {
-            set
-            {
-                this.transport = value;
-            }
-        }
+        public ITransport Transport { get; set; }
 
         private static readonly ILog logger = LogManager.GetLogger("NServicebus.Grid");
     }

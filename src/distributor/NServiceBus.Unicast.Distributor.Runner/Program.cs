@@ -32,12 +32,13 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 }
 
                 Initalizer.Init(func);
-
-                Console.Read();
             }
             catch (Exception e)
             {
                 LogManager.GetLogger("hello").Fatal("Exiting", e);
+            }
+            finally
+            {
                 Console.Read();
             }
         }

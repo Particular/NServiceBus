@@ -9,6 +9,9 @@ namespace NServiceBus.Grid.Messages
     [Serializable]
     public class GotNumberOfWorkerThreadsMessage : IMessage
     {
+        /// <summary>
+        /// The number of worker threads running on the sending endpoint.
+        /// </summary>
         public int NumberOfWorkerThreads { get; set; }
     }
 }

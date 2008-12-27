@@ -9,6 +9,9 @@ namespace NServiceBus.Grid.Messages
     [Serializable]
     public class ChangeNumberOfWorkerThreadsMessage : IMessage
     {
+        /// <summary>
+        /// Target number of worker threads.
+        /// </summary>
         public int NumberOfWorkerThreads { get; set; }
     }
 }

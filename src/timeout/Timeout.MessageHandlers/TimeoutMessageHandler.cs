@@ -5,10 +5,20 @@ using System.Collections.Generic;
 
 namespace Timeout.MessageHandlers
 {
+    /// <summary>
+    /// Handles TimeoutMessage.
+    /// </summary>
     public class TimeoutMessageHandler : IMessageHandler<TimeoutMessage>
     {
+        /// <summary>
+        /// Used for sending responses.
+        /// </summary>
         public IBus Bus { get; set; }
 
+        /// <summary>
+        /// Handles the TimeoutMessage.
+        /// </summary>
+        /// <param name="message"></param>
         public void Handle(TimeoutMessage message)
         {
             if (message.ClearTimeout)
