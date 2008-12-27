@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using System.Reflection;
 
 namespace NServiceBus.Saga

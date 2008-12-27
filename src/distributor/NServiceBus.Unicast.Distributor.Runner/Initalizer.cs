@@ -1,7 +1,7 @@
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport.Msmq;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Config;
 using System.Threading;
 using System;

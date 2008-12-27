@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Remoting.Contexts;
 using NServiceBus.ObjectBuilder.Common;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Synchronized
 {

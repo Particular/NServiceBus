@@ -7,7 +7,7 @@ using NServiceBus.Grid.Messages;
 using System.Reflection;
 using Common.Logging;
 using System.Collections.Generic;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace UI
 {

@@ -6,7 +6,7 @@ using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
 using OrderService.Persistence;
 using NHibernate;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace OrderService.Host
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ObjectBuilder
+namespace NServiceBus.ObjectBuilder
 {
     /// <summary>
     /// Used to instantiate types, so that all configured dependencies

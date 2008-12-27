@@ -5,7 +5,7 @@ using System.Text;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Common.Config;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using Spring.Context.Support;
 
 namespace NServiceBus

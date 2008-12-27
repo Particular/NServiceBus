@@ -7,6 +7,10 @@ namespace NServiceBus.Config
     /// </summary>
     public class MsmqTransportConfig : ConfigurationSection
     {
+        /// <summary>
+        /// The queue to receive messages from in the format
+        /// "queue@machine".
+        /// </summary>
         [ConfigurationProperty("InputQueue", IsRequired = true)]
         public string InputQueue
         {
@@ -20,6 +24,10 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// The queue to which to forward messages that could not be processed
+        /// in the format "queue@machine".
+        /// </summary>
         [ConfigurationProperty("ErrorQueue", IsRequired = true)]
         public string ErrorQueue
         {
@@ -33,6 +41,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// The number of worker threads that can process messages in parallel.
+        /// </summary>
         [ConfigurationProperty("NumberOfWorkerThreads", IsRequired = true)]
         public int NumberOfWorkerThreads
         {
@@ -46,6 +57,10 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// The maximum number of times to retry processing a message
+        /// when it fails before moving it to the error queue.
+        /// </summary>
         [ConfigurationProperty("MaxRetries", IsRequired = true)]
         public int MaxRetries
         {

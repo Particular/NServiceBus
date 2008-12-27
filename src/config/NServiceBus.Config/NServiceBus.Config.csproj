@@ -37,9 +37,9 @@
       <HintPath>..\..\..\build\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ObjectBuilder, Version=1.9.2.7647, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

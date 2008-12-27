@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Castle.MicroKernel;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {

@@ -8,7 +8,7 @@ using Common.Logging;
 using NServiceBus.Messages;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 

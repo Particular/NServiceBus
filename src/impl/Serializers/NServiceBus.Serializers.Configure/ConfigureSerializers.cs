@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {

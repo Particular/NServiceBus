@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Subscriptions
     public interface ISubscriptionStorage
     {
         /// <summary>
-        /// Check to see if <see cref="msg"/> is a <see cref="SubscriptionMessage"/>.
+        /// Check to see if the given message is a <see cref="SubscriptionMessage"/>.
         /// If so, performs the relevant subscribe/unsubscribe.
         /// </summary>
         /// <param name="msg">The message received in the bus.</param>
@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Subscriptions
 
         /// <summary>
         /// Returns a list of addresses of subscribers that previously requested to be notified
-        /// of messages of the same type as <see cref="messageType"/>.
+        /// of messages of the same type as the given message type.
         /// </summary>
         /// <param name="messageType">The logical message type that the bus wishes to publish.</param>
         /// <returns>List of addresses of subscribers.</returns>

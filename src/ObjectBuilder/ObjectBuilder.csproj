@@ -7,8 +7,8 @@
     <ProjectGuid>{C831B94E-6D08-404C-BA80-B8E8442EA9DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ObjectBuilder</RootNamespace>
-    <AssemblyName>ObjectBuilder</AssemblyName>
+    <RootNamespace>NServiceBus.ObjectBuilder</RootNamespace>
+    <AssemblyName>NServiceBus.ObjectBuilder</AssemblyName>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>
@@ -17,7 +17,7 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -34,7 +34,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\ObjectBuilder.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.ObjectBuilder.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,11 +63,6 @@
     <Compile Include="IConfigureComponents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\NServiceBus.snk">
-      <Link>NServiceBus.snk</Link>
-    </None>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -76,6 +72,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\external-bin\</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\build\</PostBuildEvent>
   </PropertyGroup>
 </Project>

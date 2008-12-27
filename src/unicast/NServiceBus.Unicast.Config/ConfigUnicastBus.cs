@@ -1,6 +1,6 @@
 using System;
 using System.Configuration;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using System.Collections;
 using System.Reflection;
 using NServiceBus.Config;

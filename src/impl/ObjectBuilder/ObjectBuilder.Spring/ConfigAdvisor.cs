@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Spring.Aop.Support;
 using Spring.Aop;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {

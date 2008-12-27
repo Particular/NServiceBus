@@ -1,5 +1,5 @@
 using System;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using System.Configuration;
 using System.Transactions;
 using NServiceBus.Config;
@@ -13,6 +13,9 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
     /// </summary>
     public class ConfigMsmqTransport : Configure
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ConfigMsmqTransport() : base() { }
 
         /// <summary>

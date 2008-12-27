@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NServiceBus.Unicast;
 using NServiceBus.Multicast.Transport;
 using NServiceBus.Unicast.Transport;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Multicast
 {

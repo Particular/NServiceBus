@@ -7,6 +7,10 @@ namespace NServiceBus.Config
     /// </summary>
     public class DbSubscriptionStorageConfig : ConfigurationSection
     {
+        /// <summary>
+        /// The type of database to connect to.
+        /// For instance, MS SQL Server is "System.Data.SqlClient".
+        /// </summary>
         [ConfigurationProperty("ProviderInvariantName", IsRequired = true)]
         public string ProviderInvariantName
         {
@@ -20,6 +24,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// The connection string to the database.
+        /// </summary>
         [ConfigurationProperty("ConnectionString", IsRequired = true)]
         public string ConnectionString
         {

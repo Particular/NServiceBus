@@ -3,7 +3,7 @@ using Common.Logging;
 using NServiceBus;
 using Messages;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace Client
 {

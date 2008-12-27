@@ -2,7 +2,7 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Grid.MessageHandlers;
 
 namespace Server

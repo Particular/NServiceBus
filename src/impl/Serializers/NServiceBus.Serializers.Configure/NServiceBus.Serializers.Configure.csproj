@@ -55,14 +55,14 @@
       <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Serialization, Version=1.9.0.28728, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.Serialization.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ObjectBuilder, Version=1.8.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

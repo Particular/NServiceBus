@@ -1,4 +1,4 @@
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using System.Configuration;
 using System.Data;
 using NServiceBus.Config;
@@ -12,6 +12,9 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
     /// </summary>
     public class ConfigDbSubscriptionStorage : Configure
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ConfigDbSubscriptionStorage() : base() { }
 
         /// <summary>

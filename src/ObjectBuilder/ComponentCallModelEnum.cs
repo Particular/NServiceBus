@@ -1,4 +1,4 @@
-namespace ObjectBuilder
+namespace NServiceBus.ObjectBuilder
 {
     /// <summary>
     /// Represent the various call models for a component.

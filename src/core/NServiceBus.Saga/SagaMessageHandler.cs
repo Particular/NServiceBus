@@ -1,5 +1,5 @@
 using System;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using Common.Logging;
 

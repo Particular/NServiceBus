@@ -6,7 +6,7 @@ using System.Reflection;
 using AopAlliance.Intercept;
 using System.Collections;
 using Common.Logging;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NHibernate;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 
 namespace NServiceBus

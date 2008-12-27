@@ -6,7 +6,7 @@ using NServiceBus.ObjectBuilder.Common;
 using Castle.DynamicProxy;
 using Castle.Windsor;
 using Castle.MicroKernel;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using Castle.Core;
 using Castle.MicroKernel.Registration;
 

@@ -47,14 +47,14 @@
       <HintPath>..\..\..\..\..\build\NServiceBus.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Saga, Version=1.9.2.8128, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\NServiceBus.Saga.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ObjectBuilder, Version=1.9.2.7647, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

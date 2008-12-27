@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ObjectBuilder
+namespace NServiceBus.ObjectBuilder
 {
     /// <summary>
     /// Used to configure components in the container.

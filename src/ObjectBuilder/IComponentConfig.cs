@@ -1,4 +1,4 @@
-namespace ObjectBuilder
+namespace NServiceBus.ObjectBuilder
 {
     /// <summary>
     /// Used to configure the values to be set for the various

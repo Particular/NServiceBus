@@ -13,6 +13,9 @@ namespace NServiceBus.Unicast.Subscriptions.DB
     /// </summary>
     public class SubscriptionStorage : ISubscriptionStorage
     {
+        /// <summary>
+        /// Constructor setting default isolational level to ReadCommitted.
+        /// </summary>
         public SubscriptionStorage()
         {
             IsolationLevel = IsolationLevel.ReadCommitted;
@@ -28,18 +31,46 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         #region config
 
+        /// <summary>
+        /// The database table which will store the subscription data.
+        /// </summary>
         public virtual string Table { get; set; }
+
+        /// <summary>
+        /// The name of the column that will hold the message type.
+        /// </summary>
         public virtual string MessageTypeColumnName { get; set; }
+
+        /// <summary>
+        /// The name of the column that will hold the subscriber address.
+        /// </summary>
         public virtual string SubscriberColumnName { get; set; }
+
+        /// <summary>
+        /// The isolation level to perform transactions with.
+        /// Default value is ReadCommitted.
+        /// </summary>
         public virtual IsolationLevel IsolationLevel { get; set; }
+
+        /// <summary>
+        /// The name of the database provider.
+        /// </summary>
         public virtual string ProviderInvariantName { get; set; }
 
+        /// <summary>
+        /// The connection string to the database.
+        /// </summary>
         public virtual string ConnectionString { get; set; }
 
         #endregion
 
         #region ISubscriptionStorage Members
 
+        /// <summary>
+        /// Returns the list of subscriber addresses subscribed for the given message type.
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <returns></returns>
         public IList<string> GetSubscribersForMessage(Type messageType)
         {
             List<Type> compatibles = new List<Type>();
@@ -86,6 +117,10 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             return result;
         }
 
+        /// <summary>
+        /// Handles subscription messages.
+        /// </summary>
+        /// <param name="msg"></param>
         public void HandleSubscriptionMessage(TransportMessage msg)
         {
             IMessage[] messages = msg.Body;
@@ -137,12 +172,14 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         public void Init(IList<Type> messageTypes)
         {
             if (this.ConnectionString == null ||
-                this.factory == null ||
+                this.ProviderInvariantName == null ||
                 this.MessageTypeColumnName == null ||
                 this.SubscriberColumnName == null ||
                 this.Table == null)
                 throw new ConfigurationErrorsException(
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
+
+            factory = DbProviderFactories.GetFactory(this.ProviderInvariantName);
 
             foreach (Type msgType in messageTypes)
             {

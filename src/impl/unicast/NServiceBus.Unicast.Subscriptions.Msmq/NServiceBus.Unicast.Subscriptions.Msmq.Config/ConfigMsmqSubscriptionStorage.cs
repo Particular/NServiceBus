@@ -1,5 +1,5 @@
 using System.Configuration;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.CastleWindsor;
 using NServiceBus.ObjectBuilder.Common.Config;
 using Castle.Windsor;

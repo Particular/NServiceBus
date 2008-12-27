@@ -11,7 +11,7 @@ using Spring.Aop.Support;
 using System.Collections;
 using NServiceBus.ObjectBuilder.Common;
 using Common.Logging;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {

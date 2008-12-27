@@ -8,7 +8,7 @@ using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
 using NServiceBus.Utils;
-using ObjectBuilder;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
