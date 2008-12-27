@@ -87,7 +87,7 @@ namespace OrderService.Tests
                 m.PurchaseOrderNumber = purchaseOrderNumber;
                 m.PartnerId = partnerId;
                 m.Done = true;
-                m.ProvideBy = DateTime.Now;
+                m.ProvideBy = DateTime.Now + TimeSpan.FromDays(2);
                 m.OrderLines = orderLines;
             });
         }

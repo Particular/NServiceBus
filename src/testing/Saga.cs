@@ -306,7 +306,7 @@ namespace NServiceBus.Testing
             using (m.Record())
             {
                 foreach (Type t in messageTypes)
-                    typeof(Saga).GetMethod("PrepareBusGenericMethods").MakeGenericMethod(t).Invoke(this, null);
+                    typeof(Saga).GetMethod("PrepareBusGenericMethods", BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(t).Invoke(this, null);
 
                 SetupResult.For(bus.SourceOfMessageBeingHandled).Return(this.clientAddress);
                 SetupResult.For(bus.IncomingHeaders).Return(this.incomingHeaders);
