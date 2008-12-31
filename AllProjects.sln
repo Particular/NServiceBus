@@ -183,8 +183,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate.Config", "src\impl\SagaPersisters\NHibernateSagaPersister\NServiceBus.SagaPersisters.NHibernate.Config\NServiceBus.SagaPersisters.NHibernate.Config.csproj", "{880C2B7B-6BFD-46E6-AB9C-29A4C298ABA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Persistence", "Samples\Manufacturing\OrderService.Persistence\OrderService.Persistence.csproj", "{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interop", "Interop", "{C4C7BB61-4F8B-4FE6-AD7D-BB258799380F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteropPartner", "Samples\Manufacturing\InteropPartner\InteropPartner.csproj", "{AF9929C8-85B8-4A36-9EC8-E46C17FE3B65}"
@@ -212,6 +210,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor", "src\impl\ObjectBuilder\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj", "{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor.Config", "src\impl\ObjectBuilder\ObjectBuilder.CastleWindsor.Config\ObjectBuilder.CastleWindsor.Config.csproj", "{A5C76DC4-8614-4FF5-B417-90F860354A23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Persistence", "Samples\Manufacturing\OrderService\OrderService.Persistence\OrderService.Persistence.csproj", "{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -455,10 +455,6 @@ Global
 		{880C2B7B-6BFD-46E6-AB9C-29A4C298ABA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{880C2B7B-6BFD-46E6-AB9C-29A4C298ABA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{880C2B7B-6BFD-46E6-AB9C-29A4C298ABA3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AF9929C8-85B8-4A36-9EC8-E46C17FE3B65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AF9929C8-85B8-4A36-9EC8-E46C17FE3B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF9929C8-85B8-4A36-9EC8-E46C17FE3B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -507,6 +503,10 @@ Global
 		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

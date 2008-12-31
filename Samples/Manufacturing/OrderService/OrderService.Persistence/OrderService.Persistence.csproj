@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{03E59C83-170A-4BF6-86FB-A05B75DE9510}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OrderService.Host</RootNamespace>
-    <AssemblyName>OrderService.Host</AssemblyName>
+    <RootNamespace>OrderService.Persistence</RootNamespace>
+    <AssemblyName>OrderService.Persistence</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -34,19 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Iesi.Collections, Version=1.0.0.3, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate, Version=2.0.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.9.3.40920, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.9.3.41221, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -58,18 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="OrderSagaFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\HR.Messages\HR.Messages.csproj">
-      <Project>{BAC04722-7E15-485E-BA17-3EC46AB7FC3C}</Project>
-      <Name>HR.Messages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OrderService.Persistence\OrderService.Persistence.csproj">
-      <Project>{C34B917B-14A4-4FFB-A744-F32E9AFBAECD}</Project>
-      <Name>OrderService.Persistence</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OrderService.Messages\OrderService.Messages.csproj">
       <Project>{A490D793-1D1D-486F-B808-827010EF8369}</Project>
       <Name>OrderService.Messages</Name>
@@ -80,12 +64,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <EmbeddedResource Include="OrderSagaData.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="hibernate.cfg.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="OrderLine.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TableDefinitions.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
