@@ -73,6 +73,12 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
+            //already in the process of initializing this type (prevents infinite recursion).
+            if (typesBeingInitialized.Contains(t))
+                return;
+
+            typesBeingInitialized.Add(t);
+
             var props = GetAllPropertiesForType(t);
             typeToProperties[t] = props;
             var fields = GetAllFieldsForType(t);
@@ -460,6 +466,7 @@ namespace NServiceBus.Serializers.XML
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
+        private static readonly List<Type> typesBeingInitialized = new List<Type>();
 
         [ThreadStatic]
         private static string defaultNameSpace;
