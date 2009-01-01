@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.Serializers.XML.Config
+namespace NServiceBus
 {
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
