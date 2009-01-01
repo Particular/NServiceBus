@@ -1,28 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus
+namespace NServiceBus.Serializers.XML.Config
 {
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
-    public static class ConfigureSerializers
+    public static class ConfigureXmlSerializer
     {
-        /// <summary>
-        /// Use binary serialization.
-        /// Note that this does not support interface-based messages.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public static Configure BinarySerializer(this Configure config)
-        {
-            config.Configurer.ConfigureComponent(typeof(NServiceBus.Serializers.Binary.MessageSerializer), ComponentCallModelEnum.Singleton);
-
-            return config;
-        }
-
         /// <summary>
         /// Use XML serialization that supports interface-based messages.
         /// </summary>
@@ -51,5 +39,6 @@ namespace NServiceBus
 
             return config;
         }
+
     }
 }

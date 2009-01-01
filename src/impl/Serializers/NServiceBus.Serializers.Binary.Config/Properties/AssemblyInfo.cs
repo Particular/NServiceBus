@@ -21,5 +21,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("NServiceBus Serialization Configuration")]
-[assembly: AssemblyDescription("Configures serialization capabilities of nServiceBus")]
+[assembly: AssemblyTitle("NServiceBus Binary Serialization Configuration")]
+[assembly: AssemblyDescription("Configures the binary serialization capabilities of nServiceBus")]
