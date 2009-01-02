@@ -8,6 +8,7 @@ using System.Xml;
 using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
 using System.Runtime.Serialization;
+using Common.Logging;
 
 namespace NServiceBus.Serializers.XML
 {
@@ -127,6 +128,7 @@ namespace NServiceBus.Serializers.XML
         public IMessage[] Deserialize(Stream stream)
         {
             prefixesToNamespaces = new Dictionary<string, string>();
+            messageBaseTypes = new List<Type>();
             List<IMessage> result = new List<IMessage>();
 
             XmlDocument doc = new XmlDocument();
@@ -142,7 +144,15 @@ namespace NServiceBus.Serializers.XML
                     {
                         int colonIndex = attr.Name.LastIndexOf(":");
                         string prefix = attr.Name.Substring(colonIndex + 1);
-                        prefixesToNamespaces[prefix] = attr.Value;
+
+                        if (prefix.Contains(BASETYPE))
+                        {
+                            Type baseType = MessageMapper.GetMappedTypeFor(attr.Value);
+                            if (baseType != null)
+                                messageBaseTypes.Add(baseType);
+                        }
+                        else
+                            prefixesToNamespaces[prefix] = attr.Value;
                     }
                 }
             }
@@ -205,7 +215,18 @@ namespace NServiceBus.Serializers.XML
 
             Type t = MessageMapper.GetMappedTypeFor(typeName);
             if (t == null)
-                throw new TypeLoadException("Could not load type '" + typeName + "'.");
+            {
+                logger.Debug("Could not load " + typeName + ". Trying base types...");
+                foreach(Type baseType in messageBaseTypes)
+                    try
+                    {
+                        logger.Debug("Trying to deserialize message to " + baseType.FullName);
+                        return GetObjectOfTypeFromNode(baseType, node);
+                    }
+                    catch { } // intentionally swallow exception
+
+                throw new TypeLoadException("Could not handle type '" + typeName + "'.");
+            }
 
             return GetObjectOfTypeFromNode(t, node);
         }
@@ -336,6 +357,7 @@ namespace NServiceBus.Serializers.XML
             StringBuilder builder = new StringBuilder();
 
             List<string> namespaces = GetNamespaces(messages, MessageMapper);
+            List<string> baseTypes = GetBaseTypes(messages, MessageMapper);
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
             
@@ -349,6 +371,15 @@ namespace NServiceBus.Serializers.XML
 
                 builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace, namespaces[i]);
                 namespacesToPrefix[namespaces[i]] = prefix;
+            }
+
+            for (int i = 0; i < baseTypes.Count; i++)
+            {
+                string prefix = BASETYPE;
+                if (i != 0)
+                    prefix += i;
+
+                builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
             }
 
             builder.Append(">\n");
@@ -457,12 +488,41 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
+        private static List<string> GetBaseTypes(IMessage[] messages, IMessageMapper mapper)
+        {
+            List<string> result = new List<string>();
+
+            foreach (IMessage m in messages)
+            {
+                Type t = mapper.GetMappedTypeFor(m.GetType());
+
+                Type baseType = t.BaseType;
+                while (baseType != typeof(object) && baseType != null)
+                {
+                    if (typeof(IMessage).IsAssignableFrom(baseType))
+                        if (!result.Contains(baseType.FullName))
+                            result.Add(baseType.FullName);
+
+                    baseType = baseType.BaseType;
+                }
+
+                foreach (Type i in t.GetInterfaces())
+                    if (i != typeof(IMessage) && typeof(IMessage).IsAssignableFrom(i))
+                        if (!result.Contains(i.FullName))
+                            result.Add(i.FullName);
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region members
 
         private static readonly string XMLPREFIX = "d1p1";
         private static readonly string XMLTYPE = XMLPREFIX + ":type";
+        private static readonly string BASETYPE = "baseType";
+
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
@@ -483,6 +543,10 @@ namespace NServiceBus.Serializers.XML
         [ThreadStatic]
         private static IDictionary<string, string> prefixesToNamespaces;
 
+        [ThreadStatic]
+        private static List<Type> messageBaseTypes;
+
+        private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
         #endregion
     }
 }
