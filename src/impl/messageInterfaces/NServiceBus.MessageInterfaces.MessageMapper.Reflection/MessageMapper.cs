@@ -52,8 +52,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
-            //already defined this type in the module builder
-            if (moduleBuilder.GetType(GetNewTypeName(t)) != null)
+            //already handled this type, prevent infinite recursion
+            if (nameToType.ContainsKey(t.FullName))
                 return;
 
             if (t.IsInterface)
