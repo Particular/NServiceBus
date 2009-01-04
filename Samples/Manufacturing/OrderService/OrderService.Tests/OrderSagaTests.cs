@@ -4,12 +4,12 @@ using HR.Messages;
 using NServiceBus.Saga;
 using NServiceBus.Testing;
 using OrderService.Messages;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using NServiceBus;
 
 namespace OrderService.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class OrderSagaTests
     {
         #region members
@@ -25,7 +25,7 @@ namespace OrderService.Tests
 
         #endregion
 
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void Setup()
         {
             Saga = Saga.Test(out orderSaga);
@@ -40,7 +40,7 @@ namespace OrderService.Tests
 
         }
 
-        [TestMethod]
+        [Test]
         public void OrderSagaTest()
         {
             Saga.WhenReceivesMessageFrom(partnerAddress)
@@ -56,7 +56,7 @@ namespace OrderService.Tests
             .When(() => orderSaga.Handle(CreateResponse()));
         }
 
-        [TestMethod]
+        [Test]
         public void TimeoutTest()
         {
             object state = null;
