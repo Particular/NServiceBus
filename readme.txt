@@ -7,7 +7,11 @@ The best way to get up and running is from the Samples. Run them, change them a 
 = Building =
 ============
 
-In order to build the source, run the relevant build.bat (you don't need NAnt for this).
+In order to build the source, run the relevant build.bat (build_with_strong_name.bat will generate assemblies with strong names - build_without_strong_name.bat will generate assemblies without strong names).
+
+You'll find the built assemblies in /build/output.
+
+The satellite processes (distributor, timeout manager, and tools) will be in the adjacent directories.
 
 If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\Microsoft SDKs\Windows\v6.0A' directory and create the 'lib' subdirectory.
 
