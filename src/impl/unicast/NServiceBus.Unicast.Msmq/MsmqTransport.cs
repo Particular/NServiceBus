@@ -230,11 +230,31 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Start()
         {
-            //don't purge on startup here
- 
+            CreateQueuesIfNecessary();
+
+            if (ErrorQueue != null)
+                this.errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
+
+            MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
+            SetLocalQueue(q);
+
+            if (this.purgeOnStartup)
+                this.queue.Purge();
+
+
+	        IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
+            if (mods != null)
+                this.modules.AddRange(mods);
+
+            for (int i = 0; i < this._numberOfWorkerThreads; i++)
+                this.AddWorkerThread().Start();
+        }
+
+        private void CreateQueuesIfNecessary()
+        {
             if (!DoNotCreateQueues)
             {
-                string iq =  GetFullPathWithoutPrefix(InputQueue);
+                string iq = GetFullPathWithoutPrefix(InputQueue);
                 logger.Debug("Checking if input queue exists.");
                 if (!MessageQueue.Exists(iq))
                 {
@@ -277,23 +297,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 }
 
             }
-
-            if (ErrorQueue != null)
-                this.errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
-
-            MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
-            SetLocalQueue(q);
-
-            if (this.purgeOnStartup)
-                this.queue.Purge();
-
-
-	        IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
-            if (mods != null)
-                this.modules.AddRange(mods);
-
-            for (int i = 0; i < this._numberOfWorkerThreads; i++)
-                this.AddWorkerThread().Start();
         }
 
 		/// <summary>

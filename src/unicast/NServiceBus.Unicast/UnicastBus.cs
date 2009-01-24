@@ -222,7 +222,10 @@ namespace NServiceBus.Unicast
                 {
                     try
                     {
-                        this.AddTypesFromAssembly(a);
+                        foreach (Type t in a.GetTypes())
+                        {
+                            If_Type_Is_MessageHandler_Then_Load(t);
+                        }
                     }
                     catch(Exception e)
                     {
@@ -987,16 +990,28 @@ namespace NServiceBus.Unicast
         {
             foreach (DictionaryEntry de in owners)
             {
-                Type messageType = Type.GetType(de.Key.ToString(), false);
-                if (messageType != null)
+                try
                 {
-                    this.RegisterMessageType(messageType, de.Value.ToString(), false);
-                    continue;
+                    Type messageType = Type.GetType(de.Key.ToString(), false);
+                    if (messageType != null)
+                    {
+                        this.RegisterMessageType(messageType, de.Value.ToString(), false);
+                        continue;
+                    }
+                }
+                catch (Exception)
+                {
                 }
 
-                Assembly a = Assembly.Load(de.Key.ToString());
-                foreach (Type t in a.GetTypes())
-                    this.RegisterMessageType(t, de.Value.ToString(), true);
+                try
+                {
+                    Assembly a = Assembly.Load(de.Key.ToString());
+                    foreach (Type t in a.GetTypes())
+                        this.RegisterMessageType(t, de.Value.ToString(), true);
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -1009,31 +1024,6 @@ namespace NServiceBus.Unicast
         {
             if (this.forwardReceivedMessagesTo != null)
                 this.transport.Send(m, this.forwardReceivedMessagesTo);
-        }
-
-		/// <summary>
-		/// Adds types from an assembly to the list of registered message types and handlers 
-		/// for the bus.
-		/// </summary>
-		/// <param name="a">The assembly to process.</param>
-		/// <remarks>
-		/// If a type implements <see cref="IMessage"/> it will be added to the list
-		/// of message types registered to the bus.  If a type implements IMessageHandler
-		/// it will be added to the list of message handlers for the bus.</remarks>
-        public void AddTypesFromAssembly(Assembly a)
-        {
-            foreach (Type t in a.GetTypes())
-            {
-                if (typeof(IMessage).IsAssignableFrom(t) && !t.IsAbstract)
-                {
-                    this.messageTypes.Add(t);
-                    if(log.IsDebugEnabled)
-                        log.Debug(string.Format("Registered message '{0}'", t));
-                    continue;
-                }
-
-                If_Type_Is_MessageHandler_Then_Load(t);
-            }
         }
 
 		/// <summary>
@@ -1080,7 +1070,10 @@ namespace NServiceBus.Unicast
         public void AddMessageType(Type messageType)
         {
             if (!this.messageTypes.Contains(messageType))
+            {
                 this.messageTypes.Add(messageType);
+                log.Debug("Registered message " + messageType.FullName);
+            }
         }
 
 		/// <summary>

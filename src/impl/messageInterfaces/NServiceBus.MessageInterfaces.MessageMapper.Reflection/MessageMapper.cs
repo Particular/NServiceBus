@@ -247,7 +247,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             Type mapped = t;
             if (t.IsInterface || t.IsAbstract)
+            {
                 mapped = GetMappedTypeFor(t);
+                if (mapped == null)
+                    throw new ArgumentException("Could not find a concrete type mapped to " + t.FullName);
+            }
 
             ConstructorInfo constructor = null;
             typeToConstructor.TryGetValue(mapped, out constructor);

@@ -4,6 +4,7 @@ using NServiceBus.ObjectBuilder;
 using System.Collections;
 using System.Reflection;
 using NServiceBus.Config;
+using System.IO;
 
 namespace NServiceBus.Unicast.Config
 {
@@ -32,6 +33,11 @@ namespace NServiceBus.Unicast.Config
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
             Hashtable hashtable = new Hashtable();
+
+            foreach (string dll in Directory.GetFiles(Environment.CurrentDirectory, "*.dll", SearchOption.AllDirectories))
+                hashtable.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
+
+            hashtable.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
 
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                 hashtable[mapping.Messages] = mapping.Endpoint;
