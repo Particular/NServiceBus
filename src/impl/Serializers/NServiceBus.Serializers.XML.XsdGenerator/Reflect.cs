@@ -23,6 +23,8 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                 return "xs:dateTime";
             if (t == typeof(TimeSpan))
                 return "xs:duration";
+            if (t == typeof(decimal))
+                return "xs:decimal";
 
             Type arrayType = GetEnumeratedTypeFrom(t);
 

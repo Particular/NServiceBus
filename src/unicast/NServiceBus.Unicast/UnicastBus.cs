@@ -610,8 +610,7 @@ namespace NServiceBus.Unicast
                     this.subscriptionStorage.Init(this.messageTypes);
 
                 this.transport.MessageTypesToBeReceived = this.messageTypes;
-
-                this.InitializeSelf();
+                this.transport.Start();
 
                 if (autoSubscribe)
                 {
@@ -644,7 +643,7 @@ namespace NServiceBus.Unicast
                     }
                 }
 
-                this.transport.Start();
+                this.InitializeSelf();
 
                 this.SendReadyMessage(true);
 

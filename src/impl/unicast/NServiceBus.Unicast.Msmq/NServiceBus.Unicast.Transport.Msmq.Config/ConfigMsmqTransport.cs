@@ -36,6 +36,9 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for Msmq Transport.");
 
+            string inputQueue = MsmqTransport.GetFullPath(cfg.InputQueue);
+            string errorQueue = MsmqTransport.GetFullPath(cfg.ErrorQueue);
+
             transport.InputQueue = cfg.InputQueue;
             transport.NumberOfWorkerThreads = cfg.NumberOfWorkerThreads;
             transport.ErrorQueue = cfg.ErrorQueue;
@@ -86,6 +89,17 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         public ConfigMsmqTransport IsolationLevel(IsolationLevel isolationLevel)
         {
             transport.IsolationLevel = isolationLevel;
+            return this;
+        }
+
+        /// <summary>
+        /// If queues configured do not exist, will not cause them
+        /// to be created on startup.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigMsmqTransport DoNotCreateQueues()
+        {
+            transport.DoNotCreateQueues = true;
             return this;
         }
 

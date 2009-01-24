@@ -25,63 +25,28 @@ namespace NServiceBus.Unicast.Transport.Msmq
         #region config info
 
 		/// <summary>
-		/// Sets the path to the queue the transport will read from.
+		/// The path to the queue the transport will read from.
 		/// Only specify the name of the queue - msmq specific address not required.
 		/// When using MSMQ v3, only local queues are supported.
 		/// </summary>
-        public virtual string InputQueue
-        {
-            set
-            {
-                string path = GetFullPath(value);
-                MessageQueue q = new MessageQueue(path);
-
-                SetLocalQueue(q);
-
-                if (this.purgeOnStartup)
-                    this.queue.Purge();
-            }
-        }
+        public virtual string InputQueue { get; set; }
 
 		/// <summary>
 		/// Sets the path to the queue the transport will transfer
 		/// errors to.
 		/// </summary>
-        public virtual string ErrorQueue
-        {
-            set
-            {
-                errorQueuePath = value;
-                this.errorQueue = new MessageQueue(GetFullPath(value));
-            }
-            get
-            {
-                return errorQueuePath;
-            }
-        }
-
-	    private string errorQueuePath;
-
-        private bool isTransactional;
+        public virtual string ErrorQueue { get; set; }
 
 		/// <summary>
 		/// Sets whether or not the transport is transactional.
 		/// </summary>
-        public virtual bool IsTransactional
-        {
-            set { this.isTransactional = value; }
-        }
-
-        private bool skipDeserialization;
+        public virtual bool IsTransactional { get; set; }
 
 		/// <summary>
 		/// Sets whether or not the transport should deserialize
 		/// the body of the message placed on the queue.
 		/// </summary>
-        public virtual bool SkipDeserialization
-        {
-            set { skipDeserialization = value; }
-        }
+        public virtual bool SkipDeserialization { get; set; }
 
         private bool purgeOnStartup = false;
 
@@ -112,7 +77,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// </remarks>
         public virtual int MaxRetries
 	    {
-                get { return maxRetries; }
+            get { return maxRetries; }
 	        set { maxRetries = value; }
 	    }
 
@@ -130,29 +95,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
             set { secondsToWaitForMessage = value; }
         }
 
-	    private TimeSpan transactionTimeout;
-
         /// <summary>
         /// Property for getting/setting the period of time when the transaction times out.
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
-        public virtual TimeSpan TransactionTimeout
-        {
-            get { return transactionTimeout; }
-            set { transactionTimeout = value; }
-        }
+        public virtual TimeSpan TransactionTimeout { get; set; }
 
-	    private IsolationLevel isolationLevel;
-        
         /// <summary>
         /// Property for getting/setting the isolation level of the transaction scope.
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
-	    public virtual IsolationLevel IsolationLevel
-	    {
-            get { return isolationLevel; }
-            set { this.isolationLevel = value; }
-	    }
+        public virtual IsolationLevel IsolationLevel { get; set; }
+
+        /// <summary>
+        /// Property indicating that queues will not be created on startup
+        /// if they do not already exist.
+        /// </summary>
+        public virtual bool DoNotCreateQueues { get; set; }
 
 	    private IMessageSerializer messageSerializer;
 
@@ -222,7 +181,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             get
             {
-                return GetIndependentAddressForQueue(this.queue);
+                return InputQueue;
             }
         }
 
@@ -272,6 +231,62 @@ namespace NServiceBus.Unicast.Transport.Msmq
         public void Start()
         {
             //don't purge on startup here
+ 
+            if (!DoNotCreateQueues)
+            {
+                string iq =  GetFullPathWithoutPrefix(InputQueue);
+                logger.Debug("Checking if input queue exists.");
+                if (!MessageQueue.Exists(iq))
+                {
+                    logger.Warn("Input queue " + InputQueue + " does not exist.");
+                    logger.Debug("Going to create input queue: " + InputQueue);
+
+                    MessageQueue.Create(iq, true);
+
+                    logger.Debug("Input queue created.");
+                }
+
+                if (ErrorQueue != null)
+                {
+                    logger.Debug("Checking if error queue exists.");
+                    string errorMachine = GetMachineNameFromLogicalName(ErrorQueue);
+
+                    if (errorMachine != Environment.MachineName)
+                    {
+                        logger.Debug("Error queue is on remote machine.");
+                        logger.Debug("If this does not succeed (if the remote machine is disconnected), processing will continue.");
+                    }
+
+                    try
+                    {
+                        string eq = GetFullPathWithoutPrefix(ErrorQueue);
+                        if (!MessageQueue.Exists(eq))
+                        {
+                            logger.Warn("Error queue " + ErrorQueue + " does not exist.");
+                            logger.Debug("Going to create error queue: " + ErrorQueue);
+
+                            MessageQueue.Create(eq, true);
+
+                            logger.Debug("Error queue created.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("Could not create error queue or check its existence. Processing will still continue.", ex);
+                    }
+                }
+
+            }
+
+            if (ErrorQueue != null)
+                this.errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
+
+            MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
+            SetLocalQueue(q);
+
+            if (this.purgeOnStartup)
+                this.queue.Purge();
+
 
 	        IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
             if (mods != null)
@@ -399,8 +414,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             try
             {
-                if (this.isTransactional)
-                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue, isolationLevel, transactionTimeout);
+                if (this.IsTransactional)
+                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue, IsolationLevel, TransactionTimeout);
                 else
                     this.ReceiveFromQueue();
             }
@@ -430,7 +445,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 this.OnStartedMessageProcessing();
 
-                if (this.isTransactional)
+                if (this.IsTransactional)
                 {
                     failuresPerMessageLocker.EnterReadLock();
                     if (MessageHasFailedMaxRetries(m))
@@ -454,7 +469,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 TransportMessage result = Convert(m);
 
-                if (this.skipDeserialization)
+                if (this.SkipDeserialization)
                     result.BodyStream = m.BodyStream;
                 else
                 {
@@ -514,7 +529,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
             catch
             {
-                if (this.isTransactional)
+                if (this.IsTransactional)
                 {
                     failuresPerMessageLocker.EnterWriteLock();
                     try
@@ -730,7 +745,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>The transaction type to use.</returns>
         private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
-            if (this.isTransactional)
+            if (this.IsTransactional)
                 return MessageQueueTransactionType.Automatic;
             else
                 return MessageQueueTransactionType.None;
@@ -742,7 +757,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>The transaction type to use.</returns>
         private MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if (this.isTransactional)
+            if (this.IsTransactional)
             {
                 if (Transaction.Current != null)
                     return MessageQueueTransactionType.Automatic;
@@ -829,16 +844,52 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <returns></returns>
         public static string GetFullPath(string value)
         {
-            string[] arr = value.Split('@');
+            return PREFIX + GetFullPathWithoutPrefix(value);
+        }
 
-            string queue = arr[0];
+        /// <summary>
+        /// Returns the full path without Format or direct os
+        /// from a '@' separated path.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullPathWithoutPrefix(string value)
+        {
+            return GetMachineNameFromLogicalName(value) + PRIVATE + GetQueueNameFromLogicalName(value);
+        }
+
+        /// <summary>
+        /// Returns the queue name from a '@' separated full logical name.
+        /// </summary>
+        /// <param name="logicalName"></param>
+        /// <returns></returns>
+        public static string GetQueueNameFromLogicalName(string logicalName)
+        {
+            string[] arr = logicalName.Split('@');
+
+            if (arr.Length >= 1)
+                return arr[0];
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the machine name from a '@' separated full logical name,
+        /// or the Environment.MachineName otherwise.
+        /// </summary>
+        /// <param name="logicalName"></param>
+        /// <returns></returns>
+        public static string GetMachineNameFromLogicalName(string logicalName)
+        {
+            string[] arr = logicalName.Split('@');
+
             string machine = Environment.MachineName;
 
-            if (arr.Length == 2)
+            if (arr.Length >= 2)
                 if (arr[1] != "." && arr[1].ToLower() != "localhost")
                     machine = arr[1];
 
-            return PREFIX + machine + "\\private$\\" + queue;
+            return machine;
         }
 
         /// <summary>
@@ -884,6 +935,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static readonly string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
+        private static readonly string PRIVATE = "\\private$\\";
 	    private static readonly string IDFORCORRELATION = "CorrId";
 	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
 	    private static readonly string FAILEDQUEUE = "FailedQ";

@@ -20,7 +20,7 @@ namespace Client
                 .XmlSerializer("http://www.UdiDahan.com")
                 .MsmqTransport()
                     .IsTransactional(false)
-                    .PurgeOnStartup(false)
+                    .PurgeOnStartup(true)
                 .UnicastBus()
                     .ImpersonateSender(false)
                 .CreateBus()
