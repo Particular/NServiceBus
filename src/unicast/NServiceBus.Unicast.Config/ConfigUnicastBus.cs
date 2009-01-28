@@ -35,7 +35,13 @@ namespace NServiceBus.Unicast.Config
             Hashtable hashtable = new Hashtable();
 
             foreach (string dll in Directory.GetFiles(Environment.CurrentDirectory, "*.dll", SearchOption.AllDirectories))
-                hashtable.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
+                try
+                {
+                    hashtable.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
+                }
+                catch //intentionally swallow exceptions here for dlls with a bad image.
+                {
+                }
 
             hashtable.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
 
