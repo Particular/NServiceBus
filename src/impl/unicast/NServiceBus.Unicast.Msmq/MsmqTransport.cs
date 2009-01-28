@@ -230,6 +230,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Start()
         {
+            CheckConfiguration();
             CreateQueuesIfNecessary();
 
             if (ErrorQueue != null)
@@ -248,6 +249,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             for (int i = 0; i < this._numberOfWorkerThreads; i++)
                 this.AddWorkerThread().Start();
+        }
+
+        private void CheckConfiguration()
+        {
+            string machine = GetMachineNameFromLogicalName(InputQueue);
+
+            if (machine != Environment.MachineName)
+                logger.Warn("Input queue is located on a different machine. This is only supported on MSMQ 4 (Windows Server 2008 or Vista).");
         }
 
         private void CreateQueuesIfNecessary()
