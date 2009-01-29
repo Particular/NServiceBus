@@ -620,7 +620,7 @@ namespace NServiceBus.Unicast
                     foreach (Type messageType in this.messageTypes)
                     {
                         string destination = this.GetDestinationForMessageType(messageType);
-                        if (destination == null)
+                        if (destination == null || destination == string.Empty)
                             continue;
 
                         string[] arr = destination.Split('@');
@@ -992,10 +992,10 @@ namespace NServiceBus.Unicast
             {
                 try
                 {
-                    Type messageType = Type.GetType(de.Key.ToString(), false);
+                    Type messageType = Type.GetType(de.Key as string, false);
                     if (messageType != null)
                     {
-                        this.RegisterMessageType(messageType, de.Value.ToString(), false);
+                        this.RegisterMessageType(messageType, de.Value as string, false);
                         continue;
                     }
                 }
@@ -1237,6 +1237,9 @@ namespace NServiceBus.Unicast
 
             lock (this.messageTypeToDestinationLookup)
                 this.messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
+
+            if (destination == string.Empty)
+                destination = null;
 
             if (destination == null)
             {

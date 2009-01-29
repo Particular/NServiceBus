@@ -43,7 +43,13 @@ namespace NServiceBus.Unicast.Config
                 {
                 }
 
-            hashtable.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
+            try
+            {
+                hashtable.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
+            }
+            catch //intentionally swallow exceptions here
+            {
+            }
 
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                 hashtable[mapping.Messages] = mapping.Endpoint;
