@@ -21,9 +21,7 @@ namespace V2Subscriber
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(SomethingHappenedHandler).Assembly
-                    )
+                    .LoadMessageHandlers()
                 .CreateBus()
                 .Start();
 

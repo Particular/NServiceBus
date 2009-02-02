@@ -19,9 +19,7 @@ namespace Subscriber1
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .ImpersonateSender(false)
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(EventMessageHandler).Assembly
-                    )
+                    .LoadMessageHandlers()
                 .CreateBus()
                 .Start();
 

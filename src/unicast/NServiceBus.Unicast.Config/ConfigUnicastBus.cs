@@ -5,6 +5,7 @@ using System.Collections;
 using System.Reflection;
 using NServiceBus.Config;
 using System.IO;
+using System.Collections.Generic;
 
 namespace NServiceBus.Unicast.Config
 {
@@ -17,6 +18,8 @@ namespace NServiceBus.Unicast.Config
         /// Just calls the base constructor (needed because we're providing another constructor).
         /// </summary>
         public ConfigUnicastBus() : base() {}
+
+        private Hashtable assembliesToEndpoints = new Hashtable();
 
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
@@ -32,12 +35,10 @@ namespace NServiceBus.Unicast.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
-            Hashtable hashtable = new Hashtable();
-
             foreach (string dll in Directory.GetFiles(Environment.CurrentDirectory, "*.dll", SearchOption.AllDirectories))
                 try
                 {
-                    hashtable.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
+                    assembliesToEndpoints.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
                 }
                 catch //intentionally swallow exceptions here for dlls with a bad image.
                 {
@@ -45,20 +46,20 @@ namespace NServiceBus.Unicast.Config
 
             try
             {
-                hashtable.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
+                assembliesToEndpoints.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
             }
             catch //intentionally swallow exceptions here
             {
             }
 
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
-                hashtable[mapping.Messages] = mapping.Endpoint;
+                assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
 
             bus = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
             bus.DistributorControlAddress = cfg.DistributorControlAddress;
             bus.DistributorDataAddress = cfg.DistributorDataAddress;
-            bus.MessageOwners = hashtable;
+            bus.MessageOwners = assembliesToEndpoints;
         }
 
         private UnicastBus bus;
@@ -87,6 +88,62 @@ namespace NServiceBus.Unicast.Config
             bus.MessageHandlerAssemblies = new ArrayList(assemblies);
 
             return this;
+        }
+
+        /// <summary>
+        /// Loads all message handler assemblies in the runtime directory.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus LoadMessageHandlers()
+        {
+            return SetMessageHandlersFromAssembliesInOrder(this.GetAssembliesInCurrentDirectory().ToArray());
+        }
+
+        /// <summary>
+        /// Loads all message handler assemblies in the runtime directory
+        /// and specifies that handlers in the given assembly should run
+        /// before all others.
+        /// 
+        /// Use First{T} to indicate the type to load from.
+        /// </summary>
+        /// <typeparam name="FIRST"></typeparam>
+        /// <returns></returns>
+        public ConfigUnicastBus LoadMessageHandlers<FIRST>()
+        {
+            if (!typeof(First<>).IsAssignableFrom(typeof(FIRST)))
+                throw new ArgumentException("FIRST should be of the type First<T> where T is the type to indicate as first.");
+
+            Type[] args = typeof(FIRST).GetGenericArguments();
+            System.Diagnostics.Debug.Assert(args.Length == 1);
+
+            Assembly first = args[0].Assembly;
+
+            var assemblies = this.GetAssembliesInCurrentDirectory();
+            assemblies.Remove(first);
+            assemblies.Insert(0, first);
+
+            return SetMessageHandlersFromAssembliesInOrder(assemblies.ToArray());
+        }
+
+        /// <summary>
+        /// Loads all message handler assemblies in the runtime directory
+        /// and specifies that the handlers in the given 'order' are to 
+        /// run before all others and in the order specified.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public ConfigUnicastBus LoadMessageHandlers<T>(First<T> order)
+        {
+            var assemblies = this.GetAssembliesInCurrentDirectory();
+
+            foreach (Assembly a in order.Assemblies)
+                assemblies.Remove(a);
+
+            var result = new List<Assembly>(order.Assemblies);
+            result.AddRange(assemblies);
+
+            return SetMessageHandlersFromAssembliesInOrder(result.ToArray());
         }
 
         /// <summary>
@@ -181,6 +238,26 @@ namespace NServiceBus.Unicast.Config
             }
 
             return null;
+        }
+
+
+
+        /// <summary>
+        /// Translates from assemblyNamesToEndpoints.
+        /// </summary>
+        private List<Assembly> GetAssembliesInCurrentDirectory()
+        {
+            var list = new List<Assembly>();
+            foreach (string name in assembliesToEndpoints.Keys)
+                try
+                {
+                    list.Add(Assembly.Load(name));
+                }
+                catch (Exception) //intentionally swallow exceptions
+                {
+                }
+
+            return list;
         }
     }
 }

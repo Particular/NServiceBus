@@ -8,6 +8,7 @@ using OrderService.Persistence;
 using NHibernate;
 using NServiceBus.ObjectBuilder;
 
+
 namespace OrderService.Host
 {
     class Program
@@ -38,12 +39,17 @@ namespace OrderService.Host
                     .NHibernateSagaPersister(sessionFactory)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(GridInterceptingMessageHandler).Assembly
-                            , typeof(SagaMessageHandler).Assembly
-                            , typeof(OrderSagaFinder).Assembly
-                            , typeof(OrderSaga).Assembly
-                        )
+                        //.SetMessageHandlersFromAssembliesInOrder(
+                        //    typeof(GridInterceptingMessageHandler).Assembly
+                        //    , typeof(SagaMessageHandler).Assembly
+                        //    , typeof(OrderSagaFinder).Assembly
+                        //    , typeof(OrderSaga).Assembly
+                        //)
+                        .LoadMessageHandlers(
+                            First<GridInterceptingMessageHandler>
+                                .Then<SagaMessageHandler>()
+                         )
+                            
                     .CreateBus()
                     .Start();
             }

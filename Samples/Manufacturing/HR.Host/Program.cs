@@ -22,10 +22,7 @@ namespace HR.Host
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(GridInterceptingMessageHandler).Assembly
-                            , typeof(RequestOrderAuthorizationMessageHandler).Assembly
-                        )
+                        .LoadMessageHandlers()
                     .CreateBus()
                     .Start();
             }

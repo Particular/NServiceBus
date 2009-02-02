@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="ConfigUnicastBus.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
+    <Compile Include="FirstThen.cs" />
     <Compile Include="MessageEndpointMapping.cs" />
     <Compile Include="MessageEndpointMappingCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

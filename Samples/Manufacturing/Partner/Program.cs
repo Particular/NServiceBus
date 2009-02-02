@@ -23,9 +23,7 @@ namespace Partner
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(OrderStatusChangedMessageHandler).Assembly
-                        )
+                        .LoadMessageHandlers()
                     .CreateBus()
                     .Start();
 

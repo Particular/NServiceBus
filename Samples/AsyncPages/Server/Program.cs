@@ -21,9 +21,7 @@ namespace Server
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(CommandMessageHandler).Assembly
-                            )
+                        .LoadMessageHandlers()
                     .CreateBus()
                     .Start();
 

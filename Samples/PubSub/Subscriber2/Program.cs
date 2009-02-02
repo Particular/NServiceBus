@@ -20,9 +20,7 @@ namespace Subscriber2
                 .UnicastBus()
                     .ImpersonateSender(false)
                     .DoNotAutoSubscribe()
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(EventMessageHandler).Assembly
-                    )
+                    .LoadMessageHandlers()
                 .CreateBus()
                 .Start();
 

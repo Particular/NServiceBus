@@ -22,10 +22,7 @@ namespace Server
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(GridInterceptingMessageHandler).Assembly,
-                            typeof(RequestDataMessageHandler).Assembly
-                            )
+                        .LoadMessageHandlers()
                     .CreateBus();
 
                 bus.Start();
