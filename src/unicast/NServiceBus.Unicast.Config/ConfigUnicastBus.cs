@@ -35,7 +35,8 @@ namespace NServiceBus.Unicast.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
-            foreach (string dll in Directory.GetFiles(Environment.CurrentDirectory, "*.dll", SearchOption.AllDirectories))
+            string directory = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
+            foreach (string dll in Directory.GetFiles(directory, "*.dll", SearchOption.AllDirectories))
                 try
                 {
                     assembliesToEndpoints.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);

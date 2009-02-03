@@ -218,20 +218,24 @@ namespace NServiceBus.Unicast
         {
             set
             {
+                var types = new List<Type>();
                 foreach (Assembly a in value)
-                {
-                    try
-                    {
-                        foreach (Type t in a.GetTypes())
-                        {
-                            If_Type_Is_MessageHandler_Then_Load(t);
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        log.Error("Problems analyzing " + a.FullName, e);
-                    }
-                }
+                    types.AddRange(a.GetTypes());
+
+                this.MessageHandlerTypes = types;
+            }
+        }
+
+        /// <summary>
+        /// Sets the types that will be scanned for message handlers.
+        /// Those found will be invoked in the same order as given.
+        /// </summary>
+        public virtual IList<Type> MessageHandlerTypes
+        {
+            set
+            {
+                foreach(Type t in value)
+                    If_Type_Is_MessageHandler_Then_Load(t);
             }
         }
 
