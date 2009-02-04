@@ -4,8 +4,8 @@ using NServiceBus.ObjectBuilder;
 using System.Collections;
 using System.Reflection;
 using NServiceBus.Config;
-using System.IO;
 using System.Collections.Generic;
+using NServiceBus.Saga;
 
 namespace NServiceBus.Unicast.Config
 {
@@ -35,23 +35,9 @@ namespace NServiceBus.Unicast.Config
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
-            string directory = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
-            foreach (string dll in Directory.GetFiles(directory, "*.dll", SearchOption.AllDirectories))
-                try
-                {
-                    assembliesToEndpoints.Add(AssemblyName.GetAssemblyName(Path.GetFileName(dll)).Name, string.Empty);
-                }
-                catch //intentionally swallow exceptions here for dlls with a bad image.
-                {
-                }
-
-            try
-            {
-                assembliesToEndpoints.Add(Assembly.GetEntryAssembly().GetName().Name, string.Empty);
-            }
-            catch //intentionally swallow exceptions here
-            {
-            }
+            foreach (Type t in TypesInCurrentDirectory)
+                if (typeof(IMessage).IsAssignableFrom(t))
+                    assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty;
 
             foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                 assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
@@ -78,17 +64,18 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Configures the order in which handlers should be run when processing messages.
+        /// [Deprecated] Use LoadMessageHandlers instead.
         /// </summary>
         /// <param name="assemblies"></param>
         /// <returns></returns>
+        [Obsolete]
         public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params Assembly[] assemblies)
         {
-            ConfigureSagasAndMessageHandlersIn(assemblies);
+            List<Type> types = new List<Type>();
+            foreach (Assembly a in assemblies)
+                types.AddRange(a.GetTypes());
 
-            bus.MessageHandlerAssemblies = new ArrayList(assemblies);
-
-            return this;
+            return LoadMessageHandlers(types);
         }
 
         /// <summary>
@@ -97,7 +84,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
         {
-            return SetMessageHandlersFromAssembliesInOrder(this.GetAssembliesInCurrentDirectory().ToArray());
+            return LoadMessageHandlers(TypesInCurrentDirectory);
         }
 
         /// <summary>
@@ -111,19 +98,21 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<FIRST>()
         {
-            if (!typeof(First<>).IsAssignableFrom(typeof(FIRST)))
-                throw new ArgumentException("FIRST should be of the type First<T> where T is the type to indicate as first.");
-
             Type[] args = typeof(FIRST).GetGenericArguments();
-            System.Diagnostics.Debug.Assert(args.Length == 1);
+            if (args.Length == 1)
+            {
+                if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(FIRST)))
+                {
+                    var types = new List<Type>(TypesInCurrentDirectory);
 
-            Assembly first = args[0].Assembly;
+                    types.Remove(args[0]);
+                    types.Insert(0, args[0]);
 
-            var assemblies = this.GetAssembliesInCurrentDirectory();
-            assemblies.Remove(first);
-            assemblies.Insert(0, first);
+                    return LoadMessageHandlers(types);
+                }
+            }
 
-            return SetMessageHandlersFromAssembliesInOrder(assemblies.ToArray());
+            throw new ArgumentException("FIRST should be of the type First<T> where T is the type to indicate as first.");
         }
 
         /// <summary>
@@ -136,15 +125,30 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<T>(First<T> order)
         {
-            var assemblies = this.GetAssembliesInCurrentDirectory();
+            var types = new List<Type>(TypesInCurrentDirectory);
 
-            foreach (Assembly a in order.Assemblies)
-                assemblies.Remove(a);
+            foreach (Type t in order.Types)
+                types.Remove(t);
 
-            var result = new List<Assembly>(order.Assemblies);
-            result.AddRange(assemblies);
+            types.InsertRange(0, order.Types);
 
-            return SetMessageHandlersFromAssembliesInOrder(result.ToArray());
+            return LoadMessageHandlers(types);
+        }
+
+        private ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> types)
+        {
+            var handlers = new List<Type>();
+
+            foreach (Type t in types)
+                if (IsMessageHandler(t))
+                {
+                    this.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    handlers.Add(t);
+                }
+
+            bus.MessageHandlerTypes = handlers;
+
+            return this;
         }
 
         /// <summary>
@@ -185,18 +189,6 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-        private void ConfigureSagasAndMessageHandlersIn(params Assembly[] assemblies)
-        {
-            NServiceBus.Saga.Configure.With(this.Configurer, this.Builder).SagasInAssemblies(assemblies);
-
-            foreach (Assembly a in assemblies)
-                foreach (Type t in a.GetTypes())
-                {
-                    if (IsMessageHandler(t))
-                        this.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                }
-        }
-
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
@@ -205,6 +197,9 @@ namespace NServiceBus.Unicast.Config
         public static bool IsMessageHandler(Type t)
         {
             if (t.IsAbstract)
+                return false;
+
+            if (typeof(ISaga).IsAssignableFrom(t))
                 return false;
 
             foreach (Type interfaceType in t.GetInterfaces())
@@ -239,26 +234,6 @@ namespace NServiceBus.Unicast.Config
             }
 
             return null;
-        }
-
-
-
-        /// <summary>
-        /// Translates from assemblyNamesToEndpoints.
-        /// </summary>
-        private List<Assembly> GetAssembliesInCurrentDirectory()
-        {
-            var list = new List<Assembly>();
-            foreach (string name in assembliesToEndpoints.Keys)
-                try
-                {
-                    list.Add(Assembly.Load(name));
-                }
-                catch (Exception) //intentionally swallow exceptions
-                {
-                }
-
-            return list;
         }
     }
 }

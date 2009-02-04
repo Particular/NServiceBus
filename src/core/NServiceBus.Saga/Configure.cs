@@ -38,27 +38,26 @@ namespace NServiceBus.Saga
         }
 
         /// <summary>
-        /// Scans the given assemblies for types relevant to the saga infrastructure.
+        /// Scans for types relevant to the saga infrastructure.
         /// These include implementers of <see cref="ISaga" /> and <see cref="IFindSagas{T}" />.
         /// </summary>
-        /// <param name="assemblies"></param>
-        public void SagasInAssemblies(params Assembly[] assemblies)
+        /// <param name="types"></param>
+        public void SagasIn(IEnumerable<Type> types)
         {
-            foreach (Assembly a in assemblies)
-                foreach (Type t in a.GetTypes())
+            foreach (Type t in types)
+            {
+                if (IsSagaType(t))
                 {
-                    if (IsSagaType(t))
-                    {
-                        configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                        ConfigureSaga(t);
-                    }
-
-                    if (IsFinderType(t))
-                    {
-                        configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                        ConfigureFinder(t);
-                    }
+                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    ConfigureSaga(t);
                 }
+
+                if (IsFinderType(t))
+                {
+                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    ConfigureFinder(t);
+                }
+            }
 
             CreateAdditionalFindersAsNecessary();
         }

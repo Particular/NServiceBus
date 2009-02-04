@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NServiceBus.ObjectBuilder;
+using System.IO;
+using System.Reflection;
 
 namespace NServiceBus
 {
@@ -43,6 +45,9 @@ namespace NServiceBus
         public static Configure With()
         {
             instance = new Configure();
+
+            types = new List<Type>(GetTypesInCurrentDirectory());
+
             return instance;
         }
 
@@ -55,6 +60,28 @@ namespace NServiceBus
             return Builder.Build<IStartableBus>();
         }
 
+        /// <summary>
+        /// Returns types in assemblies found in the current directory.
+        /// </summary>
+        public static IEnumerable<Type> TypesInCurrentDirectory
+        {
+            get { return types; }
+        }
+
+        private static IEnumerable<Type> GetTypesInCurrentDirectory()
+        {
+            foreach (FileInfo file in new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.GetFiles("*.*", SearchOption.AllDirectories))
+            {
+                Assembly a;
+                try { a = Assembly.LoadFile(file.FullName); }
+                catch (Exception) { continue; } //intentionally swallow exception
+
+                foreach (Type t in a.GetTypes())
+                    yield return t;
+            }
+        }
+
         private static Configure instance;
+        private static List<Type> types;
     }
 }

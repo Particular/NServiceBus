@@ -8,9 +8,9 @@ cd ..\..\src\messageInterfaces
 msbuild
 cd ..\..\src\impl\messageInterfaces
 msbuild
-cd ..\..\..\src\config\NServiceBus.Config
+cd ..\..\..\src\config
 msbuild
-cd ..\..\..\src\unicast
+cd ..\..\src\unicast
 msbuild 
 cd ..\..\src\impl\unicast\NServiceBus.Unicast.Msmq
 msbuild

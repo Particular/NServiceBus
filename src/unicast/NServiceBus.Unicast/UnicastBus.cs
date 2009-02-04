@@ -230,7 +230,7 @@ namespace NServiceBus.Unicast
         /// Sets the types that will be scanned for message handlers.
         /// Those found will be invoked in the same order as given.
         /// </summary>
-        public virtual IList<Type> MessageHandlerTypes
+        public virtual IEnumerable<Type> MessageHandlerTypes
         {
             set
             {

@@ -8,15 +8,15 @@ namespace NServiceBus
 {
     /// <summary>
     /// Used by ConfigUnicastBus to indicate the order in which
-    /// handler assemblies are to run.
+    /// handler types are to run.
     /// 
     /// Not thread safe.
     /// </summary>
-    /// <typeparam name="T">The type whose assembly will run first.</typeparam>
+    /// <typeparam name="T">The type which will run first.</typeparam>
     public class First<T>
     {
         /// <summary>
-        /// Specifies the type whose assembly will run next.
+        /// Specifies the type which will run next.
         /// </summary>
         /// <typeparam name="K"></typeparam>
         /// <returns></returns>
@@ -32,20 +32,20 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the list of assemblies specified.
+        /// Returns the ordered list of types specified.
         /// </summary>
-        public IEnumerable<Assembly> Assemblies
+        public IEnumerable<Type> Types
         {
-            get { return assemblies; }
+            get { return types; }
         }
 
         private void Add<TYPE>()
         {
-            if (!assemblies.Contains(typeof(TYPE).Assembly))
-                assemblies.Add(typeof(TYPE).Assembly);
+            if (!types.Contains(typeof(TYPE)))
+                types.Add(typeof(TYPE));
         }
 
-        private IList<Assembly> assemblies = new List<Assembly>();
+        private IList<Type> types = new List<Type>();
 
         private static First<T> instance;
     }

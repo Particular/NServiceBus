@@ -36,15 +36,10 @@ namespace OrderService.Host
                         .Table("Subscriptions")
                         .SubscriberEndpointColumnName("SubscriberEndpoint")
                         .MessageTypeColumnName("MessageType")
+                    .Sagas()
                     .NHibernateSagaPersister(sessionFactory)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        //.SetMessageHandlersFromAssembliesInOrder(
-                        //    typeof(GridInterceptingMessageHandler).Assembly
-                        //    , typeof(SagaMessageHandler).Assembly
-                        //    , typeof(OrderSagaFinder).Assembly
-                        //    , typeof(OrderSaga).Assembly
-                        //)
                         .LoadMessageHandlers(
                             First<GridInterceptingMessageHandler>
                                 .Then<SagaMessageHandler>()
