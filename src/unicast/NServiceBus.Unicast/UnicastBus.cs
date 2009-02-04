@@ -621,7 +621,7 @@ namespace NServiceBus.Unicast
 
                 if (autoSubscribe)
                 {
-                    foreach (Type messageType in this.messageTypes)
+                    foreach (Type messageType in this.GetMessageTypesHandledOnThisEndpoint())
                     {
                         string destination = this.GetDestinationForMessageType(messageType);
                         if (destination == null || destination == string.Empty)
@@ -639,14 +639,7 @@ namespace NServiceBus.Unicast
                         destination = queue + "@" + machine;
 
                         if (destination != this.transport.Address)
-                        {
-                            IEnumerable<Type> handlerTypes = this.GetHandlerTypes(messageType);
-
-                            if (handlerTypes.GetEnumerator().MoveNext())
-                            {
-                                this.Subscribe(messageType);
-                            }
-                        }
+                            this.Subscribe(messageType);
                     }
                 }
 
@@ -1229,6 +1222,17 @@ namespace NServiceBus.Unicast
                         break;
                     }
         }
+
+        /// <summary>
+        /// Returns all the message types which have handlers configured for them.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<Type> GetMessageTypesHandledOnThisEndpoint()
+        {
+            foreach (Type handlerType in this.handlerList.Keys)
+                foreach (Type msgTypeHandled in this.handlerList[handlerType])
+                    yield return msgTypeHandled;
+       }
 
 		/// <summary>
 		/// Gets the destination address for a message type.
