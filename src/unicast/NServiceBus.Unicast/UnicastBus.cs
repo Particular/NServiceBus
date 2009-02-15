@@ -638,7 +638,7 @@ namespace NServiceBus.Unicast
 
                         destination = queue + "@" + machine;
 
-                        if (destination != this.transport.Address)
+                        if (destination.ToLower() != this.transport.Address.ToLower())
                             this.Subscribe(messageType);
                     }
                 }
