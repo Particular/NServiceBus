@@ -460,7 +460,7 @@ namespace NServiceBus.Serializers.XML
             if (value is bool)
                 return value.ToString().ToLower();
             if (value is string)
-                return value as string;
+                return System.Security.SecurityElement.Escape(value as string);
             if (value is DateTime)
                 return ((DateTime) value).ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
             if (value is TimeSpan)
