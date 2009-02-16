@@ -233,6 +233,9 @@ namespace NServiceBus.Serializers.XML
 
         private object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
+            if (t.IsSimpleType())
+                return GetPropertyValue(t, node, null);
+
             object result = MessageMapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
@@ -444,7 +447,10 @@ namespace NServiceBus.Serializers.XML
 
                 if (value != null)
                     foreach (object obj in ((IEnumerable)value))
-                        WriteObject(baseType.Name, baseType, obj, builder);
+                        if (obj.GetType().IsSimpleType())
+                            WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
+                        else
+                            WriteObject(baseType.Name, baseType, obj, builder);
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
@@ -548,5 +554,27 @@ namespace NServiceBus.Serializers.XML
 
         private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
         #endregion
+    }
+
+    /// <summary>
+    /// Contains extension methods
+    /// </summary>
+    public static class ExtensionMethods
+    {
+        /// <summary>
+        /// Returns true if the type can be serialized as is.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsSimpleType(this Type type)
+        {
+            return (type == typeof(string) ||
+                    type.IsPrimitive ||
+                    type == typeof(decimal) ||
+                    type == typeof(Guid) ||
+                    type == typeof(DateTime) ||
+                    type == typeof(TimeSpan) ||
+                    type.IsEnum);
+        }
     }
 }

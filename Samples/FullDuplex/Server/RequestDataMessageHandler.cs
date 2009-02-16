@@ -11,6 +11,11 @@ namespace Server
         public void Handle(RequestDataMessage message)
         {
             Console.WriteLine("Received request {0}.", message.DataId);
+            Console.WriteLine("String received: {0}.", message.String);
+            Console.WriteLine("Names received:");
+            foreach (string s in message.Names)
+                Console.WriteLine(s);
+
             Console.Out.WriteLine("Header 'Test' = {0}.", Bus.IncomingHeaders["Test"]);
 
             DataResponseMessage response = new DataResponseMessage();

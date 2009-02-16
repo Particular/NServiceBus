@@ -4,6 +4,7 @@ using NServiceBus;
 using Messages;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.ObjectBuilder;
+using System.Collections.Generic;
 
 namespace Client
 {
@@ -34,6 +35,8 @@ namespace Client
                 RequestDataMessage m = new RequestDataMessage();
 
                 m.DataId = Guid.NewGuid();
+                m.String = "<node>it's my \"node\" & i like it<node>";
+                m.Names = new List<string> { "Udi", "Dahan" };
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 

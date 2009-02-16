@@ -1,5 +1,6 @@
 using NServiceBus;
 using System;
+using System.Collections.Generic;
 
 namespace Messages
 {
@@ -7,6 +8,8 @@ namespace Messages
     public class RequestDataMessage : IMessage
     {
         public Guid DataId { get; set; }
+        public string String { get; set; }
+        public List<string> Names { get; set; } 
     }
 
     [Serializable]
