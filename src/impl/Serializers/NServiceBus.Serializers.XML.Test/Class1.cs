@@ -44,7 +44,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             o.Some = SomeEnum.B;
             o.Start = DateTime.Now;
-            o.Duration = TimeSpan.Parse("01:15:27.123");
+            o.Duration = TimeSpan.Parse("-01:15:27.123");
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";

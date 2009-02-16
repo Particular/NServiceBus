@@ -41,6 +41,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <param name="moduleBuilder"></param>
         public void InitType(Type t, ModuleBuilder moduleBuilder)
         {
+            if (t == null)
+                return;
+
             if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime) || t == typeof(TimeSpan) || t.IsEnum)
                 return;
 
@@ -48,6 +51,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g, moduleBuilder);
+
+                InitType(t.GetElementType(), moduleBuilder);
 
                 return;
             }
@@ -105,7 +110,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             foreach (PropertyInfo prop in GetAllProperties(t))
             {
                 Type propertyType = prop.PropertyType;
-                nameToType[propertyType.FullName] = propertyType;
 
                 FieldBuilder fieldBuilder = typeBuilder.DefineField(
                     "field_" + prop.Name,
