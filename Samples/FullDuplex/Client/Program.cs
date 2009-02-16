@@ -36,7 +36,6 @@ namespace Client
 
                 m.DataId = Guid.NewGuid();
                 m.String = "<node>it's my \"node\" & i like it<node>";
-                m.Names = new List<string> { "Udi", "Dahan" };
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
 
@@ -64,7 +63,7 @@ namespace Client
             if (response == null)
                 return;
 
-            Console.WriteLine("Response received with description: {0}",response.Description);
+            Console.WriteLine("Response received with description: {0}",response.String);
         }
     }
 }

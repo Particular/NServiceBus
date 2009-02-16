@@ -338,7 +338,10 @@ namespace NServiceBus.Serializers.XML
             }
 
             if (n.ChildNodes.Count == 0)
-                return null;
+                if (type == typeof(string))
+                    return string.Empty;
+                else
+                    return null;
 
 
             return GetObjectOfTypeFromNode(type, n);
@@ -430,6 +433,9 @@ namespace NServiceBus.Serializers.XML
 
         private void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
+            if (value == null)
+                return;
+
             if (type.IsValueType || type == typeof(string))
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, FormatAsString(value));

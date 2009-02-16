@@ -12,15 +12,11 @@ namespace Server
         {
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
-            Console.WriteLine("Names received:");
-            foreach (string s in message.Names)
-                Console.WriteLine(s);
-
             Console.Out.WriteLine("Header 'Test' = {0}.", Bus.IncomingHeaders["Test"]);
 
             DataResponseMessage response = new DataResponseMessage();
             response.DataId = message.DataId;
-            response.Description = (message.DataId.ToString("N"));
+            response.String = message.String;
 
             Bus.OutgoingHeaders["Test"] = "server1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
             Bus.OutgoingHeaders["1"] = "1";
