@@ -478,7 +478,7 @@ namespace NServiceBus.Serializers.XML
             if (value is TimeSpan)
             {
                 TimeSpan ts = (TimeSpan) value;
-                return string.Format("{0}P0Y0M{1}DT{2}H{3}M{4}S", (ts.TotalSeconds < 0 ? "-" : ""), Math.Abs(ts.Days), Math.Abs(ts.Hours), Math.Abs(ts.Minutes), Math.Abs(ts.Seconds) + "." + Math.Abs(ts.Milliseconds));
+                return string.Format("{0}P0Y0M{1}DT{2}H{3}M{4}.{5:000}S", (ts.TotalSeconds < 0 ? "-" : ""), Math.Abs(ts.Days), Math.Abs(ts.Hours), Math.Abs(ts.Minutes), Math.Abs(ts.Seconds), Math.Abs(ts.Milliseconds));
             }
             if (value is Guid)
                 return ((Guid) value).ToString();
