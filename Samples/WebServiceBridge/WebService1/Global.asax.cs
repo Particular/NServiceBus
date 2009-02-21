@@ -9,7 +9,7 @@ namespace WebService1
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            Bus = NServiceBus.Configure.With()
+            Bus = NServiceBus.Configure.WithWeb()
                 .SpringBuilder()
                 .BinarySerializer()
                 .MsmqTransport()

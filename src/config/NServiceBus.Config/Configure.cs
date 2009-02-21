@@ -39,14 +39,49 @@ namespace NServiceBus
         protected Configure() { }
 
         /// <summary>
-        /// Creates a new configuration object.
+        /// Creates a new configuration object scanning assemblies
+        /// in the regular runtime directory.
         /// </summary>
         /// <returns></returns>
         public static Configure With()
         {
-            instance = new Configure();
+            if (instance == null)
+                instance = new Configure();
 
-            types = new List<Type>(GetTypesInCurrentDirectory());
+            types = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory));
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Configures nServiceBus to scan for assemblies 
+        /// in the relevant web directory instead of regular
+        /// runtime directory.
+        /// </summary>
+        /// <returns></returns>
+        public static Configure WithWeb()
+        {
+            if (instance == null)
+                instance = new Configure();
+
+            types = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory));
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Configures nServiceBus to scan for assemblies
+        /// in the given directory rather than the regular
+        /// runtime directory.
+        /// </summary>
+        /// <param name="probeDirectory"></param>
+        /// <returns></returns>
+        public static Configure With(string probeDirectory)
+        {
+            if (instance == null)
+                instance = new Configure();
+
+            types = new List<Type>(GetTypesInDirectory(probeDirectory));
 
             return instance;
         }
@@ -68,12 +103,12 @@ namespace NServiceBus
             get { return types; }
         }
 
-        private static IEnumerable<Type> GetTypesInCurrentDirectory()
+        private static IEnumerable<Type> GetTypesInDirectory(string path)
         {
-            foreach (FileInfo file in new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.GetFiles("*.*", SearchOption.AllDirectories))
+            foreach (FileInfo file in new DirectoryInfo(path).GetFiles("*.*", SearchOption.AllDirectories))
             {
                 Assembly a;
-                try { a = Assembly.LoadFile(file.FullName); }
+                try { a = Assembly.LoadFrom(file.FullName); }
                 catch (Exception) { continue; } //intentionally swallow exception
 
                 foreach (Type t in a.GetTypes())
