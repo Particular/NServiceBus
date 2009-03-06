@@ -38,10 +38,11 @@ namespace NServiceBus.Unicast
             this.result.ErrorCode = errorCode;
             this.result.Messages = messages;
             this.completed = true;
-            this.sync.Set();
 
             if (this.callback != null)
                 this.callback(this);
+
+            this.sync.Set();
         }
 
         #region IAsyncResult Members
