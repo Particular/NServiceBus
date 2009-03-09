@@ -15,6 +15,9 @@ The satellite processes (distributor, timeout manager, and tools) will be in the
 
 If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\Microsoft SDKs\Windows\v6.0A' directory and create the 'lib' subdirectory.
 
+If you see the build failing, check that you haven't put nServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
+
+As of version 1.9, nServiceBus now merges Common.Logging so please make sure you go over your config files updating the assembly name to NServiceBus.
 
 =====================
 = MSMQ Installation =

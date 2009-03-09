@@ -43,9 +43,10 @@ namespace NServiceBus.Unicast.Distributor.Runner
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()
-                    .SetMessageHandlersFromAssembliesInOrder(
-                        typeof(GridInterceptingMessageHandler).Assembly,
-                        typeof(ReadyMessageHandler).Assembly)
+                    .LoadMessageHandlers(
+                        First<GridInterceptingMessageHandler>
+                            .Then<ReadyMessageHandler>()
+                    )
                 .CreateBus()
                 .Start(builder =>
                     {

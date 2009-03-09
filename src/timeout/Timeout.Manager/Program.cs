@@ -40,9 +40,9 @@ namespace Timeout.Manager
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(false)
-                        .SetMessageHandlersFromAssembliesInOrder(
-                            typeof(GridInterceptingMessageHandler).Assembly
-                            , typeof(TimeoutMessageHandler).Assembly
+                        .LoadMessageHandlers(
+                            First<GridInterceptingMessageHandler>
+                                .Then<TimeoutMessageHandler>()
                         )
                     .CreateBus();
 
