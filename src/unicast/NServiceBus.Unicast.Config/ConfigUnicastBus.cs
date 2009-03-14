@@ -19,7 +19,11 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         public ConfigUnicastBus() : base() {}
 
-        private Hashtable assembliesToEndpoints = new Hashtable();
+        /// <summary>
+        /// A map of which message types (belonging to the given assemblies) are owned 
+        /// by which endpoint.
+        /// </summary>
+        protected Hashtable assembliesToEndpoints = new Hashtable();
 
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
@@ -49,7 +53,10 @@ namespace NServiceBus.Unicast.Config
             bus.MessageOwners = assembliesToEndpoints;
         }
 
-        private UnicastBus bus;
+        /// <summary>
+        /// A proxy to the bus object that will be used to configure the real thing.
+        /// </summary>
+        protected UnicastBus bus;
 
         /// <summary>
         /// Instructs the bus to run the processing of messages being handled
@@ -135,7 +142,7 @@ namespace NServiceBus.Unicast.Config
             return LoadMessageHandlers(types);
         }
 
-        private ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> types)
+        protected ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> types)
         {
             var handlers = new List<Type>();
 
