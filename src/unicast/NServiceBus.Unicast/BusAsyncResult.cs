@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Common.Logging;
 
 namespace NServiceBus.Unicast
 {
@@ -40,10 +41,19 @@ namespace NServiceBus.Unicast
             this.completed = true;
 
             if (this.callback != null)
-                this.callback(this);
+                try
+                {
+                    this.callback(this);
+                }
+                catch (Exception e)
+                {
+                    log.Error(this.callback, e);
+                }
 
             this.sync.Set();
         }
+
+        private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
 
         #region IAsyncResult Members
 
