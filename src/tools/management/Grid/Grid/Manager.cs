@@ -6,6 +6,7 @@ using NServiceBus.Grid.Messages;
 using NServiceBus;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Messaging;
 
 
 namespace Grid
@@ -81,6 +82,17 @@ namespace Grid
                 {
                     qMgmt.Init(ref machine, ref missing, ref formatName);
                     endpoint.SetNumberOfMessages(qMgmt.MessageCount);
+
+                    MessageQueue q = new MessageQueue("FormatName:" + formatName as string);
+
+                    MessagePropertyFilter mpf = new MessagePropertyFilter();
+                    mpf.SetAll();
+
+                    q.MessageReadPropertyFilter = mpf;
+
+                    Message m = q.Peek();
+                    if (m != null)
+                        endpoint.AgeOfOldestMessage = DateTime.Now - m.SentTime;
                 }
                 catch
                 {

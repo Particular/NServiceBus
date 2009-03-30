@@ -106,7 +106,8 @@ namespace UI
                 this.ManagedEndpointButton.Text = "Update";
                 this.ManagedEndpointName.Text = current.Name;
                 this.ManagedEndpointQueue.Text = current.Queue;
-                this.MessagesInEndpoint.Text = current.NumberOfMessages.ToString();
+
+                this.UpdateManagedEndpoint();
 
                 this.DeleteManagedEndpoint.Enabled = true;
                 this.RefreshWorkerList();
@@ -116,7 +117,11 @@ namespace UI
         private void UpdateManagedEndpoint()
         {
             if (current != null)
+            {
                 this.MessagesInEndpoint.Text = current.NumberOfMessages.ToString();
+                this.AgeOfOldestMessage.Text = (int)current.AgeOfOldestMessage.TotalSeconds + "s";
+
+            }
         }
 
         private void ClearManagedEndpoint_Click(object sender, EventArgs e)

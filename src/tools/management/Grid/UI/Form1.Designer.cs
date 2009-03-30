@@ -60,6 +60,8 @@ namespace UI
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.AgeOfOldestMessage = new System.Windows.Forms.Label();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -72,6 +74,7 @@ namespace UI
             this.splitContainer3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -104,6 +107,7 @@ namespace UI
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.groupBox3);
             this.splitContainer2.Panel2.Controls.Add(this.DeleteManagedEndpoint);
             this.splitContainer2.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer2.Panel2.Controls.Add(this.ClearManagedEndpoint);
@@ -142,10 +146,10 @@ namespace UI
             this.groupBox1.Controls.Add(this.MessagesInEndpoint);
             this.groupBox1.Location = new System.Drawing.Point(16, 133);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(225, 73);
+            this.groupBox1.Size = new System.Drawing.Size(119, 73);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Number of messages in queue";
+            this.groupBox1.Text = "Messages in queue";
             // 
             // MessagesInEndpoint
             // 
@@ -400,6 +404,26 @@ namespace UI
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.AgeOfOldestMessage);
+            this.groupBox3.Location = new System.Drawing.Point(135, 133);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(119, 73);
+            this.groupBox3.TabIndex = 15;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Oldest Message";
+            // 
+            // AgeOfOldestMessage
+            // 
+            this.AgeOfOldestMessage.AutoSize = true;
+            this.AgeOfOldestMessage.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AgeOfOldestMessage.Location = new System.Drawing.Point(24, 31);
+            this.AgeOfOldestMessage.Name = "AgeOfOldestMessage";
+            this.AgeOfOldestMessage.Size = new System.Drawing.Size(23, 24);
+            this.AgeOfOldestMessage.TabIndex = 1;
+            this.AgeOfOldestMessage.Text = "?";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -428,6 +452,8 @@ namespace UI
             this.groupBox2.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -466,6 +492,8 @@ namespace UI
         private System.Windows.Forms.Button DeleteWorker;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Label AgeOfOldestMessage;
     }
 }
 

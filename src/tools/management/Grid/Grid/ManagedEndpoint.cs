@@ -47,5 +47,7 @@ namespace Grid
                 this.numberOfMessages = number;
         }
 
+        public TimeSpan AgeOfOldestMessage { get; set; }
+
     }
 }
