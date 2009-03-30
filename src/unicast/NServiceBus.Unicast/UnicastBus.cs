@@ -323,6 +323,9 @@ namespace NServiceBus.Unicast
 		/// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
+            if (this.subscriptionStorage == null)
+                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
+
 		    Type leadingType = messages[0].GetType();
             if (messageMapper != null)
                 leadingType = messageMapper.GetMappedTypeFor(leadingType);
