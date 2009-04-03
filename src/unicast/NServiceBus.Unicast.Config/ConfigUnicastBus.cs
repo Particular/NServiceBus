@@ -82,7 +82,7 @@ namespace NServiceBus.Unicast.Config
             foreach (Assembly a in assemblies)
                 types.AddRange(a.GetTypes());
 
-            return LoadMessageHandlers(types);
+            return ConfigureMessageHandlersIn(types);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
         {
-            return LoadMessageHandlers(TypesInCurrentDirectory);
+            return ConfigureMessageHandlersIn(TypesInCurrentDirectory);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace NServiceBus.Unicast.Config
                     types.Remove(args[0]);
                     types.Insert(0, args[0]);
 
-                    return LoadMessageHandlers(types);
+                    return ConfigureMessageHandlersIn(types);
                 }
             }
 
@@ -139,10 +139,17 @@ namespace NServiceBus.Unicast.Config
 
             types.InsertRange(0, order.Types);
 
-            return LoadMessageHandlers(types);
+            return ConfigureMessageHandlersIn(types);
         }
 
-        protected ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> types)
+        /// <summary>
+        /// Scans the given types for types that are message handlers
+        /// then uses the Configurer to configure them into the container as single call components,
+        /// finally passing them to the bus as its MessageHandlerTypes.
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        protected ConfigUnicastBus ConfigureMessageHandlersIn(IEnumerable<Type> types)
         {
             var handlers = new List<Type>();
 

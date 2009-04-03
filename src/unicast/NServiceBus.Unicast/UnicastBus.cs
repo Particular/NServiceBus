@@ -331,14 +331,7 @@ namespace NServiceBus.Unicast
                 leadingType = messageMapper.GetMappedTypeFor(leadingType);
 
             foreach (string subscriber in this.subscriptionStorage.GetSubscribersForMessage(leadingType))
-                try
-                {
-                    this.Send(subscriber, messages as IMessage[]);
-                }
-                catch(Exception e)
-                {
-                    log.Error("Problem sending message to subscriber: " + subscriber, e);
-                }
+                this.Send(subscriber, messages as IMessage[]);
         }
 
         /// <summary>
@@ -394,7 +387,7 @@ namespace NServiceBus.Unicast
             string destination = this.GetDestinationForMessageType(messageType);
 
             if (destination == null)
-                log.Error(string.Format("No destination could be found for message type {0}.", messageType));
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
             else
                 this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
         }
@@ -416,7 +409,10 @@ namespace NServiceBus.Unicast
         {
             string destination = this.GetDestinationForMessageType(messageType);
 
-            this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
+            if (destination == null)
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            else
+                this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
         }
 
 		/// <summary>
@@ -425,6 +421,9 @@ namespace NServiceBus.Unicast
 		/// <param name="messages">The messages to send.</param>
         public void Reply(params IMessage[] messages)
         {
+            if (messageBeingHandled.ReturnAddress == null)
+                throw new InvalidOperationException("Cannot reply - the sender of this message has not specified a return address.");
+
             TransportMessage toSend = this.GetTransportMessageFor(messageBeingHandled.ReturnAddress, messages);
 
             toSend.CorrelationId = messageBeingHandled.IdForCorrelation;
@@ -528,12 +527,6 @@ namespace NServiceBus.Unicast
         {
 		    string destination = this.GetDestinationForMessageType(messages[0].GetType());
 
-            if (destination == null)
-            {
-                log.Error(string.Format("No destination could be found for message type {0}.", messages[0].GetType()));
-                return null;
-            }
-
             return this.Send(destination, messages);
         }
 
@@ -561,10 +554,7 @@ namespace NServiceBus.Unicast
         {
             AssertBusIsStarted();
             if (destination == null)
-            {
-                log.Info("No destination specified. Not sending messages.");
-                return null;
-            }
+                throw new ArgumentNullException("No 'destination' specified. Messages cannot be sent.");
 
             TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
             this.transport.Send(toSend, destination);
@@ -834,8 +824,17 @@ namespace NServiceBus.Unicast
             }
 
             if (toHandle is SubscriptionMessage)
+            {
                 if (this.subscriptionStorage != null)
                     this.subscriptionStorage.HandleSubscriptionMessage(messageBeingHandled);
+                else
+                {
+                    string warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", messageBeingHandled.ReturnAddress);
+
+                    log.Warn(warning); // and cause message to go to error queue by throwing an exception
+                    throw new InvalidOperationException(warning);
+                }
+            }
         }
 
         private Action<object> GetAction<T>(T message) where T : IMessage
