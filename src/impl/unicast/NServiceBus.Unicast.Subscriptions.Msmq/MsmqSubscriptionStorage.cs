@@ -24,6 +24,7 @@ using NServiceBus.Unicast.Transport;
 using System.Messaging;
 using NServiceBus.Unicast.Transport.Msmq;
 using Common.Logging;
+using System.Transactions;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
@@ -106,13 +107,28 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
                 Type messageType = Type.GetType(subMessage.TypeName, false);
                 if (messageType == null)
-                    log.Debug("Could not handle subscription for message type: " + subMessage.TypeName + ". Type not available on this endpoint.");
-                else
                 {
-                    this.HandleAddSubscription(msg, messageType, subMessage, updateQueue);
-                    this.HandleRemoveSubscription(msg, messageType, subMessage, updateQueue);
+                    log.Debug("Could not handle subscription for message type: " + subMessage.TypeName + ". Type not available on this endpoint.");
+                    return;
                 }
+
+                if (updateQueue)
+                    if (ConfigurationIsWrong())
+                        throw new InvalidOperationException("This endpoint is not transactional. Processing subscriptions on a non-transactional endpoint is not supported. If you still wish to do so, please set the 'DontUseExternalTransaction' property of MsmqSubscriptionStorage to 'true'.");
+
+                this.HandleAddSubscription(msg, messageType, subMessage, updateQueue);
+                this.HandleRemoveSubscription(msg, messageType, subMessage, updateQueue);
             }
+        }
+
+        /// <summary>
+        /// Checks if configuration is wrong - endpoint isn't transactional and
+        /// object isn't configured to handle own transactions.
+        /// </summary>
+        /// <returns></returns>
+        private bool ConfigurationIsWrong()
+        {
+            return (Transaction.Current == null && !DontUseExternalTransaction);                
         }
 
         /// <summary>
