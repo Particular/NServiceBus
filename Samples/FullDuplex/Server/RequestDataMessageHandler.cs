@@ -18,7 +18,7 @@ namespace Server
             response.DataId = message.DataId;
             response.String = message.String;
 
-            Bus.OutgoingHeaders["Test"] = "server1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
+            Bus.OutgoingHeaders["Test"] = Bus.IncomingHeaders["Test"];
             Bus.OutgoingHeaders["1"] = "1";
             Bus.OutgoingHeaders["2"] = "2";
 

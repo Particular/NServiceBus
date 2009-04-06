@@ -925,6 +925,7 @@ namespace NServiceBus.Unicast
             log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
 
             messageBeingHandled = msg;
+            outgoingHeaders = null;
 
             if (this.MessageReceived != null)
                 this.MessageReceived(msg);

@@ -27,7 +27,6 @@ namespace Client
                 .CreateBus()
                 .Start();
 
-            bus.OutgoingHeaders["Test"] = "client";
 
             Console.WriteLine("Press 'Enter' to send a message. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")
@@ -37,7 +36,9 @@ namespace Client
                 m.DataId = Guid.NewGuid();
                 m.String = "<node>it's my \"node\" & i like it<node>";
 
-                Console.WriteLine("Requesting to get data by id: {0}", m.DataId);
+                Console.WriteLine("Requesting to get data by id: {0}", m.DataId.ToString("N"));
+
+                bus.OutgoingHeaders["Test"] = m.DataId.ToString("N");
 
                 //notice that we're passing the message as our state object
                 bus.Send(m).Register(RequestDataComplete, m);
@@ -46,7 +47,7 @@ namespace Client
 
         private static void RequestDataComplete(IAsyncResult asyncResult)
         {
-            Console.Out.WriteLine("Header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.IncomingHeaders["Test"], bus.IncomingHeaders["1"], bus.IncomingHeaders["2"]);
+            Console.Out.WriteLine("Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.IncomingHeaders["Test"], bus.IncomingHeaders["1"], bus.IncomingHeaders["2"]);
 
             CompletionResult result = asyncResult.AsyncState as CompletionResult;
 
