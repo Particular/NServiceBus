@@ -256,7 +256,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             string machine = GetMachineNameFromLogicalName(InputQueue);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
-                throw new InvalidOperationException("Input queue is located on a different machine. This is only supported on MSMQ 4 (Windows Server 2008 or Vista).");
+                throw new InvalidOperationException("Input queue must be on the same machine as this process.");
         }
 
         private void CreateQueuesIfNecessary()
