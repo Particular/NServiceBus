@@ -256,6 +256,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         {
             set
             {
+                string machine = MsmqTransport.GetMachineNameFromLogicalName(value);
+
+                if (machine.ToLower() != Environment.MachineName.ToLower())
+                    throw new InvalidOperationException("Queue must be located on the same machine as this process.");
+
                 string path = MsmqTransport.GetFullPath(value);
                 q = new MessageQueue(path);
 
