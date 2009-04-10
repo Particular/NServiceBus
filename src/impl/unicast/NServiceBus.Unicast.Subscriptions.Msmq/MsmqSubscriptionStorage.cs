@@ -208,18 +208,10 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// </summary>
         public void Remove(string subscriber, string typeName)
         {
-            string messageId;
+			string messageId = RemoveFromLookup(subscriber, typeName);
 
-            lock (this.lookup)
-            {
-                if (!this.lookup.ContainsKey(subscriber))
-                    return;
-
-                this.lookup[subscriber].TryGetValue(typeName, out messageId);
-
-                if (messageId == null)
-                    return;
-            }
+			if (messageId == null)
+				return;
 
 		    this.q.ReceiveById(messageId, GetTransactionType());
         }
@@ -295,6 +287,27 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                     this.lookup[subscriber].Add(typeName, messageId);
             }
         }
+
+		private string RemoveFromLookup(string subscriber, string typeName)
+		{
+			string messageId = null;
+			lock (this.lookup)
+			{
+				Dictionary<string, string> endpoints;
+				if (this.lookup.TryGetValue(subscriber, out endpoints))
+				{
+					if (endpoints.TryGetValue(typeName, out messageId))
+					{
+						endpoints.Remove(typeName);
+						if (endpoints.Count == 0)
+						{
+							this.lookup.Remove(subscriber);
+						}
+					}
+				}
+			}
+			return messageId;
+		}
 
         #endregion
 
