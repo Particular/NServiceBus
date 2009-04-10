@@ -93,6 +93,7 @@ namespace UI
             this.ManagedEndpointQueue.Text = string.Empty;
 
             this.MessagesInEndpoint.Text = "?";
+            this.AgeOfOldestMessage.Text = "?";
             current = null;
             this.DeleteManagedEndpoint.Enabled = false;
             this.RefreshWorkerList();
