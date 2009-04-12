@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReturnToSourceQueue", "ReturnToSourceQueue\ReturnToSourceQueue.csproj", "{C4693C58-BB66-4630-984E-313E1BCC2474}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Tools.Management.Errors.ReturnToSourceQueue", "NServiceBus.Tools.Management.Errors.ReturnToSourceQueue\NServiceBus.Tools.Management.Errors.ReturnToSourceQueue.csproj", "{B9CE6C00-1AE2-4125-BD1A-A7AABA1072CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4693C58-BB66-4630-984E-313E1BCC2474}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4693C58-BB66-4630-984E-313E1BCC2474}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4693C58-BB66-4630-984E-313E1BCC2474}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4693C58-BB66-4630-984E-313E1BCC2474}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9CE6C00-1AE2-4125-BD1A-A7AABA1072CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9CE6C00-1AE2-4125-BD1A-A7AABA1072CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9CE6C00-1AE2-4125-BD1A-A7AABA1072CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CE6C00-1AE2-4125-BD1A-A7AABA1072CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

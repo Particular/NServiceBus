@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Saga", "NServiceBus.Saga\NServiceBus.Saga.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serialization", "NServiceBus.Serialization\NServiceBus.Serialization.csproj", "{F7563AAC-BA9E-4762-888D-27DB9399AF54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73867D40-8CBB-48E9-BFFA-12BBDD48A341}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DE5465-4694-475A-8D06-E17733C41D69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7563AAC-BA9E-4762-888D-27DB9399AF54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7563AAC-BA9E-4762-888D-27DB9399AF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7563AAC-BA9E-4762-888D-27DB9399AF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7563AAC-BA9E-4762-888D-27DB9399AF54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

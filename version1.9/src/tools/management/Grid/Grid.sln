@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grid", "Grid\Grid.csproj", "{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{211C2BF6-5146-4019-8972-6AC87C90745B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC520C3-D1CA-4EF6-94FB-4F24F1D92651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{211C2BF6-5146-4019-8972-6AC87C90745B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
