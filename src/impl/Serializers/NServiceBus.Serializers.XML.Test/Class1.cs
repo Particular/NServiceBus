@@ -45,6 +45,8 @@ namespace NServiceBus.Serializers.XML.Test
             o.Some = SomeEnum.B;
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
+            o.Lookup = new Dictionary<string, string>();
+            o.Lookup["1"] = "1";
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
@@ -225,6 +227,7 @@ namespace NServiceBus.Serializers.XML.Test
         TimeSpan Duration { get; set; }
         IM1[] MoreNames { get; set; }
         object State { get; set; }
+        IDictionary<string, string> Lookup { get; set; }
     }
 
     [Serializable]

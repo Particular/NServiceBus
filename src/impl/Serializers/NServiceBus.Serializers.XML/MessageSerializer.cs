@@ -71,6 +71,15 @@ namespace NServiceBus.Serializers.XML
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g);
 
+                //Handle dictionaries - initalize relevant KeyValuePair<T,K> types.
+                foreach (Type interfaceType in t.GetInterfaces())
+                {
+                    Type[] arr = interfaceType.GetGenericArguments();
+                    if (arr.Length == 1)
+                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
+                            InitType(arr[0]);
+                }
+
                 return;
             }
 
@@ -313,6 +322,34 @@ namespace NServiceBus.Serializers.XML
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);
             }
 
+            //Handle dictionaries
+            Type[] arr = type.GetGenericArguments();
+            if (arr.Length == 2)
+            {
+                if (typeof(IDictionary<,>).MakeGenericType(arr).IsAssignableFrom(type))
+                {
+                    IDictionary result = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(arr)) as IDictionary;
+
+                    foreach (XmlNode xn in n.ChildNodes) // go over KeyValuePairs
+                    {
+                        object key = null;
+                        object value = null;
+
+                        foreach (XmlNode node in xn.ChildNodes)
+                        {
+                            if (node.Name == "Key")
+                                key = GetObjectOfTypeFromNode(arr[0], node);
+                            if (node.Name == "Value")
+                                value = GetObjectOfTypeFromNode(arr[1], node);
+                        }
+
+                        result[key] = value;
+                    }
+
+                    return result;
+                }
+            }
+
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
                 bool isArray = type.IsArray;
@@ -447,16 +484,26 @@ namespace NServiceBus.Serializers.XML
                 builder.AppendFormat("<{0}>\n", name);
 
                 Type baseType = typeof(object);
-                Type[] generics = type.GetGenericArguments();
-                if (generics != null && generics.Length > 0)
-                    baseType = generics[0];
+
+                //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
+                foreach(Type interfaceType in type.GetInterfaces())
+                {
+                    Type[] arr = interfaceType.GetGenericArguments();
+                    if (arr.Length == 1)
+                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
+                        {
+                            baseType = arr[0];
+                            break;
+                        }
+                }
+
 
                 if (value != null)
                     foreach (object obj in ((IEnumerable)value))
                         if (obj.GetType().IsSimpleType())
                             WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
                         else
-                            WriteObject(baseType.Name, baseType, obj, builder);
+                            WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
@@ -581,6 +628,17 @@ namespace NServiceBus.Serializers.XML
                     type == typeof(DateTime) ||
                     type == typeof(TimeSpan) ||
                     type.IsEnum);
+        }
+
+        /// <summary>
+        /// Takes the name of the given type and makes it friendly for serialization
+        /// by removing problematic characters.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string SerializationFriendlyName(this Type type)
+        {
+            return type.Name.Replace("`", string.Empty);
         }
     }
 }
