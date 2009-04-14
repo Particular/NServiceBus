@@ -34,23 +34,23 @@ namespace NServiceBus.Unicast.Config
             this.Builder = config.Builder;
             this.Configurer = config.Configurer;
 
-            UnicastBusConfig cfg = ConfigurationManager.GetSection("UnicastBusConfig") as UnicastBusConfig;
-
-            if (cfg == null)
-                throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
-
-            foreach (Type t in TypesInCurrentDirectory)
-                if (typeof(IMessage).IsAssignableFrom(t))
-                    assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty;
-
-            foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
-                assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
-
             bus = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
-            bus.DistributorControlAddress = cfg.DistributorControlAddress;
-            bus.DistributorDataAddress = cfg.DistributorDataAddress;
-            bus.MessageOwners = assembliesToEndpoints;
+            UnicastBusConfig cfg = ConfigurationManager.GetSection("UnicastBusConfig") as UnicastBusConfig;
+
+            if (cfg != null)
+            {
+                foreach (Type t in TypesInCurrentDirectory)
+                    if (typeof(IMessage).IsAssignableFrom(t))
+                        assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty;
+
+                foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
+                    assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
+
+                bus.DistributorControlAddress = cfg.DistributorControlAddress;
+                bus.DistributorDataAddress = cfg.DistributorDataAddress;
+                bus.MessageOwners = assembliesToEndpoints;
+            }
         }
 
         /// <summary>
