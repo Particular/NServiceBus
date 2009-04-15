@@ -256,7 +256,17 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 string path = MsmqTransport.GetFullPath(value);
                 q = new MessageQueue(path);
 
-                if (!q.Transactional)
+                bool transactional;
+                try
+                {
+                    transactional = q.Transactional;
+                }
+                catch(Exception ex)
+                {
+                    throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", value), ex);
+                }
+
+                if (!transactional)
                     throw new ArgumentException("Queue must be transactional (" + value + ").");
 
                 MessagePropertyFilter mpf = new MessagePropertyFilter();
