@@ -37,7 +37,9 @@ namespace Timeout.MessageHandlers
                 return;
             }
 
-            if (!message.HasNotExpired())
+            if (message.HasNotExpired())
+                this.Bus.HandleCurrentMessageLater();
+            else
                 this.Bus.Send(this.Bus.SourceOfMessageBeingHandled, message);
         }
 

@@ -462,11 +462,23 @@ namespace NServiceBus.Unicast
 		/// </summary>
         public void HandleCurrentMessageLater()
         {
+            if (HandleCurrentMessageLaterWasCalled)
+                return;
+
             if (this.distributorDataAddress != null)
                 this.transport.Send(messageBeingHandled, this.distributorDataAddress);
             else
                 this.transport.ReceiveMessageLater(messageBeingHandled);
+
+            HandleCurrentMessageLaterWasCalled = true;
         }
+
+        /// <summary>
+        /// ThreadStatic variable indicating if the current message was already
+        /// marked to be handled later so we don't do this more than once.
+        /// </summary>
+        [ThreadStatic]
+        private static bool HandleCurrentMessageLaterWasCalled;
 
         /// <summary>
         /// Creates an instance of the given message type - T,
@@ -926,6 +938,7 @@ namespace NServiceBus.Unicast
 
             messageBeingHandled = msg;
             outgoingHeaders = null;
+            HandleCurrentMessageLaterWasCalled = false;
 
             if (this.MessageReceived != null)
                 this.MessageReceived(msg);
