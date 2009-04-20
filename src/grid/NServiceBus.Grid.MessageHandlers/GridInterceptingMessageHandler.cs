@@ -4,6 +4,7 @@ using System;
 using Common.Logging;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Grid.MessageHandlers
 {
@@ -23,6 +24,8 @@ namespace NServiceBus.Grid.MessageHandlers
         /// when grid messages are processed.
         /// </summary>
         public IUnicastBus UnicastBus { get; set; }
+
+        public ITransport Transport { get; set; }
 
         private static volatile bool disabled;
 
@@ -70,6 +73,7 @@ namespace NServiceBus.Grid.MessageHandlers
             if (disabled)
             {
                 this.Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+                this.Transport.AbortHandlingCurrentMessage();
 
                 logger.Info("Endpoint is currently disabled. Send a 'ChangeNumberOfWorkerThreadsMessage' to change this.");
             }
