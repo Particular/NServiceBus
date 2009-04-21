@@ -73,6 +73,7 @@
     <Compile Include="Callback.cs" />
     <Compile Include="HeaderAdapter.cs" />
     <Compile Include="IUnicastBus.cs" />
+    <Compile Include="MessageEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

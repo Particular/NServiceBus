@@ -267,6 +267,11 @@ namespace NServiceBus.Unicast
             skipSendingReadyMessageOnce = true;
         }
 
+        /// <summary>
+        /// Event raised when no subscribers found for the published message.
+        /// </summary>
+        public event EventHandler<MessageEventArgs> NoSubscribersForMessage;
+
         #endregion
 
         #region IBus Members
@@ -330,8 +335,14 @@ namespace NServiceBus.Unicast
             if (messageMapper != null)
                 leadingType = messageMapper.GetMappedTypeFor(leadingType);
 
-            foreach (string subscriber in this.subscriptionStorage.GetSubscribersForMessage(leadingType))
-                this.Send(subscriber, messages as IMessage[]);
+            var subscribers = this.subscriptionStorage.GetSubscribersForMessage(leadingType);
+            
+            if (subscribers.Count == 0)
+                if (this.NoSubscribersForMessage != null)
+                    this.NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
+
+            foreach (string subscriber in subscribers)
+                Send(subscriber, messages as IMessage[]);
         }
 
         /// <summary>

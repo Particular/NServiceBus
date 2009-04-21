@@ -1,4 +1,5 @@
 using NServiceBus.Messages;
+using System;
 
 namespace NServiceBus.Unicast
 {
@@ -25,5 +26,11 @@ namespace NServiceBus.Unicast
         /// on which it was called.
         /// </summary>
         void SkipSendingReadyMessageOnce();
+
+        /// <summary>
+        /// Event raised by the Publish method when no subscribers are
+        /// registered for the message being published.
+        /// </summary>
+        event EventHandler<MessageEventArgs> NoSubscribersForMessage;
     }
 }
