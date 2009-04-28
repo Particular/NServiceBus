@@ -174,9 +174,6 @@ namespace NServiceBus.Unicast
             set { distributorControlAddress = value; }
         }
 
-
-	    private string forwardReceivedMessagesTo;
-
         /// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the address to which all messages received on this bus will be 
@@ -186,10 +183,7 @@ namespace NServiceBus.Unicast
         /// device. The server software will have this field set to the address
         /// of the real server.
         /// </summary>
-	    public virtual string ForwardReceivedMessagesTo
-	    {
-	        set { forwardReceivedMessagesTo = value; }
-	    }
+        public virtual string ForwardReceivedMessagesTo { private get; set; }
 
 		/// <summary>
 		/// Should be used by administrator, not programmer.
@@ -1040,14 +1034,14 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Sends the Msg to the address found in the field <see cref="forwardReceivedMessagesTo"/>
+        /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
         /// if it isn't null.
         /// </summary>
         /// <param name="m">The message to forward</param>
         private void ForwardMessageIfNecessary(TransportMessage m)
         {
-            if (this.forwardReceivedMessagesTo != null)
-                this.transport.Send(m, this.forwardReceivedMessagesTo);
+            if (this.ForwardReceivedMessagesTo != null)
+                this.transport.Send(m, this.ForwardReceivedMessagesTo);
         }
 
 		/// <summary>

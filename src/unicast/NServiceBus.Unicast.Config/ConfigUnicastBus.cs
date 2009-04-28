@@ -49,6 +49,7 @@ namespace NServiceBus.Unicast.Config
 
                 bus.DistributorControlAddress = cfg.DistributorControlAddress;
                 bus.DistributorDataAddress = cfg.DistributorDataAddress;
+                bus.ForwardReceivedMessagesTo = cfg.ForwardReceivedMessagesTo;
                 bus.MessageOwners = assembliesToEndpoints;
             }
         }

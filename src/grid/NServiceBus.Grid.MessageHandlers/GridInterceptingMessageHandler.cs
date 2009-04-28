@@ -25,6 +25,9 @@ namespace NServiceBus.Grid.MessageHandlers
         /// </summary>
         public IUnicastBus UnicastBus { get; set; }
 
+        /// <summary>
+        /// Used to abort handling messages when the endpoint has been disabled.
+        /// </summary>
         public ITransport Transport { get; set; }
 
         private static volatile bool disabled;

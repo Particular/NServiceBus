@@ -13,6 +13,7 @@ CreateQueue ".\private$\timeoutmanager"
 CreateQueue ".\private$\worker"
 CreateQueue ".\private$\worker2"
 CreateQueue ".\private$\hr"
+CreateQueue ".\private$\audit"
 
 Sub DeleteQueue(queueName)
 	On Error Resume Next
