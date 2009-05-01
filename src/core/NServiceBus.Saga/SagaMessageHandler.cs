@@ -44,7 +44,12 @@ namespace NServiceBus.Saga
 
                     Type sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaToCreate);
                     sagaEntity = Activator.CreateInstance(sagaEntityType) as ISagaEntity;
-                    sagaEntity.Id = this.GenerateSagaId();
+
+                    if (message is ISagaMessage)
+                        sagaEntity.Id = (message as ISagaMessage).SagaId;
+                    else
+                        sagaEntity.Id = this.GenerateSagaId();
+
                     sagaEntity.Originator = Bus.SourceOfMessageBeingHandled;
 
                     sagaEntityIsPersistent = false;
