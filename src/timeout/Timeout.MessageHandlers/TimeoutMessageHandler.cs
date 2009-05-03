@@ -40,7 +40,7 @@ namespace Timeout.MessageHandlers
             if (message.HasNotExpired())
                 this.Bus.HandleCurrentMessageLater();
             else
-                this.Bus.Send(this.Bus.SourceOfMessageBeingHandled, message);
+                this.Bus.Send(this.Bus.CurrentMessageContext.ReturnAddress, message);
         }
 
         private int maxSagaIdsToStore = 100;

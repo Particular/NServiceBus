@@ -14,12 +14,12 @@ namespace NServiceBus.Unicast.Distributor
         /// <param name="message"></param>
         public void Handle(ReadyMessage message)
         {
-            logger.Debug("Server available: " + this.Bus.SourceOfMessageBeingHandled);
+            logger.Debug("Server available: " + this.Bus.CurrentMessageContext.ReturnAddress);
 
             if (message.ClearPreviousFromThisAddress) //indicates worker started up
-                this.WorkerManager.ClearAvailabilityForWorker(this.Bus.SourceOfMessageBeingHandled);
+                this.WorkerManager.ClearAvailabilityForWorker(this.Bus.CurrentMessageContext.ReturnAddress);
 
-            this.WorkerManager.WorkerAvailable(this.Bus.SourceOfMessageBeingHandled);
+            this.WorkerManager.WorkerAvailable(this.Bus.CurrentMessageContext.ReturnAddress);
         }
 
         /// <summary>

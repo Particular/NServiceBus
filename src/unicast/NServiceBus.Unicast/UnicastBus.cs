@@ -61,7 +61,6 @@ namespace NServiceBus.Unicast
             {
                 transport = value;
 
-                this.transport.StartedMessageProcessing += transport_StartedMessageProcessing;
                 this.transport.TransportMessageReceived += transport_TransportMessageReceived;
                 this.transport.FinishedMessageProcessing += transport_FinishedMessageProcessing;
             }
@@ -336,7 +335,7 @@ namespace NServiceBus.Unicast
                     this.NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
 
             foreach (string subscriber in subscribers)
-                Send(subscriber, messages as IMessage[]);
+                SendMessage(subscriber, null, messages as IMessage[]);
         }
 
         /// <summary>
@@ -394,7 +393,7 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
             else
-                this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
+                this.SendMessage(destination, null, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
         }
 
         /// <summary>
@@ -417,55 +416,25 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
             else
-                this.Send(destination, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
+                this.SendMessage(destination, null, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
         }
 
-		/// <summary>
-		/// Sends all messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.
-		/// </summary>
-		/// <param name="messages">The messages to send.</param>
-        public void Reply(params IMessage[] messages)
+        void IBus.Reply(params IMessage[] messages)
         {
-            if (messageBeingHandled.ReturnAddress == null)
-                throw new InvalidOperationException("Cannot reply - the sender of this message has not specified a return address.");
-
-            TransportMessage toSend = this.GetTransportMessageFor(messageBeingHandled.ReturnAddress, messages);
-
-            toSend.CorrelationId = messageBeingHandled.IdForCorrelation;
-
-            this.transport.Send(toSend, messageBeingHandled.ReturnAddress);
+            this.SendMessage(messageBeingHandled.ReturnAddress, messageBeingHandled.IdForCorrelation, messages);
         }
 
-        /// <summary>
-        /// Creates an instance of the given message type - T,
-        /// performing the given action on the created message,
-        /// and then sending it as a reply.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        public void Reply<T>(Action<T> messageConstructor) where T : IMessage
+        void IBus.Reply<T>(Action<T> messageConstructor)
         {
-            Reply(CreateInstance<T>(messageConstructor));
+            ((IBus)this).Reply(CreateInstance<T>(messageConstructor));
         }
 
-		/// <summary>
-		/// Returns an completion message with the specified error code to the sender
-		/// of the message being handled.
-		/// </summary>
-		/// <param name="errorCode">An code specifying the result.</param>
-        public void Return(int errorCode)
+        void IBus.Return(int errorCode)
         {
-            CompletionMessage msg = new CompletionMessage();
-            msg.ErrorCode = errorCode;
-
-            this.Reply(msg);
+            ((IBus)this).Reply(new CompletionMessage { ErrorCode = errorCode });
         }
 
-		/// <summary>
-		/// Causes the message being handled to be moved to the back of the list of available 
-		/// messages so it can be handled later.
-		/// </summary>
-        public void HandleCurrentMessageLater()
+        void IBus.HandleCurrentMessageLater()
         {
             if (HandleCurrentMessageLaterWasCalled)
                 return;
@@ -485,14 +454,7 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         private static bool HandleCurrentMessageLaterWasCalled;
 
-        /// <summary>
-        /// Creates an instance of the given message type - T,
-        /// performing the given action on the created message,
-        /// finally putting it in the back of this endpoint's input queue.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        public void SendLocal<T>(Action<T> messageConstructor) where T : IMessage
+        void IBus.SendLocal<T>(Action<T> messageConstructor)
         {
             SendLocal(CreateInstance<T>(messageConstructor));
         }
@@ -518,62 +480,49 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Creates a message of the given message type  - T,
-        /// performing the given actions on the created message,
-        /// finally sending it to the configured destination.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback Send<T>(Action<T> messageConstructor) where T : IMessage
+        ICallback IBus.Send<T>(Action<T> messageConstructor)
         {
-            return Send(CreateInstance<T>(messageConstructor));
+            return ((IBus)this).Send(CreateInstance<T>(messageConstructor));
         }
 
-		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
-		/// when the message is completed.
-		/// </summary>
-        /// <param name="messages">The list of messages to send.</param>
-        /// <remarks>
-		/// All the messages will be sent to the destination configured for the
-		/// first message in the list.
-		/// </remarks>
-        public ICallback Send(params IMessage[] messages)
+        ICallback IBus.Send(params IMessage[] messages)
         {
 		    string destination = this.GetDestinationForMessageType(messages[0].GetType());
 
-            return this.Send(destination, messages);
+            return this.SendMessage(destination, null, messages);
         }
 
-        /// <summary>
-        /// Creates the given message type - T,
-        /// performing the requested action on the created message,
-        /// finally sending it to the given destination.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="destination"></param>
-        /// <param name="messageConstructor"></param>
-        /// <returns></returns>
-        public ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage
+        ICallback IBus.Send<T>(string destination, Action<T> messageConstructor)
         {
-            return Send(destination, CreateInstance<T>(messageConstructor));
+            return SendMessage(destination, null, CreateInstance<T>(messageConstructor));
         }
 
-		/// <summary>
-		/// Sends the list of provided messages and calls the provided <see cref="AsyncCallback"/> delegate
-		/// when the message is completed.
-		/// </summary>
-		/// <param name="destination">The address of the destination to send the messages to.</param>
-        /// <param name="messages">The list of messages to send.</param>
-        public ICallback Send(string destination, params IMessage[] messages)
+        ICallback IBus.Send(string destination, params IMessage[] messages)
+        {
+            return SendMessage(destination, null, messages);
+        }
+
+        void IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            SendMessage(destination, correlationId, CreateInstance<T>(messageConstructor));
+        }
+
+        void IBus.Send(string destination, string correlationId, params IMessage[] messages)
+        {
+            SendMessage(destination, correlationId, messages);
+        }
+
+
+        private ICallback SendMessage(string destination, string correlationId, params IMessage[] messages)
         {
             AssertBusIsStarted();
             if (destination == null)
                 throw new ArgumentNullException("No 'destination' specified. Messages cannot be sent.");
 
             TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
+
+            toSend.CorrelationId = correlationId;
+
             this.transport.Send(toSend, destination);
 
             if (log.IsDebugEnabled)
@@ -587,20 +536,6 @@ namespace NServiceBus.Unicast
                                      };
 
 		    return result;
-        }
-
-		/// <summary>
-		/// Gets the address from which the message being handled was sent.
-		/// </summary>
-        public string SourceOfMessageBeingHandled
-        {
-            get
-            {
-                if (messageBeingHandled != null)
-                    return messageBeingHandled.ReturnAddress;
-
-                return null;
-            }
         }
 
 		/// <summary>
@@ -719,11 +654,8 @@ namespace NServiceBus.Unicast
             this.transport.Dispose();
         }
 
-		/// <summary>
-		/// Tells the bus to stop dispatching the current message to additional
-		/// handlers.
-		/// </summary>
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+
+        void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             doNotContinueDispatchingCurrentMessageToHandlers = true;
         }
@@ -734,10 +666,7 @@ namespace NServiceBus.Unicast
 	    [ThreadStatic] 
         private static IDictionary<string, string> outgoingHeaders;
 
-        /// <summary>
-        /// Gets the headers that will be attached to outgoing messages.
-        /// </summary>
-	    public IDictionary<string, string> OutgoingHeaders
+	    IDictionary<string, string> IBus.OutgoingHeaders
 	    {
             get
             {
@@ -748,16 +677,13 @@ namespace NServiceBus.Unicast
             }
 	    }
 
-        /// <summary>
-        /// Gets the headers that arrived with the current message being handled.
-        /// </summary>
-	    public IDictionary<string, string> IncomingHeaders
-	    {
+        IMessageContext IBus.CurrentMessageContext
+        {
             get
             {
-                return new HeaderAdapter(messageBeingHandled.Headers);
+                return new MessageContext(messageBeingHandled);
             }
-	    }
+        }
 
         #endregion
 
@@ -778,7 +704,7 @@ namespace NServiceBus.Unicast
             else
                 Thread.CurrentPrincipal = null;
 
-            OutgoingHeaders.Clear();
+            ((IBus)this).OutgoingHeaders.Clear();
 
             this.ForwardMessageIfNecessary(m);
 
@@ -810,7 +736,7 @@ namespace NServiceBus.Unicast
 		/// <param name="messageType">The message type by which to locate the correct handlers.</param>
 		/// <returns></returns>
 		/// <remarks>
-		/// If during the dispatch, a message handler calls the <see cref="DoNotContinueDispatchingCurrentMessageToHandlers"/> method,
+		/// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
 		/// this prevents the message from being further dispatched.
 		/// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
 		/// </remarks>
@@ -913,10 +839,6 @@ namespace NServiceBus.Unicast
                     }
         }
 
-        void transport_StartedMessageProcessing(object sender, EventArgs e)
-        {
-        }
-
 		/// <summary>
         /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
 		/// for the bus.
@@ -942,7 +864,6 @@ namespace NServiceBus.Unicast
             log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
 
             messageBeingHandled = msg;
-            outgoingHeaders = null;
             HandleCurrentMessageLaterWasCalled = false;
 
             if (this.MessageReceived != null)
@@ -954,12 +875,7 @@ namespace NServiceBus.Unicast
             log.Debug("Finished handling message.");
         }
 
-        /// <summary>
-        /// Handles the FinishedMessageProcessing event of ITransport.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void transport_FinishedMessageProcessing(object sender, EventArgs e)
+        private void transport_FinishedMessageProcessing(object sender, EventArgs e)
         {
             if (!skipSendingReadyMessageOnce)
                 this.SendReadyMessage(false);
@@ -967,13 +883,6 @@ namespace NServiceBus.Unicast
             skipSendingReadyMessageOnce = false;
         }
 
-		/// <summary>
-		/// Checks whether a received message is an initialization message.
-		/// </summary>
-		/// <param name="msg">The message to check.</param>
-		/// <returns>true if the message is an initialization message, otherwise false.</returns>
-		/// <remarks>
-		/// A <see cref="CompletionMessage"/> is used out of convenience as the initialization message.</remarks>
         private bool IsInitializationMessage(TransportMessage msg)
         {
             if (msg.ReturnAddress == null)
@@ -988,6 +897,7 @@ namespace NServiceBus.Unicast
             if (msg.Body.Length > 1)
                 return false;
 
+            // A CompletionMessage is used out of convenience as the initialization message.
             CompletionMessage em = msg.Body[0] as CompletionMessage;
             if (em == null)
                 return false;
@@ -1126,7 +1036,7 @@ namespace NServiceBus.Unicast
             if (this.propogateReturnAddressOnSend)
                 result.ReturnAddress = this.transport.Address;
 
-		    result.Headers = HeaderAdapter.From(OutgoingHeaders);
+		    result.Headers = HeaderAdapter.From(outgoingHeaders);
 
             TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 

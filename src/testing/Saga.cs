@@ -14,6 +14,7 @@ namespace NServiceBus.Testing
         private readonly IBus bus;
         private readonly MockRepository m;
         private readonly IMessageCreator messageCreator;
+        private string messageId;
         private string clientAddress;
         private readonly List<Delegate> delegates = new List<Delegate>();
         private readonly List<Type> messageTypes = new List<Type>();
@@ -111,13 +112,27 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Set the headers on an incoming message.
+        /// Set the headers on an incoming message that will be return
+        /// when code calls Bus.CurrentMessageContext.Headers
         /// </summary>
         /// <param name="headers"></param>
         /// <returns></returns>
         public Saga SetIncomingHeaders(IDictionary<string, string> headers)
         {
             this.incomingHeaders = headers;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the Id of the incoming message that will be returned
+        /// when code calls Bus.CurrentMessageContext.Id
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public Saga SetMessageId(string messageId)
+        {
+            this.messageId = messageId;
 
             return this;
         }
@@ -303,14 +318,14 @@ namespace NServiceBus.Testing
         /// <param name="handle"></param>
         public void When(HandleMessageDelegate handle)
         {
+            MessageContext context = new MessageContext { Id = this.messageId, ReturnAddress = this.clientAddress, Headers = this.incomingHeaders };
+
             using (m.Record())
             {
                 foreach (Type t in messageTypes)
                     typeof(Saga).GetMethod("PrepareBusGenericMethods", BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(t).Invoke(this, null);
 
-                SetupResult.For(bus.SourceOfMessageBeingHandled).Return(this.clientAddress);
-                SetupResult.For(bus.IncomingHeaders).Return(this.incomingHeaders);
-                SetupResult.For(bus.OutgoingHeaders).Return(this.outgoingHeaders);
+                SetupResult.For(bus.CurrentMessageContext).Return(context);
 
                 foreach (Delegate d in this.delegates)
                     d.DynamicInvoke();

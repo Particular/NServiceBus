@@ -12,13 +12,13 @@ namespace Server
         {
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
-            Console.Out.WriteLine("Header 'Test' = {0}.", Bus.IncomingHeaders["Test"]);
+            Console.Out.WriteLine("Header 'Test' = {0}.", Bus.CurrentMessageContext.Headers["Test"]);
 
             DataResponseMessage response = new DataResponseMessage();
             response.DataId = message.DataId;
             response.String = message.String;
 
-            Bus.OutgoingHeaders["Test"] = Bus.IncomingHeaders["Test"];
+            Bus.OutgoingHeaders["Test"] = Bus.CurrentMessageContext.Headers["Test"];
             Bus.OutgoingHeaders["1"] = "1";
             Bus.OutgoingHeaders["2"] = "2";
 

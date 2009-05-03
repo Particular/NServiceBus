@@ -8,6 +8,7 @@ namespace OrderService
     {
         public virtual Guid Id { get; set; }
         public virtual string Originator { get; set; }
+        public virtual string OriginalMessageId { get; set; }
         public virtual string PurchaseOrderNumber { get; set; }
         public virtual Guid PartnerId { get; set; }
         public virtual DateTime ProvideBy { get; set; }

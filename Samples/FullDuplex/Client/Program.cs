@@ -47,7 +47,7 @@ namespace Client
 
         private static void RequestDataComplete(IAsyncResult asyncResult)
         {
-            Console.Out.WriteLine("Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.IncomingHeaders["Test"], bus.IncomingHeaders["1"], bus.IncomingHeaders["2"]);
+            Console.Out.WriteLine("Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.CurrentMessageContext.Headers["Test"], bus.CurrentMessageContext.Headers["1"], bus.CurrentMessageContext.Headers["2"]);
 
             CompletionResult result = asyncResult.AsyncState as CompletionResult;
 

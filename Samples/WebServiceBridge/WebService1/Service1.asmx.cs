@@ -20,17 +20,12 @@ namespace WebService1
         {
             object result = ErrorCodes.None;
 
-            IAsyncResult sync = Global.Bus.Send(request).Register(
-                delegate(IAsyncResult asyncResult)
-                  {
-                      CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
-                      if (completionResult != null)
-                      {
-                          result = (ErrorCodes) completionResult.ErrorCode;
-                      }
-                  },
-                  null
-                  );
+            IAsyncResult sync = Global.Bus.Send(request).Register(asyncResult =>
+                                {
+                                    CompletionResult completionResult = asyncResult.AsyncState as CompletionResult;
+                                    if (completionResult != null)
+                                        result = (ErrorCodes)completionResult.ErrorCode;
+                                }, null);
 
             sync.AsyncWaitHandle.WaitOne();
 

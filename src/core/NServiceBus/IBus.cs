@@ -111,7 +111,7 @@ namespace NServiceBus
         ICallback Send(string destination, params IMessage[] messages);
 
         /// <summary>
-        /// Instantiates a message of type T and send it to the given destination.
+        /// Instantiates a message of type T and sends it to the given destination.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="destination">The destination to which the message will be sent.</param>
@@ -120,7 +120,27 @@ namespace NServiceBus
         ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
-		/// Sends all messages to the destination found in <see cref="SourceOfMessageBeingHandled"/>.
+        /// Sends the messages to the destination as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="messages"></param>
+        void Send(string destination, string correlationId, params IMessage[] messages);
+
+        /// <summary>
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the destination identifying it as a response to a message
+        /// containing the Id found in correlationId.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="destination"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="messageConstructor"></param>
+        void Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
+
+        /// <summary>
+		/// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
         void Reply(params IMessage[] messages);
@@ -153,11 +173,6 @@ namespace NServiceBus
         void DoNotContinueDispatchingCurrentMessageToHandlers();
 
         /// <summary>
-        /// Gets the address from which the message being handled was sent.
-        /// </summary>
-        string SourceOfMessageBeingHandled { get; }
-
-        /// <summary>
         /// Gets the list of key/value pairs that will be in the header of
         /// messages being sent by the same thread.
         /// 
@@ -166,9 +181,9 @@ namespace NServiceBus
         IDictionary<string, string> OutgoingHeaders { get; }
 
         /// <summary>
-        /// Gets the list of key/value pairs found in the header of the message
-        /// being handled by the current thread.
+        /// Gets the message context containing the Id, return address, and headers
+        /// of the message currently being handled on this thread.
         /// </summary>
-        IDictionary<string, string> IncomingHeaders { get; }
+        IMessageContext CurrentMessageContext { get; }
     }
 }

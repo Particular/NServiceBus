@@ -64,6 +64,8 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -73,6 +75,7 @@
     <Compile Include="Callback.cs" />
     <Compile Include="HeaderAdapter.cs" />
     <Compile Include="IUnicastBus.cs" />
+    <Compile Include="MessageContext.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />

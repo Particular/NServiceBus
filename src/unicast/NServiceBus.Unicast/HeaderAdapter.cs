@@ -31,10 +31,11 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public static List<HeaderInfo> From(IDictionary<string, string> source)
         {
-            List<HeaderInfo> result = new List<HeaderInfo>(source.Count);
+            List<HeaderInfo> result = new List<HeaderInfo>();
 
-            foreach(string key in source.Keys)
-                result.Add(new HeaderInfo { Key = key, Value = source[key] });
+            if (source != null)
+                foreach(string key in source.Keys)
+                    result.Add(new HeaderInfo { Key = key, Value = source[key] });
 
             return result;
         }

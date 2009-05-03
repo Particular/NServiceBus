@@ -50,7 +50,8 @@ namespace NServiceBus.Saga
                     else
                         sagaEntity.Id = this.GenerateSagaId();
 
-                    sagaEntity.Originator = Bus.SourceOfMessageBeingHandled;
+                    sagaEntity.Originator = Bus.CurrentMessageContext.ReturnAddress;
+                    sagaEntity.OriginalMessageId = Bus.CurrentMessageContext.Id;
 
                     sagaEntityIsPersistent = false;
 

@@ -37,10 +37,7 @@ namespace NServiceBus.Saga
         /// Indicates that the saga is complete.
         /// In order to set this value, use the <see cref="MarkAsComplete" /> method.
         /// </summary>
-        public bool Completed
-        {
-            get { return completed; }
-        }
+        public bool Completed { get; private set; }
 
         /// <summary>
         /// Request for a timeout to occur at the given time.
@@ -73,7 +70,7 @@ namespace NServiceBus.Saga
         /// <param name="messages"></param>
         protected void ReplyToOriginator(params IMessage[] messages)
         {
-            Bus.Send(Data.Originator, messages);
+            Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }
 
         /// <summary>
@@ -84,7 +81,7 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor"></param>
         protected void ReplyToOriginator<K>(Action<K> messageConstructor) where K : IMessage
         {
-            Bus.Send<K>(Data.Originator, messageConstructor);
+            Bus.Send<K>(Data.Originator, Data.OriginalMessageId, messageConstructor);
         }
 
         /// <summary>
@@ -93,10 +90,8 @@ namespace NServiceBus.Saga
         /// </summary>
         protected void MarkAsComplete()
         {
-            this.completed = true;
+            this.Completed = true;
         }
-
-        private bool completed;
 
         /// <summary>
         /// Notifies that the timeout it previously requested occurred.

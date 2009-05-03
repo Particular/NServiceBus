@@ -56,6 +56,7 @@
     <Compile Include="IBus.cs" />
     <Compile Include="ICallback.cs" />
     <Compile Include="IMessage.cs" />
+    <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
