@@ -45,6 +45,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Some = SomeEnum.B;
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
+            o.Offset = DateTimeOffset.Now;
             o.Lookup = new Dictionary<string, string>();
             o.Lookup["1"] = "1";
 
@@ -225,6 +226,7 @@ namespace NServiceBus.Serializers.XML.Test
         SomeEnum Some { get; set; }
         DateTime Start { get; set; }
         TimeSpan Duration { get; set; }
+        DateTimeOffset Offset { get; set; }
         IM1[] MoreNames { get; set; }
         object State { get; set; }
         IDictionary<string, string> Lookup { get; set; }

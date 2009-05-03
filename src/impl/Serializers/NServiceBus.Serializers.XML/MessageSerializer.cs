@@ -318,6 +318,9 @@ namespace NServiceBus.Serializers.XML
                 if (type == typeof(TimeSpan))
                     return XmlConvert.ToTimeSpan(n.ChildNodes[0].InnerText);
 
+                if (type == typeof(DateTimeOffset))
+                    return DateTimeOffset.Parse(n.ChildNodes[0].InnerText, null, System.Globalization.DateTimeStyles.RoundtripKind);
+
                 if (type.IsEnum)
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);
             }
@@ -527,6 +530,8 @@ namespace NServiceBus.Serializers.XML
                 TimeSpan ts = (TimeSpan) value;
                 return string.Format("{0}P0Y0M{1}DT{2}H{3}M{4}.{5:000}S", (ts.TotalSeconds < 0 ? "-" : ""), Math.Abs(ts.Days), Math.Abs(ts.Hours), Math.Abs(ts.Minutes), Math.Abs(ts.Seconds), Math.Abs(ts.Milliseconds));
             }
+            if (value is DateTimeOffset)
+                return ((DateTimeOffset)value).ToString("o");
             if (value is Guid)
                 return ((Guid) value).ToString();
 
