@@ -236,19 +236,21 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (ErrorQueue != null)
                 this.errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
 
-            MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
-            SetLocalQueue(q);
+            if (InputQueue != null && InputQueue != string.Empty)
+            {
+                MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
+                SetLocalQueue(q);
 
-            if (this.purgeOnStartup)
-                this.queue.Purge();
+                if (this.purgeOnStartup)
+                    this.queue.Purge();
 
+                IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
+                if (mods != null)
+                    this.modules.AddRange(mods);
 
-	        IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
-            if (mods != null)
-                this.modules.AddRange(mods);
-
-            for (int i = 0; i < this._numberOfWorkerThreads; i++)
-                this.AddWorkerThread().Start();
+                for (int i = 0; i < this._numberOfWorkerThreads; i++)
+                    this.AddWorkerThread().Start();
+            }
         }
 
         private void CheckConfiguration()
@@ -263,19 +265,22 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (!DoNotCreateQueues)
             {
-                string iq = GetFullPathWithoutPrefix(InputQueue);
-                logger.Debug("Checking if input queue exists.");
-                if (!MessageQueue.Exists(iq))
+                if (InputQueue != null && InputQueue != string.Empty)
                 {
-                    logger.Warn("Input queue " + InputQueue + " does not exist.");
-                    logger.Debug("Going to create input queue: " + InputQueue);
+                    string iq = GetFullPathWithoutPrefix(InputQueue);
+                    logger.Debug("Checking if input queue exists.");
+                    if (!MessageQueue.Exists(iq))
+                    {
+                        logger.Warn("Input queue " + InputQueue + " does not exist.");
+                        logger.Debug("Going to create input queue: " + InputQueue);
 
-                    MessageQueue.Create(iq, true);
+                        MessageQueue.Create(iq, true);
 
-                    logger.Debug("Input queue created.");
+                        logger.Debug("Input queue created.");
+                    }
                 }
 
-                if (ErrorQueue != null)
+                if (ErrorQueue != null && ErrorQueue != string.Empty)
                 {
                     logger.Debug("Checking if error queue exists.");
                     string errorMachine = GetMachineNameFromLogicalName(ErrorQueue);
@@ -318,7 +323,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ReceiveMessageLater(TransportMessage m)
         {
-            this.Send(m, this.Address);
+            if (InputQueue != null && InputQueue != string.Empty)
+                this.Send(m, this.InputQueue);
         }
 
 		/// <summary>
@@ -343,7 +349,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     toSend.CorrelationId = m.CorrelationId;
 
                 toSend.Recoverable = m.Recoverable;
-                toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
+
+                if (m.ReturnAddress != null && m.ReturnAddress != string.Empty)
+                    toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
+
                 FillLabel(toSend, m);
 
                 if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
@@ -351,9 +360,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 if (m.Headers != null && m.Headers.Count > 0)
                 {
-                    MemoryStream stream = new MemoryStream();
-                    headerSerializer.Serialize(stream, m.Headers);
-                    toSend.Extension = stream.GetBuffer();
+                    using (var stream = new MemoryStream())
+                    {
+                        headerSerializer.Serialize(stream, m.Headers);
+                        toSend.Extension = stream.GetBuffer();
+                    }
                 }
 
                 q.Send(toSend, this.GetTransactionTypeForSend());
