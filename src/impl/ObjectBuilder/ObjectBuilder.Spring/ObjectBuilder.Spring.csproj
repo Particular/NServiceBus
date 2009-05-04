@@ -70,8 +70,6 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ComponentConfig.cs" />
-    <Compile Include="ConfigAdvice.cs" />
-    <Compile Include="ConfigAdvisor.cs" />
     <Compile Include="SpringObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

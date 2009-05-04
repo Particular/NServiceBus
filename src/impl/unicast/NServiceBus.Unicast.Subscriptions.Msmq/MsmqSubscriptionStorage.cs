@@ -244,10 +244,12 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// For a local queue, just use its name - msmq specific info isn't needed.
 		/// For a remote queue (supported MSMQ 4.0), use the format "queue@machine".
 		/// </summary>
-        public virtual string Queue
+        public string Queue
         {
+            get { return queue; }
             set
             {
+                queue = value;
                 string machine = MsmqTransport.GetMachineNameFromLogicalName(value);
 
                 if (machine.ToLower() != Environment.MachineName.ToLower())
@@ -277,6 +279,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 this.q.MessageReadPropertyFilter = mpf;
             }
         }
+        private string queue;
 
         #endregion
 

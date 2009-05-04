@@ -8,94 +8,99 @@ namespace NServiceBus.ObjectBuilder.Common
 {
     /// <summary>
     /// Implementation of IBuilder, serving as a facade that container specific implementations
-    /// of IBuilderInternal should run behind.
+    /// of IContainer should run behind.
     /// </summary>
-    public class CommonObjectBuilder : IBuilder, IConfigureComponents, IContainInternalBuilder
+    public class CommonObjectBuilder : IBuilder, IConfigureComponents
     {
         /// <summary>
-        /// Injected container-specific builder.
+        /// The container that will be used to create objects and configure components.
         /// </summary>
-        public virtual IBuilderInternal Builder { get; set; }
+        public IContainer Container
+        {
+            get { return container; }
+            set
+            {
+                container = value;
+                if (sync != null)
+                    sync.Container = value;
+            }
+        }
+
+        private bool synchronized;
+
+        /// <summary>
+        /// Used for multi-threaded rich clients to build and dispatch
+        /// in a synchronization domain.
+        /// </summary>
+        public bool Synchronized
+        {
+            get { return synchronized; }
+            set
+            {
+                synchronized = value;
+
+                if (synchronized)
+                {
+                    if (sync == null)
+                        sync = new SynchronizedInvoker();
+
+                    sync.Container = Container;
+                }
+            }
+        }
 
         #region IConfigureComponents Members
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="callModel"></param>
-        /// <returns></returns>
-        public T ConfigureComponent<T>(ComponentCallModelEnum callModel)
+        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
         {
-            return (T)Builder.Configure(typeof(T), callModel);
+            Container.Configure(concreteComponent, callModel);
+
+            return new ComponentConfig(concreteComponent, Container);
         }
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <param name="concreteComponent"></param>
-        /// <param name="callModel"></param>
-        /// <returns></returns>
-        public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(ComponentCallModelEnum callModel)
         {
-            return Builder.ConfigureComponent(concreteComponent, callModel);
+            Container.Configure(typeof(T), callModel);
+
+            return new ComponentConfig<T>(Container);
         }
 
         #endregion
 
         #region IBuilder Members
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T Build<T>()
+        T IBuilder.Build<T>()
         {
-            return (T)Build(typeof(T));
+            return (T)Container.Build(typeof(T));
         }
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <returns></returns>
-        public object Build(Type typeToBuild)
+        object IBuilder.Build(Type typeToBuild)
         {
-            return Builder.Build(typeToBuild);
+            return Container.Build(typeToBuild);
         }
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <returns></returns>
-        public IEnumerable<object> BuildAll(Type typeToBuild)
+        IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
         {
-            return Builder.BuildAll(typeToBuild);
+            return Container.BuildAll(typeToBuild);
         }
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public IEnumerable<T> BuildAll<T>()
+        IEnumerable<T> IBuilder.BuildAll<T>()
         {
-            foreach(T element in BuildAll(typeof(T)))
+            foreach (T element in Container.BuildAll(typeof(T)))
                 yield return element;
         }
 
-        /// <summary>
-        /// Forwards the call to the injected builder.
-        /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <param name="action"></param>
-        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
+        void IBuilder.BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
-            Builder.BuildAndDispatch(typeToBuild, action);
+            if (sync != null)
+                sync.BuildAndDispatch(typeToBuild, action);
+            else
+                action(Container.Build(typeToBuild));
         }
 
         #endregion
+
+        private static SynchronizedInvoker sync;
+        private IContainer container;
     }
 }

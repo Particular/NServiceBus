@@ -66,6 +66,7 @@
     </Compile>
     <Compile Include="ConfigureCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SyncConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectBuilder.Common\ObjectBuilder.Common.csproj">

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.ObjectBuilder.Common;
 
 namespace NServiceBus.ObjectBuilder.Common.Config
 {
     /// <summary>
-    /// Utility configuration class for implementers of IBuilderInternal.
+    /// Utility configuration class for implementers of IContainer.
     /// </summary>
     public static class ConfigureCommon
     {
@@ -17,40 +15,22 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         /// Finally, the given actions are performed on the instance of CommonObjectBuilder.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="builder"></param>
+        /// <param name="container"></param>
         /// <param name="configActions"></param>
-        public static void With(Configure config, IBuilderInternal builder, params Action<IConfigureComponents>[] configActions)
+        public static void With(Configure config, IContainer container, params Action<IConfigureComponents>[] configActions)
         {
-            if (config.Builder == null)
-            {
-                var b = new CommonObjectBuilder();
+            var b = new CommonObjectBuilder { Container = container, Synchronized = SyncConfig.Synchronize };
 
-                config.Builder = b;
-                config.Configurer = b;
-            }
+            config.Builder = b;
+            config.Configurer = b;
 
-            var containBuilder = config.Builder as IContainInternalBuilder;
-            if (containBuilder != null)
-            {
-                var internalContainer = containBuilder.Builder as IContainInternalBuilder;
-                if (internalContainer != null)
-                {
-                    internalContainer.Builder = builder;
-                }
-                else
-                {
-                    if (containBuilder.Builder != null)
-                        throw new InvalidOperationException("Builder already configured.");
+            var cfg = config.Configurer.ConfigureComponent<CommonObjectBuilder>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(c => c.Container, container);
 
-                    containBuilder.Builder = builder;
-                }
+            foreach (var a in configActions)
+                a(config.Configurer);
 
-                config.Configurer.ConfigureComponent<CommonObjectBuilder>(ComponentCallModelEnum.Singleton)
-                    .Builder = containBuilder.Builder;
-
-                foreach (var a in configActions)
-                    a(config.Configurer);
-            }
+            SyncConfig.MarkConfigured();
         }
     }
 }

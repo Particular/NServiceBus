@@ -36,7 +36,7 @@ namespace UI
                             };
 
                             cfg.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                                .AdditionalTypes = additionalTypes;
+                                .ConfigureProperty(x => x.AdditionalTypes, additionalTypes);
 
                             return cfg.XmlSerializer(nameSpace);
                         });
@@ -49,7 +49,7 @@ namespace UI
             }
 
             var busMgr = func(NServiceBus.Configure.With()
-                .SynchronizedBuilder()
+                .Synchronization()
                 .SpringBuilder())
                 .MsmqTransport()
                     .IsTransactional(false)

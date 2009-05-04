@@ -20,14 +20,14 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// The message mapper used to translate between types.
         /// </summary>
-        public virtual IMessageMapper MessageMapper { get; set; }
+        public IMessageMapper MessageMapper { get; set; }
 
         private string nameSpace = "http://tempuri.net";
 
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
-        public virtual string Namespace
+        public string Namespace
         {
             get { return nameSpace; }
             set { nameSpace = value; }
@@ -36,7 +36,7 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// Gets/sets additional types to be serialized on top of those detected by the caller of Initialize.
         /// </summary>
-        public virtual List<Type> AdditionalTypes { get; set; }
+        public List<Type> AdditionalTypes { get; set; }
 
         /// <summary>
         /// Initializes the serializer, passing the given types in addition to those in AdditionalTypes to the message mapper.

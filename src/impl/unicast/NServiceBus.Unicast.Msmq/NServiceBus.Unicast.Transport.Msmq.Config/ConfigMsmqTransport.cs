@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             this.Builder = config.Builder;
             this.Configurer = config.Configurer;
 
-            transport = this.Configurer.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
+            transportConfig = Configurer.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
             MsmqTransportConfig cfg =
                 ConfigurationManager.GetSection("MsmqTransportConfig") as MsmqTransportConfig;
@@ -39,13 +39,13 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
             string inputQueue = MsmqTransport.GetFullPath(cfg.InputQueue);
             string errorQueue = MsmqTransport.GetFullPath(cfg.ErrorQueue);
 
-            transport.InputQueue = cfg.InputQueue;
-            transport.NumberOfWorkerThreads = cfg.NumberOfWorkerThreads;
-            transport.ErrorQueue = cfg.ErrorQueue;
-            transport.MaxRetries = cfg.MaxRetries;
+            transportConfig.ConfigureProperty(t => t.InputQueue, cfg.InputQueue);
+            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
+            transportConfig.ConfigureProperty(t => t.ErrorQueue, cfg.ErrorQueue);
+            transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
         }
 
-        private MsmqTransport transport;
+        private IComponentConfig<MsmqTransport> transportConfig;
 
         /// <summary>
         /// Sets the transactionality of the endpoint.
@@ -56,7 +56,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport IsTransactional(bool value)
         {
-            transport.IsTransactional = value;
+            transportConfig.ConfigureProperty(t => t.IsTransactional, value);
             return this;
         }
 
@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport PurgeOnStartup(bool value)
         {
-            transport.PurgeOnStartup = value;
+            transportConfig.ConfigureProperty(t => t.PurgeOnStartup, value);
             return this;
         }
 
@@ -88,7 +88,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport IsolationLevel(IsolationLevel isolationLevel)
         {
-            transport.IsolationLevel = isolationLevel;
+            transportConfig.ConfigureProperty(t => t.IsolationLevel,isolationLevel);
             return this;
         }
 
@@ -99,7 +99,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport DoNotCreateQueues()
         {
-            transport.DoNotCreateQueues = true;
+            transportConfig.ConfigureProperty(t => t.DoNotCreateQueues, true);
             return this;
         }
 
@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport TransactionTimeout(TimeSpan transactionTimeout)
         {
-            transport.TransactionTimeout = transactionTimeout;
+            transportConfig.ConfigureProperty(t => t.TransactionTimeout, transactionTimeout);
             return this;
         }
     }

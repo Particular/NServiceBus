@@ -35,6 +35,6 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <summary>
         /// Injected NHibernate session factory.
         /// </summary>
-        public virtual ISessionFactory SessionFactory { get; set; }
+        public ISessionFactory SessionFactory { get; set; }
     }
 }

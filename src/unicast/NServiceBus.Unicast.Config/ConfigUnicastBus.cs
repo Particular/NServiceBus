@@ -34,7 +34,7 @@ namespace NServiceBus.Unicast.Config
             this.Builder = config.Builder;
             this.Configurer = config.Configurer;
 
-            bus = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
+            busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
             UnicastBusConfig cfg = ConfigurationManager.GetSection("UnicastBusConfig") as UnicastBusConfig;
 
@@ -47,17 +47,17 @@ namespace NServiceBus.Unicast.Config
                 foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                     assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
 
-                bus.DistributorControlAddress = cfg.DistributorControlAddress;
-                bus.DistributorDataAddress = cfg.DistributorDataAddress;
-                bus.ForwardReceivedMessagesTo = cfg.ForwardReceivedMessagesTo;
-                bus.MessageOwners = assembliesToEndpoints;
+                busConfig.ConfigureProperty(b => b.DistributorControlAddress, cfg.DistributorControlAddress);
+                busConfig.ConfigureProperty(b => b.DistributorDataAddress, cfg.DistributorDataAddress);
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
         }
 
         /// <summary>
-        /// A proxy to the bus object that will be used to configure the real thing.
+        /// Used to configure the bus.
         /// </summary>
-        protected UnicastBus bus;
+        protected IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
         /// Instructs the bus to run the processing of messages being handled
@@ -67,7 +67,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus ImpersonateSender(bool value)
         {
-            bus.ImpersonateSender = value;
+            busConfig.ConfigureProperty(b => b.ImpersonateSender, value);
             return this;
         }
 
@@ -161,7 +161,7 @@ namespace NServiceBus.Unicast.Config
                     handlers.Add(t);
                 }
 
-            bus.MessageHandlerTypes = handlers;
+            busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
 
             return this;
         }
@@ -175,7 +175,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
-            bus.PropogateReturnAddressOnSend = value;
+            busConfig.ConfigureProperty(b => b.PropogateReturnAddressOnSend, value);
             return this;
         }
 
@@ -187,7 +187,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus ForwardReceivedMessagesTo(string  value)
         {
-            bus.ForwardReceivedMessagesTo = value;
+            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
             return this;
         }
 
@@ -200,7 +200,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
-            bus.AutoSubscribe = false;
+            busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
             return this;
         }
 

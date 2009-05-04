@@ -20,10 +20,12 @@ namespace MsmqWorkerAvailabilityManager
 		/// worker availability.
 		/// </summary>
 		/// <remarks>The queue provided must be transactional.</remarks>
-        public virtual string StorageQueue
+        public string StorageQueue
         {
+            get { return s; }
             set 
             {
+                s = value;
                 string path = MsmqTransport.GetFullPath(value);
                 MessageQueue q = new MessageQueue(path);
 
@@ -33,6 +35,7 @@ namespace MsmqWorkerAvailabilityManager
                 this.storageQueue = q;
             }
         }
+        private string s;
 
         #endregion
 

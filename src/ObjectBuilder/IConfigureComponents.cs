@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace NServiceBus.ObjectBuilder
 {
@@ -20,11 +21,11 @@ namespace NServiceBus.ObjectBuilder
         IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
 
         /// <summary>
-        /// Configures the given type. Can only be used to configure virtual properties.
+        /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="callModel">Defines whether the type should have singleton or single call sematnics.</param>
-        /// <returns>An instance of type T.</returns>
-        T ConfigureComponent<T>(ComponentCallModelEnum callModel);
+        /// <param name="callModel"></param>
+        /// <returns></returns>
+        IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel);
     }
 }

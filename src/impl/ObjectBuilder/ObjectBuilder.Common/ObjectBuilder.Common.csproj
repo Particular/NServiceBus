@@ -55,9 +55,11 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CommonObjectBuilder.cs" />
-    <Compile Include="IBuilderInternal.cs" />
-    <Compile Include="IContainInternalBuilder.cs" />
+    <Compile Include="ComponentConfig.cs" />
+    <Compile Include="IContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reflect.cs" />
+    <Compile Include="SynchronizedInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

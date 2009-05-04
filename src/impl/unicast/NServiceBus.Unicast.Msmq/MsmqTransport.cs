@@ -29,24 +29,24 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Only specify the name of the queue - msmq specific address not required.
 		/// When using MSMQ v3, only local queues are supported.
 		/// </summary>
-        public virtual string InputQueue { get; set; }
+        public string InputQueue { get; set; }
 
 		/// <summary>
 		/// Sets the path to the queue the transport will transfer
 		/// errors to.
 		/// </summary>
-        public virtual string ErrorQueue { get; set; }
+        public string ErrorQueue { get; set; }
 
 		/// <summary>
 		/// Sets whether or not the transport is transactional.
 		/// </summary>
-        public virtual bool IsTransactional { get; set; }
+        public bool IsTransactional { get; set; }
 
 		/// <summary>
 		/// Sets whether or not the transport should deserialize
 		/// the body of the message placed on the queue.
 		/// </summary>
-        public virtual bool SkipDeserialization { get; set; }
+        public bool SkipDeserialization { get; set; }
 
         private bool purgeOnStartup = false;
 
@@ -54,8 +54,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// Sets whether or not the transport should purge the input
 		/// queue when it is started.
 		/// </summary>
-        public virtual bool PurgeOnStartup
+        public bool PurgeOnStartup
         {
+            get { return purgeOnStartup; }
             set
             {
                 purgeOnStartup = value;
@@ -75,7 +76,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <remarks>
         /// Default value is 5.
         /// </remarks>
-        public virtual int MaxRetries
+        public int MaxRetries
 	    {
             get { return maxRetries; }
 	        set { maxRetries = value; }
@@ -89,7 +90,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// 
         /// Default value is 10.
         /// </summary>
-        public virtual int SecondsToWaitForMessage
+        public int SecondsToWaitForMessage
         {
             get { return secondsToWaitForMessage; }
             set { secondsToWaitForMessage = value; }
@@ -99,34 +100,29 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Property for getting/setting the period of time when the transaction times out.
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
-        public virtual TimeSpan TransactionTimeout { get; set; }
+        public TimeSpan TransactionTimeout { get; set; }
 
         /// <summary>
         /// Property for getting/setting the isolation level of the transaction scope.
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
-        public virtual IsolationLevel IsolationLevel { get; set; }
+        public IsolationLevel IsolationLevel { get; set; }
 
         /// <summary>
         /// Property indicating that queues will not be created on startup
         /// if they do not already exist.
         /// </summary>
-        public virtual bool DoNotCreateQueues { get; set; }
-
-	    private IMessageSerializer messageSerializer;
+        public bool DoNotCreateQueues { get; set; }
 
         /// <summary>
         /// Sets the object which will be used to serialize and deserialize messages.
         /// </summary>
-        public virtual IMessageSerializer MessageSerializer
-	    {
-            set { this.messageSerializer = value; }
-	    }
+        public IMessageSerializer MessageSerializer { private get; set; }
 
         /// <summary>
         /// Gets/sets the builder that will be used to create message modules.
         /// </summary>
-        public virtual IBuilder Builder { get; set; }
+        public IBuilder Builder { get; set; }
 
         #endregion
 
@@ -190,7 +186,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public virtual IList<Type> MessageTypesToBeReceived
         {
-            set { this.messageSerializer.Initialize(GetExtraTypes(value)); }
+            set { this.MessageSerializer.Initialize(GetExtraTypes(value)); }
         }
 
         /// <summary>
@@ -343,7 +339,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (m.Body == null && m.BodyStream != null)
                     toSend.BodyStream = m.BodyStream;
                 else
-                    this.messageSerializer.Serialize(m.Body, toSend.BodyStream);
+                    this.MessageSerializer.Serialize(m.Body, toSend.BodyStream);
 
                 if (m.CorrelationId != null)
                     toSend.CorrelationId = m.CorrelationId;
@@ -759,7 +755,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <returns>An array of handleable messages.</returns>
         private IMessage[] Extract(Message message)
         {
-            return this.messageSerializer.Deserialize(message.BodyStream);
+            return this.MessageSerializer.Deserialize(message.BodyStream);
         }
 
 		/// <summary>

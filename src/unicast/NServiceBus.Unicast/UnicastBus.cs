@@ -29,8 +29,9 @@ namespace NServiceBus.Unicast
         /// handlers and that are owned by a different endpoint.
         /// Default is true.
         /// </summary>
-	    public virtual bool AutoSubscribe
+	    public bool AutoSubscribe
 	    {
+            get { return autoSubscribe; }
             set { autoSubscribe = value; }
 	    }
 
@@ -118,20 +119,13 @@ namespace NServiceBus.Unicast
             }
 	    }
 
-        private bool propogateReturnAddressOnSend = false;
-
 		/// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets whether or not the return address of a received message 
 		/// should be propogated when the message is forwarded. This field is
 		/// used primarily for the Distributor.
 		/// </summary>
-        public virtual bool PropogateReturnAddressOnSend
-        {
-            set { propogateReturnAddressOnSend = value; }
-        }
-
-        private bool impersonateSender;
+        public bool PropogateReturnAddressOnSend { get; set; }
 
 		/// <summary>
         /// Should be used by programmer, not administrator.
@@ -141,24 +135,14 @@ namespace NServiceBus.Unicast
         /// to the value found in the <see cref="TransportMessage.WindowsIdentityName" />
         /// when that thread handles a message.
 		/// </summary>
-        public virtual bool ImpersonateSender
-        {
-            set { impersonateSender = value; }
-        }
-
-        private string distributorDataAddress;
+        public virtual bool ImpersonateSender { get; set; }
 
 		/// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the address to which the messages received on this bus
 		/// will be sent when the method HandleCurrentMessageLater is called.
 		/// </summary>
-        public virtual string DistributorDataAddress
-        {
-            set { distributorDataAddress = value; }
-        }        
-        
-        private string distributorControlAddress;
+        public string DistributorDataAddress { get; set; }        
 
         /// <summary>
         /// Should be used by administrator, not programmer.
@@ -168,10 +152,7 @@ namespace NServiceBus.Unicast
         /// Notifies the given distributor
         /// when a thread is now available to handle a new message.
         /// </remarks>
-        public virtual string DistributorControlAddress
-        {
-            set { distributorControlAddress = value; }
-        }
+        public string DistributorControlAddress { get; set; }
 
         /// <summary>
         /// Should be used by administrator, not programmer.
@@ -182,7 +163,7 @@ namespace NServiceBus.Unicast
         /// device. The server software will have this field set to the address
         /// of the real server.
         /// </summary>
-        public virtual string ForwardReceivedMessagesTo { private get; set; }
+        public string ForwardReceivedMessagesTo { get; set; }
 
 		/// <summary>
 		/// Should be used by administrator, not programmer.
@@ -195,13 +176,16 @@ namespace NServiceBus.Unicast
 		/// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
 		/// will be registered against the address defined in the value of the entry.
 		/// </remarks>
-        public virtual IDictionary MessageOwners
+        public IDictionary MessageOwners
         {
+            get { return messageOwners; }
             set
             {
+                messageOwners = value;
                 ConfigureMessageOwners(value);
             }
         }
+        private IDictionary messageOwners;
 
         /// <summary>
         /// Sets the list of assemblies which contain a message handlers
@@ -223,14 +207,18 @@ namespace NServiceBus.Unicast
         /// Sets the types that will be scanned for message handlers.
         /// Those found will be invoked in the same order as given.
         /// </summary>
-        public virtual IEnumerable<Type> MessageHandlerTypes
+        public IEnumerable<Type> MessageHandlerTypes
         {
+            get { return messageHandlerTypes; }
             set
             {
+                messageHandlerTypes = value;
+
                 foreach(Type t in value)
                     If_Type_Is_MessageHandler_Then_Load(t);
             }
         }
+        private IEnumerable<Type> messageHandlerTypes;
 
         #endregion
 
@@ -439,8 +427,8 @@ namespace NServiceBus.Unicast
             if (HandleCurrentMessageLaterWasCalled)
                 return;
 
-            if (this.distributorDataAddress != null)
-                this.transport.Send(messageBeingHandled, this.distributorDataAddress);
+            if (this.DistributorDataAddress != null)
+                this.transport.Send(messageBeingHandled, this.DistributorDataAddress);
             else
                 this.transport.ReceiveMessageLater(messageBeingHandled);
 
@@ -466,11 +454,11 @@ namespace NServiceBus.Unicast
         public void SendLocal(params IMessage[] messages)
         {
             //if we're a worker, send to the distributor data bus
-            if (this.distributorDataAddress != null)
+            if (this.DistributorDataAddress != null)
             {
-                TransportMessage m = this.GetTransportMessageFor(this.distributorDataAddress, messages);
+                TransportMessage m = this.GetTransportMessageFor(this.DistributorDataAddress, messages);
 
-                this.transport.Send(m, this.distributorDataAddress);
+                this.transport.Send(m, this.DistributorDataAddress);
             }
             else
             {
@@ -613,7 +601,7 @@ namespace NServiceBus.Unicast
         /// <param name="startup"></param>
         private void SendReadyMessage(bool startup)
         {
-            if (this.distributorControlAddress == null)
+            if (this.DistributorControlAddress == null)
                 return;
 
             if (!this.canSendReadyMessages)
@@ -638,12 +626,12 @@ namespace NServiceBus.Unicast
             }
 
 
-            TransportMessage toSend = this.GetTransportMessageFor(this.distributorControlAddress, messages);
+            TransportMessage toSend = this.GetTransportMessageFor(this.DistributorControlAddress, messages);
             toSend.ReturnAddress = this.transport.Address;
 
-            this.transport.Send(toSend, this.distributorControlAddress);
+            this.transport.Send(toSend, this.DistributorControlAddress);
 
-            log.Debug("Sending ReadyMessage to " + this.distributorControlAddress);
+            log.Debug("Sending ReadyMessage to " + this.DistributorControlAddress);
         }
 
         /// <summary>
@@ -699,7 +687,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
 		public void HandleMessage(TransportMessage m)
         {
-            if (this.impersonateSender)
+            if (this.ImpersonateSender)
                 Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]);
             else
                 Thread.CurrentPrincipal = null;
@@ -1033,7 +1021,7 @@ namespace NServiceBus.Unicast
 
             result.WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name;
 
-            if (this.propogateReturnAddressOnSend)
+            if (this.PropogateReturnAddressOnSend)
                 result.ReturnAddress = this.transport.Address;
 
 		    result.Headers = HeaderAdapter.From(outgoingHeaders);
@@ -1062,12 +1050,12 @@ namespace NServiceBus.Unicast
             string result = this.transport.Address;
 
             // if we're a worker
-            if (this.distributorDataAddress != null)
+            if (this.DistributorDataAddress != null)
             {
-                result = this.distributorDataAddress;
+                result = this.DistributorDataAddress;
 
                 //if we're sending a message to the control bus, then use our own address
-                if (destination == this.distributorControlAddress)
+                if (destination == this.DistributorControlAddress)
                     result = this.transport.Address;
             }
 

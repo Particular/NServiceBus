@@ -34,33 +34,33 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         /// <summary>
         /// The database table which will store the subscription data.
         /// </summary>
-        public virtual string Table { get; set; }
+        public string Table { get; set; }
 
         /// <summary>
         /// The name of the column that will hold the message type.
         /// </summary>
-        public virtual string MessageTypeColumnName { get; set; }
+        public string MessageTypeColumnName { get; set; }
 
         /// <summary>
         /// The name of the column that will hold the subscriber address.
         /// </summary>
-        public virtual string SubscriberColumnName { get; set; }
+        public string SubscriberColumnName { get; set; }
 
         /// <summary>
         /// The isolation level to perform transactions with.
         /// Default value is ReadCommitted.
         /// </summary>
-        public virtual IsolationLevel IsolationLevel { get; set; }
+        public IsolationLevel IsolationLevel { get; set; }
 
         /// <summary>
         /// The name of the database provider.
         /// </summary>
-        public virtual string ProviderInvariantName { get; set; }
+        public string ProviderInvariantName { get; set; }
 
         /// <summary>
         /// The connection string to the database.
         /// </summary>
-        public virtual string ConnectionString { get; set; }
+        public string ConnectionString { get; set; }
 
         #endregion
 

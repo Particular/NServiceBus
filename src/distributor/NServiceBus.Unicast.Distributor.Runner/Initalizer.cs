@@ -34,7 +34,7 @@ namespace NServiceBus.Unicast.Distributor.Runner
                     dataTransport.SkipDeserialization = true;
 
                     cfg.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton)
-                        .StorageQueue = System.Configuration.ConfigurationManager.AppSettings["StorageQueue"];
+                        .ConfigureProperty(x => x.StorageQueue, System.Configuration.ConfigurationManager.AppSettings["StorageQueue"]);
 
                     cfg.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
                 }

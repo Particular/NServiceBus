@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Common.Config;
 using NServiceBus.ObjectBuilder;

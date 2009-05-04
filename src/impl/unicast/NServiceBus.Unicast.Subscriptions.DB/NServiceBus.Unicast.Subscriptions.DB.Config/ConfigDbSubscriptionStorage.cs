@@ -27,18 +27,18 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
             this.Builder = config.Builder;
             this.Configurer = config.Configurer;
 
-            this.storage = this.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
+            storageConfig = Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 
             DbSubscriptionStorageConfig cfg = ConfigurationManager.GetSection("DbSubscriptionStorageConfig") as DbSubscriptionStorageConfig;
 
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for DB Subscription Storage.");
 
-            this.storage.ConnectionString = cfg.ConnectionString;
-            this.storage.ProviderInvariantName = cfg.ProviderInvariantName;
+            storageConfig.ConfigureProperty(s => s.ConnectionString, cfg.ConnectionString);
+            storageConfig.ConfigureProperty(s => s.ProviderInvariantName, cfg.ProviderInvariantName);
         }
 
-        private SubscriptionStorage storage;
+        private IComponentConfig<SubscriptionStorage> storageConfig;
 
         /// <summary>
         /// Sets the table in the database in which subscriptions will be stored.
@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// <returns></returns>
         public ConfigDbSubscriptionStorage Table(string value)
         {
-            this.storage.Table = value;
+            storageConfig.ConfigureProperty(s => s.Table, value);
             return this;
         }
 
@@ -58,7 +58,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// <returns></returns>
         public ConfigDbSubscriptionStorage MessageTypeColumnName(string value)
         {
-            this.storage.MessageTypeColumnName = value;
+            storageConfig.ConfigureProperty(s => s.MessageTypeColumnName, value);
             return this;
         }
 
@@ -69,7 +69,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// <returns></returns>
         public ConfigDbSubscriptionStorage SubscriberEndpointColumnName(string value)
         {
-            this.storage.SubscriberColumnName = value;
+            storageConfig.ConfigureProperty(s => s.SubscriberColumnName, value);
             return this;
         }
 
@@ -83,7 +83,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
         /// <returns></returns>
         public ConfigDbSubscriptionStorage IsolationLevel(IsolationLevel value)
         {
-            this.storage.IsolationLevel = value;
+            storageConfig.ConfigureProperty(s => s.IsolationLevel, value);
             return this;
         }
     }

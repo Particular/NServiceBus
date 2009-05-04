@@ -35,7 +35,7 @@ namespace NServiceBus
         {
             config.Configurer.ConfigureComponent<NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
             config.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                .Namespace = nameSpace;
+                .ConfigureProperty(x => x.Namespace, nameSpace);
 
             return config;
         }
