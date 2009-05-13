@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--EXTERNAL_PROPERTIES: usdDatabaseVersion-->
+<!--EXTERNAL_PROPERTIES: CCNetLabel-->
+<project name="NServiceBus" default="build" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
+	<property name="solution.dir" value="src"/>
+	<property name="solution.file" value="./AllProjects.sln"/>
+	<property name="trunk.dir" value="."/>
+	<property name="company.name" value="NServiceBus"/>
+	<property name="bin.dir" value="bin" />
+	<property name="lib.dir" value="external-bin" />
+	<property name="build.base" value="build"/>
+	<property name="results.dir" value="${build.base}\results" />
+  <property name="samples.dir" value="src\samples"/>
+  <property name="svn.executable" value="bin/subversion/svn.exe" dynamic="true" if="${not property::exists('svn.executable')}" />
+  <property name="svnargs" value=" --non-interactive " />
+  <property name="revisionnumber" value="9999" dynamic="true"/>
+  <property name="project.fullversion" value="1.0.${revisionnumber}.0" dynamic="true"/>
+  <property name="version.major" value="1"/>
+	<property name="version.minor" value="9"/>
+	<property name="version.build" value="3"/>
+	<property name="version.revision" value="0"/>
+	<property name="project.fullversion" value="${version.major}.${version.minor}.${version.build}.${version.revision}" dynamic="true" />
+	<property name="nant.settings.currentframework" value="net-3.5" />
+	<property name="release.dir" value="${trunk.dir}\release"/>
+	<property name="output.dir" value="${build.base}\output"/>
+	<property name="artifacts.dir" value="artifacts"/>
+	
+
+	<!-- default configuration -->
+	<property name="project.config" value="release" />
+	<!-- debug|release -->
+	<property name="build.dir" value="${build.base}/${nant.settings.currentframework}.${platform::get-name()}-${project::get-name()}-${project.config}/"/>
+
+	<target name="build" depends="clean, version, init, commonassemblyinfo, compile_src,merge_src"/>
+
+	<target name="init" description="Initializes build properties">
+		<tstamp>
+			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
+		</tstamp>
+		<delete dir="${build.base}"/>
+		<mkdir dir="${build.dir}" />
+		<echo message="Current Directory: ${project::get-base-directory()}"/>
+	</target>
+
+	<target name="clean" description="delete build artifacts">
+		<delete dir="${build.dir}" failonerror="false" />
+	</target>
+
+	<target name="version" description="mark AssemblyInfo builds with the build number">
+
+		<if test="${property::exists('build.number')}">
+			<property name="version.revision" value="${build.number}" />
+		</if>
+
+	</target>
+
+	<target name="commonassemblyinfo" depends="version, init">
+		<echo message="MARKING THIS BUILD AS VERSION ${project.fullversion}" />
+		<delete file="${solution.dir}/CommonAssemblyInfo.cs" failonerror="false"/>
+		<asminfo output="${solution.dir}/CommonAssemblyInfo.cs" language="CSharp">
+			<imports>
+				<import namespace="System" />
+				<import namespace="System.Reflection" />
+				<import namespace="System.Runtime.InteropServices" />
+			</imports>
+			<attributes>
+				<attribute type="AssemblyVersionAttribute" value="${project.fullversion}" />
+				<attribute type="AssemblyFileVersionAttribute" value="${project.fullversion}" />
+				<attribute type="AssemblyCopyrightAttribute" value="Copyright Â© ${company.name} 2007-${datetime::get-year(datetime::now())}" />
+				<attribute type="AssemblyProductAttribute" value="${project::get-name()}" />
+				<attribute type="AssemblyCompanyAttribute" value="${company.name}" />
+				<attribute type="AssemblyConfigurationAttribute" value="${project.config}" />
+				<attribute type="AssemblyInformationalVersionAttribute" value="${project.fullversion}" />
+			</attributes>
+			<references>
+				<include name="System.dll" />
+			</references>
+		</asminfo>
+	</target>
+
+	<target name="compile_src" depends="init">
+	
+		<foreach 	item="String" 
+					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid" 
+					delim="," 
+					property="pathToBuild">
+			<echo message="${pathToBuild}" />
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+					workingdir="${solution.dir}\${pathToBuild}" />
+		</foreach>
+
+	</target>
+
+	<target name="merge_src">
+	
+		<delete dir="${build.base}/merge/" failonerror="false"></delete>
+		<delete dir="${output.dir}" failonerror="false"></delete>
+		<mkdir dir="${build.base}/merge/" />
+		  <mkdir dir="${output.dir}" />
+		<copy todir="${build.base}/merge">
+			<fileset basedir="${build.base}">
+				<include name="*.*" />
+			</fileset>
+			
+		</copy>
+		
+		<copy todir="${build.base}/merge">
+			
+			<fileset basedir="${lib.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<exec 	program="${lib.dir}\ilmerge.exe" 
+				commandline="/target:library /xmldocs /log:build\output.txt /out:${output.dir}\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Castle.Core.dll build\merge\Castle.DynamicProxy2.dll build\merge\Castle.MicroKernel.dll build\merge\Castle.Windsor.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\Spring.Core.dll build\merge\Spring.Aop.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+				workingdir="." />
+		
+		<mkdir dir="${output.dir}\coreonly" />
+		
+		<exec 	program="${lib.dir}\ilmerge.exe" 
+				commandline="/target:library /xmldocs /log:build\output_coreonly.txt /out:${output.dir}\coreonly\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+				workingdir="." />
+	</target>
+	
+	<target name="compile_testing" depends="merge_src">
+	
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+					workingdir="${solution.dir}\testing" />
+
+	</target>
+
+  <target name="package">   
+    <delete dir="${release.dir}" failonerror="false"></delete>
+    <mkdir dir="${release.dir}" />
+	
+	<copy todir="${release.dir}">
+			<fileset basedir="${output.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+	<mkdir dir="${release.dir}\coreonly" />
+    
+	<copy todir="${release.dir}\coreonly">
+			<fileset basedir="${output.dir}\coreonly">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		
+		    <mkdir dir="${release.dir}\coreonly\castle" />
+	<copy todir="${release.dir}\coreonly\castle">
+			<fileset basedir="${lib.dir}">
+				<include name="Castle*.*" />
+			</fileset>
+		</copy>
+    <mkdir dir="${release.dir}\coreonly\spring" />
+<copy todir="${release.dir}\coreonly\spring">
+			<fileset basedir="${lib.dir}">
+				<include name="Spring*.*" />
+			</fileset>
+		</copy>
+    <mkdir dir="${release.dir}\testing" />
+	<mkdir dir="${release.dir}\tools" />
+	
+	<delete dir="${artifacts.dir}" failonerror="false"></delete>
+    <mkdir dir="${artifacts.dir}" />
+	
+	<zip zipfile="${artifacts.dir}\NServiceBus.Trunk.${project.fullversion}.zip" includeemptydirs="false" >
+			<fileset basedir="${release.dir}">
+				<include name="**"/>
+			</fileset>
+
+		</zip>
+	</target>
+</project>
