@@ -70,6 +70,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\XsdGenerator\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\XsdGenerator\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
