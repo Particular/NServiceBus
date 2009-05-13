@@ -9,29 +9,23 @@
 	<property name="bin.dir" value="bin" />
 	<property name="lib.dir" value="external-bin" />
 	<property name="build.base" value="build"/>
-	<property name="results.dir" value="${build.base}\results" />
-  <property name="samples.dir" value="src\samples"/>
-  <property name="svn.executable" value="bin/subversion/svn.exe" dynamic="true" if="${not property::exists('svn.executable')}" />
-  <property name="svnargs" value=" --non-interactive " />
-  <property name="revisionnumber" value="9999" dynamic="true"/>
-  <property name="project.fullversion" value="1.0.${revisionnumber}.0" dynamic="true"/>
-  <property name="version.major" value="1"/>
-	<property name="version.minor" value="9"/>
-	<property name="version.build" value="3"/>
-	<property name="version.revision" value="0"/>
-	<property name="project.fullversion" value="${version.major}.${version.minor}.${version.build}.${version.revision}" dynamic="true" />
+	<property name="project.fullversion" value="1.9.3.0" dynamic="true" />
 	<property name="nant.settings.currentframework" value="net-3.5" />
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
-	
+  
+	<if test="${property::exists('build.number')}">
+		<property name="project.fullversion" value="${build.number}" />
+	</if>
+
 
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 	<!-- debug|release -->
 	<property name="build.dir" value="${build.base}/${nant.settings.currentframework}.${platform::get-name()}-${project::get-name()}-${project.config}/"/>
 
-	<target name="build" depends="clean, version, init, commonassemblyinfo, compile_src,merge_src"/>
+	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src"/>
 
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -46,15 +40,7 @@
 		<delete dir="${build.dir}" failonerror="false" />
 	</target>
 
-	<target name="version" description="mark AssemblyInfo builds with the build number">
-
-		<if test="${property::exists('build.number')}">
-			<property name="version.revision" value="${build.number}" />
-		</if>
-
-	</target>
-
-	<target name="commonassemblyinfo" depends="version, init">
+	<target name="commonassemblyinfo" depends="init">
 		<echo message="MARKING THIS BUILD AS VERSION ${project.fullversion}" />
 		<delete file="${solution.dir}/CommonAssemblyInfo.cs" failonerror="false"/>
 		<asminfo output="${solution.dir}/CommonAssemblyInfo.cs" language="CSharp">
@@ -128,7 +114,7 @@
 
 	</target>
 
-  <target name="package">   
+  <target name="package" depends="build">   
     <delete dir="${release.dir}" failonerror="false"></delete>
     <mkdir dir="${release.dir}" />
 	
