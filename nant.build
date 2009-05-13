@@ -25,7 +25,7 @@
 	<!-- debug|release -->
 	<property name="build.dir" value="${build.base}/${nant.settings.currentframework}.${platform::get-name()}-${project::get-name()}-${project.config}/"/>
 
-	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src"/>
+	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_tools"/>
 
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -107,10 +107,24 @@
 				workingdir="." />
 	</target>
 	
-	<target name="compile_testing" depends="merge_src">
+	<target name="compile_tools" depends="merge_src">
 	
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
 					workingdir="${solution.dir}\testing" />
+				
+			<mkdir dir="${output.dir}\testing" />				
+			<exec 	program="${lib.dir}\ilmerge.exe" 
+				commandline="/target:library /xmldocs /out:${output.dir}\testing\NServiceBus.Testing.dll build\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
+				workingdir="." />
+				
+		<foreach 	item="String" 
+					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout" 
+					delim="," 
+					property="pathToBuild">
+			<echo message="${pathToBuild}" />
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+					workingdir="${solution.dir}\${pathToBuild}" />
+		</foreach>
 
 	</target>
 
@@ -120,18 +134,11 @@
 	
 	<copy todir="${release.dir}">
 			<fileset basedir="${output.dir}">
-				<include name="*.*" />
-			</fileset>
-		</copy>
-	<mkdir dir="${release.dir}\coreonly" />
-    
-	<copy todir="${release.dir}\coreonly">
-			<fileset basedir="${output.dir}\coreonly">
-				<include name="*.*" />
+				<include name="**" />
 			</fileset>
 		</copy>
 		
-		    <mkdir dir="${release.dir}\coreonly\castle" />
+<mkdir dir="${release.dir}\coreonly\castle" />
 	<copy todir="${release.dir}\coreonly\castle">
 			<fileset basedir="${lib.dir}">
 				<include name="Castle*.*" />
@@ -143,8 +150,13 @@
 				<include name="Spring*.*" />
 			</fileset>
 		</copy>
-    <mkdir dir="${release.dir}\testing" />
-	<mkdir dir="${release.dir}\tools" />
+
+		<mkdir dir="${release.dir}\tools" />
+	<copy todir="${release.dir}\tools">
+			<fileset basedir="${build.base}\tools">
+				<include name="**" />
+			</fileset>
+		</copy>
 	
 	<delete dir="${artifacts.dir}" failonerror="false"></delete>
     <mkdir dir="${artifacts.dir}" />

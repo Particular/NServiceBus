@@ -60,6 +60,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\..\build\tools\ReturnToSourceQueue"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\..\build\tools\ReturnToSourceQueue\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
