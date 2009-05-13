@@ -44,14 +44,14 @@ namespace OrderService.Tests
         public void OrderSagaTest()
         {
             Saga.WhenReceivesMessageFrom(partnerAddress)
-                .ExpectSendToDestination<OrderStatusChangedMessage>(
-                    (dest, m) => (dest == partnerAddress && Check(m, OrderStatusEnum.Recieved)))
+                .ExpectReplyToOrginator<OrderStatusChangedMessage>(
+                    (m) => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(m => Check(m))
                 .When(() => orderSaga.Handle(CreateRequest()));
 
-            Saga.ExpectSendToDestination<OrderStatusChangedMessage>(
-                    (dest, m) => (dest == partnerAddress && Check(m, OrderStatusEnum.Accepted)))
+            Saga.ExpectReplyToOrginator<OrderStatusChangedMessage>(
+                    (m) => (Check(m, OrderStatusEnum.Accepted)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Accepted))
             .When(() => orderSaga.Handle(CreateResponse()));
         }
@@ -62,15 +62,15 @@ namespace OrderService.Tests
             object state = null;
 
             Saga.WhenReceivesMessageFrom(partnerAddress)
-                .ExpectSendToDestination<OrderStatusChangedMessage>(
-                    (dest, m) => (dest == partnerAddress && Check(m, OrderStatusEnum.Recieved)))
+                .ExpectReplyToOrginator<OrderStatusChangedMessage>(
+                    (m) => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(m => Check(m))
                 .ExpectSend<TimeoutMessage>(m => { state = m.State; return m.SagaId == orderSaga.Entity.Id; })
                 .When(() => orderSaga.Handle(CreateRequest()));
 
-            Saga.ExpectSendToDestination<OrderStatusChangedMessage>(
-                    (dest, m) => (dest == partnerAddress && Check(m, OrderStatusEnum.Accepted)))
+            Saga.ExpectReplyToOrginator<OrderStatusChangedMessage>(
+                    (m) => (Check(m, OrderStatusEnum.Accepted)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => BasicCheck(m, OrderStatusEnum.Accepted))
             .When(() => orderSaga.Timeout(state));
 

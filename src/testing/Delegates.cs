@@ -35,6 +35,8 @@ namespace NServiceBus.Testing
 
     internal delegate bool BusPublishDelegate<T>(T[] msgs) where T : IMessage;
 
+    internal delegate bool BusSendWithDestinationAndCorrelationIdDelegate(string destination, string correlationId, IMessage[] msgs);
+
     internal delegate bool BusSendWithDestinationDelegate(string destination, IMessage[] msgs);
 
     internal delegate bool BusSendDelegate(IMessage[] msgs);

@@ -285,6 +285,34 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the saga replies to the originator with the given message type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Saga ExpectReplyToOrginator<T>(SendPredicate<T> check) where T : IMessage
+        {
+            Delegate d = new HandleMessageDelegate(
+                delegate
+                {
+                    ExpectCallToSend(
+                        delegate(string destination, string correlationId, IMessage[] msgs)
+                        {
+                            foreach (T msg in msgs)
+                                if (!check(msg))
+                                    return false;
+
+                            return true;
+                        }
+                        );
+                }
+            );
+
+            this.delegates.Add(d);
+            return this;
+        }
+
+        /// <summary>
         /// Check that the saga publishes a message of the given type complying with the given predicate.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -380,6 +408,17 @@ namespace NServiceBus.Testing
 
             Expect.Call(delegate { bus.Send(destination, messages); })
                 .IgnoreArguments().Return(null)
+                .Callback(callback);
+        }
+
+        private void ExpectCallToSend(BusSendWithDestinationAndCorrelationIdDelegate callback)
+        {
+            IMessage[] messages = null;
+            string destination = null;
+            string correlationId = null;
+
+            Expect.Call(delegate { bus.Send(destination, correlationId, messages); })
+                .IgnoreArguments()
                 .Callback(callback);
         }
 
