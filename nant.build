@@ -155,6 +155,9 @@
 	<copy todir="${release.dir}\tools">
 			<fileset basedir="${build.base}\tools">
 				<include name="**" />
+				<exclude name="**/NServiceBus.dll"/>
+				<exclude name="**/NServiceBus.txt"/>
+				<exclude name="**/NServiceBus.pdb"/>
 			</fileset>
 		</copy>
 	
