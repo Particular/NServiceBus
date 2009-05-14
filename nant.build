@@ -25,7 +25,7 @@
 	<!-- debug|release -->
 	<property name="build.dir" value="${build.base}/${nant.settings.currentframework}.${platform::get-name()}-${project::get-name()}-${project.config}/"/>
 
-	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_tools"/>
+	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_tools,compile_samples"/>
 
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -67,7 +67,7 @@
 	<target name="compile_src" depends="init">
 	
 		<foreach 	item="String" 
-					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid" 
+					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid" 
 					delim="," 
 					property="pathToBuild">
 			<echo message="${pathToBuild}" />
@@ -107,14 +107,14 @@
 				workingdir="." />
 	</target>
 	
-	<target name="compile_tools" depends="merge_src">
+	<target name="compile_tools">
 	
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
 					workingdir="${solution.dir}\testing" />
 				
 			<mkdir dir="${output.dir}\testing" />				
 			<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /out:${output.dir}\testing\NServiceBus.Testing.dll build\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
+				commandline="/target:library /xmldocs /log:build\output_testing.txt /out:${output.dir}\testing\NServiceBus.Testing.dll build\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
 				workingdir="." />
 				
 		<foreach 	item="String" 
@@ -124,6 +124,18 @@
 			<echo message="${pathToBuild}" />
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
 					workingdir="${solution.dir}\${pathToBuild}" />
+		</foreach>
+
+	</target>
+	
+	<target name="compile_samples">
+		<foreach 	item="String" 
+					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing" 
+					delim="," 
+					property="pathToBuild">
+			<echo message="${pathToBuild}" />
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
 
 	</target>

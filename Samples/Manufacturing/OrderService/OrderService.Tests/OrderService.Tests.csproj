@@ -40,7 +40,7 @@
     </Reference>
     <Reference Include="NServiceBus.Testing, Version=1.9.3.37478, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\output\NServiceBus.Testing.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\testing\NServiceBus.Testing.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
