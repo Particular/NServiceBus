@@ -25,11 +25,7 @@ namespace NServiceBus.Utils
         /// <param name="transactionTimeout">The timeout period of the transaction.</param>
         public void RunInTransaction(Callback callback, IsolationLevel isolationLevel, TimeSpan transactionTimeout)
         {
-            TransactionOptions options = new TransactionOptions();
-            options.IsolationLevel = isolationLevel;
-            options.Timeout = transactionTimeout;
-
-            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, options))
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = isolationLevel, Timeout = transactionTimeout }))
             {
                 callback();
 
