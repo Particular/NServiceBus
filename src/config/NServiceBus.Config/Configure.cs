@@ -105,7 +105,15 @@ namespace NServiceBus
 
         private static IEnumerable<Type> GetTypesInDirectory(string path)
         {
-            foreach (FileInfo file in new DirectoryInfo(path).GetFiles("*.*", SearchOption.AllDirectories))
+            foreach (Type t in GetTypesInDirectoryWithExtension(path, "*.exe"))
+                yield return t;
+            foreach (Type t in GetTypesInDirectoryWithExtension(path, "*.dll"))
+                yield return t;
+        }
+
+        private static IEnumerable<Type> GetTypesInDirectoryWithExtension(string path, string extension)
+        {
+            foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
                 Assembly a;
                 try { a = Assembly.LoadFrom(file.FullName); }
