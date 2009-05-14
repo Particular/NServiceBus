@@ -32,12 +32,12 @@
 			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
 		</tstamp>
 		<delete dir="${build.base}"/>
-		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.base}"/>
 		<echo message="Current Directory: ${project::get-base-directory()}"/>
 	</target>
 
 	<target name="clean" description="delete build artifacts">
-		<delete dir="${build.dir}" failonerror="false" />
+		<delete dir="${build.base}" failonerror="false" />
 	</target>
 
 	<target name="commonassemblyinfo" depends="init">
@@ -70,7 +70,6 @@
 					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid" 
 					delim="," 
 					property="pathToBuild">
-			<echo message="${pathToBuild}" />
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
@@ -97,13 +96,13 @@
 			</fileset>
 		</copy>
 		<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output.txt /out:${output.dir}\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Castle.Core.dll build\merge\Castle.DynamicProxy2.dll build\merge\Castle.MicroKernel.dll build\merge\Castle.Windsor.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\Spring.Core.dll build\merge\Spring.Aop.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+				commandline="/target:library /xmldocs /log:build\output.txt /out:${output.dir}\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\StructureMap.dll build\merge\Castle.Core.dll build\merge\Castle.DynamicProxy2.dll build\merge\Castle.MicroKernel.dll build\merge\Castle.Windsor.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\Spring.Core.dll build\merge\Spring.Aop.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.StructureMap.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
 				workingdir="." />
 		
 		<mkdir dir="${output.dir}\coreonly" />
 		
 		<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output_coreonly.txt /out:${output.dir}\coreonly\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+				commandline="/target:library /xmldocs /log:build\output_coreonly.txt /out:${output.dir}\coreonly\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.StructureMap.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
 				workingdir="." />
 	</target>
 	
@@ -149,6 +148,12 @@
 				<include name="**" />
 			</fileset>
 		</copy>
+	<copy todir="${release.dir}">
+			<fileset basedir="${trunk.dir}">
+				<include name="*.txt" />
+				<include name="*.vbs" />
+			</fileset>
+		</copy>
 		
 <mkdir dir="${release.dir}\coreonly\castle" />
 	<copy todir="${release.dir}\coreonly\castle">
@@ -160,6 +165,13 @@
 <copy todir="${release.dir}\coreonly\spring">
 			<fileset basedir="${lib.dir}">
 				<include name="Spring*.*" />
+			</fileset>
+		</copy>
+		
+		 <mkdir dir="${release.dir}\coreonly\structuremap" />
+<copy todir="${release.dir}\coreonly\structuremap">
+			<fileset basedir="${lib.dir}">
+				<include name="StructureMap*.*" />
 			</fileset>
 		</copy>
 
