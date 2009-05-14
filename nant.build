@@ -1,6 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--EXTERNAL_PROPERTIES: usdDatabaseVersion-->
-<!--EXTERNAL_PROPERTIES: CCNetLabel-->
 <project name="NServiceBus" default="build" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
 	<property name="solution.dir" value="src"/>
 	<property name="solution.file" value="./AllProjects.sln"/>
@@ -22,9 +20,7 @@
 
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
-	<!-- debug|release -->
-	<property name="build.dir" value="${build.base}/${nant.settings.currentframework}.${platform::get-name()}-${project::get-name()}-${project.config}/"/>
-
+	
 	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_tools,compile_samples"/>
 
 	<target name="init" description="Initializes build properties">
