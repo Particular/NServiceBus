@@ -35,9 +35,9 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// </summary>
         /// <param name="sagaId">The saga id to use in the lookup.</param>
         /// <returns>The saga entity if found, otherwise null.</returns>
-        public ISagaEntity Get(Guid sagaId)
+        public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            return SessionFactory.GetCurrentSession().Get<ISagaEntity>(sagaId);
+            return SessionFactory.GetCurrentSession().Get<T>(sagaId);
         }
 
         /// <summary>

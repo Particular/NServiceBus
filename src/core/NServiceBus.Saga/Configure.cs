@@ -29,12 +29,7 @@ namespace NServiceBus.Saga
         {
             builderStatic = builder;
 
-            Configure c = new Configure();
-            c.configurer = configurer;
-
-            configurer.ConfigureComponent(typeof (SagaEntityFinder), ComponentCallModelEnum.Singleton);
-
-            return c;
+            return new Configure { configurer = configurer };
         }
 
         /// <summary>
@@ -72,12 +67,28 @@ namespace NServiceBus.Saga
             foreach(Type sagaType in sagaTypeToSagaEntityTypeLookup.Keys)
             {
                 Type sagaEntityType = sagaTypeToSagaEntityTypeLookup[sagaType];
-                if (sagaEntityTypesWithFinders.Contains(sagaEntityType))
-                    continue;
 
-                Type newFinderType = typeof (EmptySagaFinder<>).MakeGenericType(sagaEntityType);
-                configurer.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
-                ConfigureFinder(newFinderType);
+                foreach (Type interfaceType in sagaType.GetInterfaces())
+                {
+                    var args = interfaceType.GetGenericArguments();
+                    if (args.Length > 0)
+                        if (typeof(ISagaMessage).IsAssignableFrom(args[0]))
+                            if (typeof(IMessageHandler<>).MakeGenericType(args[0]) == interfaceType)
+                            {
+                                Type isagaMessageFinderType = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
+                                configurer.ConfigureComponent(isagaMessageFinderType, ComponentCallModelEnum.Singlecall);
+                                ConfigureFinder(isagaMessageFinderType);
+
+                                break;
+                            }
+                }
+
+                if (!sagaEntityTypesWithFinders.Contains(sagaEntityType))
+                {
+                    Type newFinderType = typeof(EmptySagaFinder<>).MakeGenericType(sagaEntityType);
+                    configurer.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
+                    ConfigureFinder(newFinderType);
+                }
             }
         }
 

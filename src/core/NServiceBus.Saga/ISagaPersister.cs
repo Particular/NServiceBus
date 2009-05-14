@@ -25,7 +25,7 @@ namespace NServiceBus.Saga
 		/// </summary>
 		/// <param name="sagaId">The Id of the saga entity to get.</param>
 		/// <returns></returns>
-        ISagaEntity Get(Guid sagaId);
+        T Get<T>(Guid sagaId) where T : ISagaEntity;
 
 		/// <summary>
         /// Sets a saga as completed and removes it from the active saga list
