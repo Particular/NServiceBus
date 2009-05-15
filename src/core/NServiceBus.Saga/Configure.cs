@@ -72,23 +72,29 @@ namespace NServiceBus.Saga
                 {
                     var args = interfaceType.GetGenericArguments();
                     if (args.Length > 0)
-                        if (typeof(ISagaMessage).IsAssignableFrom(args[0]))
+                        if (typeof(IMessage).IsAssignableFrom(args[0]))
                             if (typeof(IMessageHandler<>).MakeGenericType(args[0]) == interfaceType)
                             {
-                                Type isagaMessageFinderType = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
-                                configurer.ConfigureComponent(isagaMessageFinderType, ComponentCallModelEnum.Singlecall);
-                                ConfigureFinder(isagaMessageFinderType);
+                                if (typeof(ISagaMessage).IsAssignableFrom(args[0]))
+                                {
+                                    Type isagaMessageFinderType = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
+                                    configurer.ConfigureComponent(isagaMessageFinderType, ComponentCallModelEnum.Singlecall);
+                                    ConfigureFinder(isagaMessageFinderType);
 
-                                break;
+                                    break;
+                                }
                             }
+                            else
+                            {
+                                if (!sagaEntityTypesWithFinders.Contains(sagaEntityType))
+                                {
+                                    Type newFinderType = typeof(EmptySagaFinder<>).MakeGenericType(sagaEntityType);
+                                    configurer.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
+                                    ConfigureFinder(newFinderType);
+                                }
+                        }
                 }
 
-                if (!sagaEntityTypesWithFinders.Contains(sagaEntityType))
-                {
-                    Type newFinderType = typeof(EmptySagaFinder<>).MakeGenericType(sagaEntityType);
-                    configurer.ConfigureComponent(newFinderType, ComponentCallModelEnum.Singlecall);
-                    ConfigureFinder(newFinderType);
-                }
             }
         }
 
