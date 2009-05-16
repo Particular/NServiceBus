@@ -115,9 +115,7 @@ namespace NServiceBus
         {
             foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
-                Assembly a;
-                try { a = Assembly.LoadFrom(file.FullName); }
-                catch (Exception) { continue; } //intentionally swallow exception
+                Assembly a = Assembly.LoadFrom(file.FullName);
 
                 foreach (Type t in a.GetTypes())
                     yield return t;
