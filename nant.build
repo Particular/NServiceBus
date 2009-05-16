@@ -109,7 +109,7 @@
 				
 			<mkdir dir="${output.dir}\testing" />				
 			<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output_testing.txt /out:${output.dir}\testing\NServiceBus.Testing.dll build\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
+				commandline="/target:library /xmldocs /log:build\output_testing.txt /out:${output.dir}\testing\NServiceBus.Testing.dll build\merge\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
 				workingdir="." />
 				
 		<foreach 	item="String" 
@@ -120,7 +120,6 @@
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
-
 	</target>
 	
 	<target name="compile_samples">
