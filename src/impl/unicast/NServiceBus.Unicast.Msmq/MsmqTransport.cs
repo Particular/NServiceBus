@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.IO;
 using NServiceBus.Utils;
 using NServiceBus.ObjectBuilder;
+using System.Diagnostics;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -415,11 +416,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// If the queue is transactional the receive operation will be wrapped in a 
 		/// transaction.
 		/// </remarks>
+        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
         private void Receive()
         {
             try
             {
-                this.queue.Peek(TimeSpan.FromMilliseconds(1000));
+                this.queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
             }
             catch (MessageQueueException mqe)
             {
