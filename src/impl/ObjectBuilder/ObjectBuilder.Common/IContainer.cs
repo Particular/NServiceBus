@@ -38,5 +38,13 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="property"></param>
         /// <param name="value"></param>
         void ConfigureProperty(Type component, string property, object value);
+
+        /// <summary>
+        /// Registers the given instance as the singleton that will be returned
+        /// for the given type.
+        /// </summary>
+        /// <param name="lookupType"></param>
+        /// <param name="instance"></param>
+        void RegisterSingleton(Type lookupType, object instance);
     }
 }

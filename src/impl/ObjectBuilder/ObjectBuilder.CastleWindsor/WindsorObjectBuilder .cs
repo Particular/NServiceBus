@@ -61,6 +61,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             handler.AddCustomDependencyValue(property, value);
         }
 
+        void IContainer.RegisterSingleton(Type lookupType, object instance)
+        {
+            Container.Kernel.AddComponentInstance(Guid.NewGuid().ToString(), lookupType, instance);
+        }
+
         object IContainer.Build(Type typeToBuild)
         {
             return Container.Resolve(typeToBuild);

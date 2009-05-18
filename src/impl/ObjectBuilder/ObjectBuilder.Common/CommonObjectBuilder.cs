@@ -65,6 +65,18 @@ namespace NServiceBus.ObjectBuilder.Common
             return new ComponentConfig<T>(Container);
         }
 
+        IConfigureComponents IConfigureComponents.RegisterSingleton(Type lookupType, object instance)
+        {
+            Container.RegisterSingleton(lookupType, instance);
+            return this;
+        }
+
+        IConfigureComponents IConfigureComponents.RegisterSingleton<T>(object instance)
+        {
+            Container.RegisterSingleton(typeof(T), instance);
+            return this;
+        }
+
         #endregion
 
         #region IBuilder Members

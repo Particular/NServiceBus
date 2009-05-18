@@ -26,7 +26,7 @@ namespace OrderService.Host
 
                 var bus = NServiceBus.Configure.With()
                     .CastleWindsorBuilder(
-                        (cfg => cfg.ConfigureComponent<OrderSagaFinder>(ComponentCallModelEnum.Singlecall).ConfigureProperty(x => x.SessionFactory, sessionFactory))
+                        (cfg => cfg.RegisterSingleton<ISessionFactory>(sessionFactory))
                     )
                     .XmlSerializer()
                     .MsmqTransport()

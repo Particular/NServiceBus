@@ -6,6 +6,7 @@ using Spring.Objects.Factory.Config;
 using System.Collections;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
+using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
@@ -78,6 +79,11 @@ namespace NServiceBus.ObjectBuilder.Spring
 
                 result.ConfigureProperty(property, value);
             }
+        }
+
+        void IContainer.RegisterSingleton(Type lookupType, object instance)
+        {
+            ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
         #endregion

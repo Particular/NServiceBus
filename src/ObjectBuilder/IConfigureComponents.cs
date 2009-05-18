@@ -27,5 +27,23 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="callModel"></param>
         /// <returns></returns>
         IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel);
+
+        /// <summary>
+        /// Registers the given instance as the singleton that will be returned
+        /// for the given type.
+        /// </summary>
+        /// <param name="lookupType"></param>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        IConfigureComponents RegisterSingleton(Type lookupType, object instance);
+
+        /// <summary>
+        /// Registers the given instance as the singleton that will be returned
+        /// for the given type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        IConfigureComponents RegisterSingleton<T>(object instance);
     }
 }

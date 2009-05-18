@@ -13,7 +13,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 {
     public class StructureMapObjectBuilder : Common.IContainer
     {
-
         private readonly IContainer container;
         private readonly Dictionary<Type, ConfiguredInstance> configuredInstances = new Dictionary<Type, ConfiguredInstance>();
 
@@ -28,18 +27,18 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         }
 
 
-        public object Build(Type typeToBuild)
+        object Common.IContainer.Build(Type typeToBuild)
         {
             return container.GetInstance(typeToBuild);
         }
 
-        public IEnumerable<object> BuildAll(Type typeToBuild)
+        IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)
         {
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
 
-        public void ConfigureProperty(Type component, string property, object value)
+        void Common.IContainer.ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)
             {
@@ -66,7 +65,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             }
         }
 
-        public void Configure(Type component, ComponentCallModelEnum callModel)
+        void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             var scope = GetInstanceScopeFrom(callModel);
 
@@ -92,6 +91,11 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
             lock (configuredInstances)
                 configuredInstances.Add(component, configuredInstance);
+        }
+
+        void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
+        {
+            container.Inject(lookupType, instance);
         }
 
         private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
