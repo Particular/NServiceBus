@@ -12,7 +12,8 @@
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
-  
+	<property name="merge.dir" value="${build.base}/merge"/>
+	
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
 	</if>
@@ -20,7 +21,7 @@
 
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
-	
+
 	<target name="build" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_tools,compile_samples"/>
 
 	<target name="init" description="Initializes build properties">
@@ -36,6 +37,23 @@
 		<delete dir="${build.base}" failonerror="false" />
 	</target>
 
+	<target name="_lab" description="delete build artifacts">
+
+		<property name="assemblies_to_merge" value="" dynamic="true" />
+
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="build\NServiceBus*.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="assemblies_to_merge" value="${assemblies_to_merge} ${filename}"/>
+				<echo message="${filename}"/>
+			</do>
+		</foreach>
+		<echo message="${assemblies_to_merge}"/>
+	</target>
 	<target name="commonassemblyinfo" depends="init">
 		<echo message="MARKING THIS BUILD AS VERSION ${project.fullversion}" />
 		<delete file="${solution.dir}/CommonAssemblyInfo.cs" failonerror="false"/>
@@ -61,117 +79,168 @@
 	</target>
 
 	<target name="compile_src" depends="init">
-	
-		<foreach 	item="String" 
-					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid" 
-					delim="," 
+
+		<foreach 	item="String"
+					in="ObjectBuilder,core,utils,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid"
+					delim=","
 					property="pathToBuild">
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
 	</target>
 
 	<target name="merge_src">
-	
-		<delete dir="${build.base}/merge/" failonerror="false"></delete>
+
+		<delete dir="${merge.dir}" failonerror="false"></delete>
 		<delete dir="${output.dir}" failonerror="false"></delete>
-		<mkdir dir="${build.base}/merge/" />
-		  <mkdir dir="${output.dir}" />
-		<copy todir="${build.base}/merge">
+		<mkdir dir="${merge.dir}" />
+		<mkdir dir="${output.dir}" />
+		<copy todir="${merge.dir}">
 			<fileset basedir="${build.base}">
 				<include name="*.*" />
 			</fileset>
-			
+
 		</copy>
-		
-		<copy todir="${build.base}/merge">
-			
+
+		<copy todir="${merge.dir}">
+
 			<fileset basedir="${lib.dir}">
 				<include name="*.*" />
 			</fileset>
 		</copy>
+
+		<!-- Create list of all "core" assemblies -->
+		<property name="nservicebus.coreassemblies" value="" dynamic="true" />
+
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${merge.dir}\NServiceBus*.dll" />
+					<include name="${merge.dir}\antlr.runtime.dll" />
+					<include name="${merge.dir}\common.logging*.dll" />
+					<include name="${merge.dir}\Interop.MSMQ.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
+				<echo message="${filename}"/>
+			</do>
+		</foreach>
+
+		<!-- Create list of all "external" assemblies that NSB needs -->
+		<property name="nservicebus.externalassemblies" value="" dynamic="true" />
+
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${merge.dir}\spring*.dll" />
+					<include name="${merge.dir}\castle*.dll" />
+					<include name="${merge.dir}\structuremap*.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.externalassemblies" value="${nservicebus.externalassemblies} ${filename}"/>
+				<echo message="${filename}"/>
+			</do>
+		</foreach>
+
+
+
+		<!--
 		<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output.txt /out:${output.dir}\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\StructureMap.dll build\merge\Castle.Core.dll build\merge\Castle.DynamicProxy2.dll build\merge\Castle.MicroKernel.dll build\merge\Castle.Windsor.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\Spring.Core.dll build\merge\Spring.Aop.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.StructureMap.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+				commandline="/target:library /xmldocs /log:build\output.txt /out:${output.dir}\NServiceBus.dll 
+				build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\StructureMap.dll 
+				build\merge\Castle.Core.dll build\merge\Castle.DynamicProxy2.dll build\merge\Castle.MicroKernel.dll build\merge\Castle.Windsor.dll 
+				build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll 
+				build\merge\Spring.Core.dll build\merge\Spring.Aop.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll 
+				build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll 
+				build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll 
+				build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll 
+				build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.StructureMap.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
 				workingdir="." />
-		
+		-->
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} ${nservicebus.externalassemblies} /target:library /xmldocs /log:build\output.txt "
+				workingdir="." />
+
 		<mkdir dir="${output.dir}\coreonly" />
-		
-		<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output_coreonly.txt /out:${output.dir}\coreonly\NServiceBus.dll build\merge\NServiceBus.dll build\merge\antlr.runtime.dll build\merge\Common.Logging.dll build\merge\Common.Logging.Log4Net.dll build\merge\NServiceBus.Config.dll build\merge\Interop.MSMQ.dll build\merge\NServiceBus.Grid.MessageHandlers.dll build\merge\NServiceBus.Grid.Messages.dll build\merge\NServiceBus.MessageInterfaces.dll build\merge\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll build\merge\NServiceBus.Multicast.dll build\merge\NServiceBus.Multicast.Transport.dll build\merge\NServiceBus.ObjectBuilder.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.Config.dll build\merge\NServiceBus.ObjectBuilder.CastleWindsor.dll build\merge\NServiceBus.ObjectBuilder.StructureMap.dll build\merge\NServiceBus.ObjectBuilder.Common.Config.dll build\merge\NServiceBus.ObjectBuilder.Common.dll build\merge\NServiceBus.ObjectBuilder.Spring.Config.dll build\merge\NServiceBus.ObjectBuilder.Spring.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.Config.dll build\merge\NServiceBus.ObjectBuilder.Synchronized.dll build\merge\NServiceBus.Saga.dll build\merge\NServiceBus.Saga.Config.dll build\merge\NServiceBus.SagaPersisters.NHibernate.dll build\merge\NServiceBus.SagaPersisters.NHibernate.Config.dll build\merge\NServiceBus.Serialization.dll build\merge\NServiceBus.Serializers.Binary.dll build\merge\NServiceBus.Serializers.Binary.Config.dll build\merge\NServiceBus.Serializers.XML.dll build\merge\NServiceBus.Serializers.XML.Config.dll build\merge\NServiceBus.Unicast.Config.dll build\merge\NServiceBus.Unicast.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.dll build\merge\NServiceBus.Unicast.Subscriptions.DB.Config.dll build\merge\NServiceBus.Unicast.Subscriptions.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.dll build\merge\NServiceBus.Unicast.Subscriptions.Msmq.Config.dll build\merge\NServiceBus.Unicast.Transport.dll build\merge\NServiceBus.Unicast.Transport.Msmq.dll build\merge\NServiceBus.Unicast.Transport.Msmq.Config.dll build\merge\NServiceBus.Utils.dll" 
+
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\coreonly\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output_coreonly.txt"
 				workingdir="." />
 	</target>
-	
+
 	<target name="compile_tools">
-	
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
-					workingdir="${solution.dir}\testing" />
-				
-			<mkdir dir="${output.dir}\testing" />				
-			<exec 	program="${lib.dir}\ilmerge.exe" 
-				commandline="/target:library /xmldocs /log:build\output_testing.txt /out:${output.dir}\testing\NServiceBus.Testing.dll build\merge\NServiceBus.Testing.dll build\merge\Rhino.Mocks.dll" 
-				workingdir="." />
-				
-		<foreach 	item="String" 
-					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout" 
-					delim="," 
+
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\testing" />
+
+		<mkdir dir="${output.dir}\testing" />
+		<exec 	program="${lib.dir}\ilmerge.exe"
+			commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
+			workingdir="." />
+
+		<foreach 	item="String"
+					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout"
+					delim=","
 					property="pathToBuild">
 			<echo message="${pathToBuild}" />
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 	</target>
-	
+
 	<target name="compile_samples">
-		<foreach 	item="String" 
-					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing" 
-					delim="," 
+		<foreach 	item="String"
+					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing"
+					delim=","
 					property="pathToBuild">
 			<echo message="${pathToBuild}" />
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}" 
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
 
 	</target>
 
-  <target name="package" depends="build">   
-    <delete dir="${release.dir}" failonerror="false"></delete>
-    <mkdir dir="${release.dir}" />
-	
-	<copy todir="${release.dir}">
+	<target name="package" depends="build">
+		<delete dir="${release.dir}" failonerror="false"></delete>
+		<mkdir dir="${release.dir}" />
+
+		<copy todir="${release.dir}">
 			<fileset basedir="${output.dir}">
 				<include name="**" />
 			</fileset>
 		</copy>
-	<copy todir="${release.dir}">
+		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">
 				<include name="*.txt" />
 				<include name="*.vbs" />
 			</fileset>
 		</copy>
-		
-<mkdir dir="${release.dir}\coreonly\castle" />
-	<copy todir="${release.dir}\coreonly\castle">
+
+		<mkdir dir="${release.dir}\coreonly\castle" />
+		<copy todir="${release.dir}\coreonly\castle">
 			<fileset basedir="${lib.dir}">
 				<include name="Castle*.*" />
 			</fileset>
 		</copy>
-    <mkdir dir="${release.dir}\coreonly\spring" />
-<copy todir="${release.dir}\coreonly\spring">
+		<mkdir dir="${release.dir}\coreonly\spring" />
+		<copy todir="${release.dir}\coreonly\spring">
 			<fileset basedir="${lib.dir}">
 				<include name="Spring*.*" />
 			</fileset>
 		</copy>
-		
-		 <mkdir dir="${release.dir}\coreonly\structuremap" />
-<copy todir="${release.dir}\coreonly\structuremap">
+
+		<mkdir dir="${release.dir}\coreonly\structuremap" />
+		<copy todir="${release.dir}\coreonly\structuremap">
 			<fileset basedir="${lib.dir}">
 				<include name="StructureMap*.*" />
 			</fileset>
 		</copy>
 
 		<mkdir dir="${release.dir}\tools" />
-	<copy todir="${release.dir}\tools">
+		<copy todir="${release.dir}\tools">
 			<fileset basedir="${build.base}\tools">
 				<include name="**" />
 				<exclude name="**/NServiceBus.dll"/>
@@ -179,11 +248,11 @@
 				<exclude name="**/NServiceBus.pdb"/>
 			</fileset>
 		</copy>
-	
-	<delete dir="${artifacts.dir}" failonerror="false"></delete>
-    <mkdir dir="${artifacts.dir}" />
-	
-	<zip zipfile="${artifacts.dir}\NServiceBus.Trunk.${project.fullversion}.zip" includeemptydirs="false" >
+
+		<delete dir="${artifacts.dir}" failonerror="false"></delete>
+		<mkdir dir="${artifacts.dir}" />
+
+		<zip zipfile="${artifacts.dir}\NServiceBus.Trunk.${project.fullversion}.zip" includeemptydirs="false" >
 			<fileset basedir="${release.dir}">
 				<include name="**"/>
 			</fileset>
