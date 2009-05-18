@@ -19,15 +19,8 @@ namespace OrderService.Host
 
             try
             {
-                Configuration config = new Configuration();
-                config.Configure();
-
-                ISessionFactory sessionFactory = config.BuildSessionFactory();
-
                 var bus = NServiceBus.Configure.With()
-                    .CastleWindsorBuilder(
-                        (cfg => cfg.RegisterSingleton<ISessionFactory>(sessionFactory))
-                    )
+                    .CastleWindsorBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
@@ -37,7 +30,7 @@ namespace OrderService.Host
                         .SubscriberEndpointColumnName("SubscriberEndpoint")
                         .MessageTypeColumnName("MessageType")
                     .Sagas()
-                    .NHibernateSagaPersister(sessionFactory)
+                    .NHibernateSagaPersister()
                     .UnicastBus()
                         .ImpersonateSender(false)
                         .LoadMessageHandlers(
