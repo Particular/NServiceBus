@@ -40,7 +40,7 @@ namespace Client
 
                 bus.OutgoingHeaders["Test"] = m.DataId.ToString("N");
 
-                //notice that we're passing the message as our state object
+                //notice that we're passing the message as our state object - gives context for handling responses (especially if they arrive out of order).
                 bus.Send(m).Register(RequestDataComplete, m);
             }
         }
