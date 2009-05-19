@@ -14,7 +14,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
     public class StructureMapObjectBuilder : Common.IContainer
     {
         private readonly IContainer container;
-        private readonly Dictionary<Type, ConfiguredInstance> configuredInstances = new Dictionary<Type, ConfiguredInstance>();
+        private readonly IDictionary<Type, ConfiguredInstance> configuredInstances = new Dictionary<Type, ConfiguredInstance>();
 
         public StructureMapObjectBuilder()
         {
@@ -95,7 +95,9 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
         {
+
             container.Inject(lookupType, instance);
+            PluginCache.AddFilledType(lookupType);
         }
 
         private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
