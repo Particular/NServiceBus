@@ -29,6 +29,15 @@ namespace NServiceBus.ObjectBuilder
         IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel);
 
         /// <summary>
+        /// Configures the given property of the given type to be injected with the given value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        IConfigureComponents ConfigureProperty<T>(Expression<Func<T, object>> property, object value);
+
+        /// <summary>
         /// Registers the given instance as the singleton that will be returned
         /// for the given type.
         /// </summary>

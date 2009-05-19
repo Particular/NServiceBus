@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NServiceBus.ObjectBuilder;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace NServiceBus.ObjectBuilder.Common
 {
@@ -63,6 +65,14 @@ namespace NServiceBus.ObjectBuilder.Common
             Container.Configure(typeof(T), callModel);
 
             return new ComponentConfig<T>(Container);
+        }
+
+        IConfigureComponents IConfigureComponents.ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
+        {
+            var prop = Reflect<T>.GetProperty(property);
+            Container.ConfigureProperty(typeof(T), prop.Name, value);
+
+            return this;
         }
 
         IConfigureComponents IConfigureComponents.RegisterSingleton(Type lookupType, object instance)

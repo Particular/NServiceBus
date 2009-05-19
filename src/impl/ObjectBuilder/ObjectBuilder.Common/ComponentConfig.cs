@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace NServiceBus.ObjectBuilder.Common
 {
@@ -28,7 +29,7 @@ namespace NServiceBus.ObjectBuilder.Common
         {
         }         
 
-        IComponentConfig<T> IComponentConfig<T>.ConfigureProperty(System.Linq.Expressions.Expression<Func<T, object>> property, object value)
+        IComponentConfig<T> IComponentConfig<T>.ConfigureProperty(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
 
