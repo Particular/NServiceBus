@@ -22,18 +22,12 @@ namespace OrderService.Persistence
 
         public OrderSagaData FindBy(string purchaseOrderNumber, Guid partnerId)
         {
-            return sessionFactory.GetCurrentSession().CreateCriteria(typeof(OrderSagaData))
+            return SessionFactory.GetCurrentSession().CreateCriteria(typeof(OrderSagaData))
                 .Add(Expression.Eq("PurchaseOrderNumber", purchaseOrderNumber))
                 .Add(Expression.Eq("PartnerId", partnerId))
                 .UniqueResult<OrderSagaData>();
         }
 
-        private ISessionFactory sessionFactory;
-
-        public virtual ISessionFactory SessionFactory
-        {
-            get { return sessionFactory; }
-            set { sessionFactory = value; }
-        }
+        public ISessionFactory SessionFactory { get; set; }
     }
 }
