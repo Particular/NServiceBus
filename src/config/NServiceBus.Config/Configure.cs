@@ -48,7 +48,7 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            types = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory));
+            TypesToScan = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory));
 
             return instance;
         }
@@ -64,7 +64,7 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            types = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory));
+            TypesToScan = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory));
 
             return instance;
         }
@@ -81,7 +81,25 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            types = new List<Type>(GetTypesInDirectory(probeDirectory));
+            TypesToScan = new List<Type>(GetTypesInDirectory(probeDirectory));
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Configures nServiceBus to scan the given assemblies only.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        public static Configure With(params Assembly[] assemblies)
+        {
+            if (instance == null)
+                instance = new Configure();
+
+            var types = new List<Type>();
+            new List<Assembly>(assemblies).ForEach((a) => { foreach (Type t in a.GetTypes()) types.Add(t); });
+
+            TypesToScan = types;
 
             return instance;
         }
@@ -98,10 +116,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns types in assemblies found in the current directory.
         /// </summary>
-        public static IEnumerable<Type> TypesInCurrentDirectory
-        {
-            get { return types; }
-        }
+        public static IEnumerable<Type> TypesToScan { get; private set; }
 
         private static IEnumerable<Type> GetTypesInDirectory(string path)
         {
@@ -123,6 +138,5 @@ namespace NServiceBus
         }
 
         private static Configure instance;
-        private static List<Type> types;
     }
 }

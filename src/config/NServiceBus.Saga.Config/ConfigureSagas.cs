@@ -19,7 +19,7 @@ namespace NServiceBus
         {
             NServiceBus.Saga.Configure
                 .With(config.Configurer, config.Builder)
-                .SagasIn(Configure.TypesInCurrentDirectory);
+                .SagasIn(Configure.TypesToScan);
 
             return config;
         }

@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast.Config
 
             if (cfg != null)
             {
-                foreach (Type t in TypesInCurrentDirectory)
+                foreach (Type t in TypesToScan)
                     if (typeof(IMessage).IsAssignableFrom(t))
                         assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty;
 
@@ -92,7 +92,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
         {
-            return ConfigureMessageHandlersIn(TypesInCurrentDirectory);
+            return ConfigureMessageHandlersIn(TypesToScan);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace NServiceBus.Unicast.Config
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(FIRST)))
                 {
-                    var types = new List<Type>(TypesInCurrentDirectory);
+                    var types = new List<Type>(TypesToScan);
 
                     types.Remove(args[0]);
                     types.Insert(0, args[0]);
@@ -133,7 +133,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<T>(First<T> order)
         {
-            var types = new List<Type>(TypesInCurrentDirectory);
+            var types = new List<Type>(TypesToScan);
 
             foreach (Type t in order.Types)
                 types.Remove(t);
