@@ -229,10 +229,12 @@
 
 		<mkdir dir="${release.dir}\tools" />
 		<copy todir="${release.dir}\tools">
-			<fileset basedir="${build.base}\tools">
-				<include name="**" />
+			<fileset basedir="${build.base}">
+				<include name="tools\**" />
+				<include name="timeout\**" />
+				<include name="distributor\**" />
 				<exclude name="**/NServiceBus.dll"/>
-				<exclude name="**/NServiceBus.txt"/>
+				<exclude name="**/NServiceBus.xml"/>
 				<exclude name="**/NServiceBus.pdb"/>
 			</fileset>
 		</copy>
