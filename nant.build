@@ -137,6 +137,7 @@
 					<include name="${merge.dir}\spring*.dll" />
 					<include name="${merge.dir}\castle*.dll" />
 					<include name="${merge.dir}\structuremap*.dll" />
+					<include name="${merge.dir}\autofac.dll" />
 				</items>
 			</in>
 			<do>
@@ -224,6 +225,13 @@
 		<copy todir="${release.dir}\coreonly\structuremap">
 			<fileset basedir="${lib.dir}">
 				<include name="StructureMap*.*" />
+			</fileset>
+		</copy>
+		
+		<mkdir dir="${release.dir}\coreonly\autofac" />
+		<copy todir="${release.dir}\coreonly\autofac">
+			<fileset basedir="${lib.dir}">
+				<include name="Autofac*.*" />
 			</fileset>
 		</copy>
 
