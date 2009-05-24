@@ -12,6 +12,12 @@ namespace OrderService
         IMessageHandler<OrderAuthorizationResponseMessage>,
         IMessageHandler<CancelOrderMessage>
     {
+        public override void ConfigureHowToFindSaga()
+        {
+            ConfigureMapping<OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+        }
+
         public void Handle(OrderMessage message)
         {
             this.Data.PurchaseOrderNumber = message.PurchaseOrderNumber;

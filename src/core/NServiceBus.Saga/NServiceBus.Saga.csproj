@@ -45,6 +45,10 @@
       <HintPath>..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Utils, Version=1.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\NServiceBus.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -70,6 +74,7 @@
     <Compile Include="ISagaStartedBy.cs" />
     <Compile Include="ITimeoutable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertySagaFinder.cs" />
     <Compile Include="Saga.cs" />
     <Compile Include="SagaEntityFinder.cs" />
     <Compile Include="TimeoutMessage.cs" />
@@ -79,6 +84,7 @@
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867D40-8CBB-48E9-BFFA-12BBDD48A341}</Project>
       <Name>NServiceBus</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

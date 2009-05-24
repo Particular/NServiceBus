@@ -4,7 +4,6 @@ using NHibernate.Cfg;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
-using OrderService.Persistence;
 using NHibernate;
 using NServiceBus.ObjectBuilder;
 

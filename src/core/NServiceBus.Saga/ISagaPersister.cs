@@ -27,6 +27,8 @@ namespace NServiceBus.Saga
 		/// <returns></returns>
         T Get<T>(Guid sagaId) where T : ISagaEntity;
 
+        T Get<T>(string property, object value) where T : ISagaEntity;
+
 		/// <summary>
         /// Sets a saga as completed and removes it from the active saga list
 		/// in the persistence store.

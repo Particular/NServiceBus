@@ -15,6 +15,11 @@ namespace NServiceBus.Saga
         /// Used for retrieving the endpoint which caused the saga to be initiated.
         /// </summary>
         IBus Bus { get; set; }
+
+        /// <summary>
+        /// Called by the infrastructure to give a chance for initialization time configuration.
+        /// </summary>
+        void Configure();
     }
 
     /// <summary>

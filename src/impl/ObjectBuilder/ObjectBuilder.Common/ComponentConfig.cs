@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection;
+using NServiceBus.Utils;
 using System.Linq.Expressions;
 
 namespace NServiceBus.ObjectBuilder.Common

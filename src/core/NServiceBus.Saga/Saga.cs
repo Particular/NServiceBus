@@ -1,5 +1,6 @@
 using System;
 using NServiceBus;
+using System.Linq.Expressions;
 
 namespace NServiceBus.Saga
 {
@@ -25,6 +26,37 @@ namespace NServiceBus.Saga
         {
             get { return Data; }
             set { Data = (T)value; }
+        }
+
+        internal bool configuring;
+        void ISaga.Configure()
+        {
+            configuring = true;
+            ConfigureHowToFindSaga();
+            configuring = false;
+        }
+
+        /// <summary>
+        /// Override this method in order to call ConfigureMapping.
+        /// </summary>
+        public virtual void ConfigureHowToFindSaga()
+        {
+        }
+
+        /// <summary>
+        /// When the infrastructure is handling a message of the given type
+        /// this specifies which message property should be matched to 
+        /// which saga entity property in the persistent saga store.
+        /// </summary>
+        /// <typeparam name="M"></typeparam>
+        /// <param name="sagaEntityProperty"></param>
+        /// <param name="messageProperty"></param>
+        protected void ConfigureMapping<M>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<M, object>> messageProperty) where M : IMessage
+        {
+            if (!configuring)
+                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
+
+            NServiceBus.Saga.Configure.ConfigureHowToFindSagaWithMessage<T, M>(sagaEntityProperty, messageProperty);
         }
 
         /// <summary>

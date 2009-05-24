@@ -1,6 +1,7 @@
 using System;
 using NServiceBus.Saga;
 using NHibernate;
+using NHibernate.Criterion;
 
 namespace NServiceBus.SagaPersisters.NHibernate
 {
@@ -38,6 +39,13 @@ namespace NServiceBus.SagaPersisters.NHibernate
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
             return SessionFactory.GetCurrentSession().Get<T>(sagaId);
+        }
+
+        T ISagaPersister.Get<T>(string property, object value)
+        {
+            return SessionFactory.GetCurrentSession().CreateCriteria(typeof(T))
+                .Add(Expression.Eq(property, value))
+                .UniqueResult<T>();
         }
 
         /// <summary>

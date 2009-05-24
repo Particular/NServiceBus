@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using NServiceBus.ObjectBuilder;
 using System.Reflection;
+using System.Linq.Expressions;
+using NServiceBus.Utils;
+using System.Reflection.Emit;
 
 namespace NServiceBus.Saga
 {
@@ -57,11 +60,39 @@ namespace NServiceBus.Saga
             CreateAdditionalFindersAsNecessary();
         }
 
+        internal static void ConfigureHowToFindSagaWithMessage<T, M>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<M, object>> messageProperty)
+            where T : ISagaEntity
+            where M : IMessage
+        {
+            IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
+            sagaEntityToMessageToPropertyLookup.TryGetValue(typeof(T), out messageToProperties);
+
+            if (messageToProperties == null)
+            {
+                messageToProperties = new Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>();
+                sagaEntityToMessageToPropertyLookup[typeof(T)] = messageToProperties;
+            }
+
+            var sagaProp = Reflect<T>.GetProperty(sagaEntityProperty);
+            var messageProp = Reflect<M>.GetProperty(messageProperty);
+
+            messageToProperties[typeof(M)] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
+        }
+
+        private static IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> sagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
+
         /// <summary>
         /// Creates an <see cref="EmptySagaFinder{T}" /> for each saga type that doesn't have a finder configured.
         /// </summary>
         private void CreateAdditionalFindersAsNecessary()
         {
+            foreach (Type sagaEntityType in sagaEntityToMessageToPropertyLookup.Keys)
+                foreach (Type messageType in sagaEntityToMessageToPropertyLookup[sagaEntityType].Keys)
+                {
+                    var pair = sagaEntityToMessageToPropertyLookup[sagaEntityType][messageType];
+                    CreatePropertyFinder(sagaEntityType, messageType, pair.Key, pair.Value);
+                }
+
             ICollection<Type> sagaEntityTypesWithFinders = finderTypeToSagaEntityTypeLookup.Values;
 
             foreach(Type sagaType in sagaTypeToSagaEntityTypeLookup.Keys)
@@ -96,6 +127,17 @@ namespace NServiceBus.Saga
                 }
 
             }
+        }
+
+        private void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
+        {
+            Type finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
+            
+            configurer.ConfigureComponent(finderType, ComponentCallModelEnum.Singlecall)
+                .ConfigureProperty("SagaProperty", sagaProperty)
+                .ConfigureProperty("MessageProperty", messageProperty);
+
+            ConfigureFinder(finderType);
         }
 
         #endregion
@@ -302,6 +344,9 @@ namespace NServiceBus.Saga
 
             PropertyInfo prop = t.GetProperty("Data");
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
+
+            ISaga s = Activator.CreateInstance(t) as ISaga;
+            s.Configure();
         }
 
         private static void ConfigureFinder(Type t)

@@ -6,17 +6,13 @@ using System.Text;
 using System.Reflection;
 using System.Linq.Expressions;
 
-namespace System.Reflection
+namespace NServiceBus.Utils
 {
     /// <summary>
     /// Provides strong-typed reflection for static members of any type or calling 
     /// object constructors (to retrieve the constructor <see cref="MethodInfo"/>).
     /// </summary>
-#if NetFx
-	public class Reflect
-#else
-    internal class Reflect
-#endif
+    public class Reflect
     {
         /// <summary>
         /// Initializes the reflector class.
@@ -119,11 +115,7 @@ namespace System.Reflection
     /// type.
     /// </summary>
     /// <typeparam name="TTarget">Type to reflect.</typeparam>
-#if NetFx
-	public class Reflect<TTarget> : Reflect
-#else
-    internal class Reflect<TTarget> : Reflect
-#endif
+    public class Reflect<TTarget> : Reflect
     {
         private Reflect() { }
 

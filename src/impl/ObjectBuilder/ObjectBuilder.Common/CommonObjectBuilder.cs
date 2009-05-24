@@ -5,6 +5,7 @@ using System.Text;
 using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using System.Linq.Expressions;
+using NServiceBus.Utils;
 
 namespace NServiceBus.ObjectBuilder.Common
 {
