@@ -12,9 +12,9 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         private readonly string endBaseFormat = "</xs:extension>\n</xs:complexContent>\n";
         private readonly string endTopFormat = "</xs:complexType>\n";
 
-        public static string Write(ComplexType complex)
+        public static void Write(ComplexType complex, StringBuilder builder)
         {
-            return new ComplexTypeWriter(complex).Write();
+            new ComplexTypeWriter(complex).Write(builder);
         }
 
         private ComplexTypeWriter(ComplexType complex)
@@ -22,10 +22,8 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             this.complex = complex;
         }
 
-        public string Write()
+        public void Write(StringBuilder builder)
         {
-            StringBuilder builder = new StringBuilder();
-
             builder.AppendFormat(beginTopFormat, complex.Name);
 
             if (complex.BaseName != null)
@@ -42,8 +40,6 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                 builder.AppendFormat(endBaseFormat);
 
             builder.AppendFormat(endTopFormat);
-
-            return builder.ToString();
         }
     }
 }

@@ -61,14 +61,16 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             foreach (ComplexType complex in Repository.ComplexTypes)
             {
                 builder.AppendFormat("<xs:element name=\"{0}\" nillable=\"true\" type=\"{0}\" />\n", complex.Name);
-                builder.Append(ComplexTypeWriter.Write(complex));
+                ComplexTypeWriter.Write(complex, builder);
             }
 
             foreach (Type simple in Repository.SimpleTypes)
             {
                 builder.AppendFormat("<xs:element name=\"{0}\" type=\"{0}\" />\n", simple.Name);
-                builder.Append(SimpleTypeWriter.Write(simple));
+                SimpleTypeWriter.Write(simple, builder);
             }
+
+            SimpleTypeWriter.WriteChar(builder);
 
             builder.AppendLine("</xs:schema>");
 

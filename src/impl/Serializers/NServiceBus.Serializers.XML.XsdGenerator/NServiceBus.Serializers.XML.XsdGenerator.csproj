@@ -61,6 +61,12 @@
     <Compile Include="SimpleTypeWriter.cs" />
     <Compile Include="Strings.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">
+      <Project>{4D9A660B-C2AF-42A8-AEB4-E2F97ED1CB3C}</Project>
+      <Name>NServiceBus.Serializers.XML</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

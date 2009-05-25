@@ -25,13 +25,17 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                 return "xs:duration";
             if (t == typeof(decimal))
                 return "xs:decimal";
+            if (t == typeof(DateTimeOffset))
+                return "xs:dateTime";
+            if (t == typeof(Object))
+                return "xs:anyType";
 
             Type arrayType = GetEnumeratedTypeFrom(t);
 
             if (arrayType != null)
-                return Strings.ArrayOf + arrayType.Name;
+                return Strings.ArrayOf + GetTypeNameFrom(arrayType);
 
-            return t.Name;
+            return t.SerializationFriendlyName();
         }
 
         public static Type GetEnumeratedTypeFrom(Type t)
@@ -39,10 +43,13 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (t.IsArray)
                 return t.GetElementType();
 
-            Type[] genericArgs = t.GetGenericArguments();
-            if (genericArgs.Length == 1)
-                if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]).IsAssignableFrom(t))
-                    return genericArgs[0];
+            foreach (Type interfaceType in t.GetInterfaces())
+            {
+                Type[] genericArgs = interfaceType.GetGenericArguments();
+                if (genericArgs.Length == 1)
+                    if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]).IsAssignableFrom(t))
+                        return genericArgs[0];
+            }
 
             return null;
         }

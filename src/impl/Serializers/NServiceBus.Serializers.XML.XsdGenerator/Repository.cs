@@ -53,14 +53,20 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public static bool IsNormalizedList(Type type)
         {
-            Type[] genericArgs = type.GetGenericArguments();
-            if (genericArgs == null)
-                return false;
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                Type[] genericArgs = interfaceType.GetGenericArguments();
+                if (genericArgs == null)
+                    continue;
 
-            if (genericArgs.Length != 1)
-                return false;
+                if (genericArgs.Length != 1)
+                    continue;
 
-            return typeof (List<>).MakeGenericType(genericArgs[0]) == type;
+                if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]) == interfaceType)
+                    return true;
+            }
+
+            return false;
         }
 
         private static Type Normalize(Type type)

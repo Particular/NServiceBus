@@ -613,37 +613,4 @@ namespace NServiceBus.Serializers.XML
         private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
         #endregion
     }
-
-    /// <summary>
-    /// Contains extension methods
-    /// </summary>
-    public static class ExtensionMethods
-    {
-        /// <summary>
-        /// Returns true if the type can be serialized as is.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static bool IsSimpleType(this Type type)
-        {
-            return (type == typeof(string) ||
-                    type.IsPrimitive ||
-                    type == typeof(decimal) ||
-                    type == typeof(Guid) ||
-                    type == typeof(DateTime) ||
-                    type == typeof(TimeSpan) ||
-                    type.IsEnum);
-        }
-
-        /// <summary>
-        /// Takes the name of the given type and makes it friendly for serialization
-        /// by removing problematic characters.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static string SerializationFriendlyName(this Type type)
-        {
-            return type.Name.Replace("`", string.Empty);
-        }
-    }
 }

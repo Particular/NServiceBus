@@ -7,22 +7,14 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
     public class ComplexType
     {
         private readonly IList<Element> elements = new List<Element>();
-        private string name;
-        private string baseName;
 
         private ComplexType()
         {
         }
 
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
-        public string BaseName
-        {
-            get { return baseName; }
-        }
+        public string BaseName { get; private set; }
 
         public IEnumerable<Element> Elements
         {
@@ -31,17 +23,17 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public static ComplexType Scan(Type type)
         {
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(object) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type.IsEnum)
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(object) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(DateTimeOffset) || type.IsEnum || type == typeof(Decimal))
                 return null;
 
             ComplexType complex = new ComplexType();
-            complex.name = Reflect.GetTypeNameFrom(type);
+            complex.Name = Reflect.GetTypeNameFrom(type);
 
             if (Repository.IsNormalizedList(type))
             {
                 Type enumerated = Reflect.GetEnumeratedTypeFrom(type);
 
-                Element e = Element.Scan(enumerated, enumerated.Name);
+                Element e = Element.Scan(enumerated, Reflect.GetTypeNameFrom(enumerated));
 
                 if (e != null)
                 {
@@ -50,13 +42,15 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
                     complex.elements.Add(e);
                 }
+
+                Repository.Handle(enumerated);
             }
             else
             {
                 Type baseType = null;
 
                 if (!type.IsInterface)
-                    if (type.BaseType != typeof (object) && type.BaseType != null)
+                    if (type.BaseType != typeof (object) && type.BaseType != typeof(ValueType) && type.BaseType != null)
                         baseType = type.BaseType;
 
                 if (type.IsInterface)
@@ -73,7 +67,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
                 if (baseType != null)
                 {
-                    complex.baseName = baseType.Name;
+                    complex.BaseName = baseType.Name;
                     propsToIgnore = new List<PropertyInfo>(baseType.GetProperties());
                 }
 
@@ -82,7 +76,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                     if (IsInList(prop, propsToIgnore))
                         continue;
 
-                    if (!prop.CanRead || !prop.CanWrite)
+                    if (!IsKeyValuePair(type) && (!prop.CanRead || !prop.CanWrite))
                         continue;
 
                     Repository.Handle(prop.PropertyType);
@@ -95,6 +89,16 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             }
 
             return complex;
+        }
+
+        private static bool IsKeyValuePair(Type t)
+        {
+            Type[] args = t.GetGenericArguments();
+            if (args == null)
+                return false;
+            if (args.Length != 2)
+                return false;
+            return (typeof(KeyValuePair<,>).MakeGenericType(args) == t);
         }
 
         private static bool IsInList(PropertyInfo prop, ICollection<PropertyInfo> propsToIgnore)
