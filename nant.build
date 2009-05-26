@@ -111,25 +111,23 @@
 		</copy>
 
 		<!-- Create list of all "core" assemblies -->
-		<property name="nservicebus.coreassemblies" value="" dynamic="true" />
+		<property name="assemblies.core" value="" dynamic="true" />
 
 		<foreach item="File" property="filename">
 			<in>
 				<items>
 					<include name="${merge.dir}\NServiceBus*.dll" />
-					<include name="${merge.dir}\antlr.runtime.dll" />
-					<include name="${merge.dir}\common.logging*.dll" />
-					<include name="${merge.dir}\Interop.MSMQ.dll" />
 				</items>
 			</in>
 			<do>
-				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
+				<property name="assemblies.core" value="${assemblies.core} ${filename}"/>
 				<echo message="${filename}"/>
 			</do>
 		</foreach>
-
+        <property name="assemblies.dependencies" value="${merge.dir}\antlr.runtime.dll ${merge.dir}\Interop.MSMQ.dll ${merge.dir}\common.logging.dll ${merge.dir}\Common.Logging.Log4Net.dll"/>
+		
 		<!-- Create list of all "external" assemblies that NSB needs -->
-		<property name="nservicebus.externalassemblies" value="" dynamic="true" />
+		<property name="assemblies.containerdependencies" value="" dynamic="true" />
 
 		<foreach item="File" property="filename">
 			<in>
@@ -141,22 +139,29 @@
 				</items>
 			</in>
 			<do>
-				<property name="nservicebus.externalassemblies" value="${nservicebus.externalassemblies} ${filename}"/>
+				<property name="assemblies.containerdependencies" value="${assemblies.containerdependencies} ${filename}"/>
 				<echo message="${filename}"/>
 			</do>
 		</foreach>
 
 
-		<!-- Create the full NServiceBus.dll-->
-		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} ${nservicebus.externalassemblies} /target:library /xmldocs /log:build\output.txt "
-				workingdir="." />
-
+		
 		<mkdir dir="${output.dir}\coreonly" />
 
-		<!-- Create the "coreonly" version NServiceBus.dll-->
+		<!-- Create the "coreonly" version NServiceBus.dll
+		Step 1: Merge all core dll:s
+		-->
 		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\coreonly\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output_coreonly.txt"
+				commandline="/out:${output.dir}\coreonly\NServiceBus_core.dll ${assemblies.core} /target:library /xmldocs /log:build\output_coreonly_1.txt"
+				workingdir="." />
+		<!-- Step 2: Include core dependencies and make them internal-->		
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\coreonly\NServiceBus.dll ${output.dir}\coreonly\NServiceBus_core.dll ${assemblies.dependencies}  /target:library /xmldocs /log:build\output_coreonly_2.txt"
+				workingdir="." />
+				
+	    <!-- Create the full NServiceBus.dll-->
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.dll ${assemblies.core} ${assemblies.dependencies} ${assemblies.containerdependencies} /target:library /xmldocs /log:build\output.txt "
 				workingdir="." />
 	</target>
 
