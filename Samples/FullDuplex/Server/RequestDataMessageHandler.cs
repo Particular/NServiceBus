@@ -12,7 +12,7 @@ namespace Server
         {
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
-            Console.Out.WriteLine("Header 'Test' = {0}.", Bus.CurrentMessageContext.Headers["Test"]);
+            Console.WriteLine("Header 'Test' = {0}.", Bus.CurrentMessageContext.Headers["Test"]);
 
             DataResponseMessage response = new DataResponseMessage();
             response.DataId = message.DataId;
