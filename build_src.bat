@@ -1,1 +1,1 @@
-.\tools\nant\nant compile_src
+.\tools\nant\nant build_src
