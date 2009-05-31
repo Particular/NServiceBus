@@ -241,9 +241,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (this.purgeOnStartup)
                     this.queue.Purge();
 
-                IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
-                if (mods != null)
-                    this.modules.AddRange(mods);
+                if (Builder != null)
+                {
+                    IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
+                    if (mods != null)
+                        this.modules.AddRange(mods);
+                }
 
                 for (int i = 0; i < this._numberOfWorkerThreads; i++)
                     this.AddWorkerThread().Start();
