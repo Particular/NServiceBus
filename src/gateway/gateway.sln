@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Host", "Gateway.Host\Gateway.Host.csproj", "{D7C5B2BA-0FEB-41E9-AB67-1E2F09180A7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebGateway", "WebGateway\WebGateway.csproj", "{F6D656B0-6DEF-4551-92EF-E44AEDEEADDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway", "NServiceBus.Gateway\NServiceBus.Gateway.csproj", "{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7C5B2BA-0FEB-41E9-AB67-1E2F09180A7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7C5B2BA-0FEB-41E9-AB67-1E2F09180A7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7C5B2BA-0FEB-41E9-AB67-1E2F09180A7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7C5B2BA-0FEB-41E9-AB67-1E2F09180A7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6D656B0-6DEF-4551-92EF-E44AEDEEADDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6D656B0-6DEF-4551-92EF-E44AEDEEADDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6D656B0-6DEF-4551-92EF-E44AEDEEADDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6D656B0-6DEF-4551-92EF-E44AEDEEADDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
