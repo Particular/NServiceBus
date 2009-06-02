@@ -22,7 +22,7 @@
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
-	<target name="build" depends="build_src"/>
+	<target name="build" depends="build_src,compile_tools,compile_samples"/>
 	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src"/>
 	
 	<target name="init" description="Initializes build properties">
@@ -163,6 +163,18 @@
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
+
+	  <!-- Compile the gateway -->
+		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
+
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				  commandline="${solution.dir}\gateway\gateway.sln 
+					/nologo 
+					/t:Clean
+					/t:Rebuild        
+					/p:OutDir=${gateway.builddir}\bin\        
+					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config}" 
+				  workingdir="." />
 	</target>
 
 	<target name="compile_samples">
@@ -226,13 +238,14 @@
 				<include name="tools\**" />
 				<include name="timeout\**" />
 				<include name="distributor\**" />
+				<include name="gateway\**" />
 				<exclude name="**/NServiceBus.dll"/>
 				<exclude name="**/NServiceBus.xml"/>
 				<exclude name="**/NServiceBus.pdb"/>
 			</fileset>
 		</copy>
 
-		<delete dir="${artifacts.dir}" failonerror="false"></delete>
+		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
 		<zip zipfile="${artifacts.dir}\NServiceBus.Trunk.${project.fullversion}.zip" includeemptydirs="false" >
