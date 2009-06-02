@@ -45,12 +45,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With()
         {
-            if (instance == null)
-                instance = new Configure();
-
-            TypesToScan = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory));
-
-            return instance;
+            return With(new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory)));
         }
 
         /// <summary>
@@ -61,12 +56,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure WithWeb()
         {
-            if (instance == null)
-                instance = new Configure();
-
-            TypesToScan = new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory));
-
-            return instance;
+            return With(new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory)));
         }
 
         /// <summary>
@@ -78,10 +68,20 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
+            return With(new List<Type>(GetTypesInDirectory(probeDirectory)));
+        }
+
+        /// <summary>
+        /// Configures nServiceBus to scan the given types.
+        /// </summary>
+        /// <param name="probeDirectory"></param>
+        /// <returns></returns>
+        public static Configure With(IEnumerable<Type> typesToScan)
+        {
             if (instance == null)
                 instance = new Configure();
 
-            TypesToScan = new List<Type>(GetTypesInDirectory(probeDirectory));
+            TypesToScan = typesToScan;
 
             return instance;
         }
@@ -93,15 +93,10 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(params Assembly[] assemblies)
         {
-            if (instance == null)
-                instance = new Configure();
-
             var types = new List<Type>();
             new List<Assembly>(assemblies).ForEach((a) => { foreach (Type t in a.GetTypes()) types.Add(t); });
 
-            TypesToScan = types;
-
-            return instance;
+            return With(types);
         }
 
         /// <summary>
