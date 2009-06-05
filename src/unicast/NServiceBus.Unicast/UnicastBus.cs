@@ -1077,9 +1077,11 @@ namespace NServiceBus.Unicast
 
             foreach(Type messageType in GetMessageTypesIfIsMessageHandler(t))
             {
-                foreach (Type msgType in messageType.Assembly.GetTypes())
-                    if (typeof(IMessage).IsAssignableFrom(msgType))
-                        AddMessageType(msgType);
+                //foreach (Type msgType in messageType.Assembly.GetTypes())
+                //    if (typeof(IMessage).IsAssignableFrom(msgType))
+                //        AddMessageType(msgType);
+
+                AddMessageType(messageType);
 
                 if (skipHandlerRegistration)
                     continue;
