@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NServiceBus.ObjectBuilder.Common;
-using Castle.DynamicProxy;
 using Castle.Windsor;
 using Castle.MicroKernel;
-using NServiceBus.ObjectBuilder;
 using Castle.Core;
 using Castle.MicroKernel.Registration;
 

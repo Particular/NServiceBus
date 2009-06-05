@@ -37,11 +37,6 @@
       <HintPath>..\..\..\..\external-bin\Castle.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Castle.DynamicProxy2, Version=2.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.DynamicProxy2.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Castle.MicroKernel, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\Castle.MicroKernel.dll</HintPath>
