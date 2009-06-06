@@ -119,9 +119,12 @@
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${merge.dir}\spring*.dll" />
-					<include name="${merge.dir}\castle*.dll" />
-					<include name="${merge.dir}\structuremap*.dll" />
+					<include name="${merge.dir}\spring.core.dll" />
+					<include name="${merge.dir}\castle.core.dll" />
+					<include name="${merge.dir}\castle.microkernel.dll" />
+					<include name="${merge.dir}\castle.dynamicproxy2.dll" />
+					<include name="${merge.dir}\castle.windsor.dll" />
+					<include name="${merge.dir}\structuremap.dll" />
 					<include name="${merge.dir}\autofac.dll" />
 				</items>
 			</in>
