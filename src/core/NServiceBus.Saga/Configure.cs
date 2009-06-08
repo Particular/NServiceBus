@@ -294,6 +294,15 @@ namespace NServiceBus.Saga
         }
 
         /// <summary>
+        /// Returns the list of saga types configured.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetSagaDataTypes()
+        {
+            return sagaTypeToSagaEntityTypeLookup.Values;
+        }
+
+        /// <summary>
         /// Gets a reference to the generic "Handle" method on the given saga
         /// for the given message type using a hashtable lookup rather than reflection.
         /// </summary>
