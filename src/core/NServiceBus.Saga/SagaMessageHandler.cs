@@ -2,6 +2,7 @@ using System;
 using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using Common.Logging;
+using System.Collections.Generic;
 
 namespace NServiceBus.Saga
 {
@@ -29,6 +30,8 @@ namespace NServiceBus.Saga
         {
             if (!this.NeedToHandle(message))
                 return;
+
+            List<ISagaEntity> entitiesHandled = new List<ISagaEntity>();
 
             foreach (IFinder finder in Configure.GetFindersFor(message))
             {
@@ -58,11 +61,18 @@ namespace NServiceBus.Saga
                     saga = Builder.Build(sagaToCreate) as ISaga;
                 }
                 else
+                {
+                    if (entitiesHandled.Contains(sagaEntity))
+                        continue; // don't call the same saga twice
+
                     saga = Builder.Build(Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType())) as ISaga;
+                }
 
                 saga.Entity = sagaEntity;
 
                 HaveSagaHandleMessage(saga, message, sagaEntityIsPersistent);
+
+                entitiesHandled.Add(sagaEntity);
             }
         }
 
