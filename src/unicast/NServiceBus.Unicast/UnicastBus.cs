@@ -505,7 +505,7 @@ namespace NServiceBus.Unicast
         {
             AssertBusIsStarted();
             if (destination == null)
-                throw new ArgumentNullException("No 'destination' specified. Messages cannot be sent.");
+                throw new ArgumentNullException("No 'destination' specified. Messages cannot be sent. Check the UnicastBusConfig section in your config file.");
 
             TransportMessage toSend = this.GetTransportMessageFor(destination, messages);
 
