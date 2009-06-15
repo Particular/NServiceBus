@@ -247,7 +247,14 @@
 				<exclude name="**/NServiceBus.pdb"/>
 			</fileset>
 		</copy>
-
+		
+		<mkdir dir="${release.dir}\NHibernate" />
+		<copy todir="${release.dir}\NHibernate">
+			<fileset basedir="${lib.dir}">
+				<include name="NHibernate*" />
+				<include name="Iesi.Collections*" />
+			</fileset>
+		</copy>
 		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
