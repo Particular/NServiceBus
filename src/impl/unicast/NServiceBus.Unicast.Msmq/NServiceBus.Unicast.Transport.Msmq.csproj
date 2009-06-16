@@ -60,10 +60,9 @@
       <HintPath>..\..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Utils, Version=1.9.0.38365, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Utils, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.Utils.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

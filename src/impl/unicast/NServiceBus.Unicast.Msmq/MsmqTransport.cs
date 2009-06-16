@@ -269,15 +269,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 {
                     string iq = GetFullPathWithoutPrefix(InputQueue);
                     logger.Debug("Checking if input queue exists.");
-                    if (!MessageQueue.Exists(iq))
-                    {
-                        logger.Warn("Input queue " + InputQueue + " does not exist.");
-                        logger.Debug("Going to create input queue: " + InputQueue);
-
-                        MessageQueue.Create(iq, true);
-
-                        logger.Debug("Input queue created.");
-                    }
+                    
+                    MsmqUtilities.CreateQueueIfNecessary(iq);
                 }
 
                 if (ErrorQueue != null && ErrorQueue != string.Empty)
@@ -294,15 +287,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     try
                     {
                         string eq = GetFullPathWithoutPrefix(ErrorQueue);
-                        if (!MessageQueue.Exists(eq))
-                        {
-                            logger.Warn("Error queue " + ErrorQueue + " does not exist.");
-                            logger.Debug("Going to create error queue: " + ErrorQueue);
-
-                            MessageQueue.Create(eq, true);
-
-                            logger.Debug("Error queue created.");
-                        }
+                        
+                        MsmqUtilities.CreateQueueIfNecessary(eq);
                     }
                     catch (Exception ex)
                     {
@@ -313,7 +299,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-		/// <summary>
+	    /// <summary>
 		/// Re-queues a message for processing at another time.
 		/// </summary>
 		/// <param name="m">The message to process later.</param>

@@ -63,6 +63,7 @@ namespace NServiceBus.Unicast.Distributor
 
             this.ControlBus.Start();
             this.MessageBusTransport.Start();
+            this.WorkerManager.Start();
         }
 
 		/// <summary>

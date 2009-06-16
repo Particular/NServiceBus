@@ -6,7 +6,12 @@ namespace NServiceBus.Unicast.Distributor
 	/// </summary>
     public interface IWorkerAvailabilityManager
     {
-		/// <summary>
+	    ///<summary>
+	    /// Start the worker availability manager
+	    ///</summary>
+	    void Start();
+        
+        /// <summary>
 		/// Signal that a worker is available to receive a dispatched message.
 		/// </summary>
 		/// <param name="address">

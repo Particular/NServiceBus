@@ -44,12 +44,14 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="MsmqUtilities.cs" />
     <Compile Include="Reflect.cs" />
     <Compile Include="TransactionWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

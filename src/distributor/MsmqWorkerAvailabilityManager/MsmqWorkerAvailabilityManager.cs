@@ -2,6 +2,7 @@ using System;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Utils;
 
 namespace MsmqWorkerAvailabilityManager
 {
@@ -26,7 +27,11 @@ namespace MsmqWorkerAvailabilityManager
             set 
             {
                 s = value;
+
+                MsmqUtilities.CreateQueueIfNecessary(MsmqTransport.GetFullPathWithoutPrefix(value));
+
                 string path = MsmqTransport.GetFullPath(value);
+
                 MessageQueue q = new MessageQueue(path);
 
                 if (!q.Transactional)
@@ -82,7 +87,19 @@ namespace MsmqWorkerAvailabilityManager
             }
         }
 
-		/// <summary>
+	    public void Start()
+	    {
+            string path = MsmqTransport.GetFullPath(this.StorageQueue);
+
+            MsmqUtilities.CreateQueueIfNecessary(path);
+
+            MessageQueue q = new MessageQueue(path);
+
+            if (!q.Transactional)
+                throw new Exception("Queue must be transactional.");
+	    }
+
+	    /// <summary>
 		/// Signal that a worker is available to receive a dispatched message.
 		/// </summary>
 		/// <param name="address">
