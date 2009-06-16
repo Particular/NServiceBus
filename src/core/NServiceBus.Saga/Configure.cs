@@ -4,7 +4,6 @@ using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using System.Linq.Expressions;
 using NServiceBus.Utils;
-using System.Reflection.Emit;
 
 namespace NServiceBus.Saga
 {
@@ -82,7 +81,7 @@ namespace NServiceBus.Saga
         private static IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> sagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
         /// <summary>
-        /// Creates an <see cref="EmptySagaFinder{T}" /> for each saga type that doesn't have a finder configured.
+        /// Creates an <see cref="NullSagaFinder{T}" /> for each saga type that doesn't have a finder configured.
         /// </summary>
         private void CreateAdditionalFindersAsNecessary()
         {
@@ -100,6 +99,12 @@ namespace NServiceBus.Saga
                 Type finder = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
                 configurer.ConfigureComponent(finder, ComponentCallModelEnum.Singlecall);
                 ConfigureFinder(finder);
+
+                Type nullFinder = typeof (NullSagaFinder<>).MakeGenericType(sagaEntityType);
+                configurer.ConfigureComponent(nullFinder, ComponentCallModelEnum.Singlecall);
+                ConfigureFinder(nullFinder);
+
+                //TODO: Refactor the above.
             }
         }
 

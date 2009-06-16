@@ -27,6 +27,13 @@ namespace NServiceBus.Saga
 		/// <returns></returns>
         T Get<T>(Guid sagaId) where T : ISagaEntity;
 
+        /// <summary>
+        /// Looks up a saga entity by a given property.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         T Get<T>(string property, object value) where T : ISagaEntity;
 
 		/// <summary>

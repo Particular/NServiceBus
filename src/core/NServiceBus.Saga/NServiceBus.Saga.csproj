@@ -72,6 +72,7 @@
     <Compile Include="ISagaPersister.cs" />
     <Compile Include="ISagaStartedBy.cs" />
     <Compile Include="ITimeoutable.cs" />
+    <Compile Include="NullSagaFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertySagaFinder.cs" />
     <Compile Include="Saga.cs" />
