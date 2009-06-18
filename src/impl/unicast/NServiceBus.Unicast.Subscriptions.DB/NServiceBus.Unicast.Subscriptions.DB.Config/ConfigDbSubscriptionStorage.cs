@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
 
             storageConfig = Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 
-            DbSubscriptionStorageConfig cfg = ConfigurationManager.GetSection("DbSubscriptionStorageConfig") as DbSubscriptionStorageConfig;
+            var cfg = GetConfigSection<DbSubscriptionStorageConfig>();
 
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for DB Subscription Storage.");

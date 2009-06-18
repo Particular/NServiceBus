@@ -26,8 +26,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
             this.Builder = config.Builder;
             this.Configurer = config.Configurer;
 
-            MsmqSubscriptionStorageConfig cfg =
-                ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig") as MsmqSubscriptionStorageConfig;
+            var cfg = GetConfigSection<MsmqSubscriptionStorageConfig>();
 
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for Msmq Subscription Storage.");

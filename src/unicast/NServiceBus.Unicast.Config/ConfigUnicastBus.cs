@@ -36,7 +36,7 @@ namespace NServiceBus.Unicast.Config
 
             busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
-            UnicastBusConfig cfg = ConfigurationManager.GetSection("UnicastBusConfig") as UnicastBusConfig;
+            var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)
             {

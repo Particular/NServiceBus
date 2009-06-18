@@ -30,14 +30,10 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
 
             transportConfig = Configurer.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
-            MsmqTransportConfig cfg =
-                ConfigurationManager.GetSection("MsmqTransportConfig") as MsmqTransportConfig;
+            var cfg = GetConfigSection<MsmqTransportConfig>();
 
             if (cfg == null)
                 throw new ConfigurationErrorsException("Could not find configuration section for Msmq Transport.");
-
-            string inputQueue = MsmqTransport.GetFullPath(cfg.InputQueue);
-            string errorQueue = MsmqTransport.GetFullPath(cfg.ErrorQueue);
 
             transportConfig.ConfigureProperty(t => t.InputQueue, cfg.InputQueue);
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);

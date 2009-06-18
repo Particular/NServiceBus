@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
-using System.Text;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
 using System.Reflection;
@@ -20,12 +21,33 @@ namespace NServiceBus
         {
             get { return instance.Builder; }
         }
-        
+
         /// <summary>
         /// Gets/sets the builder.
         /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>
         public IBuilder Builder { get; set; }
+
+        protected IConfigurationSource ConfigSource { get; set; }
+
+        /// <summary>
+        /// Gets the current configuration source
+        /// </summary>
+        public static IConfigurationSource ConfigurationSource
+        {
+            get { return instance.ConfigSource; }
+        }
+
+        /// <summary>
+        /// Sets the current configuration source
+        /// </summary>
+        /// <param name="configurationSource"></param>
+        /// <returns></returns>
+        public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
+        {
+            ConfigSource = configurationSource;
+            return this;
+        }
 
         /// <summary>
         /// Gets/sets the object used to configure components.
@@ -36,7 +58,9 @@ namespace NServiceBus
         /// <summary>
         /// Protected constructor to enable creation only via the With method.
         /// </summary>
-        protected Configure() { }
+        protected Configure()
+        {
+        }
 
         /// <summary>
         /// Creates a new configuration object scanning assemblies
@@ -81,6 +105,8 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
+            instance.ConfigSource = new DefaultConfigurationSource();
+
             TypesToScan = typesToScan;
 
             return instance;
@@ -112,6 +138,16 @@ namespace NServiceBus
         /// Returns types in assemblies found in the current directory.
         /// </summary>
         public static IEnumerable<Type> TypesToScan { get; private set; }
+
+        /// <summary>
+        /// Returns the requested config section using the current configuration source
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetConfigSection<T>() where T : class
+        {
+            return ConfigurationSource.GetConfiguration<T>();
+        }
 
         private static IEnumerable<Type> GetTypesInDirectory(string path)
         {

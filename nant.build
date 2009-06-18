@@ -23,7 +23,7 @@
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,test,merge_src"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -66,13 +66,20 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid"
+					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid,tests\NServiceBus.UnitTests"
 					delim=","
 					property="pathToBuild">
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
+	</target>
+	
+	<target name="test" depends="compile_src">
+		<nunit2>
+			  <formatter type="Plain" />
+			  <test assemblyname="${solution.dir}\tests\NServiceBus.UnitTests\bin\${project.config}\NServiceBus.UnitTests.dll"/>
+		</nunit2>
 	</target>
 
 	<target name="merge_src">
@@ -119,12 +126,9 @@
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${merge.dir}\spring.core.dll" />
-					<include name="${merge.dir}\castle.core.dll" />
-					<include name="${merge.dir}\castle.microkernel.dll" />
-					<include name="${merge.dir}\castle.dynamicproxy2.dll" />
-					<include name="${merge.dir}\castle.windsor.dll" />
-					<include name="${merge.dir}\structuremap.dll" />
+					<include name="${merge.dir}\spring*.dll" />
+					<include name="${merge.dir}\castle*.dll" />
+					<include name="${merge.dir}\structuremap*.dll" />
 					<include name="${merge.dir}\autofac.dll" />
 				</items>
 			</in>
@@ -150,6 +154,7 @@
 
 	<target name="compile_tools">
 
+	    <!-- Testing -->
 		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 				workingdir="${solution.dir}\testing" />
 
@@ -158,6 +163,7 @@
 			commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
 			workingdir="." />
 
+		<!-- Misc -->
 		<foreach 	item="String"
 					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout"
 					delim=","
@@ -166,6 +172,15 @@
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
+
+		<!-- Host -->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\host\NServiceBus.Host" />
+
+		<mkdir dir="${output.dir}\host" />
+		<exec 	program="${lib.dir}\ilmerge.exe"
+			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
+			workingdir="." />
 
 	  <!-- Compile the gateway -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
