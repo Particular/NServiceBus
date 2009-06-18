@@ -1,17 +1,15 @@
 using System;
-using Messages;
 using NServiceBus;
 using NServiceBus.Host;
 
-namespace Subscriber2
+namespace Server
 {
-    public class MessageEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
+    public class ServerEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
     {
         public IBus Bus { get; set; }
+        
         public void OnStart()
         {
-            Bus.Subscribe<IEvent>();
-
             Console.WriteLine("Listening for events, press Ctrl + C to exit");
         }
 
@@ -23,15 +21,14 @@ namespace Subscriber2
         {
             return config
                 .SpringBuilder()
-                .XmlSerializer()
+                .MsmqSubscriptionStorage()
+                .BinarySerializer()
                 .MsmqTransport()
-                .IsTransactional(false)
-                .PurgeOnStartup(false)
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
                 .UnicastBus()
-                .ImpersonateSender(false)
-                .DoNotAutoSubscribe()
-                .LoadMessageHandlers();
+                    .ImpersonateSender(false)
+                    .LoadMessageHandlers();
         }
     }
-
 }

@@ -7,7 +7,6 @@ namespace Server
 {
     public class ServerEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
     {
-
         public IBus Bus { get; set; }
 
         private delegate void InputHandlerInvoker();
