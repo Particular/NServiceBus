@@ -64,7 +64,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="IM1.cs" />
+    <Compile Include="IM2.cs" />
+    <Compile Include="M1.cs" />
+    <Compile Include="M2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Risk.cs" />
+    <Compile Include="SomeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Serializers.XML\NServiceBus.Serializers.XML.csproj">

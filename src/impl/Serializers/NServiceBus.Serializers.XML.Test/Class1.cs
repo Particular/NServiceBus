@@ -34,7 +34,6 @@ namespace NServiceBus.Serializers.XML.Test
             serializer.Initialize(typeof(IM2));
 
             var o = mapper.CreateInstance<IM2>();
-            var o2 = mapper.CreateInstance<IM1>();
 
             o.Id = Guid.NewGuid();
             o.Age = 10;
@@ -216,67 +215,5 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
-    }
-
-    public interface IM2 : IM1
-    {
-        Guid Id { get; set; }
-        IM1 Parent { get; set; }
-        List<IM1> Names { get; set; }
-        SomeEnum Some { get; set; }
-        DateTime Start { get; set; }
-        TimeSpan Duration { get; set; }
-        DateTimeOffset Offset { get; set; }
-        IM1[] MoreNames { get; set; }
-        object State { get; set; }
-        IDictionary<string, string> Lookup { get; set; }
-    }
-
-    [Serializable]
-    public class M2 : M1
-    {
-        public Guid Id { get; set; }
-        public List<M1> Names { get; set; }
-        public M1 Parent { get; set; }
-        public SomeEnum Some { get; set; }
-        public DateTime Start { get; set; }
-        public TimeSpan Duration { get; set; }
-    }
-
-    [Serializable]
-    public class M1 : IM1
-    {
-        public float Age { get; set; }
-        public int Int { get; set; }
-        public string Name { get; set; }
-        public string Address { get; set; }
-        public Risk Risk { get; set; }
-    }
-
-    public enum SomeEnum
-    {
-        A,
-        B
-    }
-}
-
-namespace NServiceBus.Serializers.XML
-{
-
-    public interface IM1 : IMessage
-    {
-        float Age { get; set; }
-        int Int { get; set; }
-        string Name { get; set; }
-        string Address { get; set; }
-        Risk Risk { get; set; }
-    }
-
-    [Serializable]
-    public class Risk
-    {
-        public bool Annum { get; set; }
-        public double Percent { get; set; }
-        public decimal Accuracy { get; set; }
     }
 }
