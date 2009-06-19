@@ -32,7 +32,7 @@ namespace NServiceBus.Saga
                 return;
 
             var entitiesHandled = new List<ISagaEntity>();
-		    var sagaTypesCreated = new List<Type>();
+		    var sagaTypesHandled = new List<Type>();
 
             foreach (IFinder finder in Configure.GetFindersFor(message))
             {
@@ -46,10 +46,10 @@ namespace NServiceBus.Saga
                     if (sagaToCreate == null)
                         continue;
 
-                    if (sagaTypesCreated.Contains(sagaToCreate))
+                    if (sagaTypesHandled.Contains(sagaToCreate))
                         continue; // don't create the same saga type twice for the same message
 
-                    sagaTypesCreated.Add(sagaToCreate);
+                    sagaTypesHandled.Add(sagaToCreate);
 
                     Type sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaToCreate);
                     sagaEntity = Activator.CreateInstance(sagaEntityType) as ISagaEntity;
@@ -83,6 +83,8 @@ namespace NServiceBus.Saga
                     saga.Entity = sagaEntity;
 
                     HaveSagaHandleMessage(saga, message, sagaEntityIsPersistent);
+
+                    sagaTypesHandled.Add(saga.GetType());
                 }
 
                 entitiesHandled.Add(sagaEntity);
