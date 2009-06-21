@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using NServiceBus.Unicast.Transport;
 using System.Text;
 
 namespace NServiceBus.Unicast.Subscriptions.DB
@@ -21,13 +20,8 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             IsolationLevel = IsolationLevel.ReadCommitted;
         }
 
-        #region members
-
         private DbProviderFactory factory;
-
         private readonly IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
-
-        #endregion
 
         #region config
 
@@ -64,14 +58,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         #endregion
 
-        #region ISubscriptionStorage Members
-
-        /// <summary>
-        /// Returns the list of subscriber addresses subscribed for the given message type.
-        /// </summary>
-        /// <param name="messageType"></param>
-        /// <returns></returns>
-        public IList<string> GetSubscribersForMessage(Type messageType)
+        IList<string> ISubscriptionStorage.GetSubscribersForMessage(Type messageType)
         {
             var compatibles = new List<Type> {messageType};
             if (compatibleTypes.ContainsKey(messageType))
@@ -116,47 +103,39 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             return result;
         }
 
-        /// <summary>
-        /// Handles subscription messages.
-        /// </summary>
-        /// <param name="msg"></param>
-        public void HandleSubscriptionMessage(TransportMessage msg)
+        void ISubscriptionStorage.Unsubscribe(string client, string messageType)
         {
-            IMessage[] messages = msg.Body;
-            if (messages == null)
-                return;
-
-            if (messages.Length != 1)
-                return;
-
-            var subMessage = messages[0] as SubscriptionMessage;
-            if (subMessage == null)
-                return;
-
             using (DbConnection connection = GetConnection())
             using (DbTransaction tx = connection.BeginTransaction(IsolationLevel))
             {
-                if (subMessage.SubscriptionType == SubscriptionType.Add)
-                    Execute(
-                        tx,
-                        string.Format(
-                        "SET NOCOUNT ON;" +
-                        "INSERT INTO {0} ({1}, {2}) " +
-                        "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
-                        "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
-                                      Table, SubscriberColumnName, MessageTypeColumnName),
-                        msg.ReturnAddress,
-                        subMessage.TypeName
-                        );
+                Execute(
+                    tx,
+                    string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
+                                  Table, SubscriberColumnName, MessageTypeColumnName),
+                    client,
+                    messageType
+                    );
 
-                if (subMessage.SubscriptionType == SubscriptionType.Remove)
-                    Execute(
-                        tx,
-                        string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
-                                      Table, SubscriberColumnName, MessageTypeColumnName),
-                        msg.ReturnAddress,
-                        subMessage.TypeName
-                        );
+                tx.Commit();
+            } 
+        }
+
+        void ISubscriptionStorage.Subscribe(string client, string messageType)
+        {
+            using (DbConnection connection = GetConnection())
+            using (DbTransaction tx = connection.BeginTransaction(IsolationLevel))
+            {
+                Execute(
+                    tx,
+                    string.Format(
+                    "SET NOCOUNT ON;" +
+                    "INSERT INTO {0} ({1}, {2}) " +
+                    "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
+                    "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
+                                  Table, SubscriberColumnName, MessageTypeColumnName),
+                    client,
+                    messageType
+                    );
 
                 tx.Commit();
             }
@@ -215,8 +194,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
             genericTypes.Add(generic);
         }
-
-        #endregion
 
         #region db helper
 

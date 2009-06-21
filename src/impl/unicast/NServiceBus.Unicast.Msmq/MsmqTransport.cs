@@ -663,6 +663,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 var o = headerSerializer.Deserialize(stream);
                 result.Headers = o as List<HeaderInfo>;
             }
+            else
+            {
+                result.Headers = new List<HeaderInfo>();
+            }
 
 		    return result;
         }

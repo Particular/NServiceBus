@@ -5,14 +5,29 @@
     ///</summary>
     public enum MessageIntentEnum
     {
+        /// <summary>
+        /// Initialization
+        /// </summary>
+        Init,
+
         ///<summary>
-        /// Indicates that the intent is to do a regular point-to-point send
+        /// Regular point-to-point send
         ///</summary>
         Send,
 
         ///<summary>
-        /// Indicates that the intent is to do a publish, not a regular point-to-point send
+        /// Publish, not a regular point-to-point send
         ///</summary>
-        Publish
+        Publish,
+
+        /// <summary>
+        /// Subscribe
+        /// </summary>
+        Subscribe,
+
+        /// <summary>
+        /// Unsubscribe
+        /// </summary>
+        Unsubscribe
     }
 }

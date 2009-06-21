@@ -380,8 +380,10 @@ namespace NServiceBus.Unicast
 
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
-		    
-            SendMessage(destination, null, MessageIntentEnum.Send, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Add));
+
+		    _outgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+            SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
+		    _outgoingHeaders.Remove(SubscriptionMessageType);
         }
 
         /// <summary>
@@ -404,7 +406,9 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            SendMessage(destination, null, MessageIntentEnum.Send, new SubscriptionMessage(messageType.AssemblyQualifiedName, SubscriptionType.Remove));
+            _outgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+            SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
+            _outgoingHeaders.Remove(SubscriptionMessageType);
         }
 
         void IBus.Reply(params IMessage[] messages)
@@ -543,6 +547,8 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
+                _outgoingHeaders = new Dictionary<string, string>();
+
                 foreach (var action in startupActions)
                     action(builder);
 
@@ -592,6 +598,7 @@ namespace NServiceBus.Unicast
         {
             var toSend = GetTransportMessageFor(transport.Address, new CompletionMessage());
             toSend.ReturnAddress = transport.Address; // to cancel out worker behavior
+            toSend.MessageIntent = MessageIntentEnum.Init;
 
             transport.ReceiveMessageLater(toSend);
         }
@@ -753,19 +760,6 @@ namespace NServiceBus.Unicast
                     throw;
                 }
             }
-
-            if (toHandle is SubscriptionMessage)
-            {
-                if (subscriptionStorage != null)
-                    subscriptionStorage.HandleSubscriptionMessage(_messageBeingHandled);
-                else
-                {
-                    var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", _messageBeingHandled.ReturnAddress);
-
-                    Log.Warn(warning); // and cause message to go to error queue by throwing an exception
-                    throw new InvalidOperationException(warning);
-                }
-            }
         }
 
         private Action<object> GetAction<T>(T message) where T : IMessage
@@ -849,6 +843,9 @@ namespace NServiceBus.Unicast
                 return;
             }
 
+            if (HandledSubscriptionMessage(msg))
+                return;
+
             Log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
 
             _messageBeingHandled = msg;
@@ -861,6 +858,48 @@ namespace NServiceBus.Unicast
                 HandleMessage(msg);
 
             Log.Debug("Finished handling message.");
+        }
+
+        private bool HandledSubscriptionMessage(TransportMessage msg)
+        {
+            string messageType = null;
+            foreach (var header in msg.Headers)
+                if (header.Key == SubscriptionMessageType)
+                    messageType = header.Value;
+
+            Action warn = () =>
+                              {
+                                  var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", msg.ReturnAddress);
+
+                                  Log.Warn(warning);
+
+                                  if (Log.IsDebugEnabled) // only under debug, so that we don't expose ourselves to a denial of service
+                                      throw new InvalidOperationException(warning);  // and cause message to go to error queue by throwing an exception
+                              };
+
+            if (msg.MessageIntent == MessageIntentEnum.Subscribe)
+                if (subscriptionStorage != null)
+                {
+                    subscriptionStorage.Subscribe(msg.ReturnAddress, messageType);
+                    return true;
+                }
+                else
+                {
+                    warn();
+                }
+
+            if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
+                if (subscriptionStorage != null)
+                {
+                    subscriptionStorage.Unsubscribe(msg.ReturnAddress, messageType);
+                    return true;
+                }
+                else
+                {
+                    warn();
+                }
+
+            return false;
         }
 
         private void TransportFinishedMessageProcessing(object sender, EventArgs e)
@@ -880,6 +919,9 @@ namespace NServiceBus.Unicast
                 return false;
 
             if (msg.CorrelationId != null)
+                return false;
+
+            if (msg.MessageIntent != MessageIntentEnum.Init)
                 return false;
 
             if (msg.Body.Length > 1)
@@ -1246,6 +1288,8 @@ namespace NServiceBus.Unicast
 	    private volatile bool started;
         private volatile bool starting;
         private readonly object startLocker = new object();
+
+	    private const string SubscriptionMessageType = "SubscriptionMessageType";
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion

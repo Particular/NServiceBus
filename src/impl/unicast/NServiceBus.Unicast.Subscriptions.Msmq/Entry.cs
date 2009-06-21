@@ -1,5 +1,5 @@
 using System;
-using NServiceBus.Unicast.Transport;
+using Common.Logging;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
@@ -10,27 +10,26 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     public class Entry
     {
         /// <summary>
-        /// Creates a new Entry storing the message type and subscriber (return address of the given message).
-        /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="msg"></param>
-        public Entry(Type messageType, TransportMessage msg)
-        {
-            this.Subscriber = msg.ReturnAddress;
-            this.messageType = messageType.AssemblyQualifiedName;
-            this.TypeOfMessage = messageType;
-        }
-
-        /// <summary>
         /// Creates a new entry storing the message type and the subscriber.
         /// </summary>
-        /// <param name="messageType"></param>
         /// <param name="subscriber"></param>
-        public Entry(string messageType, string subscriber)
+        /// <param name="messageType"></param>
+        public Entry(string subscriber, string messageType)
         {
-            this.Subscriber = subscriber;
+            Subscriber = subscriber;
             this.messageType = messageType;
-            this.TypeOfMessage = Type.GetType(messageType);
+            typeOfMessage = Type.GetType(messageType, false);
+
+            if (typeOfMessage == null)
+            {
+                string warning = "Could not handle subscription for message type: " + messageType +
+                            " from endpoint " + subscriber + ". Type not available on this endpoint.";
+
+                Logger.Warn(warning);
+
+                if (Logger.IsDebugEnabled)
+                    throw new InvalidOperationException(warning);
+            }
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             set
             {
                 messageType = value;
-                TypeOfMessage = Type.GetType(value);
+                typeOfMessage = Type.GetType(value);
             }
         }
 
@@ -60,7 +59,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// </summary>
         public string Subscriber { get; set; }
 
-        private Type TypeOfMessage;
+        private Type typeOfMessage;
 
         /// <summary>
         /// Returns true if the given message is compatible with the entry's message type.
@@ -81,10 +80,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <returns></returns>
         public bool Matches(Type msgType)
         {
-            if (TypeOfMessage == null)
-                return false;
-
-            return TypeOfMessage.IsAssignableFrom(msgType);
+            return typeOfMessage != null && typeOfMessage.IsAssignableFrom(msgType);
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (ISubscriptionStorage));
     }
 }

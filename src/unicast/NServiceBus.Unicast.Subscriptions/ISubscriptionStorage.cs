@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NServiceBus.Unicast.Transport;
 using System;
 
 namespace NServiceBus.Unicast.Subscriptions
@@ -10,11 +9,18 @@ namespace NServiceBus.Unicast.Subscriptions
     public interface ISubscriptionStorage
     {
         /// <summary>
-        /// Check to see if the given message is a <see cref="SubscriptionMessage"/>.
-        /// If so, performs the relevant subscribe/unsubscribe.
+        /// Subscribes the given client address to messages of the given messageType.
         /// </summary>
-        /// <param name="msg">The message received in the bus.</param>
-	    void HandleSubscriptionMessage(TransportMessage msg);
+        /// <param name="client"></param>
+        /// <param name="messageType"></param>
+	    void Subscribe(string client, string messageType);
+
+        /// <summary>
+        /// Unsubscribes the given client address from messages of the given messageType.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="messageType"></param>
+	    void Unsubscribe(string client, string messageType);
 
         /// <summary>
         /// Returns a list of addresses of subscribers that previously requested to be notified
