@@ -34,26 +34,27 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 	/// </summary>
     public class MsmqSubscriptionStorage : ISubscriptionStorage
     {
-        void ISubscriptionStorage.Init(IList<Type> messageTypes)
+        void ISubscriptionStorage.Init()
         {
             foreach (var m in q.GetAllMessages())
             {
                 var subscriber = m.Label;
                 var messageType = m.Body as string;
 
-                entries.Add(new Entry(messageType, subscriber));
+                entries.Add(new Entry { MessageType = messageType, Subscriber = subscriber});
                 AddToLookup(subscriber, messageType, m.Id);
             }
         }
 
-        IList<string> ISubscriptionStorage.GetSubscribersForMessage(Type messageType)
+        IList<string> ISubscriptionStorage.GetSubscribersForMessage(IList<string> messageTypes)
         {
             var result = new List<string>();
 
             lock (locker)
                 foreach (var e in entries)
-                    if (e.Matches(messageType))
-                        result.Add(e.Subscriber);
+                    foreach(var m in messageTypes)
+                        if (e.MessageType == m)
+                            result.Add(e.Subscriber);
 
             return result;
         }
@@ -68,36 +69,46 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             return (Transaction.Current == null && !DontUseExternalTransaction);                
         }
 
-        void ISubscriptionStorage.Subscribe(string client, string messageType)
+        void ISubscriptionStorage.Subscribe(string client, IList<string> messageTypes)
         {
             lock (locker)
             {
-                // if already subscribed, do nothing
-                foreach (var e in entries)
-                    if (e.Matches(messageType) && e.Subscriber == client)
-                        return;
+                foreach (var m in messageTypes)
+                {
+                    bool found = false;
+                    foreach (var e in entries)
+                        if (e.MessageType == m && e.Subscriber == client)
+                        {
+                            found = true;
+                            break;
+                        }
 
-                Add(client, messageType);
+                    if (!found)
+                    {
+                        Add(client, m);
 
-                entries.Add(new Entry(client, messageType));
+                        entries.Add(new Entry {MessageType = m, Subscriber = client});
 
-                log.Debug("Subscriber " + client + " added for message " + messageType + ".");
+                        log.Debug("Subscriber " + client + " added for message " + m + ".");
+                    }
+                }
             }
         }
 
-        void ISubscriptionStorage.Unsubscribe(string client, string messageType)
+        void ISubscriptionStorage.Unsubscribe(string client, IList<string> messageTypes)
         {
             lock (locker)
             {
                 foreach (var e in entries.ToArray())
-                    if (e.Matches(messageType) && e.Subscriber == client)
-                    {
-                        Remove(e.Subscriber, e.MessageType);
+                    foreach (var m in messageTypes)
+                        if (e.MessageType == m && e.Subscriber == client)
+                        {
+                            Remove(client, m);
 
-                        entries.Remove(e);
+                            entries.Remove(e);
 
-                        log.Debug("Subscriber " + client + " removed for message " + messageType + ".");
-                    }
+                            log.Debug("Subscriber " + client + " removed for message " + m + ".");
+                        }
             }
         }
 

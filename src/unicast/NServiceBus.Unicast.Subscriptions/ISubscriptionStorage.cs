@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System;
 
 namespace NServiceBus.Unicast.Subscriptions
 {
@@ -9,32 +8,31 @@ namespace NServiceBus.Unicast.Subscriptions
     public interface ISubscriptionStorage
     {
         /// <summary>
-        /// Subscribes the given client address to messages of the given messageType.
+        /// Subscribes the given client address to messages of the given types.
         /// </summary>
         /// <param name="client"></param>
-        /// <param name="messageType"></param>
-	    void Subscribe(string client, string messageType);
+        /// <param name="messageTypes"></param>
+	    void Subscribe(string client, IList<string> messageTypes);
 
         /// <summary>
-        /// Unsubscribes the given client address from messages of the given messageType.
+        /// Unsubscribes the given client address from messages of the given types.
         /// </summary>
         /// <param name="client"></param>
-        /// <param name="messageType"></param>
-	    void Unsubscribe(string client, string messageType);
+        /// <param name="messageTypes"></param>
+        void Unsubscribe(string client, IList<string> messageTypes);
 
         /// <summary>
         /// Returns a list of addresses of subscribers that previously requested to be notified
-        /// of messages of the same type as the given message type.
+        /// of messages of the given message types.
         /// </summary>
-        /// <param name="messageType">The logical message type that the bus wishes to publish.</param>
-        /// <returns>List of addresses of subscribers.</returns>
-        IList<string> GetSubscribersForMessage(Type messageType);
+        /// <param name="messageTypes"></param>
+        /// <returns></returns>
+        IList<string> GetSubscribersForMessage(IList<string> messageTypes);
 
         /// <summary>
         /// Notifies the subscription storage that now is the time to perform
         /// any initialization work
         /// </summary>
-        /// <param name="messageTypes">The logical message types that the bus will be publishing.</param>
-        void Init(IList<Type> messageTypes);
+        void Init();
     }
 }

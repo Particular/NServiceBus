@@ -34,12 +34,12 @@ namespace NServiceBus.Multicast
         /// <param name="messages"></param>
         public override void Publish<T>(params T[] messages)
         {
-            TransportMessage m = this.GetTransportMessageFor(string.Empty, messages as IMessage[]);
-            m.ReturnAddress = this.transport.Address;
+            TransportMessage m = GetTransportMessageFor(messages as IMessage[]);
+            m.ReturnAddress = transport.Address;
 
-            string address = this.GetDestinationForMessageType(messages[0].GetType());
+            string address = GetDestinationForMessageType(messages[0].GetType());
 
-            ((IMulticastTransport)this.transport).Publish(m, address);
+            ((IMulticastTransport)transport).Publish(m, address);
         }
 
         /// <summary>

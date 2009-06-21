@@ -60,7 +60,11 @@ namespace Server
         {
             return config
                 .SpringBuilder()
-                .MsmqSubscriptionStorage()
+                .DbSubscriptionStorage()
+                        .Table("Subscriptions")
+                        .SubscriberEndpointColumnName("SubscriberEndpoint")
+                        .MessageTypeColumnName("MessageType")
+                //.MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()
                 .IsTransactional(true)

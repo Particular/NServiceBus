@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -21,7 +20,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         }
 
         private DbProviderFactory factory;
-        private readonly IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
 
         #region config
 
@@ -58,31 +56,27 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         #endregion
 
-        IList<string> ISubscriptionStorage.GetSubscribersForMessage(Type messageType)
+        IList<string> ISubscriptionStorage.GetSubscribersForMessage(IList<string> messageTypes)
         {
-            var compatibles = new List<Type> {messageType};
-            if (compatibleTypes.ContainsKey(messageType))
-                compatibles.AddRange(compatibleTypes[messageType]);
-
             var result = new List<string>();
 
             var command = GetConnection().CreateCommand();
             command.CommandType = CommandType.Text;
 
             var builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
-            for (int i = 0; i < compatibles.Count; i++)
+            for (int i = 0; i < messageTypes.Count; i++)
             {
                 string paramName = "@" + MessageTypeColumnName + i;
 
                 DbParameter msgParam = command.CreateParameter();
                 msgParam.ParameterName = paramName;
-                msgParam.Value = compatibles[i].AssemblyQualifiedName;
+                msgParam.Value = messageTypes[i];
                 command.Parameters.Add(msgParam);
 
                 builder.Append("{2}=");
                 builder.Append(paramName);
 
-                if (i != compatibles.Count - 1)
+                if (i != messageTypes.Count - 1)
                     builder.Append(" OR ");
             }
 
@@ -103,39 +97,41 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             return result;
         }
 
-        void ISubscriptionStorage.Unsubscribe(string client, string messageType)
+        void ISubscriptionStorage.Unsubscribe(string client, IList<string> messageTypes)
         {
             using (DbConnection connection = GetConnection())
             using (DbTransaction tx = connection.BeginTransaction(IsolationLevel))
             {
-                Execute(
-                    tx,
-                    string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
-                                  Table, SubscriberColumnName, MessageTypeColumnName),
-                    client,
-                    messageType
-                    );
+                foreach(var messageType in messageTypes)
+                    Execute(
+                        tx,
+                        string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
+                                      Table, SubscriberColumnName, MessageTypeColumnName),
+                        client,
+                        messageType
+                        );
 
                 tx.Commit();
             } 
         }
 
-        void ISubscriptionStorage.Subscribe(string client, string messageType)
+        void ISubscriptionStorage.Subscribe(string client, IList<string> messageTypes)
         {
             using (DbConnection connection = GetConnection())
             using (DbTransaction tx = connection.BeginTransaction(IsolationLevel))
             {
-                Execute(
-                    tx,
-                    string.Format(
-                    "SET NOCOUNT ON;" +
-                    "INSERT INTO {0} ({1}, {2}) " +
-                    "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
-                    "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
-                                  Table, SubscriberColumnName, MessageTypeColumnName),
-                    client,
-                    messageType
-                    );
+                foreach(var messageType in messageTypes)
+                    Execute(
+                        tx,
+                        string.Format(
+                        "SET NOCOUNT ON;" +
+                        "INSERT INTO {0} ({1}, {2}) " +
+                        "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
+                        "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
+                                      Table, SubscriberColumnName, MessageTypeColumnName),
+                        client,
+                        messageType
+                        );
 
                 tx.Commit();
             }
@@ -143,11 +139,8 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         /// <summary>
         /// Initializes the storage.
-        /// Scans the given message types to find compatibilities between them
-        /// based on inheritance.
         /// </summary>
-        /// <param name="messageTypes"></param>
-        public void Init(IList<Type> messageTypes)
+        public void Init()
         {
             if (ConnectionString == null ||
                 ProviderInvariantName == null ||
@@ -158,41 +151,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
 
             factory = DbProviderFactories.GetFactory(ProviderInvariantName);
-
-            foreach (Type msgType in messageTypes)
-            {
-                ScanBase(msgType);
-
-                foreach (Type interfaceType in msgType.GetInterfaces())
-                    if (typeof (IMessage).IsAssignableFrom(interfaceType) && typeof(IMessage) != interfaceType)
-                        RegisterMapping(msgType, interfaceType);
-            }
-        }
-
-        private void ScanBase(Type msgType)
-        {
-            if (msgType == null)
-                return;
-
-            Type baseType = msgType.BaseType;
-            if (typeof(IMessage).IsAssignableFrom(baseType))
-                RegisterMapping(msgType, baseType);
-
-            ScanBase(baseType);
-        }
-
-        private void RegisterMapping(Type specific, Type generic)
-        {
-            IList<Type> genericTypes;
-            compatibleTypes.TryGetValue(specific, out genericTypes);
-
-            if (genericTypes == null)
-            {
-                genericTypes = new List<Type>();
-                compatibleTypes[specific] = genericTypes;
-            }
-
-            genericTypes.Add(generic);
         }
 
         #region db helper

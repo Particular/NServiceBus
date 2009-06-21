@@ -11,6 +11,7 @@ using NServiceBus.Unicast.Transport;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
+using System.Text;
 
 namespace NServiceBus.Unicast
 {
@@ -312,18 +313,13 @@ namespace NServiceBus.Unicast
             if (subscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
-		    var leadingType = messages[0].GetType();
-            if (messageMapper != null)
-                leadingType = messageMapper.GetMappedTypeFor(leadingType);
-
-            var subscribers = subscriptionStorage.GetSubscribersForMessage(leadingType);
+            var subscribers = subscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
             
             if (subscribers.Count == 0)
                 if (NoSubscribersForMessage != null)
                     NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
 
-            foreach (string subscriber in subscribers)
-                SendMessage(subscriber, null, MessageIntentEnum.Publish, messages as IMessage[]);
+            SendMessage(subscribers, null, MessageIntentEnum.Publish, messages as IMessage[]);
         }
 
         /// <summary>
@@ -457,16 +453,18 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
+            var m = GetTransportMessageFor(messages);
+
             //if we're a worker, send to the distributor data bus
             if (DistributorDataAddress != null)
             {
-                var m = GetTransportMessageFor(DistributorDataAddress, messages);
+                m.ReturnAddress = GetReturnAddressFor(DistributorDataAddress);
 
                 transport.Send(m, DistributorDataAddress);
             }
             else
             {
-                var m = GetTransportMessageFor(transport.Address, messages);
+                m.ReturnAddress = GetReturnAddressFor(transport.Address);
 
                 transport.ReceiveMessageLater(m);
             }
@@ -507,29 +505,83 @@ namespace NServiceBus.Unicast
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
         {
-            AssertBusIsStarted();
-            if (destination == null)
-                throw new InvalidOperationException("No destination specified. Messages cannot be sent. Check the UnicastBusConfig section in your config file.");
+            foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
+            {
+                var result = new Callback(id);
+                result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
+                                         {
+                                             lock (messageIdToAsyncResultLookup)
+                                                 messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+                                         };
 
-            var toSend = GetTransportMessageFor(destination, messages);
+                return result;
+            }
+
+            return null;
+        }
+
+        private ICollection<string> SendMessage(IEnumerable<string> destinations, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
+        {
+            AssertBusIsStarted();
+
+            var result = new List<string>();
+
+            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = SerializeMessageTypes(messages);
+            var toSend = GetTransportMessageFor(messages);
+            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = null;
 
             toSend.CorrelationId = correlationId;
-
             toSend.MessageIntent = messageIntent;
 
-            transport.Send(toSend, destination);
+            foreach (var destination in destinations)
+            {
+                if (destination == null)
+                    throw new InvalidOperationException(
+                        "No destination specified. Messages cannot be sent. Check the UnicastBusConfig section in your config file.");
 
-            if (Log.IsDebugEnabled)
-                Log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
+                toSend.ReturnAddress = GetReturnAddressFor(destination);
 
-            var result = new Callback(toSend.Id);
-		    result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
-		                             {
-                                         lock (messageIdToAsyncResultLookup)
-                                             messageIdToAsyncResultLookup[args.MessageId] = args.Result;
-                                     };
+                transport.Send(toSend, destination);
 
-		    return result;
+                if (Log.IsDebugEnabled)
+                    Log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
+
+                result.Add(toSend.Id);
+            }
+
+            return result;
+        }
+
+        private static string SerializeMessageTypes(IMessage[] messages)
+        {
+            var types = GetFullTypes(messages);
+
+            var sBuilder = new StringBuilder("<MessageTypes>");
+            types.ForEach(s => sBuilder.Append("<s>" + s + "</s>"));
+            sBuilder.Append("</MessageTypes>");
+
+            return sBuilder.ToString();
+        }
+
+        private static List<string> GetFullTypes(IEnumerable<IMessage> messages)
+        {
+            var types = new List<string>();
+
+            foreach (var m in messages)
+            {
+                var s = m.GetType().AssemblyQualifiedName;
+                if (types.Contains(s))
+                    continue;
+
+                types.Add(s);
+
+                foreach (var t in m.GetType().GetInterfaces())
+                    if (typeof(IMessage).IsAssignableFrom(t) && t != typeof(IMessage))
+                        if (!types.Contains(t.AssemblyQualifiedName))
+                            types.Add(t.AssemblyQualifiedName);
+            }
+
+            return types;
         }
 
 		/// <summary>
@@ -547,15 +599,13 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
-                _outgoingHeaders = new Dictionary<string, string>();
-
                 foreach (var action in startupActions)
                     action(builder);
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
                 if (subscriptionStorage != null)
-                    subscriptionStorage.Init(messageTypes);
+                    subscriptionStorage.Init();
 
                 transport.MessageTypesToBeReceived = messageTypes;
                 transport.Start();
@@ -596,8 +646,8 @@ namespace NServiceBus.Unicast
 
         private void InitializeSelf()
         {
-            var toSend = GetTransportMessageFor(transport.Address, new CompletionMessage());
-            toSend.ReturnAddress = transport.Address; // to cancel out worker behavior
+            var toSend = GetTransportMessageFor(new CompletionMessage());
+            toSend.ReturnAddress = transport.Address;
             toSend.MessageIntent = MessageIntentEnum.Init;
 
             transport.ReceiveMessageLater(toSend);
@@ -637,7 +687,7 @@ namespace NServiceBus.Unicast
             }
 
 
-            var toSend = GetTransportMessageFor(DistributorControlAddress, messages);
+            var toSend = GetTransportMessageFor(messages);
             toSend.ReturnAddress = transport.Address;
 
             transport.Send(toSend, DistributorControlAddress);
@@ -663,7 +713,9 @@ namespace NServiceBus.Unicast
         private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
 
 	    [ThreadStatic] 
-        private static IDictionary<string, string> _outgoingHeaders;
+        private static IDictionary<string, string> _outgoingHeaders = new Dictionary<string, string>();
+
+        //private static IDictionary<string, string> OutgoingHeaders 
 
 	    IDictionary<string, string> IBus.OutgoingHeaders
 	    {
@@ -880,7 +932,7 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Subscribe)
                 if (subscriptionStorage != null)
                 {
-                    subscriptionStorage.Subscribe(msg.ReturnAddress, messageType);
+                    subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
                     return true;
                 }
                 else
@@ -891,7 +943,7 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
                 if (subscriptionStorage != null)
                 {
-                    subscriptionStorage.Unsubscribe(msg.ReturnAddress, messageType);
+                    subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
                     return true;
                 }
                 else
@@ -1054,17 +1106,15 @@ namespace NServiceBus.Unicast
         }
 
 		/// <summary>
-		/// Wraps the provided messages in an NServiceBus envelope.
+		/// Wraps the provided messages in an NServiceBus envelope, does not include destination.
 		/// </summary>
-        /// <param name="destination">The destination to which to send the messages.</param>
         /// <param name="messages">The messages to wrap.</param>
         /// <returns>The envelope containing the messages.</returns>
-        protected TransportMessage GetTransportMessageFor(string destination, params IMessage[] messages)
+        protected TransportMessage GetTransportMessageFor(params IMessage[] messages)
         {
             var result = new TransportMessage
                              {
                                  Body = messages,
-                                 ReturnAddress = GetReturnAddressFor(destination),
                                  WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name
                              };
 
@@ -1290,6 +1340,7 @@ namespace NServiceBus.Unicast
         private readonly object startLocker = new object();
 
 	    private const string SubscriptionMessageType = "SubscriptionMessageType";
+	    private const string EnclosedMessageTypes = "EnclosedMessageTypes";
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion

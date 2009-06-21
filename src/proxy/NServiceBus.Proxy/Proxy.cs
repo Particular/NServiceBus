@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Messages;
 
@@ -9,7 +10,7 @@ namespace NServiceBus.Proxy
     {
         #region config
 
-        public ISubscriberStorage Subscribers { private get; set; }
+        public ISubscriptionStorage Subscribers { get; set; }
 
         private ITransport externalTransport;
         public ITransport ExternalTransport
@@ -68,19 +69,23 @@ namespace NServiceBus.Proxy
 
         void ExternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            ProxyData data = null;
-            
-            if (e.Message.CorrelationId != null)
-                data = Storage.GetAndRemove(e.Message.CorrelationId);
 
-            if (data == null)
+            if (e.Message.MessageIntent == MessageIntentEnum.Publish)
             {
-                if (HandledPublish(e.Message))
-                    return;
+                foreach (var sub in Subscribers.GetSubscribersForMessage())
+                    internalTransport.Send(message, sub);
+
             }
             else
             {
-                // response from server
+                ProxyData data = null;
+
+                if (e.Message.CorrelationId != null)
+                    data = Storage.GetAndRemove(e.Message.CorrelationId);
+
+                if (data == null)
+                    return;
+
                 e.Message.CorrelationId = data.CorrelationId;
 
                 internalTransport.Send(e.Message, data.ClientAddress);
@@ -111,23 +116,6 @@ namespace NServiceBus.Proxy
             externalTransport.Send(e.Message, remoteServer);
 
             return;
-        }
-
-
-        /// <summary>
-        /// Assumes that no data could be found using correlation id.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        private bool HandledPublish(TransportMessage message)
-        {
-            if (message.ReturnAddress != remoteServer)
-                return false;
-
-            foreach(var sub in Subscribers.GetAllSubscribers())
-                internalTransport.Send(message, sub);
-
-            return true;
         }
 
         private bool HandledSubscription(TransportMessage transportMessage)
