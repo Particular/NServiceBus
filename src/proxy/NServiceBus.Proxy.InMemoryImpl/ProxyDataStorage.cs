@@ -19,6 +19,6 @@ namespace NServiceBus.Proxy.InMemoryImpl
             return result;
         }
 
-        private IDictionary<string, ProxyData> storage = new Dictionary<string, ProxyData>();
+        private readonly IDictionary<string, ProxyData> storage = new Dictionary<string, ProxyData>();
     }
 }

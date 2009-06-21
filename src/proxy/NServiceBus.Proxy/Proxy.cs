@@ -9,49 +9,43 @@ namespace NServiceBus.Proxy
     {
         #region config
 
-        private ISubscriberStorage subscribers;
-        public virtual ISubscriberStorage Subscribers
-        {
-            set { subscribers = value; }
-        }
+        public ISubscriberStorage Subscribers { private get; set; }
 
         private ITransport externalTransport;
-        public virtual ITransport ExternalTransport
+        public ITransport ExternalTransport
         {
             set
             {
-                this.externalTransport = value;
+                externalTransport = value;
 
-                this.externalTransport.TransportMessageReceived += externalTransport_TransportMessageReceived;
+                externalTransport.TransportMessageReceived += ExternalTransportTransportMessageReceived;
             }
         }
 
         private ITransport internalTransport;
-        public virtual ITransport InternalTransport
+        public ITransport InternalTransport
         {
             set
             {
-                this.internalTransport = value;
-                this.internalTransport.MessageTypesToBeReceived =
-                    new List<Type>(new Type[] { typeof(SubscriptionMessage), typeof(ReadyMessage) });
+                internalTransport = value;
+                internalTransport.MessageTypesToBeReceived =
+                    new List<Type>(new[] { typeof(SubscriptionMessage), typeof(ReadyMessage) });
 
-                this.internalTransport.TransportMessageReceived += internalTransport_TransportMessageReceived;
+                internalTransport.TransportMessageReceived += InternalTransportTransportMessageReceived;
             }
         }
-        private IProxyDataStorage storage;
-        public virtual IProxyDataStorage Storage
-        {
-            set { this.storage = value; }
-        }
 
-        public virtual string RemoteServer
+        public IProxyDataStorage Storage { private get; set; }
+
+        public string RemoteServer
         {
+            get { return remoteServer; }
             set
             {
-                string[] arr = value.Split('@');
+                var arr = value.Split('@');
 
-                string queue = arr[0];
-                string machine = Environment.MachineName;
+                var queue = arr[0];
+                var machine = Environment.MachineName;
 
                 if (arr.Length == 2)
                     if (arr[1] != "." && arr[1].ToLower() != "localhost")
@@ -68,16 +62,16 @@ namespace NServiceBus.Proxy
 
         public void Start()
         {
-            this.internalTransport.Start();
-            this.externalTransport.Start();
+            internalTransport.Start();
+            externalTransport.Start();
         }
 
-        void externalTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void ExternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             ProxyData data = null;
             
             if (e.Message.CorrelationId != null)
-                data = this.storage.GetAndRemove(e.Message.CorrelationId);
+                data = Storage.GetAndRemove(e.Message.CorrelationId);
 
             if (data == null)
             {
@@ -89,26 +83,32 @@ namespace NServiceBus.Proxy
                 // response from server
                 e.Message.CorrelationId = data.CorrelationId;
 
-                this.internalTransport.Send(e.Message, data.ClientAddress);
+                internalTransport.Send(e.Message, data.ClientAddress);
             }
         }
 
-        void internalTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void InternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             if (HandledSubscription(e.Message))
                 return;
 
-            ProxyData data = new ProxyData();
-            data.Id = GenerateId();
-            data.ClientAddress = e.Message.ReturnAddress;
-            data.CorrelationId = e.Message.IdForCorrelation;
+            if (e.Message.Body != null)
+                if (e.Message.Body[0] is CompletionMessage)
+                    return;
 
-            this.storage.Save(data);
+            var data = new ProxyData
+                           {
+                               Id = GenerateId(),
+                               ClientAddress = e.Message.ReturnAddress,
+                               CorrelationId = e.Message.IdForCorrelation
+                           };
+
+            Storage.Save(data);
 
             e.Message.IdForCorrelation = data.Id;
-            e.Message.ReturnAddress = this.externalTransport.Address;
+            e.Message.ReturnAddress = externalTransport.Address;
 
-            this.externalTransport.Send(e.Message, remoteServer);
+            externalTransport.Send(e.Message, remoteServer);
 
             return;
         }
@@ -124,8 +124,8 @@ namespace NServiceBus.Proxy
             if (message.ReturnAddress != remoteServer)
                 return false;
 
-            foreach(string sub in subscribers.GetAllSubscribers())
-                this.internalTransport.Send(message, sub);
+            foreach(var sub in Subscribers.GetAllSubscribers())
+                internalTransport.Send(message, sub);
 
             return true;
         }
@@ -135,17 +135,17 @@ namespace NServiceBus.Proxy
             if (transportMessage.Body == null)
                 return false;
 
-            SubscriptionMessage sub = transportMessage.Body[0] as SubscriptionMessage;
+            var sub = transportMessage.Body[0] as SubscriptionMessage;
             if (sub == null)
                 return false;
 
             if (sub.SubscriptionType == SubscriptionType.Add)
-                subscribers.Store(transportMessage.ReturnAddress);
+                Subscribers.Store(transportMessage.ReturnAddress);
             if (sub.SubscriptionType == SubscriptionType.Remove)
-                subscribers.Remove(transportMessage.ReturnAddress);
+                Subscribers.Remove(transportMessage.ReturnAddress);
 
-            transportMessage.ReturnAddress = this.externalTransport.Address;
-            this.externalTransport.Send(transportMessage, remoteServer);
+            transportMessage.ReturnAddress = externalTransport.Address;
+            externalTransport.Send(transportMessage, remoteServer);
 
             return true;
         }
