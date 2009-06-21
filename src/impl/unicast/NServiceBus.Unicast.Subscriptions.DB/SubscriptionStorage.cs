@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
 
         private DbProviderFactory factory;
 
-        private IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
+        private readonly IDictionary<Type, IList<Type>> compatibleTypes = new Dictionary<Type, IList<Type>>();
 
         #endregion
 
@@ -73,17 +73,16 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         /// <returns></returns>
         public IList<string> GetSubscribersForMessage(Type messageType)
         {
-            List<Type> compatibles = new List<Type>();
-            compatibles.Add(messageType);
+            var compatibles = new List<Type> {messageType};
             if (compatibleTypes.ContainsKey(messageType))
                 compatibles.AddRange(compatibleTypes[messageType]);
 
-            List<string> result = new List<string>();
+            var result = new List<string>();
 
-            DbCommand command = this.GetConnection().CreateCommand();
+            var command = GetConnection().CreateCommand();
             command.CommandType = CommandType.Text;
 
-            StringBuilder builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
+            var builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
             for (int i = 0; i < compatibles.Count; i++)
             {
                 string paramName = "@" + MessageTypeColumnName + i;
@@ -130,7 +129,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             if (messages.Length != 1)
                 return;
 
-            SubscriptionMessage subMessage = messages[0] as SubscriptionMessage;
+            var subMessage = messages[0] as SubscriptionMessage;
             if (subMessage == null)
                 return;
 
@@ -171,15 +170,15 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         /// <param name="messageTypes"></param>
         public void Init(IList<Type> messageTypes)
         {
-            if (this.ConnectionString == null ||
-                this.ProviderInvariantName == null ||
-                this.MessageTypeColumnName == null ||
-                this.SubscriberColumnName == null ||
-                this.Table == null)
+            if (ConnectionString == null ||
+                ProviderInvariantName == null ||
+                MessageTypeColumnName == null ||
+                SubscriberColumnName == null ||
+                Table == null)
                 throw new ConfigurationErrorsException(
                     "ConnectionString, MessageTypeParameterName, SubscriberParameterName, Table, or ProviderInvariantName have not been set.");
 
-            factory = DbProviderFactories.GetFactory(this.ProviderInvariantName);
+            factory = DbProviderFactories.GetFactory(ProviderInvariantName);
 
             foreach (Type msgType in messageTypes)
             {
@@ -206,12 +205,12 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         private void RegisterMapping(Type specific, Type generic)
         {
             IList<Type> genericTypes;
-            this.compatibleTypes.TryGetValue(specific, out genericTypes);
+            compatibleTypes.TryGetValue(specific, out genericTypes);
 
             if (genericTypes == null)
             {
                 genericTypes = new List<Type>();
-                this.compatibleTypes[specific] = genericTypes;
+                compatibleTypes[specific] = genericTypes;
             }
 
             genericTypes.Add(generic);
