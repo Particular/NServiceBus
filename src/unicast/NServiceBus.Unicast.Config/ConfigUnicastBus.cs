@@ -1,5 +1,4 @@
 using System;
-using System.Configuration;
 using NServiceBus.ObjectBuilder;
 using System.Collections;
 using System.Reflection;
@@ -15,11 +14,6 @@ namespace NServiceBus.Unicast.Config
     public class ConfigUnicastBus : Configure
     {
         /// <summary>
-        /// Just calls the base constructor (needed because we're providing another constructor).
-        /// </summary>
-        public ConfigUnicastBus() : base() {}
-
-        /// <summary>
         /// A map of which message types (belonging to the given assemblies) are owned 
         /// by which endpoint.
         /// </summary>
@@ -31,8 +25,8 @@ namespace NServiceBus.Unicast.Config
         /// <param name="config"></param>
         public void Configure(Configure config)
         {
-            this.Builder = config.Builder;
-            this.Configurer = config.Configurer;
+            Builder = config.Builder;
+            Configurer = config.Configurer;
 
             busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
@@ -79,7 +73,7 @@ namespace NServiceBus.Unicast.Config
         [Obsolete]
         public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params Assembly[] assemblies)
         {
-            List<Type> types = new List<Type>();
+            var types = new List<Type>();
             foreach (Assembly a in assemblies)
                 types.AddRange(a.GetTypes());
 
@@ -102,14 +96,14 @@ namespace NServiceBus.Unicast.Config
         /// 
         /// Use First{T} to indicate the type to load from.
         /// </summary>
-        /// <typeparam name="FIRST"></typeparam>
+        /// <typeparam name="TFirst"></typeparam>
         /// <returns></returns>
-        public ConfigUnicastBus LoadMessageHandlers<FIRST>()
+        public ConfigUnicastBus LoadMessageHandlers<TFirst>()
         {
-            Type[] args = typeof(FIRST).GetGenericArguments();
+            Type[] args = typeof(TFirst).GetGenericArguments();
             if (args.Length == 1)
             {
-                if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(FIRST)))
+                if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
                     var types = new List<Type>(TypesToScan);
 
@@ -120,7 +114,7 @@ namespace NServiceBus.Unicast.Config
                 }
             }
 
-            throw new ArgumentException("FIRST should be of the type First<T> where T is the type to indicate as first.");
+            throw new ArgumentException("TFirst should be of the type First<T> where T is the type to indicate as first.");
         }
 
         /// <summary>
@@ -157,7 +151,7 @@ namespace NServiceBus.Unicast.Config
             foreach (Type t in types)
                 if (IsMessageHandler(t))
                 {
-                    this.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
                     handlers.Add(t);
                 }
 
