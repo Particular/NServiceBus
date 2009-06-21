@@ -54,6 +54,7 @@
     <Compile Include="CompletionMessage.cs" />
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="ITransport.cs" />
+    <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubscriptionMessage.cs" />

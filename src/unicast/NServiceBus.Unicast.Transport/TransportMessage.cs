@@ -50,9 +50,9 @@ namespace NServiceBus.Unicast.Transport
         public bool Recoverable { get; set; }
 
         /// <summary>
-        /// Indicates to the infrastructure that the intent is a publish, not a regular send.
+        /// Indicates to the infrastructure the message intent (publish, or regular send).
         /// </summary>
-        public bool IsPublished { get; set; }
+        public MessageIntentEnum MessageIntent { get; set; }
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
