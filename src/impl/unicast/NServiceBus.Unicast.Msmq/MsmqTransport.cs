@@ -49,23 +49,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public bool SkipDeserialization { get; set; }
 
-        private bool purgeOnStartup = false;
-
-		/// <summary>
-		/// Sets whether or not the transport should purge the input
-		/// queue when it is started.
-		/// </summary>
-        public bool PurgeOnStartup
-        {
-            get { return purgeOnStartup; }
-            set
-            {
-                purgeOnStartup = value;
-
-                if (this.purgeOnStartup && this.queue != null)
-                    this.queue.Purge();
-            }
-        }
+	    /// <summary>
+	    /// Sets whether or not the transport should purge the input
+	    /// queue when it is started.
+	    /// </summary>
+	    public bool PurgeOnStartup { get; set; }
 
 	    private int maxRetries = 5;
 
@@ -155,15 +143,15 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             get
             {
-                lock (this.workerThreads)
-                    return this.workerThreads.Count;
+                lock (workerThreads)
+                    return workerThreads.Count;
             }
             set
             {
-                _numberOfWorkerThreads = value;
+                numberOfWorkerThreads = value;
             }
         }
-        private int _numberOfWorkerThreads;
+        private int numberOfWorkerThreads;
 
 
 		/// <summary>
@@ -187,7 +175,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public virtual IList<Type> MessageTypesToBeReceived
         {
-            set { this.MessageSerializer.Initialize(GetExtraTypes(value)); }
+            set { MessageSerializer.Initialize(GetExtraTypes(value)); }
         }
 
         /// <summary>
@@ -197,25 +185,25 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <param name="targetNumberOfWorkerThreads"></param>
 	    public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            lock (this.workerThreads)
+            lock (workerThreads)
             {
-                int current = this.workerThreads.Count;
+                var current = workerThreads.Count;
 
                 if (targetNumberOfWorkerThreads == current)
                     return;
 
                 if (targetNumberOfWorkerThreads < current)
                 {
-                    for (int i = targetNumberOfWorkerThreads; i < current; i++)
-                        this.workerThreads[i].Stop();
+                    for (var i = targetNumberOfWorkerThreads; i < current; i++)
+                        workerThreads[i].Stop();
 
                     return;
                 }
 
                 if (targetNumberOfWorkerThreads > current)
                 {
-                    for (int i = current; i < targetNumberOfWorkerThreads; i++)
-                        this.AddWorkerThread().Start();
+                    for (var i = current; i < targetNumberOfWorkerThreads; i++)
+                        AddWorkerThread().Start();
 
                     return;
                 }
@@ -231,31 +219,31 @@ namespace NServiceBus.Unicast.Transport.Msmq
             CreateQueuesIfNecessary();
 
             if (ErrorQueue != null)
-                this.errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
+                errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
 
-            if (InputQueue != null && InputQueue != string.Empty)
+            if (!string.IsNullOrEmpty(InputQueue))
             {
-                MessageQueue q = new MessageQueue(GetFullPath(InputQueue));
+                var q = new MessageQueue(GetFullPath(InputQueue));
                 SetLocalQueue(q);
 
-                if (this.purgeOnStartup)
-                    this.queue.Purge();
+                if (PurgeOnStartup)
+                    queue.Purge();
 
                 if (Builder != null)
                 {
-                    IEnumerable<IMessageModule> mods = Builder.BuildAll<IMessageModule>();
+                    var mods = Builder.BuildAll<IMessageModule>();
                     if (mods != null)
-                        this.modules.AddRange(mods);
+                        modules.AddRange(mods);
                 }
 
-                for (int i = 0; i < this._numberOfWorkerThreads; i++)
-                    this.AddWorkerThread().Start();
+                for (int i = 0; i < numberOfWorkerThreads; i++)
+                    AddWorkerThread().Start();
             }
         }
 
         private void CheckConfiguration()
         {
-            string machine = GetMachineNameFromLogicalName(InputQueue);
+            var machine = GetMachineNameFromLogicalName(InputQueue);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
@@ -265,23 +253,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (!DoNotCreateQueues)
             {
-                if (InputQueue != null && InputQueue != string.Empty)
+                if (!string.IsNullOrEmpty(InputQueue))
                 {
                     string iq = GetFullPathWithoutPrefix(InputQueue);
-                    logger.Debug("Checking if input queue exists.");
+                    Logger.Debug("Checking if input queue exists.");
                     
                     MsmqUtilities.CreateQueueIfNecessary(iq);
                 }
 
-                if (ErrorQueue != null && ErrorQueue != string.Empty)
+                if (!string.IsNullOrEmpty(ErrorQueue))
                 {
-                    logger.Debug("Checking if error queue exists.");
+                    Logger.Debug("Checking if error queue exists.");
                     string errorMachine = GetMachineNameFromLogicalName(ErrorQueue);
 
                     if (errorMachine != Environment.MachineName)
                     {
-                        logger.Debug("Error queue is on remote machine.");
-                        logger.Debug("If this does not succeed (if the remote machine is disconnected), processing will continue.");
+                        Logger.Debug("Error queue is on remote machine.");
+                        Logger.Debug("If this does not succeed (if the remote machine is disconnected), processing will continue.");
                     }
 
                     try
@@ -292,7 +280,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                     catch (Exception ex)
                     {
-                        logger.Error("Could not create error queue or check its existence. Processing will still continue.", ex);
+                        Logger.Error("Could not create error queue or check its existence. Processing will still continue.", ex);
                     }
                 }
 
@@ -309,8 +297,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ReceiveMessageLater(TransportMessage m)
         {
-            if (InputQueue != null && InputQueue != string.Empty)
-                this.Send(m, this.InputQueue);
+            if (!string.IsNullOrEmpty(InputQueue))
+                Send(m, InputQueue);
         }
 
 		/// <summary>
@@ -322,21 +310,21 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
 		    string address = GetFullPath(destination);
 
-            using (MessageQueue q = new MessageQueue(address, QueueAccessMode.Send))
+            using (var q = new MessageQueue(address, QueueAccessMode.Send))
             {
-                Message toSend = new Message();
+                var toSend = new Message();
 
                 if (m.Body == null && m.BodyStream != null)
                     toSend.BodyStream = m.BodyStream;
                 else
-                    this.MessageSerializer.Serialize(m.Body, toSend.BodyStream);
+                    MessageSerializer.Serialize(m.Body, toSend.BodyStream);
 
                 if (m.CorrelationId != null)
                     toSend.CorrelationId = m.CorrelationId;
 
                 toSend.Recoverable = m.Recoverable;
 
-                if (m.ReturnAddress != null && m.ReturnAddress != string.Empty)
+                if (!string.IsNullOrEmpty(m.ReturnAddress))
                     toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
 
                 FillLabel(toSend, m);
@@ -353,7 +341,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                 }
 
-                q.Send(toSend, this.GetTransactionTypeForSend());
+                q.Send(toSend, GetTransactionTypeForSend());
 
                 m.Id = toSend.Id;
             }
@@ -365,10 +353,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <returns></returns>
         public int GetNumberOfPendingMessages()
         {
-            MSMQ.MSMQManagementClass qMgmt = new MSMQ.MSMQManagementClass();
+            var qMgmt = new MSMQ.MSMQManagementClass();
             object machine = Environment.MachineName;
-            object missing = Type.Missing;
-            object formatName = this.queue.FormatName;
+            var missing = Type.Missing;
+            object formatName = queue.FormatName;
 
             qMgmt.Init(ref machine, ref missing, ref formatName);
             return qMgmt.MessageCount;
@@ -380,17 +368,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private WorkerThread AddWorkerThread()
         {
-            lock (this.workerThreads)
+            lock (workerThreads)
             {
-                WorkerThread result = new WorkerThread(this.Receive);
+                var result = new WorkerThread(Receive);
 
-                this.workerThreads.Add(result);
+                workerThreads.Add(result);
 
                 result.Stopped += delegate(object sender, EventArgs e)
                                       {
-                                          WorkerThread wt = sender as WorkerThread;
-                                          lock (this.workerThreads)
-                                              this.workerThreads.Remove(wt);
+                                          var wt = sender as WorkerThread;
+                                          lock (workerThreads)
+                                              workerThreads.Remove(wt);
                                       };
 
                 return result;
@@ -410,7 +398,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             try
             {
-                this.queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
+                queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
             }
             catch (MessageQueueException mqe)
             {
@@ -420,14 +408,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 throw;
             }
 
-		    needToAbort = false;
+		    _needToAbort = false;
 
             try
             {
-                if (this.IsTransactional)
-                    new TransactionWrapper().RunInTransaction(this.ReceiveFromQueue, IsolationLevel, TransactionTimeout);
+                if (IsTransactional)
+                    new TransactionWrapper().RunInTransaction(ReceiveFromQueue, IsolationLevel, TransactionTimeout);
                 else
-                    this.ReceiveFromQueue();
+                    ReceiveFromQueue();
             }
             catch (AbortHandlingCurrentMessageException)
             {
@@ -447,39 +435,42 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             try
             {
-                Message m = this.queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), this.GetTransactionTypeForReceive());
+                var m = queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), GetTransactionTypeForReceive());
+                if (m == null)
+                    return;
+
                 messageId = m.Id;
 
-                foreach (IMessageModule module in this.modules)
+                foreach (var module in modules)
                     module.HandleBeginMessage();
 
-                this.OnStartedMessageProcessing();
+                OnStartedMessageProcessing();
 
-                if (this.IsTransactional)
+                if (IsTransactional)
                 {
                     failuresPerMessageLocker.EnterReadLock();
                     if (MessageHasFailedMaxRetries(m))
                     {
                         failuresPerMessageLocker.ExitReadLock();
                         failuresPerMessageLocker.EnterWriteLock();
-                        this.failuresPerMessage.Remove(m.Id);
+                        failuresPerMessage.Remove(m.Id);
                         failuresPerMessageLocker.ExitWriteLock();
 
                         MoveToErrorQueue(m);
 
                         ActivateEndMethodOnMessageModules();
 
-                        this.OnFinishedMessageProcessing();
+                        OnFinishedMessageProcessing();
 
                         return;
                     }
-                    else
-                        failuresPerMessageLocker.ExitReadLock();
+                    
+                    failuresPerMessageLocker.ExitReadLock();
                 }
 
-                TransportMessage result = Convert(m);
+                var result = Convert(m);
 
-                if (this.SkipDeserialization)
+                if (SkipDeserialization)
                     result.BodyStream = m.BodyStream;
                 else
                 {
@@ -489,7 +480,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                     catch (Exception e)
                     {
-                        logger.Error("Could not extract message data.", e);
+                        Logger.Error("Could not extract message data.", e);
 
                         MoveToErrorQueue(m);
 
@@ -497,17 +488,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     }
                 }
 
-                List<Exception> exceptions = new List<Exception>();
+                var exceptions = new List<Exception>();
 
-                if (this.TransportMessageReceived != null)
+                if (TransportMessageReceived != null)
                     try
                     {
-                        this.TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
+                        TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
                     }
                     catch(Exception e)
                     {
                         exceptions.Add(e);
-                        logger.Error("Failed raising transport message received event.", e);
+                        Logger.Error("Failed raising transport message received event.", e);
                     }
 
                 exceptions.AddRange(
@@ -517,11 +508,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (exceptions.Count == 0)
                 {
                     failuresPerMessageLocker.EnterReadLock();
-                    if (this.failuresPerMessage.ContainsKey(messageId))
+                    if (failuresPerMessage.ContainsKey(messageId))
                     {
                         failuresPerMessageLocker.ExitReadLock();
                         failuresPerMessageLocker.EnterWriteLock();
-                        this.failuresPerMessage.Remove(messageId);
+                        failuresPerMessage.Remove(messageId);
                         failuresPerMessageLocker.ExitWriteLock();
                     }
                     else
@@ -539,15 +530,15 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
             catch
             {
-                if (this.IsTransactional)
+                if (IsTransactional)
                 {
                     failuresPerMessageLocker.EnterWriteLock();
                     try
                     {
-                        if (!this.failuresPerMessage.ContainsKey(messageId))
-                            this.failuresPerMessage[messageId] = 1;
+                        if (!failuresPerMessage.ContainsKey(messageId))
+                            failuresPerMessage[messageId] = 1;
                         else
-                            this.failuresPerMessage[messageId] = this.failuresPerMessage[messageId] + 1;
+                            failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
                     }
                     finally
                     {
@@ -556,26 +547,24 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                     throw;
                 }
-                else
-                {
-                    this.OnFinishedMessageProcessing();
-
-                    throw;
-                }
+                
+                OnFinishedMessageProcessing();
+                throw;
+                
             }
 
-            if (needToAbort)
+            if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            this.OnFinishedMessageProcessing();
+            OnFinishedMessageProcessing();
 
             return;
         }
 
         private bool MessageHasFailedMaxRetries(Message m)
         {
-            return this.failuresPerMessage.ContainsKey(m.Id) &&
-                   (this.failuresPerMessage[m.Id] == this.maxRetries);
+            return failuresPerMessage.ContainsKey(m.Id) &&
+                   (failuresPerMessage[m.Id] == maxRetries);
         }
 
         /// <summary>
@@ -587,7 +576,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             IList<Exception> result = new List<Exception>();
 
-            foreach (IMessageModule module in this.modules)
+            foreach (var module in modules)
                 try
                 {
                     module.HandleEndMessage();
@@ -595,7 +584,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 catch (Exception e)
                 {
                     result.Add(e);
-                    logger.Error(
+                    Logger.Error(
                         string.Format("Failure in HandleEndMessage of message module: {0}",
                                       module.GetType().FullName), e);
                 }
@@ -612,8 +601,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             m.Label = m.Label +
                       string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, GetIndependentAddressForQueue(queue));
 
-	        if (this.errorQueue != null)
-                this.errorQueue.Send(m, MessageQueueTransactionType.Single);
+	        if (errorQueue != null)
+                errorQueue.Send(m, MessageQueueTransactionType.Single);
 	    }
 
         /// <summary>
@@ -621,7 +610,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// </summary>
 	    public void AbortHandlingCurrentMessage()
         {
-            needToAbort = true;
+            _needToAbort = true;
         }
 
 		/// <summary>
@@ -631,12 +620,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>true if the queue is local, otherwise false.</returns>
         public static bool QueueIsLocal(string value)
         {
-            string machineName = Environment.MachineName.ToLower();
+            var machineName = Environment.MachineName.ToLower();
 
             value = value.ToLower().Replace(PREFIX.ToLower(), "");
-            int index = value.IndexOf('\\');
+            var index = value.IndexOf('\\');
 
-            string queueMachineName = value.Substring(0, index).ToLower();
+            var queueMachineName = value.Substring(0, index).ToLower();
 
             return (machineName == queueMachineName || queueMachineName == "localhost" || queueMachineName == ".");
         }
@@ -648,26 +637,29 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>An NServiceBus message.</returns>
         public TransportMessage Convert(Message m)
         {
-            TransportMessage result = new TransportMessage();
-            result.Id = m.Id;
-            result.CorrelationId = (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0" ? null : m.CorrelationId);
-            result.Recoverable = m.Recoverable;
-            result.TimeToBeReceived = m.TimeToBeReceived;
-
-            result.ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue);
+            var result = new TransportMessage
+                             {
+                                 Id = m.Id,
+                                 CorrelationId =
+                                     (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
+                                          ? null
+                                          : m.CorrelationId),
+                                 Recoverable = m.Recoverable,
+                                 TimeToBeReceived = m.TimeToBeReceived,
+                                 ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue)
+                             };
 
 		    FillIdForCorrelationAndWindowsIdentity(result, m);
 
-            if (result.IdForCorrelation == null || result.IdForCorrelation == string.Empty)
+            if (string.IsNullOrEmpty(result.IdForCorrelation))
                 result.IdForCorrelation = result.Id;
 
-            if (m.Extension != null)
-                if (m.Extension.Length > 0)
-                {
-                    MemoryStream stream = new MemoryStream(m.Extension);
-                    object o = headerSerializer.Deserialize(stream);
-                    result.Headers = o as List<HeaderInfo>;
-                }
+            if (m.Extension.Length > 0)
+            {
+                var stream = new MemoryStream(m.Extension);
+                var o = headerSerializer.Deserialize(stream);
+                result.Headers = o as List<HeaderInfo>;
+            }
 
 		    return result;
         }
@@ -686,8 +678,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (!m.Label.Contains(FAILEDQUEUE))
                 return null;
 
-            int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
-            int count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
+            var count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
 
             return GetFullPath(m.Label.Substring(startIndex, count));
         }
@@ -705,8 +697,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (!m.Label.Contains(FAILEDQUEUE))
                 return m.Label;
 
-            int startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
-            int endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
+            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
             endIndex += FAILEDQUEUE.Length + 3;
 
             return m.Label.Remove(startIndex, endIndex - startIndex);
@@ -746,7 +738,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <returns>An array of handleable messages.</returns>
         private IMessage[] Extract(Message message)
         {
-            return this.MessageSerializer.Deserialize(message.BodyStream);
+            return MessageSerializer.Deserialize(message.BodyStream);
         }
 
 		/// <summary>
@@ -754,31 +746,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
 		/// <returns>The transaction type to use.</returns>
         private MessageQueueTransactionType GetTransactionTypeForReceive()
-        {
-            if (this.IsTransactional)
-                return MessageQueueTransactionType.Automatic;
-            else
-                return MessageQueueTransactionType.None;
-        }
+		{
+		    return IsTransactional ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
+		}
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the transaction type to use when sending a message.
 		/// </summary>
 		/// <returns>The transaction type to use.</returns>
         private MessageQueueTransactionType GetTransactionTypeForSend()
-        {
-            if (this.IsTransactional)
-            {
-                if (Transaction.Current != null)
-                    return MessageQueueTransactionType.Automatic;
-                else
-                    return MessageQueueTransactionType.Single;
-            }
-            else
-                return MessageQueueTransactionType.Single;
-        }
+	    {
+	        if (IsTransactional)
+	            return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
 
-		/// <summary>
+	        return MessageQueueTransactionType.Single;
+	    }
+
+	    /// <summary>
 		/// Sets the queue on the transport to the specified MSMQ queue.
 		/// </summary>
 		/// <param name="q">The MSMQ queue to set.</param>
@@ -796,13 +780,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (!transactional)
                 throw new ArgumentException("Queue must be transactional (" + q.Path + ").");
-            else
-                this.queue = q;
+	        
+            queue = q;
 
-            MessagePropertyFilter mpf = new MessagePropertyFilter();
+	        var mpf = new MessagePropertyFilter();
             mpf.SetAll();
 
-            this.queue.MessageReadPropertyFilter = mpf;
+            queue.MessageReadPropertyFilter = mpf;
         }
 
 		/// <summary>
@@ -812,7 +796,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>A list of serializable types.</returns>
         private static Type[] GetExtraTypes(IEnumerable<Type> value)
         {
-            List<Type> types = new List<Type>(value);
+            var types = new List<Type>(value);
             if (!types.Contains(typeof(List<object>)))
                 types.Add(typeof(List<object>));
 
@@ -821,14 +805,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private void OnStartedMessageProcessing()
         {
-            if (this.StartedMessageProcessing != null)
-                this.StartedMessageProcessing(this, null);
+            if (StartedMessageProcessing != null)
+                StartedMessageProcessing(this, null);
         }
 
         private void OnFinishedMessageProcessing()
         {
-            if (this.FinishedMessageProcessing != null)
-                this.FinishedMessageProcessing(this, null);
+            if (FinishedMessageProcessing != null)
+                FinishedMessageProcessing(this, null);
         }
 
         #endregion
@@ -975,11 +959,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 
 	    [ThreadStatic] 
-        private static volatile bool needToAbort;
+        private static volatile bool _needToAbort;
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof (MsmqTransport));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqTransport));
 
-        private XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         #endregion
 
         #region IDisposable Members
@@ -989,11 +973,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Dispose()
         {
-            lock (this.workerThreads)
-                for (int i = 0; i < workerThreads.Count; i++)
-                    this.workerThreads[i].Stop();
+            lock (workerThreads)
+                for (var i = 0; i < workerThreads.Count; i++)
+                    workerThreads[i].Stop();
 
-            this.queue.Dispose();
+            queue.Dispose();
         }
 
         #endregion
