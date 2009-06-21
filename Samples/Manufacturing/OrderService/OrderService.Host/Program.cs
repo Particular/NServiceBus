@@ -1,11 +1,8 @@
 using System;
 using Common.Logging;
-using NHibernate.Cfg;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
-using NHibernate;
-using NServiceBus.ObjectBuilder;
 
 
 namespace OrderService.Host
