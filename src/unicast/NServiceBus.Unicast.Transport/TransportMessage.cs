@@ -49,6 +49,11 @@ namespace NServiceBus.Unicast.Transport
 		/// </summary>
         public bool Recoverable { get; set; }
 
+        /// <summary>
+        /// Indicates to the infrastructure that the intent is a publish, not a regular send.
+        /// </summary>
+        public bool IsPublished { get; set; }
+
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
 		/// <summary>
@@ -115,8 +120,8 @@ namespace NServiceBus.Unicast.Transport
 		/// </summary>
         public void CopyMessagesToBody()
         {
-            this.body = new IMessage[this.messages.Count];
-            this.messages.CopyTo(this.body);
+            body = new IMessage[messages.Count];
+            messages.CopyTo(body);
         }
     }
 }

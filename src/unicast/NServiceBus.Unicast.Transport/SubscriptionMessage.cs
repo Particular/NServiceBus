@@ -22,8 +22,8 @@ namespace NServiceBus.Unicast.Transport
 		/// <param name="subscriptionType"></param>
         public SubscriptionMessage(string typeName, SubscriptionType subscriptionType)
         {
-            this.TypeName = typeName;
-            this.SubscriptionType = subscriptionType;
+            TypeName = typeName;
+            SubscriptionType = subscriptionType;
         }
 
 		/// <summary>

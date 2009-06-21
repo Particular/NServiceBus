@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="m">The message that was received.</param>
         public TransportMessageReceivedEventArgs(TransportMessage m)
         {
-            this.message = m;
+            message = m;
         }
 
         private readonly TransportMessage message;
