@@ -308,7 +308,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
-		    string address = GetFullPath(destination);
+		    var address = GetFullPath(destination);
 
             using (var q = new MessageQueue(address, QueueAccessMode.Send))
             {
@@ -340,6 +340,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                         toSend.Extension = stream.GetBuffer();
                     }
                 }
+
+                toSend.AppSpecific = (int) m.MessageIntent;
 
                 q.Send(toSend, GetTransactionTypeForSend());
 
@@ -637,16 +639,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <returns>An NServiceBus message.</returns>
         public TransportMessage Convert(Message m)
         {
-            var result = new TransportMessage
-                             {
-                                 Id = m.Id,
-                                 CorrelationId =
-                                     (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
-                                          ? null
-                                          : m.CorrelationId),
-                                 Recoverable = m.Recoverable,
-                                 TimeToBeReceived = m.TimeToBeReceived,
-                                 ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue)
+		    var result = new TransportMessage
+		                     {
+		                         Id = m.Id,
+		                         CorrelationId =
+		                             (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
+		                                  ? null
+		                                  : m.CorrelationId),
+		                         Recoverable = m.Recoverable,
+		                         TimeToBeReceived = m.TimeToBeReceived,
+		                         ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue),
+		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
 
 		    FillIdForCorrelationAndWindowsIdentity(result, m);
