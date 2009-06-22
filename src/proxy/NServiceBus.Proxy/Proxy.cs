@@ -2,6 +2,7 @@ using System;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast;
+using Common.Logging;
 
 namespace NServiceBus.Proxy
 {
@@ -60,6 +61,7 @@ namespace NServiceBus.Proxy
 
         public void Start()
         {
+            internalTransport.Start();
             externalTransport.Start();
         }
 
@@ -76,6 +78,8 @@ namespace NServiceBus.Proxy
 
                 var subs = Subscribers.GetSubscribersForMessage(types);
 
+                Logger.Debug("Received notification from " + remoteServer + ".");
+
                 foreach(var s in subs)
                     internalTransport.Send(e.Message, s);
             }
@@ -91,6 +95,8 @@ namespace NServiceBus.Proxy
 
                 e.Message.CorrelationId = data.CorrelationId;
 
+                Logger.Debug("Received response from " + remoteServer + ".");
+
                 internalTransport.Send(e.Message, data.ClientAddress);
             }
         }
@@ -98,7 +104,13 @@ namespace NServiceBus.Proxy
         void InternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers))
+            {
+                e.Message.ReturnAddress = externalTransport.Address;
+                externalTransport.Send(e.Message, remoteServer);
+
+                Logger.Debug("Received subscription message.");
                 return;
+            }
 
             if (e.Message.Body != null)
                 if (e.Message.Body[0] is CompletionMessage)
@@ -113,6 +125,8 @@ namespace NServiceBus.Proxy
 
             Storage.Save(data);
 
+            Logger.Debug("Forwarding request to " + remoteServer + ".");
+
             e.Message.IdForCorrelation = data.Id;
             e.Message.ReturnAddress = externalTransport.Address;
 
@@ -126,5 +140,6 @@ namespace NServiceBus.Proxy
             return Guid.NewGuid() + "\\0";
         }
 
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (Proxy));
     }
 }

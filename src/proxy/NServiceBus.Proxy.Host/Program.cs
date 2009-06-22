@@ -5,6 +5,7 @@ using NServiceBus.Proxy.InMemoryImpl;
 using NServiceBus;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast;
+using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Serialization;
 
@@ -57,21 +58,21 @@ namespace NServiceBus.Proxy.Host
                                                         SkipDeserialization = true
                                                     };
 
-                            cfg.RegisterSingleton<MsmqTransport>(internalTransport);
-
-
                             cfg.ConfigureComponent<ProxyDataStorage>(ComponentCallModelEnum.Singleton);
 
                             cfg.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                                 .ConfigureProperty((x) => x.RemoteServer, configData.RemoteServer);
                         }
-                    );
+                    )
+                    .MsmqSubscriptionStorage();
 
                 var proxy = config.Builder.Build<Proxy>();
                 proxy.ExternalTransport = externalTransport;
                 proxy.InternalTransport = internalTransport;
 
                 proxy.Start();
+
+                Console.WriteLine("Proxy started. Press 'Enter' to stop the process.");
 
                 Console.Read();
             }
