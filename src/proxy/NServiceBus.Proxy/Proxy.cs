@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
-using NServiceBus.Messages;
+using NServiceBus.Unicast;
 
 namespace NServiceBus.Proxy
 {
@@ -29,8 +28,6 @@ namespace NServiceBus.Proxy
             set
             {
                 internalTransport = value;
-                internalTransport.MessageTypesToBeReceived =
-                    new List<Type>(new[] { typeof(SubscriptionMessage), typeof(ReadyMessage) });
 
                 internalTransport.TransportMessageReceived += InternalTransportTransportMessageReceived;
             }
@@ -63,18 +60,24 @@ namespace NServiceBus.Proxy
 
         public void Start()
         {
-            internalTransport.Start();
             externalTransport.Start();
         }
 
         void ExternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-
             if (e.Message.MessageIntent == MessageIntentEnum.Publish)
             {
-                foreach (var sub in Subscribers.GetSubscribersForMessage())
-                    internalTransport.Send(message, sub);
+                string val = null;
+                foreach (var header in e.Message.Headers)
+                    if (header.Key == UnicastBus.EnclosedMessageTypes)
+                        val = header.Value;
 
+                var types = UnicastBus.DeserializeEnclosedMessageTypes(val);
+
+                var subs = Subscribers.GetSubscribersForMessage(types);
+
+                foreach(var s in subs)
+                    internalTransport.Send(e.Message, s);
             }
             else
             {
@@ -94,7 +97,7 @@ namespace NServiceBus.Proxy
 
         void InternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (HandledSubscription(e.Message))
+            if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers))
                 return;
 
             if (e.Message.Body != null)
@@ -116,26 +119,6 @@ namespace NServiceBus.Proxy
             externalTransport.Send(e.Message, remoteServer);
 
             return;
-        }
-
-        private bool HandledSubscription(TransportMessage transportMessage)
-        {
-            if (transportMessage.Body == null)
-                return false;
-
-            var sub = transportMessage.Body[0] as SubscriptionMessage;
-            if (sub == null)
-                return false;
-
-            if (sub.SubscriptionType == SubscriptionType.Add)
-                Subscribers.Store(transportMessage.ReturnAddress);
-            if (sub.SubscriptionType == SubscriptionType.Remove)
-                Subscribers.Remove(transportMessage.ReturnAddress);
-
-            transportMessage.ReturnAddress = externalTransport.Address;
-            externalTransport.Send(transportMessage, remoteServer);
-
-            return true;
         }
 
         private static string GenerateId()

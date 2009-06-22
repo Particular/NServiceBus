@@ -19,15 +19,15 @@ namespace NServiceBus.Proxy.Host
             {
                 LogManager.GetLogger("hello").Debug("Started.");
 
-                var config = ConfigurationManager.GetSection("NServiceBusProxyConfig") as NServiceBusProxyConfig;
+                var configData = ConfigurationManager.GetSection("NServiceBusProxyConfig") as NServiceBusProxyConfig;
 
-                if (config == null)
+                if (configData == null)
                     throw new ConfigurationErrorsException("Could not find configuration section for UnicastBus.");
 
                 MsmqTransport externalTransport = null;
                 MsmqTransport internalTransport = null;
 
-                NServiceBus.Configure.With()
+                var config = NServiceBus.Configure.With()
                     .SpringBuilder(
                     (cfg) =>
                         {
@@ -54,38 +54,24 @@ namespace NServiceBus.Proxy.Host
                                                         ErrorQueue = errorQueue,
                                                         IsTransactional = true,
                                                         PurgeOnStartup = false,
+                                                        SkipDeserialization = true
                                                     };
+
+                            cfg.RegisterSingleton<MsmqTransport>(internalTransport);
 
 
                             cfg.ConfigureComponent<ProxyDataStorage>(ComponentCallModelEnum.Singleton);
-                            cfg.ConfigureComponent<SubscriberStorage>(ComponentCallModelEnum.Singleton);
 
                             cfg.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
-                                .ConfigureProperty((x) => x.RemoteServer, config.RemoteServer);
-                        }
-                    )
-                    .XmlSerializer("http://UdiDahan.com")
-                    .UnicastBus()
-                    .CreateBus()
-                    .Start(
-                    builder =>
-                        {
-                            var serializer = builder.Build<IMessageSerializer>();
-                            internalTransport.MessageSerializer = serializer;
-                            internalTransport.Builder = builder;
-
-                            var bus = builder.Build<UnicastBus>();
-                            bus.Transport = internalTransport;
-
-                            externalTransport.MessageSerializer = serializer;
-
-                            var proxy = builder.Build<Proxy>();
-                            proxy.ExternalTransport = externalTransport;
-                            proxy.InternalTransport = internalTransport;
-
-                            proxy.Start();
+                                .ConfigureProperty((x) => x.RemoteServer, configData.RemoteServer);
                         }
                     );
+
+                var proxy = config.Builder.Build<Proxy>();
+                proxy.ExternalTransport = externalTransport;
+                proxy.InternalTransport = internalTransport;
+
+                proxy.Start();
 
                 Console.Read();
             }

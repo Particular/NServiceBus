@@ -20,6 +20,16 @@ namespace NServiceBus.Unicast
 	/// </summary>
     public class UnicastBus : IUnicastBus, IStartableBus
     {
+        /// <summary>
+        /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
+        /// </summary>
+        public const string SubscriptionMessageType = "SubscriptionMessageType";
+
+        /// <summary>
+        /// Header entry key indicating the types of messages contained.
+        /// </summary>
+        public const string EnclosedMessageTypes = "EnclosedMessageTypes";
+
         #region config properties
 
 	    private bool autoSubscribe = true;
@@ -526,7 +536,7 @@ namespace NServiceBus.Unicast
 
             var result = new List<string>();
 
-            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = SerializeMessageTypes(messages);
+            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
             var toSend = GetTransportMessageFor(messages);
             ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = null;
 
@@ -552,7 +562,12 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        private static string SerializeMessageTypes(IMessage[] messages)
+        /// <summary>
+        /// Takes the given message types and serializes them for inclusion in the EnclosedMessageTypes header.
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <returns></returns>
+        public static string SerializeEnclosedMessageTypes(IMessage[] messages)
         {
             var types = GetFullTypes(messages);
 
@@ -561,6 +576,20 @@ namespace NServiceBus.Unicast
             sBuilder.Append("</MessageTypes>");
 
             return sBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Takes the serialized form of EnclosedMessageTypes and returns a list of string types.
+        /// </summary>
+        /// <param name="serialized"></param>
+        /// <returns></returns>
+        public static IList<string> DeserializeEnclosedMessageTypes(string serialized)
+        {
+            string temp = serialized.Replace("<MessageTypes><s>", "");
+            temp = temp.Replace("</s></MessageTypes>","");
+            string[] arr = temp.Split(new[] {"</s><s>"}, StringSplitOptions.RemoveEmptyEntries);
+
+            return new List<string>(arr);
         }
 
         private static List<string> GetFullTypes(IEnumerable<IMessage> messages)
@@ -895,7 +924,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            if (HandledSubscriptionMessage(msg))
+            if (HandledSubscriptionMessage(msg, subscriptionStorage))
                 return;
 
             Log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
@@ -912,7 +941,14 @@ namespace NServiceBus.Unicast
             Log.Debug("Finished handling message.");
         }
 
-        private bool HandledSubscriptionMessage(TransportMessage msg)
+        /// <summary>
+        /// Handles subscribe and unsubscribe requests managing the given subscription storage.
+        /// Returns true if the message was a subscription message.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="subscriptionStorage"></param>
+        /// <returns></returns>
+        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage)
         {
             string messageType = null;
             foreach (var header in msg.Headers)
@@ -1338,9 +1374,6 @@ namespace NServiceBus.Unicast
 	    private volatile bool started;
         private volatile bool starting;
         private readonly object startLocker = new object();
-
-	    private const string SubscriptionMessageType = "SubscriptionMessageType";
-	    private const string EnclosedMessageTypes = "EnclosedMessageTypes";
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion
