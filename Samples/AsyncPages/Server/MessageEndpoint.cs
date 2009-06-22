@@ -15,9 +15,9 @@ namespace Server
         {
         }
 
-        public Configure ConfigureBus(Configure config)
+        public Configure ConfigureBus()
         {
-            return config
+            return Configure.With()
                 .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()

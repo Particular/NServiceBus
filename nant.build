@@ -23,7 +23,7 @@
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,test,merge_src"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,test"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>

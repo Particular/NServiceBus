@@ -31,6 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Log4Net, Version=1.2.0.2, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\external-bin\Common.Logging.Log4Net.dll</HintPath>
+    </Reference>
     <Reference Include="NBehave.Spec.Framework, Version=0.4.0.132, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\tools\NBehave\NBehave.Spec.Framework.dll</HintPath>
@@ -56,6 +64,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -64,6 +73,7 @@
     <Compile Include="Configuration\TestConfigurationSection.cs" />
     <Compile Include="Configuration\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Configuration\When_users_override_the_configration_source.cs" />
+    <Compile Include="Host\When_the_generic_host_starts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

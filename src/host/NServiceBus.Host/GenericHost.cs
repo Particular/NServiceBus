@@ -1,11 +1,14 @@
 using System;
+using Common.Logging;
 using NServiceBus.ObjectBuilder;
 using System.Linq;
 
 namespace NServiceBus.Host
 {
-    public class GenericHost
+    public class GenericHost : MarshalByRefObject
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(GenericHost));
+
         private IMessageEndpoint messageEndpoint;
         private IStartableBus bus;
         private readonly Type endpointType;
@@ -20,9 +23,8 @@ namespace NServiceBus.Host
 
         public void Start()
         {
-           var busConfiguration = messageEndpointConfiguration.ConfigureBus(Configure
-                                                        .With()
-                                                        .CustomConfigurationSource(new EndpointConfigurationSource(endpointType)));
+            logger.Debug("Starting host for " + endpointType.Name);
+            var busConfiguration = messageEndpointConfiguration.ConfigureBus();
 
             //register the endpoint so that the user can get DI for the endpoint itself
             busConfiguration.Configurer.ConfigureComponent(endpointType, ComponentCallModelEnum.Singleton);
@@ -31,9 +33,9 @@ namespace NServiceBus.Host
 
             //build the endpoint
             messageEndpoint = busConfiguration.Builder.Build<IMessageEndpoint>();
-            
+
             bus.Start();
-            
+
             messageEndpoint.OnStart();
         }
 

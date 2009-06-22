@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Common.Logging;
 using Topshelf;
 using Topshelf.Configuration;
 
@@ -10,12 +11,20 @@ namespace NServiceBus.Host
 {
     public class Program
     {
+
         static void Main(string[] args)
         {
             
             var endpoint = GetEndpointType();
+            
             var endpointName = GetEndpointName(endpoint);
+            
             var endpointId = string.Format("{0} Service - v{1}", endpointName, endpoint.Assembly.GetName().Version);
+            
+            var endpointConfigurationFile = endpoint.Assembly.ManifestModule.Name + ".config";
+
+            if (!File.Exists(endpointConfigurationFile))
+                throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
 
             var cfg = RunnerConfigurator.New(x =>
              {
@@ -23,11 +32,12 @@ namespace NServiceBus.Host
                  x.SetServiceName(endpointId);
                  x.SetDescription("NServiceBus Message Endpoint Host Service");
 
-                 x.ConfigureService<GenericHost>(endpointId, c =>
+                 x.ConfigureServiceInIsolation<GenericHost>(endpoint.AssemblyQualifiedName, c =>
                  {
+                     c.ConfigurationFile(endpointConfigurationFile);
                      c.WhenStarted(service => service.Start());
                      c.WhenStopped(service => service.Stop());
-                     c.CreateServiceLocator(() => new HostServiceLocator(endpoint));
+                     c.CreateServiceLocator(() => new HostServiceLocator());
                  });
                  x.DoNotStartAutomatically();
 
