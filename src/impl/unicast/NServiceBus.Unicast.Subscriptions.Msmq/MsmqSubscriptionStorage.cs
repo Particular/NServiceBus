@@ -54,7 +54,8 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 foreach (var e in entries)
                     foreach(var m in messageTypes)
                         if (e.MessageType == m)
-                            result.Add(e.Subscriber);
+                            if (!result.Contains(e.Subscriber))
+                                result.Add(e.Subscriber);
 
             return result;
         }

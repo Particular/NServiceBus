@@ -63,7 +63,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
             var command = GetConnection().CreateCommand();
             command.CommandType = CommandType.Text;
 
-            var builder = new StringBuilder("SELECT {0} FROM {1} WHERE ");
+            var builder = new StringBuilder("SELECT DISTINCT {0} FROM {1} WHERE ");
             for (int i = 0; i < messageTypes.Count; i++)
             {
                 string paramName = "@" + MessageTypeColumnName + i;
@@ -105,7 +105,7 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                 foreach(var messageType in messageTypes)
                     Execute(
                         tx,
-                        string.Format("SET NOCOUNT ON; DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
+                        string.Format("DELETE FROM {0} WHERE {1}=@{1} AND {2}=@{2}",
                                       Table, SubscriberColumnName, MessageTypeColumnName),
                         client,
                         messageType
@@ -124,7 +124,6 @@ namespace NServiceBus.Unicast.Subscriptions.DB
                     Execute(
                         tx,
                         string.Format(
-                        "SET NOCOUNT ON;" +
                         "INSERT INTO {0} ({1}, {2}) " +
                         "(SELECT @{1} AS {1}, @{2} AS {2} WHERE (NOT EXISTS " +
                         "(SELECT {1} FROM {0} AS S2 WHERE ({1} = @{1}) AND ({2} = @{2}))))",
