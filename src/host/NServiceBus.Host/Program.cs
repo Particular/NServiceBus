@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
+using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
 

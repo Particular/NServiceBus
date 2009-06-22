@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ServiceLocation;
 
-namespace NServiceBus.Host
+namespace NServiceBus.Host.Internal
 {
     public class HostServiceLocator : ServiceLocatorImplBase
     {
@@ -17,5 +17,4 @@ namespace NServiceBus.Host
             throw new NotImplementedException();
         }
     }
-
 }

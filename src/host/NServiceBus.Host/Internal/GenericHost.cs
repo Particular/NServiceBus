@@ -3,7 +3,7 @@ using Common.Logging;
 using NServiceBus.ObjectBuilder;
 using System.Linq;
 
-namespace NServiceBus.Host
+namespace NServiceBus.Host.Internal
 {
     public class GenericHost : MarshalByRefObject
     {
