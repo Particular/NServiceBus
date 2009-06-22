@@ -387,9 +387,9 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-		    _outgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+		    ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
-		    _outgoingHeaders.Remove(SubscriptionMessageType);
+            ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
 
         /// <summary>
@@ -412,9 +412,9 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            _outgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+            ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
-            _outgoingHeaders.Remove(SubscriptionMessageType);
+            ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
 
         void IBus.Reply(params IMessage[] messages)
