@@ -1,5 +1,4 @@
 using System;
-using NServiceBus;
 using System.Linq.Expressions;
 
 namespace NServiceBus.Saga
@@ -48,15 +47,15 @@ namespace NServiceBus.Saga
         /// this specifies which message property should be matched to 
         /// which saga entity property in the persistent saga store.
         /// </summary>
-        /// <typeparam name="M"></typeparam>
+        /// <typeparam name="TMessage"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
-        protected void ConfigureMapping<M>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<M, object>> messageProperty) where M : IMessage
+        protected void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
 
-            NServiceBus.Saga.Configure.ConfigureHowToFindSagaWithMessage<T, M>(sagaEntityProperty, messageProperty);
+            Configure.ConfigureHowToFindSagaWithMessage(sagaEntityProperty, messageProperty);
         }
 
         /// <summary>
@@ -91,7 +90,7 @@ namespace NServiceBus.Saga
         protected void RequestTimeout(TimeSpan within, object withState)
         {
             if (within <= TimeSpan.Zero)
-                this.Timeout(withState);
+                Timeout(withState);
             else
                 Bus.Send(new TimeoutMessage(within, Data, withState));
         }
@@ -109,11 +108,11 @@ namespace NServiceBus.Saga
         /// Instantiates a message of the given type, setting its properties using the given action,
         /// and sends it using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="TMessage"></typeparam>
         /// <param name="messageConstructor"></param>
-        protected void ReplyToOriginator<K>(Action<K> messageConstructor) where K : IMessage
+        protected void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : IMessage
         {
-            Bus.Send<K>(Data.Originator, Data.OriginalMessageId, messageConstructor);
+            Bus.Send(Data.Originator, Data.OriginalMessageId, messageConstructor);
         }
 
         /// <summary>
@@ -122,7 +121,7 @@ namespace NServiceBus.Saga
         /// </summary>
         protected void MarkAsComplete()
         {
-            this.Completed = true;
+            Completed = true;
         }
 
         /// <summary>
