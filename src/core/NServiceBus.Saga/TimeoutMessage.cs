@@ -22,9 +22,9 @@ namespace NServiceBus.Saga
         /// <param name="state"></param>
         public TimeoutMessage(DateTime expiration, ISagaEntity saga, object state)
         {
-            this.expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
-            this.SagaId = saga.Id;
-            this.State = state;
+            expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
+            SagaId = saga.Id;
+            State = state;
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace NServiceBus.Saga
         /// <param name="clear"></param>
         public TimeoutMessage(ISagaEntity saga, bool clear)
         {
-            this.SagaId = saga.Id;
-            this.ClearTimeout = clear;
+            SagaId = saga.Id;
+            ClearTimeout = clear;
         }
 
         private DateTime expires;
@@ -86,7 +86,7 @@ namespace NServiceBus.Saga
 		/// <returns>true if the message has expired, otherwise false.</returns>
         public bool HasNotExpired()
         {
-            return DateTime.Now < this.expires;
+            return DateTime.Now < expires;
         }
     }
 }

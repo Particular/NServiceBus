@@ -5,9 +5,11 @@ namespace NServiceBus.Saga
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="M"></typeparam>
-    public class PropertySagaFinder<T, M> : IFindSagas<T>.Using<M> where T : ISagaEntity where M : IMessage
+    /// <typeparam name="TSaga"></typeparam>
+    /// <typeparam name="TMessage"></typeparam>
+    public class PropertySagaFinder<TSaga, TMessage> : IFindSagas<TSaga>.Using<TMessage>
+        where TSaga : ISagaEntity
+        where TMessage : IMessage
     {
         /// <summary>
         /// Injected persister
@@ -29,9 +31,9 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public T FindBy(M message)
+        public TSaga FindBy(TMessage message)
         {
-            return SagaPersister.Get<T>(SagaProperty.Name, MessageProperty.GetValue(message, null));
+            return SagaPersister.Get<TSaga>(SagaProperty.Name, MessageProperty.GetValue(message, null));
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using Common.Logging;
 
 namespace NServiceBus.Saga
 {
@@ -101,7 +102,14 @@ namespace NServiceBus.Saga
         /// <param name="messages"></param>
         protected void ReplyToOriginator(params IMessage[] messages)
         {
-            Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
+            if (string.IsNullOrEmpty(Data.Originator))
+            {
+                if (Logger.IsDebugEnabled)
+                    throw new InvalidOperationException(
+                        "Originator of saga has not provided a return address - cannot reply.");
+            }
+            else
+                Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }
 
         /// <summary>
@@ -112,7 +120,8 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor"></param>
         protected void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : IMessage
         {
-            Bus.Send(Data.Originator, Data.OriginalMessageId, messageConstructor);
+            var message = Bus.CreateInstance(messageConstructor);
+            ReplyToOriginator(message);
         }
 
         /// <summary>
@@ -129,5 +138,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="state">The object passed as the "withState" parameter to RequestTimeout.</param>
         public abstract void Timeout(object state);
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(ISaga));
     }
 }
