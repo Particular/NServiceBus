@@ -22,9 +22,9 @@ namespace Subscriber2
         {
         }
 
-        public Configure Configure()
+        public void Init()
         {
-            return NServiceBus.Configure.With()
+            NServiceBus.Configure.With()
                 .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()

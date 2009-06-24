@@ -23,6 +23,14 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Provides static access to type configuration functionality.
+        /// </summary>
+        public static IConfigureComponents TypeConfigurer
+        {
+            get { return instance.Configurer; }
+        }
+
+        /// <summary>
         /// Gets/sets the builder.
         /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>

@@ -47,9 +47,9 @@ namespace Server
 
         }
 
-        public Configure Configure()
+        public void Init()
         {
-            return NServiceBus.Configure.With()
+            NServiceBus.Configure.With()
                 .SpringBuilder()
                 //.DbSubscriptionStorage()
                 //        .Table("Subscriptions")
@@ -61,7 +61,8 @@ namespace Server
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()
-                    .ImpersonateSender(false);
+                    .ImpersonateSender(false)
+                    .LoadMessageHandlers();
         }
     }
 }

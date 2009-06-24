@@ -25,13 +25,20 @@ namespace NServiceBus.Unicast.Distributor.Runner
                 .SpringBuilder(
                 (cfg =>
                 {
-                    dataTransport = new MsmqTransport();
-                    dataTransport.InputQueue = System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"];
-                    dataTransport.NumberOfWorkerThreads = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
-                    dataTransport.ErrorQueue = System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"];
-                    dataTransport.IsTransactional = true;
-                    dataTransport.PurgeOnStartup = false;
-                    dataTransport.SkipDeserialization = true;
+                    dataTransport = new MsmqTransport
+                                        {
+                                            InputQueue =
+                                                System.Configuration.ConfigurationManager.AppSettings["DataInputQueue"],
+                                            NumberOfWorkerThreads =
+                                                int.Parse(
+                                                System.Configuration.ConfigurationManager.AppSettings[
+                                                    "NumberOfWorkerThreads"]),
+                                            ErrorQueue =
+                                                System.Configuration.ConfigurationManager.AppSettings["ErrorQueue"],
+                                            IsTransactional = true,
+                                            PurgeOnStartup = false,
+                                            SkipDeserialization = true
+                                        };
 
                     cfg.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton)
                         .ConfigureProperty(x => x.StorageQueue, System.Configuration.ConfigurationManager.AppSettings["StorageQueue"]);

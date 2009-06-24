@@ -21,13 +21,13 @@ namespace NServiceBus.Host.Internal
         public void Start()
         {
             Logger.Debug("Starting host for " + endpointType.Name);
-            var config = messageEndpointConfiguration.Configure();
+            messageEndpointConfiguration.Init();
 
             //register the endpoint so that the user can get DI for the endpoint itself
-            config.Configurer.ConfigureComponent(endpointType, ComponentCallModelEnum.Singleton);
+            Configure.TypeConfigurer.ConfigureComponent(endpointType, ComponentCallModelEnum.Singleton);
 
             //build the endpoint
-            messageEndpoint = config.Builder.Build<IMessageEndpoint>();
+            messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 
             messageEndpoint.OnStart();
         }
