@@ -6,8 +6,11 @@ namespace Subscriber1
 {
     public class SubscriberEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
     {
+        public IStartableBus Starter { get; set; }
+
         public void OnStart()
         {
+            Starter.Start();
             Console.WriteLine("Listening for events, press Ctrl + C to exit");
         }
 
@@ -16,9 +19,9 @@ namespace Subscriber1
             
         }
 
-        public Configure ConfigureBus()
+        public Configure Configure()
         {
-            return Configure.With()
+            return NServiceBus.Configure.With()
                .SpringBuilder()
                .XmlSerializer()
                .MsmqTransport()

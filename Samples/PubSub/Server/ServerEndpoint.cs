@@ -7,25 +7,23 @@ namespace Server
 {
     public class ServerEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
     {
-        public IBus Bus { get; set; }
+        public IStartableBus Starter { get; set; }
 
-        private delegate void InputHandlerInvoker();
-
-        private readonly InputHandlerInvoker inputHandler;
-
-        public ServerEndpoint()
+        public void OnStart()
         {
-            inputHandler = HandleUserInput;
-        }
+            var bus = Starter.Start();
 
-        private void HandleUserInput()
-        {
+            Console.WriteLine("This will publish IEvent and EventMessage alternately.");
+            Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
+
+            Action handleInput = () =>
+                                     {
             bool publishIEvent = true;
             while (Console.ReadLine() != null)
             {
                 IEvent eventMessage;
                 if (publishIEvent)
-                    eventMessage = Bus.CreateInstance<IEvent>();
+                    eventMessage = bus.CreateInstance<IEvent>();
                 else
                     eventMessage = new EventMessage();
 
@@ -33,22 +31,15 @@ namespace Server
                 eventMessage.Time = DateTime.Now;
                 eventMessage.Duration = TimeSpan.FromSeconds(99999D);
 
-                Bus.Publish(eventMessage);
+                bus.Publish(eventMessage);
 
                 Console.WriteLine("Published event with Id {0}.", eventMessage.EventId);
 
                 publishIEvent = !publishIEvent;
             }
+                                     };
 
-        }
-
-        public void OnStart()
-        {
-            Console.WriteLine("This will publish IEvent and EventMessage alternately.");
-            Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
-
-
-            inputHandler.BeginInvoke(null, null);
+            handleInput.BeginInvoke(null, null);
         }
 
         public void OnStop()
@@ -56,9 +47,9 @@ namespace Server
 
         }
 
-        public Configure ConfigureBus()
+        public Configure Configure()
         {
-            return Configure.With()
+            return NServiceBus.Configure.With()
                 .SpringBuilder()
                 //.DbSubscriptionStorage()
                 //        .Table("Subscriptions")
@@ -67,10 +58,10 @@ namespace Server
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()
-                .IsTransactional(true)
-                .PurgeOnStartup(false)
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
                 .UnicastBus()
-                .ImpersonateSender(false);
+                    .ImpersonateSender(false);
         }
     }
 }

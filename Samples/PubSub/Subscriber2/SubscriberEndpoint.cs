@@ -9,11 +9,11 @@ namespace Subscriber2
     [EndpointName("Subscriber2")]
     public class SubscriberEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
     {
-        public IBus Bus { get; set; }
+        public IStartableBus Starter { get; set; }
 
         public void OnStart()
         {
-            Bus.Subscribe<IEvent>();
+            Starter.Start().Subscribe<IEvent>();
 
             Console.WriteLine("Listening for events, press Ctrl + C to exit");
         }
@@ -22,18 +22,18 @@ namespace Subscriber2
         {
         }
 
-        public Configure ConfigureBus()
+        public Configure Configure()
         {
-            return Configure.With()
+            return NServiceBus.Configure.With()
                 .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
-                .IsTransactional(false)
-                .PurgeOnStartup(false)
+                    .IsTransactional(false)
+                    .PurgeOnStartup(false)
                 .UnicastBus()
-                .ImpersonateSender(false)
-                .DoNotAutoSubscribe()
-                .LoadMessageHandlers();
+                    .ImpersonateSender(false)
+                    .DoNotAutoSubscribe()
+                    .LoadMessageHandlers();
         }
     }
 

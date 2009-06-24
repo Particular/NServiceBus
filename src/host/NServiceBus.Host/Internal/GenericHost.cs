@@ -7,10 +7,7 @@ namespace NServiceBus.Host.Internal
 {
     public class GenericHost : MarshalByRefObject
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(GenericHost));
-
         private IMessageEndpoint messageEndpoint;
-        private IStartableBus bus;
         private readonly Type endpointType;
         private readonly IMessageEndpointConfiguration messageEndpointConfiguration;
 
@@ -23,18 +20,14 @@ namespace NServiceBus.Host.Internal
 
         public void Start()
         {
-            logger.Debug("Starting host for " + endpointType.Name);
-            var busConfiguration = messageEndpointConfiguration.ConfigureBus();
+            Logger.Debug("Starting host for " + endpointType.Name);
+            var config = messageEndpointConfiguration.Configure();
 
             //register the endpoint so that the user can get DI for the endpoint itself
-            busConfiguration.Configurer.ConfigureComponent(endpointType, ComponentCallModelEnum.Singleton);
-
-            bus = busConfiguration.CreateBus();
+            config.Configurer.ConfigureComponent(endpointType, ComponentCallModelEnum.Singleton);
 
             //build the endpoint
-            messageEndpoint = busConfiguration.Builder.Build<IMessageEndpoint>();
-
-            bus.Start();
+            messageEndpoint = config.Builder.Build<IMessageEndpoint>();
 
             messageEndpoint.OnStart();
         }
@@ -42,8 +35,6 @@ namespace NServiceBus.Host.Internal
         public void Stop()
         {
             messageEndpoint.OnStop();
-
-            bus.Dispose();
         }
 
         private IMessageEndpointConfiguration GetEndpointConfiguration()
@@ -56,5 +47,7 @@ namespace NServiceBus.Host.Internal
                                                     endpointType.Assembly);
             return Activator.CreateInstance(endpointConfigurationType) as IMessageEndpointConfiguration;
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(GenericHost));
     }
 }
