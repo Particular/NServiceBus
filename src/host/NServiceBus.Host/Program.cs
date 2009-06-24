@@ -62,7 +62,7 @@ namespace NServiceBus.Host
             {
                 var assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
 
-                foreach (var type in assembly.GetTypes().Where(t => typeof(IMessageEndpoint).IsAssignableFrom(t) && !t.IsInterface))
+                foreach (var type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
                     yield return type;
 
             }

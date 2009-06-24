@@ -5,14 +5,12 @@ using NServiceBus.Host;
 
 namespace Server
 {
-    public class ServerEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
+    public class ServerEndpoint : IMessageEndpoint
     {
-        public IStartableBus Starter { get; set; }
+        public IBus Bus { get; set; }
 
         public void OnStart()
         {
-            var bus = Starter.Start();
-
             Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
 
@@ -23,7 +21,7 @@ namespace Server
             {
                 IEvent eventMessage;
                 if (publishIEvent)
-                    eventMessage = bus.CreateInstance<IEvent>();
+                    eventMessage = Bus.CreateInstance<IEvent>();
                 else
                     eventMessage = new EventMessage();
 
@@ -31,7 +29,7 @@ namespace Server
                 eventMessage.Time = DateTime.Now;
                 eventMessage.Duration = TimeSpan.FromSeconds(99999D);
 
-                bus.Publish(eventMessage);
+                Bus.Publish(eventMessage);
 
                 Console.WriteLine("Published event with Id {0}.", eventMessage.EventId);
 
@@ -45,24 +43,6 @@ namespace Server
         public void OnStop()
         {
 
-        }
-
-        public void Init()
-        {
-            NServiceBus.Configure.With()
-                .SpringBuilder()
-                //.DbSubscriptionStorage()
-                //        .Table("Subscriptions")
-                //        .SubscriberEndpointColumnName("SubscriberEndpoint")
-                //        .MessageTypeColumnName("MessageType")
-                .MsmqSubscriptionStorage()
-                .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false)
-                    .LoadMessageHandlers();
         }
     }
 }

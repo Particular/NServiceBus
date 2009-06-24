@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EndpointConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerEndpoint.cs" />
   </ItemGroup>
@@ -72,9 +73,9 @@
   <Target Name="BeforeBuild">
   </Target>-->
   <Target Name="AfterBuild">
-    <Exec WorkingDirectory="$(SolutionDir)..\..\" Command='cscript "msmq install.vbs"' Condition="'$(Configuration)' == 'Debug'" />
+    <Exec WorkingDirectory="$(SolutionDir)..\..\" Command="cscript &quot;msmq install.vbs&quot;" Condition="'$(Configuration)' == 'Debug'" />
   </Target>
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>
