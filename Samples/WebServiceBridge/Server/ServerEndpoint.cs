@@ -1,26 +1,13 @@
-using System;
 using NServiceBus;
 using NServiceBus.Host;
 
 namespace Server
 {
-    public class ServerEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
+    public class ServerEndpoint : IConfigureThisEndpoint
     {
-        public IBus Bus { get; set; }
-        
-        public void OnStart()
+        public void Init(Configure configure)
         {
-            Console.WriteLine("Listening for events, press Ctrl + C to exit");
-        }
-
-        public void OnStop()
-        {
-        }
-
-        public Configure ConfigureBus()
-        {
-            return Configure.With()
-                .SpringBuilder()
+            configure
                 .MsmqSubscriptionStorage()
                 .BinarySerializer()
                 .MsmqTransport()

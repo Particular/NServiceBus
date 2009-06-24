@@ -4,7 +4,7 @@ using NServiceBus.Host;
 
 namespace V2Publisher
 {
-    public class V2PublisherEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
+    public class V2PublisherEndpoint : IMessageEndpoint
     {
         public IBus Bus { get; set; }
         
@@ -12,29 +12,25 @@ namespace V2Publisher
         {
             Console.WriteLine("Press 'Enter' to publish a message, Ctrl + C to exit.");
 
-            while (Console.ReadLine() != null)
-            {
-                Bus.Publish<V2.Messages.SomethingHappened>(sh => { sh.SomeData = 1; sh.MoreInfo = "It's a secret."; });
+            Action a = () =>
+                           {
+                               while (Console.ReadLine() != null)
+                               {
+                                   Bus.Publish<V2.Messages.SomethingHappened>(sh =>
+                                                                                  {
+                                                                                      sh.SomeData = 1;
+                                                                                      sh.MoreInfo = "It's a secret.";
+                                                                                  });
 
-                Console.WriteLine("Published event.");
-            }
+                                   Console.WriteLine("Published event.");
+                               }
+                           };
+
+            a.BeginInvoke(null, null);
         }
 
         public void OnStop()
         {
-        }
-
-        public Configure ConfigureBus(Configure config)
-        {
-            return config
-                .SpringBuilder()
-                .MsmqSubscriptionStorage()
-                .XmlSerializer("http://www.Publisher.com")
-                .MsmqTransport()
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false);
         }
     }
 }

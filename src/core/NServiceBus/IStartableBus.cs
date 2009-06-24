@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
@@ -12,10 +8,16 @@ namespace NServiceBus
     public interface IStartableBus : IDisposable
     {		
         /// <summary>
-        /// Performs all the given startup actions, starts the bus, and returns a reference to it.
+        /// Performs the given startup action, starts the bus, and returns a reference to it.
         /// </summary>
-        /// <param name="startupActions">Actions to be performed before the bus is started.</param>
+        /// <param name="startupAction">Action to be performed before the bus is started.</param>
         /// <returns>A reference to the bus.</returns>
-        IBus Start(params Action<IBuilder>[] startupActions);
+        IBus Start(Action startupAction);
+
+        /// <summary>
+        /// Starts the bus and returns a reference to it.
+        /// </summary>
+        /// <returns></returns>
+        IBus Start();
     }
 }

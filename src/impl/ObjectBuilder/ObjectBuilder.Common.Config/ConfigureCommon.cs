@@ -16,8 +16,7 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         /// </summary>
         /// <param name="config"></param>
         /// <param name="container"></param>
-        /// <param name="configActions"></param>
-        public static void With(Configure config, IContainer container, params Action<IConfigureComponents>[] configActions)
+        public static void With(Configure config, IContainer container)
         {
             var b = new CommonObjectBuilder { Container = container, Synchronized = SyncConfig.Synchronize };
 
@@ -26,9 +25,6 @@ namespace NServiceBus.ObjectBuilder.Common.Config
 
             var cfg = config.Configurer.ConfigureComponent<CommonObjectBuilder>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(c => c.Container, container);
-
-            foreach (var a in configActions)
-                a(config.Configurer);
 
             SyncConfig.MarkConfigured();
         }

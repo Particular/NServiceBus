@@ -15,11 +15,10 @@ namespace NServiceBus
         /// The given actions will be performed as a part of the initialization process.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="configActions"></param>
         /// <returns></returns>
-        public static Configure SpringBuilder(this Configure config, params Action<IConfigureComponents>[] configActions)
+        public static Configure SpringBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new SpringObjectBuilder(), configActions);
+            ConfigureCommon.With(config, new SpringObjectBuilder());
 
             return config;
         }

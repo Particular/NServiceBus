@@ -1,24 +1,13 @@
-using System;
 using NServiceBus;
 using NServiceBus.Host;
 
 namespace V2Subscriber
 {
-    public class V2SubscriberEndpoint : IMessageEndpoint, IMessageEndpointConfiguration
+    public class V2SubscriberEndpoint : IConfigureThisEndpoint
     {
-        public void OnStart()
+        public void Init(Configure configure)
         {
-            Console.WriteLine("Listening for events, press Ctrl + C to exit");
-        }
-
-        public void OnStop()
-        {
-        }
-
-        public Configure ConfigureBus(Configure config)
-        {
-            return config
-                .SpringBuilder()
+            configure
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)

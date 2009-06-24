@@ -27,7 +27,12 @@ namespace NServiceBus.Host.Internal
                     else
                         cfg = Configure.With();
 
-            bool containerSpecified = false;
+            Action startupAction = null;
+
+            if (specifier is ISpecify.StartupAction)
+                startupAction = (specifier as ISpecify.StartupAction).StartupAction;
+
+            Type containerType = null;
             Type messageEndpointType = null;
             bool startBusAutomatically = true;
 
@@ -36,16 +41,9 @@ namespace NServiceBus.Host.Internal
                 var args = t.GetGenericArguments();
                 if (args.Length == 1)
                 {
-                    if (typeof (IContainer).IsAssignableFrom(args[0]))
-                        if (typeof (ISpecify.ToUseContainer<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
-                        {
-                            ObjectBuilder.Common.Config.ConfigureCommon.With(
-                                cfg,
-                                Activator.CreateInstance(args[0]) as IContainer
-                                );
-
-                            containerSpecified = true;
-                        }
+                    if (typeof(IContainer).IsAssignableFrom(args[0]))
+                        if (typeof(ISpecify.ToUseContainer<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
+                            containerType = args[0];
 
                     if (typeof(IMessageEndpoint).IsAssignableFrom(args[0]))
                         if (typeof(ISpecify.ToRun<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
@@ -56,7 +54,12 @@ namespace NServiceBus.Host.Internal
                     startBusAutomatically = false;
             }
 
-            if (!containerSpecified)
+            if (containerType != null)
+                ObjectBuilder.Common.Config.ConfigureCommon.With(
+                                cfg,
+                                Activator.CreateInstance(containerType) as IContainer
+                                );
+            else
                 cfg.SpringBuilder();
 
             if (messageEndpointType != null)
@@ -67,7 +70,7 @@ namespace NServiceBus.Host.Internal
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 
             if (startBusAutomatically)
-                cfg.CreateBus().Start();
+                cfg.CreateBus().Start(startupAction);
 
             if (messageEndpoint != null)
                 messageEndpoint.OnStart();

@@ -613,10 +613,12 @@ namespace NServiceBus.Unicast
             return types;
         }
 
-		/// <summary>
-		/// Starts the bus.
-		/// </summary>
-        public virtual IBus Start(params Action<IBuilder>[] startupActions)
+        IBus IStartableBus.Start()
+        {
+            return (this as IStartableBus).Start(null);
+        }
+
+        IBus IStartableBus.Start(Action startupAction)
         {
             if (started)
                 return this;
@@ -628,8 +630,8 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
-                foreach (var action in startupActions)
-                    action(builder);
+                if (startupAction != null)
+                    startupAction();
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 

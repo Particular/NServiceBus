@@ -3,9 +3,12 @@ using System.Configuration;
 
 namespace NServiceBus.Config.ConfigurationSource
 {
-    public class DefaultConfigurationSource:IConfigurationSource
+    /// <summary>
+    /// A configuration source implementation on top of ConfigurationManager.
+    /// </summary>
+    public class DefaultConfigurationSource : IConfigurationSource
     {
-        public T GetConfiguration<T>() where T : class
+        T IConfigurationSource.GetConfiguration<T>()
         {
             if (!typeof(ConfigurationSection).IsAssignableFrom(typeof(T)))
                 throw new ArgumentException("DefaultConfigurationSource only supports .Net ConfigurationSections");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using NServiceBus.ObjectBuilder.Common;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host
 {
@@ -33,6 +34,14 @@ namespace NServiceBus.Host
         public interface ProbeDirectory
         {
             string ProbeDirectory { get; }
+        }
+
+        /// <summary>
+        /// Specify additional code to be run at startup.
+        /// </summary>
+        public interface StartupAction
+        {
+            Action StartupAction { get; }
         }
 
         /// <summary>

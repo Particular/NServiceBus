@@ -66,7 +66,7 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,multicast\NServiceBus.Multicast,grid,tests\NServiceBus.UnitTests"
+					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,grid,tests\NServiceBus.UnitTests"
 					delim=","
 					property="pathToBuild">
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"

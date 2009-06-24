@@ -36,6 +36,9 @@ namespace NServiceBus
         /// </summary>
         public IBuilder Builder { get; set; }
 
+        /// <summary>
+        /// Provides access to the configuration source.
+        /// </summary>
         protected IConfigurationSource ConfigSource { get; set; }
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures nServiceBus to scan the given types.
         /// </summary>
-        /// <param name="probeDirectory"></param>
+        /// <param name="typesToScan"></param>
         /// <returns></returns>
         public static Configure With(IEnumerable<Type> typesToScan)
         {
@@ -131,6 +134,18 @@ namespace NServiceBus
             new List<Assembly>(assemblies).ForEach((a) => { foreach (Type t in a.GetTypes()) types.Add(t); });
 
             return With(types);
+        }
+
+        /// <summary>
+        /// Run a custom action at configuration time - useful for performing additional configuration not exposed by the fluent interface.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public Configure RunCustomAction(Action action)
+        {
+            action();
+
+            return this;
         }
 
         /// <summary>

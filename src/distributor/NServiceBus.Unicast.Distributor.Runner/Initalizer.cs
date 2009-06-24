@@ -22,8 +22,9 @@ namespace NServiceBus.Unicast.Distributor.Runner
             MsmqTransport dataTransport = null;
 
             setupSerialization(NServiceBus.Configure.With()
-                .SpringBuilder(
-                (cfg =>
+                .SpringBuilder()
+                .RunCustomAction(
+                () =>
                 {
                     dataTransport = new MsmqTransport
                                         {
@@ -40,12 +41,12 @@ namespace NServiceBus.Unicast.Distributor.Runner
                                             SkipDeserialization = true
                                         };
 
-                    cfg.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton)
+                    Configure.TypeConfigurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(ComponentCallModelEnum.Singleton)
                         .ConfigureProperty(x => x.StorageQueue, System.Configuration.ConfigurationManager.AppSettings["StorageQueue"]);
 
-                    cfg.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
+                    Configure.TypeConfigurer.ConfigureComponent<Distributor>(ComponentCallModelEnum.Singleton);
                 }
-                )))
+                ))
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
@@ -55,11 +56,9 @@ namespace NServiceBus.Unicast.Distributor.Runner
                             .Then<ReadyMessageHandler>()
                     )
                 .CreateBus()
-                .Start(builder =>
+                .Start(() =>
                     {
-                        dataTransport.Builder = builder;
-
-                        var d = builder.Build<Distributor>();
+                        var d = Configure.ObjectBuilder.Build<Distributor>();
                         d.MessageBusTransport = dataTransport;
 
                         d.Start();

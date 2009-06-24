@@ -17,11 +17,10 @@ namespace NServiceBus
         /// configured builder.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="configActions"></param>
         /// <returns></returns>
-        public static Configure AutofacBuilder(this Configure config, params Action<IConfigureComponents>[] configActions)
+        public static Configure AutofacBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder(), configActions);
+            ConfigureCommon.With(config, new AutofacObjectBuilder());
 
             return config;
         }

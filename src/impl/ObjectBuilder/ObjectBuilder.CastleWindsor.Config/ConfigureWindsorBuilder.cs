@@ -1,6 +1,4 @@
-﻿using System;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.ObjectBuilder.CastleWindsor;
+﻿using NServiceBus.ObjectBuilder.CastleWindsor;
 using NServiceBus.ObjectBuilder.Common.Config;
 
 namespace NServiceBus
@@ -12,16 +10,12 @@ namespace NServiceBus
     {
         /// <summary>
         /// Use the Castle Windsor builder.
-        /// 
-        /// You can pass actions to be performed during initialization with the
-        /// configured builder.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="configActions"></param>
         /// <returns></returns>
-        public static Configure CastleWindsorBuilder(this Configure config, params Action<IConfigureComponents>[] configActions)
+        public static Configure CastleWindsorBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new WindsorObjectBuilder(), configActions);
+            ConfigureCommon.With(config, new WindsorObjectBuilder());
 
             return config;
         }        
