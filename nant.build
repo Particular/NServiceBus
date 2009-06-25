@@ -103,7 +103,7 @@
 		</copy>
 
 		<!-- Create list of all "core" assemblies -->
-		<property name="nservicebus.coreassemblies" value="" dynamic="true" />
+		<property name="nservicebus.coreassemblies" value="${merge.dir}\NServiceBus.dll" dynamic="true" />
 
 		<foreach item="File" property="filename">
 			<in>
@@ -112,13 +112,15 @@
 					<include name="${merge.dir}\antlr.runtime.dll" />
 					<include name="${merge.dir}\common.logging*.dll" />
 					<include name="${merge.dir}\Interop.MSMQ.dll" />
+					<!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
+					<exclude name="${merge.dir}\NServiceBus.dll" />
 				</items>
 			</in>
 			<do>
 				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
-				<echo message="${filename}"/>
 			</do>
 		</foreach>
+		
 
 		<!-- Create list of all "external" assemblies that NSB needs -->
 		<property name="nservicebus.externalassemblies" value="" dynamic="true" />

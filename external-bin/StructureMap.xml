@@ -79,6 +79,13 @@
             <param name="concreteType"></param>
             <returns></returns>
         </member>
+        <member name="M:StructureMap.Configuration.DSL.Expressions.GenericFamilyExpression.Use(System.Type)">
+            <summary>
+            Shorter way to call TheDefaultIsConcreteType
+            </summary>
+            <param name="concreteType"></param>
+            <returns></returns>
+        </member>
         <member name="M:StructureMap.Configuration.DSL.Expressions.GenericFamilyExpression.AddType(System.Type)">
             <summary>
             Shortcut method to add an additional Instance to this Plugin Type
@@ -376,6 +383,15 @@
             Exclude this specific type from the scanning operation
             </summary>
             <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:StructureMap.Graph.IAssemblyScanner.ConnectImplementationsToTypesClosing(System.Type)">
+            <summary>
+            Scans for PluginType's and Concrete Types that close the given open generic type
+            </summary>
+            <example>
+            
+            </example>
+            <param name="openGenericType"></param>
         </member>
         <member name="T:StructureMap.Interceptors.TypeInterceptor">
             <summary>
@@ -751,6 +767,14 @@
             <typeparam name="CONCRETETYPE"></typeparam>
             <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:StructureMap.Configuration.DSL.Expressions.CreatePluginFamilyExpression`1.Use``1" -->
+        <member name="M:StructureMap.Configuration.DSL.Expressions.CreatePluginFamilyExpression`1.Use(System.Func{StructureMap.IContext,`0})">
+            <summary>
+            Shorthand to say TheDefault.Is.ConstructedBy(func)
+            </summary>
+            <param name="func"></param>
+            <returns></returns>
+        </member>
         <member name="M:StructureMap.Configuration.DSL.Expressions.CreatePluginFamilyExpression`1.CacheBy(StructureMap.Attributes.InstanceScope)">
             <summary>
             Sets the object creation of the instances of the PluginType.  For example:  PerRequest,
@@ -1100,6 +1124,28 @@
             <typeparam name="T"></typeparam>
             <param name="expression"></param>
         </member>
+        <member name="M:StructureMap.Configuration.DSL.Registry.Register``1(``0)">
+            <summary>
+            Syntactic Sugar for saying ForRequestedType().TheDefault.IsThis( @object )
+            </summary>
+            <typeparam name="PLUGINTYPE"></typeparam>
+            <param name="object"></param>
+        </member>
+        <member name="M:StructureMap.Configuration.DSL.Registry.Register``1(StructureMap.Pipeline.Instance)">
+            <summary>
+            Syntactic Sugar for saying ForRequestedType().TheDefault.IsThis( instance )
+            </summary>
+            <typeparam name="PLUGINTYPE"></typeparam>
+            <param name="instance"></param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:StructureMap.Configuration.DSL.Registry.For``1" -->
+        <member name="M:StructureMap.Configuration.DSL.Registry.For(System.Type)">
+            <summary>
+            Shorthand for ForRequestedType(pluginType)
+            </summary>
+            <param name="pluginType"></param>
+            <returns></returns>
+        </member>
         <member name="T:StructureMap.Configuration.DSL.Registry.BuildWithExpression`1">
             <summary>
             Define the constructor and setter arguments for the default T
@@ -1435,7 +1481,7 @@
             to introduce mocks or stubs during automated testing scenarios
             </summary>
             <param name="pluginType"></param>
-            <param name="stub"></param>
+            <param name="object"></param>
         </member>
         <member name="M:StructureMap.IContainer.Inject``1(System.String,``0)">
             <summary>
@@ -1551,6 +1597,19 @@
             <returns></returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:StructureMap.IContainer.ForObject(System.Object)" -->
+        <member name="M:StructureMap.IContainer.GetNestedContainer">
+            <summary>
+            Starts a "Nested" Container for atomic, isolated access
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StructureMap.IContainer.GetNestedContainer(System.String)">
+            <summary>
+            Starts a new "Nested" Container for atomic, isolated service location.  Opens 
+            </summary>
+            <param name="profileName"></param>
+            <returns></returns>
+        </member>
         <member name="P:StructureMap.IContainer.Model">
             <summary>
             Provides queryable access to the configured PluginType's and Instances of this Container
@@ -1618,31 +1677,12 @@
             <param name="args"></param>
             <returns></returns>
         </member>
-        <member name="M:StructureMap.Container.Inject``1(``0)">
-            <summary>
-            Injects the given object into a Container as the default for the designated
-            PLUGINTYPE.  Mostly used for temporarily setting up return values of the Container
-            to introduce mocks or stubs during automated testing scenarios
-            </summary>
-            <typeparam name="PLUGINTYPE"></typeparam>
-            <param name="instance"></param>
-        </member>
         <member name="M:StructureMap.Container.GetInstance``1">
             <summary>
             Creates or finds the default instance of type T
             </summary>
             <typeparam name="T"></typeparam>
             <returns></returns>
-        </member>
-        <member name="M:StructureMap.Container.Inject``1(System.String,``0)">
-            <summary>
-            Injects the given object into a Container by name for the designated
-            pluginType.  Mostly used for temporarily setting up return values of the Container
-            to introduce mocks or stubs during automated testing scenarios
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
-            <param name="stub"></param>
         </member>
         <member name="M:StructureMap.Container.GetAllInstances``1">
             <summary>
@@ -1717,15 +1757,6 @@
             <param name="instance"></param>
             <returns></returns>
         </member>
-        <member name="M:StructureMap.Container.Inject(System.Type,System.Object)">
-            <summary>
-            Injects the given object into a Container as the default for the designated
-            pluginType.  Mostly used for temporarily setting up return values of the Container
-            to introduce mocks or stubs during automated testing scenarios
-            </summary>
-            <param name="pluginType"></param>
-            <param name="stub"></param>
-        </member>
         <member name="M:StructureMap.Container.GetAllInstances(System.Type)">
             <summary>
             Creates or resolves all registered instances of the pluginType
@@ -1783,13 +1814,6 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:StructureMap.Container.Inject(System.Type,StructureMap.Pipeline.Instance)">
-            <summary>
-            Sets the default instance for the PluginType
-            </summary>
-            <param name="pluginType"></param>
-            <param name="instance"></param>
-        </member>
         <member name="M:StructureMap.Container.ForGenericType(System.Type)">
             <summary>
             Convenience method to request an object using an Open Generic
@@ -1803,6 +1827,54 @@
             </example>
         </member>
         <!-- Badly formed XML comment ignored for member "M:StructureMap.Container.ForObject(System.Object)" -->
+        <member name="M:StructureMap.Container.GetNestedContainer">
+            <summary>
+            Starts a "Nested" Container for atomic, isolated access
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StructureMap.Container.GetNestedContainer(System.String)">
+            <summary>
+            Starts a new "Nested" Container for atomic, isolated service location.  Opens 
+            </summary>
+            <param name="profileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StructureMap.Container.Inject``1(System.String,``0)">
+            <summary>
+            Injects the given object into a Container by name for the designated
+            pluginType.  Mostly used for temporarily setting up return values of the Container
+            to introduce mocks or stubs during automated testing scenarios
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="object"></param>
+        </member>
+        <member name="M:StructureMap.Container.Inject(System.Type,StructureMap.Pipeline.Instance)">
+            <summary>
+            Sets the default instance for the PluginType
+            </summary>
+            <param name="pluginType"></param>
+            <param name="instance"></param>
+        </member>
+        <member name="M:StructureMap.Container.Inject(System.Type,System.Object)">
+            <summary>
+            Injects the given object into a Container as the default for the designated
+            pluginType.  Mostly used for temporarily setting up return values of the Container
+            to introduce mocks or stubs during automated testing scenarios
+            </summary>
+            <param name="pluginType"></param>
+            <param name="object"></param>
+        </member>
+        <member name="M:StructureMap.Container.Inject``1(``0)">
+            <summary>
+            Injects the given object into a Container as the default for the designated
+            PLUGINTYPE.  Mostly used for temporarily setting up return values of the Container
+            to introduce mocks or stubs during automated testing scenarios
+            </summary>
+            <typeparam name="PLUGINTYPE"></typeparam>
+            <param name="object"></param>
+        </member>
         <member name="P:StructureMap.Container.Model">
             <summary>
             Provides queryable access to the configured PluginType's and Instances of this Container
