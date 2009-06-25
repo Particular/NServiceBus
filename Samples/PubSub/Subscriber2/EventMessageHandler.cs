@@ -1,6 +1,6 @@
 using Messages;
 using NServiceBus;
-using System;
+using Common.Logging;
 
 namespace Subscriber2
 {
@@ -8,9 +8,11 @@ namespace Subscriber2
     {
         public void Handle(IEvent message)
         {
-            Console.WriteLine("Subscriber 2 received IEvent with Id {0}.", message.EventId);
-            Console.WriteLine("Message time: {0}.", message.Time);
-            Console.WriteLine("Message duration: {0}.", message.Duration);
+            Logger.Info(string.Format("Subscriber 2 received IEvent with Id {0}.", message.EventId));
+            Logger.Info(string.Format("Message time: {0}.", message.Time));
+            Logger.Info(string.Format("Message duration: {0}.", message.Duration));
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (EventMessageHandler));
     }
 }
