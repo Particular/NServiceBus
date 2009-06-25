@@ -11,45 +11,45 @@ namespace NServiceBus.Host
 {
     public class Program
     {
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            
-            var endpoint = GetEndpointType();
-            
-            var endpointName = GetEndpointName(endpoint);
-            
-            var endpointId = string.Format("{0} Service - v{1}", endpointName, endpoint.Assembly.GetName().Version);
-            
-            var endpointConfigurationFile = endpoint.Assembly.ManifestModule.Name + ".config";
+            Type endpointConfigurationType = GetEndpointConfigurationType();
+
+            string endpointName = GetEndpointName(endpointConfigurationType);
+
+            string endpointId = string.Format("{0} Service - v{1}", endpointName, endpointConfigurationType.Assembly.GetName().Version);
+
+            string endpointConfigurationFile = endpointConfigurationType.Assembly.ManifestModule.Name + ".config";
 
             if (!File.Exists(endpointConfigurationFile))
+            {
                 throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
+            }
 
-            var cfg = RunnerConfigurator.New(x =>
-             {
-                 x.SetDisplayName(endpointId);
-                 x.SetServiceName(endpointId);
-                 x.SetDescription("NServiceBus Message Endpoint Host Service");
+            IRunConfiguration cfg = RunnerConfigurator.New(x =>
+            {
+                x.SetDisplayName(endpointId);
+                x.SetServiceName(endpointId);
+                x.SetDescription("NServiceBus Message Endpoint Host Service");
 
-                 x.ConfigureServiceInIsolation<GenericHost>(endpoint.AssemblyQualifiedName, c =>
-                 {
-                     c.ConfigurationFile(endpointConfigurationFile);
-                     c.WhenStarted(service => service.Start());
-                     c.WhenStopped(service => service.Stop());
-                     c.CreateServiceLocator(() => new HostServiceLocator());
-                 });
-                 x.DoNotStartAutomatically();
+                x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                {
+                    c.ConfigurationFile(endpointConfigurationFile);
+                    c.WhenStarted(service => service.Start());
+                    c.WhenStopped(service => service.Stop());
+                    c.CreateServiceLocator(() => new HostServiceLocator());
+                });
+                x.DoNotStartAutomatically();
 
-                 x.RunAsFromInteractive();
-             });
+                x.RunAsFromInteractive();
+            });
 
             Runner.Host(cfg, args);
         }
 
-        private static Type GetEndpointType()
+        private static Type GetEndpointConfigurationType()
         {
-            var endpoints = ScanAssembliesForEndpoints();
+            IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
 
             ValidateEndpoints(endpoints);
 
@@ -58,41 +58,45 @@ namespace NServiceBus.Host
 
         public static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            foreach (var assemblyFile in Directory.GetFiles(".", "*.dll"))
+            foreach (string assemblyFile in Directory.GetFiles(".", "*.dll"))
             {
-                var assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
+                Assembly assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
 
-                foreach (var type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
+                foreach (Type type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
+                {
                     yield return type;
-
+                }
             }
         }
 
-        private static void ValidateEndpoints(IEnumerable<Type> endpoints)
+        private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
         {
-            if (endpoints.Count() == 0)
+            if (endpointConfigurationTypes.Count() == 0)
+            {
                 throw new InvalidOperationException("No endpoints found in scanned assemlies");
+            }
 
-            if (endpoints.Count() > 1)
+            if (endpointConfigurationTypes.Count() > 1)
+            {
                 throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints");
-
+            }
         }
 
-        private static string GetEndpointName(Type endpoint)
+        private static string GetEndpointName(Type endpointConfigurationType)
         {
-            if (!endpoint.IsDefined(typeof(EndpointNameAttribute), false))
+            string endpointName = null;
+
+            if (endpointConfigurationType is ISpecify.EndpointName)
             {
-                return endpoint.Name;
+                endpointName = (endpointConfigurationType as ISpecify.EndpointName).EndpointName;
             }
 
-            var endpointNameAttribute = endpoint.GetCustomAttributes(typeof(EndpointNameAttribute), false)[0] as EndpointNameAttribute;
-
-            if (endpointNameAttribute == null || string.IsNullOrEmpty(endpointNameAttribute.Name))
+            if (!string.IsNullOrEmpty(endpointName))
             {
-                return endpoint.Name;
+                return endpointName;
             }
 
-            return endpointNameAttribute.Name;
+            return endpointConfigurationType.Name;
         }
     }
 }

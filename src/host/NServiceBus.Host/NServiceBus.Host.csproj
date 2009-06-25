@@ -56,7 +56,6 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="EndpointNameAttribute.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
     <Compile Include="IDontWantTheBusStartedAutomatically.cs" />
     <Compile Include="Internal\GenericHost.cs" />

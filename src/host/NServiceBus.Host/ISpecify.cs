@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host
 {
@@ -12,6 +11,15 @@ namespace NServiceBus.Host
     /// </summary>
     public class ISpecify
     {
+        /// <summary>
+        /// Specify the name of the endpoint that will be used as the name of the installed Windows Service
+        /// instead of the default name.
+        /// </summary>
+        public interface EndpointName
+        {
+            string EndpointName { get; }
+        }
+        
         /// <summary>
         /// Specify the types to be configured in the endpoint.
         /// </summary>
