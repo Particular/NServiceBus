@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus.Containers.Autofac
 {
     ///<summary>
     /// Type extensions for Autofac

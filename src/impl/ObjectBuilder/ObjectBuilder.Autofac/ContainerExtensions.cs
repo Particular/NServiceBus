@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus.Containers.Autofac
 {
     ///<summary>
     /// Autofac IContainer extensions

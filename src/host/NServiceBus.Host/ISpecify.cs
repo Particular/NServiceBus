@@ -48,9 +48,16 @@ namespace NServiceBus.Host
         /// Specify the type of container that will be used for dependency injection in the endpoint.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public interface ToUseContainer<T> where T : IContainer
+        public interface ContainerTypeToUse<T> where T : IContainer
         {
-            
+        }
+
+        /// <summary>
+        /// Specify a container instance that will be used for dependency injection in the endpoint.
+        /// </summary>
+        public interface ContainerInstanceToUse
+        {
+            IContainer ContainerInstance { get; }
         }
 
         /// <summary>

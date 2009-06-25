@@ -1,6 +1,4 @@
-using System;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.ObjectBuilder.Autofac;
+using NServiceBus.Containers.Autofac;
 using NServiceBus.ObjectBuilder.Common.Config;
 
 namespace NServiceBus
@@ -18,9 +16,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure AutofacBuilder(this Configure config)
+        public static Configure UsingAutofacContainer(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder());
+            ConfigureCommon.With(config, new AutofacContainer());
 
             return config;
         }

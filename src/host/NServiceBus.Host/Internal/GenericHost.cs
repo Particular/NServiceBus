@@ -15,6 +15,7 @@ namespace NServiceBus.Host.Internal
 
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
             Configure cfg;
+            
 
             if (specifier is ISpecify.TypesToScan)
                 cfg = Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
@@ -28,10 +29,14 @@ namespace NServiceBus.Host.Internal
                         cfg = Configure.With();
 
             Action startupAction = null;
+            IContainer container = null;
 
             if (specifier is ISpecify.StartupAction)
                 startupAction = (specifier as ISpecify.StartupAction).StartupAction;
 
+            if (specifier is ISpecify.ContainerInstanceToUse)
+                container = (specifier as ISpecify.ContainerInstanceToUse).ContainerInstance;
+            
             Type containerType = null;
             Type messageEndpointType = null;
             bool startBusAutomatically = true;
@@ -42,7 +47,7 @@ namespace NServiceBus.Host.Internal
                 if (args.Length == 1)
                 {
                     if (typeof(IContainer).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ToUseContainer<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
+                        if (typeof(ISpecify.ContainerTypeToUse<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
                             containerType = args[0];
 
                     if (typeof(IMessageEndpoint).IsAssignableFrom(args[0]))
@@ -54,7 +59,11 @@ namespace NServiceBus.Host.Internal
                     startBusAutomatically = false;
             }
 
-            if (containerType != null)
+            if (container != null)
+            {
+                ObjectBuilder.Common.Config.ConfigureCommon.With(cfg, container);
+            }
+            else if (containerType != null)
                 ObjectBuilder.Common.Config.ConfigureCommon.With(
                                 cfg,
                                 Activator.CreateInstance(containerType) as IContainer
@@ -62,10 +71,10 @@ namespace NServiceBus.Host.Internal
             else
                 cfg.SpringBuilder();
 
+            specifier.Init(cfg);
+
             if (messageEndpointType != null)
                 Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
-
-            specifier.Init(cfg);
 
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 

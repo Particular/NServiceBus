@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus.Containers.Autofac
 {
     ///<summary>
     /// Object extension methods

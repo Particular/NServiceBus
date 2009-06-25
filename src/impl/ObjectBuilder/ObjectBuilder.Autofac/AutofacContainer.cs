@@ -4,19 +4,20 @@ using System.Linq;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Modules;
+using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus.Containers.Autofac
 {
     ///<summary>
-    /// Autofac implementation of IBuilderInternal.
+    /// Autofac implementation of IContainer.
     ///</summary>
-    public class AutofacObjectBuilder : Common.IContainer
+    public class AutofacContainer : ObjectBuilder.Common.IContainer
     {
         ///<summary>
         /// Instantiates the class saving the given container.
         ///</summary>
         ///<param name="container"></param>
-        public AutofacObjectBuilder(IContainer container)
+        public AutofacContainer(IContainer container)
         {
             this.Container = container;
             this.Initialize();
@@ -25,7 +26,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Instantites the class with a new Autofac container.
         ///</summary>
-        public AutofacObjectBuilder() : this(new Container())
+        public AutofacContainer() : this(new Container())
         {
         }
 
@@ -44,7 +45,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return this.Container.ResolveAll(typeToBuild);
         }
 
-        void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
+        void ObjectBuilder.Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             IComponentRegistration registration = this.GetComponentRegistration(component);
 

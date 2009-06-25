@@ -8,8 +8,8 @@
     <ProjectGuid>{73EC4EBE-826D-4A0A-8837-51D3458FC2A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.ObjectBuilder.Autofac</RootNamespace>
-    <AssemblyName>NServiceBus.ObjectBuilder.Autofac</AssemblyName>
+    <RootNamespace>NServiceBus.Containers.Autofac</RootNamespace>
+    <AssemblyName>NServiceBus.Containers.Autofac</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.ObjectBuilder.Autofac.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.Containers.Autofac.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.ObjectBuilder.Autofac.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\NServiceBus.Containers.Autofac.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=1.4.1.487, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -58,7 +58,7 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AutofacObjectBuilder.cs" />
+    <Compile Include="AutofacContainer.cs" />
     <Compile Include="ConfigureExtensions.cs" />
     <Compile Include="ContainerExtensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
