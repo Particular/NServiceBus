@@ -272,6 +272,13 @@
 				<include name="Iesi.Collections*" />
 			</fileset>
 		</copy>
+		
+		<copy todir="${release.dir}">
+			<fileset basedir="${trunk.dir}">
+				<include name="docs\**" />
+			</fileset>
+		</copy>
+
 		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
