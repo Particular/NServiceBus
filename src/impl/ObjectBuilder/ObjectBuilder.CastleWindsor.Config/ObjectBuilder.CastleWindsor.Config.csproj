@@ -47,20 +47,9 @@
       <HintPath>..\..\..\..\external-bin\Castle.Windsor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.9.3.42082, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Config, Version=1.9.3.42084, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Config.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\build\output\coreonly\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -86,16 +75,6 @@
     <ProjectReference Include="..\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj">
       <Project>{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}</Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Common.Config\ObjectBuilder.Common.Config.csproj">
-      <Project>{34C89D80-4F8D-48A6-AAB5-2D6DC5A1B953}</Project>
-      <Name>ObjectBuilder.Common.Config</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Common\ObjectBuilder.Common.csproj">
-      <Project>{771CDD6A-6880-4802-8EB1-F7A35386D9B4}</Project>
-      <Name>ObjectBuilder.Common</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

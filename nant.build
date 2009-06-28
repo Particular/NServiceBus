@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <project name="NServiceBus" default="build" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
 	<property name="solution.dir" value="src"/>
 	<property name="solution.file" value="./AllProjects.sln"/>
@@ -13,6 +13,7 @@
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
+	<property name="container.output.dir" value="${output.dir}\containers"/>
 	
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
@@ -66,7 +67,7 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder,grid,tests\NServiceBus.UnitTests"
+					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder.Common,grid"
 					delim=","
 					property="pathToBuild">
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
@@ -76,6 +77,9 @@
 	</target>
 	
 	<target name="test" depends="compile_src">
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\tests\NServiceBus.UnitTests" />
+		
 		<nunit2>
 			  <formatter type="Plain" />
 			  <test assemblyname="${solution.dir}\tests\NServiceBus.UnitTests\bin\${project.config}\NServiceBus.UnitTests.dll"/>
@@ -88,15 +92,14 @@
 		<delete dir="${output.dir}" failonerror="false"></delete>
 		<mkdir dir="${merge.dir}" />
 		<mkdir dir="${output.dir}" />
+		
 		<copy todir="${merge.dir}">
 			<fileset basedir="${build.base}">
 				<include name="*.*" />
 			</fileset>
-
 		</copy>
 
 		<copy todir="${merge.dir}">
-
 			<fileset basedir="${lib.dir}">
 				<include name="*.*" />
 			</fileset>
@@ -112,6 +115,7 @@
 					<include name="${merge.dir}\antlr.runtime.dll" />
 					<include name="${merge.dir}\common.logging*.dll" />
 					<include name="${merge.dir}\Interop.MSMQ.dll" />
+					<include name="${merge.dir}\spring*.dll" />
 					<!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
 					<exclude name="${merge.dir}\NServiceBus.dll" />
 				</items>
@@ -120,7 +124,6 @@
 				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
 			</do>
 		</foreach>
-		
 
 		<!-- Create list of all "external" assemblies that NSB needs -->
 		<property name="nservicebus.externalassemblies" value="" dynamic="true" />
@@ -128,7 +131,6 @@
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${merge.dir}\spring*.dll" />
 					<include name="${merge.dir}\castle*.dll" />
 					<include name="${merge.dir}\structuremap*.dll" />
 					<include name="${merge.dir}\autofac.dll" />
@@ -139,18 +141,47 @@
 				<echo message="${filename}"/>
 			</do>
 		</foreach>
-
-
-		<!-- Create the full NServiceBus.dll-->
-		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} ${nservicebus.externalassemblies} /target:library /xmldocs /log:build\output.txt "
-				workingdir="." />
-
+		
 		<mkdir dir="${output.dir}\coreonly" />
 
 		<!-- Create the "coreonly" version NServiceBus.dll-->
 		<exec 	program="${lib.dir}\ilmerge.exe"
 				commandline="/out:${output.dir}\coreonly\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output_coreonly.txt"
+				workingdir="." />
+				
+    <!-- Containers -->
+    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\impl\ObjectBuilder" />
+
+    <!-- Copy the container assemblies to the output directory -->
+    <copy todir="${container.output.dir}">
+			<fileset basedir="${build.base}">
+          <include name="NServiceBus.Containers.*.dll" />
+					<include name="NServiceBus.ObjectBuilder.CastleWindsor*.dll" />
+					<include name="NServiceBus.ObjectBuilder.StructureMap*.dll" />
+			</fileset>
+		</copy>
+		
+    <!-- Create list of all container implementation assemblies -->
+		<property name="nservicebus.containerassemblies" value="" dynamic="true" />
+
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${build.base}\NServiceBus.Containers.*.dll" />
+					<include name="${build.base}\NServiceBus.ObjectBuilder.CastleWindsor*.dll" />
+					<include name="${build.base}\NServiceBus.ObjectBuilder.StructureMap*.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.containerassemblies" value="${nservicebus.containerassemblies} ${filename}"/>
+				<echo message="${filename}"/>
+			</do>
+		</foreach>
+
+		<!-- Create the full NServiceBus.dll-->
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.dll ${output.dir}\coreonly\NServiceBus.dll ${nservicebus.containerassemblies} ${nservicebus.externalassemblies} /target:library /xmldocs /log:build\output.txt "
 				workingdir="." />
 	</target>
 

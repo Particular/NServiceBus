@@ -47,10 +47,9 @@
       <HintPath>..\..\..\..\external-bin\Castle.Windsor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\build\output\coreonly\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -71,13 +70,6 @@
     </Compile>
     <Compile Include="WindsorObjectBuilder .cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ObjectBuilder.Common\ObjectBuilder.Common.csproj">
-      <Project>{771CDD6A-6880-4802-8EB1-F7A35386D9B4}</Project>
-      <Name>ObjectBuilder.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
