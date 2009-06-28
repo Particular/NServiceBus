@@ -20,28 +20,28 @@ namespace OrderService
 
         public void Handle(OrderMessage message)
         {
-            this.Data.PurchaseOrderNumber = message.PurchaseOrderNumber;
-            this.Data.PartnerId = message.PartnerId;
-            this.Data.ProvideBy = message.ProvideBy;
+            Data.PurchaseOrderNumber = message.PurchaseOrderNumber;
+            Data.PartnerId = message.PartnerId;
+            Data.ProvideBy = message.ProvideBy;
 
             foreach (Messages.OrderLine ol in message.OrderLines)
-                this.Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
+                Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
-            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(this.Data.Lines));
+            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(Data.Lines));
 
             if (message.Done)
             {
-                this.ReplyToOriginator(status);
-                this.Bus.Publish(status);
+                ReplyToOriginator(status);
+                Bus.Publish(status);
 
-                this.Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = this.Data.Id; m.PartnerId = this.Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, HR.Messages.IOrderLine>(status.OrderLines); });
+                Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, HR.Messages.IOrderLine>(status.OrderLines); });
 
-                this.RequestTimeout(this.Data.ProvideBy - TimeSpan.FromSeconds(2), null);
+                RequestTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
             }
             else
             {
                 status.Status = OrderStatusEnum.Tentative;
-                this.Bus.Publish(status);
+                Bus.Publish(status);
             }
         }
 
@@ -51,13 +51,13 @@ namespace OrderService
                 (message.Success ? OrderStatusEnum.Authorized : OrderStatusEnum.Rejected),
                 GetOrderLines(message.OrderLines));
 
-            this.ReplyToOriginator(status);
-            this.Bus.Publish(status);
+            ReplyToOriginator(status);
+            Bus.Publish(status);
 
             foreach (HR.Messages.IOrderLine ol in message.OrderLines)
-                this.Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
+                Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
 
-            if (this.Data.IsAuthorized)
+            if (Data.IsAuthorized)
                 Complete();
         }
 
@@ -68,17 +68,17 @@ namespace OrderService
 
         private void Complete()
         {
-            var finalStatus = GetStatus(OrderStatusEnum.Accepted, GetOrderLines(this.Data.Lines));
+            var finalStatus = GetStatus(OrderStatusEnum.Accepted, GetOrderLines(Data.Lines));
 
-            this.Bus.Publish(finalStatus);
-            this.ReplyToOriginator(finalStatus);
+            Bus.Publish(finalStatus);
+            ReplyToOriginator(finalStatus);
 
-            this.MarkAsComplete();
+            MarkAsComplete();
         }
 
         public override void Timeout(object state)
         {
-            this.Complete();
+            Complete();
         }
 
         private List<K> Convert<T, K>(List<T> list) where T : Messages.OrderLine where K : IOrderLine
@@ -95,14 +95,14 @@ namespace OrderService
             var result = new List<Messages.OrderLine>();
 
             foreach (OrderLine ol in lines)
-                result.Add<Messages.OrderLine>(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
+                result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
 
             return result;
         }
 
         private OrderStatusChangedMessage GetStatus(OrderStatusEnum status, List<Messages.OrderLine> lines)
         {
-            return this.Bus.CreateInstance<OrderStatusChangedMessage>(m =>
+            return Bus.CreateInstance<OrderStatusChangedMessage>(m =>
             {
                 m.PurchaseOrderNumber = this.Data.PurchaseOrderNumber;
                 m.PartnerId = this.Data.PartnerId;
@@ -116,7 +116,7 @@ namespace OrderService
             var result = new List<Messages.OrderLine>();
 
             foreach (IOrderLine ol in lines)
-                result.Add<Messages.OrderLine>(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
+                result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
 
             return result;
         }
