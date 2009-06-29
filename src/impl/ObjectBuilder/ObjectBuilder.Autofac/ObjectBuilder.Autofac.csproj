@@ -8,8 +8,8 @@
     <ProjectGuid>{73EC4EBE-826D-4A0A-8837-51D3458FC2A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Containers.Autofac</RootNamespace>
-    <AssemblyName>NServiceBus.Containers.Autofac</AssemblyName>
+    <RootNamespace>NServiceBus.ObjectBuilder.Autofac</RootNamespace>
+    <AssemblyName>NServiceBus.ObjectBuilder.Autofac</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.Containers.Autofac.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.ObjectBuilder.Autofac.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.Containers.Autofac.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\NServiceBus.ObjectBuilder.Autofac.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=1.4.1.487, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -50,12 +50,12 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AutofacContainer.cs" />
-    <Compile Include="ConfigureExtensions.cs" />
-    <Compile Include="ContainerExtensions.cs" />
-    <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="AutofacObjectBuilder.cs" />
+    <Compile Include="Config\ConfigureAutofacBuilder.cs" />
+    <Compile Include="Internal\ContainerExtensions.cs" />
+    <Compile Include="Internal\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeExtensions.cs" />
+    <Compile Include="Internal\TypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -66,6 +66,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\containers\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\containers\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

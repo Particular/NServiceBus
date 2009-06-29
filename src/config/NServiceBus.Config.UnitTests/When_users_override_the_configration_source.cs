@@ -2,7 +2,7 @@ using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace NServiceBus.UnitTests.Configuration
+namespace NServiceBus.Config.UnitTests
 {
     [TestFixture]
     public class When_users_override_the_configration_source
@@ -12,9 +12,9 @@ namespace NServiceBus.UnitTests.Configuration
         [SetUp]
         public void SetUp()
         {
-            userConfigurationSource = MockRepository.GenerateStub<IConfigurationSource>();
+            this.userConfigurationSource = MockRepository.GenerateStub<IConfigurationSource>();
             Configure.With()
-                .CustomConfigurationSource(userConfigurationSource);
+                .CustomConfigurationSource(this.userConfigurationSource);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace NServiceBus.UnitTests.Configuration
             Configure.GetConfigSection<TestConfigurationSection>();
 
 
-            userConfigurationSource.AssertWasCalled(c => c.GetConfiguration<TestConfigurationSection>());
+            this.userConfigurationSource.AssertWasCalled(c => c.GetConfiguration<TestConfigurationSection>());
         }
 
     }
@@ -35,5 +35,4 @@ namespace NServiceBus.UnitTests.Configuration
             return new TestConfigurationSection() as T;
         }
     }
-
 }

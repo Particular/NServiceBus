@@ -1,8 +1,8 @@
 using System;
-using NUnit.Framework;
 using NBehave.Spec.NUnit;
+using NUnit.Framework;
 
-namespace NServiceBus.UnitTests.Configuration
+namespace NServiceBus.Config.UnitTests
 {
     [TestFixture]
     public class When_no_custom_configuration_source_is_specified
@@ -20,7 +20,7 @@ namespace NServiceBus.UnitTests.Configuration
             var configSection = Configure.GetConfigSection<TestConfigurationSection>();
 
             configSection.TestSetting.ShouldEqual("test");
-       }
+        }
 
         [Test,ExpectedException(typeof(ArgumentException))]
         public void Getting_sections_that_not_inherits_from_configsection_should_fail()

@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.UnitTests.Configuration
+namespace NServiceBus.Config.UnitTests
 {
     public class TestConfigurationSection : ConfigurationSection
     {

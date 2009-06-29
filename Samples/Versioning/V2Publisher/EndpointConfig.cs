@@ -8,7 +8,6 @@ namespace V2Publisher
         public void Init(Configure configure)
         {
             configure
-                .SpringBuilder()
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()

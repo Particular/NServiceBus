@@ -1,11 +1,11 @@
 using System.Reflection;
 
-namespace NServiceBus.Containers.Autofac
+namespace NServiceBus.ObjectBuilder.Autofac.Internal
 {
     ///<summary>
     /// Object extension methods
     ///</summary>
-    public static class ObjectExtensions
+    internal static class ObjectExtensions
     {
         ///<summary>
         /// Set a property value on an instance using reflection

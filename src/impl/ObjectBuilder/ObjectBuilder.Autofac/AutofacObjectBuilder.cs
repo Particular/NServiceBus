@@ -4,20 +4,20 @@ using System.Linq;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Modules;
-using NServiceBus.ObjectBuilder;
+using NServiceBus.ObjectBuilder.Autofac.Internal;
 
-namespace NServiceBus.Containers.Autofac
+namespace NServiceBus.ObjectBuilder.Autofac
 {
     ///<summary>
     /// Autofac implementation of IContainer.
     ///</summary>
-    public class AutofacContainer : ObjectBuilder.Common.IContainer
+    public class AutofacObjectBuilder : Common.IContainer
     {
         ///<summary>
         /// Instantiates the class saving the given container.
         ///</summary>
         ///<param name="container"></param>
-        public AutofacContainer(IContainer container)
+        public AutofacObjectBuilder(IContainer container)
         {
             this.Container = container;
             this.Initialize();
@@ -26,7 +26,7 @@ namespace NServiceBus.Containers.Autofac
         ///<summary>
         /// Instantites the class with a new Autofac container.
         ///</summary>
-        public AutofacContainer() : this(new Container())
+        public AutofacObjectBuilder() : this(new Container())
         {
         }
 
@@ -35,17 +35,27 @@ namespace NServiceBus.Containers.Autofac
         /// </summary>
         public IContainer Container { get; set; }
 
+        ///<summary>
+        /// Build an instance of a given type using Autofac.
+        ///</summary>
+        ///<param name="typeToBuild"></param>
+        ///<returns></returns>
         public object Build(Type typeToBuild)
         {
             return this.Container.Resolve(typeToBuild);
         }
 
+        ///<summary>
+        /// Build all instances of a given type using Autofac.
+        ///</summary>
+        ///<param name="typeToBuild"></param>
+        ///<returns></returns>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             return this.Container.ResolveAll(typeToBuild);
         }
 
-        void ObjectBuilder.Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
+        void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             IComponentRegistration registration = this.GetComponentRegistration(component);
 
@@ -59,6 +69,12 @@ namespace NServiceBus.Containers.Autofac
             }
         }
 
+        ///<summary>
+        /// Configure the value of a named component property.
+        ///</summary>
+        ///<param name="component"></param>
+        ///<param name="property"></param>
+        ///<param name="value"></param>
         public void ConfigureProperty(Type component, string property, object value)
         {
             var registration = this.GetComponentRegistration(component);
@@ -71,6 +87,11 @@ namespace NServiceBus.Containers.Autofac
             registration.Activating += (sender, e) => e.Instance.SetPropertyValue(property, value);
         }
 
+        ///<summary>
+        /// Register a singleton instance of a dependency within Autofac.
+        ///</summary>
+        ///<param name="lookupType"></param>
+        ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();

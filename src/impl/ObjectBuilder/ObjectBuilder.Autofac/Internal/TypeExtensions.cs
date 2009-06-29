@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NServiceBus.Containers.Autofac
+namespace NServiceBus.ObjectBuilder.Autofac.Internal
 {
     ///<summary>
     /// Type extensions for Autofac
     ///</summary>
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         ///<summary>
         /// Collect all interfaces implemented by a given type

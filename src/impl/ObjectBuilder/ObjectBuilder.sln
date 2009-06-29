@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor", "ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj", "{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor.Config", "ObjectBuilder.CastleWindsor.Config\ObjectBuilder.CastleWindsor.Config.csproj", "{A5C76DC4-8614-4FF5-B417-90F860354A23}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.StructureMap", "ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj", "{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Autofac", "ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj", "{73EC4EBE-826D-4A0A-8837-51D3458FC2A8}"
@@ -19,10 +17,6 @@ Global
 		{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5C76DC4-8614-4FF5-B417-90F860354A23}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}.Release|Any CPU.ActiveCfg = Release|Any CPU

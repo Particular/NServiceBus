@@ -13,18 +13,18 @@
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
+	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
 	
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
 	</if>
 
-
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,test"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,test"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -38,7 +38,6 @@
 	<target name="clean" description="delete build artifacts">
 		<delete dir="${build.base}" failonerror="false" />
 	</target>
-
 	
 	<target name="commonassemblyinfo" depends="init">
 		<echo message="MARKING THIS BUILD AS VERSION ${project.fullversion}" />
@@ -77,12 +76,13 @@
 	</target>
 	
 	<target name="test" depends="compile_src">
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
-				workingdir="${solution.dir}\tests\NServiceBus.UnitTests" />
-		
 		<nunit2>
 			  <formatter type="Plain" />
-			  <test assemblyname="${solution.dir}\tests\NServiceBus.UnitTests\bin\${project.config}\NServiceBus.UnitTests.dll"/>
+			  <test>
+          <assemblies>
+            <include name="${solution.dir}\config\NServiceBus.Config.UnitTests\bin\${project.config}\NServiceBus.Config.UnitTests.dll" />
+          </assemblies>
+			  </test>
 		</nunit2>
 	</target>
 
@@ -125,76 +125,39 @@
 			</do>
 		</foreach>
 
-		<!-- Create list of all "external" assemblies that NSB needs -->
-		<property name="nservicebus.externalassemblies" value="" dynamic="true" />
-
-		<foreach item="File" property="filename">
-			<in>
-				<items>
-					<include name="${merge.dir}\castle*.dll" />
-					<include name="${merge.dir}\structuremap*.dll" />
-					<include name="${merge.dir}\autofac.dll" />
-				</items>
-			</in>
-			<do>
-				<property name="nservicebus.externalassemblies" value="${nservicebus.externalassemblies} ${filename}"/>
-				<echo message="${filename}"/>
-			</do>
-		</foreach>
-		
-		<mkdir dir="${output.dir}\coreonly" />
-
 		<!-- Create the "coreonly" version NServiceBus.dll-->
-		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\coreonly\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output_coreonly.txt"
+		<exec program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output.txt"
 				workingdir="." />
-				
+	</target>
+	
+	<target name="compile_containers">
     <!-- Containers -->
-    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
-				workingdir="${solution.dir}\impl\ObjectBuilder" />
+    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+      commandline="/p:Configuration=${project.config}"
+      workingdir="${solution.dir}\impl\ObjectBuilder" />
 
     <!-- Copy the container assemblies to the output directory -->
     <copy todir="${container.output.dir}">
-			<fileset basedir="${build.base}">
-          <include name="NServiceBus.Containers.*.dll" />
-					<include name="NServiceBus.ObjectBuilder.CastleWindsor*.dll" />
-					<include name="NServiceBus.ObjectBuilder.StructureMap*.dll" />
+			<fileset basedir="${container.build.dir}">
+          <include name="NServiceBus.ObjectBuilder.Autofac.dll" />
+          <include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+          <include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
 			</fileset>
 		</copy>
-		
-    <!-- Create list of all container implementation assemblies -->
-		<property name="nservicebus.containerassemblies" value="" dynamic="true" />
-
-		<foreach item="File" property="filename">
-			<in>
-				<items>
-					<include name="${build.base}\NServiceBus.Containers.*.dll" />
-					<include name="${build.base}\NServiceBus.ObjectBuilder.CastleWindsor*.dll" />
-					<include name="${build.base}\NServiceBus.ObjectBuilder.StructureMap*.dll" />
-				</items>
-			</in>
-			<do>
-				<property name="nservicebus.containerassemblies" value="${nservicebus.containerassemblies} ${filename}"/>
-				<echo message="${filename}"/>
-			</do>
-		</foreach>
-
-		<!-- Create the full NServiceBus.dll-->
-		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${output.dir}\coreonly\NServiceBus.dll ${nservicebus.containerassemblies} ${nservicebus.externalassemblies} /target:library /xmldocs /log:build\output.txt "
-				workingdir="." />
 	</target>
 
 	<target name="compile_tools">
 
-	    <!-- Testing -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+	  <!-- Testing -->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+        commandline="/p:Configuration=${project.config}"
 				workingdir="${solution.dir}\testing" />
 
 		<mkdir dir="${output.dir}\testing" />
-		<exec 	program="${lib.dir}\ilmerge.exe"
-			commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
-			workingdir="." />
+		<exec program="${lib.dir}\ilmerge.exe"
+      commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
+      workingdir="." />
 
 		<!-- Misc -->
 		<foreach 	item="String"
@@ -247,8 +210,10 @@
 		<copy todir="${release.dir}">
 			<fileset basedir="${output.dir}">
 				<include name="**" />
+				<exclude name="containers\**" />
 			</fileset>
 		</copy>
+		
 		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">
 				<include name="*.txt" />
@@ -256,33 +221,52 @@
 			</fileset>
 		</copy>
 
-		<mkdir dir="${release.dir}\coreonly\castle" />
-		<copy todir="${release.dir}\coreonly\castle">
-			<fileset basedir="${lib.dir}">
-				<include name="Castle*.*" />
-			</fileset>
-		</copy>
-		<mkdir dir="${release.dir}\coreonly\spring" />
-		<copy todir="${release.dir}\coreonly\spring">
-			<fileset basedir="${lib.dir}">
-				<include name="Spring*.*" />
-			</fileset>
-		</copy>
-
-		<mkdir dir="${release.dir}\coreonly\structuremap" />
-		<copy todir="${release.dir}\coreonly\structuremap">
-			<fileset basedir="${lib.dir}">
-				<include name="StructureMap*.*" />
-			</fileset>
-		</copy>
-		
-		<mkdir dir="${release.dir}\coreonly\autofac" />
-		<copy todir="${release.dir}\coreonly\autofac">
+    <!-- Prepare Containers -->
+		<mkdir dir="${release.dir}\containers\autofac" />
+		<copy todir="${release.dir}\containers\autofac">
 			<fileset basedir="${lib.dir}">
 				<include name="Autofac*.*" />
 			</fileset>
 		</copy>
+		<copy todir="${release.dir}\containers\autofac">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
+			</fileset>
+		</copy>
+    
+		<mkdir dir="${release.dir}\containers\castle" />
+		<copy todir="${release.dir}\containers\castle">
+			<fileset basedir="${lib.dir}">
+				<include name="Castle*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${release.dir}\containers\castle">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+			</fileset>
+		</copy>
 
+		<mkdir dir="${release.dir}\containers\structuremap" />
+		<copy todir="${release.dir}\containers\structuremap">
+			<fileset basedir="${lib.dir}">
+				<include name="StructureMap*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${release.dir}\containers\structuremap">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
+			</fileset>
+		</copy>
+		
+		<!-- Prepare Host -->
+		<mkdir dir="${release.dir}\host" />
+		<copy todir="${release.dir}\host">
+			<fileset basedir="${output.dir}\host">
+        <include name="NServiceBus*.*" />
+			</fileset>
+		</copy>
+
+    <!-- Prepare Tools -->
 		<mkdir dir="${release.dir}\tools" />
 		<copy todir="${release.dir}\tools">
 			<fileset basedir="${build.base}">

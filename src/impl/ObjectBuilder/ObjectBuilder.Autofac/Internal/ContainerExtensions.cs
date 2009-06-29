@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 
-namespace NServiceBus.Containers.Autofac
+namespace NServiceBus.ObjectBuilder.Autofac.Internal
 {
     ///<summary>
     /// Autofac IContainer extensions
     ///</summary>
-    public static class ContainerExtensions
+    internal static class ContainerExtensions
     {
         ///<summary>
         /// Retrieve all registrations across container hierarchies as a single sequence

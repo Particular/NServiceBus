@@ -1,4 +1,4 @@
-using NServiceBus.Containers.Autofac;
+using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.Common.Config;
 
 namespace NServiceBus
@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
-    public static class ConfigureExtensions
+    public static class ConfigureAutofacBuilder
     {
         /// <summary>
         /// Use the Autofac builder.
@@ -16,9 +16,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure UsingAutofacContainer(this Configure config)
+        public static Configure AutofacBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacContainer());
+            ConfigureCommon.With(config, new AutofacObjectBuilder());
 
             return config;
         }

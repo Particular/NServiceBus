@@ -16,7 +16,7 @@ namespace OrderService.Host
             try
             {
                 var bus = NServiceBus.Configure.With()
-                    .CastleWindsorBuilder()
+                    .SpringBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
