@@ -4,7 +4,6 @@ using System.Reflection;
 using Common.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
-using NServiceBus;
 
 namespace NServiceBus.Host.Internal
 {
@@ -85,6 +84,7 @@ namespace NServiceBus.Host.Internal
                         .LoadMessageHandlers();
 
             if (specifier is As.aServer)
+            {
                 cfg
                     .MsmqTransport()
                         .IsTransactional(true)
@@ -92,6 +92,18 @@ namespace NServiceBus.Host.Internal
                     .UnicastBus()
                         .ImpersonateSender(true)
                         .LoadMessageHandlers();
+
+                if (specifier is As.aPublisher)
+                {
+                    var subscriptionConfig =
+                        Configure.GetConfigSection<Config.DbSubscriptionStorageConfig>();
+
+                    if (subscriptionConfig == null)
+                        cfg.MsmqSubscriptionStorage();
+                    else
+                        cfg.DbSubscriptionStorage();
+                }
+            }
 
             if (specifier is ISpecify.ToUseXmlSerialization)
             {

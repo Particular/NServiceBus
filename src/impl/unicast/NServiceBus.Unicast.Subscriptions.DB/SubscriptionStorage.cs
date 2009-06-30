@@ -17,6 +17,9 @@ namespace NServiceBus.Unicast.Subscriptions.DB
         public SubscriptionStorage()
         {
             IsolationLevel = IsolationLevel.ReadCommitted;
+            Table = "NServiceBus_Subscriptions";
+            SubscriberColumnName = "SubscriberEndpoint";
+            MessageTypeColumnName = "MessageType";
         }
 
         private DbProviderFactory factory;

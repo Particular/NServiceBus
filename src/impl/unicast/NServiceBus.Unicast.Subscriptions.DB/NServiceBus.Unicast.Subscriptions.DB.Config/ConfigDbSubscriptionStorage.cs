@@ -13,19 +13,14 @@ namespace NServiceBus.Unicast.Subscriptions.DB.Config
     public class ConfigDbSubscriptionStorage : Configure
     {
         /// <summary>
-        /// Constructor.
-        /// </summary>
-        public ConfigDbSubscriptionStorage() : base() { }
-
-        /// <summary>
         /// Wraps the given configuration object but stores the same 
         /// builder and configurer properties.
         /// </summary>
         /// <param name="config"></param>
         public void Configure(Configure config)
         {
-            this.Builder = config.Builder;
-            this.Configurer = config.Configurer;
+            Builder = config.Builder;
+            Configurer = config.Configurer;
 
             storageConfig = Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singleton);
 

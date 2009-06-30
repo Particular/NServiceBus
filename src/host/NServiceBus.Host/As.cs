@@ -17,5 +17,11 @@
         /// As such will be set up as a non-transactional endpoint with no impersonation and purging messages on startup.
         /// </summary>
         public interface aClient {}
+
+        /// <summary>
+        /// Indicates this endpoint is a publisher.
+        /// This is compatible with <see cref="aServer"/> but not <see cref="aClient"/>.
+        /// </summary>
+        public interface aPublisher {}
     }
 }

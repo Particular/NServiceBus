@@ -1,22 +1,11 @@
-﻿using NServiceBus;
-using NServiceBus.Host;
+﻿using NServiceBus.Host;
 
 namespace Server
 {
     class EndpointConfig : IConfigureThisEndpoint, 
-        As.aServer, 
+        As.aServer, As.aPublisher,
         ISpecify.ToUseXmlSerialization,
-        ISpecify.ToRun<ServerEndpoint>,
-        IWantCustomInitialization
+        ISpecify.ToRun<ServerEndpoint>
     {
-        public void Init(Configure configure)
-        {
-            configure
-                .MsmqSubscriptionStorage();
-                //.DbSubscriptionStorage()
-                //        .Table("Subscriptions")
-                //        .SubscriberEndpointColumnName("SubscriberEndpoint")
-                //        .MessageTypeColumnName("MessageType")
-        }
     }
 }

@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
             if (cfg == null)
                 Logger.Warn("Could not find configuration section for Msmq Subscription Storage.");
 
-            string q = (cfg != null ? cfg.Queue : "NServiceBus.Subscriptions");
+            string q = (cfg != null ? cfg.Queue : "NServiceBus_Subscriptions");
 
             var storageConfig = Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton);
             storageConfig.ConfigureProperty(s => s.Queue, q);

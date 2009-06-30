@@ -1,7 +1,7 @@
-CREATE TABLE [dbo].[Subscriptions](
+CREATE TABLE [dbo].[NServiceBus_Subscriptions](
 	[SubscriberEndpoint] [varchar](420) COLLATE Latin1_General_CI_AS NOT NULL,
 	[MessageType] [varchar](420) COLLATE Latin1_General_CI_AS NOT NULL,
- CONSTRAINT [PK_Subscriptions] PRIMARY KEY NONCLUSTERED 
+ CONSTRAINT [PK_NServiceBus_Subscriptions] PRIMARY KEY NONCLUSTERED 
 (
 	[SubscriberEndpoint] ASC,
 	[MessageType] ASC
