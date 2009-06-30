@@ -4,6 +4,7 @@ using System.Reflection;
 using Common.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Subscriptions.Msmq;
 
 namespace NServiceBus.Host.Internal
 {
@@ -105,7 +106,11 @@ namespace NServiceBus.Host.Internal
                         Configure.GetConfigSection<Config.DbSubscriptionStorageConfig>();
 
                     if (subscriptionConfig == null)
-                        cfg.MsmqSubscriptionStorage();
+                    {
+                        string q = Program.GetEndpointId(endpointType) + "_subscriptions";
+                        cfg.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
+                            .ConfigureProperty(s => s.Queue, q);
+                    }
                     else
                         cfg.DbSubscriptionStorage();
                 }

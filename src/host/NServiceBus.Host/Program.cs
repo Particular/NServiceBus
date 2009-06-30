@@ -15,9 +15,7 @@ namespace NServiceBus.Host
         {
             Type endpointConfigurationType = GetEndpointConfigurationType();
 
-            string endpointName = GetEndpointName(endpointConfigurationType);
-
-            string endpointId = string.Format("{0} Service - v{1}", endpointName, endpointConfigurationType.Assembly.GetName().Version);
+            string endpointId = GetEndpointId(endpointConfigurationType);
 
             string endpointConfigurationFile = endpointConfigurationType.Assembly.ManifestModule.Name + ".config";
 
@@ -45,6 +43,12 @@ namespace NServiceBus.Host
             });
 
             Runner.Host(cfg, args);
+        }
+
+        public static string GetEndpointId(Type endpointConfigurationType)
+        {
+            string endpointName = GetEndpointName(endpointConfigurationType);
+            return string.Format("{0}_v{1}", endpointName, endpointConfigurationType.Assembly.GetName().Version);
         }
 
         private static Type GetEndpointConfigurationType()
@@ -96,7 +100,7 @@ namespace NServiceBus.Host
                 return endpointName;
             }
 
-            return endpointConfigurationType.Name;
+            return endpointConfigurationType.FullName;
         }
     }
 }
