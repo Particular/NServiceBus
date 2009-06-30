@@ -91,7 +91,13 @@ namespace NServiceBus.Host.Internal
                         .PurgeOnStartup(false)
                     .UnicastBus()
                         .ImpersonateSender(true)
-                        .LoadMessageHandlers();
+                        .LoadMessageHandlers()
+                    .Sagas();
+
+                if (specifier is ISpecify.ToPersistSagasWithNHibernate)
+                    cfg.NHibernateSagaPersister();
+                else
+                    cfg.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
 
                 if (specifier is As.aPublisher)
                 {

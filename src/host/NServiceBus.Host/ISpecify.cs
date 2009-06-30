@@ -95,5 +95,13 @@ namespace NServiceBus.Host
             /// </summary>
             string Namespace { get; }
         }
+
+        /// <summary>
+        /// Specify that the NHibernate saga persister should be used.
+        /// </summary>
+        public interface ToPersistSagasWithNHibernate
+        {
+            
+        }
     }
 }
