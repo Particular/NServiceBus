@@ -124,7 +124,8 @@ namespace NServiceBus.Host.Internal
                     cfg.XmlSerializer();
             }
             else
-                cfg.BinarySerializer();
+                if (!(specifier is ISpecify.MyOwnSerialization))
+                    cfg.BinarySerializer();
 
             if (specifier is IWantCustomInitialization)
                 (specifier as IWantCustomInitialization).Init(cfg);

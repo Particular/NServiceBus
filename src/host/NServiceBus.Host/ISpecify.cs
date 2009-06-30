@@ -97,6 +97,14 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
+        /// Specify that serialization will be independently configured in the container
+        /// </summary>
+        public interface MyOwnSerialization : IWantCustomInitialization
+        {
+            
+        }
+
+        /// <summary>
         /// Specify that the NHibernate saga persister should be used.
         /// </summary>
         public interface ToPersistSagasWithNHibernate
