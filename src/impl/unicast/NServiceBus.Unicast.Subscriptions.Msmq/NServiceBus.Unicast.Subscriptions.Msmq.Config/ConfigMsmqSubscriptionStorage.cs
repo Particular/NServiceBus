@@ -1,6 +1,6 @@
-using System.Configuration;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Config;
+using Common.Logging;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
@@ -12,27 +12,26 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
     public class ConfigMsmqSubscriptionStorage : Configure
     {
         /// <summary>
-        /// Constructor needed since we have an additional constructor.
-        /// </summary>
-        public ConfigMsmqSubscriptionStorage() : base() { }
-
-        /// <summary>
         /// Wraps the given configuration object but stores the same 
         /// builder and configurer properties.
         /// </summary>
         /// <param name="config"></param>
         public void Configure(Configure config)
         {
-            this.Builder = config.Builder;
-            this.Configurer = config.Configurer;
+            Builder = config.Builder;
+            Configurer = config.Configurer;
 
             var cfg = GetConfigSection<MsmqSubscriptionStorageConfig>();
 
             if (cfg == null)
-                throw new ConfigurationErrorsException("Could not find configuration section for Msmq Subscription Storage.");
+                Logger.Warn("Could not find configuration section for Msmq Subscription Storage.");
+
+            string q = (cfg != null ? cfg.Queue : "NServiceBus.Subscriptions");
 
             var storageConfig = Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton);
-            storageConfig.ConfigureProperty(s => s.Queue, cfg.Queue);
+            storageConfig.ConfigureProperty(s => s.Queue, q);
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqSubscriptionStorage));
     }
 }
