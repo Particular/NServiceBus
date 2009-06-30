@@ -76,5 +76,24 @@ namespace NServiceBus.Host
         {
             
         }
+
+        /// <summary>
+        /// Specify that the XML serializer should be used.
+        /// </summary>
+        public interface ToUseXmlSerialization
+        {
+            
+        }
+
+        /// <summary>
+        /// Specify the XML serialization namespace that should be used.
+        /// </summary>
+        public interface XmlSerializationNamespace
+        {
+            /// <summary>
+            /// The XML serialization namespace.
+            /// </summary>
+            string Namespace { get; }
+        }
     }
 }

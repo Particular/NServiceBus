@@ -1,20 +1,10 @@
-﻿using NServiceBus;
-using NServiceBus.Host;
+﻿using NServiceBus.Host;
 
 namespace Subscriber2
 {
-    class EndpointConfig : IConfigureThisEndpoint
+    class EndpointConfig : IConfigureThisEndpoint, 
+        As.aServer,
+        ISpecify.ToUseXmlSerialization
     {
-        public void Init(Configure configure)
-        {
-            configure
-                .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false)
-                    .LoadMessageHandlers();
-        }
     }
 }

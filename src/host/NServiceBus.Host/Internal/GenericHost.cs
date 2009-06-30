@@ -4,6 +4,7 @@ using System.Reflection;
 using Common.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
+using NServiceBus;
 
 namespace NServiceBus.Host.Internal
 {
@@ -71,7 +72,39 @@ namespace NServiceBus.Host.Internal
             else
                 cfg.SpringBuilder();
 
-            specifier.Init(cfg);
+            if (specifier is As.aClient && specifier is As.aServer)
+                throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
+
+            if (specifier is As.aClient)
+                cfg
+                    .MsmqTransport()
+                        .IsTransactional(false)
+                        .PurgeOnStartup(true)
+                    .UnicastBus()
+                        .ImpersonateSender(false)
+                        .LoadMessageHandlers();
+
+            if (specifier is As.aServer)
+                cfg
+                    .MsmqTransport()
+                        .IsTransactional(true)
+                        .PurgeOnStartup(false)
+                    .UnicastBus()
+                        .ImpersonateSender(true)
+                        .LoadMessageHandlers();
+
+            if (specifier is ISpecify.ToUseXmlSerialization)
+            {
+                if (specifier is ISpecify.XmlSerializationNamespace)
+                    cfg.XmlSerializer((specifier as ISpecify.XmlSerializationNamespace).Namespace);
+                else
+                    cfg.XmlSerializer();
+            }
+            else
+                cfg.BinarySerializer();
+
+            if (specifier is IWantCustomInitialization)
+                (specifier as IWantCustomInitialization).Init(cfg);
 
             if (messageEndpointType != null)
                 Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);

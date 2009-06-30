@@ -1,10 +1,9 @@
 ﻿namespace NServiceBus.Host
 {
+    /// <summary>
+    /// Indicate that the implementing class will specify configuration.
+    /// </summary>
     public interface IConfigureThisEndpoint
     {
-        /// <summary>
-        /// Used to define specific implementation details like which transport to use, serialization mechanism, subscription storage, etc.
-        /// </summary>
-        void Init(Configure configure);
     }
 }
