@@ -1,1 +1,0 @@
-.\tools\nant\nant compile_samples
