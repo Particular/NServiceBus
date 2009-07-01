@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <project name="NServiceBus" default="build" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
 	<property name="solution.dir" value="src"/>
 	<property name="solution.file" value="./AllProjects.sln"/>
@@ -159,6 +159,15 @@
       commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
       workingdir="." />
 
+		<!-- Host -->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\host\NServiceBus.Host" />
+
+		<mkdir dir="${output.dir}\host" />
+		<exec 	program="${lib.dir}\ilmerge.exe"
+			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
+			workingdir="." />
+
 		<!-- Misc -->
 		<foreach 	item="String"
 					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout"
@@ -168,15 +177,6 @@
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
-
-		<!-- Host -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
-				workingdir="${solution.dir}\host\NServiceBus.Host" />
-
-		<mkdir dir="${output.dir}\host" />
-		<exec 	program="${lib.dir}\ilmerge.exe"
-			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
-			workingdir="." />
 
 	  <!-- Compile the gateway -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
