@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace NServiceBus.Proxy.InMemoryImpl
+namespace NServiceBus.Proxy
 {
-    public class ProxyDataStorage : IProxyDataStorage
+    public class InMemoryProxyDataStorage : IProxyDataStorage
     {
         public void Save(ProxyData data)
         {
