@@ -32,7 +32,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <param name="container"></param>
         public WindsorObjectBuilder(IWindsorContainer container)
         {
-            this.Container = container;
+            Container = container;
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
@@ -40,9 +40,9 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             var handler = GetHandlerForType(concreteComponent);
             if (handler == null)
             {
-                LifestyleType lifestyle = GetLifestyleTypeFrom(callModel);
+                var lifestyle = GetLifestyleTypeFrom(callModel);
 
-                ComponentRegistration<object> reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
+                var reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
                 reg.LifeStyle.Is(lifestyle);
                         
                 Container.Kernel.Register(reg);
@@ -76,10 +76,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             }
         }
 
-
-
-
-        private LifestyleType GetLifestyleTypeFrom(ComponentCallModelEnum callModel)
+        private static LifestyleType GetLifestyleTypeFrom(ComponentCallModelEnum callModel)
         {
             switch (callModel)
             {
@@ -90,15 +87,14 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return LifestyleType.Undefined;
         }
 
-        private IEnumerable<Type> GetAllServiceTypesFor(Type t)
+        private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
             if (t == null)
                 return new List<Type>();
 
-            List<Type> result = new List<Type>(t.GetInterfaces());
-            result.Add(t);
+            var result = new List<Type>(t.GetInterfaces()) {t};
 
-            foreach (Type interfaceType in t.GetInterfaces())
+            foreach (var interfaceType in t.GetInterfaces())
                 result.AddRange(GetAllServiceTypesFor(interfaceType));
 
             return result;

@@ -586,8 +586,6 @@
             <summary>
             Gets the environment information (name). Implementors should 
             use to define their environments and how those affect the configuration.
-            It is also used by the <see cref="T:Castle.Windsor.Configuration.Interpreters.XmlInterpreter"/>
-            to define a flag with the environment name.
             </summary>
         </member>
         <member name="M:Castle.Windsor.IEnvironmentInfo.GetEnvironmentName">
@@ -617,11 +615,45 @@
             <param name="key"></param>
             <returns></returns>
         </member>
+        <member name="M:Castle.Windsor.IWindsorContainer.AddFacility``1(System.String,System.Action{``0})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="key"></param>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.IWindsorContainer.AddFacility``1(System.String,System.Func{``0,System.Object})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="key"></param>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
         <member name="M:Castle.Windsor.IWindsorContainer.AddFacility``1">
             <summary>
             Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
             </summary>
             <typeparam name="T">The facility type.</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.IWindsorContainer.AddFacility``1(System.Action{``0})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.IWindsorContainer.AddFacility``1(System.Func{``0,System.Object})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="onCreate">The callback for creation.</param>
             <returns></returns>
         </member>
         <member name="M:Castle.Windsor.IWindsorContainer.AddComponent(System.String,System.Type)">
@@ -758,7 +790,7 @@
             <param name="key"></param>		
             <param name="extendedProperties"></param>
         </member>
-        <member name="M:Castle.Windsor.IWindsorContainer.AddComponentLifeStyle``2(System.Collections.IDictionary)">
+        <member name="M:Castle.Windsor.IWindsorContainer.AddComponentProperties``2(System.Collections.IDictionary)">
             <summary>
             Adds a concrete class and an interface 
             as a component and specify the extended properties.
@@ -769,7 +801,7 @@
             <typeparam name="T"></typeparam>
             <param name="extendedProperties"></param>
         </member>
-        <member name="M:Castle.Windsor.IWindsorContainer.AddComponentLifeStyle``2(System.String,System.Collections.IDictionary)">
+        <member name="M:Castle.Windsor.IWindsorContainer.AddComponentProperties``2(System.String,System.Collections.IDictionary)">
             <summary>
             Adds a concrete class and an interface 
             as a component and specify the extended properties.
@@ -1070,7 +1102,7 @@
             </summary>
             <remarks>
             This constructs sets the Kernel.ProxyFactory property to
-            <see cref="T:Castle.Windsor.Proxy.DefaultProxyFactory"/>
+            <c>Proxy.DefaultProxyFactory</c>
             </remarks>
             <param name="kernel">Kernel instance</param>
             <param name="installer">Installer instance</param>
@@ -1082,7 +1114,7 @@
             </summary>
             <remarks>
             This constructs sets the Kernel.ProxyFactory property to
-            <see cref="T:Castle.Windsor.Proxy.DefaultProxyFactory"/>
+            <c>Proxy.DefaultProxyFactory</c>
             </remarks>
             <param name="name">Container's name</param>
             <param name="kernel">Kernel instance</param>
@@ -1125,11 +1157,45 @@
             <param name="key"></param>
             <returns></returns>
         </member>
+        <member name="M:Castle.Windsor.WindsorContainer.AddFacility``1(System.String,System.Action{``0})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="key"></param>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.WindsorContainer.AddFacility``1(System.String,System.Func{``0,System.Object})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="key"></param>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
         <member name="M:Castle.Windsor.WindsorContainer.AddFacility``1">
             <summary>
             Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
             </summary>
             <typeparam name="T">The facility type.</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.WindsorContainer.AddFacility``1(System.Action{``0})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="onCreate">The callback for creation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.Windsor.WindsorContainer.AddFacility``1(System.Func{``0,System.Object})">
+            <summary>
+            Creates and adds an <see cref="T:Castle.MicroKernel.IFacility"/> facility to the container.
+            </summary>
+            <typeparam name="T">The facility type.</typeparam>
+            <param name="onCreate">The callback for creation.</param>
             <returns></returns>
         </member>
         <member name="M:Castle.Windsor.WindsorContainer.AddComponent(System.String,System.Type)">
@@ -1246,7 +1312,7 @@
             <param name="key"></param>		
             <param name="extendedProperties"></param>
         </member>
-        <member name="M:Castle.Windsor.WindsorContainer.AddComponentLifeStyle``2(System.Collections.IDictionary)">
+        <member name="M:Castle.Windsor.WindsorContainer.AddComponentProperties``2(System.Collections.IDictionary)">
             <summary>
             Adds a concrete class and an interface 
             as a component and specify the extended properties.
@@ -1257,7 +1323,7 @@
             <typeparam name="T"></typeparam>
             <param name="extendedProperties"></param>
         </member>
-        <member name="M:Castle.Windsor.WindsorContainer.AddComponentLifeStyle``2(System.String,System.Collections.IDictionary)">
+        <member name="M:Castle.Windsor.WindsorContainer.AddComponentProperties``2(System.String,System.Collections.IDictionary)">
             <summary>
             Adds a concrete class and an interface 
             as a component and specify the extended properties.
