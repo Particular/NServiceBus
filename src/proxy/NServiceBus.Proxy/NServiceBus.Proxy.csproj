@@ -67,6 +67,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -75,10 +76,10 @@
     </Compile>
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="IProxyDataStorage.cs" />
+    <Compile Include="MsmqProxyDataStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxy.cs" />
     <Compile Include="ProxyData.cs" />
-    <Compile Include="InMemoryProxyDataStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

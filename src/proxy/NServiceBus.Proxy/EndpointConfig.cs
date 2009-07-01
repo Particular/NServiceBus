@@ -42,7 +42,8 @@ namespace NServiceBus.Proxy
             configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.Queue, "NServiceBus_Proxy_Subscriptions");
 
-            configure.Configurer.ConfigureComponent<InMemoryProxyDataStorage>(ComponentCallModelEnum.Singleton);
+            configure.Configurer.ConfigureComponent<MsmqProxyDataStorage>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(x => x.StorageQueue, "NServiceBus_Proxy_Storage");
 
             configure.Configurer.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.RemoteServer, remoteServer);
