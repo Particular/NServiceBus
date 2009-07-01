@@ -44,7 +44,7 @@ namespace NServiceBus
             {
                 foreach (Type sagaDataType in Saga.Configure.GetSagaDataTypes())
                 {
-                    var entityPersister = impl.GetEntityPersister(sagaDataType);
+                    var entityPersister = impl.GetEntityPersister(sagaDataType.FullName);
                     if (entityPersister == null)
                         continue;
 

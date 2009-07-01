@@ -15,7 +15,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// </summary>
         public void HandleBeginMessage()
         {
-            ThreadStaticSessionContext.Bind(SessionFactory.OpenSession());
+            CurrentSessionContext.Bind(SessionFactory.OpenSession());
         }
 
         /// <summary>
@@ -23,13 +23,6 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// </summary>
         public void HandleEndMessage()
         {
-            ISession session = SessionFactory.GetCurrentSession();
-
-            if (session == null)
-                return;
-
-            session.Flush();
-            session.Close();
         }
 
         /// <summary>
