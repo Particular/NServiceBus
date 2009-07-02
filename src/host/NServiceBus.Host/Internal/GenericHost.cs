@@ -95,9 +95,7 @@ namespace NServiceBus.Host.Internal
                         .LoadMessageHandlers()
                     .Sagas();
 
-                if (specifier is ISpecify.ToPersistSagasWithNHibernate)
-                    cfg.NHibernateSagaPersister();
-                else
+                if (!(specifier is ISpecify.MyOwnSagaPersistence))
                     cfg.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
 
                 if (specifier is As.aPublisher)

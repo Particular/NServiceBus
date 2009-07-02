@@ -105,9 +105,9 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specify that the NHibernate saga persister should be used.
+        /// Specify that saga persistence will be independently configured.
         /// </summary>
-        public interface ToPersistSagasWithNHibernate
+        public interface MyOwnSagaPersistence : IWantCustomInitialization
         {
             
         }

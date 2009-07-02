@@ -62,6 +62,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.SagaPersisters.NHibernate, Version=1.10.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\output\nhibernate\NServiceBus.SagaPersisters.NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

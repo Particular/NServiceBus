@@ -7,7 +7,7 @@
 	<property name="bin.dir" value="bin" />
 	<property name="lib.dir" value="external-bin" />
 	<property name="build.base" value="build"/>
-	<property name="project.fullversion" value="1.10.1.0" dynamic="true" />
+	<property name="project.fullversion" value="1.10.2.0" dynamic="true" />
 	<property name="nant.settings.currentframework" value="net-3.5" />
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="output.dir" value="${build.base}\output"/>
@@ -15,6 +15,7 @@
 	<property name="merge.dir" value="${build.base}/merge"/>
 	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
+	<property name="nhibernate.output.dir" value="${output.dir}\nhibernate"/>
 	
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
@@ -24,7 +25,7 @@
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,test"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,compile_nhibernate,test"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -66,7 +67,7 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\SagaPersisters\NHibernateSagaPersister,impl\Serializers,impl\ObjectBuilder.Common,grid"
+					in="ObjectBuilder,utils,core,messageInterfaces,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,grid"
 					delim=","
 					property="pathToBuild">
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
@@ -146,6 +147,19 @@
 			</fileset>
 		</copy>
 	</target>
+
+	<target name="compile_nhibernate">
+    <!-- NHibernate -->
+    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+          commandline="/p:Configuration=${project.config}"
+          workingdir="${solution.dir}\impl\SagaPersisters\NHibernateSagaPersister" />
+
+    <copy todir="${nhibernate.output.dir}">
+      <fileset basedir="${build.base}">
+        <include name="NServiceBus.SagaPersisters.NHibernate.*" />
+      </fileset>        
+    </copy>
+  </target>
 
 	<target name="compile_tools">
 
