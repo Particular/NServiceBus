@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Common.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
+using System.Collections.Specialized;
 
 namespace NServiceBus.Host.Internal
 {
@@ -12,11 +14,17 @@ namespace NServiceBus.Host.Internal
     {
         public void Start()
         {
-            Logger.Debug("Starting host for " + endpointType.Name);
+            Trace.WriteLine("Starting host for " + endpointType.FullName);
 
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
             Configure cfg;
-            
+
+            if (!(specifier is IDontWantLog4Net))
+            {
+                var props = new NameValueCollection();
+                props["configType"] = "INLINE";
+                LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
+            }
 
             if (specifier is ISpecify.TypesToScan)
                 cfg = Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
@@ -153,7 +161,5 @@ namespace NServiceBus.Host.Internal
 
         private readonly Type endpointType;
         private IMessageEndpoint messageEndpoint;
-
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(GenericHost));
     }
 }
