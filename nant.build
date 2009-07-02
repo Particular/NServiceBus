@@ -298,8 +298,9 @@
 		<copy todir="${release.dir}\NHibernate">
 			<fileset basedir="${lib.dir}">
 				<include name="NHibernate*" />
-				<include name="Iesi.Collections*" />
-			</fileset>
+        <include name="Iesi.Collections*" />
+        <include name="LinFu*" />
+      </fileset>
 		</copy>
 		
 		<copy todir="${release.dir}">
