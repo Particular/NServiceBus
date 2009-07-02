@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -64,9 +65,22 @@ namespace NServiceBus.Host
         {
             foreach (string assemblyFile in Directory.GetFiles(".", "*.dll"))
             {
-                Assembly assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
+                Assembly assembly;
+                Type[] types;
 
-                foreach (Type type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
+                try
+                {
+                    assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
+                    types = assembly.GetTypes();
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine("NServiceBus Host - assembly load failure - ignoring " + assemblyFile + " because of error: " + e);
+
+                    continue;
+                }
+
+                foreach (Type type in types.Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
                 {
                     yield return type;
                 }
