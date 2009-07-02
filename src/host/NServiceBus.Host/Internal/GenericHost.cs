@@ -24,6 +24,19 @@ namespace NServiceBus.Host.Internal
                 var props = new NameValueCollection();
                 props["configType"] = "INLINE";
                 LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
+
+                if (specifier is ISpecify.MyOwnLog4NetConfiguration)
+                    (specifier as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
+                else
+                {
+                    var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
+                    var appender = new log4net.Appender.ConsoleAppender
+                                       {
+                                           Layout = layout,
+                                           Threshold = log4net.Core.Level.Debug
+                                       };
+                    log4net.Config.BasicConfigurator.Configure(appender);
+                }
             }
 
             if (specifier is ISpecify.TypesToScan)

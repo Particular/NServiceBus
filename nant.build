@@ -182,6 +182,12 @@
 			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
 			workingdir="." />
 
+    <copy todir="${output.dir}\host">
+      <fileset basedir="${build.base}\host\">
+        <include name="log4net.dll" />
+      </fileset>
+    </copy>
+
 		<!-- Misc -->
 		<foreach 	item="String"
 					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout"

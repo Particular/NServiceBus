@@ -111,5 +111,13 @@ namespace NServiceBus.Host
         {
             
         }
+
+        /// <summary>
+        /// Specify that Log4Net will be independently configured.
+        /// </summary>
+        public interface MyOwnLog4NetConfiguration
+        {
+            void ConfigureLog4Net();
+        }
     }
 }
