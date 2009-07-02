@@ -7,6 +7,7 @@ using System.Reflection;
 using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
+using System.Configuration;
 
 namespace NServiceBus.Host
 {
@@ -54,6 +55,10 @@ namespace NServiceBus.Host
 
         private static Type GetEndpointConfigurationType()
         {
+            string endpoint = ConfigurationManager.AppSettings["EndpointConfigurationType"];
+            if (endpoint != null)
+                return Type.GetType(endpoint, true);
+
             IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
 
             ValidateEndpoints(endpoints);
