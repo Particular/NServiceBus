@@ -90,7 +90,12 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersister(this Configure config, bool suppressExceptions)
         {
-            NHibernate.Cfg.Configuration cfg = new NHibernate.Cfg.Configuration();
+            var cfg = new NHibernate.Cfg.Configuration()
+                .SetProperty(NHibernate.Cfg.Environment.ProxyFactoryFactoryClass,
+                             "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu")
+                .SetProperty(NHibernate.Cfg.Environment.CurrentSessionContextClass,
+                             "NHibernate.Context.ThreadStaticSessionContext, NHibernate");
+
             cfg.Configure();
 
             var sessionFactory = cfg.BuildSessionFactory();

@@ -9,8 +9,6 @@
     <property name="dialect">NHibernate.Dialect.MsSql2005Dialect</property>
     <property name="use_outer_join">true</property>
     <property name="query.substitutions">true 1, false 0, yes 'Y', no 'N'</property>
-    <property name="current_session_context_class">NHibernate.Context.ThreadStaticSessionContext, NHibernate</property>
-    <property name="proxyfactory.factory_class">NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu</property>
 
     <!-- mapping files -->
     <mapping assembly="OrderService.Persistence"/>
