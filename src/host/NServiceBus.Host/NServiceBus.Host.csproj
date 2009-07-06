@@ -69,6 +69,7 @@
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="ISpecify.cs" />
     <Compile Include="IWantCustomInitialization.cs" />
+    <Compile Include="Order.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\HostServiceLocator.cs" />

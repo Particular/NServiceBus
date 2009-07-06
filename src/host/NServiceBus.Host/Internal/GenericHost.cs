@@ -7,6 +7,7 @@ using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using System.Collections.Specialized;
+using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Host.Internal
 {
@@ -96,25 +97,26 @@ namespace NServiceBus.Host.Internal
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
+            ConfigUnicastBus configUnicastBus = null;
+
             if (specifier is As.aClient)
-                cfg
+                configUnicastBus = cfg
                     .MsmqTransport()
                         .IsTransactional(false)
                         .PurgeOnStartup(true)
                     .UnicastBus()
-                        .ImpersonateSender(false)
-                        .LoadMessageHandlers();
+                        .ImpersonateSender(false);
 
             if (specifier is As.aServer)
             {
-                cfg
+                configUnicastBus = cfg
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
+                    .Sagas()
                     .UnicastBus()
                         .ImpersonateSender(true)
-                        .LoadMessageHandlers()
-                    .Sagas();
+                        .LoadMessageHandlers();
 
                 if (!(specifier is ISpecify.MyOwnSagaPersistence))
                     cfg.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
@@ -134,6 +136,9 @@ namespace NServiceBus.Host.Internal
                         cfg.DbSubscriptionStorage();
                 }
             }
+
+            if (configUnicastBus != null && specifier is ISpecify.MessageHandlerOrdering)
+                (specifier as ISpecify.MessageHandlerOrdering).SpecifyOrder(new Order { config = configUnicastBus });
 
             if (specifier is ISpecify.ToUseXmlSerialization)
             {

@@ -119,5 +119,13 @@ namespace NServiceBus.Host
         {
             void ConfigureLog4Net();
         }
+
+        /// <summary>
+        /// Specify the order in which message handlers will be invoked.
+        /// </summary>
+        public interface MessageHandlerOrdering
+        {
+            void SpecifyOrder(Order order);
+        }
     }
 }
