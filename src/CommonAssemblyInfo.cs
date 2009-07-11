@@ -12,11 +12,11 @@ using System.Runtime.InteropServices;
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: AssemblyVersionAttribute("1.10.1.0")]
-[assembly: AssemblyFileVersionAttribute("1.10.1.0")]
+[assembly: AssemblyVersionAttribute("2.0.0.0")]
+[assembly: AssemblyFileVersionAttribute("2.0.0.0")]
 [assembly: AssemblyCopyrightAttribute("Copyright © NServiceBus 2007-2009")]
 [assembly: AssemblyProductAttribute("NServiceBus")]
 [assembly: AssemblyCompanyAttribute("NServiceBus")]
 [assembly: AssemblyConfigurationAttribute("release")]
-[assembly: AssemblyInformationalVersionAttribute("1.10.1.0")]
+[assembly: AssemblyInformationalVersionAttribute("2.0.0.0")]
 
