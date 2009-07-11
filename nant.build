@@ -143,8 +143,9 @@
 			<fileset basedir="${container.build.dir}">
           <include name="NServiceBus.ObjectBuilder.Autofac.dll" />
           <include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
-          <include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
-			</fileset>
+        <include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
+        <include name="NServiceBus.ObjectBuilder.Unity.dll" />
+      </fileset>
 		</copy>
 	</target>
 
@@ -277,6 +278,19 @@
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
 			</fileset>
 		</copy>
+
+    <mkdir dir="${release.dir}\containers\unity" />
+    <copy todir="${release.dir}\containers\unity">
+      <fileset basedir="${lib.dir}">
+        <include name="Microsoft.Practices.ObjectBuilder2.dll" />
+        <include name="Microsoft.Practices.Unity.dll" />
+      </fileset>
+    </copy>
+    <copy todir="${release.dir}\containers\unity">
+      <fileset basedir="${container.build.dir}">
+        <include name="NServiceBus.ObjectBuilder.Unity.dll" />
+      </fileset>
+    </copy>
 		
 		<!-- Prepare Host -->
 		<mkdir dir="${release.dir}\host" />
