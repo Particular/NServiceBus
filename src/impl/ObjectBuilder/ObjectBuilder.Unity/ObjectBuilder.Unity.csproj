@@ -33,11 +33,13 @@
   <ItemGroup>
     <Reference Include="Microsoft.Practices.ObjectBuilder2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Microsoft.Practices.Unity.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=1.10.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
