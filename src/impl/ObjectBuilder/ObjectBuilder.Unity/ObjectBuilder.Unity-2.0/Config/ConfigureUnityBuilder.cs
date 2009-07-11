@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Practices.Unity;
+﻿using Microsoft.Practices.Unity;
 using NServiceBus.ObjectBuilder.Common.Config;
 using NServiceBus.ObjectBuilder.Unity;
 
@@ -18,7 +14,7 @@ namespace NServiceBus
       /// </summary>
       /// <param name="config"></param>
       /// <returns></returns>
-      public static Configure CastleWindsorBuilder(this Configure config)
+      public static Configure UnityBuilder(this Configure config)
       {
          ConfigureCommon.With(config, new UnityObjectBuilder());
          return config;
@@ -30,7 +26,7 @@ namespace NServiceBus
       /// <param name="config"></param>
       /// <param name="container">Exisitng unity container.</param>
       /// <returns></returns>
-      public static Configure CastleWindsorBuilder(this Configure config, IUnityContainer container)
+      public static Configure UnityBuilder(this Configure config, IUnityContainer container)
       {
          ConfigureCommon.With(config, new UnityObjectBuilder(container));
          return config;
