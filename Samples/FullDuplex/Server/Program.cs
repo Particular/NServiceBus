@@ -1,8 +1,6 @@
 using System;
 using Common.Logging;
 using NServiceBus;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Grid.MessageHandlers;
 
 namespace Server
 {
