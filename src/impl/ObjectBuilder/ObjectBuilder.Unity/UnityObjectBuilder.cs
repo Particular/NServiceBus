@@ -37,7 +37,14 @@ namespace NServiceBus.ObjectBuilder.Unity
 
       public object Build(Type typeToBuild)
       {
-         return container.Resolve(typeToBuild);
+          try
+          {
+              return container.Resolve(typeToBuild);
+          }
+          catch (ResolutionFailedException)
+          {
+              return null;
+          }
       }
 
       public IEnumerable<object> BuildAll(Type typeToBuild)
