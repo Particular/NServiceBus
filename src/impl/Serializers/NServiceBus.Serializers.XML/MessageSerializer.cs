@@ -138,10 +138,11 @@ namespace NServiceBus.Serializers.XML
         {
             prefixesToNamespaces = new Dictionary<string, string>();
             messageBaseTypes = new List<Type>();
-            List<IMessage> result = new List<IMessage>();
+            var result = new List<IMessage>();
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load(stream);
+            var doc = new XmlDocument();
+
+            doc.Load(XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}));
 
             if (doc.DocumentElement == null)
                 return result.ToArray();
