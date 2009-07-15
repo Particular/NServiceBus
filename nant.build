@@ -106,6 +106,12 @@
 			</fileset>
 		</copy>
 
+    <copy todir="${merge.dir}">
+      <fileset basedir="${trunk.dir}">
+        <include name="ilmerge.exclude" />
+      </fileset>
+    </copy>
+
 		<!-- Create list of all "core" assemblies -->
 		<property name="nservicebus.coreassemblies" value="${merge.dir}\NServiceBus.dll" dynamic="true" />
 
@@ -115,9 +121,9 @@
 					<include name="${merge.dir}\NServiceBus*.dll" />
 					<include name="${merge.dir}\antlr.runtime.dll" />
 					<include name="${merge.dir}\common.logging*.dll" />
-					<include name="${merge.dir}\Interop.MSMQ.dll" />
-					<include name="${merge.dir}\spring*.dll" />
-					<!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
+          <include name="${merge.dir}\Interop.MSMQ.dll" />
+          <include name="${merge.dir}\Spring.Core.dll" />
+          <!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
 					<exclude name="${merge.dir}\NServiceBus.dll" />
 				</items>
 			</in>
@@ -128,7 +134,7 @@
 
 		<!-- Create the "coreonly" version NServiceBus.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /log:build\output.txt"
+				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /internalize:ilmerge.exclude  /log:build\output.txt"
 				workingdir="." />
 	</target>
 	

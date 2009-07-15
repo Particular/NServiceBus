@@ -1,0 +1,6 @@
+NServiceBus*
+Common.Logging.ILog
+Common.Logging.LogManager
+Common.Logging.ConfigurationException
+Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter
+MSMQ.MSMQManagementClass
