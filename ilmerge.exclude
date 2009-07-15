@@ -4,3 +4,4 @@ Common.Logging.LogManager
 Common.Logging.ConfigurationException
 Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter
 MSMQ.MSMQManagementClass
+Spring.Reflection.Dynamic
