@@ -21,10 +21,10 @@ namespace NServiceBus
       }
 
       /// <summary>
-      /// Use the Unity builder.
+      /// Use the Unity builder passing in a preconfigured container to be used by nServiceBus.
       /// </summary>
       /// <param name="config"></param>
-      /// <param name="container">Exisitng unity container.</param>
+      /// <param name="container"></param>
       /// <returns></returns>
       public static Configure UnityBuilder(this Configure config, IUnityContainer container)
       {
