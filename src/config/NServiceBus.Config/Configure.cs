@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace NServiceBus
 {
@@ -131,7 +130,7 @@ namespace NServiceBus
         public static Configure With(params Assembly[] assemblies)
         {
             var types = new List<Type>();
-            new List<Assembly>(assemblies).ForEach((a) => { foreach (Type t in a.GetTypes()) types.Add(t); });
+            new List<Assembly>(assemblies).ForEach(a => { foreach (Type t in a.GetTypes()) types.Add(t); });
 
             return With(types);
         }
@@ -184,9 +183,24 @@ namespace NServiceBus
         {
             foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
-                Assembly a = Assembly.LoadFrom(file.FullName);
+                Type[] types;
+                try
+                {
+                    Assembly a = Assembly.LoadFrom(file.FullName);
 
-                foreach (Type t in a.GetTypes())
+                    types = a.GetTypes();
+                }
+                catch (ReflectionTypeLoadException err)
+                {
+                    foreach (var loaderException in err.LoaderExceptions)
+                    {
+                        Trace.Fail("Problem with loading " + file.FullName, loaderException.Message);
+                    }
+
+                    throw;
+                }
+
+                foreach (Type t in types)
                     yield return t;
             }
         }
