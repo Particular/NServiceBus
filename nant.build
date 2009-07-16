@@ -85,8 +85,8 @@
 			  <formatter type="Plain" />
 			  <test>
           <assemblies>
-            <include name="${solution.dir}\**\bin\${project.config}\**.Tests.dll" />
-			<exclude name="${solution.dir}\**\bin\${project.config}\**SagaPersister*.dll" />
+            <include name="${solution.dir}\**\bin\${project.config}\**Tests.dll" />
+			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />
 			</assemblies>
 			  </test>
 		</nunit2>
