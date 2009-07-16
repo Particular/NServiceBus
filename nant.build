@@ -85,7 +85,7 @@
 			  <formatter type="Plain" />
 			  <test>
           <assemblies>
-            <!--<include name="${solution.dir}\**\bin\${project.config}\**.Tests.dll" />-->
+            <include name="${solution.dir}\**\bin\${project.config}\**.Tests.dll" />
 			</assemblies>
 			  </test>
 		</nunit2>
