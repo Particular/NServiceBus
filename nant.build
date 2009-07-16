@@ -86,6 +86,7 @@
 			  <test>
           <assemblies>
             <include name="${solution.dir}\**\bin\${project.config}\**.Tests.dll" />
+			<exclude name="${solution.dir}\**\bin\${project.config}\**SagaPersister*.dll" />
 			</assemblies>
 			  </test>
 		</nunit2>
