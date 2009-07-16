@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus XML Serialization Configuration")]
 [assembly: AssemblyDescription("Configures the XML serialization capabilities of nServiceBus")]

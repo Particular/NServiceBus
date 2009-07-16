@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Object Builder Configuration")]
 [assembly: AssemblyDescription("Configuration for common object building capabilities of nServiceBus.")]

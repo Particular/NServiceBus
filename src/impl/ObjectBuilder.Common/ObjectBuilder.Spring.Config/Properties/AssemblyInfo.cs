@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Spring Framework Object Builder Configuration")]
 [assembly: AssemblyDescription("Configuration functionality for the Spring Framework implementation of object building functionality.")]

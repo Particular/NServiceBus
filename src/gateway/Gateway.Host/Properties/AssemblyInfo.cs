@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Inter-site Gateway")]
 [assembly: AssemblyDescription("Functionality for passing messages over HTTP between two nServiceBus endpoints.")]

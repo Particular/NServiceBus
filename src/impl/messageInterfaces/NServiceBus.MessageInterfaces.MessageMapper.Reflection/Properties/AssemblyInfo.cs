@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Message Interfaces Reflection Implementation")]
 [assembly: AssemblyDescription("Implementation of NServiceBus Message Interfaces primarily using reflection.")]

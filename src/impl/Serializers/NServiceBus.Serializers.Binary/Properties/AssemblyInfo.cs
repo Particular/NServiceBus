@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Binary Serialization Implementation")]
 [assembly: AssemblyDescription("Binary implementation for serialization capabilities of nServiceBus")]

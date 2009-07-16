@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Web App Gateway")]
 [assembly: AssemblyDescription("Functionality for hosting nServiceBus gateway functionality in a standard web app.")]

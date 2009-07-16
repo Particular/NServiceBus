@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Unicast Distributor Runner Process")]
 [assembly: AssemblyDescription("Process which hosts unicast distributor functionality in nServiceBus")]

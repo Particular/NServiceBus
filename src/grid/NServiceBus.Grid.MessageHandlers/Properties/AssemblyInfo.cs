@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Grid Message Handlers")]
 [assembly: AssemblyDescription("Message handlers for grid messages in nServiceBus")]

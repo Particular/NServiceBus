@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Proxy Logic")]
 [assembly: AssemblyDescription("Functionality for multiple clients to talk to remote servers opening only one port.")]

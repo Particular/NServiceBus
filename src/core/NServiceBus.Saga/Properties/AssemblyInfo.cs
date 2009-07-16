@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Saga Core Interfaces")]
 [assembly: AssemblyDescription("Core interfaces for saga capabilities of nServiceBus")]

@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Unicast Load Balancing Functionality")]
 [assembly: AssemblyDescription("Functionality for distributing messages between many unicast bus endpoints in nServiceBus")]

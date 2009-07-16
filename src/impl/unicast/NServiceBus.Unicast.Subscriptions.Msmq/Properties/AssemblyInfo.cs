@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Concrete Unicast Subscription Storage Implementation")]
 [assembly: AssemblyDescription("Implementation of the unicast subscription storage abstraction using MSMQ")]

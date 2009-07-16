@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Container Autofac Implementation")]
 [assembly: AssemblyDescription("Implementation of container functionality on top of Autofac.")]

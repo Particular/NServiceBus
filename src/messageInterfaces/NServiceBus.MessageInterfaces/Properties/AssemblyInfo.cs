@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Message Interfaces")]
 [assembly: AssemblyDescription("Interfaces for creating messages and mapping from interface types to concrete types, and back.")]

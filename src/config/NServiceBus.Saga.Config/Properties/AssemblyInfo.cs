@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Saga Configuration")]
 [assembly: AssemblyDescription("Saga configuration for NServiceBus.Config.")]

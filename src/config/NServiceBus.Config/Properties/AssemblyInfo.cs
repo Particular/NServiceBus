@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Configuration Entry Point")]
 [assembly: AssemblyDescription("Base namespace used for configuring nServiceBus.")]

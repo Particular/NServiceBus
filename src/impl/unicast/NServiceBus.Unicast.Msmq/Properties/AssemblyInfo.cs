@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Concrete Unicast Transport MSMQ Implementation")]
 [assembly: AssemblyDescription("Implementation of the Unicast Transport abstraction using MSMQ and the Distributed Transaction Coordinator")]

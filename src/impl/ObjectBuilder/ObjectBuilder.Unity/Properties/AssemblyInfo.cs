@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Container Unity Implementation")]
 [assembly: AssemblyDescription("Implementation of container functionality on top of Unity.")]

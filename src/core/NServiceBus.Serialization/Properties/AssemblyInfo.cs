@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Serialization Core Interfaces")]
 [assembly: AssemblyDescription("Core interfaces for serialization capabilities of nServiceBus")]

@@ -48,6 +48,7 @@
 				<import namespace="System" />
 				<import namespace="System.Reflection" />
 				<import namespace="System.Runtime.InteropServices" />
+				<import namespace="System.Security" />
 			</imports>
 			<attributes>
 				<attribute type="AssemblyVersionAttribute" value="${project.fullversion}" />
@@ -57,6 +58,8 @@
 				<attribute type="AssemblyCompanyAttribute" value="${company.name}" />
 				<attribute type="AssemblyConfigurationAttribute" value="${project.config}" />
 				<attribute type="AssemblyInformationalVersionAttribute" value="${project.fullversion}" />
+				<attribute type="AllowPartiallyTrustedCallersAttribute" asis="true" />
+				<attribute type="ComVisibleAttribute" value="false" />
 			</attributes>
 			<references>
 				<include name="System.dll" />
@@ -197,7 +200,7 @@
 
 		<!-- Misc -->
 		<foreach 	item="String"
-					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout"
+					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout,proxy"
 					delim=","
 					property="pathToBuild">
 			<echo message="${pathToBuild}" />

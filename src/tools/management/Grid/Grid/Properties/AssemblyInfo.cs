@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Agent for Grid Communication")]
 [assembly: AssemblyDescription("Functionality for interacting with grid-enabled nServiceBus endpoints")]

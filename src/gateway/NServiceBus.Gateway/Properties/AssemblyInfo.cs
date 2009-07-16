@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus gateway logic")]
 [assembly: AssemblyDescription("Hosting independent logic for handling gateway functionality.")]

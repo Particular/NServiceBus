@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Unicast Subscription Interfaces")]
 [assembly: AssemblyDescription("Interfaces for subscription storage for unicast communication in nServiceBus")]

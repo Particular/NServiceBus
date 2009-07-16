@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus NHibernate Saga Persister")]
 [assembly: AssemblyDescription("NHibernate-based implementation for persistence of sagas.")]

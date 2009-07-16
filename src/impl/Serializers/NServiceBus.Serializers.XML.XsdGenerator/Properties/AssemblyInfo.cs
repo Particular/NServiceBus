@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus XSD Generator")]
 [assembly: AssemblyDescription("XSD file generator for interface-based message schemas.")]

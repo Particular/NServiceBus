@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Basic Utilities")]
 [assembly: AssemblyDescription("Basic threading and transaction utilities for nServiceBus")]

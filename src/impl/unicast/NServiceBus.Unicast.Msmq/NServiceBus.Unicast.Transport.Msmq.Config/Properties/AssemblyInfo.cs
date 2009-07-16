@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Msmq Unicast Transport Config")]
 [assembly: AssemblyDescription("NServiceBus Msmq Unicast Transport Config")]

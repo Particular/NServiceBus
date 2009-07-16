@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Object Builder")]
 [assembly: AssemblyDescription("Serves as the entry point for service locator extension.")]

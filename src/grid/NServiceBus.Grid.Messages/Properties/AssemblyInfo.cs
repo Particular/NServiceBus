@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Messages for Grid Functionality")]
 [assembly: AssemblyDescription("Messages sent and received by bus processes in nServiceBus to manage worker threads")]

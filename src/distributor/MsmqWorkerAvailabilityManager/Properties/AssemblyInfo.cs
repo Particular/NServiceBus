@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus MSMQ Storage for Worker Availability")]
 [assembly: AssemblyDescription("Functionality for storing worker availability data of distributors using MSMQ in nServiceBus")]

@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Unicast Bus Functionality")]
 [assembly: AssemblyDescription("Unicast bus communication functionality for nServiceBus")]

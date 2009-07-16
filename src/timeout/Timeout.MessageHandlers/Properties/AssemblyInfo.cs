@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Timeout Message Handlers")]
 [assembly: AssemblyDescription("Message Handlers for timeout messages in nServiceBus")]

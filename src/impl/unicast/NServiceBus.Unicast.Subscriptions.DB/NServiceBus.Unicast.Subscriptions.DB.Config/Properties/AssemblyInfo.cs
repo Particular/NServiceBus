@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Db Subscription Storage Config")]
 [assembly: AssemblyDescription("NServiceBus Db Subscription Storage Config")]

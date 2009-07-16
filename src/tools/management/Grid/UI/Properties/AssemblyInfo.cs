@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Grid Management UI")]
 [assembly: AssemblyDescription("User interface for managing grid enabled endpoints")]

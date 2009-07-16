@@ -19,7 +19,5 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
-[assembly: ComVisible(false)]
 [assembly: AssemblyTitle("NServiceBus Concrete Unicast Subscription Storage using DB Blobs")]
 [assembly: AssemblyDescription("Implementation of the Unicast Subscription Storage abstraction using a database.")]
