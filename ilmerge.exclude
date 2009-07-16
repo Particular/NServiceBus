@@ -5,3 +5,6 @@ Common.Logging.ConfigurationException
 Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter
 MSMQ.MSMQManagementClass
 Spring.Reflection.Dynamic
+Rhino.Mocks.Interfaces.IMockedObject
+Castle.Core.Interceptor.IProxyTargetAccessor
+Castle.DynamicProxy.AbstractInvocation

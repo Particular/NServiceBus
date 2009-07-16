@@ -112,6 +112,7 @@
     <copy todir="${merge.dir}">
       <fileset basedir="${trunk.dir}">
         <include name="ilmerge.exclude" />
+	<include name="NServiceBus.snk" />
       </fileset>
     </copy>
 
@@ -137,7 +138,7 @@
 
 		<!-- Create the "coreonly" version NServiceBus.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /xmldocs /internalize:ilmerge.exclude  /log:build\output.txt"
+				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output.txt"
 				workingdir="." />
 	</target>
 	
@@ -180,7 +181,7 @@
 
 		<mkdir dir="${output.dir}\testing" />
 		<exec program="${lib.dir}\ilmerge.exe"
-      commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /log:build\output_testing.txt"
+      commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
       workingdir="." />
 
 		<!-- Host -->
