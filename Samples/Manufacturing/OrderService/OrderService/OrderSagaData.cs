@@ -17,7 +17,7 @@ namespace OrderService
         {
             bool found = false;
 
-            foreach (OrderLine line in orderLines)
+            foreach (OrderLine line in OrderLines)
                 if (line.ProductId == productId)
                 {
                     line.Quantity = quantity;
@@ -25,14 +25,14 @@ namespace OrderService
                 }
 
             if (!found)
-                orderLines.Add(new OrderLine { Order = this, ProductId = productId, Quantity = quantity });
+                OrderLines.Add(new OrderLine { Order = this, ProductId = productId, Quantity = quantity });
         }
 
         public virtual void UpdateAuthorization(bool authorized, Guid productId, float quantity)
         {
             OrderLine toRemove = null;
 
-            foreach (OrderLine line in orderLines)
+            foreach (OrderLine line in OrderLines)
                 if (line.ProductId == productId)
                     if (authorized)
                         line.AuthorizedQuantity = quantity;
@@ -40,14 +40,14 @@ namespace OrderService
                         toRemove = line;
 
             if (toRemove != null)
-                orderLines.Remove(toRemove);
+                OrderLines.Remove(toRemove);
         }
 
         public virtual bool IsAuthorized
         {
             get
             {
-                foreach(OrderLine line in orderLines)
+                foreach(OrderLine line in OrderLines)
                     if (line.Quantity != line.AuthorizedQuantity)
                         return false;
 
@@ -55,12 +55,19 @@ namespace OrderService
             }
         }
 
-        public virtual IEnumerable<OrderLine> Lines
-        {
-            get { return orderLines; }
-        }
 
-        private IList<OrderLine> orderLines = new List<OrderLine>();
+        private IList<OrderLine> orderLines;
+
+        public virtual IList<OrderLine> OrderLines
+        {
+            get
+            {
+                if (orderLines == null)
+                    orderLines = new List<OrderLine>();
+                return orderLines;
+            }
+            set { orderLines = value; }
+        }
     }
 
     public class OrderLine

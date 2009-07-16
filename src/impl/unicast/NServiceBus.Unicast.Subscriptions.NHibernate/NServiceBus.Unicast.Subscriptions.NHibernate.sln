@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.NHibernate", "NServiceBus.Unicast.Subscriptions.NHibernate.csproj", "{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.NHibernate.Tests", "..\NServiceBus.Unicast.Subscriptions.NHibernate.Tests\NServiceBus.Unicast.Subscriptions.NHibernate.Tests.csproj", "{06AE9368-B357-4682-8B79-1FB186BF38B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

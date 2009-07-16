@@ -27,7 +27,7 @@ namespace OrderService
             foreach (Messages.OrderLine ol in message.OrderLines)
                 Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
-            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(Data.Lines));
+            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(Data.OrderLines));
 
             if (message.Done)
             {
@@ -68,7 +68,7 @@ namespace OrderService
 
         private void Complete()
         {
-            var finalStatus = GetStatus(OrderStatusEnum.Accepted, GetOrderLines(Data.Lines));
+            var finalStatus = GetStatus(OrderStatusEnum.Accepted, GetOrderLines(Data.OrderLines));
 
             Bus.Publish(finalStatus);
             ReplyToOriginator(finalStatus);

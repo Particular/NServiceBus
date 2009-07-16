@@ -1,5 +1,6 @@
 using System;
 using Common.Logging;
+using FluentNHibernate.Cfg.Db;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
@@ -15,18 +16,16 @@ namespace OrderService.Host
 
             try
             {
+           
                 var bus = NServiceBus.Configure.With()
-                    .CastleWindsorBuilder()
+                    .SpringBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
-                    .DbSubscriptionStorage()
-                        .Table("Subscriptions")
-                        .SubscriberEndpointColumnName("SubscriberEndpoint")
-                        .MessageTypeColumnName("MessageType")
+                    .NHibernateSubcriptionStorage(SQLiteConfiguration.Standard.UsingFile(".\\subscriptions.sqllite"))
                     .Sagas()
-                    .NHibernateSagaPersister()
+                    .NHibernateSagaPersister(SQLiteConfiguration.Standard.UsingFile(".\\sagas.sqllite"))
                     .UnicastBus()
                         .ImpersonateSender(false)
                         .LoadMessageHandlers(

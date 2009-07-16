@@ -15,6 +15,7 @@
 	<property name="merge.dir" value="${build.base}/merge"/>
 	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
+	<property name="nhibernate.build.dir" value="${build.base}\nhibernate"/>
 	<property name="nhibernate.output.dir" value="${output.dir}\nhibernate"/>
 	
 	<if test="${property::exists('build.number')}">
@@ -79,13 +80,13 @@
 
 	</target>
 	
-	<target name="test" depends="compile_src">
-		<nunit2>
+	<target name="test">
+		<nunit2 verbose="true">
 			  <formatter type="Plain" />
 			  <test>
           <assemblies>
-            <include name="${solution.dir}\config\NServiceBus.Config.UnitTests\bin\${project.config}\NServiceBus.Config.UnitTests.dll" />
-          </assemblies>
+            <include name="${solution.dir}\**\bin\${project.config}\**.Tests.dll" />
+			</assemblies>
 			  </test>
 		</nunit2>
 	</target>
@@ -160,17 +161,22 @@
 	</target>
 
 	<target name="compile_nhibernate">
-    <!-- NHibernate -->
-    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
-          commandline="/p:Configuration=${project.config}"
-          workingdir="${solution.dir}\impl\SagaPersisters\NHibernateSagaPersister" />
-
-    <copy todir="${nhibernate.output.dir}">
-      <fileset basedir="${build.base}">
-        <include name="NServiceBus.SagaPersisters.NHibernate.*" />
-      </fileset>        
-    </copy>
-  </target>
+		<!-- NHibernate Saga Persister-->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+			  commandline="/p:Configuration=${project.config}"
+			  workingdir="${solution.dir}\impl\SagaPersisters\NHibernateSagaPersister" />
+		  
+	    <!-- NHibernate Subscription Storage-->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+			  commandline="/p:Configuration=${project.config}"
+			  workingdir="${solution.dir}\impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate" />
+		<copy todir="${nhibernate.output.dir}">
+			<fileset basedir="${nhibernate.build.dir}">
+			  <include name="NServiceBus.*NHibernate*" />
+			</fileset>
+		</copy>
+		  
+	</target>
 
 	<target name="compile_tools">
 
@@ -209,7 +215,7 @@
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
-	  <!-- Compile the gateway -->
+	  <!-- Compile the gateway  -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
 
 		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
@@ -220,6 +226,7 @@
 					/p:OutDir=${gateway.builddir}\bin\        
 					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config}" 
 				  workingdir="." />
+				  
 	</target>
 
 	<target name="compile_samples">
@@ -330,6 +337,7 @@
 				<include name="NHibernate*" />
         <include name="Iesi.Collections*" />
         <include name="LinFu*" />
+		<include name="FluentNhibernate/*.*" />
       </fileset>
 		</copy>
 		
