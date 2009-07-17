@@ -42,7 +42,7 @@ namespace NServiceBus
 		/// <param name="timeSpan">A timespan that can be interpreted by <see cref="TimeSpan.Parse"/>.</param>
         public TimeToBeReceivedAttribute(string timeSpan)
         {
-            this.timeToBeReceived = TimeSpan.Parse(timeSpan);
+            timeToBeReceived = TimeSpan.Parse(timeSpan);
         }
 
         private readonly TimeSpan timeToBeReceived = TimeSpan.MaxValue;
