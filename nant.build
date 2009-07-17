@@ -214,11 +214,11 @@
 			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
 			workingdir="." />
 
-    <copy todir="${output.dir}\host">
-      <fileset basedir="${build.base}\host\">
-        <include name="log4net.dll" />
-      </fileset>
-    </copy>
+		<copy todir="${output.dir}\host">
+		  <fileset basedir="${build.base}\host\">
+			<include name="log4net.dll" />
+		  </fileset>
+		</copy>
 
 		<!-- Misc -->
 		<foreach 	item="String"
@@ -328,7 +328,7 @@
 		<mkdir dir="${release.dir}\host" />
 		<copy todir="${release.dir}\host">
 			<fileset basedir="${output.dir}\host">
-        <include name="NServiceBus*.*" />
+				<include name="NServiceBus*.*" />
 			</fileset>
 		</copy>
 
@@ -338,6 +338,7 @@
 			<fileset basedir="${build.base}">
 				<include name="tools\**" />
 				<include name="timeout\**" />
+				<include name="proxy\**" />
 				<include name="distributor\**" />
 				<include name="gateway\**" />
 				<exclude name="**/NServiceBus.dll"/>
