@@ -43,7 +43,7 @@
 		<echo message="Current Directory: ${project::get-base-directory()}"/>
 		
 			
-		<copy todir="${lib.dir}\sqlite">
+		<copy todir="${lib.dir}\sqlite" overwrite="true">
 			<fileset basedir="${lib.dir}\sqlite\${architecture}">
 				<include name="*.*" />
 			</fileset>
