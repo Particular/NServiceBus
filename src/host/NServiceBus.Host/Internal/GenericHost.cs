@@ -62,7 +62,6 @@ namespace NServiceBus.Host.Internal
             
             Type containerType = null;
             Type messageEndpointType = null;
-            bool startBusAutomatically = true;
 
             foreach (var t in endpointType.GetInterfaces())
             {
@@ -77,9 +76,6 @@ namespace NServiceBus.Host.Internal
                         if (typeof(ISpecify.ToRun<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
                             messageEndpointType = args[0];
                 }
-
-                if (t == typeof(IDontWantTheBusStartedAutomatically))
-                    startBusAutomatically = false;
             }
 
             if (container != null)
@@ -115,8 +111,7 @@ namespace NServiceBus.Host.Internal
                         .PurgeOnStartup(false)
                     .Sagas()
                     .UnicastBus()
-                        .ImpersonateSender(true)
-                        .LoadMessageHandlers();
+                        .ImpersonateSender(true);
 
                 if (!(specifier is ISpecify.MyOwnSagaPersistence))
                     cfg.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
@@ -137,8 +132,16 @@ namespace NServiceBus.Host.Internal
                 }
             }
 
-            if (configUnicastBus != null && specifier is ISpecify.MessageHandlerOrdering)
-                (specifier as ISpecify.MessageHandlerOrdering).SpecifyOrder(new Order { config = configUnicastBus });
+            if (configUnicastBus != null)
+            {
+                if (specifier is ISpecify.MessageHandlerOrdering)
+                    (specifier as ISpecify.MessageHandlerOrdering).SpecifyOrder(new Order {config = configUnicastBus});
+                else
+                    configUnicastBus.LoadMessageHandlers();
+
+                if (specifier is IDontWantToSubscribeAutomatically)
+                    configUnicastBus.DoNotAutoSubscribe();
+            }
 
             if (specifier is ISpecify.ToUseXmlSerialization)
             {
@@ -159,7 +162,7 @@ namespace NServiceBus.Host.Internal
 
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 
-            if (startBusAutomatically)
+            if (!(specifier is IDontWantTheBusStartedAutomatically))
                 cfg.CreateBus().Start(startupAction);
 
             if (messageEndpoint != null)
