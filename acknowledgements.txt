@@ -6,4 +6,6 @@ Spring Framework .NET (http://springframework.net/)
 The Castle Project (http://castleproject.org/)
 Rhino Mocks (http://groups.google.com/group/RhinoMocks/)
 StructureMap (http://structuremap.sourceforge.net)
+NHibernate (http://www.hibernate.org/343.html)
+FluentNHibernate (http://wiki.fluentnhibernate.org)
 

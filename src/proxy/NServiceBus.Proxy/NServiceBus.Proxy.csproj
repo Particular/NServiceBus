@@ -119,4 +119,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\proxy\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

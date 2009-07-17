@@ -2,7 +2,6 @@ using System.IO;
 using FluentNHibernate;
 using FluentNHibernate.Cfg.Db;
 using NUnit.Framework;
-using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
 using Rhino.Mocks;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
@@ -12,6 +11,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
     {
         readonly IPersistenceConfigurer  persistenceConfig = new SQLiteConfiguration()
                           .UsingFile(Path.GetTempFileName())
+                          .ShowSql()
                           .Raw("proxyfactory.factory_class",
                                "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
 
@@ -53,6 +53,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             {
                 session.CreateCriteria(typeof (Subscription)).List<Subscription>();
             }
+
         }
 
         [Test]
@@ -60,7 +61,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         {
             var sqlLiteConfigWithoutProxySpecified = new SQLiteConfiguration().InMemory();
 
-            var config = Configure.With()
+            Configure.With()
              .SpringBuilder()
              .NHibernateSubcriptionStorage(sqlLiteConfigWithoutProxySpecified, true);
         }

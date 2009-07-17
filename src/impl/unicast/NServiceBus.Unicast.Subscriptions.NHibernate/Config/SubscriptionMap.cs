@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Config
             UseCompositeId()
                 .WithKeyProperty(x => x.SubscriberEndpoint)
                 .WithKeyProperty(x => x.MessageType);
+
         }
     }
 }
