@@ -48,6 +48,7 @@
       <HintPath>..\..\..\external-bin\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -62,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerEndpoint.cs" />
+    <Compile Include="ServerEndpointConfig.cs" />
+    <Compile Include="When_configuring_an_endpoint_as_a_publisher.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_server.cs" />
   </ItemGroup>
   <ItemGroup>

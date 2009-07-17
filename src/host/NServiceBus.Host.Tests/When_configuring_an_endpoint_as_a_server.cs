@@ -69,23 +69,6 @@ namespace NServiceBus.Host.Tests
 
     }
 
-    public class ServerEndpointConfig : IConfigureThisEndpoint,As.aServer 
-    {
-    }
-
-    public class ServerEndpoint:IMessageEndpoint
-    {
-        public void OnStart()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnStop()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class ServerSaga:ISaga<ServerSagaData>
     {
         public void Timeout(object state)

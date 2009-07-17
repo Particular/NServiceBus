@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Reflection;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
@@ -12,7 +13,6 @@ namespace NServiceBus.Host.Internal
     {
         public Configure BuildConfigurationFrom(IConfigureThisEndpoint specifier, Type endpointType)
         {
-
             Configure busConfiguration;
 
             if (specifier is ISpecify.TypesToScan)
@@ -66,6 +66,9 @@ namespace NServiceBus.Host.Internal
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
             ConfigUnicastBus configUnicastBus = null;
+           
+            if (specifier is As.aPublisher && !(specifier is As.aServer))
+                throw new ConfigurationErrorsException("Enpoints that is specified to be publishers must be servers as well, please implement As.aServer!");
 
             if (specifier is As.aClient)
                 configUnicastBus = busConfiguration
