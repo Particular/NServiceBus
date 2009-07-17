@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NServiceBus.Saga;
 namespace NServiceBus.Host.Internal
 {
-    class InMemorySagaPersister : ISagaPersister
+    public class InMemorySagaPersister : ISagaPersister
     {
         public void Complete(ISagaEntity saga)
         {

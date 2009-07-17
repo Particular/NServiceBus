@@ -1,6 +1,7 @@
 using System;
 using NServiceBus.Host.Internal;
 using NServiceBus.Saga;
+using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Msmq;
 using NUnit.Framework;
@@ -49,6 +50,22 @@ namespace NServiceBus.Host.Tests
         {
             busConfig.Builder.Build<ServerSaga>().ShouldNotBeNull();
         }
+
+        [Test]
+        public void Saga_perister_should_default_to_in_memory()
+        {
+            busConfig.Builder.Build<InMemorySagaPersister>().ShouldNotBeNull();
+        }
+
+        [Test]
+        public void The_bus_should_impersonate_the_sender()
+        {
+            var unicastbus = busConfig.Builder.Build<UnicastBus>();
+            
+            unicastbus.ShouldNotBeNull();
+            unicastbus.ImpersonateSender.ShouldBeTrue();
+        }
+
 
     }
 
