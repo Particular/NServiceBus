@@ -17,9 +17,15 @@
 	<property name="container.output.dir" value="${output.dir}\containers"/>
 	<property name="nhibernate.build.dir" value="${build.base}\nhibernate"/>
 	<property name="nhibernate.output.dir" value="${output.dir}\nhibernate"/>
-	
+	<property name="Is64BitProcess" value="${environment::get-variable('PROCESSOR_ARCHITECTURE')!='x86'}" />
+	<property name="architecture" value="x86" dynamic="true" />
+			
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
+	</if>
+
+	<if test="${Is64BitProcess}">
+		<property name="architecture" value="x64"/>
 	</if>
 
 	<!-- default configuration -->
@@ -35,6 +41,13 @@
 		<delete dir="${build.base}"/>
 		<mkdir dir="${build.base}"/>
 		<echo message="Current Directory: ${project::get-base-directory()}"/>
+		
+			
+		<copy todir="${lib.dir}\sqlite">
+			<fileset basedir="${lib.dir}\sqlite\${architecture}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="clean" description="delete build artifacts">
@@ -81,12 +94,13 @@
 	</target>
 	
 	<target name="test">
+	
 		<nunit2 verbose="true">
 			  <formatter type="Plain" />
 			  <test>
           <assemblies>
             <include name="${solution.dir}\**\bin\${project.config}\**Tests.dll" />
-			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />
+<!--			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />-->
 			</assemblies>
 			  </test>
 		</nunit2>
@@ -358,4 +372,7 @@
 
 		</zip>
 	</target>
+	
+	
+
 </project>

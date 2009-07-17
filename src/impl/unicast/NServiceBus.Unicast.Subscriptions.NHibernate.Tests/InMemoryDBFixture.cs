@@ -25,10 +25,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         protected virtual void Before_each_test()
         {
 
-            var cfg = new SQLiteConfiguration()
+            var cfg = SQLiteConfiguration.Standard
                 .InMemory()
                 .ShowSql()
-                //.Raw("connection.release_mode", "on_close")
                 .Raw("proxyfactory.factory_class",
                      "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
 
