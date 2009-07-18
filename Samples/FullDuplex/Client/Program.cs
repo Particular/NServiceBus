@@ -2,9 +2,6 @@ using System;
 using Common.Logging;
 using NServiceBus;
 using Messages;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.ObjectBuilder;
-using System.Collections.Generic;
 
 namespace Client
 {
@@ -19,6 +16,7 @@ namespace Client
             bus = NServiceBus.Configure.With()
                 .SpringBuilder()
                 .XmlSerializer("http://www.UdiDahan.com")
+                .RijndaelEncryptionService()
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(true)
@@ -31,7 +29,7 @@ namespace Client
             Console.WriteLine("Press 'Enter' to send a message. To exit, press 'q' and then 'Enter'.");
             while (Console.ReadLine().ToLower() != "q")
             {
-                RequestDataMessage m = new RequestDataMessage();
+                var m = new RequestDataMessage();
 
                 m.DataId = Guid.NewGuid();
                 m.String = "<node>it's my \"node\" & i like it<node>";
@@ -49,7 +47,7 @@ namespace Client
         {
             Console.Out.WriteLine("Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.", bus.CurrentMessageContext.Headers["Test"], bus.CurrentMessageContext.Headers["1"], bus.CurrentMessageContext.Headers["2"]);
 
-            CompletionResult result = asyncResult.AsyncState as CompletionResult;
+            var result = asyncResult.AsyncState as CompletionResult;
 
             if (result == null)
                 return;
@@ -60,7 +58,7 @@ namespace Client
             if (result.State == null)
                 return;
 
-            DataResponseMessage response = result.Messages[0] as DataResponseMessage;
+            var response = result.Messages[0] as DataResponseMessage;
             if (response == null)
                 return;
 

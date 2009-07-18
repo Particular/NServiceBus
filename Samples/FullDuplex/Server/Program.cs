@@ -15,6 +15,7 @@ namespace Server
                 var bus = NServiceBus.Configure.With()
                     .SpringBuilder()
                     .XmlSerializer("http://www.UdiDahan.com")
+                    .RijndaelEncryptionService()
                     .MsmqTransport()
                         .IsTransactional(true)
                         .PurgeOnStartup(false)
