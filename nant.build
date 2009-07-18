@@ -100,7 +100,8 @@
 			  <test>
           <assemblies>
             <include name="${solution.dir}\**\bin\${project.config}\**Tests.dll" />
-<!--			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />-->
+            <exclude name="${solution.dir}\**\bin\${project.config}\NServiceBus.Host.Tests.dll" />
+            <!--			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />-->
 			</assemblies>
 			  </test>
 		</nunit2>
