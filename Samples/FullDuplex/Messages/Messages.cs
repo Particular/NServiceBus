@@ -9,6 +9,7 @@ namespace Messages
     {
         public Guid DataId { get; set; }
         public string String { get; set; }
+        public WireEncryptedString SecretQuestion { get; set; }
     }
 
     [Serializable]
@@ -16,7 +17,6 @@ namespace Messages
     {
         public Guid DataId { get; set; }
         public string String { get; set; }
-
-        // other data
+        public WireEncryptedString SecretAnswer { get; set; }
     }
 }

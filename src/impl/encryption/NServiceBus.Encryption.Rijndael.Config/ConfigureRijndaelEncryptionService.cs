@@ -1,5 +1,7 @@
-﻿using Common.Logging;
+﻿using System.Text;
+using Common.Logging;
 using NServiceBus.Config;
+using NServiceBus.Encryption.Rijndael;
 using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
@@ -21,10 +23,10 @@ namespace NServiceBus
             if (section == null)
                 Logger.Warn("Could not find configuration section for Rijndael Encryption Service.");
 
-            string key = (section != null ? section.Key : null);
+            var encryptConfig = config.Configurer.ConfigureComponent<EncryptionService>(ComponentCallModelEnum.Singleton);
 
-            var encryptConfig = config.Configurer.ConfigureComponent<RijndaelEncryptionServiceConfig>(ComponentCallModelEnum.Singleton);
-            encryptConfig.ConfigureProperty(s => s.Key, key);
+            if (section != null)
+                encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes(section.Key));
 
             return config;
         }

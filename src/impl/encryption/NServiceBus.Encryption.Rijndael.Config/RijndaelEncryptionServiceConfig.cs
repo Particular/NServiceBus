@@ -5,7 +5,7 @@ namespace NServiceBus.Config
     public class RijndaelEncryptionServiceConfig : ConfigurationSection
     {
         /// <summary>
-        /// The encryption key. Must be 256 bits (32 characters) long.
+        /// The encryption key.
         /// </summary>
         [ConfigurationProperty("Key", IsRequired = true)]
         public string Key

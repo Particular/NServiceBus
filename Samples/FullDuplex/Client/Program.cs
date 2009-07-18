@@ -15,8 +15,8 @@ namespace Client
 
             bus = NServiceBus.Configure.With()
                 .SpringBuilder()
-                .XmlSerializer("http://www.UdiDahan.com")
                 .RijndaelEncryptionService()
+                .XmlSerializer("http://www.UdiDahan.com")
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(true)
@@ -33,6 +33,7 @@ namespace Client
 
                 m.DataId = Guid.NewGuid();
                 m.String = "<node>it's my \"node\" & i like it<node>";
+                m.SecretQuestion = "What's your favorite color?";
 
                 Console.WriteLine("Requesting to get data by id: {0}", m.DataId.ToString("N"));
 
@@ -62,7 +63,7 @@ namespace Client
             if (response == null)
                 return;
 
-            Console.WriteLine("Response received with description: {0}",response.String);
+            Console.WriteLine("Response received with description: {0}\nSecret answer: {1}",response.String, response.SecretAnswer.Value);
         }
     }
 }

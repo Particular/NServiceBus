@@ -9,6 +9,7 @@ using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
 using System.Runtime.Serialization;
 using Common.Logging;
+using NServiceBus.Encryption;
 
 namespace NServiceBus.Serializers.XML
 {
@@ -21,6 +22,11 @@ namespace NServiceBus.Serializers.XML
         /// The message mapper used to translate between types.
         /// </summary>
         public IMessageMapper MessageMapper { get; set; }
+
+        /// <summary>
+        /// The encryption service used to encrypt and decrypt WireEncryptedStrings.
+        /// </summary>
+        public IEncryptionService EncryptionService { get; set; }
 
         private string nameSpace = "http://tempuri.net";
 
@@ -47,6 +53,7 @@ namespace NServiceBus.Serializers.XML
             if (AdditionalTypes == null)
                 AdditionalTypes = new List<Type>();
 
+            AdditionalTypes.Add(typeof(EncryptedValue));
             AdditionalTypes.AddRange(types);
             MessageMapper.Initialize(AdditionalTypes.ToArray());
 
@@ -250,6 +257,27 @@ namespace NServiceBus.Serializers.XML
         {
             if (t.IsSimpleType())
                 return GetPropertyValue(t, node);
+
+            if (t == typeof(WireEncryptedString))
+            {
+                if (EncryptionService != null)
+                {
+                    var encrypted = GetObjectOfTypeFromNode(typeof (EncryptedValue), node) as EncryptedValue;
+                    var s = EncryptionService.Decrypt(encrypted);
+
+                    return new WireEncryptedString {Value = s};
+                }
+
+                foreach (XmlNode n in node.ChildNodes)
+                    if (n.Name.ToLower() == "encryptedbase64value")
+                    {
+                        var wes = new WireEncryptedString();
+                        wes.Value = GetPropertyValue(typeof (String), n) as string;
+
+                        return wes;
+                    }
+
+            }
 
             object result = MessageMapper.CreateInstance(t);
 
@@ -493,6 +521,17 @@ namespace NServiceBus.Serializers.XML
 
         private void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
+            if (value is WireEncryptedString)
+            {
+                if (EncryptionService == null)
+                    throw new InvalidOperationException(String.Format("Cannot encrypt field {0} because no encryption service was configured.", name));
+                
+                var encryptedValue = EncryptionService.Encrypt((value as WireEncryptedString).Value);
+                WriteObject(name, typeof(EncryptedValue), encryptedValue, builder);
+
+                return;
+            }
+
             string element = name;
             string prefix;
             namespacesToPrefix.TryGetValue(type.Namespace, out prefix);

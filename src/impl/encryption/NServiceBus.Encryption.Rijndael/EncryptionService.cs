@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using Common.Logging;
 
 namespace NServiceBus.Encryption.Rijndael
 {
     /// <summary>
     /// Implementation of the encryption capability using Rijndael.
-    /// Blatantly copied from https://rhino-tools.svn.sourceforge.net/svnroot/rhino-tools/trunk/esb/Rhino.ServiceBus/Impl/RijndaelEncryptionService.cs
+    /// Copied from https://rhino-tools.svn.sourceforge.net/svnroot/rhino-tools/trunk/esb/Rhino.ServiceBus/Impl/RijndaelEncryptionService.cs
     /// allowable under the Apache 2.0 license.
     /// </summary>
     public class EncryptionService : IEncryptionService
@@ -18,6 +19,12 @@ namespace NServiceBus.Encryption.Rijndael
 
         string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
         {
+            if (Key == null)
+            {
+                Logger.Warn("Cannot decrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
+                return encryptedValue.EncryptedBase64Value;
+            }
+
             var encrypted = Convert.FromBase64String(encryptedValue.EncryptedBase64Value);
             using (var rijndael = new RijndaelManaged())
             {
@@ -37,6 +44,9 @@ namespace NServiceBus.Encryption.Rijndael
 
         EncryptedValue IEncryptionService.Encrypt(string value)
         {
+            if (Key == null)
+                throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
+
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = Key;
@@ -60,5 +70,7 @@ namespace NServiceBus.Encryption.Rijndael
                 }
             }
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (EncryptionService));
     }
 }
