@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
-using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Utils;
 
 namespace MsmqWorkerAvailabilityManager
@@ -28,16 +27,16 @@ namespace MsmqWorkerAvailabilityManager
             {
                 s = value;
 
-                MsmqUtilities.CreateQueueIfNecessary(MsmqTransport.GetFullPathWithoutPrefix(value));
+                MsmqUtilities.CreateQueueIfNecessary(value);
 
-                string path = MsmqTransport.GetFullPath(value);
+                var path = MsmqUtilities.GetFullPath(value);
 
-                MessageQueue q = new MessageQueue(path);
+                var q = new MessageQueue(path);
 
                 if (!q.Transactional)
                     throw new Exception("Queue must be transactional.");
 
-                this.storageQueue = q;
+                storageQueue = q;
             }
         }
         private string s;
@@ -57,11 +56,11 @@ namespace MsmqWorkerAvailabilityManager
         {
             lock (locker)
             {
-                Message[] existing = this.storageQueue.GetAllMessages();
+                var existing = storageQueue.GetAllMessages();
 
-                foreach (Message m in existing)
-                    if (MsmqTransport.GetIndependentAddressForQueue(m.ResponseQueue) == address)
-                        this.storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                foreach (var m in existing)
+                    if (MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address)
+                        storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
             }
         }
 
@@ -74,26 +73,27 @@ namespace MsmqWorkerAvailabilityManager
         {
             lock (locker)
             {
-                Message[] existing = this.storageQueue.GetAllMessages();
+                Message[] existing = storageQueue.GetAllMessages();
 
                 if (existing.Length == 0)
                     return null;
-                else
-                {
-                    this.storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
+                
+                storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
 
-                    return MsmqTransport.GetIndependentAddressForQueue(existing[0].ResponseQueue);
-                }
+                return MsmqUtilities.GetIndependentAddressForQueue(existing[0].ResponseQueue);
             }
         }
 
+        /// <summary>
+        /// Initializes the object.
+        /// </summary>
 	    public void Start()
 	    {
-            string path = MsmqTransport.GetFullPath(this.StorageQueue);
+            var path = MsmqUtilities.GetFullPath(StorageQueue);
 
-            MsmqUtilities.CreateQueueIfNecessary(path);
+            MsmqUtilities.CreateQueueIfNecessary(StorageQueue);
 
-            MessageQueue q = new MessageQueue(path);
+            var q = new MessageQueue(path);
 
             if (!q.Transactional)
                 throw new Exception("Queue must be transactional.");
@@ -109,10 +109,12 @@ namespace MsmqWorkerAvailabilityManager
         {
             lock (locker)
             {
-                Message msg = new Message();
-                msg.ResponseQueue = new MessageQueue(MsmqTransport.GetFullPath(address));
+                var msg = new Message
+                              {
+                                  ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(address))
+                              };
 
-                this.storageQueue.Send(msg, MessageQueueTransactionType.Automatic);
+                storageQueue.Send(msg, MessageQueueTransactionType.Automatic);
             }
         }
 
@@ -120,7 +122,7 @@ namespace MsmqWorkerAvailabilityManager
 
         #region members
 
-        private object locker = new object();
+        private readonly object locker = new object();
 
         #endregion
     }

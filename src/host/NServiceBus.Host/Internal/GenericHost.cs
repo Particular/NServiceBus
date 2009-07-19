@@ -47,10 +47,14 @@ namespace NServiceBus.Host.Internal
                 else
                 {
                     var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
+                    var level = (specifier is ISpecify.LoggingLevel
+                                     ? (specifier as ISpecify.LoggingLevel).Level
+                                     : log4net.Core.Level.Debug);
+
                     var appender = new log4net.Appender.ConsoleAppender
                                        {
                                            Layout = layout,
-                                           Threshold = log4net.Core.Level.Debug
+                                           Threshold = level
                                        };
                     log4net.Config.BasicConfigurator.Configure(appender);
                 }

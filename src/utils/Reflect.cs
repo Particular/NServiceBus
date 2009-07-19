@@ -1,8 +1,6 @@
 ﻿//http://netfx.googlecode.com/svn/trunk/Source/Reflection/Reflect.cs
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Linq.Expressions;
 
@@ -28,7 +26,7 @@ namespace NServiceBus.Utils
         {
             if (constructor == null) throw new ArgumentNullException("constructor");
 
-            LambdaExpression lambda = constructor as LambdaExpression;
+            var lambda = constructor as LambdaExpression;
             if (lambda == null) throw new ArgumentException("Not a lambda expression", "constructor");
             if (lambda.Body.NodeType != ExpressionType.New) throw new ArgumentException("Not a constructor invocation", "constructor");
 
@@ -48,11 +46,11 @@ namespace NServiceBus.Utils
         /// <summary>
         /// Gets the property represented by the lambda expression.
         /// </summary>
-        /// <exception cref="ArgumentNullException">The <paramref name="method"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="method"/> is not a lambda expression or it does not represent a property access.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="property"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="property"/> is not a lambda expression or it does not represent a property access.</exception>
         public static PropertyInfo GetProperty(Expression<Func<object>> property)
         {
-            PropertyInfo info = GetMemberInfo(property) as PropertyInfo;
+            var info = GetMemberInfo(property) as PropertyInfo;
             if (info == null) throw new ArgumentException("Member is not a property");
 
             return info;
@@ -61,32 +59,42 @@ namespace NServiceBus.Utils
         /// <summary>
         /// Gets the field represented by the lambda expression.
         /// </summary>
-        /// <exception cref="ArgumentNullException">The <paramref name="method"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="method"/> is not a lambda expression or it does not represent a field access.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="field"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="field"/> is not a lambda expression or it does not represent a field access.</exception>
         public static FieldInfo GetField(Expression<Func<object>> field)
         {
-            FieldInfo info = GetMemberInfo(field) as FieldInfo;
+            var info = GetMemberInfo(field) as FieldInfo;
             if (info == null) throw new ArgumentException("Member is not a field");
 
             return info;
         }
 
+        /// <summary>
+        /// Returns a MethodInfo for an expression containing a call to a method.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         protected static MethodInfo GetMethodInfo(Expression method)
         {
             if (method == null) throw new ArgumentNullException("method");
 
-            LambdaExpression lambda = method as LambdaExpression;
+            var lambda = method as LambdaExpression;
             if (lambda == null) throw new ArgumentException("Not a lambda expression", "method");
             if (lambda.Body.NodeType != ExpressionType.Call) throw new ArgumentException("Not a method call", "method");
 
             return ((MethodCallExpression)lambda.Body).Method;
         }
 
+        /// <summary>
+        /// Returns a MemberInfo for an expression containing a call to a property.
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
         protected static MemberInfo GetMemberInfo(Expression member)
         {
             if (member == null) throw new ArgumentNullException("member");
 
-            LambdaExpression lambda = member as LambdaExpression;
+            var lambda = member as LambdaExpression;
             if (lambda == null) throw new ArgumentException("Not a lambda expression", "member");
 
             MemberExpression memberExpr = null;
@@ -162,11 +170,11 @@ namespace NServiceBus.Utils
         /// <summary>
         /// Gets the property represented by the lambda expression.
         /// </summary>
-        /// <exception cref="ArgumentNullException">The <paramref name="method"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="method"/> is not a lambda expression or it does not represent a property access.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="property"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="property"/> is not a lambda expression or it does not represent a property access.</exception>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
-            PropertyInfo info = GetMemberInfo(property) as PropertyInfo;
+            var info = GetMemberInfo(property) as PropertyInfo;
             if (info == null) throw new ArgumentException("Member is not a property");
 
             return info;
@@ -175,11 +183,11 @@ namespace NServiceBus.Utils
         /// <summary>
         /// Gets the field represented by the lambda expression.
         /// </summary>
-        /// <exception cref="ArgumentNullException">The <paramref name="method"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="method"/> is not a lambda expression or it does not represent a field access.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="field"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="field"/> is not a lambda expression or it does not represent a field access.</exception>
         public static FieldInfo GetField(Expression<Func<TTarget, object>> field)
         {
-            FieldInfo info = GetMemberInfo(field) as FieldInfo;
+            var info = GetMemberInfo(field) as FieldInfo;
             if (info == null) throw new ArgumentException("Member is not a field");
 
             return info;

@@ -21,7 +21,6 @@
 using System;
 using System.Collections.Generic;
 using System.Messaging;
-using NServiceBus.Unicast.Transport.Msmq;
 using Common.Logging;
 using System.Transactions;
 using NServiceBus.Utils;
@@ -173,18 +172,18 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             set
             {
                 queue = value;
-                string machine = MsmqTransport.GetMachineNameFromLogicalName(value);
+                string machine = MsmqUtilities.GetMachineNameFromLogicalName(value);
 
                 if (machine.ToLower() != Environment.MachineName.ToLower())
                     throw new InvalidOperationException("Queue must be located on the same machine as this process.");
 
-                string pathWithoutPrefix = MsmqTransport.GetFullPathWithoutPrefix(queue);
+                string pathWithoutPrefix = MsmqUtilities.GetFullPathWithoutPrefix(queue);
 
                 log.Debug("Checking if input queue exists.");
                 
                 MsmqUtilities.CreateQueueIfNecessary(pathWithoutPrefix);
-                
-                string path = MsmqTransport.GetFullPath(value);
+
+                string path = MsmqUtilities.GetFullPath(value);
 
                 q = new MessageQueue(path);
 

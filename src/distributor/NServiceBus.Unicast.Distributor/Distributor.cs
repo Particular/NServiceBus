@@ -17,19 +17,19 @@ namespace NServiceBus.Unicast.Distributor
 		/// Sets the bus that will be used
 		/// for transporting control information.
 		/// </summary>
-        public virtual IStartableBus ControlBus { get; set; }
+        public IStartableBus ControlBus { get; set; }
 
 		/// <summary>
 		/// Sets the transport that will be used
 		/// to access the bus containing messages to distribute.
 		/// </summary>
-        public virtual ITransport MessageBusTransport { get; set; }
+        public ITransport MessageBusTransport { get; set; }
 
 		/// <summary>
 		/// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
 		/// used to determine whether or not a worker is available.
 		/// </summary>
-        public virtual IWorkerAvailabilityManager WorkerManager { get; set; }
+        public IWorkerAvailabilityManager WorkerManager { get; set; }
 
 
 	    private int millisToWaitIfCannotDispatchToWorker = 50;
@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Distributor
         /// Milliseconds to sleep if no workers are available.
         /// Prevents needless CPU churn.
         /// </summary>
-        public virtual int MillisToWaitIfCannotDispatchToWorker
+        public int MillisToWaitIfCannotDispatchToWorker
 	    {
             set { this.millisToWaitIfCannotDispatchToWorker = value; }
 	    }
@@ -60,9 +60,8 @@ namespace NServiceBus.Unicast.Distributor
                   };
 
             this.MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
-
-            this.ControlBus.Start();
             this.MessageBusTransport.Start();
+
             this.WorkerManager.Start();
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Messaging;
 using System.Security.Principal;
 using Common.Logging;
@@ -9,12 +10,12 @@ namespace NServiceBus.Utils
     ///</summary>
     public class MsmqUtilities
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(MsmqUtilities));
-        private static readonly string localAdministratorsGroupName;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
+        private static readonly string LocalAdministratorsGroupName;
 
         static MsmqUtilities()
         {
-            localAdministratorsGroupName = new SecurityIdentifier("S-1-5-32-544").Translate(typeof(NTAccount)).ToString();
+            LocalAdministratorsGroupName = new SecurityIdentifier("S-1-5-32-544").Translate(typeof(NTAccount)).ToString();
         }
 
         ///<summary>
@@ -23,14 +24,33 @@ namespace NServiceBus.Utils
         ///<param name="queueName"></param>
         public static void CreateQueueIfNecessary(string queueName)
         {
-            logger.Debug("Checking if queue exists.");
-            
-            if (!MessageQueue.Exists(queueName))
-            {
-                logger.Warn("Queue " + queueName + " does not exist.");
-                logger.Debug("Going to create queue: " + queueName);
+            if (string.IsNullOrEmpty(queueName))
+                return;
 
-                CreateQueue(queueName);
+            var q = GetFullPathWithoutPrefix(queueName);
+            var machine = GetMachineNameFromLogicalName(queueName);
+
+            if (machine != Environment.MachineName)
+            {
+                Logger.Debug("Queue is on remote machine.");
+                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
+            }
+
+            Logger.Debug("Checking if queue exists.");
+
+            try
+            {
+                if (MessageQueue.Exists(q))
+                    return;
+
+                Logger.Warn("Queue " + q + " does not exist.");
+                Logger.Debug("Going to create queue: " + q);
+
+                CreateQueue(q);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Could not create queue or check its existence. Processing will still continue.", ex);
             }
         }
         
@@ -42,9 +62,121 @@ namespace NServiceBus.Utils
         {
             var createdQueue = MessageQueue.Create(queueName, true);
 
-            createdQueue.SetPermissions(localAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+            createdQueue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
 
-            logger.Debug("Queue created: " + queueName);
+            Logger.Debug("Queue created: " + queueName);
         }
+
+        /// <summary>
+        /// Turns a '@' separated value into a full msmq path.
+        /// Format is 'queue@machine'.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullPath(string value)
+        {
+            return PREFIX + GetFullPathWithoutPrefix(value);
+        }
+
+        /// <summary>
+        /// Returns the full path without Format or direct os
+        /// from a '@' separated path.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullPathWithoutPrefix(string value)
+        {
+            return GetMachineNameFromLogicalName(value) + PRIVATE + GetQueueNameFromLogicalName(value);
+        }
+
+        /// <summary>
+        /// Returns the machine name from a '@' separated full logical name,
+        /// or the Environment.MachineName otherwise.
+        /// </summary>
+        /// <param name="logicalName"></param>
+        /// <returns></returns>
+        public static string GetMachineNameFromLogicalName(string logicalName)
+        {
+            string[] arr = logicalName.Split('@');
+
+            string machine = Environment.MachineName;
+
+            if (arr.Length >= 2)
+                if (arr[1] != "." && arr[1].ToLower() != "localhost")
+                    machine = arr[1];
+
+            return machine;
+        }
+
+        /// <summary>
+        /// Returns the queue name from a '@' separated full logical name.
+        /// </summary>
+        /// <param name="logicalName"></param>
+        /// <returns></returns>
+        public static string GetQueueNameFromLogicalName(string logicalName)
+        {
+            string[] arr = logicalName.Split('@');
+
+            if (arr.Length >= 1)
+                return arr[0];
+
+            return null;
+        }
+
+        /// <summary>
+        /// Checks whether or not a queue is local by its path.
+        /// </summary>
+        /// <param name="value">The path to the queue to check.</param>
+        /// <returns>true if the queue is local, otherwise false.</returns>
+        public static bool QueueIsLocal(string value)
+        {
+            var machineName = Environment.MachineName.ToLower();
+
+            value = value.ToLower().Replace(PREFIX.ToLower(), "");
+            var index = value.IndexOf('\\');
+
+            var queueMachineName = value.Substring(0, index).ToLower();
+
+            return (machineName == queueMachineName || queueMachineName == "localhost" || queueMachineName == ".");
+        }
+
+        /// <summary>
+        /// Gets an independent address for the queue in the form:
+        /// queue@machine.
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns></returns>
+        public static string GetIndependentAddressForQueue(MessageQueue q)
+        {
+            if (q == null)
+                return null;
+
+            string[] arr = q.FormatName.Split('\\');
+            string queueName = arr[arr.Length - 1];
+
+            int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
+            if (directPrefixIndex >= 0)
+            {
+                return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+            }
+
+            try
+            {
+                // the pessimistic approach failed, try the optimistic approach
+                arr = q.QueueName.Split('\\');
+                queueName = arr[arr.Length - 1];
+                return queueName + '@' + q.MachineName;
+            }
+            catch
+            {
+                throw new Exception(string.Concat("MessageQueueException: '",
+                DIRECTPREFIX, "' is missing. ",
+                "FormatName='", q.FormatName, "'"));
+            }
+        }
+
+        private const string DIRECTPREFIX = "DIRECT=OS:";
+        private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
+        private const string PRIVATE = "\\private$\\";
     }
 }

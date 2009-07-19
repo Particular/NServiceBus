@@ -219,11 +219,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
             CreateQueuesIfNecessary();
 
             if (ErrorQueue != null)
-                errorQueue = new MessageQueue(GetFullPath(ErrorQueue));
+                errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue));
 
             if (!string.IsNullOrEmpty(InputQueue))
             {
-                var q = new MessageQueue(GetFullPath(InputQueue));
+                var q = new MessageQueue(MsmqUtilities.GetFullPath(InputQueue));
                 SetLocalQueue(q);
 
                 if (PurgeOnStartup)
@@ -243,7 +243,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private void CheckConfiguration()
         {
-            var machine = GetMachineNameFromLogicalName(InputQueue);
+            var machine = MsmqUtilities.GetMachineNameFromLogicalName(InputQueue);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
@@ -253,37 +253,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (!DoNotCreateQueues)
             {
-                if (!string.IsNullOrEmpty(InputQueue))
-                {
-                    string iq = GetFullPathWithoutPrefix(InputQueue);
-                    Logger.Debug("Checking if input queue exists.");
-                    
-                    MsmqUtilities.CreateQueueIfNecessary(iq);
-                }
-
-                if (!string.IsNullOrEmpty(ErrorQueue))
-                {
-                    Logger.Debug("Checking if error queue exists.");
-                    string errorMachine = GetMachineNameFromLogicalName(ErrorQueue);
-
-                    if (errorMachine != Environment.MachineName)
-                    {
-                        Logger.Debug("Error queue is on remote machine.");
-                        Logger.Debug("If this does not succeed (if the remote machine is disconnected), processing will continue.");
-                    }
-
-                    try
-                    {
-                        string eq = GetFullPathWithoutPrefix(ErrorQueue);
-                        
-                        MsmqUtilities.CreateQueueIfNecessary(eq);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Could not create error queue or check its existence. Processing will still continue.", ex);
-                    }
-                }
-
+                MsmqUtilities.CreateQueueIfNecessary(InputQueue);
+                MsmqUtilities.CreateQueueIfNecessary(ErrorQueue);
             }
         }
 
@@ -308,7 +279,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
-		    var address = GetFullPath(destination);
+            var address = MsmqUtilities.GetFullPath(destination);
 
             using (var q = new MessageQueue(address, QueueAccessMode.Send))
             {
@@ -325,7 +296,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 toSend.Recoverable = m.Recoverable;
 
                 if (!string.IsNullOrEmpty(m.ReturnAddress))
-                    toSend.ResponseQueue = new MessageQueue(GetFullPath(m.ReturnAddress));
+                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(m.ReturnAddress));
 
                 FillLabel(toSend, m);
 
@@ -431,6 +402,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <remarks>
 		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
 		/// </remarks>
+        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
         public void ReceiveFromQueue()
         {
 	        string messageId = string.Empty;
@@ -601,7 +573,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    protected void MoveToErrorQueue(Message m)
 	    {
             m.Label = m.Label +
-                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, GetIndependentAddressForQueue(queue));
+                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue));
 
 	        if (errorQueue != null)
                 errorQueue.Send(m, MessageQueueTransactionType.Single);
@@ -613,23 +585,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    public void AbortHandlingCurrentMessage()
         {
             _needToAbort = true;
-        }
-
-		/// <summary>
-		/// Checks whether or not a queue is local by its path.
-		/// </summary>
-		/// <param name="value">The path to the queue to check.</param>
-		/// <returns>true if the queue is local, otherwise false.</returns>
-        public static bool QueueIsLocal(string value)
-        {
-            var machineName = Environment.MachineName.ToLower();
-
-            value = value.ToLower().Replace(PREFIX.ToLower(), "");
-            var index = value.IndexOf('\\');
-
-            var queueMachineName = value.Substring(0, index).ToLower();
-
-            return (machineName == queueMachineName || queueMachineName == "localhost" || queueMachineName == ".");
         }
 
 		/// <summary>
@@ -648,7 +603,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		                                  : m.CorrelationId),
 		                         Recoverable = m.Recoverable,
 		                         TimeToBeReceived = m.TimeToBeReceived,
-		                         ReturnAddress = GetIndependentAddressForQueue(m.ResponseQueue),
+                                 ReturnAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
 		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
 
@@ -688,7 +643,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
             var count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
 
-            return GetFullPath(m.Label.Substring(startIndex, count));
+            return MsmqUtilities.GetFullPath(m.Label.Substring(startIndex, count));
         }
 
         /// <summary>
@@ -824,128 +779,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #endregion
 
-        #region static conversion methods
-
-        ///// <summary>
-        ///// Resolves a destination MSMQ queue address.
-        ///// </summary>
-        ///// <param name="destination">The MSMQ address to resolve.</param>
-        ///// <returns>The direct format name of the queue.</returns>
-        //public static string Resolve(string destination)
-        //{
-        //    string dest = destination.ToLower().Replace(PREFIX.ToLower(), "");
-
-        //    string[] arr = dest.Split('\\');
-        //    if (arr.Length == 1)
-        //        dest = Environment.MachineName + "\\private$\\" + dest;
-
-        //    MessageQueue q = new MessageQueue(dest);
-        //    if (q.MachineName.ToLower() == Environment.MachineName.ToLower())
-        //        q.MachineName = Environment.MachineName;
-
-        //    return PREFIX + q.Path;
-        //}
-
-        /// <summary>
-        /// Turns a '@' separated value into a full msmq path.
-        /// Format is 'queue@machine'.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetFullPath(string value)
-        {
-            return PREFIX + GetFullPathWithoutPrefix(value);
-        }
-
-        /// <summary>
-        /// Returns the full path without Format or direct os
-        /// from a '@' separated path.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetFullPathWithoutPrefix(string value)
-        {
-            return GetMachineNameFromLogicalName(value) + PRIVATE + GetQueueNameFromLogicalName(value);
-        }
-
-        /// <summary>
-        /// Returns the queue name from a '@' separated full logical name.
-        /// </summary>
-        /// <param name="logicalName"></param>
-        /// <returns></returns>
-        public static string GetQueueNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            if (arr.Length >= 1)
-                return arr[0];
-
-            return null;
-        }
-
-        /// <summary>
-        /// Returns the machine name from a '@' separated full logical name,
-        /// or the Environment.MachineName otherwise.
-        /// </summary>
-        /// <param name="logicalName"></param>
-        /// <returns></returns>
-        public static string GetMachineNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            string machine = Environment.MachineName;
-
-            if (arr.Length >= 2)
-                if (arr[1] != "." && arr[1].ToLower() != "localhost")
-                    machine = arr[1];
-
-            return machine;
-        }
-
-        /// <summary>
-        /// Gets an independent address for the queue in the form:
-        /// queue@machine.
-        /// </summary>
-        /// <param name="q"></param>
-        /// <returns></returns>
-        public static string GetIndependentAddressForQueue(MessageQueue q)
-        {
-            if (q == null)
-                return null;
-
-            string[] arr = q.FormatName.Split('\\');
-            string queueName = arr[arr.Length - 1];
-
-            int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
-            if (directPrefixIndex >= 0)
-            {
-                return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
-            }
-
-            try
-            {
-                // the pessimistic approach failed, try the optimistic approach
-                arr = q.QueueName.Split('\\');
-                queueName = arr[arr.Length - 1];
-                return queueName + '@' + q.MachineName;
-            }
-            catch
-            {
-                throw new Exception(string.Concat("MessageQueueException: '",
-                DIRECTPREFIX, "' is missing. ",
-                "FormatName='", q.FormatName, "'"));
-            }
-
-
-        }
-
-        #endregion
-
         #region members
 
-        private static readonly string DIRECTPREFIX = "DIRECT=OS:";
-        private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-        private static readonly string PRIVATE = "\\private$\\";
 	    private static readonly string IDFORCORRELATION = "CorrId";
 	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
 	    private static readonly string FAILEDQUEUE = "FailedQ";

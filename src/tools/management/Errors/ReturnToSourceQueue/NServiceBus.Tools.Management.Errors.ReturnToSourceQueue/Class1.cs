@@ -2,6 +2,7 @@ using System;
 using System.Messaging;
 using System.Transactions;
 using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Utils;
 
 namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 {
@@ -13,24 +14,24 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         {
             set
             {
-                string path = MsmqTransport.GetFullPath(value);
-                MessageQueue q = new MessageQueue(path);
+                string path = MsmqUtilities.GetFullPath(value);
+                var q = new MessageQueue(path);
 
                 if (!q.Transactional)
                     throw new ArgumentException("Queue must be transactional (" + q.Path + ").");
 
-                this.queue = q;
+                queue = q;
 
-                MessagePropertyFilter mpf = new MessagePropertyFilter();
+                var mpf = new MessagePropertyFilter();
                 mpf.SetAll();
 
-                this.queue.MessageReadPropertyFilter = mpf;
+                queue.MessageReadPropertyFilter = mpf;
             }
         }
 
         public void ReturnAll()
         {
-            foreach(Message m in queue.GetAllMessages())
+            foreach(var m in queue.GetAllMessages())
                 ReturnMessageToSourceQueue(m.Id);
         }
 
@@ -40,15 +41,15 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// <param name="messageId"></param>
         public void ReturnMessageToSourceQueue(string messageId)
         {
-            using (TransactionScope scope = new TransactionScope())
+            using (var scope = new TransactionScope())
             {
-                Message m = this.queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
+                var m = queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
 
-                string failedQueue = MsmqTransport.GetFailedQueue(m);
+                var failedQueue = MsmqTransport.GetFailedQueue(m);
 
                 m.Label = MsmqTransport.GetLabelWithoutFailedQueue(m);
 
-                using (MessageQueue q = new MessageQueue(failedQueue))
+                using (var q = new MessageQueue(failedQueue))
                 {
                     q.Send(m, MessageQueueTransactionType.Automatic);
                 }

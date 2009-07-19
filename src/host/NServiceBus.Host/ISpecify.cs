@@ -121,6 +121,14 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
+        /// Specify the level at which logging will be performed.
+        /// </summary>
+        public interface LoggingLevel
+        {
+            log4net.Core.Level Level { get; }
+        }
+
+        /// <summary>
         /// Specify the order in which message handlers will be invoked.
         /// </summary>
         public interface MessageHandlerOrdering

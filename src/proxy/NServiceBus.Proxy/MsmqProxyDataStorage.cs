@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Messaging;
-using NServiceBus.Unicast.Transport.Msmq;
 using NServiceBus.Utils;
 
 namespace NServiceBus.Proxy
@@ -16,9 +15,9 @@ namespace NServiceBus.Proxy
             {
                 s = value;
 
-                MsmqUtilities.CreateQueueIfNecessary(MsmqTransport.GetFullPathWithoutPrefix(value));
+                MsmqUtilities.CreateQueueIfNecessary(value);
 
-                string path = MsmqTransport.GetFullPath(value);
+                string path = MsmqUtilities.GetFullPath(value);
 
                 var q = new MessageQueue(path);
 
