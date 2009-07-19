@@ -1,6 +1,5 @@
 using System;
 using NServiceBus.ObjectBuilder;
-using System.Configuration;
 using System.Transactions;
 using NServiceBus.Config;
 
@@ -14,31 +13,26 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
     public class ConfigMsmqTransport : Configure
     {
         /// <summary>
-        /// Constructor.
-        /// </summary>
-        public ConfigMsmqTransport() : base() { }
-
-        /// <summary>
         /// Wraps the given configuration object but stores the same 
         /// builder and configurer properties.
         /// </summary>
         /// <param name="config"></param>
         public void Configure(Configure config)
         {
-            this.Builder = config.Builder;
-            this.Configurer = config.Configurer;
+            Builder = config.Builder;
+            Configurer = config.Configurer;
 
             transportConfig = Configurer.ConfigureComponent<MsmqTransport>(ComponentCallModelEnum.Singleton);
 
             var cfg = GetConfigSection<MsmqTransportConfig>();
 
-            if (cfg == null)
-                throw new ConfigurationErrorsException("Could not find configuration section for Msmq Transport.");
-
-            transportConfig.ConfigureProperty(t => t.InputQueue, cfg.InputQueue);
-            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
-            transportConfig.ConfigureProperty(t => t.ErrorQueue, cfg.ErrorQueue);
-            transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
+            if (cfg != null)
+            {
+                transportConfig.ConfigureProperty(t => t.InputQueue, cfg.InputQueue);
+                transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
+                transportConfig.ConfigureProperty(t => t.ErrorQueue, cfg.ErrorQueue);
+                transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
+            }
         }
 
         private IComponentConfig<MsmqTransport> transportConfig;

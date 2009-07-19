@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigMsmqTransport MsmqTransport(this Configure config)
         {
-            ConfigMsmqTransport cfg = new ConfigMsmqTransport();
+            var cfg = new ConfigMsmqTransport();
             cfg.Configure(config);
 
             return cfg;
