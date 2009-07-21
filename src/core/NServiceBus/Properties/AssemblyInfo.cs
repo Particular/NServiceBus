@@ -19,5 +19,7 @@
 #endregion
 
 using System.Reflection;
+using System.Security.Permissions;
+[assembly: ReflectionPermission(SecurityAction.RequestMinimum, Unrestricted = true)]
 [assembly: AssemblyTitle("NServiceBus Core")]
 [assembly: AssemblyDescription("Enterprise application framework for publish/subscribe and long-running business processes.")]
