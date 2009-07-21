@@ -36,7 +36,9 @@ namespace NServiceBus.Host.Internal
        
         private static void ConfigureLogging(IConfigureThisEndpoint specifier)
         {
-            if (!(specifier is IDontWantLog4Net))
+            if (specifier is IDontWantLog4Net)
+                LogManager.Adapter = (specifier as IDontWantLog4Net).UseThisInstead;
+            else
             {
                 var props = new NameValueCollection();
                 props["configType"] = "INLINE";
