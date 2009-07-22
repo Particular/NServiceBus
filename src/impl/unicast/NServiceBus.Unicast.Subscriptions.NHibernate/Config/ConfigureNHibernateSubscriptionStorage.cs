@@ -1,7 +1,6 @@
 using FluentNHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
-using FluentNHibernate.Conventions.Helpers;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.NHibernate;
@@ -64,7 +63,7 @@ namespace NServiceBus
                     .Execute(false, true);
 
             //default to LinFu if not specifed by user
-            if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
+            //if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
                 fluentConfiguration.ExposeConfiguration(
                     x =>
                     x.SetProperty(PROXY_FACTORY_KEY,

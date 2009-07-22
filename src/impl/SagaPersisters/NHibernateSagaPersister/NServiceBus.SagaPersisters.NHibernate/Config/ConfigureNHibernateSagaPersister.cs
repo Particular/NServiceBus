@@ -155,7 +155,7 @@ namespace NServiceBus
                                   "NHibernate.Context.ThreadStaticSessionContext, NHibernate");
 
                     //default to LinFu if not specifed by user
-                    if (!c.Properties.Keys.Contains(PROXY_FACTORY_KEY))
+                    //if (!c.Properties.Keys.Contains(PROXY_FACTORY_KEY))
                         c.SetProperty(PROXY_FACTORY_KEY,
                                           "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
 
