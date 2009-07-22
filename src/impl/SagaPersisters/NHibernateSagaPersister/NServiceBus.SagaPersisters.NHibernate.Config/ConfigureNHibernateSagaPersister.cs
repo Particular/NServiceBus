@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Linq;
-using FluentNHibernate.AutoMap;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.ObjectBuilder;
-using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate;
 using Common.Logging;
-using NServiceBus.SagaPersisters.NHibernate.Config.Conventions;
+using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
 
 namespace NServiceBus
 {
@@ -128,7 +125,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersister(this Configure config, IPersistenceConfigurer databaseConfiguration, bool buildSchema)
         {
-            var model = CreateSagaPersistenceModel();
+            var model = Create.SagaPersistenceModel();
 
             var fluentConfiguration = Fluently.Configure()
                                                 .Mappings(m => m.AutoMappings.Add(model))
@@ -177,25 +174,6 @@ namespace NServiceBus
 
             }
             return NHibernateSagaPersister(config, fluentConfiguration.BuildSessionFactory());
-        }
-        private static AutoPersistenceModel CreateSagaPersistenceModel()
-        {
-            var sagaEntites =
-                Configure.TypesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
-
-            var assembliesContainingSagas = sagaEntites.Select(t => t.Assembly).Distinct();
-
-            if (assembliesContainingSagas.Count() == 0)
-                throw new ConfigurationException("No sagas found in scanned assemblies");
-
-            var model = new AutoPersistenceModel();
-
-            foreach (var assembly in assembliesContainingSagas)
-                model.AddEntityAssembly(assembly);
-
-            model.ConventionDiscovery.AddFromAssemblyOf<IdShouldBeAssignedConvention>()
-                .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
-            return model;
         }
 
         private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";

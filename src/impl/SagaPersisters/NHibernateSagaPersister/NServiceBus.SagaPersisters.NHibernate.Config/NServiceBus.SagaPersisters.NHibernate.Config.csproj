@@ -57,11 +57,14 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigureNHibernateSagaPersister.cs" />
-    <Compile Include="Conventions\CollectionsShouldCascadeConvention.cs" />
-    <Compile Include="Conventions\IdShouldBeAssignedConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate.AutoPersistence\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.csproj">
+      <Project>{B19F49E5-7059-4C18-91E7-D35DA4398D0C}</Project>
+      <Name>NServiceBus.SagaPersisters.NHibernate.AutoPersistence</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate\NServiceBus.SagaPersisters.NHibernate.csproj">
       <Project>{4A904B94-8DC4-4C02-A4FD-374E78990374}</Project>
       <Name>NServiceBus.SagaPersisters.NHibernate</Name>
