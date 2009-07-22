@@ -44,7 +44,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
         T ISagaPersister.Get<T>(string property, object value)
         {
             return SessionFactory.GetCurrentSession().CreateCriteria(typeof(T))
-                .Add(Expression.Eq(property, value))
+                .Add(Restrictions.Eq(property, value))
                 .UniqueResult<T>();
         }
 

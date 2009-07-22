@@ -34,22 +34,19 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-	<DocumentationFile>bin\Debug\NServiceBus.SagaPersisters.NHibernate.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.SagaPersisters.NHibernate.XML</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentNHibernate, Version=0.1.0.530, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate, Version=2.0.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\external-bin\NHibernate.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.10.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -62,9 +59,6 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Config\ConfigureNHibernateSagaPersister.cs" />
-    <Compile Include="Config\Conventions\CollectionsShouldCascadeConvention.cs" />
-    <Compile Include="Config\Conventions\IdShouldBeAssignedConvention.cs" />
     <Compile Include="NHibernateMessageModule.cs" />
     <Compile Include="SagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

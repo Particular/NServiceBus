@@ -83,6 +83,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate.Config\NServiceBus.SagaPersisters.NHibernate.Config.csproj">
+      <Project>{1EDB9B0E-2D06-41DC-854B-F9BF63181999}</Project>
+      <Name>NServiceBus.SagaPersisters.NHibernate.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate\NServiceBus.SagaPersisters.NHibernate.csproj">
       <Project>{4A904B94-8DC4-4C02-A4FD-374E78990374}</Project>
       <Name>NServiceBus.SagaPersisters.NHibernate</Name>
