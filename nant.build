@@ -181,8 +181,26 @@
 		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
 			  commandline="/p:Configuration=${project.config}"
 			  workingdir="${solution.dir}\impl\SagaPersisters\NHibernateSagaPersister" />
-		  
-	    <!-- NHibernate Subscription Storage-->
+
+    <!-- SQLite NHibernate Saga Persister-->
+    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+			  commandline="/p:Configuration=${project.config}"
+			  workingdir="${solution.dir}\impl\SagaPersisters\SqLiteSagaPersister" />
+
+    <mkdir dir="${output.dir}\nhibernate" />
+
+    <copy todir="${build.base}\nhibernate">
+      <fileset basedir="${output.dir}">
+        <include name="NServiceBus.dll" />
+      </fileset>
+    </copy>
+
+    <!-- Merge and internalize all dependencies into NServiceBus.SagaPersisters.SqLite.dll -->
+    <exec program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\nhibernate\NServiceBus.SagaPersisters.SqLite.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.SqLite.dll ${lib.dir}\Antlr3.Runtime.dll ${lib.dir}\FluentNHibernate\FluentNHibernate.dll ${lib.dir}\Iesi.Collections.dll ${lib.dir}\LinFu.DynamicProxy.dll ${lib.dir}\NHibernate.ByteCode.LinFu.dll ${lib.dir}\NHibernate.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.NHibernate.dll /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge_sqlite.exclude /log:build\output_sqlite.txt"
+				workingdir="." />
+
+    <!-- NHibernate Subscription Storage-->
 		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
 			  commandline="/p:Configuration=${project.config}"
 			  workingdir="${solution.dir}\impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate" />

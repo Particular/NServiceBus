@@ -26,10 +26,10 @@ namespace NServiceBus
                 c =>
                 {
                     c.SetProperty("current_session_context_class",
-                                  "NHibernate.Context.ThreadStaticSessionContext, NHibernate");
+                                  "NHibernate.Context.ThreadStaticSessionContext, NServiceBus.SagaPersisters.SqLite");
 
                     c.SetProperty("proxyfactory.factory_class",
-                                      "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
+                                      "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NServiceBus.SagaPersisters.SqLite");
                 }
                 );
 

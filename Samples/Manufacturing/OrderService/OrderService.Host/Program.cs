@@ -25,7 +25,7 @@ namespace OrderService.Host
                         .PurgeOnStartup(false)
                     .NHibernateSubcriptionStorage(SQLiteConfiguration.Standard.UsingFile(".\\subscriptions.sqllite"))
                     .Sagas()
-                    .NHibernateSagaPersister(SQLiteConfiguration.Standard.UsingFile(".\\sagas.sqllite"))
+                    .SQLiteSagaPersister()
                     .UnicastBus()
                         .ImpersonateSender(false)
                         .LoadMessageHandlers(
