@@ -78,6 +78,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\nhibernate\NServiceBus.SagaPersisters.NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.SagaPersisters.NHibernate.Config, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\output\nhibernate\NServiceBus.SagaPersisters.NHibernate.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions.NHibernate, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\nhibernate\NServiceBus.Unicast.Subscriptions.NHibernate.dll</HintPath>
