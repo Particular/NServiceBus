@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate.Config", "NServiceBus.SagaPersisters.NHibernate.Config\NServiceBus.SagaPersisters.NHibernate.Config.csproj", "{1EDB9B0E-2D06-41DC-854B-F9BF63181999}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate.AutoPersistence", "NServiceBus.SagaPersisters.NHibernate.AutoPersistence\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.csproj", "{B19F49E5-7059-4C18-91E7-D35DA4398D0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{1EDB9B0E-2D06-41DC-854B-F9BF63181999}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EDB9B0E-2D06-41DC-854B-F9BF63181999}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EDB9B0E-2D06-41DC-854B-F9BF63181999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B19F49E5-7059-4C18-91E7-D35DA4398D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B19F49E5-7059-4C18-91E7-D35DA4398D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B19F49E5-7059-4C18-91E7-D35DA4398D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B19F49E5-7059-4C18-91E7-D35DA4398D0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
