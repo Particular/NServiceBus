@@ -8,7 +8,6 @@ using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
 using NServiceBus.Utils;
-using NServiceBus.ObjectBuilder;
 using System.Diagnostics;
 
 namespace NServiceBus.Unicast.Transport.Msmq
@@ -107,11 +106,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Sets the object which will be used to serialize and deserialize messages.
         /// </summary>
         public IMessageSerializer MessageSerializer { private get; set; }
-
-        /// <summary>
-        /// Gets/sets the builder that will be used to create message modules.
-        /// </summary>
-        public IBuilder Builder { get; set; }
 
         #endregion
 
@@ -229,13 +223,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (PurgeOnStartup)
                     queue.Purge();
 
-                if (Builder != null)
-                {
-                    var mods = Builder.BuildAll<IMessageModule>();
-                    if (mods != null)
-                        modules.AddRange(mods);
-                }
-
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
             }
@@ -343,7 +330,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             lock (workerThreads)
             {
-                var result = new WorkerThread(Receive);
+                var result = new WorkerThread(Process);
 
                 workerThreads.Add(result);
 
@@ -366,22 +353,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// If the queue is transactional the receive operation will be wrapped in a 
 		/// transaction.
 		/// </remarks>
-        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private void Receive()
+        private void Process()
         {
-            try
-            {
-                queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
-            }
-            catch (MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return;
-
-                throw;
-            }
+            if (!MessageInQueue())
+                return;
 
 		    _needToAbort = false;
+		    _messageId = string.Empty;
 
             try
             {
@@ -389,10 +367,18 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     new TransactionWrapper().RunInTransaction(ReceiveFromQueue, IsolationLevel, TransactionTimeout);
                 else
                     ReceiveFromQueue();
+
+                ClearFailuresForMessage(_messageId);
             }
             catch (AbortHandlingCurrentMessageException)
             {
-                //in case AbortHandlingCurrentMessage occurred
+                //in case AbortHandlingCurrentMessage was called
+                return; //don't increment failures, we want this message kept around.
+            }
+            catch
+            {
+                if (IsTransactional)
+                    IncrementFailuresForMessage(_messageId);
             }
         }
 
@@ -402,168 +388,178 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <remarks>
 		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
 		/// </remarks>
-        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
         public void ReceiveFromQueue()
         {
-	        string messageId = string.Empty;
+            var m = ReceiveMessageFromQueueAfterPeekWasSuccessful();
+            if (m == null)
+                return;
 
-            try
+            _messageId = m.Id;
+
+            OnStartedMessageProcessing();
+
+            if (IsTransactional)
             {
-                var m = queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), GetTransactionTypeForReceive());
-                if (m == null)
+                if (HandledMaxRetries(m.Id))
+                {
+                    MoveToErrorQueue(m);
                     return;
-
-                messageId = m.Id;
-
-                foreach (var module in modules)
-                    module.HandleBeginMessage();
-
-                OnStartedMessageProcessing();
-
-                if (IsTransactional)
-                {
-                    failuresPerMessageLocker.EnterReadLock();
-                    if (MessageHasFailedMaxRetries(m))
-                    {
-                        failuresPerMessageLocker.ExitReadLock();
-                        failuresPerMessageLocker.EnterWriteLock();
-                        failuresPerMessage.Remove(m.Id);
-                        failuresPerMessageLocker.ExitWriteLock();
-
-                        MoveToErrorQueue(m);
-
-                        ActivateEndMethodOnMessageModules();
-
-                        OnFinishedMessageProcessing();
-
-                        return;
-                    }
-                    
-                    failuresPerMessageLocker.ExitReadLock();
-                }
-
-                var result = Convert(m);
-
-                if (SkipDeserialization)
-                    result.BodyStream = m.BodyStream;
-                else
-                {
-                    try
-                    {
-                        result.Body = Extract(m);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error("Could not extract message data.", e);
-
-                        MoveToErrorQueue(m);
-
-                        return; // deserialization failed - no reason to try again, so don't throw
-                    }
-                }
-
-                var exceptions = new List<Exception>();
-
-                if (TransportMessageReceived != null)
-                    try
-                    {
-                        TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
-                    }
-                    catch(Exception e)
-                    {
-                        exceptions.Add(e);
-                        Logger.Error("Failed raising transport message received event.", e);
-                    }
-
-                exceptions.AddRange(
-                    ActivateEndMethodOnMessageModules()
-                    );
-
-                if (exceptions.Count == 0)
-                {
-                    failuresPerMessageLocker.EnterReadLock();
-                    if (failuresPerMessage.ContainsKey(messageId))
-                    {
-                        failuresPerMessageLocker.ExitReadLock();
-                        failuresPerMessageLocker.EnterWriteLock();
-                        failuresPerMessage.Remove(messageId);
-                        failuresPerMessageLocker.ExitWriteLock();
-                    }
-                    else
-                        failuresPerMessageLocker.ExitReadLock();
-                }
-                else
-                    throw new ApplicationException(string.Format("{0} exceptions occured while processing message.", exceptions.Count));
+                }                    
             }
-            catch (MessageQueueException mqe)
+
+            var result = Convert(m);
+
+            if (SkipDeserialization)
+                result.BodyStream = m.BodyStream;
+            else
             {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return;
-
-                throw;
-            }
-            catch
-            {
-                if (IsTransactional)
+                try
                 {
-                    failuresPerMessageLocker.EnterWriteLock();
-                    try
-                    {
-                        if (!failuresPerMessage.ContainsKey(messageId))
-                            failuresPerMessage[messageId] = 1;
-                        else
-                            failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
-                    }
-                    finally
-                    {
-                        failuresPerMessageLocker.ExitWriteLock();
-                    }
-
-                    throw;
+                    result.Body = Extract(m);
                 }
-                
-                OnFinishedMessageProcessing();
-                throw;
-                
+                catch (Exception e)
+                {
+                    Logger.Error("Could not extract message data.", e);
+
+                    MoveToErrorQueue(m);
+
+                    return; // deserialization failed - no reason to try again, so don't throw
+                }
             }
+
+            var exceptionThrown = false;
+
+            if (TransportMessageReceived != null)
+                try
+                {
+                    TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
+                }
+                catch(Exception e)
+                {
+                    exceptionThrown = true;
+                    Logger.Error("Failed raising transport message received event.", e);
+                }
+
+            if (FinishedMessageProcessing != null)
+                try
+                {
+                    FinishedMessageProcessing(this, null);
+                }
+                catch (Exception e)
+                {
+                    exceptionThrown = true;
+                    Logger.Error("Failed raising finished message processing event.", e);
+                }
 
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            OnFinishedMessageProcessing();
-
-            return;
+            if (exceptionThrown)
+                throw new ApplicationException("Exception occured while processing message.");
         }
 
-        private bool MessageHasFailedMaxRetries(Message m)
+        private bool HandledMaxRetries(string messageId)
         {
-            return failuresPerMessage.ContainsKey(m.Id) &&
-                   (failuresPerMessage[m.Id] == maxRetries);
+            failuresPerMessageLocker.EnterReadLock();
+
+            if (failuresPerMessage.ContainsKey(messageId) &&
+                   (failuresPerMessage[messageId] == maxRetries))
+            {
+                failuresPerMessageLocker.ExitReadLock();
+                failuresPerMessageLocker.EnterWriteLock();
+                failuresPerMessage.Remove(messageId);
+                failuresPerMessageLocker.ExitWriteLock();
+
+                return true;
+            }
+
+            failuresPerMessageLocker.ExitReadLock();
+            return false;
         }
 
-        /// <summary>
-        /// Calls the "HandleEndMessage" on all message modules
-        /// aggregating exceptions thrown and returning them.
-        /// </summary>
-        /// <returns></returns>
-        protected IList<Exception> ActivateEndMethodOnMessageModules()
+	    private void ClearFailuresForMessage(string messageId)
+	    {
+	        failuresPerMessageLocker.EnterReadLock();
+	        if (failuresPerMessage.ContainsKey(messageId))
+	        {
+	            failuresPerMessageLocker.ExitReadLock();
+	            failuresPerMessageLocker.EnterWriteLock();
+	            failuresPerMessage.Remove(messageId);
+	            failuresPerMessageLocker.ExitWriteLock();
+	        }
+	        else
+	            failuresPerMessageLocker.ExitReadLock();
+	    }
+
+	    private void IncrementFailuresForMessage(string messageId)
+	    {
+	        failuresPerMessageLocker.EnterWriteLock();
+	        try
+	        {
+	            if (!failuresPerMessage.ContainsKey(messageId))
+	                failuresPerMessage[messageId] = 1;
+	            else
+	                failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
+	        }
+	        finally
+	        {
+	            failuresPerMessageLocker.ExitWriteLock();
+	        }
+	    }
+
+	    [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
+        private bool MessageInQueue()
         {
-            IList<Exception> result = new List<Exception>();
+            try
+            {
+                queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
+                return true;
+            }
+            catch (MessageQueueException mqe)
+            {
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                    return false;
 
-            foreach (var module in modules)
-                try
-                {
-                    module.HandleEndMessage();
-                }
-                catch (Exception e)
-                {
-                    result.Add(e);
-                    Logger.Error(
-                        string.Format("Failure in HandleEndMessage of message module: {0}",
-                                      module.GetType().FullName), e);
-                }
+                Logger.Error("Problem in peeking a message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
+                return false;
+            }
+            catch (ObjectDisposedException)
+            {
+                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                return false;
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error in peeking a message from queue.", e);
+                return false;
+            }
+        }
 
-            return result;
+        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
+        private Message ReceiveMessageFromQueueAfterPeekWasSuccessful()
+        {
+            try
+            {
+                return queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), GetTransactionTypeForReceive());
+            }
+            catch(MessageQueueException mqe)
+            {
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                    return null;
+
+                Logger.Error("Problem in receiving message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
+                return null;
+            }
+            catch (ObjectDisposedException)
+            {
+                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                return null;
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error in receiving message from queue.", e);
+                return null;
+            }
         }
 
         /// <summary>
@@ -771,12 +767,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 StartedMessageProcessing(this, null);
         }
 
-        private void OnFinishedMessageProcessing()
-        {
-            if (FinishedMessageProcessing != null)
-                FinishedMessageProcessing(this, null);
-        }
-
         #endregion
 
         #region members
@@ -789,11 +779,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private MessageQueue errorQueue;
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
 
-        /// <summary>
-        /// The list of message modules.
-        /// </summary>
-        protected readonly List<IMessageModule> modules = new List<IMessageModule>();
-
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
         /// <summary>
         /// Accessed by multiple threads - lock using failuresPerMessageLocker.
@@ -802,6 +787,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
 	    [ThreadStatic] 
         private static volatile bool _needToAbort;
+
+	    [ThreadStatic] private static volatile string _messageId;
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqTransport));
 

@@ -73,12 +73,13 @@ namespace NServiceBus.Unicast
             {
                 transport = value;
 
+                transport.StartedMessageProcessing += TransportStartedMessageProcessing;
                 transport.TransportMessageReceived += TransportMessageReceived;
                 transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
             }
         }
 
-		/// <summary>
+	    /// <summary>
 		/// A delegate for a method that will handle the <see cref="MessageReceived"/>
 		/// event.
 		/// </summary>
@@ -103,17 +104,12 @@ namespace NServiceBus.Unicast
             }
         }
 
-        private IBuilder builder;
-
 		/// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
 		/// dynamically instantiate and execute message handlers.
 		/// </summary>
-        public virtual IBuilder Builder
-        {
-            set { builder = value; }
-        }
+        public IBuilder Builder { get; set; }
 
         private IMessageMapper messageMapper;
 
@@ -635,6 +631,10 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
+                var mods = Builder.BuildAll<IMessageModule>();
+                if (mods != null)
+                    modules.AddRange(mods);
+
                 if (subscriptionStorage != null)
                     subscriptionStorage.Init();
 
@@ -826,7 +826,7 @@ namespace NServiceBus.Unicast
                 {
                     Log.Debug("Activating: " + messageHandlerType.Name);
 
-                    builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
+                    Builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
                     
                     Log.Debug(messageHandlerType.Name + " Done.");
 
@@ -998,6 +998,15 @@ namespace NServiceBus.Unicast
                 SendReadyMessage(false);
 
             _skipSendingReadyMessageOnce = false;
+
+            foreach (var module in modules)
+                module.HandleEndMessage();
+        }
+
+        private void TransportStartedMessageProcessing(object sender, EventArgs e)
+        {
+            foreach (var module in modules)
+                module.HandleBeginMessage();
         }
 
         private bool IsInitializationMessage(TransportMessage msg)
@@ -1343,6 +1352,11 @@ namespace NServiceBus.Unicast
         /// Gets/sets the subscription storage.
         /// </summary>
 	    protected ISubscriptionStorage subscriptionStorage;
+
+        /// <summary>
+        /// The list of message modules.
+        /// </summary>
+        protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 
         private readonly List<Type> messageTypes = new List<Type>(new[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
 

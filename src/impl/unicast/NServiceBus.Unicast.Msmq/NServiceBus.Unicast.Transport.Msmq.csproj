@@ -40,6 +40,11 @@
       <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Interop.MSMQ, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Interop.MSMQ.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.dll</HintPath>
@@ -63,6 +68,7 @@
     <Reference Include="NServiceBus.Utils, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\NServiceBus.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -81,16 +87,6 @@
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
     <Compile Include="MsmqTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="MSMQ">
-      <Guid>{D7D6E071-DCCD-11D0-AA4B-0060970DEBAE}</Guid>
-      <VersionMajor>3</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
