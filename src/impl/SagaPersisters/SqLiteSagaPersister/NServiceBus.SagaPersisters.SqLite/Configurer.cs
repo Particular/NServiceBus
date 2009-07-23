@@ -9,12 +9,22 @@ using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
 
 namespace NServiceBus
 {
+    /// <summary>
+    /// Contains extension methods for NServiceBus.Configure to use SQLite for saga persistence.
+    /// </summary>
     public static class Configurer
     {
+        /// <summary>
+        /// Use SQLite for saga persistence.
+        /// 
+        /// This uses a file based database and goes through the full NHibernate stack.
+        /// As such, it is useful for first-level integration testing.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Configure SQLiteSagaPersister(this Configure config)
         {
-            var fileName = ".\\sagas" + Guid.NewGuid().ToString("N") + ".sqllite";
-            var persister = SQLiteConfiguration.Standard.UsingFile(fileName);
+            var persister = SQLiteConfiguration.Standard.UsingFile(".\\sagas.sqllite");
 
             var model = Create.SagaPersistenceModel();
 
