@@ -5,29 +5,24 @@ using Common.Logging;
 namespace NServiceBus.Utils
 {
 	/// <summary>
-	/// The delegate for a method to be run in a loop.
-	/// </summary>
-    public delegate void Callback();
-
-	/// <summary>
 	/// Represents a worker thread that will repeatedly execute a callback.
 	/// </summary>
     public class WorkerThread
     {
-        private readonly Callback methodToRunInLoop;
+        private readonly Action methodToRunInLoop;
         private readonly Thread thread;
 
 		/// <summary>
 		/// Initializes a new WorkerThread for the specified method to run.
 		/// </summary>
 		/// <param name="methodToRunInLoop">The delegate method to execute in a loop.</param>
-        public WorkerThread(Callback methodToRunInLoop)
+        public WorkerThread(Action methodToRunInLoop)
         {
             this.methodToRunInLoop = methodToRunInLoop;
-            this.thread = new Thread(this.Loop);
-            this.thread.SetApartmentState(ApartmentState.MTA);
-            this.thread.Name = String.Format("Worker.{0}", this.thread.ManagedThreadId);
-		    this.thread.IsBackground = true;
+            thread = new Thread(Loop);
+            thread.SetApartmentState(ApartmentState.MTA);
+            thread.Name = String.Format("Worker.{0}", thread.ManagedThreadId);
+		    thread.IsBackground = true;
         }
 
         /// <summary>
@@ -40,8 +35,8 @@ namespace NServiceBus.Utils
 		/// </summary>
         public void Start()
         {
-            if (!this.thread.IsAlive)
-                this.thread.Start();
+            if (!thread.IsAlive)
+                thread.Start();
         }
 
 		/// <summary>
@@ -49,8 +44,8 @@ namespace NServiceBus.Utils
 		/// </summary>
         public void Stop()
         {
-            lock (_toLock)
-                _stopRequested = true;
+            lock (toLock)
+                stopRequested = true;
         }
 
 		/// <summary>
@@ -63,16 +58,16 @@ namespace NServiceBus.Utils
             {
                 try
                 {
-                    this.methodToRunInLoop();
+                    methodToRunInLoop();
                 }
                 catch (Exception e)
                 {
-                    log.Error("Exception reached top level.", e);
+                    Logger.Error("Exception reached top level.", e);
                 }
             }
 
-            if (this.Stopped != null)
-                this.Stopped(this, null);
+            if (Stopped != null)
+                Stopped(this, null);
         }
 
 		/// <summary>
@@ -83,16 +78,16 @@ namespace NServiceBus.Utils
             get
             {
                 bool result;
-                lock (_toLock)
-                    result = _stopRequested;
+                lock (toLock)
+                    result = stopRequested;
 
                 return result;
             }
         }
 
-        private volatile bool _stopRequested;
-        private readonly object _toLock = new object();
+        private volatile bool stopRequested;
+        private readonly object toLock = new object();
 
-        private readonly static ILog log = LogManager.GetLogger(typeof(WorkerThread));
+        private readonly static ILog Logger = LogManager.GetLogger(typeof(WorkerThread));
     }
 }
