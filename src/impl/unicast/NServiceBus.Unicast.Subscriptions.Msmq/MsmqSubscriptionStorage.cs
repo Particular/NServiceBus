@@ -172,16 +172,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             set
             {
                 queue = value;
-                string machine = MsmqUtilities.GetMachineNameFromLogicalName(value);
-
-                if (machine.ToLower() != Environment.MachineName.ToLower())
-                    throw new InvalidOperationException("Queue must be located on the same machine as this process.");
-
-                string pathWithoutPrefix = MsmqUtilities.GetFullPathWithoutPrefix(queue);
-
-                log.Debug("Checking if input queue exists.");
-                
-                MsmqUtilities.CreateQueueIfNecessary(pathWithoutPrefix);
+                MsmqUtilities.CreateQueueIfNecessary(value);
 
                 string path = MsmqUtilities.GetFullPath(value);
 
