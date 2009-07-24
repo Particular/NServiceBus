@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.ServiceProcess;
+using Microsoft.Win32;
 
 namespace NServiceBus.Utils
 {
@@ -11,76 +13,207 @@ namespace NServiceBus.Utils
         public static bool IsMsmqInstalled()
         {
             var dll = LoadLibraryW("Mqrt.dll");
-            if (dll != IntPtr.Zero)
-                return true;
-
-            return false;
+            return (dll != IntPtr.Zero);
         }
 
-        public static void Install()
+        public static bool IsInstallationGood()
         {
+            var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
+            if (msmqSetup == null)
+                return false;
+
+            var installedComponents = new List<string>(msmqSetup.GetValueNames());
+            msmqSetup.Close();
+
+            return HasOnlyNeededComponents(installedComponents);
+        }
+
+        public static void InstallMsmqIfNecessary()
+        {
+            Console.WriteLine("Checking if MSMQ is installed.");
             if (IsMsmqInstalled())
+            {
+                Console.WriteLine("MSMQ is installed.");
+                Console.WriteLine("Checking that only needed components are active.");
+
+                if (IsInstallationGood())
+                {
+                    Console.WriteLine("Installation is good.");
+                    return;
+                }
+
+                Console.WriteLine("Installation isn't good.");
+                Console.WriteLine("Going to re-install MSMQ. A reboot may be required.");
+
+                PerformFunctionDependingOnOS(
+                    () => Process.Start(OcSetup, VistaOcSetupParams + Uninstall),
+                    () => Process.Start(OcSetup, Server2008OcSetupParams + Uninstall),
+                    InstallMsmqOnXpOrServer2003
+                );
+
+                Console.WriteLine("Installation of MSMQ successful.");
+
                 return;
+            }
 
             Console.WriteLine("MSMQ is not installed. Going to install.");
 
+            PerformFunctionDependingOnOS(
+                () => Process.Start(OcSetup, VistaOcSetupParams),
+                () => Process.Start(OcSetup, Server2008OcSetupParams),
+                InstallMsmqOnXpOrServer2003
+                );
+            
+            Console.WriteLine("Installation of MSMQ successful.");
+        }
+
+        public static void StartMsmqIfNecessary()
+        {
+            var sc = new ServiceController {ServiceName = "MSMQ", MachineName = "."};
+
+            if (sc.Status == ServiceControllerStatus.Running)
+            {
+                Console.WriteLine("MSMQ is running.");
+                return;
+            }
+
+            Console.WriteLine("MSMQ is NOT running. Going to start MSMQ.");
+            sc.Start();
+
+            var timeout = TimeSpan.FromSeconds(3);
+            sc.WaitForStatus(ServiceControllerStatus.Running, timeout);
+            if (sc.Status == ServiceControllerStatus.Running)
+                Console.WriteLine("MSMQ started successfully.");
+            else
+            {
+                Console.WriteLine("Unable to start MSMQ.");
+                throw new InvalidOperationException("Cannot run an nServiceBus process when the MSMQ service isn't running.");
+            }
+        }
+
+        public static void Test()
+        {
+        }
+
+
+
+
+
+        private static void PerformFunctionDependingOnOS(Func<Process> vistaFunc, Func<Process> server2008Func, Func<Process> xpAndServer2003Func)
+        {
+            var os = GetOperatingSystem();
+
+            Process process = null;
+            switch (os)
+            {
+                case OperatingSystemEnum.Vista:
+
+                    process = vistaFunc();
+                    break;
+
+                case OperatingSystemEnum.Server2008:
+
+                    process = server2008Func();
+                    break;
+
+                case OperatingSystemEnum.XpOrServer2003:
+
+                    process = xpAndServer2003Func();
+                    break;
+
+                default:
+
+                    Console.WriteLine("OS not supported.");
+                    break;
+            }
+
+            if (process == null) return;
+
+            Console.WriteLine("Waiting for process to complete.");
+            process.WaitForExit();
+        }
+
+        private static Process InstallMsmqOnXpOrServer2003()
+        {
+            var p = Path.GetTempFileName();
+
+            Console.WriteLine("Creating installation instruction file.");
+
+            using (var sw = File.CreateText(p))
+            {
+                sw.WriteLine("[Version]");
+                sw.WriteLine("Signature = \"$Windows NT$\"");
+                sw.WriteLine();
+                sw.WriteLine("[Global]");
+                sw.WriteLine("FreshMode = Custom");
+                sw.WriteLine("MaintenanceMode = RemoveAll");
+                sw.WriteLine("UpgradeMode = UpgradeOnly");
+                sw.WriteLine();
+                sw.WriteLine("[Components]");
+
+                foreach (var s in RequiredMsmqComponentsXp)
+                    sw.WriteLine(s + " = ON");
+
+                foreach (var s in UndesirableMsmqComponentsXp)
+                    sw.WriteLine(s + " = OFF");
+
+                sw.Flush();
+            }
+
+            Console.WriteLine("Installation instruction file created.");
+            Console.WriteLine("Invoking MSMQ installation.");
+
+            return Process.Start("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
+        }
+
+        private static OperatingSystemEnum GetOperatingSystem()
+        {
             var osvi = new OSVersionInfoEx();
             osvi.OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfoEx));
 
             GetVersionEx(osvi);
 
-            Process process = null;
-            Action cleanup = null;
-            switch(Environment.OSVersion.Version.Major)
+            switch (Environment.OSVersion.Version.Major)
             {
-                /*Vista or Server 2008*/ case 6 : 
+                case 6:
 
-                if (osvi.ProductType == VER_NT_WORKSTATION) // Vista
-                    process = Process.Start("OCSETUP", "MSMQ-Container;MSMQ-Server");
-                else // Server 2008
-                    process = Process.Start("OCSETUP", "MSMQ-Server");
+                    if (osvi.ProductType == VER_NT_WORKSTATION)
+                        return OperatingSystemEnum.Vista;
+                    
+                    return OperatingSystemEnum.Server2008;
 
-                break;
-
-                /*XP or Server 2003*/ case 5:
-
-                    Console.WriteLine("Handling Windows XP and Server 2003.");
-
-                    var p = Path.GetTempFileName();
-
-                    using (var sw = File.CreateText(p))
-                    {
-                        foreach(var s in XP_Install)
-                            sw.WriteLine(s);
-
-                        sw.Flush();
-                    }
-
-                    Console.WriteLine("Executing: sysocmgr.exe /i:sysoc.inf /u:%temp%\\" + Path.GetFileName(p));
-                    process = Process.Start("sysocmgr.exe", "/i:sysoc.inf /u:%temp%\\" + Path.GetFileName(p));
-                    cleanup = () => File.Delete(p);
-
-                    break;
+                case 5:
+                    return OperatingSystemEnum.XpOrServer2003;
             }
 
-            if (process != null)
+            return OperatingSystemEnum.DontCare;
+        }
+
+        private static bool HasOnlyNeededComponents(IEnumerable<string> installedComponents)
+        {
+            var needed = new List<string>(RequiredMsmqComponentsXp);
+
+            foreach (var i in installedComponents)
             {
-                Console.WriteLine("Waiting for MSMQ setup to complete.");
+                if (UndesirableMsmqComponentsXp.Contains(i))
+                    return false;
 
-                process.WaitForExit();
+                if (UndesirableMsmqComponentsV4.Contains(i))
+                    return false;
 
-                if (cleanup != null)
-                    cleanup();
+                needed.Remove(i);
             }
 
-            Console.WriteLine("Done.");
+            if (needed.Count == 0)
+                return true;
 
+            return false;
         }
 
         /// Return Type: HMODULE->HINSTANCE->HINSTANCE__*
         ///lpLibFileName: LPCWSTR->WCHAR*
         [DllImportAttribute("kernel32.dll", EntryPoint = "LoadLibraryW")]
-        public static extern IntPtr LoadLibraryW([InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpLibFileName);
+        static extern IntPtr LoadLibraryW([InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpLibFileName);
 
 
         [DllImport("Kernel32", CharSet=CharSet.Auto)]
@@ -88,7 +221,7 @@ namespace NServiceBus.Utils
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public class OSVersionInfoEx : OSVersionInfo
+        class OSVersionInfoEx : OSVersionInfo
         {
             public UInt16 ServicePackMajor;
             public UInt16 ServicePackMinor;
@@ -98,7 +231,7 @@ namespace NServiceBus.Utils
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public class OSVersionInfo
+        class OSVersionInfo
         {
             public UInt32 OSVersionInfoSize =
                (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
@@ -111,19 +244,18 @@ namespace NServiceBus.Utils
             public String CSDVersion = null;
         }
 
-        public const byte VER_NT_WORKSTATION = 1;
-        public const byte VER_NT_SERVER = 3;
+        const byte VER_NT_WORKSTATION = 1;
+        const byte VER_NT_SERVER = 3;
 
-        public static readonly List<string> XP_Install = new List<string>(new[]
-                                                                       {
-                                                                           "[Components]",
-                                                                           "msmq_Core = ON",
-                                                                           "msmq_LocalStorage = ON",
-                                                                           "msmq_ADIntegrated = OFF",
-                                                                           "msmq_TriggersService = OFF",
-                                                                           "msmq_HTTPSupport = OFF",
-                                                                           "msmq_RoutingSupport = OFF",
-                                                                           "msmq_MQDSService = OFF"
-                                                                       });
+        static readonly List<string> RequiredMsmqComponentsXp = new List<string>(new[] { "msmq_Core", "msmq_LocalStorage" });
+        static readonly List<string> UndesirableMsmqComponentsXp = new List<string>(new[] { "msmq_ADIntegrated", "msmq_TriggersService", "msmq_HTTPSupport", "msmq_RoutingSupport", "msmq_MQDSService" });
+        static readonly List<string> UndesirableMsmqComponentsV4 = new List<string>(new[] { "msmq_DCOMProxy", "msmq_MQDSServiceInstalled", "msmq_MulticastInstalled", "msmq_RoutingInstalled", "msmq_TriggersInstalled" });
+
+        enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008 }
+
+        const string OcSetup = "OCSETUP";
+        const string Uninstall = " /uninstall";
+        const string Server2008OcSetupParams = "MSMQ-Server /passive";
+        const string VistaOcSetupParams = "MSMQ-Container;" + Server2008OcSetupParams;
     }
 }

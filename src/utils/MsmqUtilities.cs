@@ -1,5 +1,6 @@
 using System;
 using System.Messaging;
+using System.Net;
 using System.Security.Principal;
 using Common.Logging;
 
@@ -36,7 +37,7 @@ namespace NServiceBus.Utils
                 Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
             }
 
-            Logger.Debug("Checking if queue exists.");
+            Logger.Debug(string.Format("Checking if queue exists: {0}.", queueName));
 
             try
             {
@@ -50,7 +51,7 @@ namespace NServiceBus.Utils
             }
             catch (Exception ex)
             {
-                Logger.Error("Could not create queue or check its existence. Processing will still continue.", ex);
+                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", queueName), ex);
             }
         }
         
@@ -68,13 +69,19 @@ namespace NServiceBus.Utils
         }
 
         /// <summary>
-        /// Turns a '@' separated value into a full msmq path.
-        /// Format is 'queue@machine'.
+        /// Turns a '@' separated value into a full path.
+        /// Format is 'queue@machine', or 'queue@ipaddress'
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         public static string GetFullPath(string value)
         {
+            var machine = GetMachineNameFromLogicalName(value);
+
+            IPAddress ipAddress;
+            if (IPAddress.TryParse(machine, out ipAddress))
+				return PREFIX_TCP + GetFullPathWithoutPrefix(value);
+
             return PREFIX + GetFullPathWithoutPrefix(value);
         }
 
@@ -176,6 +183,8 @@ namespace NServiceBus.Utils
         }
 
         private const string DIRECTPREFIX = "DIRECT=OS:";
+        private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
+        private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
         private const string PRIVATE = "\\private$\\";
     }

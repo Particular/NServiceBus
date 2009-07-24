@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -53,6 +54,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DtcUtil.cs" />
     <Compile Include="MsmqInstallation.cs" />
     <Compile Include="MsmqUtilities.cs" />
     <Compile Include="Reflect.cs" />

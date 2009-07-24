@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Runner
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            NServiceBus.Utils.MsmqInstallation.Install();
-
+            NServiceBus.Utils.MsmqInstallation.InstallMsmqIfNecessary();
             Console.ReadLine();
         }
     }
