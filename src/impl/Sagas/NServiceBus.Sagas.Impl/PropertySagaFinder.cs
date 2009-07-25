@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using NServiceBus.Saga;
 
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas.Impl
 {
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.

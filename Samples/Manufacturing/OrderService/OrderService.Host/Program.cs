@@ -4,6 +4,7 @@ using FluentNHibernate.Cfg.Db;
 using NServiceBus;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Saga;
+using NServiceBus.Sagas.Impl;
 
 
 namespace OrderService.Host

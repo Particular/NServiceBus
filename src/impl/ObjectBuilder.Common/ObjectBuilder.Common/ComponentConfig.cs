@@ -1,6 +1,6 @@
 ﻿using System;
-using NServiceBus.Utils;
 using System.Linq.Expressions;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.ObjectBuilder.Common
 {

@@ -46,7 +46,7 @@ namespace NServiceBus
             var impl = sessionFactory as NHibernate.Impl.SessionFactoryImpl;
             if (impl != null)
             {
-                foreach (Type sagaDataType in Saga.Configure.GetSagaDataTypes())
+                foreach (Type sagaDataType in NServiceBus.Sagas.Impl.Configure.GetSagaDataTypes())
                 {
                     var entityPersister = impl.GetEntityPersister(sagaDataType.FullName);
                     if (entityPersister == null)

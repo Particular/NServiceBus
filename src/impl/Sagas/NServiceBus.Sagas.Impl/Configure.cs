@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using NServiceBus.ObjectBuilder;
 using System.Reflection;
-using System.Linq.Expressions;
-using NServiceBus.Utils;
+using NServiceBus.Saga;
 
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas.Impl
 {
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
@@ -59,23 +58,18 @@ namespace NServiceBus.Saga
             CreateAdditionalFindersAsNecessary();
         }
 
-        internal static void ConfigureHowToFindSagaWithMessage<TSaga, TMessage>(Expression<Func<TSaga, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
-            where TSaga : ISagaEntity
-            where TMessage : IMessage
+        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
         {
             IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
-            SagaEntityToMessageToPropertyLookup.TryGetValue(typeof(TSaga), out messageToProperties);
+            SagaEntityToMessageToPropertyLookup.TryGetValue(sagaType, out messageToProperties);
 
             if (messageToProperties == null)
             {
                 messageToProperties = new Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>();
-                SagaEntityToMessageToPropertyLookup[typeof(TSaga)] = messageToProperties;
+                SagaEntityToMessageToPropertyLookup[sagaType] = messageToProperties;
             }
 
-            var sagaProp = Reflect<TSaga>.GetProperty(sagaEntityProperty);
-            var messageProp = Reflect<TMessage>.GetProperty(messageProperty);
-
-            messageToProperties[typeof(TMessage)] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
+            messageToProperties[messageType] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
         }
 
         private static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();

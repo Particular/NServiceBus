@@ -1,6 +1,6 @@
 using System;
 
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas.Impl
 {
     /// <summary>
     /// Generates <see cref="System.Guid"/> values 

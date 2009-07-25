@@ -19,5 +19,5 @@
 #endregion
 
 using System.Reflection;
-[assembly: AssemblyTitle("NServiceBus Saga Configuration")]
-[assembly: AssemblyDescription("Saga configuration for NServiceBus.Config.")]
+[assembly: AssemblyTitle("NServiceBus Reflection Utilities")]
+[assembly: AssemblyDescription("Basic reflection utilities for nServiceBus")]

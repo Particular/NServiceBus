@@ -5,6 +5,8 @@ namespace NServiceBus
     /// <summary>
     /// Implementer will be called by the infrastructure in order to authorize
     /// subscribe and unsubscribe requests from other endpoints.
+    /// 
+    /// Infrastructure automatically registers one implementing type in the container as a singleton.
     /// </summary>
     public interface IAuthorizeSubscriptions
     {

@@ -103,7 +103,7 @@ namespace NServiceBus.Proxy
 
         void InternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers))
+            if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers, null))
             {
                 e.Message.ReturnAddress = externalTransport.Address;
                 externalTransport.Send(e.Message, remoteServer);

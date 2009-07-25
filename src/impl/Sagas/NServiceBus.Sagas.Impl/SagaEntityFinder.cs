@@ -1,5 +1,7 @@
 
-namespace NServiceBus.Saga
+using NServiceBus.Saga;
+
+namespace NServiceBus.Sagas.Impl
 {
     /// <summary>
     /// Single-call object used to find saga entities using saga ids from a saga persister.

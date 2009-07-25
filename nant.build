@@ -84,7 +84,7 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,grid"
+					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid"
 					delim=","
 					property="pathToBuild">
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"

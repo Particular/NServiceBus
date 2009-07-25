@@ -2,7 +2,7 @@
 namespace NServiceBus.Saga
 {
     /// <summary>
-    /// Interface used by <see cref="Configure"/> to identify saga finders.
+    /// Marker interface for <see cref="IFindSagas{T}.Using{M}"/>
     /// </summary>
     public interface IFinder { }
 

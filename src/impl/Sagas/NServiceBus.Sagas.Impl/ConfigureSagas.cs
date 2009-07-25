@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -17,7 +12,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure Sagas(this Configure config)
         {
-            NServiceBus.Saga.Configure
+            NServiceBus.Sagas.Impl.Configure
                 .With(config.Configurer, config.Builder)
                 .SagasIn(Configure.TypesToScan);
 

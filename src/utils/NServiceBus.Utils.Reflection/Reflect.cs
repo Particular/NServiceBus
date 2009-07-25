@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Linq.Expressions;
 
-namespace NServiceBus.Utils
+namespace NServiceBus.Utils.Reflection
 {
     /// <summary>
     /// Provides strong-typed reflection for static members of any type or calling 

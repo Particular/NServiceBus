@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NServiceBus
 {
     /// <summary>
-    /// This interface describes a message module - an object that will be
-    /// called before and after all message handlers.
+    /// Implementers will be called before and after all message handlers.
     /// </summary>
     public interface IMessageModule
     {

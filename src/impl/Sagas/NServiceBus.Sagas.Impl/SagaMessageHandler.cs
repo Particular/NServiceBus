@@ -3,8 +3,9 @@ using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using Common.Logging;
 using System.Collections.Generic;
+using NServiceBus.Saga;
 
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas.Impl
 {
 	/// <summary>
     /// A message handler central to the saga infrastructure.
