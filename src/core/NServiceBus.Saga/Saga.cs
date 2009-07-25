@@ -102,12 +102,7 @@ namespace NServiceBus.Saga
         protected void ReplyToOriginator(params IMessage[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
-            {
                 Dispatcher.TriedToReplyToNullOriginator();
-                //if (Logger.IsDebugEnabled)
-                //    throw new InvalidOperationException(
-                //        "Originator of saga has not provided a return address - cannot reply.");
-            }
             else
                 Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }

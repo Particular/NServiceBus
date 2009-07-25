@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using NServiceBus.Saga;
+using Common.Logging;
 
 namespace NServiceBus.Sagas.Impl
 {
@@ -29,6 +30,15 @@ namespace NServiceBus.Sagas.Impl
         public static Configure With(IConfigureComponents configurer, IBuilder builder)
         {
             _builderStatic = builder;
+
+            Dispatcher.CallbackWhenReplyingToNullOriginator = () =>
+                {
+                  if (Logger.IsDebugEnabled)
+                      throw new InvalidOperationException(
+                          "Originator of saga has not provided a return address - cannot reply.");
+                };
+
+            Dispatcher.CallbackWithSagaAndMessageProperties = ConfigureHowToFindSagaWithMessage;
 
             return new Configure { configurer = configurer };
         }
@@ -459,6 +469,7 @@ namespace NServiceBus.Sagas.Impl
 
         private static readonly IDictionary<Type, List<Type>> SagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 
-#endregion
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
+        #endregion
     }
 }
