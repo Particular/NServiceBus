@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast.Config
             busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
             Configurer.ConfigureComponent(
-                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t)).First(),
+                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).First(),
                 ComponentCallModelEnum.Singleton);
 
             var cfg = GetConfigSection<UnicastBusConfig>();
