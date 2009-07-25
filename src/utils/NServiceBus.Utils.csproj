@@ -57,6 +57,7 @@
     <Compile Include="DtcUtil.cs" />
     <Compile Include="MsmqInstallation.cs" />
     <Compile Include="MsmqUtilities.cs" />
+    <Compile Include="ProcessUtil.cs" />
     <Compile Include="Reflect.cs" />
     <Compile Include="TransactionWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

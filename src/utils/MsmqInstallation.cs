@@ -5,18 +5,37 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.ServiceProcess;
 using Microsoft.Win32;
+using Common.Logging;
 
 namespace NServiceBus.Utils
 {
+    /// <summary>
+    /// Utility class for starting and installing MSMQ.
+    /// </summary>
     public static class MsmqInstallation
     {
-        public static bool IsMsmqInstalled()
+        /// <summary>
+        /// Checks that MSMQ is installed, configured correctly, and started, and if not
+        /// takes the necessary corrective actions to make it so.
+        /// </summary>
+        public static void StartMsmqIfNecessary()
+        {
+            InstallMsmqIfNecessary();
+
+            var controller = new ServiceController { ServiceName = "MSMQ", MachineName = "." };
+
+            ProcessUtil.ChangeServiceStatus(controller, ServiceControllerStatus.Running, controller.Start);
+        }
+
+
+        
+        private static bool IsMsmqInstalled()
         {
             var dll = LoadLibraryW("Mqrt.dll");
             return (dll != IntPtr.Zero);
         }
 
-        public static bool IsInstallationGood()
+        private static bool IsInstallationGood()
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
             if (msmqSetup == null)
@@ -28,22 +47,22 @@ namespace NServiceBus.Utils
             return HasOnlyNeededComponents(installedComponents);
         }
 
-        public static void InstallMsmqIfNecessary()
+        private static void InstallMsmqIfNecessary()
         {
-            Console.WriteLine("Checking if MSMQ is installed.");
+            Logger.Debug("Checking if MSMQ is installed.");
             if (IsMsmqInstalled())
             {
-                Console.WriteLine("MSMQ is installed.");
-                Console.WriteLine("Checking that only needed components are active.");
+                Logger.Debug("MSMQ is installed.");
+                Logger.Debug("Checking that only needed components are active.");
 
                 if (IsInstallationGood())
                 {
-                    Console.WriteLine("Installation is good.");
+                    Logger.Debug("Installation is good.");
                     return;
                 }
 
-                Console.WriteLine("Installation isn't good.");
-                Console.WriteLine("Going to re-install MSMQ. A reboot may be required.");
+                Logger.Debug("Installation isn't good.");
+                Logger.Debug("Going to re-install MSMQ. A reboot may be required.");
 
                 PerformFunctionDependingOnOS(
                     () => Process.Start(OcSetup, VistaOcSetupParams + Uninstall),
@@ -51,12 +70,12 @@ namespace NServiceBus.Utils
                     InstallMsmqOnXpOrServer2003
                 );
 
-                Console.WriteLine("Installation of MSMQ successful.");
+                Logger.Debug("Installation of MSMQ successful.");
 
                 return;
             }
 
-            Console.WriteLine("MSMQ is not installed. Going to install.");
+            Logger.Debug("MSMQ is not installed. Going to install.");
 
             PerformFunctionDependingOnOS(
                 () => Process.Start(OcSetup, VistaOcSetupParams),
@@ -64,41 +83,9 @@ namespace NServiceBus.Utils
                 InstallMsmqOnXpOrServer2003
                 );
             
-            Console.WriteLine("Installation of MSMQ successful.");
+            Logger.Debug("Installation of MSMQ successful.");
         }
-
-        public static void StartMsmqIfNecessary()
-        {
-            var sc = new ServiceController {ServiceName = "MSMQ", MachineName = "."};
-
-            if (sc.Status == ServiceControllerStatus.Running)
-            {
-                Console.WriteLine("MSMQ is running.");
-                return;
-            }
-
-            Console.WriteLine("MSMQ is NOT running. Going to start MSMQ.");
-            sc.Start();
-
-            var timeout = TimeSpan.FromSeconds(3);
-            sc.WaitForStatus(ServiceControllerStatus.Running, timeout);
-            if (sc.Status == ServiceControllerStatus.Running)
-                Console.WriteLine("MSMQ started successfully.");
-            else
-            {
-                Console.WriteLine("Unable to start MSMQ.");
-                throw new InvalidOperationException("Cannot run an nServiceBus process when the MSMQ service isn't running.");
-            }
-        }
-
-        public static void Test()
-        {
-        }
-
-
-
-
-
+        
         private static void PerformFunctionDependingOnOS(Func<Process> vistaFunc, Func<Process> server2008Func, Func<Process> xpAndServer2003Func)
         {
             var os = GetOperatingSystem();
@@ -123,13 +110,13 @@ namespace NServiceBus.Utils
 
                 default:
 
-                    Console.WriteLine("OS not supported.");
+                    Logger.Warn("OS not supported.");
                     break;
             }
 
             if (process == null) return;
 
-            Console.WriteLine("Waiting for process to complete.");
+            Logger.Debug("Waiting for process to complete.");
             process.WaitForExit();
         }
 
@@ -137,7 +124,7 @@ namespace NServiceBus.Utils
         {
             var p = Path.GetTempFileName();
 
-            Console.WriteLine("Creating installation instruction file.");
+            Logger.Debug("Creating installation instruction file.");
 
             using (var sw = File.CreateText(p))
             {
@@ -160,8 +147,8 @@ namespace NServiceBus.Utils
                 sw.Flush();
             }
 
-            Console.WriteLine("Installation instruction file created.");
-            Console.WriteLine("Invoking MSMQ installation.");
+            Logger.Debug("Installation instruction file created.");
+            Logger.Debug("Invoking MSMQ installation.");
 
             return Process.Start("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
         }
@@ -257,5 +244,7 @@ namespace NServiceBus.Utils
         const string Uninstall = " /uninstall";
         const string Server2008OcSetupParams = "MSMQ-Server /passive";
         const string VistaOcSetupParams = "MSMQ-Container;" + Server2008OcSetupParams;
+
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Utils");
     }
 }

@@ -6,7 +6,7 @@ namespace Runner
     {
         static void Main()
         {
-            NServiceBus.Utils.MsmqInstallation.InstallMsmqIfNecessary();
+            NServiceBus.Utils.MsmqInstallation.StartMsmqIfNecessary();
             Console.ReadLine();
         }
     }
