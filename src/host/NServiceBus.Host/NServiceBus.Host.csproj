@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\NServiceBus.Host.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,9 +63,7 @@
     </Compile>
     <Compile Include="As.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
-    <Compile Include="IDontWantLog4Net.cs" />
-    <Compile Include="IDontWantTheBusStartedAutomatically.cs" />
-    <Compile Include="IDontWantToSubscribeAutomatically.cs" />
+    <Compile Include="IDontWant.cs" />
     <Compile Include="Internal\ConfigurationBuilder.cs" />
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="IMessageEndpoint.cs" />

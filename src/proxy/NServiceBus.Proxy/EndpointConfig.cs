@@ -8,7 +8,7 @@ namespace NServiceBus.Proxy
 {
     class EndpointConfig : IConfigureThisEndpoint,
         IWantCustomInitialization,
-        IDontWantTheBusStartedAutomatically
+        IDontWant.TheBusStartedAutomatically
     {
         public void Init(Configure configure)
         {

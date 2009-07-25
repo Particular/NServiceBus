@@ -62,6 +62,9 @@ namespace NServiceBus.Host.Internal
             else
                 busConfiguration.SpringBuilder();
 
+            if (!(specifier is IDontWant.MsmqInitialization))
+                Utils.MsmqInstallation.StartMsmqIfNecessary();
+
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
@@ -80,6 +83,9 @@ namespace NServiceBus.Host.Internal
 
             if (specifier is As.aServer)
             {
+                if (!(specifier is IDontWant.DtcInitialization))
+                    Utils.DtcUtil.StartDtcIfNecessary();
+
                 configUnicastBus = busConfiguration
                     .MsmqTransport()
                     .IsTransactional(true)
@@ -114,7 +120,7 @@ namespace NServiceBus.Host.Internal
                 else
                     configUnicastBus.LoadMessageHandlers();
 
-                if (specifier is IDontWantToSubscribeAutomatically)
+                if (specifier is IDontWant.ToSubscribeAutomatically)
                     configUnicastBus.DoNotAutoSubscribe();
             }
 

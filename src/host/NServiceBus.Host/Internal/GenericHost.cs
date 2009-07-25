@@ -26,7 +26,7 @@ namespace NServiceBus.Host.Internal
 
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 
-            if (!(configurationSpecifier is IDontWantTheBusStartedAutomatically))
+            if (!(configurationSpecifier is IDontWant.TheBusStartedAutomatically))
                 busConfiguration.CreateBus().Start(startupAction);
 
             if (messageEndpoint != null)
@@ -36,8 +36,8 @@ namespace NServiceBus.Host.Internal
        
         private static void ConfigureLogging(IConfigureThisEndpoint specifier)
         {
-            if (specifier is IDontWantLog4Net)
-                LogManager.Adapter = (specifier as IDontWantLog4Net).UseThisInstead;
+            if (specifier is IDontWant.Log4Net)
+                LogManager.Adapter = (specifier as IDontWant.Log4Net).UseThisInstead;
             else
             {
                 var props = new NameValueCollection();
