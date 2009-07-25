@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NServiceBus.Unicast.Config;
+﻿using NServiceBus.Unicast.Config;
 
 namespace NServiceBus
 {
@@ -17,7 +14,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
-            ConfigUnicastBus cfg = new ConfigUnicastBus();
+            var cfg = new ConfigUnicastBus();
             cfg.Configure(config);
 
             return cfg;

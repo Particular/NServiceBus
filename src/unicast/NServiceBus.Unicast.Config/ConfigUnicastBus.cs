@@ -5,6 +5,7 @@ using System.Reflection;
 using NServiceBus.Config;
 using System.Collections.Generic;
 using NServiceBus.Saga;
+using System.Linq;
 
 namespace NServiceBus.Unicast.Config
 {
@@ -30,13 +31,17 @@ namespace NServiceBus.Unicast.Config
 
             busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
+            Configurer.ConfigureComponent(
+                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t)).First(),
+                ComponentCallModelEnum.Singleton);
+
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)
             {
-                foreach (Type t in TypesToScan)
-                    if (typeof(IMessage).IsAssignableFrom(t))
-                        assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty;
+                TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList().ForEach(
+                        t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty                   
+                    );
 
                 foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                     assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;

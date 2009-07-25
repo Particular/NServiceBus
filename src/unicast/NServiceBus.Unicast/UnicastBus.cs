@@ -227,6 +227,11 @@ namespace NServiceBus.Unicast
         }
         private IEnumerable<Type> messageHandlerTypes;
 
+        /// <summary>
+        /// Object that will be used to authorize subscription requests.
+        /// </summary>
+        public IAuthorizeSubscriptions SubscriptionAuthorizer { get; set; }
+
         #endregion
 
         #region IUnicastBus Members
@@ -926,7 +931,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            if (HandledSubscriptionMessage(msg, subscriptionStorage))
+            if (HandledSubscriptionMessage(msg, subscriptionStorage, SubscriptionAuthorizer))
                 return;
 
             Log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
@@ -949,8 +954,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="subscriptionStorage"></param>
+        /// <param name="subscriptionAuthorizer"></param>
         /// <returns></returns>
-        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage)
+        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
         {
             string messageType = null;
             foreach (var header in msg.Headers)
@@ -970,7 +976,12 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Subscribe)
                 if (subscriptionStorage != null)
                 {
-                    subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
+                    if (subscriptionAuthorizer != null)
+                        if (subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                            subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
+                        else
+                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+
                     return true;
                 }
                 else
@@ -981,7 +992,12 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
                 if (subscriptionStorage != null)
                 {
-                    subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
+                    if (subscriptionAuthorizer != null)
+                        if (subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                            subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
+                        else
+                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+
                     return true;
                 }
                 else
