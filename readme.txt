@@ -18,20 +18,8 @@ If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\
 If you see the build failing, check that you haven't put nServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
 
-=====================
-= MSMQ Installation =
-=====================
+===========
+= Running =
+===========
 
-1. In order to run some of the samples, MSMQ is required.
-
-2. To install MSMQ, go to the Control Panel, Add or Remove Programs, Windows Components, Select "Message Queueing".
-
-3. The minimal installation requires only "Common" and will work fine.
-
-4. Run the script "msmq install.vbs" to install the queues used by the samples
-
-=====================
-
-In order to run samples that make use of sagas, specifically the NHibernateSagaPersister (found in \src\impl\SagaPersisters\NHibernateSagaPersister) or the DB subscription storage (found in \src\impl\unicast\NServiceBus.Unicast.Subscriptions.DB) you will need a database with the tables defined in TableDefinitions.txt.
-
-We're in the process of using Fluent NHibernate to generate and create the schemas automatically to further shorten the time to get things up and running.
+Running an nServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.
