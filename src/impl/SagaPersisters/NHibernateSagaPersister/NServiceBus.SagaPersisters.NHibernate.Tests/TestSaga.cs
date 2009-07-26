@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
@@ -12,6 +13,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual string OriginalMessageId { get; set; }
 
         public virtual RelatedClass RelatedClass { get; set; }
+
+        public virtual IList<OrderLine> OrderLines { get; set; }
+    }
+
+    public class OrderLine
+    {
+        public virtual Guid Id { get; set; }
+
+        public virtual Guid ProductId { get; set; }
+
     }
 
 

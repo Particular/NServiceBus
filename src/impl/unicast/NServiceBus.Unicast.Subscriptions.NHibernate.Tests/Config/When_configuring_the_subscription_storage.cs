@@ -1,7 +1,9 @@
 using System.IO;
 using FluentNHibernate;
 using FluentNHibernate.Cfg.Db;
+using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
+using NBehave.Spec.NUnit;
 using Rhino.Mocks;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
@@ -9,62 +11,75 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
     [TestFixture]
     public class When_configuring_the_subscription_storage
     {
-        readonly IPersistenceConfigurer  persistenceConfig = new SQLiteConfiguration()
-                          .UsingFile(Path.GetTempFileName())
-                          .ShowSql()
-                          .Raw("proxyfactory.factory_class",
-                               "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
+        private Configure config;
 
-        [Test]
-        public void A_raw_session_source_can_be_used()
+        [SetUp]
+        public void SetUp()
         {
-            var sessionSource = MockRepository.GenerateStub<ISessionSource>();
+            config = Configure.With()
+          .SpringBuilder()
+          .NHibernateSubcriptionStorage();
 
-            var config = Configure.With()
-                .SpringBuilder()
-                .NHibernateSubcriptionStorage(sessionSource);
-
-            Assert.AreSame(sessionSource, config.Builder.Build<ISessionSource>());
-            
-            config.Builder.Build<SubscriptionStorage>();
         }
 
         [Test]
-         public void A_user_specified_persistence_configuration_can_be_used()
+        public void The_session_source_should_be_registered_as_singleton()
         {
-            var config = Configure.With()
-                .SpringBuilder()
-                .NHibernateSubcriptionStorage(persistenceConfig);
-
-            //make sure that the session source is configured
-            Assert.IsNotNull( config.Builder.Build<ISessionSource>());
-        }
-
-        [Test]
-        public void Database_schema_should_be_updated_if_requested()
-        {
-           var config= Configure.With()
-               .SpringBuilder()
-               .NHibernateSubcriptionStorage(persistenceConfig, true);
 
             var sessionSource = config.Builder.Build<ISessionSource>();
 
-            using(var session = sessionSource.CreateSession())
+
+            sessionSource.ShouldBeTheSameAs(config.Builder.Build<ISessionSource>());
+
+        }
+
+        
+        [Test]
+        public void The_storage_should_be_registered_as_singlecall()
+        {
+
+            var subscriptionStorage = config.Builder.Build<SubscriptionStorage>();
+
+
+            subscriptionStorage.ShouldNotBeTheSameAs(config.Builder.Build<SubscriptionStorage>());
+
+        }
+        
+        [Test]
+        public void Database_schema_should_be_updated_as_default()
+        {
+            var sessionSource = config.Builder.Build<ISessionSource>();
+
+            using (var session = sessionSource.CreateSession())
             {
-                session.CreateCriteria(typeof (Subscription)).List<Subscription>();
+                session.CreateCriteria(typeof(Subscription)).List<Subscription>();
             }
 
         }
 
+
+        [Test]
+        public void Persister_should_default_to_sqlite_if_no_config_section_is_found()
+        {
+            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+
+            var configWithoutConfigSection = Configure.With()
+                                                    .SpringBuilder()
+                                                    .CustomConfigurationSource(configSource)
+                                                    .NHibernateSubcriptionStorage();
+
+            configWithoutConfigSection.Builder.Build<ISessionSource>();
+
+        }
+
+       
         [Test]
         public void NHibernate_proxy_factory_should_default_to_linfu()
         {
-            var sqlLiteConfigWithoutProxySpecified = new SQLiteConfiguration().InMemory();
-
-            Configure.With()
-             .SpringBuilder()
-             .NHibernateSubcriptionStorage(sqlLiteConfigWithoutProxySpecified, true);
+            //will fail if no proxy is set
+            config.Builder.Build<ISessionSource>();
         }
+
 
 
     }

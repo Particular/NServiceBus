@@ -1,95 +1,94 @@
-﻿using System;
-using System.IO;
-using Common.Logging;
-using FluentNHibernate.Cfg.Db;
+﻿using FluentNHibernate.Cfg.Db;
 using NHibernate;
-using NHibernate.Id;
+using NHibernate.Connection;
+using NHibernate.Dialect;
 using NHibernate.Impl;
+using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
+using Rhino.Mocks;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     [TestFixture]
     public class When_configuring_the_saga_persister
     {
+        private Configure config;
 
-        [Test,ExpectedException(typeof(ConfigurationException))]
-        public void Exception_should_be_thrown_if_no_sagas_is_found_in_scanned_assemblies()
+        [SetUp]
+        public void SetUp()
         {
-            var assemblyWithNoSagas = typeof (IBus).Assembly;
-
-            Configure.With(assemblyWithNoSagas)
+            var properties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Sagas.sqlite").ToProperties();
+         
+            config = Configure.With()
                 .SpringBuilder()
-                .NHibernateSagaPersister(SQLiteConfiguration.Standard
-                , true);
+                .Sagas()
+                .NHibernateSagaPersister();
         }
 
         [Test]
-        public void Sagas_should_automatically_be_mapped_using_conventions()
+        public void Persister_should_be_registered_as_single_call()
         {
-            var sagaAssembly = typeof(TestSaga).Assembly;
+            var persister = config.Builder.Build<SagaPersister>();
 
-            var config = Configure.With(sagaAssembly)
-                .SpringBuilder()
-                .NHibernateSagaPersister(SQLiteConfiguration.Standard.InMemory()
-                , false);
-
-            var sessionFactory = config.Builder.Build<ISessionFactory>() as SessionFactoryImpl;;
-
-            var persisterForTestSaga = sessionFactory.GetEntityPersister(typeof (TestSaga).FullName);
-
-            persisterForTestSaga.ShouldNotBeNull();
-
-            persisterForTestSaga.IdentifierGenerator.ShouldBeInstanceOfType(typeof(Assigned));
-
+            persister.ShouldNotBeTheSameAs(config.Builder.Build<SagaPersister>());
         }
+
+
         [Test]
-        public void References_of_the_persistent_entity_should_also_be_mapped()
+        public void Message_module_for_session_management_should_be_registered_singleton()
         {
-            var sagaAssembly = typeof(TestSaga).Assembly;
+            var module = config.Builder.Build<NHibernateMessageModule>();
 
-            var config = Configure.With(sagaAssembly)
-                .SpringBuilder()
-                .NHibernateSagaPersister(SQLiteConfiguration.Standard.InMemory()
-                , false);
-
-            var sessionFactory = config.Builder.Build<ISessionFactory>() as SessionFactoryImpl; ;
-
-            sessionFactory.GetEntityPersister(typeof(RelatedClass).FullName)
-                .ShouldNotBeNull();
+            module.ShouldNotBeNull();
+            module.ShouldBeTheSameAs(config.Builder.Build<NHibernateMessageModule>());
         }
 
         [Test]
-        public void Proxy_factory_should_default_to_linfu_if_not_set_by_user()
+        public void The_sessionfactory_should_be_built_and_registered_as_singleton()
         {
-            var persistenceConfigWithoutProxySpecfied = SQLiteConfiguration.Standard.InMemory();
+            var sessionFactory = config.Builder.Build<ISessionFactory>();
 
-            var config = Configure.With()
-                .SpringBuilder()
-                .NHibernateSagaPersister(persistenceConfigWithoutProxySpecfied
-                , false);
-
-            config.Builder.Build<ISessionFactory>();
+            sessionFactory.ShouldNotBeNull();
+            sessionFactory.ShouldBeTheSameAs(config.Builder.Build<ISessionFactory>());
 
         }
 
         [Test]
-        public void Database_schema_should_be_updated_if_requested()
+        public void Database_settings_should_be_read_from_custom_config_section()
         {
-            bool updateSchema = true;
+           
+            var sessionFactory = config.Builder.Build<ISessionFactory>() as SessionFactoryImpl;
 
-            var config = Configure.With()
+            sessionFactory.Dialect.ShouldBeInstanceOfType(typeof(SQLiteDialect));
+
+         
+            sessionFactory.ConnectionProvider.GetConnection().ConnectionString.ShouldEqual("Data Source=.\\DBFileNameFromAppConfig.sqlite;Version=3;New=True;");
+        }
+
+
+        [Test]
+        public void Persister_should_default_to_sqlite_if_config_section_is_missing()
+        {
+            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+
+            var configWithMissingSection = Configure.With()
                .SpringBuilder()
-               .NHibernateSagaPersister(SQLiteConfiguration.Standard.UsingFile(Path.GetTempFileName())
-               , updateSchema);
+               .CustomConfigurationSource(configSource)
+               .Sagas()
+               .NHibernateSagaPersister();
 
-           var sessionFactory =  config.Builder.Build<ISessionFactory>();
+            var sessionFactory = configWithMissingSection.Builder.Build<ISessionFactory>() as SessionFactoryImpl;
 
-           using (var session = sessionFactory.OpenSession())
-            {
-                session.CreateCriteria(typeof(TestSaga)).List<TestSaga>();
-            }
+            sessionFactory.ConnectionProvider.GetConnection().ConnectionString.ShouldEqual("Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;");
+
         }
+
+        [Test]
+        public void Update_schema_can_be_specified_by_the_user()
+        {
+
+        }
+
     }
 }

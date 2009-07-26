@@ -1,5 +1,6 @@
-﻿using System.Linq;
-using Common.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentNHibernate.AutoMap;
 using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions;
@@ -8,15 +9,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 {
     public static class Create
     {
-        public static AutoPersistenceModel SagaPersistenceModel()
+        public static AutoPersistenceModel SagaPersistenceModel(IEnumerable<Type> typesToScan)
         {
-            var sagaEntites =
-                Configure.TypesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
+            var sagaEntites = typesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
 
             var assembliesContainingSagas = sagaEntites.Select(t => t.Assembly).Distinct();
 
             if (assembliesContainingSagas.Count() == 0)
-                throw new ConfigurationException("No sagas found in scanned assemblies");
+                throw new InvalidOperationException("No sagas found in scanned assemblies");
 
             var model = new AutoPersistenceModel();
 
@@ -25,7 +25,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
             model.ConventionDiscovery.AddFromAssemblyOf<IdShouldBeAssignedConvention>()
                 .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
-
             return model;
         }
     }

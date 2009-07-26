@@ -52,7 +52,7 @@ namespace NServiceBus.Host.Tests
         }
 
         [Test]
-        public void Saga_perister_should_default_to_in_memory()
+        public void Saga_persister_should_default_to_in_memory()
         {
             busConfig.Builder.Build<InMemorySagaPersister>().ShouldNotBeNull();
         }
@@ -66,8 +66,17 @@ namespace NServiceBus.Host.Tests
             unicastbus.ImpersonateSender.ShouldBeTrue();
         }
 
+        [Test]
+        public void The_user_can_specify_his_own_saga_persister()
+        {
+            new ConfigurationBuilder()
+                .BuildConfigurationFrom(new ServerEndpointConfigWithCustomSagaPersister(), typeof(ServerEndpoint))
+                .Builder.Build<FakePersister>().ShouldNotBeNull();
+        }
+
 
     }
+
 
     public class ServerSaga:ISaga<ServerSagaData>
     {

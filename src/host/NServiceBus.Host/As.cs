@@ -22,6 +22,6 @@
         /// Indicates this endpoint is a publisher.
         /// This is compatible with <see cref="aServer"/> but not <see cref="aClient"/>.
         /// </summary>
-        public interface aPublisher {}
+        public interface aPublisher : aServer {}
     }
 }

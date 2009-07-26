@@ -37,6 +37,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.132, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate, Version=2.1.0.2002, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\NHibernate.dll</HintPath>
@@ -62,6 +66,7 @@
       <HintPath>..\..\..\..\external-bin\Spring.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -95,6 +100,9 @@
       <Project>{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}</Project>
       <Name>NServiceBus.Unicast.Subscriptions.NHibernate</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

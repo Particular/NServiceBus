@@ -19,6 +19,7 @@
 	<property name="nhibernate.output.dir" value="${output.dir}\nhibernate"/>
 	<property name="Is64BitProcess" value="${environment::get-variable('PROCESSOR_ARCHITECTURE')!='x86'}" />
 	<property name="architecture" value="x86" dynamic="true" />
+	<property name="msmq.version" value="" dynamic="true" />
 			
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
@@ -27,7 +28,9 @@
 	<if test="${Is64BitProcess}">
 		<property name="architecture" value="x64"/>
 	</if>
-
+	
+	<readregistry  property="msmq.version" key="SOFTWARE\Microsoft\MSMQ\Parameters\CurrentBuild" hive="LocalMachine" failonerror="false"/>
+	<echo message="${msmq.version}" />
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
@@ -100,8 +103,7 @@
 			  <test>
           <assemblies>
             <include name="${solution.dir}\**\bin\${project.config}\**Tests.dll" />
-            <exclude name="${solution.dir}\**\bin\${project.config}\NServiceBus.Host.Tests.dll" />
-            <!--			<exclude name="${solution.dir}\**\bin\${project.config}\**NHibernate*.dll" />-->
+            <exclude if="${msmq.version == ''}" name="${solution.dir}\**\bin\${project.config}\NServiceBus.Host.Tests.dll" />
 			</assemblies>
 			  </test>
 		</nunit2>

@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using FluentNHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.NHibernate;
+using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
+using Configuration=NHibernate.Cfg.Configuration;
 
 namespace NServiceBus
 {
@@ -14,33 +17,6 @@ namespace NServiceBus
     {
 
         /// <summary>
-        /// Configures the storage using the user configures sessionsource
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="sessionSource"></param>
-        /// <returns></returns>
-        public static Configure NHibernateSubcriptionStorage(this Configure config, ISessionSource sessionSource)
-        {
-
-            config.Configurer.RegisterSingleton<ISessionSource>(sessionSource);
-            config.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singlecall);
-
-            return config;
-        }
-
-        /// <summary>
-        /// Configures the storage with the user supplied persistence configuration
-        /// DB schema is automatically updated if nessesary
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="persistenceConfigurer"></param>
-        /// <returns></returns>
-        public static Configure NHibernateSubcriptionStorage(this Configure config,
-                  IPersistenceConfigurer persistenceConfigurer)
-        {
-            return NHibernateSubcriptionStorage(config, persistenceConfigurer, true);
-        }
-        /// <summary>
         /// Configures the storage with the user supplied persistence configuration
         /// DB schema is updated if requested by the user
         /// </summary>
@@ -48,19 +24,30 @@ namespace NServiceBus
         /// <param name="persistenceConfigurer"></param>
         /// <param name="autoCreateSchema"></param>
         /// <returns></returns>
-        public static Configure NHibernateSubcriptionStorage(this Configure config,
-            IPersistenceConfigurer persistenceConfigurer,
-            bool autoCreateSchema)
+        public static Configure NHibernateSubcriptionStorage(this Configure config)
         {
-            var fluentConfiguration = Fluently.Configure()
-              .Database(persistenceConfigurer)
+            IDictionary<string, string> nhibernateProperties = null;
+            bool updateSchema = true;
+
+            var configSection = Configure.GetConfigSection<NHibernateSubscriptionStorageConfig>();
+
+            if(configSection == null)
+            {
+                nhibernateProperties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Subscriptions.sqlite").ToProperties();
+            }
+            else
+            {
+                nhibernateProperties = configSection.NHibernateProperties.ToProperties();
+                updateSchema = configSection.UpdateSchema;
+            }
+
+            var fluentConfiguration = Fluently.Configure(new Configuration().SetProperties(nhibernateProperties))
               .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Subscription>());
 
             var cfg = fluentConfiguration.BuildConfiguration();
 
-            if (autoCreateSchema)
-                new SchemaUpdate(cfg)
-                    .Execute(false, true);
+            if (updateSchema)
+                new SchemaUpdate(cfg).Execute(false, true);
 
             //default to LinFu if not specifed by user
             //if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
@@ -72,7 +59,11 @@ namespace NServiceBus
             var sessionSource = new SessionSource(fluentConfiguration);
 
 
-            return config.NHibernateSubcriptionStorage(sessionSource);
+            config.Configurer.RegisterSingleton<ISessionSource>(sessionSource);
+            config.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singlecall);
+
+            return config;
+        
         }
 
         private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";

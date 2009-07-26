@@ -26,7 +26,7 @@ namespace NServiceBus
         {
             var persister = SQLiteConfiguration.Standard.UsingFile(".\\sagas.sqllite");
 
-            var model = Create.SagaPersistenceModel();
+            var model = Create.SagaPersistenceModel(Configure.TypesToScan);
 
             var fluentConfiguration = Fluently.Configure()
                                                 .Mappings(m => m.AutoMappings.Add(model))

@@ -70,9 +70,6 @@ namespace NServiceBus.Host.Internal
 
             ConfigUnicastBus configUnicastBus = null;
            
-            if (specifier is As.aPublisher && !(specifier is As.aServer))
-                throw new ConfigurationErrorsException("Enpoints that is specified to be publishers must be servers as well, please implement As.aServer!");
-
             if (specifier is As.aClient)
                 configUnicastBus = busConfiguration
                     .MsmqTransport()
