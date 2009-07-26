@@ -976,11 +976,16 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Subscribe)
                 if (subscriptionStorage != null)
                 {
+                    bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
-                            subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
-                        else
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                        {
+                            goAhead = false;
                             Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+                        }
+
+                    if (goAhead)
+                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] { messageType });
 
                     return true;
                 }
@@ -992,11 +997,17 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
                 if (subscriptionStorage != null)
                 {
+                    bool goAhead = true;
+
                     if (subscriptionAuthorizer != null)
-                        if (subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
-                            subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
-                        else
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                        {
+                            goAhead = false;
                             Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+                        }
+
+                    if (goAhead)
+                        subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
 
                     return true;
                 }
