@@ -74,4 +74,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+  </PropertyGroup>
+  <PropertyGroup>
+  <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\timeout\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
