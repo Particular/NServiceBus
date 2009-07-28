@@ -35,10 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MsmqWorkerAvailabilityManager, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\build\MsmqWorkerAvailabilityManager.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -46,10 +42,6 @@
     <Reference Include="NServiceBus.Host, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\host\NServiceBus.Host.exe</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Distributor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\build\NServiceBus.Unicast.Distributor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -73,6 +65,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MsmqWorkerAvailabilityManager\MsmqWorkerAvailabilityManager.csproj">
+      <Project>{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}</Project>
+      <Name>MsmqWorkerAvailabilityManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj">
+      <Project>{D142D372-C9FA-4505-A6EB-E919746F0FF1}</Project>
+      <Name>NServiceBus.Unicast.Distributor</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -81,8 +83,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>

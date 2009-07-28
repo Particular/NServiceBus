@@ -11,9 +11,7 @@ namespace MsmqWorkerAvailabilityManager
 	/// </summary>
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
-        #region config info
-
-        private MessageQueue storageQueue;
+	    private MessageQueue storageQueue;
 
 		/// <summary>
 		/// Sets the path to the queue that will be used for storing
@@ -41,11 +39,7 @@ namespace MsmqWorkerAvailabilityManager
         }
         private string s;
 
-        #endregion
-
-        #region IWorkerAvailabilityManager Members
-
-		/// <summary>
+	    /// <summary>
 		/// Removes all entries from the worker availability queue
 		/// with the specified address.
 		/// </summary>
@@ -118,12 +112,6 @@ namespace MsmqWorkerAvailabilityManager
             }
         }
 
-        #endregion
-
-        #region members
-
-        private readonly object locker = new object();
-
-        #endregion
+	    private readonly object locker = new object();
     }
 }

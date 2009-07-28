@@ -39,11 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Distributor, Version=1.0.0.1680, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\build\NServiceBus.Unicast.Distributor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -56,6 +51,12 @@
     </Compile>
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj">
+      <Project>{D142D372-C9FA-4505-A6EB-E919746F0FF1}</Project>
+      <Name>NServiceBus.Unicast.Distributor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
