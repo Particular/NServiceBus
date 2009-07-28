@@ -1,1 +1,3 @@
-..\..\build\timeout\NServiceBus.Host.exe
+pushd ..\..\build\timeout\
+
+NServiceBus.Host.exe
