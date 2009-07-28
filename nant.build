@@ -93,8 +93,8 @@
 					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
 					delim=","
 					property="pathToBuild">
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
-			commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
+			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
@@ -103,49 +103,24 @@
 	
 	<target name="compile_containers">
 		<!-- Containers -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-		  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\containers\"
-		  workingdir="${solution.dir}\impl\ObjectBuilder" />
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\containers\"
+				workingdir="${solution.dir}\impl\ObjectBuilder" />
 
 		<!-- Copy the container assemblies to the output directory -->
 		<copy todir="${container.output.dir}">
 			<fileset basedir="${container.build.dir}">
-			  <include name="NServiceBus.ObjectBuilder.Autofac.dll" />
-			  <include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
+				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
-			 </fileset>
+			</fileset>
 		</copy>
-	</target>
-
-	<target name="test">
-	
-		<nunit2 verbose="true">
-			  <formatter type="Plain" />
-			  <test>
-          <assemblies>
-            <include name="${build.base}\**Tests.dll" />
-            <exclude if="${msmq.version == ''}" name="${build.base}\**NServiceBus.Host.Tests.dll" />
-			</assemblies>
-			  </test>
-		</nunit2>
 	</target>
 
 	<target name="merge_src">
-
-		<delete dir="${output.dir}" failonerror="false"></delete>
-		<mkdir dir="${output.dir}" />
-		
-		<copy todir="${core.build.dir}">
-		  <fileset basedir="${trunk.dir}">
-			<include name="ilmerge.exclude" />
-			<include name="NServiceBus.snk" />
-		  </fileset>
-		</copy>
-
 		<!-- Create list of all "core" assemblies -->
 		<property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.dll" dynamic="true" />
-
 		<foreach item="File" property="filename">
 			<in>
 				<items>
@@ -171,6 +146,7 @@
 		</foreach>
 
 		<!-- Create the merged NServiceBus.dll-->
+		<mkdir dir="${output.dir}" />
 		<exec program="${lib.dir}\ilmerge.exe"
 				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output.txt"
 				workingdir="." />
@@ -178,25 +154,37 @@
 	
 	<target name="compile_host">
 		<!-- Host -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
-		         commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\host\"
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+		        commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\host\"
 				workingdir="${solution.dir}\host\NServiceBus.Host" />
 
-		<mkdir dir="${output.dir}\host" />
+		<mkdir 	dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
-			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Magnum.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
-			workingdir="." />
+				commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Magnum.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
+				workingdir="." />
+	</target>
+
+	<target name="test">
+	
+		<nunit2 verbose="true">
+			<formatter type="Plain" />
+			<test>
+				<assemblies>
+					<include name="${build.base}\**Tests.dll" />
+					<exclude if="${msmq.version == ''}" name="${build.base}\**NServiceBus.Host.Tests.dll" />
+				</assemblies>
+			</test>
+		</nunit2>
 	</target>
 
 	<target name="compile_tools">
 
-	  <!-- Testing -->
+		<!-- Testing -->
 		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
 				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\"
 				workingdir="${solution.dir}\testing" />
 
 		<mkdir 	dir="${output.dir}\testing" />
-		
 		<exec 	program="${lib.dir}\ilmerge.exe"
 				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
 				workingdir="." />
@@ -226,17 +214,17 @@
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
-	  <!-- Compile the gateway  -->
+		<!-- Compile the gateway  -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
 
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-				  commandline="${solution.dir}\gateway\gateway.sln 
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="${solution.dir}\gateway\gateway.sln 
 					/nologo 
 					/t:Clean
 					/t:Rebuild        
 					/p:OutDir=${gateway.builddir}\bin\        
 					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config}" 
-				  workingdir="." />
+				workingdir="." />
 				  
 	</target>
 

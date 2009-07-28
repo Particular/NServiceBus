@@ -1,3 +1,0 @@
-NServiceBus.Configurer
-NHibernate.Cfg.MappingSchema.*
-NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions.*
