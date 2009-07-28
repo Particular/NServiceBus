@@ -79,6 +79,6 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup>
-  <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\timeout\"</PostBuildEvent>
+  <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\timeout\"</notused>
   </PropertyGroup>
 </Project>

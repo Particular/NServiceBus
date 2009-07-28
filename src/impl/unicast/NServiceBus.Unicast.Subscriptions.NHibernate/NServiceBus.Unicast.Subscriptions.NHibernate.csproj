@@ -43,9 +43,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.10.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Config, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -74,6 +82,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\nhibernate\"</PostBuildEvent>
+    <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\nhibernate\"</notused>
   </PropertyGroup>
 </Project>

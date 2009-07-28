@@ -13,6 +13,7 @@
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
+	<property name="core.build.dir" value="${build.base}\nservicebus.core"/>
 	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
 	<property name="nhibernate.build.dir" value="${build.base}\nhibernate"/>
@@ -20,6 +21,8 @@
 	<property name="Is64BitProcess" value="${environment::get-variable('PROCESSOR_ARCHITECTURE')!='x86'}" />
 	<property name="architecture" value="x86" dynamic="true" />
 	<property name="msmq.version" value="" dynamic="true" />
+	<property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
+	
 			
 	<if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
@@ -35,7 +38,7 @@
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,compile_nhibernate,test"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,compile_host,test"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -87,23 +90,42 @@
 	<target name="compile_src" depends="init">
 
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid"
+					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
 					delim=","
 					property="pathToBuild">
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+			commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
 	</target>
 	
+	
+	<target name="compile_containers">
+		<!-- Containers -->
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+		  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\containers\"
+		  workingdir="${solution.dir}\impl\ObjectBuilder" />
+
+		<!-- Copy the container assemblies to the output directory -->
+		<copy todir="${container.output.dir}">
+			<fileset basedir="${container.build.dir}">
+			  <include name="NServiceBus.ObjectBuilder.Autofac.dll" />
+			  <include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
+				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+			 </fileset>
+		</copy>
+	</target>
+
 	<target name="test">
 	
 		<nunit2 verbose="true">
 			  <formatter type="Plain" />
 			  <test>
           <assemblies>
-            <include name="${solution.dir}\**\bin\${project.config}\**Tests.dll" />
-            <exclude if="${msmq.version == ''}" name="${solution.dir}\**\bin\${project.config}\NServiceBus.Host.Tests.dll" />
+            <include name="${build.base}\**Tests.dll" />
+            <exclude if="${msmq.version == ''}" name="${build.base}\**NServiceBus.Host.Tests.dll" />
 			</assemblies>
 			  </test>
 		</nunit2>
@@ -111,43 +133,36 @@
 
 	<target name="merge_src">
 
-		<delete dir="${merge.dir}" failonerror="false"></delete>
 		<delete dir="${output.dir}" failonerror="false"></delete>
-		<mkdir dir="${merge.dir}" />
 		<mkdir dir="${output.dir}" />
 		
-		<copy todir="${merge.dir}">
-			<fileset basedir="${build.base}">
-				<include name="*.*" />
-			</fileset>
+		<copy todir="${core.build.dir}">
+		  <fileset basedir="${trunk.dir}">
+			<include name="ilmerge.exclude" />
+			<include name="NServiceBus.snk" />
+		  </fileset>
 		</copy>
-
-		<copy todir="${merge.dir}">
-			<fileset basedir="${lib.dir}">
-				<include name="*.*" />
-			</fileset>
-		</copy>
-
-    <copy todir="${merge.dir}">
-      <fileset basedir="${trunk.dir}">
-        <include name="ilmerge.exclude" />
-	<include name="NServiceBus.snk" />
-      </fileset>
-    </copy>
 
 		<!-- Create list of all "core" assemblies -->
-		<property name="nservicebus.coreassemblies" value="${merge.dir}\NServiceBus.dll" dynamic="true" />
+		<property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.dll" dynamic="true" />
 
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${merge.dir}\NServiceBus*.dll" />
-					<include name="${merge.dir}\antlr.runtime.dll" />
-					<include name="${merge.dir}\common.logging*.dll" />
-          <include name="${merge.dir}\Interop.MSMQ.dll" />
-          <include name="${merge.dir}\Spring.Core.dll" />
-          <!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
-					<exclude name="${merge.dir}\NServiceBus.dll" />
+					<include name="${core.build.dir}\NServiceBus*.dll" />
+					<include name="${core.build.dir}\antlr*.dll" />
+					<include name="${core.build.dir}\common.logging.dll" />
+					<include name="${lib.dir}\common.logging.log4net.dll" />
+					<include name="${core.build.dir}\Interop.MSMQ.dll" />
+					<include name="${core.build.dir}\Spring.Core.dll" />
+					<include name="${core.build.dir}\NHibernate*.dll" />
+					<include name="${core.build.dir}\FluentNHibernate.dll" />
+					<include name="${core.build.dir}\Iesi.Collections.dll" />
+					<include name="${core.build.dir}\LinFu*.dll" />
+					<exclude name="${core.build.dir}\**Tests.dll" />
+					
+					<!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
+					<exclude name="${core.build.dir}\NServiceBus.dll" />
 				</items>
 			</in>
 			<do>
@@ -155,99 +170,59 @@
 			</do>
 		</foreach>
 
-		<!-- Create the "coreonly" version NServiceBus.dll-->
+		<!-- Create the merged NServiceBus.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
 				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output.txt"
 				workingdir="." />
 	</target>
 	
-	<target name="compile_containers">
-    <!-- Containers -->
-    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-      commandline="/p:Configuration=${project.config}"
-      workingdir="${solution.dir}\impl\ObjectBuilder" />
-
-    <!-- Copy the container assemblies to the output directory -->
-    <copy todir="${container.output.dir}">
-			<fileset basedir="${container.build.dir}">
-          <include name="NServiceBus.ObjectBuilder.Autofac.dll" />
-          <include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
-        <include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
-        <include name="NServiceBus.ObjectBuilder.Unity.dll" />
-      </fileset>
-		</copy>
-	</target>
-
-	<target name="compile_nhibernate">
-		<!-- NHibernate Saga Persister-->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
-			  commandline="/p:Configuration=${project.config}"
-			  workingdir="${solution.dir}\impl\SagaPersisters\NHibernateSagaPersister" />
-
-    <!-- SQLite NHibernate Saga Persister-->
-    <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-			  commandline="/p:Configuration=${project.config}"
-			  workingdir="${solution.dir}\impl\SagaPersisters\SqLiteSagaPersister" />
-
-    <mkdir dir="${output.dir}\nhibernate" />
-
-    <copy todir="${build.base}\nhibernate">
-      <fileset basedir="${output.dir}">
-        <include name="NServiceBus.dll" />
-      </fileset>
-    </copy>
-
-    <!-- Merge and internalize all dependencies into NServiceBus.SagaPersisters.SqLite.dll -->
-    <exec program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\nhibernate\NServiceBus.SagaPersisters.SqLite.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.SqLite.dll ${lib.dir}\Antlr3.Runtime.dll ${lib.dir}\FluentNHibernate\FluentNHibernate.dll ${lib.dir}\Iesi.Collections.dll ${lib.dir}\LinFu.DynamicProxy.dll ${lib.dir}\NHibernate.ByteCode.LinFu.dll ${lib.dir}\NHibernate.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.dll ${build.base}\nhibernate\NServiceBus.SagaPersisters.NHibernate.dll /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge_sqlite.exclude /log:build\output_sqlite.txt"
-				workingdir="." />
-
-    <!-- NHibernate Subscription Storage-->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
-			  commandline="/p:Configuration=${project.config}"
-			  workingdir="${solution.dir}\impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate" />
-		<copy todir="${nhibernate.output.dir}">
-			<fileset basedir="${nhibernate.build.dir}">
-			  <include name="NServiceBus.*NHibernate*" />
-			</fileset>
-		</copy>
-		  
-	</target>
-
-	<target name="compile_tools">
-
-	  <!-- Testing -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-        commandline="/p:Configuration=${project.config}"
-				workingdir="${solution.dir}\testing" />
-
-		<mkdir dir="${output.dir}\testing" />
-		<exec program="${lib.dir}\ilmerge.exe"
-      commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${merge.dir}\NServiceBus.Testing.dll ${merge.dir}\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
-      workingdir="." />
-
+	<target name="compile_host">
 		<!-- Host -->
-		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+		<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+		         commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\host\"
 				workingdir="${solution.dir}\host\NServiceBus.Host" />
 
 		<mkdir dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
 			commandline="/out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Magnum.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
 			workingdir="." />
+	</target>
 
-		<copy todir="${output.dir}\host">
-		  <fileset basedir="${build.base}\host\">
-			<include name="log4net.dll" />
-		  </fileset>
-		</copy>
+	<target name="compile_tools">
+
+	  <!-- Testing -->
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\"
+				workingdir="${solution.dir}\testing" />
+
+		<mkdir 	dir="${output.dir}\testing" />
+		
+		<exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
+				workingdir="." />
+
+		<!-- distributor -->
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\distributor\"
+				workingdir="${solution.dir}\distributor" />
+
+		<!-- timeout -->
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\timeout\"
+				workingdir="${solution.dir}\timeout" />
+		
+		<!-- proxy -->
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\proxy\"
+				workingdir="${solution.dir}\proxy" />
 
 		<!-- Misc -->
 		<foreach 	item="String"
-					in="distributor\NServiceBus.Unicast.Distributor,distributor\MsmqWorkerAvailabilityManager,distributor\NServiceBus.Unicast.Distributor.Runner,tools\management\Grid,tools\management\Errors\ReturnToSourceQueue,timeout,proxy"
+					in="tools\management\Grid,tools\management\Errors\ReturnToSourceQueue"
 					delim=","
 					property="pathToBuild">
-			<echo message="${pathToBuild}" />
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
@@ -353,9 +328,8 @@
 			</fileset>
 		</copy>
 
-    <!-- Prepare Tools -->
-		<mkdir dir="${release.dir}\tools" />
-		<copy todir="${release.dir}\tools">
+		<!-- Prepare Tools -->
+		<copy todir="${release.dir}">
 			<fileset basedir="${build.base}">
 				<include name="tools\**" />
 				<include name="timeout\**" />
@@ -368,15 +342,6 @@
 			</fileset>
 		</copy>
 		
-		<mkdir dir="${release.dir}\NHibernate" />
-		<copy todir="${release.dir}\NHibernate">
-			<fileset basedir="${lib.dir}">
-				<include name="NHibernate*" />
-        <include name="Iesi.Collections*" />
-        <include name="LinFu*" />
-		<include name="FluentNhibernate/*.*" />
-      </fileset>
-		</copy>
 		
 		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">

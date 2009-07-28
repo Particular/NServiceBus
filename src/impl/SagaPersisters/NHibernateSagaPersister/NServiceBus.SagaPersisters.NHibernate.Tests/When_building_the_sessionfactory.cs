@@ -5,6 +5,7 @@ using System.IO;
 using FluentNHibernate.Cfg.Db;
 using NBehave.Spec.NUnit;
 using NHibernate;
+using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
@@ -17,16 +18,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     {
         private IDictionary<string, string> testProperties = SQLiteConfiguration.Standard
             .InMemory()
-            .ProxyFactoryFactory(SessionFactoryBuilder.LINFU_PROXYFACTORY)
+            .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
             .ToProperties();
-       
+
         [Test, ExpectedException(typeof(InvalidOperationException))]
         public void Exception_should_be_thrown_if_no_sagas_is_found_in_scanned_assemblies()
         {
             var assemblyWithNoSagas = typeof(IBus).Assembly;
 
             new SessionFactoryBuilder(assemblyWithNoSagas.GetTypes())
-                .Build(testProperties,false);
+                .Build(testProperties, false);
         }
 
         [Test]
@@ -36,7 +37,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
 
-            var sessionFactory = builder.Build(testProperties,false) as SessionFactoryImpl; ;
+            var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl; ;
 
             var persisterForTestSaga = sessionFactory.GetEntityPersister(typeof(TestSaga).FullName);
 
@@ -56,7 +57,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persistenceConfigWithoutProxySpecfied = SQLiteConfiguration.Standard.InMemory();
 
             var nhibernateProperties = persistenceConfigWithoutProxySpecfied.ToProperties();
-            nhibernateProperties.Remove(SessionFactoryBuilder.PROXY_FACTORY_KEY);
+            nhibernateProperties.Remove("proxyfactory.factory_class");
 
 
             new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())
@@ -71,7 +72,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
 
-            var sessionFactory = builder.Build(testProperties,false) as SessionFactoryImpl; ;
+            var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl; ;
 
             sessionFactory.GetEntityPersister(typeof(RelatedClass).FullName)
                 .ShouldNotBeNull();
@@ -82,7 +83,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var nhibernateProperties = SQLiteConfiguration.Standard
                 .UsingFile(Path.GetTempFileName())
-                .ProxyFactoryFactory(SessionFactoryBuilder.LINFU_PROXYFACTORY)
+                .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
                 .ToProperties();
 
             var sessionFactory = new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())

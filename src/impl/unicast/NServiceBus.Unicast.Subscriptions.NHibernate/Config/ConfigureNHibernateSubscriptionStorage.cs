@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FluentNHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using NHibernate.ByteCode.LinFu;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.NHibernate;
@@ -21,19 +22,21 @@ namespace NServiceBus
         /// DB schema is updated if requested by the user
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="persistenceConfigurer"></param>
-        /// <param name="autoCreateSchema"></param>
         /// <returns></returns>
         public static Configure NHibernateSubcriptionStorage(this Configure config)
         {
-            IDictionary<string, string> nhibernateProperties = null;
+            IDictionary<string, string> nhibernateProperties;
             bool updateSchema = true;
 
             var configSection = Configure.GetConfigSection<NHibernateSubscriptionStorageConfig>();
 
             if(configSection == null)
             {
-                nhibernateProperties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Subscriptions.sqlite").ToProperties();
+                nhibernateProperties = SQLiteConfiguration
+                    .Standard
+                    .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
+                    .UsingFile(".\\NServiceBus.Subscriptions.sqlite")
+                    .ToProperties();
             }
             else
             {
@@ -50,11 +53,10 @@ namespace NServiceBus
                 new SchemaUpdate(cfg).Execute(false, true);
 
             //default to LinFu if not specifed by user
-            //if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
+            if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
                 fluentConfiguration.ExposeConfiguration(
                     x =>
-                    x.SetProperty(PROXY_FACTORY_KEY,
-                                  "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu"));
+                    x.SetProperty(PROXY_FACTORY_KEY, typeof(ProxyFactoryFactory).AssemblyQualifiedName));
 
             var sessionSource = new SessionSource(fluentConfiguration);
 

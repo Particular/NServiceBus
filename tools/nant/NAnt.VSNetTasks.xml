@@ -2711,9 +2711,9 @@
             Gets the output type of this project.
             </summary>
         </member>
-        <member name="P:NAnt.VSNet.ProjectSettings.RunPostBuildEvent">
+        <member name="P:NAnt.VSNet.ProjectSettings.Runnotused">
             <summary>
-            Designates when the <see cref="P:NAnt.VSNet.ProjectSettings.PostBuildEvent"/> command line should
+            Designates when the <see cref="P:NAnt.VSNet.ProjectSettings.notused"/> command line should
             be run. Possible values are "OnBuildSuccess", "Always" or 
             "OnOutputUpdated".
             </summary>
@@ -2726,7 +2726,7 @@
             Valid commands are those in a .bat file. For more info see MSDN.
             </remarks>
         </member>
-        <member name="P:NAnt.VSNet.ProjectSettings.PostBuildEvent">
+        <member name="P:NAnt.VSNet.ProjectSettings.notused">
             <summary>
             Contains commands to be ran after a build has taken place.
             </summary>

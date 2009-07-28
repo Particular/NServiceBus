@@ -43,7 +43,6 @@
     <Reference Include="Interop.MSMQ, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\Interop.MSMQ.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -97,6 +96,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</PostBuildEvent>
+    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</notused>
   </PropertyGroup>
 </Project>

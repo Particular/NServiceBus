@@ -105,6 +105,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\tools\GridUI\"</PostBuildEvent>
+    <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\tools\GridUI\"</notused>
   </PropertyGroup>
 </Project>

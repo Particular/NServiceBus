@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentNHibernate.Cfg;
+﻿using System.Collections.Generic;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
-using NHibernate.Tool.hbm2ddl;
+using NHibernate.ByteCode.LinFu;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
-using Common.Logging;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
 using NServiceBus.SagaPersisters.NHibernate.Config;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 
@@ -37,7 +33,7 @@ namespace NServiceBus
             {
                 nhibernateProperties = SQLiteConfiguration.Standard
                     .UsingFile(".\\NServiceBus.Sagas.sqlite")
-                    .ProxyFactoryFactory(SessionFactoryBuilder.LINFU_PROXYFACTORY)
+                    .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
                     .ToProperties();
             }
             else

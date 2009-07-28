@@ -62,6 +62,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</PostBuildEvent>
+    <notused>xcopy /Y "$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
   </PropertyGroup>
 </Project>

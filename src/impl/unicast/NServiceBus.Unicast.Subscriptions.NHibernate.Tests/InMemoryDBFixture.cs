@@ -3,6 +3,7 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Testing;
 using NHibernate;
+using NHibernate.ByteCode.LinFu;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
@@ -25,9 +26,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             var cfg = SQLiteConfiguration.Standard
                 .InMemory()
-                .ShowSql()
-                .Raw("proxyfactory.factory_class",
-                     "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu");
+                .ProxyFactoryFactory(typeof (ProxyFactoryFactory).AssemblyQualifiedName);
 
             var fc = Fluently.Configure()
                 .Database(cfg)

@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using Common.Logging;
-using FluentNHibernate.AutoMap;
 using FluentNHibernate.Cfg;
 using NHibernate;
+using NHibernate.ByteCode.LinFu;
+using NHibernate.Context;
 using NHibernate.Tool.hbm2ddl;
-using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions;
 using Configuration=NHibernate.Cfg.Configuration;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
@@ -42,7 +38,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
         private static void UpdateDatabaseSchemaUsing(FluentConfiguration fluentConfiguration)
         {
-            logger.Info("Building schema");
             var configuration = fluentConfiguration.BuildConfiguration();
 
             new SchemaUpdate(configuration)
@@ -54,13 +49,11 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
             fluentConfiguration.ExposeConfiguration(
                 c =>
                     {
-                        c.SetProperty("current_session_context_class",
-                                      "NHibernate.Context.ThreadStaticSessionContext, NHibernate");
+                        c.SetProperty("current_session_context_class",typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
 
                         //default to LinFu if not specifed by user
                         if (!c.Properties.Keys.Contains(PROXY_FACTORY_KEY))
-                            c.SetProperty(PROXY_FACTORY_KEY,
-                                          LINFU_PROXYFACTORY);
+                            c.SetProperty(PROXY_FACTORY_KEY,typeof(ProxyFactoryFactory).AssemblyQualifiedName);
 
 
 
@@ -70,9 +63,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
 
        
-        public const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
-        public const string LINFU_PROXYFACTORY = "NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu";
-
-        private static readonly ILog logger = LogManager.GetLogger(typeof(SagaPersister));
+        private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
     }
 }

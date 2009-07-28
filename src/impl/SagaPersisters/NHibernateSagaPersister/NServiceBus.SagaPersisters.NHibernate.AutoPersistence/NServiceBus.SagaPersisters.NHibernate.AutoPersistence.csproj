@@ -36,10 +36,9 @@
       <HintPath>..\..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Saga, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Saga.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -65,6 +64,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\nhibernate\"</PostBuildEvent>
+    <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\nhibernate\"</notused>
   </PropertyGroup>
 </Project>
