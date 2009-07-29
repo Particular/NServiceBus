@@ -17,16 +17,14 @@ namespace NServiceBus.Host
         {
             Type endpointConfigurationType = GetEndpointConfigurationType();
 
-            string endpointId = GetEndpointId(endpointConfigurationType);
-
-            string endpointConfigurationFile = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, 
-                endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
+            string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
             if (!File.Exists(endpointConfigurationFile))
             {
                 throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
             }
+          
+            string endpointId = GetEndpointId(endpointConfigurationType);
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
             {
@@ -47,6 +45,13 @@ namespace NServiceBus.Host
             });
 
             Runner.Host(cfg, args);
+        }
+
+        private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
+        {
+            return Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, 
+                endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
         public static string GetEndpointId(Type endpointConfigurationType)

@@ -20,8 +20,8 @@ namespace NServiceBus.Host.Tests
         [SetUp]
         public void SetUp()
         {
-            busConfig = new ConfigurationBuilder()
-                .BuildConfigurationFrom(new ServerEndpointConfig(), typeof(ServerEndpoint));
+            busConfig = new ConfigurationBuilder(new ServerEndpointConfig(), typeof(ServerEndpoint))
+                .Build();
 
             transport = busConfig.Builder.Build<ITransport>() as MsmqTransport;
 
@@ -45,18 +45,7 @@ namespace NServiceBus.Host.Tests
             transport.PurgeOnStartup.ShouldBeFalse();
         }
 
-        [Test]
-        public void Sagas_should_be_enabled()
-        {
-            busConfig.Builder.Build<ServerSaga>().ShouldNotBeNull();
-        }
-
-        [Test]
-        public void Saga_persister_should_default_to_in_memory()
-        {
-            busConfig.Builder.Build<InMemorySagaPersister>().ShouldNotBeNull();
-        }
-
+     
         [Test]
         public void The_bus_should_impersonate_the_sender()
         {
@@ -66,68 +55,7 @@ namespace NServiceBus.Host.Tests
             unicastbus.ImpersonateSender.ShouldBeTrue();
         }
 
-        [Test]
-        public void The_user_can_specify_his_own_saga_persister()
-        {
-            new ConfigurationBuilder()
-                .BuildConfigurationFrom(new ServerEndpointConfigWithCustomSagaPersister(), typeof(ServerEndpoint))
-                .Builder.Build<FakePersister>().ShouldNotBeNull();
-        }
 
 
-    }
-
-
-    public class ServerSaga:ISaga<ServerSagaData>
-    {
-        public void Timeout(object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Completed
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Configure()
-        {
-            
-        }
-
-        public ISagaEntity Entity
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public IBus Bus{ get; set;}
-
-        public ServerSagaData Data
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-    }
-
-    public class ServerSagaData : ISagaEntity
-    {
-        public Guid Id
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public string Originator
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public string OriginalMessageId
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
     }
 }

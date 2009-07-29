@@ -13,8 +13,8 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void XmlSerialization_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder()
-                .BuildConfigurationFrom(new EndpointWithXmlSerialization(), typeof(ServerEndpoint));
+            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization(), typeof(ServerEndpoint))
+                .Build();
 
             busConfig.Builder.Build<Serializers.XML.MessageSerializer>().ShouldNotBeNull();
         }
@@ -22,8 +22,8 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void XmlSerialization_using_a_custom_namespace_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder()
-                .BuildConfigurationFrom(new EndpointWithXmlSerialization(), typeof(ServerEndpoint));
+            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization(), typeof(ServerEndpoint))
+                .Build();
 
             busConfig.Builder.Build<Serializers.XML.MessageSerializer>().Namespace.ShouldEqual("testnamespace");
         }
@@ -31,8 +31,8 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void Ordering_of_messagehandlers_can_be_specified()
         {
-            var allHandlers = new ConfigurationBuilder()
-                .BuildConfigurationFrom(new EndpointWithMessageHandlerOrdering(), typeof(ServerEndpoint))
+            var allHandlers = new ConfigurationBuilder(new EndpointWithMessageHandlerOrdering(), typeof(ServerEndpoint))
+                .Build()
                 .Builder.BuildAll<IMessageHandler<IMessage>>();
 
             allHandlers.ElementAt(0).ShouldBeInstanceOfType(typeof (GridInterceptingMessageHandler));

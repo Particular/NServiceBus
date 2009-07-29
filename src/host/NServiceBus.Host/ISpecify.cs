@@ -135,5 +135,10 @@ namespace NServiceBus.Host
         {
             void SpecifyOrder(Order order);
         }
+
+        /// <summary>
+        /// Specifies that the nhibernate subscriptionn storage should be used
+        /// </summary>
+        public interface ToUseNHibernateSubscriptionStorage{}
     }
 }

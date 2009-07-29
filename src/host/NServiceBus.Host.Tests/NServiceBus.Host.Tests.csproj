@@ -52,6 +52,10 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data.SQLite, Version=1.0.64.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\external-bin\sqlite\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -67,6 +71,7 @@
     <Compile Include="ServerEndpointConfig.cs" />
     <Compile Include="When_configuring_any_endpoint.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_publisher.cs" />
+    <Compile Include="When_configuring_an_endpoint_as_a_saga_host.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_server.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,9 +11,19 @@ namespace NServiceBus.Host.Internal
 {
     public class ConfigurationBuilder
     {
-        public Configure BuildConfigurationFrom(IConfigureThisEndpoint specifier, Type endpointType)
+        private readonly IConfigureThisEndpoint specifier;
+        private readonly Type endpointType;
+        private Configure busConfiguration;
+
+        public ConfigurationBuilder(IConfigureThisEndpoint specifier, Type endpointType)
         {
-            Configure busConfiguration;
+            this.specifier = specifier;
+            this.endpointType = endpointType;
+        }
+
+        public Configure Build()
+        {
+            busConfiguration = null;
 
             if (specifier is ISpecify.TypesToScan)
                 busConfiguration = Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
@@ -71,43 +81,11 @@ namespace NServiceBus.Host.Internal
             ConfigUnicastBus configUnicastBus = null;
            
             if (specifier is As.aClient)
-                configUnicastBus = busConfiguration
-                    .MsmqTransport()
-                    .IsTransactional(false)
-                    .PurgeOnStartup(true)
-                    .UnicastBus()
-                    .ImpersonateSender(false);
+                configUnicastBus = ConfigureClientRole();
 
             if (specifier is As.aServer)
             {
-                if (!(specifier is IDontWant.DtcInitialization))
-                    Utils.DtcUtil.StartDtcIfNecessary();
-
-                configUnicastBus = busConfiguration
-                    .MsmqTransport()
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                    .Sagas()
-                    .UnicastBus()
-                    .ImpersonateSender(true);
-
-                if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                    busConfiguration.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
-
-                if (specifier is As.aPublisher)
-                {
-                    var subscriptionConfig =
-                        Configure.GetConfigSection<Config.DbSubscriptionStorageConfig>();
-
-                    if (subscriptionConfig == null)
-                    {
-                        string q = Program.GetEndpointId(endpointType) + "_subscriptions";
-                        busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                            .ConfigureProperty(s => s.Queue, q);
-                    }
-                    else
-                        busConfiguration.DbSubscriptionStorage();
-                }
+                configUnicastBus = ConfigureServerRole();
             }
 
             if (configUnicastBus != null)
@@ -138,6 +116,69 @@ namespace NServiceBus.Host.Internal
             if (messageEndpointType != null)
                 Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
             return busConfiguration;           
+        }
+
+        private ConfigUnicastBus ConfigureServerRole()
+        {
+            if (!(specifier is IDontWant.DtcInitialization))
+                Utils.DtcUtil.StartDtcIfNecessary();
+
+            var configUnicastBus = busConfiguration
+                .MsmqTransport()
+                .IsTransactional(true)
+                .PurgeOnStartup(false)
+                .UnicastBus()
+                .ImpersonateSender(true);
+
+            if(specifier is As.aSagaHost)
+            {
+                ConfigureSagaHostRole();
+            }
+
+            if (specifier is As.aPublisher)
+            {
+                ConfigurePublisherRole();
+            }
+            return configUnicastBus;
+        }
+
+        private ConfigUnicastBus ConfigureClientRole()
+        {
+            var configUnicastBus = busConfiguration
+                .MsmqTransport()
+                .IsTransactional(false)
+                .PurgeOnStartup(true)
+                .UnicastBus()
+                .ImpersonateSender(false);
+            
+            return configUnicastBus;
+        }
+
+        private void ConfigureSagaHostRole()
+        {
+            busConfiguration.Sagas();
+            if (!(specifier is ISpecify.MyOwnSagaPersistence))
+                busConfiguration.NHibernateSagaPersister();
+        }
+
+        private void ConfigurePublisherRole()
+        {
+            if (specifier is ISpecify.ToUseNHibernateSubscriptionStorage)
+                busConfiguration.NHibernateSubcriptionStorage();
+            else
+            {
+                var subscriptionConfig =
+                    Configure.GetConfigSection<Config.DbSubscriptionStorageConfig>();
+
+                if (subscriptionConfig == null)
+                {
+                    string q = Program.GetEndpointId(endpointType) + "_subscriptions";
+                    busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
+                        .ConfigureProperty(s => s.Queue, q);
+                }
+                else
+                    busConfiguration.DbSubscriptionStorage();
+            }
         }
     }
 }

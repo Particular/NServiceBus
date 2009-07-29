@@ -15,9 +15,8 @@ namespace NServiceBus.Host.Internal
           
             ConfigureLogging(configurationSpecifier);
 
-          
-            var busConfiguration = new ConfigurationBuilder()
-                                    .BuildConfigurationFrom(configurationSpecifier,endpointType);
+
+            var busConfiguration = new ConfigurationBuilder(configurationSpecifier, endpointType).Build();
           
             Action startupAction = null;
 
