@@ -1,21 +1,11 @@
-using NServiceBus;
 using NServiceBus.Host;
 
 namespace Server
 {
-    public class MessageEndpoint : IConfigureThisEndpoint
+    public class MessageEndpoint :  IConfigureThisEndpoint,
+                                    ISpecify.ToUseXmlSerialization,
+                                    As.aServer
     {
-        public void Init(Configure config)
-        {
-            config
-                .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(false)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false)
-                    .LoadMessageHandlers();
-        }
     }
 
 }

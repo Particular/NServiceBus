@@ -14,7 +14,7 @@ namespace WebApplication1
 
         private void ending(IAsyncResult ar)
         {
-            CompletionResult result = ar.AsyncState as CompletionResult;
+            var result = ar.AsyncState as CompletionResult;
             if (result == null)
                 return;
 
@@ -24,8 +24,7 @@ namespace WebApplication1
         private IAsyncResult beginning(object sender, EventArgs e, AsyncCallback cb, object extraData)
         {
             int number = int.Parse(TextBox1.Text);
-            Command command = new Command();
-            command.Id = number;
+            var command = new Command {Id = number};
 
             return Global.Bus.Send(command).Register(cb, null);
         }
@@ -33,8 +32,8 @@ namespace WebApplication1
         protected void Button1_Click(object sender, EventArgs e)
         {
             RegisterAsyncTask(new PageAsyncTask(
-                this.beginning,
-                this.ending,
+                beginning,
+                ending,
                 null,
                 null
                 ));
