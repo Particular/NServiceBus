@@ -19,7 +19,9 @@ namespace NServiceBus.Host
 
             string endpointId = GetEndpointId(endpointConfigurationType);
 
-            string endpointConfigurationFile = endpointConfigurationType.Assembly.ManifestModule.Name + ".config";
+            string endpointConfigurationFile = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, 
+                endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
 
             if (!File.Exists(endpointConfigurationFile))
             {
@@ -66,16 +68,16 @@ namespace NServiceBus.Host
             return endpoints.First();
         }
 
-        public static IEnumerable<Type> ScanAssembliesForEndpoints()
+        private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            foreach (string assemblyFile in Directory.GetFiles(".", "*.dll"))
+            foreach (var assemblyFile in new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
             {
-                Assembly assembly;
                 Type[] types;
 
                 try
                 {
-                    assembly = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
+                    var assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                    
                     types = assembly.GetTypes();
                 }
                 catch (Exception e)
@@ -96,7 +98,7 @@ namespace NServiceBus.Host
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
-                throw new InvalidOperationException("No endpoints found in scanned assemlies");
+                throw new InvalidOperationException("No endpoints found in scanned assemlies, scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
             if (endpointConfigurationTypes.Count() > 1)
