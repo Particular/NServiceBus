@@ -10,9 +10,9 @@ namespace Server
         public void Handle(Command message)
         {
             if (message.Id % 2 == 0)
-                this.Bus.Return((int)ErrorCodes.Fail);
+                Bus.Return((int)ErrorCodes.Fail);
             else 
-                this.Bus.Return((int)ErrorCodes.None);
+                Bus.Return((int)ErrorCodes.None);
         }
     }
 }

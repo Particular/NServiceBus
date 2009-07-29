@@ -8,10 +8,4 @@ namespace Messages
     {
         public int Id { get; set; }
     }
-
-    public enum ErrorCodes
-    {
-        None,
-        Fail
-    }
 }
