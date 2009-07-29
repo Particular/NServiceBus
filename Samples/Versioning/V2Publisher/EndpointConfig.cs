@@ -1,20 +1,11 @@
-﻿using NServiceBus;
-using NServiceBus.Host;
+﻿using NServiceBus.Host;
 
 namespace V2Publisher
 {
-    class EndpointConfig : IConfigureThisEndpoint, ISpecify.ToRun<V2PublisherEndpoint>
+    class EndpointConfig : IConfigureThisEndpoint,
+                            As.aPublisher,
+                            ISpecify.ToUseXmlSerialization,
+                            ISpecify.ToRun<V2PublisherEndpoint>
     {
-        public void Init(Configure configure)
-        {
-            configure
-                .MsmqSubscriptionStorage()
-                .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(true)
-                    .PurgeOnStartup(false)
-                .UnicastBus()
-                    .ImpersonateSender(false);
-        }
     }
 }
