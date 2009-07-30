@@ -1,103 +1,93 @@
+using System.Threading;
+using Common.Logging;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
-using Common.Logging;
-using System.Threading;
 
 namespace NServiceBus.Unicast.Distributor
 {
-	/// <summary>
-	/// Provides functionality for distributing messages from a bus
-	/// to multiple workers when using a unicast transport.
-	/// </summary>
+    /// <summary>
+    /// Provides functionality for distributing messages from a bus
+    /// to multiple workers when using a unicast transport.
+    /// </summary>
     public class Distributor
     {
-        #region config info
+        private int millisToWaitIfCannotDispatchToWorker = 50;
 
-		/// <summary>
-		/// Sets the bus that will be used
-		/// for transporting control information.
-		/// </summary>
+        /// <summary>
+        /// Sets the bus that will be used
+        /// for transporting control information.
+        /// </summary>
         public IStartableBus ControlBus { get; set; }
 
-		/// <summary>
-		/// Sets the transport that will be used
-		/// to access the bus containing messages to distribute.
-		/// </summary>
+        /// <summary>
+        /// Sets the transport that will be used
+        /// to access the bus containing messages to distribute.
+        /// </summary>
         public ITransport MessageBusTransport { get; set; }
 
-		/// <summary>
-		/// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
-		/// used to determine whether or not a worker is available.
-		/// </summary>
+        /// <summary>
+        /// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
+        /// used to determine whether or not a worker is available.
+        /// </summary>
         public IWorkerAvailabilityManager WorkerManager { get; set; }
 
-
-	    private int millisToWaitIfCannotDispatchToWorker = 50;
 
         /// <summary>
         /// Milliseconds to sleep if no workers are available.
         /// Prevents needless CPU churn.
         /// </summary>
         public int MillisToWaitIfCannotDispatchToWorker
-	    {
-            set { this.millisToWaitIfCannotDispatchToWorker = value; }
-	    }
-
-        #endregion
-
-        #region public methods
-
-		/// <summary>
-		/// Starts the Distributor.
-		/// </summary>
-        public void Start()
         {
-		    GridInterceptingMessageHandler.DisabledChanged += 
-                delegate
-                  {
-                      disabled =
-                          GridInterceptingMessageHandler.Disabled;
-                  };
-
-            this.MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
-            this.MessageBusTransport.Start();
-
-            this.WorkerManager.Start();
+            set { millisToWaitIfCannotDispatchToWorker = value; }
         }
 
-		/// <summary>
-		/// Stops the Distributor.
-		/// </summary>
+        /// <summary>
+        /// Starts the Distributor.
+        /// </summary>
+        public void Start()
+        {
+            GridInterceptingMessageHandler.DisabledChanged +=
+                delegate
+                    {
+                        disabled =
+                            GridInterceptingMessageHandler.Disabled;
+                    };
+
+            MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
+            MessageBusTransport.Start();
+
+            WorkerManager.Start();
+        }
+
+        /// <summary>
+        /// Stops the Distributor.
+        /// </summary>
         public void Stop()
         {
         }
 
-        #endregion
-
-        #region helper methods
-
- 		/// <summary>
-		/// Handles reciept of a message on the bus to distribute for.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		/// <remarks>
-		/// This method checks whether a worker is available to handle the message and
-		/// forwards it if one is found.
-		/// </remarks>
-        void messageBusTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        /// <summary>
+        /// Handles reciept of a message on the bus to distribute for.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks>
+        /// This method checks whether a worker is available to handle the message and
+        /// forwards it if one is found.
+        /// </remarks>
+        private void messageBusTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             if (disabled)
-                this.Rollback();
+                Rollback();
 
- 		    string destination = this.WorkerManager.PopAvailableWorker();
+            string destination = WorkerManager.PopAvailableWorker();
 
             if (destination == null)
-                this.Rollback();
+                Rollback();
             else
             {
                 logger.Debug("Sending message to: " + destination);
-                this.MessageBusTransport.Send(e.Message, destination);
+                MessageBusTransport.Send(e.Message, destination);
             }
         }
 
@@ -106,18 +96,12 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         private void Rollback()
         {
-            Thread.Sleep(this.millisToWaitIfCannotDispatchToWorker);
+            Thread.Sleep(millisToWaitIfCannotDispatchToWorker);
 
-            this.MessageBusTransport.AbortHandlingCurrentMessage();
+            MessageBusTransport.AbortHandlingCurrentMessage();
         }
 
-        #endregion
-
-        #region members
-
-	    private volatile bool disabled;
-        private readonly static ILog logger = LogManager.GetLogger(typeof(Distributor));
-
-        #endregion
+        private static readonly ILog logger = LogManager.GetLogger(typeof (Distributor));
+        private volatile bool disabled;
     }
 }

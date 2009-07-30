@@ -1,5 +1,4 @@
 ﻿using NServiceBus.Host;
-using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Distributor
 {

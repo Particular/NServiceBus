@@ -47,17 +47,16 @@ namespace NServiceBus.Distributor
             };
 
             Configure.TypeConfigurer
-                .ConfigureProperty<MsmqTransport>(t => t.InputQueue,
-                                                  ConfigurationManager.AppSettings["ControlInputQueue"])
+                .ConfigureProperty<MsmqTransport>(t => t.InputQueue,ConfigurationManager.AppSettings["ControlInputQueue"])
                 .ConfigureProperty<MsmqTransport>(t => t.ErrorQueue, errorQueue)
                 .ConfigureProperty<MsmqTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
+               
 
             Configure.TypeConfigurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                 ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.StorageQueue, ConfigurationManager.AppSettings["StorageQueue"]);
 
-            Configure.TypeConfigurer.ConfigureComponent<Unicast.Distributor.Distributor>(
-                ComponentCallModelEnum.Singleton);
+            Configure.TypeConfigurer.ConfigureComponent<Unicast.Distributor.Distributor>(ComponentCallModelEnum.Singleton);
         }
 
         public void SpecifyOrder(Order order)
