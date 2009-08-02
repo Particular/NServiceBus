@@ -1,0 +1,12 @@
+<VSContent xmlns="http://schemas.microsoft.com/developer/vscontent/2005">
+    <Content>
+        <FileName>NServiceBus_Code_Snippets.snippet</FileName>
+        <DisplayName>NServiceBus Core Snippets</DisplayName>
+        <Description>A set of code snippets to make nServiceBus development easier.</Description>
+        <FileContentType>Code Snippet</FileContentType>
+        <ContentVersion>1.0</ContentVersion>
+        <Attributes>
+            <Attribute name="lang" value="csharp"/>
+        </Attributes>
+    </Content>
+</VSContent>
