@@ -287,20 +287,26 @@ namespace NServiceBus.Serializers.XML
                 if (n.Name.Contains(":"))
                     type = Type.GetType("System." + n.Name.Substring(0, n.Name.IndexOf(":")), false, true);
 
-                PropertyInfo prop = GetProperty(t, n.Name);
+                var prop = GetProperty(t, n.Name);
                 if (prop != null)
                 {
-                    object val = GetPropertyValue(type ?? prop.PropertyType, n);
+                    var val = GetPropertyValue(type ?? prop.PropertyType, n);
                     if (val != null)
+                    {
                         prop.SetValue(result, val, null);
+                        continue;
+                    }
                 }
 
-                FieldInfo field = GetField(t, n.Name);
+                var field = GetField(t, n.Name);
                 if (field != null)
                 {
                     object val = GetPropertyValue(type ?? field.FieldType, n);
                     if (val != null)
+                    {
                         field.SetValue(result, val);
+                        continue;
+                    }
                 }
             }
 
@@ -352,6 +358,19 @@ namespace NServiceBus.Serializers.XML
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
+                var args = type.GetGenericArguments();
+                if (args.Length == 1)
+                {
+                    var nullableType = typeof (Nullable<>).MakeGenericType(args);
+                    if (type == nullableType)
+                    {
+                        if (n.ChildNodes[0].InnerText.ToLower() == "null")
+                            return null;
+
+                        return GetPropertyValue(args[0], n);
+                    }
+                }
+
                 if (type == typeof(string))
                     return n.ChildNodes[0].InnerText;
 
@@ -561,7 +580,20 @@ namespace NServiceBus.Serializers.XML
         private void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
             if (value == null)
+            {
+                var args = type.GetGenericArguments();
+                if (args.Length == 1)
+                {
+                    var nullableType = typeof (Nullable<>).MakeGenericType(args);
+                    if (type == nullableType)
+                    {
+                        WriteEntry(name, typeof(string), "null", builder);
+                        return;
+                    }
+                }
+
                 return;
+            }
 
             if (type.IsValueType || type == typeof(string))
             {
