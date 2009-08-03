@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.ObjectBuilder;
+﻿using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
@@ -18,8 +14,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config)
         {
-            config.Configurer.ConfigureComponent<NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton);
 
             return config;
         }
@@ -33,8 +29,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config, string nameSpace)
         {
-            config.Configurer.ConfigureComponent<NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.Namespace, nameSpace);
 
             return config;

@@ -26,7 +26,7 @@ namespace NServiceBus.Serializers.Binary
         /// <param name="stream"></param>
         public void Serialize(IMessage[] messages, Stream stream)
         {
-            this.binaryFormatter.Serialize(stream, new List<object>(messages));
+            binaryFormatter.Serialize(stream, new List<object>(messages));
         }
 
         /// <summary>
@@ -36,12 +36,12 @@ namespace NServiceBus.Serializers.Binary
         /// <returns></returns>
         public IMessage[] Deserialize(Stream stream)
         {
-            List<object> body = this.binaryFormatter.Deserialize(stream) as List<object>;
+            var body = binaryFormatter.Deserialize(stream) as List<object>;
 
             if (body == null)
                 return null;
 
-            IMessage[] result = new IMessage[body.Count];
+            var result = new IMessage[body.Count];
 
             int i = 0;
             foreach (IMessage m in body)
