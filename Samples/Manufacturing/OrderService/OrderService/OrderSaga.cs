@@ -12,10 +12,13 @@ namespace OrderService
         IMessageHandler<OrderAuthorizationResponseMessage>,
         IMessageHandler<CancelOrderMessage>
     {
-        public override void ConfigureHowToFindSaga()
+        public override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
         {
-            ConfigureMapping<OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
-            ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            configureHowToFindSagaWithMessage
+                .ConfigureMapping<OrderSagaData,OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            
+            configureHowToFindSagaWithMessage
+                .ConfigureMapping<OrderSagaData,CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
         }
 
         public void Handle(OrderMessage message)

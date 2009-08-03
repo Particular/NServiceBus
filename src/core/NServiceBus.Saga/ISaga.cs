@@ -19,7 +19,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Called by the infrastructure to give a chance for initialization time configuration.
         /// </summary>
-        void Configure();
+        void Configure(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage);
     }
 
     /// <summary>

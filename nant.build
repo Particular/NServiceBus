@@ -13,6 +13,7 @@
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
+	<property name="main.build.dir" value="${build.base}\nservicebus"/>
 	<property name="core.build.dir" value="${build.base}\nservicebus.core"/>
 	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
@@ -38,7 +39,7 @@
 	<property name="project.config" value="release" />
 
 	<target name="build" depends="build_src,compile_tools,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_src,merge_src,compile_containers,compile_host,test"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host,test"/>
 	
 	<target name="init" description="Initializes build properties">
 		<tstamp>
@@ -87,16 +88,83 @@
 		</asminfo>
 	</target>
 
-	<target name="compile_src" depends="init">
-
+	<target name="compile_main" depends="init">
+		<!-- NServiceBus -->
 		<foreach 	item="String"
-					in="ObjectBuilder,utils,core,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
+					in="core"
+					delim=","
+					property="pathToBuild">
+			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus\"
+					workingdir="${solution.dir}\${pathToBuild}" />
+		</foreach>
+		
+		<property name="nservicebus.assemblies" value="${main.build.dir}\NServiceBus.dll" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${main.build.dir}\NServiceBus*.dll" />
+					<!-- NServiceBus.dll needs to be first in the list in order to be the "primary assembly so it added explicitly-->"
+					<exclude name="${main.build.dir}\NServiceBus.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.assemblies" value="${nservicebus.assemblies} ${filename}"/>
+			</do>
+		</foreach>
+		<!-- Create the merged NServiceBus.dll-->
+		<mkdir dir="${output.dir}" />
+		<exec program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.assemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output.txt"
+				workingdir="." />
+	
+	</target>
+	<target name="compile_core" depends="compile_main">	
+		<!-- NServiceBus.Core -->
+		<foreach 	item="String"
+					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
 					delim=","
 					property="pathToBuild">
 			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
+		<!-- Create list of all "core" assemblies -->
+		<property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.Objectbuilder.dll" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${core.build.dir}\NServiceBus*.dll" />
+					<include name="${core.build.dir}\antlr*.dll" />
+					<include name="${core.build.dir}\common.logging.dll" />
+					<include name="${lib.dir}\common.logging.log4net.dll" />
+					<include name="${core.build.dir}\Interop.MSMQ.dll" />
+					<include name="${core.build.dir}\Spring.Core.dll" />
+					<include name="${core.build.dir}\NHibernate*.dll" />
+					<include name="${core.build.dir}\FluentNHibernate.dll" />
+					<include name="${core.build.dir}\Iesi.Collections.dll" />
+					<include name="${core.build.dir}\LinFu*.dll" />
+					<exclude name="${core.build.dir}\**Tests.dll" />
+					
+					<!-- exclude the main dll:s -->
+					<exclude name="${core.build.dir}\NServiceBus.dll" />
+					<exclude name="${core.build.dir}\NServiceBus.Saga.dll" />
+					<exclude name="${core.build.dir}\NServiceBus.Serialization.dll" />
+
+					
+					<!-- NServiceBus.Objectbuilder.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
+					<exclude name="${core.build.dir}\NServiceBus.Objectbuilder.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
+			</do>
+		</foreach>
+		<echo message="Creating the merged NServiceBus.Core.dll" />
+		<!-- Create the merged NServiceBus.Core.dll-->
+		<exec program="${lib.dir}\ilmerge.exe"
+				commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output_core.txt"
+				workingdir="." />
 
 	</target>
 	
@@ -116,40 +184,6 @@
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
 			</fileset>
 		</copy>
-	</target>
-
-	<target name="merge_src">
-		<!-- Create list of all "core" assemblies -->
-		<property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.dll" dynamic="true" />
-		<foreach item="File" property="filename">
-			<in>
-				<items>
-					<include name="${core.build.dir}\NServiceBus*.dll" />
-					<include name="${core.build.dir}\antlr*.dll" />
-					<include name="${core.build.dir}\common.logging.dll" />
-					<include name="${lib.dir}\common.logging.log4net.dll" />
-					<include name="${core.build.dir}\Interop.MSMQ.dll" />
-					<include name="${core.build.dir}\Spring.Core.dll" />
-					<include name="${core.build.dir}\NHibernate*.dll" />
-					<include name="${core.build.dir}\FluentNHibernate.dll" />
-					<include name="${core.build.dir}\Iesi.Collections.dll" />
-					<include name="${core.build.dir}\LinFu*.dll" />
-					<exclude name="${core.build.dir}\**Tests.dll" />
-					
-					<!-- NServiceBus.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"
-					<exclude name="${core.build.dir}\NServiceBus.dll" />
-				</items>
-			</in>
-			<do>
-				<property name="nservicebus.coreassemblies" value="${nservicebus.coreassemblies} ${filename}"/>
-			</do>
-		</foreach>
-
-		<!-- Create the merged NServiceBus.dll-->
-		<mkdir dir="${output.dir}" />
-		<exec program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.coreassemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output.txt"
-				workingdir="." />
 	</target>
 	
 	<target name="compile_host">

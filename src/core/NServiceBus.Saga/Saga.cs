@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 
 namespace NServiceBus.Saga
 {
@@ -17,7 +16,7 @@ namespace NServiceBus.Saga
         /// The saga's strongly typed data.
         /// </summary>
         public T Data { get; set; }
-
+        
         /// <summary>
         /// A more generic projection on <see cref="Data" />.
         /// </summary>
@@ -27,36 +26,24 @@ namespace NServiceBus.Saga
             set { Data = (T)value; }
         }
 
-        internal bool configuring;
-        void ISaga.Configure()
+        void ISaga.Configure(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
         {
-            configuring = true;
-            ConfigureHowToFindSaga();
-            configuring = false;
+            ConfigureHowToFindSaga(configureHowToFindSagaWithMessage);
         }
 
         /// <summary>
         /// Override this method in order to call ConfigureMapping.
         /// </summary>
-        public virtual void ConfigureHowToFindSaga()
+        public virtual void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
         {
         }
 
+     
         /// <summary>
-        /// When the infrastructure is handling a message of the given type
-        /// this specifies which message property should be matched to 
-        /// which saga entity property in the persistent saga store.
+        /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
         /// </summary>
-        /// <typeparam name="TMessage"></typeparam>
-        /// <param name="sagaEntityProperty"></param>
-        /// <param name="messageProperty"></param>
-        protected void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
-        {
-            if (!configuring)
-                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
+        public IHandleReplyingToNullOriginator HandleReplyingToNullOriginator { get; set; }
 
-            Dispatcher.ConfigureHowToFindSagaWithMessage(sagaEntityProperty, messageProperty);
-        }
 
         /// <summary>
         /// Bus object used for retrieving the sender endpoint which caused this saga to start.
@@ -102,7 +89,7 @@ namespace NServiceBus.Saga
         protected void ReplyToOriginator(params IMessage[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
-                Dispatcher.TriedToReplyToNullOriginator();
+                HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();
             else
                 Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }

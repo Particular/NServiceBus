@@ -2,6 +2,7 @@ using System;
 using NBehave.Spec.NUnit;
 using NServiceBus.Host.Internal;
 using NServiceBus.Saga;
+using NServiceBus.Unicast.Transport.Msmq;
 using NUnit.Framework;
 
 namespace NServiceBus.Host.Tests
@@ -42,7 +43,6 @@ namespace NServiceBus.Host.Tests
                 .Build()
                 .Builder.Build<FakePersister>().ShouldNotBeNull();
         }
-
     }
 
     public class SagaHostConfig : IConfigureThisEndpoint, As.aSagaHost
@@ -50,35 +50,11 @@ namespace NServiceBus.Host.Tests
     }
 
 
-    public class ServerSaga : ISaga<ServerSagaData>
+    public class ServerSaga : Saga<ServerSagaData>
     {
-        public void Timeout(object state)
+        public override void Timeout(object state)
         {
             throw new NotImplementedException();
-        }
-
-        public bool Completed
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Configure()
-        {
-
-        }
-
-        public ISagaEntity Entity
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public IBus Bus { get; set; }
-
-        public ServerSagaData Data
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
         }
     }
 

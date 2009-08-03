@@ -31,14 +31,16 @@ namespace NServiceBus.Sagas.Impl
         {
             _builderStatic = builder;
 
-            Dispatcher.CallbackWhenReplyingToNullOriginator = () =>
-                {
-                  if (Logger.IsDebugEnabled)
-                      throw new InvalidOperationException(
-                          "Originator of saga has not provided a return address - cannot reply.");
-                };
-
-            Dispatcher.CallbackWithSagaAndMessageProperties = ConfigureHowToFindSagaWithMessage;
+            configurer.RegisterSingleton<IHandleReplyingToNullOriginator>(new ReplyingToNullOriginatorDispatcher
+                                 {
+                                     CallbackWhenReplyingToNullOriginator = () =>
+                                                                                {
+                                                                                    if (Logger.IsDebugEnabled)
+                                                                                        throw new InvalidOperationException
+                                                                                            (
+                                                                                            "Originator of saga has not provided a return address - cannot reply.");
+                                                                                }
+                                 });
 
             return new Configure { configurer = configurer };
         }
@@ -337,9 +339,12 @@ namespace NServiceBus.Sagas.Impl
             PropertyInfo prop = t.GetProperty("Data");
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
 
-            var s = Activator.CreateInstance(t) as ISaga;
-            if (s != null) s.Configure();
+            var saga =  Activator.CreateInstance(t) as ISaga;
+
+            if (saga != null)
+                saga.Configure(configureHowToFindSagaWithMessageDispatcher);
         }
+
 
         private static void ConfigureFinder(Type t)
         {
@@ -468,6 +473,9 @@ namespace NServiceBus.Sagas.Impl
         private static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> FinderTypeToMessageToMethodInfoLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
 
         private static readonly IDictionary<Type, List<Type>> SagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
+
+        private static readonly IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessageDispatcher =
+    new ConfigureHowToFindSagaWithMessageDispatcher();
 
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
         #endregion

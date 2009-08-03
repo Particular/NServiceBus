@@ -35,24 +35,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Utils.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\NServiceBus.Utils.Reflection.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Dispatcher.cs" />
     <Compile Include="HasCompleted.cs" />
+    <Compile Include="IConfigureHowToFindSagaWithMessage.cs" />
+    <Compile Include="IHandleReplyingToNullOriginator.cs" />
     <Compile Include="IFindSagas.cs" />
     <Compile Include="ISaga.cs">
       <SubType>Code</SubType>
