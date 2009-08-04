@@ -1,6 +1,6 @@
-using System.IO;
+using System.Configuration;
 using FluentNHibernate;
-using FluentNHibernate.Cfg.Db;
+using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         {
             config = Configure.With()
           .SpringBuilder()
-          .NHibernateSubcriptionStorage();
+          .DBSubcriptionStorage();
 
         }
 
@@ -66,7 +66,23 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             var configWithoutConfigSection = Configure.With()
                                                     .SpringBuilder()
                                                     .CustomConfigurationSource(configSource)
-                                                    .NHibernateSubcriptionStorage();
+                                                    .DBSubcriptionStorage();
+
+            configWithoutConfigSection.Builder.Build<ISessionSource>();
+
+        }
+        [Test]
+        public void Persister_should_default_to_sqlite_if_no_nh_properties_is_found()
+        {
+            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+
+            configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
+                .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
+
+            var configWithoutConfigSection = Configure.With()
+                                                    .SpringBuilder()
+                                                    .CustomConfigurationSource(configSource)
+                                                    .DBSubcriptionStorage();
 
             configWithoutConfigSection.Builder.Build<ISessionSource>();
 

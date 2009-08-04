@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Host.Internal;
 using NServiceBus.Sagas.Impl;
@@ -38,6 +40,16 @@ namespace NServiceBus.Host.Tests
             allHandlers.ElementAt(0).ShouldBeInstanceOfType(typeof (GridInterceptingMessageHandler));
             allHandlers.ElementAt(1).ShouldBeInstanceOfType(typeof(SagaMessageHandler));
         }
+        [Test]
+        public void A_alternate_config_source_can_be_specified()
+        {
+
+            new ConfigurationBuilder(new EndpointWithOwnConfigSource(), typeof (ServerEndpoint))
+                    .Build();
+
+            Configure.ConfigurationSource.ShouldBeInstanceOfType(typeof (TestConfigSource));
+        }
+
     }
 
     public class EndpointWithMessageHandlerOrdering : IConfigureThisEndpoint,As.aServer, ISpecify.MessageHandlerOrdering
@@ -54,6 +66,25 @@ namespace NServiceBus.Host.Tests
         public string Namespace
         {
             get { return "testnamespace"; }
+        }
+    }
+
+    public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwnConfigurationSource 
+    {
+       public IConfigurationSource Source
+        {
+            get 
+            {
+                return new TestConfigSource();
+            }
+        }
+    }
+
+    public class TestConfigSource : IConfigurationSource
+    {
+        public T GetConfiguration<T>() where T : class
+        {
+            throw new NotImplementedException();
         }
     }
 }

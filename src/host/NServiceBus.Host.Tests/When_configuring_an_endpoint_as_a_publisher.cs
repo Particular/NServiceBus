@@ -1,9 +1,12 @@
 using System.Configuration;
+using NServiceBus.Config;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Host.Internal;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
+using Rhino.Mocks;
 
 namespace NServiceBus.Host.Tests
 {
@@ -26,19 +29,19 @@ namespace NServiceBus.Host.Tests
         }
 
         [Test]
-        public void The_user_can_request_the_nhibernate_subscription_storage_to_be_used()
+        public void Db_subscription_storage_should_be_used_if_config_section_is_found()
         {
-            new ConfigurationBuilder(new NHibernateSubscriptionStorageEndpointConfig(), typeof(ServerEndpoint))
-                .Build()
-                .Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>()
-                    .ShouldNotBeNull();
+            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+
+            configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
+                .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
+
+            Configure.With().CustomConfigurationSource(configSource);
+
+            new ConfigurationBuilder(new ServerEndpointConfigWithCustomConfigSource { ConfigurationSource = configSource }, typeof(ServerEndpoint))
+                    .Build()
+                    .Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
         }
-
-
-
     }
 
-    public class NHibernateSubscriptionStorageEndpointConfig : IConfigureThisEndpoint,As.aPublisher,ISpecify.ToUseNHibernateSubscriptionStorage 
-    {
-    }
 }

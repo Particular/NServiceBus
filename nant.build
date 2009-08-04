@@ -122,7 +122,7 @@
 	<target name="compile_core" depends="compile_main">	
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.DB,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
+					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate"
 					delim=","
 					property="pathToBuild">
 			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
@@ -146,10 +146,8 @@
 					<include name="${core.build.dir}\LinFu*.dll" />
 					<exclude name="${core.build.dir}\**Tests.dll" />
 					
-					<!-- exclude the main dll:s -->
+					<!-- exclude the main dll -->
 					<exclude name="${core.build.dir}\NServiceBus.dll" />
-					<exclude name="${core.build.dir}\NServiceBus.Saga.dll" />
-					<exclude name="${core.build.dir}\NServiceBus.Serialization.dll" />
 
 					
 					<!-- NServiceBus.Objectbuilder.dll needs to be first in the list to be the "primary assembly so it added explicitly-->"

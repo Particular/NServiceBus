@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Reflection;
+using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Unicast.Config;
@@ -35,6 +36,9 @@ namespace NServiceBus.Host.Internal
                         busConfiguration = Configure.With((specifier as ISpecify.ProbeDirectory).ProbeDirectory);
                     else
                         busConfiguration = Configure.With();
+
+            if (specifier is ISpecify.MyOwnConfigurationSource)
+                busConfiguration.CustomConfigurationSource((specifier as ISpecify.MyOwnConfigurationSource).Source);
 
             IContainer container = null;
 
@@ -79,7 +83,7 @@ namespace NServiceBus.Host.Internal
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
             ConfigUnicastBus configUnicastBus = null;
-           
+
             if (specifier is As.aClient)
                 configUnicastBus = ConfigureClientRole();
 
@@ -115,7 +119,7 @@ namespace NServiceBus.Host.Internal
 
             if (messageEndpointType != null)
                 Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
-            return busConfiguration;           
+            return busConfiguration;
         }
 
         private ConfigUnicastBus ConfigureServerRole()
@@ -130,7 +134,7 @@ namespace NServiceBus.Host.Internal
                 .UnicastBus()
                 .ImpersonateSender(true);
 
-            if(specifier is As.aSagaHost)
+            if (specifier is As.aSagaHost)
             {
                 ConfigureSagaHostRole();
             }
@@ -150,7 +154,7 @@ namespace NServiceBus.Host.Internal
                 .PurgeOnStartup(true)
                 .UnicastBus()
                 .ImpersonateSender(false);
-            
+
             return configUnicastBus;
         }
 
@@ -163,22 +167,18 @@ namespace NServiceBus.Host.Internal
 
         private void ConfigurePublisherRole()
         {
-            if (specifier is ISpecify.ToUseNHibernateSubscriptionStorage)
-                busConfiguration.NHibernateSubcriptionStorage();
-            else
-            {
-                var subscriptionConfig =
-                    Configure.GetConfigSection<Config.DbSubscriptionStorageConfig>();
+            var subscriptionConfig =
+                Configure.GetConfigSection<DBSubscriptionStorageConfig>();
 
-                if (subscriptionConfig == null)
-                {
-                    string q = Program.GetEndpointId(endpointType) + "_subscriptions";
-                    busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                        .ConfigureProperty(s => s.Queue, q);
-                }
-                else
-                    busConfiguration.DbSubscriptionStorage();
+            if (subscriptionConfig == null)
+            {
+                string q = Program.GetEndpointId(endpointType) + "_subscriptions";
+                busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
+                    .ConfigureProperty(s => s.Queue, q);
             }
+            else
+                busConfiguration.DBSubcriptionStorage();
+
         }
     }
 }

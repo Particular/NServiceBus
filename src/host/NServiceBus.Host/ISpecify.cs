@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder.Common;
 
 namespace NServiceBus.Host
@@ -137,8 +138,11 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specifies that the nhibernate subscriptionn storage should be used
+        /// Specify an alternate config source to use
         /// </summary>
-        public interface ToUseNHibernateSubscriptionStorage{}
+        public interface MyOwnConfigurationSource
+        {
+            IConfigurationSource Source { get; }
+        }
     }
 }

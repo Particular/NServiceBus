@@ -4,6 +4,7 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.ByteCode.LinFu;
 using NHibernate.Tool.hbm2ddl;
+using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.NHibernate;
 using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
@@ -23,14 +24,14 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure NHibernateSubcriptionStorage(this Configure config)
+        public static Configure DBSubcriptionStorage(this Configure config)
         {
             IDictionary<string, string> nhibernateProperties;
             bool updateSchema = true;
 
-            var configSection = Configure.GetConfigSection<NHibernateSubscriptionStorageConfig>();
+            var configSection = Configure.GetConfigSection<DBSubscriptionStorageConfig>();
 
-            if(configSection == null)
+            if (configSection == null || configSection.NHibernateProperties.Count == 0 )
             {
                 nhibernateProperties = SQLiteConfiguration
                     .Standard
@@ -68,6 +69,6 @@ namespace NServiceBus
         
         }
 
-        private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
+       private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
     }
 }

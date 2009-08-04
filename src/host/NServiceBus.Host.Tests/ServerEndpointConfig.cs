@@ -1,10 +1,10 @@
 using System;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host.Tests
 {
     public class ServerEndpointConfig : IConfigureThisEndpoint,
-                                        As.aServer ,
                                         As.aPublisher  
     {
     }
@@ -18,6 +18,20 @@ namespace NServiceBus.Host.Tests
             configure.Configurer.ConfigureComponent<FakePersister>(ComponentCallModelEnum.Singleton);
         }
     }
+
+    
+    public class ServerEndpointConfigWithCustomConfigSource : IConfigureThisEndpoint,
+                                        As.aPublisher,
+                                        ISpecify.MyOwnConfigurationSource
+  
+    {
+        public IConfigurationSource ConfigurationSource { get; set; }
+        public IConfigurationSource Source
+        {
+            get { return ConfigurationSource; }
+        }
+    }
+     
 
     public class FakePersister
     {

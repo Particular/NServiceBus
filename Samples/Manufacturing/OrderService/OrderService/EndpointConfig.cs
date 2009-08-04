@@ -8,7 +8,6 @@ namespace OrderService
     public class EndpointConfig : IConfigureThisEndpoint,
                                     As.aPublisher,
                                     As.aSagaHost,
-                                    ISpecify.ToUseNHibernateSubscriptionStorage,
                                     ISpecify.ToUseXmlSerialization,
                                     ISpecify.MessageHandlerOrdering
     {
