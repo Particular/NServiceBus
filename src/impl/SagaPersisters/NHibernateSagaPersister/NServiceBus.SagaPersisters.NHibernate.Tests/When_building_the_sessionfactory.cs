@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using FluentNHibernate.Cfg.Db;
 using NBehave.Spec.NUnit;
-using NHibernate;
 using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;

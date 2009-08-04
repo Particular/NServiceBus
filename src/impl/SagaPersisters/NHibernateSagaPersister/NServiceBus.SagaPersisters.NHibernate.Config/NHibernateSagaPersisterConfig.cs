@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace NServiceBus.SagaPersisters.NHibernate.Config
+namespace NServiceBus.Config
 {
     public class NHibernateSagaPersisterConfig:ConfigurationSection
     {
