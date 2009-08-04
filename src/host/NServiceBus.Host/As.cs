@@ -23,10 +23,5 @@
         /// This is compatible with <see cref="aServer"/> but not <see cref="aClient"/>.
         /// </summary>
         public interface aPublisher : aServer {}
-
-        /// <summary>
-        /// Indicates that this endpoint is used to host sagas
-        /// </summary>
-        public interface aSagaHost :aServer{}
     }
 }

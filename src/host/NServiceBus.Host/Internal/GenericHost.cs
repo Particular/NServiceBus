@@ -5,8 +5,14 @@ using System.Collections.Specialized;
 
 namespace NServiceBus.Host.Internal
 {
+    /// <summary>
+    /// Implementation which hooks into TopShelf's Start/Stop lifecycle.
+    /// </summary>
     public class GenericHost : MarshalByRefObject
     {
+        /// <summary>
+        /// Does startup work.
+        /// </summary>
         public void Start()
         {
             Trace.WriteLine("Starting host for " + endpointType.FullName);
@@ -16,7 +22,7 @@ namespace NServiceBus.Host.Internal
             ConfigureLogging(configurationSpecifier);
 
 
-            var busConfiguration = new ConfigurationBuilder(configurationSpecifier, endpointType).Build();
+            var busConfiguration = new ConfigurationBuilder(configurationSpecifier).Build();
           
             Action startupAction = null;
 
@@ -62,12 +68,20 @@ namespace NServiceBus.Host.Internal
             }
         }
 
+        /// <summary>
+        /// Does shutdown work.
+        /// </summary>
         public void Stop()
         {
             if (messageEndpoint != null)
                 messageEndpoint.OnStop();
         }
 
+        /// <summary>
+        /// Accepts the type which will specify the users custom configuration.
+        /// This type should implement <see cref="IConfigureThisEndpoint"/>.
+        /// </summary>
+        /// <param name="endpointType"></param>
         public GenericHost(Type endpointType)
         {
             this.endpointType = endpointType;

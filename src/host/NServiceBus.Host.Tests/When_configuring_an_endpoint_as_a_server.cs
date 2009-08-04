@@ -20,7 +20,7 @@ namespace NServiceBus.Host.Tests
         [SetUp]
         public void SetUp()
         {
-            busConfig = new ConfigurationBuilder(new ServerEndpointConfig(), typeof(ServerEndpoint))
+            busConfig = new ConfigurationBuilder(new ServerEndpointConfig())
                 .Build();
 
             transport = busConfig.Builder.Build<ITransport>() as MsmqTransport;

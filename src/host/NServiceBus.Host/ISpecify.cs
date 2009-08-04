@@ -18,6 +18,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface EndpointName
         {
+            /// <summary>
+            /// The name of the installed windows service.
+            /// </summary>
             string EndpointName { get; }
         }
         
@@ -26,6 +29,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface TypesToScan
         {
+            /// <summary>
+            /// The list of types that will be used by the rest of nServiceBus.
+            /// </summary>
             IEnumerable<Type> TypesToScan { get; }
         }
 
@@ -34,6 +40,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface AssembliesToScan
         {
+            /// <summary>
+            /// The list of assemblies whose types will be used by the rest of nServiceBus.
+            /// </summary>
             IEnumerable<Assembly> AssembliesToScan { get; }
         }
 
@@ -42,6 +51,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface ProbeDirectory
         {
+            /// <summary>
+            /// The directory to be scanned for assemblies.
+            /// </summary>
             string ProbeDirectory { get; }
         }
 
@@ -50,6 +62,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface StartupAction
         {
+            /// <summary>
+            /// An action to be run at startup.
+            /// </summary>
             Action StartupAction { get; }
         }
 
@@ -66,6 +81,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface ContainerInstanceToUse
         {
+            /// <summary>
+            /// Return an instance of the container the rest of nServiceBus will use.
+            /// </summary>
             IContainer ContainerInstance { get; }
         }
 
@@ -118,6 +136,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface MyOwnLog4NetConfiguration
         {
+            /// <summary>
+            /// In this method, do what you want to configure Log4Net.
+            /// </summary>
             void ConfigureLog4Net();
         }
 
@@ -126,6 +147,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface LoggingLevel
         {
+            /// <summary>
+            /// The logging level that will be set for this endpoint.
+            /// </summary>
             log4net.Core.Level Level { get; }
         }
 
@@ -134,6 +158,10 @@ namespace NServiceBus.Host
         /// </summary>
         public interface MessageHandlerOrdering
         {
+            /// <summary>
+            /// In this method, use the order object to specify the order in which message handlers will be activated.
+            /// </summary>
+            /// <param name="order"></param>
             void SpecifyOrder(Order order);
         }
 
@@ -142,6 +170,9 @@ namespace NServiceBus.Host
         /// </summary>
         public interface MyOwnConfigurationSource
         {
+            /// <summary>
+            /// Source from which to pull configuration information.
+            /// </summary>
             IConfigurationSource Source { get; }
         }
     }

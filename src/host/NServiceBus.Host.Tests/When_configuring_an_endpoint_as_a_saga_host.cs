@@ -2,7 +2,6 @@ using System;
 using NBehave.Spec.NUnit;
 using NServiceBus.Host.Internal;
 using NServiceBus.Saga;
-using NServiceBus.Unicast.Transport.Msmq;
 using NUnit.Framework;
 
 namespace NServiceBus.Host.Tests
@@ -15,7 +14,7 @@ namespace NServiceBus.Host.Tests
         [SetUp]
         public void SetUp()
         {
-            busConfig = new ConfigurationBuilder(new SagaHostConfig(), typeof(ServerEndpoint))
+            busConfig = new ConfigurationBuilder(new SagaHostConfig())
                 .Build();
 
 
@@ -39,13 +38,13 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void The_user_can_specify_his_own_saga_persister()
         {
-            new ConfigurationBuilder(new ServerEndpointConfigWithCustomSagaPersister(), typeof(ServerEndpoint))
+            new ConfigurationBuilder(new ServerEndpointConfigWithCustomSagaPersister())
                 .Build()
                 .Builder.Build<FakePersister>().ShouldNotBeNull();
         }
     }
 
-    public class SagaHostConfig : IConfigureThisEndpoint, As.aSagaHost
+    public class SagaHostConfig : IConfigureThisEndpoint
     {
     }
 

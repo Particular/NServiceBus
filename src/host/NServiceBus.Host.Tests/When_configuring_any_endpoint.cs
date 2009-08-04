@@ -15,7 +15,7 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void XmlSerialization_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization(), typeof(ServerEndpoint))
+            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization())
                 .Build();
 
             busConfig.Builder.Build<Serializers.XML.MessageSerializer>().ShouldNotBeNull();
@@ -24,7 +24,7 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void XmlSerialization_using_a_custom_namespace_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization(), typeof(ServerEndpoint))
+            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization())
                 .Build();
 
             busConfig.Builder.Build<Serializers.XML.MessageSerializer>().Namespace.ShouldEqual("testnamespace");
@@ -33,7 +33,7 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void Ordering_of_messagehandlers_can_be_specified()
         {
-            var allHandlers = new ConfigurationBuilder(new EndpointWithMessageHandlerOrdering(), typeof(ServerEndpoint))
+            var allHandlers = new ConfigurationBuilder(new EndpointWithMessageHandlerOrdering())
                 .Build()
                 .Builder.BuildAll<IMessageHandler<IMessage>>();
 
@@ -44,7 +44,7 @@ namespace NServiceBus.Host.Tests
         public void A_alternate_config_source_can_be_specified()
         {
 
-            new ConfigurationBuilder(new EndpointWithOwnConfigSource(), typeof (ServerEndpoint))
+            new ConfigurationBuilder(new EndpointWithOwnConfigSource())
                     .Build();
 
             Configure.ConfigurationSource.ShouldBeInstanceOfType(typeof (TestConfigSource));
@@ -84,7 +84,7 @@ namespace NServiceBus.Host.Tests
     {
         public T GetConfiguration<T>() where T : class
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

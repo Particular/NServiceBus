@@ -18,7 +18,7 @@ namespace NServiceBus.Host.Tests
         [SetUp]
         public void SetUp()
         {
-            busConfig = new ConfigurationBuilder(new ServerEndpointConfig(), typeof(ServerEndpoint))
+            busConfig = new ConfigurationBuilder(new ServerEndpointConfig())
                 .Build();
 
         }
@@ -38,7 +38,7 @@ namespace NServiceBus.Host.Tests
 
             Configure.With().CustomConfigurationSource(configSource);
 
-            new ConfigurationBuilder(new ServerEndpointConfigWithCustomConfigSource { ConfigurationSource = configSource }, typeof(ServerEndpoint))
+            new ConfigurationBuilder(new ServerEndpointConfigWithCustomConfigSource { ConfigurationSource = configSource })
                     .Build()
                     .Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
         }

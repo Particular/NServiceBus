@@ -11,6 +11,9 @@ using System.Configuration;
 
 namespace NServiceBus.Host
 {
+    /// <summary>
+    /// Entry point to the process.
+    /// </summary>
     public class Program
     {
         private static void Main(string[] args)
@@ -54,6 +57,11 @@ namespace NServiceBus.Host
                 endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
+        /// <summary>
+        /// Provides a user-friendly name based on the type.
+        /// </summary>
+        /// <param name="endpointConfigurationType"></param>
+        /// <returns></returns>
         public static string GetEndpointId(Type endpointConfigurationType)
         {
             string endpointName = GetEndpointName(endpointConfigurationType);

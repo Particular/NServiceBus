@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Reflection;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
@@ -10,18 +9,27 @@ using NServiceBus.Unicast.Subscriptions.Msmq;
 
 namespace NServiceBus.Host.Internal
 {
+    /// <summary>
+    /// Utility class used to build up the configuration.
+    /// </summary>
     public class ConfigurationBuilder
     {
         private readonly IConfigureThisEndpoint specifier;
-        private readonly Type endpointType;
         private Configure busConfiguration;
 
-        public ConfigurationBuilder(IConfigureThisEndpoint specifier, Type endpointType)
+        /// <summary>
+        /// Constructs the builder passing in the given specifier object.
+        /// </summary>
+        /// <param name="specifier"></param>
+        public ConfigurationBuilder(IConfigureThisEndpoint specifier)
         {
             this.specifier = specifier;
-            this.endpointType = endpointType;
         }
 
+        /// <summary>
+        /// Uses information in the specifier to build up the configuration object returned
+        /// </summary>
+        /// <returns></returns>
         public Configure Build()
         {
             busConfiguration = null;
@@ -49,17 +57,17 @@ namespace NServiceBus.Host.Internal
             Type containerType = null;
             Type messageEndpointType = null;
 
-            foreach (var t in endpointType.GetInterfaces())
+            foreach (var t in specifier.GetType().GetInterfaces())
             {
                 var args = t.GetGenericArguments();
                 if (args.Length == 1)
                 {
                     if (typeof(IContainer).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ContainerTypeToUse<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
+                        if (typeof(ISpecify.ContainerTypeToUse<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
                             containerType = args[0];
 
                     if (typeof(IMessageEndpoint).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ToRun<>).MakeGenericType(args[0]).IsAssignableFrom(endpointType))
+                        if (typeof(ISpecify.ToRun<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
                             messageEndpointType = args[0];
                 }
             }
@@ -79,6 +87,14 @@ namespace NServiceBus.Host.Internal
             if (!(specifier is IDontWant.MsmqInitialization))
                 Utils.MsmqInstallation.StartMsmqIfNecessary();
 
+            if (!(specifier is IDontWant.Sagas))
+            {
+                busConfiguration.Sagas();
+
+                if (!(specifier is ISpecify.MyOwnSagaPersistence))
+                    busConfiguration.NHibernateSagaPersister();
+            }
+
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
@@ -88,9 +104,7 @@ namespace NServiceBus.Host.Internal
                 configUnicastBus = ConfigureClientRole();
 
             if (specifier is As.aServer)
-            {
                 configUnicastBus = ConfigureServerRole();
-            }
 
             if (configUnicastBus != null)
             {
@@ -134,15 +148,9 @@ namespace NServiceBus.Host.Internal
                 .UnicastBus()
                 .ImpersonateSender(true);
 
-            if (specifier is As.aSagaHost)
-            {
-                ConfigureSagaHostRole();
-            }
-
             if (specifier is As.aPublisher)
-            {
                 ConfigurePublisherRole();
-            }
+
             return configUnicastBus;
         }
 
@@ -158,13 +166,6 @@ namespace NServiceBus.Host.Internal
             return configUnicastBus;
         }
 
-        private void ConfigureSagaHostRole()
-        {
-            busConfiguration.Sagas();
-            if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                busConfiguration.NHibernateSagaPersister();
-        }
-
         private void ConfigurePublisherRole()
         {
             var subscriptionConfig =
@@ -172,13 +173,12 @@ namespace NServiceBus.Host.Internal
 
             if (subscriptionConfig == null)
             {
-                string q = Program.GetEndpointId(endpointType) + "_subscriptions";
+                string q = Program.GetEndpointId(specifier.GetType()) + "_subscriptions";
                 busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                     .ConfigureProperty(s => s.Queue, q);
             }
             else
                 busConfiguration.DBSubcriptionStorage();
-
         }
     }
 }
