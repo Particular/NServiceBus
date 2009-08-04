@@ -4,6 +4,7 @@ using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using NServiceBus.Saga;
 using Common.Logging;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Sagas.Impl
 {
@@ -31,16 +32,7 @@ namespace NServiceBus.Sagas.Impl
         {
             _builderStatic = builder;
 
-            configurer.RegisterSingleton<IHandleReplyingToNullOriginator>(new ReplyingToNullOriginatorDispatcher
-                                 {
-                                     CallbackWhenReplyingToNullOriginator = () =>
-                                                                                {
-                                                                                    if (Logger.IsDebugEnabled)
-                                                                                        throw new InvalidOperationException
-                                                                                            (
-                                                                                            "Originator of saga has not provided a return address - cannot reply.");
-                                                                                }
-                                 });
+            configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(ComponentCallModelEnum.Singleton);
 
             return new Configure { configurer = configurer };
         }
@@ -340,9 +332,18 @@ namespace NServiceBus.Sagas.Impl
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
 
             var saga =  Activator.CreateInstance(t) as ISaga;
+            if (saga == null)
+            {
+                Logger.Warn("Could not process saga type: " + t.FullName);
+                return;
+            }
 
-            if (saga != null)
-                saga.Configure(configureHowToFindSagaWithMessageDispatcher);
+            var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
+            if (p != null)
+                p.SetValue(saga, SagaMessageFindingConfiguration, null);
+
+            if (saga is IConfigurable)
+                (saga as IConfigurable).Configure();
         }
 
 
@@ -474,10 +475,9 @@ namespace NServiceBus.Sagas.Impl
 
         private static readonly IDictionary<Type, List<Type>> SagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 
-        private static readonly IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessageDispatcher =
-    new ConfigureHowToFindSagaWithMessageDispatcher();
+        private static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
+        internal static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
         #endregion
     }
 }

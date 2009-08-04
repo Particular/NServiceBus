@@ -39,12 +39,15 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="HasCompleted.cs" />
+    <Compile Include="IConfigurable.cs" />
     <Compile Include="IConfigureHowToFindSagaWithMessage.cs" />
     <Compile Include="IHandleReplyingToNullOriginator.cs" />
     <Compile Include="IFindSagas.cs" />

@@ -4,24 +4,18 @@ using NServiceBus.Saga;
 namespace NServiceBus.Sagas.Impl
 {
     /// <summary>
-    /// Double-dispatch class.
+    /// Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
+    /// which doesn't have access to Common.Logging and the level of logging
+    /// known in the Configure class found in this project in NServiceBus.Core.dll.
     /// </summary>
     public class ReplyingToNullOriginatorDispatcher : IHandleReplyingToNullOriginator
     {
-        /// <summary>
-        /// Callback for when saga is trying to reply to an originator that is null.
-        /// </summary>
-        internal Action CallbackWhenReplyingToNullOriginator;
-
-        /// <summary>
-        /// Called when the user has tries to reply to a message with out a originator
-        /// </summary>
-        public void TriedToReplyToNullOriginator()
+        void IHandleReplyingToNullOriginator.TriedToReplyToNullOriginator()
         {
-            if (CallbackWhenReplyingToNullOriginator != null)
-                CallbackWhenReplyingToNullOriginator();
+            if (Configure.Logger.IsDebugEnabled)
+                throw new InvalidOperationException
+                    (
+                    "Originator of saga has not provided a return address - cannot reply.");
         }
-
-
     }
 }

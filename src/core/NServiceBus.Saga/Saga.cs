@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 
 namespace NServiceBus.Saga
 {
@@ -10,7 +11,7 @@ namespace NServiceBus.Saga
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
-    public abstract class Saga<T> : ISaga<T> where T : ISagaEntity
+    public abstract class Saga<T> : IConfigurable, ISaga<T> where T : ISagaEntity
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -26,16 +27,37 @@ namespace NServiceBus.Saga
             set { Data = (T)value; }
         }
 
-        void ISaga.Configure(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
+        private bool configuring;
+        void IConfigurable.Configure()
         {
-            ConfigureHowToFindSaga(configureHowToFindSagaWithMessage);
+            configuring = true;
+            ConfigureHowToFindSaga();
+            configuring = false;
         }
 
         /// <summary>
-        /// Override this method in order to call ConfigureMapping.
+        /// Override this method in order to configure how this saga's data should be found.
+        /// Call ConfigureMapping&lt;TMessage&gt; for each property of each message you want
+        /// to use for lookup.
         /// </summary>
-        public virtual void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
+        public virtual void ConfigureHowToFindSaga()
         {
+        }
+
+        /// <summary>
+        /// When the infrastructure is handling a message of the given type
+        /// this specifies which message property should be matched to 
+        /// which saga entity property in the persistent saga store.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="sagaEntityProperty"></param>
+        /// <param name="messageProperty"></param>
+        protected void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
+        {
+            if (!configuring)
+                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
+
+            SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
      
@@ -50,6 +72,14 @@ namespace NServiceBus.Saga
         /// Necessary for <see cref="ReplyToOriginator" />.
         /// </summary>
         public IBus Bus { get; set; }
+
+        /// <summary>
+        /// Object used to configure mapping between saga properties and message properties
+        /// for the purposes of finding sagas when a message arrives.
+        /// 
+        /// Do NOT use at runtime (handling messages) - it will be null.
+        /// </summary>
+        public IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration { get; set; }
 
         /// <summary>
         /// Indicates that the saga is complete.

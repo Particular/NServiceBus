@@ -2,7 +2,8 @@
 namespace NServiceBus.Saga
 {
     /// <summary>
-    /// This interface is used by <see cref="Configure"/> to identify sagas.
+    /// Implement this interface if you want to write a saga with minimal infrastructure support.
+    /// It is recommended you inherit the abstract class <see cref="Saga{T}"/> to get the most functionality.
     /// </summary>
     public interface ISaga : ITimeoutable, HasCompleted
     {
@@ -15,11 +16,6 @@ namespace NServiceBus.Saga
         /// Used for retrieving the endpoint which caused the saga to be initiated.
         /// </summary>
         IBus Bus { get; set; }
-
-        /// <summary>
-        /// Called by the infrastructure to give a chance for initialization time configuration.
-        /// </summary>
-        void Configure(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage);
     }
 
     /// <summary>

@@ -12,13 +12,10 @@ namespace OrderService
         IMessageHandler<OrderAuthorizationResponseMessage>,
         IMessageHandler<CancelOrderMessage>
     {
-        public override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage configureHowToFindSagaWithMessage)
+        public override void ConfigureHowToFindSaga()
         {
-            configureHowToFindSagaWithMessage
-                .ConfigureMapping<OrderSagaData,OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
-            
-            configureHowToFindSagaWithMessage
-                .ConfigureMapping<OrderSagaData,CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            ConfigureMapping<OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
         }
 
         public void Handle(OrderMessage message)
@@ -37,7 +34,7 @@ namespace OrderService
                 ReplyToOriginator(status);
                 Bus.Publish(status);
 
-                Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, HR.Messages.IOrderLine>(status.OrderLines); });
+                Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, IOrderLine>(status.OrderLines); });
 
                 RequestTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
             }
@@ -57,7 +54,7 @@ namespace OrderService
             ReplyToOriginator(status);
             Bus.Publish(status);
 
-            foreach (HR.Messages.IOrderLine ol in message.OrderLines)
+            foreach (var ol in message.OrderLines)
                 Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
 
             if (Data.IsAuthorized)
@@ -88,7 +85,7 @@ namespace OrderService
         {
             var result = new List<K>(list.Count);
 
-            list.ForEach(ol => result.Add(this.Bus.CreateInstance<K>(k => { k.ProductId = ol.ProductId; k.Quantity = ol.Quantity; })));
+            list.ForEach(ol => result.Add(Bus.CreateInstance<K>(k => { k.ProductId = ol.ProductId; k.Quantity = ol.Quantity; })));
 
             return result;
         }
@@ -107,8 +104,8 @@ namespace OrderService
         {
             return Bus.CreateInstance<OrderStatusChangedMessage>(m =>
             {
-                m.PurchaseOrderNumber = this.Data.PurchaseOrderNumber;
-                m.PartnerId = this.Data.PartnerId;
+                m.PurchaseOrderNumber = Data.PurchaseOrderNumber;
+                m.PartnerId = Data.PartnerId;
                 m.Status = status;
                 m.OrderLines = lines;
             });
