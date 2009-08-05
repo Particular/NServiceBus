@@ -356,13 +356,6 @@
 				<include name="proxy\**" />
 				<include name="distributor\**" />
 				<include name="gateway\**" />
-				<!-- Exclude the core stuff to keep download size down-->
-				<exclude name="**/NServiceBus.dll"/>
-				<exclude name="**/NServiceBus.xml"/>
-				<exclude name="**/NServiceBus.pdb"/>
-				<exclude name="**/NServiceBus.Core.dll"/>
-				<exclude name="**/NServiceBus.Core.xml"/>
-				<exclude name="**/NServiceBus.Core.pdb"/>
 			</fileset>
 		</copy>
 		
