@@ -122,6 +122,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         public event EventHandler FinishedMessageProcessing;
 
         /// <summary>
+        /// Event which indicates that message processing failed for some reason.
+        /// </summary>
+	    public event EventHandler FailedMessageProcessing;
+
+        /// <summary>
         /// Gets/sets the number of concurrent threads that should be
         /// created for processing the queue.
         /// 
@@ -379,6 +384,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (IsTransactional)
                     IncrementFailuresForMessage(_messageId);
+
+                OnFailedMessageProcessing();
             }
         }
 
@@ -396,8 +403,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             _messageId = m.Id;
 
-            OnStartedMessageProcessing();
-
             if (IsTransactional)
             {
                 if (HandledMaxRetries(m.Id))
@@ -406,6 +411,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     return;
                 }                    
             }
+
+            //exceptions here will cause a rollback - which is what we want.
+            if (StartedMessageProcessing != null)
+                StartedMessageProcessing(this, null);
 
             var result = Convert(m);
 
@@ -423,38 +432,22 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                     MoveToErrorQueue(m);
 
+                    OnFinishedMessageProcessing(); // don't care about failures here
                     return; // deserialization failed - no reason to try again, so don't throw
                 }
             }
 
-            var exceptionThrown = false;
+            //care about failures here
+            var exceptionThrown = OnTransportMessageReceived(result);
+            //and here
+            var otherExThrown = OnFinishedMessageProcessing();
 
-            if (TransportMessageReceived != null)
-                try
-                {
-                    TransportMessageReceived(this, new TransportMessageReceivedEventArgs(result));
-                }
-                catch(Exception e)
-                {
-                    exceptionThrown = true;
-                    Logger.Error("Failed raising transport message received event.", e);
-                }
-
-            if (FinishedMessageProcessing != null)
-                try
-                {
-                    FinishedMessageProcessing(this, null);
-                }
-                catch (Exception e)
-                {
-                    exceptionThrown = true;
-                    Logger.Error("Failed raising finished message processing event.", e);
-                }
-
+            //but need to abort takes precedence - failures aren't counted here,
+            //so messages aren't moved to the error queue.
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            if (exceptionThrown)
+            if (exceptionThrown || otherExThrown) //cause rollback
                 throw new ApplicationException("Exception occured while processing message.");
         }
 
@@ -761,10 +754,52 @@ namespace NServiceBus.Unicast.Transport.Msmq
             return types.ToArray();
         }
 
-        private void OnStartedMessageProcessing()
+        private bool OnFinishedMessageProcessing()
         {
-            if (StartedMessageProcessing != null)
-                StartedMessageProcessing(this, null);
+            try
+            {
+                if (FinishedMessageProcessing != null)
+                    FinishedMessageProcessing(this, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed raising 'finished message processing' event.", e);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool OnTransportMessageReceived(TransportMessage msg)
+        {
+            try
+            {
+                if (TransportMessageReceived != null)
+                    TransportMessageReceived(this, new TransportMessageReceivedEventArgs(msg));
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed raising 'transport message received' event.", e);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool OnFailedMessageProcessing()
+        {
+            try
+            {
+                if (FailedMessageProcessing != null)
+                    FailedMessageProcessing(this, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed raising 'failed message processing' event.", e);
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

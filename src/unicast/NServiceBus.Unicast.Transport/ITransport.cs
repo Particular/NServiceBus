@@ -74,6 +74,12 @@ namespace NServiceBus.Unicast.Transport
         event EventHandler FinishedMessageProcessing;
 
         /// <summary>
+        /// Raised if an exception was encountered at any point in the processing - including
+        /// when the transaction commits.
+        /// </summary>
+	    event EventHandler FailedMessageProcessing;
+
+        /// <summary>
         /// Causes the current message being handled to return to the queue.
         /// </summary>
 	    void AbortHandlingCurrentMessage();
