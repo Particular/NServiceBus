@@ -16,7 +16,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             var assembliesContainingSagas = sagaEntites.Select(t => t.Assembly).Distinct();
 
             if (assembliesContainingSagas.Count() == 0)
-                throw new InvalidOperationException("No sagas found in scanned assemblies");
+                return null;
 
             var model = new AutoPersistenceModel();
 

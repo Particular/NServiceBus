@@ -23,6 +23,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
         {
             var model = Create.SagaPersistenceModel(typesToScan);
 
+            if (model == null)
+                return null;
+
             var fluentConfiguration = Fluently.Configure(new Configuration().SetProperties(nhibernateProperties))
                                         .Mappings(m => m.AutoMappings.Add(model));
 

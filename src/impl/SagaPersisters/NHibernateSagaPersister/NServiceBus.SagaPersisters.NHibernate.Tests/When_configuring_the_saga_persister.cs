@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Cfg.Db;
+﻿using System;
+using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using NHibernate.Connection;
 using NHibernate.Dialect;
@@ -7,6 +8,7 @@ using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
 using Rhino.Mocks;
+using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
@@ -20,7 +22,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var properties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Sagas.sqlite").ToProperties();
          
-            config = Configure.With()
+            config = Configure.With(new[] { typeof(MySaga), typeof(MySagaData) })
                 .SpringBuilder()
                 .Sagas()
                 .NHibernateSagaPersister();
@@ -90,5 +92,18 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
         }
 
+        public class MySagaData : ISagaEntity
+        {
+            public System.Guid Id { get; set; }
+            public string OriginalMessageId { get; set; }
+            public string Originator { get; set; }
+        }
+
+        public class MySaga : Saga<MySagaData>
+        {
+            public override void Timeout(object state)
+            {
+            }
+        }
     }
 }

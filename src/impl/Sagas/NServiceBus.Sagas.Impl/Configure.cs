@@ -4,7 +4,6 @@ using NServiceBus.ObjectBuilder;
 using System.Reflection;
 using NServiceBus.Saga;
 using Common.Logging;
-using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Sagas.Impl
 {
@@ -50,6 +49,7 @@ namespace NServiceBus.Sagas.Impl
                 {
                     configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
                     ConfigureSaga(t);
+                    SagasWereFound = true;
                 }
 
                 if (IsFinderType(t))
@@ -120,6 +120,12 @@ namespace NServiceBus.Sagas.Impl
         #endregion
 
         #region methods used at runtime
+
+        /// <summary>
+        /// Returns true if a saga type was found in the types passed in to <see cref="SagasIn"/>.
+        /// </summary>
+        public static bool SagasWereFound { get; private set; }
+
 
         /// <summary>
         /// Gets the saga type to instantiate and invoke if an existing saga couldn't be found by

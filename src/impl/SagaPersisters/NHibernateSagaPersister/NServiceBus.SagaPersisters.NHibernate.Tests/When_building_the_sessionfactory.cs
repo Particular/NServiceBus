@@ -19,15 +19,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
             .ToProperties();
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
-        public void Exception_should_be_thrown_if_no_sagas_is_found_in_scanned_assemblies()
-        {
-            var assemblyWithNoSagas = typeof(IBus).Assembly;
-
-            new SessionFactoryBuilder(assemblyWithNoSagas.GetTypes())
-                .Build(testProperties, false);
-        }
-
         [Test]
         public void Sagas_should_automatically_be_mapped_using_conventions()
         {

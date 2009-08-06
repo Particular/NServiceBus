@@ -24,6 +24,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersister(this Configure config)
         {
+            if (!Sagas.Impl.Configure.SagasWereFound)
+                return config; //no sagas - don't need to do anything
+
             var builder = new SessionFactoryBuilder(Configure.TypesToScan);
             var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
 
