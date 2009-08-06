@@ -438,16 +438,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
 
             //care about failures here
-            var exceptionThrown = OnTransportMessageReceived(result);
+            var exceptionNotThrown = OnTransportMessageReceived(result);
             //and here
-            var otherExThrown = OnFinishedMessageProcessing();
+            var otherExNotThrown = OnFinishedMessageProcessing();
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            if (exceptionThrown || otherExThrown) //cause rollback
+            if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
                 throw new ApplicationException("Exception occured while processing message.");
         }
 

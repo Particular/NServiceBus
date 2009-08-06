@@ -9,16 +9,22 @@ namespace WebService1
 
         protected void Application_Start(object sender, EventArgs e)
         {
+            try
+            {
             Bus = Configure.WithWeb()
                 .SpringBuilder()
                 .BinarySerializer()
                 .MsmqTransport()
-                    .IsTransactional(false)
-                    .PurgeOnStartup(false)
                 .UnicastBus()
-                    .ImpersonateSender(false)
+                    .LoadMessageHandlers()
                 .CreateBus()
                 .Start();
+
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+            }
         }
 
         protected void Application_End(object sender, EventArgs e)
