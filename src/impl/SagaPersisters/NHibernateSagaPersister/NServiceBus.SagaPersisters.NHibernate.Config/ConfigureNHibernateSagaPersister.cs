@@ -46,8 +46,6 @@ namespace NServiceBus
             }
 
             config.Configurer.RegisterSingleton<ISessionFactory>(builder.Build(nhibernateProperties, updateSchema));
-            config.Configurer.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall);
-            config.Configurer.ConfigureComponent<NHibernateMessageModule>(ComponentCallModelEnum.Singleton);
 
             return config;
         }

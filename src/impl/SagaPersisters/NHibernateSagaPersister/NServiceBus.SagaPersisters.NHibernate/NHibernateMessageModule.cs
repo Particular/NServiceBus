@@ -10,18 +10,17 @@ namespace NServiceBus.SagaPersisters.NHibernate
     /// </summary>
     public class NHibernateMessageModule : IMessageModule
     {
-        /// <summary>
-        /// Opens a new NHibernate session using the injected session factory.
-        /// </summary>
-        public void HandleBeginMessage()
+        void IMessageModule.HandleBeginMessage()
         {
-            CurrentSessionContext.Bind(SessionFactory.OpenSession());
+            if (SessionFactory != null)
+                CurrentSessionContext.Bind(SessionFactory.OpenSession());
         }
 
-        /// <summary>
-        /// Closes the NHibernate session previously opened.
-        /// </summary>
-        public void HandleEndMessage()
+        void IMessageModule.HandleEndMessage()
+        {
+        }
+
+        void IMessageModule.HandleError()
         {
         }
 

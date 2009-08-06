@@ -38,6 +38,10 @@ namespace NServiceBus.Unicast.Config
             if (authType != null)
                 Configurer.ConfigureComponent(authType, ComponentCallModelEnum.Singleton);
 
+            TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
+                        type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singleton)
+                    );
+
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)

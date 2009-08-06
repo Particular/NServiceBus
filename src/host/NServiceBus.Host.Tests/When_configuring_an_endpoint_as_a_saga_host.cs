@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NBehave.Spec.NUnit;
 using NServiceBus.Host.Internal;
 using NServiceBus.Saga;
@@ -44,8 +45,13 @@ namespace NServiceBus.Host.Tests
         }
     }
 
-    public class SagaHostConfig : IConfigureThisEndpoint
+    public class SagaHostConfig : IConfigureThisEndpoint,
+        ISpecify.TypesToScan
     {
+        public IEnumerable<Type> TypesToScan
+        {
+            get { return new[] { typeof(SagaPersisters.NHibernate.SagaPersister), typeof(ServerSaga), typeof(ServerSagaData) }; }
+        }
     }
 
 

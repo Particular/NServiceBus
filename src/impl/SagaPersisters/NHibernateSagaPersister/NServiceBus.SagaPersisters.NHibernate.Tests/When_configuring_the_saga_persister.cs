@@ -21,8 +21,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void SetUp()
         {
             var properties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Sagas.sqlite").ToProperties();
-         
-            config = Configure.With(new[] { typeof(MySaga), typeof(MySagaData) })
+
+            config = Configure.With(new[] {typeof (MySaga), typeof (MySagaData), typeof(SagaPersister)})
                 .SpringBuilder()
                 .Sagas()
                 .NHibernateSagaPersister();
@@ -34,16 +34,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persister = config.Builder.Build<SagaPersister>();
 
             persister.ShouldNotBeTheSameAs(config.Builder.Build<SagaPersister>());
-        }
-
-
-        [Test]
-        public void Message_module_for_session_management_should_be_registered_singleton()
-        {
-            var module = config.Builder.Build<NHibernateMessageModule>();
-
-            module.ShouldNotBeNull();
-            module.ShouldBeTheSameAs(config.Builder.Build<NHibernateMessageModule>());
         }
 
         [Test]
