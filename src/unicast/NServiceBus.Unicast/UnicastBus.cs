@@ -76,6 +76,7 @@ namespace NServiceBus.Unicast
                 transport.StartedMessageProcessing += TransportStartedMessageProcessing;
                 transport.TransportMessageReceived += TransportMessageReceived;
                 transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
+                transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
         }
 
@@ -1027,13 +1028,39 @@ namespace NServiceBus.Unicast
             _skipSendingReadyMessageOnce = false;
 
             foreach (var module in modules)
+            {
+                Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
                 module.HandleEndMessage();
+            }
+        }
+
+        private void TransportFailedMessageProcessing(object sender, EventArgs e)
+        {
+            var exceptionThrown = false;
+
+            foreach (var module in modules)
+                try
+                {
+                    Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
+                    module.HandleError();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Module " + module.GetType().FullName + " failed when handling error.", ex);
+                    exceptionThrown = true;
+                }
+
+            if (exceptionThrown)
+                throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
         }
 
         private void TransportStartedMessageProcessing(object sender, EventArgs e)
         {
             foreach (var module in modules)
-                module.HandleBeginMessage();
+            {
+                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
+                module.HandleBeginMessage(); //don't need to call others if one fails
+            }
         }
 
         private bool IsInitializationMessage(TransportMessage msg)

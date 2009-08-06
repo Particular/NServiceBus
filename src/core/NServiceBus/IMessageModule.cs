@@ -14,5 +14,11 @@ namespace NServiceBus
         /// This method is called after all message handlers have been called.
         /// </summary>
         void HandleEndMessage();
+
+        /// <summary>
+        /// This method is called if there was an error in processing the message,
+        /// and may be called after <see cref="HandleEndMessage"/>.
+        /// </summary>
+        void HandleError();
     }
 }
