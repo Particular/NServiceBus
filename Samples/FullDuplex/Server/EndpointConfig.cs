@@ -7,7 +7,8 @@ namespace Server
                                 As.aServer,
                                 ISpecify.ToUseXmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
-                                IWantCustomInitialization
+                                IWantCustomInitialization,
+                                IDontWant.Sagas
     {
         public string Namespace
         {
