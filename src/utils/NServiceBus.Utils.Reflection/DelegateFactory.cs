@@ -1,4 +1,14 @@
-﻿using System.Linq;
+﻿/*
+ Added reflection optimization techniques from Nate Kohari and Jimmy Bogard:
+
+http://kohari.org/2009/03/06/fast-late-bound-invocation-with-expression-trees/
+
+http://www.lostechies.com/blogs/jimmy_bogard/archive/2009/06/17/more-on-late-bound-invocations-with-expression-trees.aspx
+
+http://www.lostechies.com/blogs/jimmy_bogard/archive/2009/08/05/late-bound-invocations-with-dynamicmethod.aspx 
+ */
+
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
