@@ -11,7 +11,7 @@ namespace NServiceBus
     }
 
 	/// <summary>
-	/// Attribute to indicate that a message is recoverable.
+	/// Attribute to indicate that a message is recoverable - this is now the default.
 	/// </summary>
 	/// <remarks>
 	/// This attribute should be applied to classes that implement <see cref="IMessage"/>
@@ -21,6 +21,15 @@ namespace NServiceBus
 	/// delivery will continue when the machine is brought back online.</remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class RecoverableAttribute : Attribute
+    {
+    }
+
+    /// <summary>
+    /// Attribute to indicate that the message should not be written to disk.
+    /// This will make the message vulnerable to server crashes or restarts.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    public class ExpressAttribute : Attribute
     {
     }
 

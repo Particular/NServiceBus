@@ -1171,7 +1171,7 @@ namespace NServiceBus.Unicast
 
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + destination + ".");
 
-                if (messageType.GetCustomAttributes(typeof(RecoverableAttribute), true).Length > 0)
+                if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                     recoverableMessageTypes.Add(messageType);
 
                 foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
