@@ -1,8 +1,11 @@
-﻿namespace NServiceBus
+﻿using System;
+
+namespace NServiceBus
 {
     /// <summary>
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
+    [Serializable]
     public class WireEncryptedString
     {
         /// <summary>
