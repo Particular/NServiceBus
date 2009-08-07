@@ -81,6 +81,7 @@ namespace NServiceBus.Host
             return endpoints.First();
         }
 
+        [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
             foreach (var assemblyFile in new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
