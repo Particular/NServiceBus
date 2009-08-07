@@ -355,12 +355,12 @@ namespace NServiceBus.Sagas.Impl
             PropertyInfo prop = t.GetProperty("Data");
             MapSagaTypeToSagaEntityType(t, prop.PropertyType);
 
+            if (!typeof(IConfigurable).IsAssignableFrom(t))
+                return;
+
             var saga =  Activator.CreateInstance(t) as ISaga;
             if (saga == null)
-            {
-                Logger.Warn("Could not process saga type: " + t.FullName);
-                return;
-            }
+                throw new InvalidOperationException("Sagas which implement IConfigurable, like those which inherit from Saga<T>, must have a default constructor.");
 
             var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
             if (p != null)

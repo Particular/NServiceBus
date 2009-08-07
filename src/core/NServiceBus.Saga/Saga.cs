@@ -149,6 +149,8 @@ namespace NServiceBus.Saga
         /// Notifies that the timeout it previously requested occurred.
         /// </summary>
         /// <param name="state">The object passed as the "withState" parameter to RequestTimeout.</param>
-        public abstract void Timeout(object state);
+        public virtual void Timeout(object state)
+        {
+        }
     }
 }
