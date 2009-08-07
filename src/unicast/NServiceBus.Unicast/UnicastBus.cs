@@ -1098,12 +1098,12 @@ namespace NServiceBus.Unicast
         {
             foreach (DictionaryEntry de in owners)
             {
+                var key = de.Key as string;
+                if (key == null)
+                    continue;
+
                 try
                 {
-                    var key = de.Key as string;
-                    if (key == null)
-                        continue;
-
                     var messageType = Type.GetType(key, false);
                     if (messageType != null)
                     {
@@ -1111,22 +1111,20 @@ namespace NServiceBus.Unicast
                         continue;
                     }
                 }
-// ReSharper disable EmptyGeneralCatchClause
-                catch
-// ReSharper restore EmptyGeneralCatchClause
+                catch(Exception ex)
                 {
+                    Log.Error("Problem loading message type: " + key, ex);
                 }
 
                 try
                 {
-                    var a = Assembly.Load(de.Key.ToString());
+                    var a = Assembly.Load(key);
                     foreach (var t in a.GetTypes())
                         RegisterMessageType(t, de.Value.ToString(), true);
                 }
-// ReSharper disable EmptyGeneralCatchClause
-                catch
-// ReSharper restore EmptyGeneralCatchClause
+                catch(Exception ex)
                 {
+                    throw new ArgumentException("Problem loading message assembly: " + key, ex);
                 }
             }
         }
