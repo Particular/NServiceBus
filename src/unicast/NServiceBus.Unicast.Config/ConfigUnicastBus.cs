@@ -31,16 +31,11 @@ namespace NServiceBus.Unicast.Config
 
             busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
 
-            Type authType =
-                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).
-                    FirstOrDefault();
+            ConfigureSubscriptionAuthorization();
 
-            if (authType != null)
-                Configurer.ConfigureComponent(authType, ComponentCallModelEnum.Singleton);
+            RegisterMessageModules();
 
-            TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
-                        type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singleton)
-                    );
+            CheckMessages();
 
             var cfg = GetConfigSection<UnicastBusConfig>();
 
@@ -58,6 +53,44 @@ namespace NServiceBus.Unicast.Config
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
+        }
+
+        private static void CheckMessages()
+        {
+            foreach(var t in TypesToScan)
+            {
+                if (typeof(IMessage) == t) continue;
+                if (!typeof(IMessage).IsAssignableFrom(t)) continue;
+                if (!t.IsClass) continue;
+
+                var hasDefaultConstructor = false;
+
+                var constructors = t.GetConstructors(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance);
+                constructors.ToList().ForEach(c => {
+                    if (c.GetParameters().Length == 0 && c.IsPublic)
+                        hasDefaultConstructor = true;
+                } );
+
+                if (!hasDefaultConstructor)
+                    throw new InvalidOperationException("Message type doesn't have required default constructor: " + t.FullName);
+            }
+        }
+
+        private void RegisterMessageModules()
+        {
+            TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
+                type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singleton)
+                );
+        }
+
+        private void ConfigureSubscriptionAuthorization()
+        {
+            Type authType =
+                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).
+                    FirstOrDefault();
+
+            if (authType != null)
+                Configurer.ConfigureComponent(authType, ComponentCallModelEnum.Singleton);
         }
 
         /// <summary>

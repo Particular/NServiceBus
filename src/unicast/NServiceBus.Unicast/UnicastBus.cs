@@ -1169,6 +1169,8 @@ namespace NServiceBus.Unicast
                 messageTypeToDestinationLookup[messageType] = destination;
                 AddMessageType(messageType);
 
+                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + destination + ".");
+
                 if (messageType.GetCustomAttributes(typeof(RecoverableAttribute), true).Length > 0)
                     recoverableMessageTypes.Add(messageType);
 
@@ -1188,7 +1190,7 @@ namespace NServiceBus.Unicast
             if (!messageTypes.Contains(messageType))
             {
                 messageTypes.Add(messageType);
-                Log.Debug("Registered message " + messageType.FullName);
+                Log.Debug("Message identified: " + messageType.FullName);
             }
         }
 
