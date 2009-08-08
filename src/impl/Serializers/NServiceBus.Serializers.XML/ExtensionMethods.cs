@@ -21,6 +21,7 @@ namespace NServiceBus.Serializers.XML
                     type == typeof(Guid) ||
                     type == typeof(DateTime) ||
                     type == typeof(TimeSpan) ||
+                    type == typeof(DateTimeOffset) ||
                     type.IsEnum);
         }
 

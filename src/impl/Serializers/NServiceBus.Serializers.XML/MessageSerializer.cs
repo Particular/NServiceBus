@@ -10,6 +10,7 @@ using NServiceBus.MessageInterfaces;
 using System.Runtime.Serialization;
 using Common.Logging;
 using NServiceBus.Encryption;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Serializers.XML
 {
@@ -67,7 +68,7 @@ namespace NServiceBus.Serializers.XML
         /// <param name="t"></param>
         public void InitType(Type t)
         {
-            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime))
+            if (t.IsSimpleType())
                 return;
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
@@ -90,6 +91,14 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
+            var isKeyValuePair = false;
+
+            var args = t.GetGenericArguments();
+            if (args.Length == 2)
+            {
+                isKeyValuePair = (typeof (KeyValuePair<,>).MakeGenericType(args) == t);
+            }
+
             //already in the process of initializing this type (prevents infinite recursion).
             if (typesBeingInitialized.Contains(t))
                 return;
@@ -101,11 +110,26 @@ namespace NServiceBus.Serializers.XML
             var fields = GetAllFieldsForType(t);
             typeToFields[t] = fields;
 
-            foreach (PropertyInfo prop in props)
-                InitType(prop.PropertyType);
 
-            foreach (FieldInfo field in fields)
-                InitType(field.FieldType);
+            foreach (var p in props)
+            {
+                propertyInfoToLateBoundProperty[p] = DelegateFactory.Create(p);
+
+                if (!isKeyValuePair)
+                    propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
+            
+                InitType(p.PropertyType);
+            }
+
+            foreach (var f in fields)
+            {
+                fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
+
+                if (!isKeyValuePair)
+                    fieldInfoToLateBoundFieldSet[f] = DelegateFactory.CreateSet(f);
+
+                InitType(f.FieldType);
+            }
         }
 
         /// <summary>
@@ -293,7 +317,7 @@ namespace NServiceBus.Serializers.XML
                     var val = GetPropertyValue(type ?? prop.PropertyType, n);
                     if (val != null)
                     {
-                        prop.SetValue(result, val, null);
+                        propertyInfoToLateBoundPropertySet[prop].Invoke(result, val);
                         continue;
                     }
                 }
@@ -304,7 +328,7 @@ namespace NServiceBus.Serializers.XML
                     object val = GetPropertyValue(type ?? field.FieldType, n);
                     if (val != null)
                     {
-                        field.SetValue(result, val);
+                        fieldInfoToLateBoundFieldSet[field].Invoke(result, val);
                         continue;
                     }
                 }
@@ -532,10 +556,10 @@ namespace NServiceBus.Serializers.XML
                 return;
 
             foreach (PropertyInfo prop in typeToProperties[t])
-                WriteEntry(prop.Name, prop.PropertyType, prop.GetValue(obj, null), builder);
+                WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
 
             foreach(FieldInfo field in typeToFields[t])
-                WriteEntry(field.Name, field.FieldType, field.GetValue(obj), builder);
+                WriteEntry(field.Name, field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
         }
 
         private void WriteObject(string name, Type type, object value, StringBuilder builder)
@@ -709,6 +733,11 @@ namespace NServiceBus.Serializers.XML
         private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
         private static readonly List<Type> typesBeingInitialized = new List<Type>();
+
+        private static readonly Dictionary<PropertyInfo, LateBoundProperty> propertyInfoToLateBoundProperty = new Dictionary<PropertyInfo, LateBoundProperty>();
+        private static readonly Dictionary<FieldInfo, LateBoundField> fieldInfoToLateBoundField = new Dictionary<FieldInfo, LateBoundField>();
+        private static readonly Dictionary<PropertyInfo, LateBoundPropertySet> propertyInfoToLateBoundPropertySet = new Dictionary<PropertyInfo, LateBoundPropertySet>();
+        private static readonly Dictionary<FieldInfo, LateBoundFieldSet> fieldInfoToLateBoundFieldSet = new Dictionary<FieldInfo, LateBoundFieldSet>();
 
         [ThreadStatic]
         private static string defaultNameSpace;

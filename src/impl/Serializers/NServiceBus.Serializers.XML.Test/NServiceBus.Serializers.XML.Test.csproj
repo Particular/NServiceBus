@@ -42,6 +42,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Encryption, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Encryption.Rijndael, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.Rijndael.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Encryption.Rijndael.Config, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.Rijndael.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageInterfaces, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
@@ -49,6 +61,10 @@
     <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Utils.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.Reflection.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
