@@ -13,27 +13,22 @@ namespace Client
         {
             Console.WriteLine("Press 'Enter' to send a message.To exit, Ctrl + C");
 
-            Action handleInput = () =>
+            while (Console.ReadLine() != null)
             {
-                while (Console.ReadLine() != null)
-                {
-                    var m = new RequestDataMessage
-                                {
-                                    DataId = Guid.NewGuid(),
-                                    String = "<node>it's my \"node\" & i like it<node>",
-                                    SecretQuestion = "What's your favorite color?"
-                                };
+                var m = new RequestDataMessage
+                            {
+                                DataId = Guid.NewGuid(),
+                                String = "<node>it's my \"node\" & i like it<node>",
+                                SecretQuestion = "What's your favorite color?"
+                            };
 
-                    Console.WriteLine("Requesting to get data by id: {0}", m.DataId.ToString("N"));
+                Console.WriteLine("Requesting to get data by id: {0}", m.DataId.ToString("N"));
 
-                    Bus.OutgoingHeaders["Test"] = m.DataId.ToString("N");
+                Bus.OutgoingHeaders["Test"] = m.DataId.ToString("N");
 
-                    //notice that we're passing the message as our state object - gives context for handling responses (especially if they arrive out of order).
-                    Bus.Send(m).Register(RequestDataComplete, m);
-                }
-            };
-
-            handleInput.BeginInvoke(null, null);
+                //notice that we're passing the message as our state object - gives context for handling responses (especially if they arrive out of order).
+                Bus.Send(m).Register(RequestDataComplete, m);
+            }
         }
 
         private void RequestDataComplete(IAsyncResult asyncResult)

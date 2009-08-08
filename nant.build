@@ -32,6 +32,7 @@
 	<if test="${Is64BitProcess}">
 		<property name="architecture" value="x64"/>
 	</if>
+  <echo message="${architecture}" />
 	
 	<readregistry  property="msmq.version" key="SOFTWARE\Microsoft\MSMQ\Parameters\CurrentBuild" hive="LocalMachine" failonerror="false"/>
 	<echo message="${msmq.version}" />

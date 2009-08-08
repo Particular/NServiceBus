@@ -34,8 +34,12 @@ namespace NServiceBus.Host.Internal
             if (!(configurationSpecifier is IDontWant.TheBusStartedAutomatically))
                 busConfiguration.CreateBus().Start(startupAction);
 
-            if (messageEndpoint != null)
-                messageEndpoint.OnStart();
+            if (messageEndpoint == null)
+                return;
+
+            //give it its own thread so that logging continues to work.
+            Action onstart = () => messageEndpoint.OnStart();
+            onstart.BeginInvoke(null, null);
         }
 
        

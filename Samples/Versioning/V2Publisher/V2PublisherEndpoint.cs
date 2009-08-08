@@ -12,21 +12,16 @@ namespace V2Publisher
         {
             Console.WriteLine("Press 'Enter' to publish a message, Ctrl + C to exit.");
 
-            Action a = () =>
-                           {
-                               while (Console.ReadLine() != null)
-                               {
-                                   Bus.Publish<V2.Messages.SomethingHappened>(sh =>
-                                                                                  {
-                                                                                      sh.SomeData = 1;
-                                                                                      sh.MoreInfo = "It's a secret.";
-                                                                                  });
+           while (Console.ReadLine() != null)
+           {
+               Bus.Publish<V2.Messages.SomethingHappened>(sh =>
+                                                              {
+                                                                  sh.SomeData = 1;
+                                                                  sh.MoreInfo = "It's a secret.";
+                                                              });
 
-                                   Console.WriteLine("Published event.");
-                               }
-                           };
-
-            a.BeginInvoke(null, null);
+               Console.WriteLine("Published event.");
+           }
         }
 
         public void OnStop()

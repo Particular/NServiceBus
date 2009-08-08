@@ -14,8 +14,6 @@ namespace Server
             Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
 
-            Action handleInput = () =>
-                                     {
             bool publishIEvent = true;
             while (Console.ReadLine() != null)
             {
@@ -35,9 +33,6 @@ namespace Server
 
                 publishIEvent = !publishIEvent;
             }
-                                     };
-
-            handleInput.BeginInvoke(null, null);
         }
 
         public void OnStop()
