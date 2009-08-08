@@ -61,21 +61,7 @@ namespace NServiceBus.Sagas.Impl
                     ConfigureFinder(t);
                     continue;
                 }
-
-                if (typeof(ISagaPersister).IsAssignableFrom(t) && !t.IsInterface)
-                {
-                    if (sagaPersisterType != null)
-                        Logger.Warn("Found additional saga persister type - this will not be used: " + t.FullName);
-                    else
-                    {
-                        Logger.Debug("Found saga persister type: " + t.FullName);
-                        sagaPersisterType = t;
-                    }
-                }
             }
-
-            if (sagaPersisterType != null)
-                configurer.ConfigureComponent(sagaPersisterType, ComponentCallModelEnum.Singlecall);
 
             CreateAdditionalFindersAsNecessary();
         }
