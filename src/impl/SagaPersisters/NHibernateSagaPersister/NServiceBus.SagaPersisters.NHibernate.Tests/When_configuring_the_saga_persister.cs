@@ -64,7 +64,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
-            var configWithMissingSection = Configure.With()
+            var configWithMissingSection = Configure.With(new[] { typeof(MySaga), typeof(MySagaData), typeof(SagaPersister) })
                .SpringBuilder()
                .CustomConfigurationSource(configSource)
                .Sagas()

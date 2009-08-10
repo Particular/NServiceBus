@@ -50,6 +50,7 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Conventions\EnumShouldBeMappedAsIntegerConvention.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Conventions\CollectionsShouldCascadeConvention.cs" />
     <Compile Include="Conventions\IdShouldBeAssignedConvention.cs" />

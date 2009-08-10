@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+
 using FluentNHibernate.Cfg.Db;
 using NBehave.Spec.NUnit;
 using NHibernate.ByteCode.LinFu;
-using NHibernate.Id;
 using NHibernate.Impl;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NUnit.Framework;
@@ -14,32 +13,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     [TestFixture]
     public class When_building_the_sessionfactory
     {
-        private IDictionary<string, string> testProperties = SQLiteConfiguration.Standard
+        private readonly IDictionary<string, string> testProperties = SQLiteConfiguration.Standard
             .InMemory()
             .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
             .ToProperties();
 
-        [Test]
-        public void Sagas_should_automatically_be_mapped_using_conventions()
-        {
-            var assemblyContainingSagas = typeof(TestSaga).Assembly;
-
-            var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
-
-            var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl; ;
-
-            var persisterForTestSaga = sessionFactory.GetEntityPersister(typeof(TestSaga).FullName);
-
-            persisterForTestSaga.ShouldNotBeNull();
-
-            persisterForTestSaga.IdentifierGenerator.ShouldBeInstanceOfType(typeof(Assigned));
-
-
-            var persisterForOrderLine = sessionFactory.GetEntityPersister(typeof(OrderLine).FullName);
-            persisterForOrderLine.IdentifierGenerator.ShouldBeInstanceOfType(typeof(GuidCombGenerator));
-
-        }
-
+       
         [Test]
         public void Proxy_factory_should_default_to_linfu_if_not_set_by_user()
         {
@@ -61,7 +40,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
 
-            var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl; ;
+            var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl;
 
             sessionFactory.GetEntityPersister(typeof(RelatedClass).FullName)
                 .ShouldNotBeNull();

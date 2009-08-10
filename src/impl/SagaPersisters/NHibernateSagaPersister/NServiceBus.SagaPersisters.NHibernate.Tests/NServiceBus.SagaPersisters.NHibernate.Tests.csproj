@@ -104,6 +104,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="TestSaga.cs" />
+    <Compile Include="When_automapping_sagas.cs" />
     <Compile Include="When_building_the_sessionfactory.cs" />
     <Compile Include="When_configuring_the_saga_persister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

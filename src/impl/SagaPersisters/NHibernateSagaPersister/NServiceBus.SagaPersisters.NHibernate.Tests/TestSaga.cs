@@ -15,6 +15,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual RelatedClass RelatedClass { get; set; }
 
         public virtual IList<OrderLine> OrderLines { get; set; }
+
+        public virtual StatusEnum Status { get; set; }
+    }
+
+    public enum StatusEnum
+    {
+        SomeStatus, AnotherStatus
     }
 
     public class OrderLine
