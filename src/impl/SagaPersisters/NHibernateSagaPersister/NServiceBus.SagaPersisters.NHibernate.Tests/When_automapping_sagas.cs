@@ -5,7 +5,6 @@ using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;
 using NHibernate.Persister.Entity;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NUnit.Framework;
 
@@ -27,7 +26,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             sessionFactory = builder.Build(SQLiteConfiguration.Standard
              .InMemory()
              .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-             .ToProperties(), false) as SessionFactoryImpl; ;
+             .ToProperties(), false) as SessionFactoryImpl;
 
             persisterForTestSaga = sessionFactory.GetEntityPersister(typeof(TestSaga).FullName);
 
@@ -54,6 +53,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persisterForOrderLine = sessionFactory.GetEntityPersister(typeof(OrderLine).FullName);
 
             persisterForOrderLine.IdentifierGenerator.ShouldBeInstanceOfType(typeof(GuidCombGenerator));
+        }
+
+        [Test]
+        public void Datetime_properties_should_be_mapped()
+        {
+            var dateTimeProperty = persisterForTestSaga.EntityMetamodel.Properties
+                .Where(x => x.Name == "DateTimeProperty")
+                .FirstOrDefault();
+
+            dateTimeProperty.ShouldNotBeNull();
         }
 
     }

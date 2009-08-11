@@ -17,6 +17,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual IList<OrderLine> OrderLines { get; set; }
 
         public virtual StatusEnum Status { get; set; }
+
+        public virtual DateTime DateTimeProperty { get; set; }
     }
 
     public enum StatusEnum

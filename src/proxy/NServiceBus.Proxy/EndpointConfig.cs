@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using Common.Logging;
 using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
@@ -47,12 +48,16 @@ namespace NServiceBus.Proxy
 
             configure.Configurer.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.RemoteServer, remoteServer);
-
+            logger.Info("Proxy configured for remoteserver: " +  remoteServer);
             var proxy = configure.Builder.Build<Proxy>();
             proxy.ExternalTransport = externalTransport;
             proxy.InternalTransport = internalTransport;
 
             proxy.Start();
+
+            logger.Info("Proxy successfully started");
         }
+
+        private static readonly ILog logger = LogManager.GetLogger(typeof (EndpointConfig));
     }
 }
