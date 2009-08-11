@@ -43,8 +43,6 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="types"></param>
         public void SagasIn(IEnumerable<Type> types)
         {
-            Type sagaPersisterType = null;
-
             foreach (Type t in types)
             {
                 if (IsSagaType(t))
@@ -344,9 +342,11 @@ namespace NServiceBus.Sagas.Impl
             if (!typeof(IConfigurable).IsAssignableFrom(t))
                 return;
 
-            var saga =  Activator.CreateInstance(t) as ISaga;
-            if (saga == null)
+            var defaultConstructor = t.GetConstructor(Type.EmptyTypes);
+            if (defaultConstructor == null)
                 throw new InvalidOperationException("Sagas which implement IConfigurable, like those which inherit from Saga<T>, must have a default constructor.");
+
+            var saga =  Activator.CreateInstance(t) as ISaga;
 
             var p = t.GetProperty("SagaMessageFindingConfiguration", typeof(IConfigureHowToFindSagaWithMessage));
             if (p != null)
