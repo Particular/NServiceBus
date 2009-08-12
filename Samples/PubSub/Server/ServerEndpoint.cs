@@ -17,11 +17,7 @@ namespace Server
             bool publishIEvent = true;
             while (Console.ReadLine() != null)
             {
-                IEvent eventMessage;
-                if (publishIEvent)
-                    eventMessage = Bus.CreateInstance<IEvent>();
-                else
-                    eventMessage = new EventMessage();
+                var eventMessage = publishIEvent ? Bus.CreateInstance<IEvent>() : new EventMessage();
 
                 eventMessage.EventId = Guid.NewGuid();
                 eventMessage.Time = DateTime.Now.Second > 30 ? (DateTime?)DateTime.Now : null;
