@@ -9,7 +9,7 @@ namespace ProfilingTest
     {
         static void Main(string[] args)
         {
-            Class1 tester = new Class1();
+            SerializerTests tester = new SerializerTests();
             tester.TestInterfaces();
 
             Console.ReadLine();

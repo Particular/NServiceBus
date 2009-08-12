@@ -8,23 +8,18 @@ using NServiceBus.Serialization;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Collections;
+using NUnit.Framework;
 
 namespace NServiceBus.Serializers.XML.Test
 {
-    public class Class1
+    [TestFixture]
+    public class SerializerTests
     {
         private int number = 1;
         private int numberOfIterations = 100;
 
-        public void Test()
-        {
-            Debug.WriteLine("Interfaces");
-            TestInterfaces();
-
-            Debug.WriteLine("DataContractSerializer");
-            TestDataContractSerializer();
-        }
-
+       
+        [Test]
         public void TestInterfaces()
         {
             IMessageMapper mapper = new MessageMapper();
@@ -73,7 +68,8 @@ namespace NServiceBus.Serializers.XML.Test
             Time(messages, serializer);
         }
 
-        private void TestDataContractSerializer()
+        [Test]
+        public void TestDataContractSerializer()
         {
             M2 o = CreateM2();
             IMessage[] messages = new IMessage[] { o };
