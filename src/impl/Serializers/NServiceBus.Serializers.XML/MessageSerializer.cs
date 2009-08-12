@@ -99,6 +99,15 @@ namespace NServiceBus.Serializers.XML
                 isKeyValuePair = (typeof (KeyValuePair<,>).MakeGenericType(args) == t);
             }
 
+            if (args.Length == 1)
+            {
+                if (typeof(Nullable<>).MakeGenericType(args) == t)
+                {
+                    InitType(args[0]);
+                    return;
+                }
+            }
+
             //already in the process of initializing this type (prevents infinite recursion).
             if (typesBeingInitialized.Contains(t))
                 return;
@@ -554,6 +563,9 @@ namespace NServiceBus.Serializers.XML
         {
             if (obj == null)
                 return;
+
+            if (!typeToProperties.ContainsKey(t))
+                throw new InvalidOperationException("Type " + t.FullName + " was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.");
 
             foreach (PropertyInfo prop in typeToProperties[t])
                 WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
