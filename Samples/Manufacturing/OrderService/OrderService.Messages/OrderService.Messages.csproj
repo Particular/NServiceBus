@@ -36,7 +36,7 @@
   <ItemGroup>
     <Reference Include="NServiceBus, Version=1.9.3.40920, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

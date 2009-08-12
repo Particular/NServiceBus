@@ -10,6 +10,7 @@
 	<property name="project.fullversion" value="2.0.0.0" dynamic="true" />
 	<property name="nant.settings.currentframework" value="net-3.5" />
 	<property name="release.dir" value="${trunk.dir}\release"/>
+	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
@@ -39,7 +40,7 @@
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
-	<target name="build" depends="build_src,compile_tools,compile_samples"/>
+	<target name="build" depends="build_src,compile_tools,prepare_binaries,compile_samples"/>
 	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host,test"/>
 	
 	<target name="init" description="Initializes build properties">
@@ -264,7 +265,7 @@
 				  
 	</target>
 
-	<target name="compile_samples">
+	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
 					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing"
 					delim=","
@@ -275,85 +276,101 @@
 		</foreach>
 
 	</target>
+	
+	<target name="prepare_binaries">
+		<delete dir="${binaries.dir}" failonerror="false"></delete>
+		<mkdir dir="${binaries.dir}" />
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${output.dir}">
+				<include name="NServiceBus*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${output.dir}\host">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${output.dir}\testing">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${lib.dir}">
+				<include name="log4net.dll" />
+				<include name="nunit.framework.dll" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${lib.dir}\sqlite">
+				<include name="*.dll" />
+			</fileset>
+		</copy>
 
+		<!-- Prepare Containers -->
+		<mkdir dir="${binaries.dir}\containers\autofac" />
+		<copy todir="${binaries.dir}\containers\autofac">
+			<fileset basedir="${lib.dir}">
+				<include name="Autofac*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\autofac">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
+			</fileset>
+		</copy>
+    
+		<mkdir dir="${binaries.dir}\containers\castle" />
+		<copy todir="${binaries.dir}\containers\castle">
+			<fileset basedir="${lib.dir}">
+				<include name="Castle*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\castle">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+			</fileset>
+		</copy>
+
+		<mkdir dir="${binaries.dir}\containers\structuremap" />
+		<copy todir="${binaries.dir}\containers\structuremap">
+			<fileset basedir="${lib.dir}">
+				<include name="StructureMap*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\structuremap">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
+			</fileset>
+		</copy>
+
+		<mkdir dir="${binaries.dir}\containers\unity" />
+		<copy todir="${binaries.dir}\containers\unity">
+		  <fileset basedir="${lib.dir}">
+			<include name="Microsoft.Practices.ObjectBuilder2.dll" />
+			<include name="Microsoft.Practices.Unity.dll" />
+		  </fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\unity">
+		  <fileset basedir="${container.build.dir}">
+			<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+		  </fileset>
+		</copy>
+
+	</target>	
 	<target name="package" depends="build">
 		<delete dir="${release.dir}" failonerror="false"></delete>
 		<mkdir dir="${release.dir}" />
 
 		<copy todir="${release.dir}">
-			<fileset basedir="${output.dir}">
-				<include name="**" />
-				<exclude name="containers\**" />
+			<fileset basedir="${trunk.dir}">
+				<include name="binaries\**" />
 			</fileset>
 		</copy>
 		
 		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">
 				<include name="*.txt" />
-				<include name="*.vbs" />
-			</fileset>
-		</copy>
-
-    <!-- Prepare Containers -->
-		<mkdir dir="${release.dir}\containers\autofac" />
-		<copy todir="${release.dir}\containers\autofac">
-			<fileset basedir="${lib.dir}">
-				<include name="Autofac*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${release.dir}\containers\autofac">
-			<fileset basedir="${container.build.dir}">
-				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
-			</fileset>
-		</copy>
-    
-		<mkdir dir="${release.dir}\containers\castle" />
-		<copy todir="${release.dir}\containers\castle">
-			<fileset basedir="${lib.dir}">
-				<include name="Castle*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${release.dir}\containers\castle">
-			<fileset basedir="${container.build.dir}">
-				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
-			</fileset>
-		</copy>
-
-		<mkdir dir="${release.dir}\containers\structuremap" />
-		<copy todir="${release.dir}\containers\structuremap">
-			<fileset basedir="${lib.dir}">
-				<include name="StructureMap*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${release.dir}\containers\structuremap">
-			<fileset basedir="${container.build.dir}">
-				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
-			</fileset>
-		</copy>
-
-    <mkdir dir="${release.dir}\containers\unity" />
-    <copy todir="${release.dir}\containers\unity">
-      <fileset basedir="${lib.dir}">
-        <include name="Microsoft.Practices.ObjectBuilder2.dll" />
-        <include name="Microsoft.Practices.Unity.dll" />
-      </fileset>
-    </copy>
-    <copy todir="${release.dir}\containers\unity">
-      <fileset basedir="${container.build.dir}">
-        <include name="NServiceBus.ObjectBuilder.Unity.dll" />
-      </fileset>
-    </copy>
-		
-		<!-- Prepare Host -->
-		<mkdir dir="${release.dir}\host" />
-		<copy todir="${release.dir}\host">
-			<fileset basedir="${output.dir}\host">
-				<include name="NServiceBus*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${release.dir}\host">
-			<fileset basedir="${lib.dir}">
-				<include name="log4net.dll" />
 			</fileset>
 		</copy>
 
@@ -361,6 +378,15 @@
 		<copy todir="${release.dir}">
 			<fileset basedir="${build.base}">
 				<include name="tools\**" />
+				
+				<exclude name="**.xml" />
+				<exclude name="**.pdb" />
+			</fileset>
+		</copy>
+		
+		<!-- Prepare Tools -->
+		<copy todir="${release.dir}\processes">
+			<fileset basedir="${build.base}">
 				<include name="timeout\**" />
 				<include name="proxy\**" />
 				<include name="distributor\**" />
@@ -371,10 +397,19 @@
 			</fileset>
 		</copy>
 		
-		
 		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">
 				<include name="docs\**" />
+			</fileset>
+		</copy>
+
+		<copy todir="${release.dir}">
+			<fileset basedir="${trunk.dir}">
+				<include name="samples\**" />
+				<exclude name="**/obj/**" />
+				<exclude name="**/bin/**" />
+				<exclude name="**/_ReSharper*/**" />
+				<exclude name="**.cache" />
 			</fileset>
 		</copy>
 
@@ -387,6 +422,9 @@
 			</fileset>
 
 		</zip>
+		
+		<delete dir="${release.dir}" failonerror="false"/>
+		
 	</target>
 	
 	
