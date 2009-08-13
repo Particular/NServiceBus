@@ -22,10 +22,10 @@ namespace NServiceBus.Config.UnitTests
             configSection.TestSetting.ShouldEqual("test");
         }
 
-        [Test,ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void Getting_sections_that_not_inherits_from_configsection_should_fail()
         {
-            Configure.GetConfigSection<IllegalSection>();
+            Assert.Throws<ArgumentException>(() => Configure.GetConfigSection<IllegalSection>());
         }
     }
 
