@@ -46,31 +46,57 @@ namespace NServiceBus.Unicast
 
         void ICallback.RegisterWebCallback(Action<int> callback, object state)
         {
-            var page = callback.Target as Page;
-            if (page == null)
-                throw new InvalidOperationException(
-                    "Callback must be to an object that is a System.Web.UI.Page, or explicitly pass in a reference to the page object.");
+            var page = GetPageFromCallback(callback);
 
             (this as ICallback).RegisterWebCallback(callback, state, page);
         }
 
         void ICallback.RegisterWebCallback(Action<int> callback, object state, Page page)
         {
+            (this as ICallback).RegisterWebCallback<int>(callback, state, page);
+        }
+
+        void ICallback.RegisterWebCallback<T>(Action<T> callback, object state)
+        {
+            var page = GetPageFromCallback(callback);
+
+            (this as ICallback).RegisterWebCallback(callback, state, page);
+        }
+
+        void ICallback.RegisterWebCallback<T>(Action<T> callback, object state, Page page)
+        {
+            if (!typeof(T).IsEnum && typeof(T) != typeof(int))
+                throw new InvalidOperationException("Can only support registering web callbacks for integer or enum types. The given type is neither: " + typeof(T).FullName);
+
             page.RegisterAsyncTask(new PageAsyncTask(
                 (sender, e, cb, extraData) => (this as ICallback).Register(cb, extraData),
                 asyncResult =>
-                    {
-                        var cr = asyncResult.AsyncState as CompletionResult;
-                        if (cr == null) return;
+                {
+                    var cr = asyncResult.AsyncState as CompletionResult;
+                    if (cr == null) return;
 
-                        callback(cr.ErrorCode);
-                    }, 
+                    if (typeof(T) == typeof(int))
+                        (callback as Action<int>).Invoke(cr.ErrorCode);
+                    else
+                        callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
+                },
                 null,
                 state
                 ));
+
         }
 
         #endregion
+
+
+        private static Page GetPageFromCallback(Delegate callback)
+        {
+            var page = callback.Target as Page;
+            if (page == null)
+                throw new InvalidOperationException(
+                    "Callback must be to an object that is a System.Web.UI.Page, or explicitly pass in a reference to the page object.");
+            return page;
+        }
     }
 
     /// <summary>

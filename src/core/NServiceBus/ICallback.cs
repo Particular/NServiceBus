@@ -35,5 +35,26 @@ namespace NServiceBus
         /// <param name="state"></param>
         /// <param name="page"></param>
         void RegisterWebCallback(Action<int> callback, object state, Page page);
+
+        /// <summary>
+        /// Registers a callback to be invoked when a response arrives to the message sent.
+        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
+        /// Only works when the callback is on the Page object itself.
+        /// </summary>
+        /// <typeparam name="T">An enumeration type.</typeparam>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        void RegisterWebCallback<T>(Action<T> callback, object state);
+
+        /// <summary>
+        /// Registers a callback to be invoked when a response arrives to the message sent.
+        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
+        /// </summary>
+        /// <typeparam name="T">An enumeration type.</typeparam>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <param name="page"></param>
+        void RegisterWebCallback<T>(Action<T> callback, object state, Page page);
+
     }
 }
