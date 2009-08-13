@@ -31,12 +31,20 @@ namespace WebApplication1
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            RegisterAsyncTask(new PageAsyncTask(
-                beginning,
-                ending,
-                null,
-                null
-                ));
+            //RegisterAsyncTask(new PageAsyncTask(
+            //    beginning,
+            //    ending,
+            //    null,
+            //    null
+            //    ));
+
+            int number = int.Parse(TextBox1.Text);
+            var command = new Command { Id = number };
+
+            Global.Bus.Send(command).RegisterWebCallback(
+                i => Label1.Text = Enum.GetName(typeof (ErrorCodes), i)
+                , null
+                );
         }
 
     }

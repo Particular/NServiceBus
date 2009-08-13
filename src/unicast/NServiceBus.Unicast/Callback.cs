@@ -1,4 +1,5 @@
 using System;
+using System.Web.UI;
 
 namespace NServiceBus.Unicast
 {
@@ -33,21 +34,40 @@ namespace NServiceBus.Unicast
 
         #region ICallback Members
 
-        /// <summary>
-        /// Returns a new BusAsyncResult storing the given callback and state,
-        /// as well as raising the Registered event.
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        public IAsyncResult Register(AsyncCallback callback, object state)
+        IAsyncResult ICallback.Register(AsyncCallback callback, object state)
         {
-            BusAsyncResult result = new BusAsyncResult(callback, state);
+            var result = new BusAsyncResult(callback, state);
 
-            if (this.Registered != null)
-                this.Registered(this, new BusAsyncResultEventArgs { Result = result, MessageId = this.messageId });
+            if (Registered != null)
+                Registered(this, new BusAsyncResultEventArgs { Result = result, MessageId = messageId });
 
             return result;
+        }
+
+        void ICallback.RegisterWebCallback(Action<int> callback, object state)
+        {
+            var page = callback.Target as Page;
+            if (page == null)
+                throw new InvalidOperationException(
+                    "Callback must be to an object that is a System.Web.UI.Page, or explicitly pass in a reference to the page object.");
+
+            (this as ICallback).RegisterWebCallback(callback, state, page);
+        }
+
+        void ICallback.RegisterWebCallback(Action<int> callback, object state, Page page)
+        {
+            page.RegisterAsyncTask(new PageAsyncTask(
+                (sender, e, cb, extraData) => (this as ICallback).Register(cb, extraData),
+                asyncResult =>
+                    {
+                        var cr = asyncResult.AsyncState as CompletionResult;
+                        if (cr == null) return;
+
+                        callback(cr.ErrorCode);
+                    }, 
+                null,
+                state
+                ));
         }
 
         #endregion
