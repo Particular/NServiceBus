@@ -556,7 +556,7 @@ namespace NServiceBus.Unicast
                 transport.Send(toSend, destination);
 
                 if (Log.IsDebugEnabled)
-                    Log.Debug("Sending message " + messages[0].GetType().FullName + " to destination " + destination + ".");
+                    Log.Debug("Sending message " + messages[0].GetType().AssemblyQualifiedName + " with ID " + toSend.Id + " to destination " + destination + ".");
 
                 result.Add(toSend.Id);
             }
@@ -935,7 +935,7 @@ namespace NServiceBus.Unicast
             if (HandledSubscriptionMessage(msg, subscriptionStorage, SubscriptionAuthorizer))
                 return;
 
-            Log.Debug("Received message. First element of type: " + msg.Body[0].GetType());
+            Log.Debug("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
 
             _messageBeingHandled = msg;
             _handleCurrentMessageLaterWasCalled = false;
