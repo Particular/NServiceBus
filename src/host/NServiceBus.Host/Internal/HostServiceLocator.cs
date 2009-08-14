@@ -10,6 +10,11 @@ namespace NServiceBus.Host.Internal
     public class HostServiceLocator : ServiceLocatorImplBase
     {
         /// <summary>
+        /// Command line arguments.
+        /// </summary>
+        public static string[] Args;
+
+        /// <summary>
         /// Returns an instance of <see cref="GenericHost"/>
         /// </summary>
         /// <param name="serviceType"></param>
@@ -18,7 +23,7 @@ namespace NServiceBus.Host.Internal
         protected override object DoGetInstance(Type serviceType, string key)
         {
             var endpoint = Type.GetType(key,true);
-            return new GenericHost(endpoint);
+            return new GenericHost(endpoint, Args);
         }
 
         /// <summary>

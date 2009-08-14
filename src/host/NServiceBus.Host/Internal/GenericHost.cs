@@ -55,7 +55,8 @@ namespace NServiceBus.Host.Internal
         /// This type should implement <see cref="IConfigureThisEndpoint"/>.
         /// </summary>
         /// <param name="endpointType"></param>
-        public GenericHost(Type endpointType)
+        /// <param name="args"></param>
+        public GenericHost(Type endpointType, string[] args)
         {
             this.endpointType = endpointType;
         }

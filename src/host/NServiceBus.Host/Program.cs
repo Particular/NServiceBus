@@ -33,6 +33,8 @@ namespace NServiceBus.Host
           
             string endpointId = GetEndpointId(endpointConfigurationType);
 
+            AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
+
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
             {
                 x.SetDisplayName(endpointId);
@@ -42,9 +44,10 @@ namespace NServiceBus.Host
                 x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
                 {
                     c.ConfigurationFile(endpointConfigurationFile);
+                    c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
                     c.WhenStarted(service => service.Start());
                     c.WhenStopped(service => service.Stop());
-                    c.CreateServiceLocator(() => new HostServiceLocator());
+                    c.CreateServiceLocator(() =>  new HostServiceLocator());
                 });
                 x.DoNotStartAutomatically();
 
@@ -52,6 +55,11 @@ namespace NServiceBus.Host
             });
 
             Runner.Host(cfg, args);
+        }
+
+        private static void SetHostServiceLocatorArgs(string[] args)
+        {
+            HostServiceLocator.Args = args;
         }
 
         private static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
