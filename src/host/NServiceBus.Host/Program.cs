@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Common.Logging;
 using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
@@ -19,6 +21,12 @@ namespace NServiceBus.Host
         private static void Main(string[] args)
         {
             Type endpointConfigurationType = GetEndpointConfigurationType();
+
+            AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
+
+            var endpointConfig = Activator.CreateInstance(endpointConfigurationType) as IConfigureThisEndpoint;
+
+            ConfigureLogging(endpointConfig);
 
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
@@ -48,6 +56,14 @@ namespace NServiceBus.Host
             });
 
             Runner.Host(cfg, args);
+        }
+
+        private static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
+        {
+            var constructor = type.GetConstructor(Type.EmptyTypes);
+
+            if (constructor == null)
+                throw new InvalidOperationException("Endpoint configuration type needs to have a default constructor: " + type.FullName);
         }
 
         private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
@@ -136,6 +152,36 @@ namespace NServiceBus.Host
             }
 
             return endpointConfigurationType.FullName;
+        }
+
+
+        private static void ConfigureLogging(IConfigureThisEndpoint specifier)
+        {
+            if (specifier is IDontWant.Log4Net)
+                LogManager.Adapter = (specifier as IDontWant.Log4Net).UseThisInstead;
+            else
+            {
+                var props = new NameValueCollection();
+                props["configType"] = "EXTERNAL";
+                LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
+
+                if (specifier is ISpecify.MyOwnLog4NetConfiguration)
+                    (specifier as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
+                else
+                {
+                    var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
+                    var level = (specifier is ISpecify.LoggingLevel
+                                     ? (specifier as ISpecify.LoggingLevel).Level
+                                     : log4net.Core.Level.Debug);
+
+                    var appender = new log4net.Appender.ConsoleAppender
+                    {
+                        Layout = layout,
+                        Threshold = level
+                    };
+                    log4net.Config.BasicConfigurator.Configure(appender);
+                }
+            }
         }
     }
 }
