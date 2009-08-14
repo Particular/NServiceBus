@@ -386,7 +386,12 @@
 			</fileset>
 		</copy>
 		<copy todir="${binaries.dir}">
-			<fileset basedir="${lib.dir}\sqlite">
+			<fileset basedir="${lib.dir}\sqlite\x86">
+				<include name="*.dll" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\x64">
+			<fileset basedir="${lib.dir}\sqlite\x64">
 				<include name="*.dll" />
 			</fileset>
 		</copy>
