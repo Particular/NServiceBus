@@ -91,8 +91,13 @@ namespace NServiceBus.Host.Internal
             {
                 busConfiguration.Sagas();
 
-                if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                    busConfiguration.NHibernateSagaPersister();
+                if (GenericHost.Mode == ModeEnum.Lite)
+                    Configure.TypeConfigurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
+                else
+                {
+                    if (!(specifier is ISpecify.MyOwnSagaPersistence))
+                        busConfiguration.NHibernateSagaPersister();
+                }
             }
 
             if (specifier is As.aClient && specifier is As.aServer)
@@ -133,6 +138,7 @@ namespace NServiceBus.Host.Internal
 
             if (messageEndpointType != null)
                 Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
+            
             return busConfiguration;
         }
 
@@ -168,10 +174,17 @@ namespace NServiceBus.Host.Internal
 
         private void ConfigurePublisherRole()
         {
+            if (GenericHost.Mode == ModeEnum.Lite)
+            {
+                Configure.TypeConfigurer.ConfigureComponent<InMemorySubscriptionStorage>(
+                    ComponentCallModelEnum.Singleton);
+                return;
+            }
+
             var subscriptionConfig =
                 Configure.GetConfigSection<DBSubscriptionStorageConfig>();
 
-            if (subscriptionConfig == null)
+            if (subscriptionConfig == null || GenericHost.Mode == ModeEnum.Lite)
             {
                 string q = Program.GetEndpointId(specifier.GetType()) + "_subscriptions";
                 busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)

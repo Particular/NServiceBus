@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using Common.Logging;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace NServiceBus.Host.Internal
 {
@@ -10,6 +11,8 @@ namespace NServiceBus.Host.Internal
     /// </summary>
     public class GenericHost : MarshalByRefObject
     {
+        public static ModeEnum Mode { get; private set; }
+
         /// <summary>
         /// Does startup work.
         /// </summary>
@@ -59,6 +62,18 @@ namespace NServiceBus.Host.Internal
         public GenericHost(Type endpointType, string[] args)
         {
             this.endpointType = endpointType;
+
+            var a = string.Join(" ", args);
+
+            if (a.Contains(Enum.GetName(typeof(ModeEnum), ModeEnum.Integration).ToLower()))
+                mode = ModeEnum.Integration;
+            else
+            {
+                if (a.Contains(Enum.GetName(typeof(ModeEnum), ModeEnum.Lite).ToLower()))
+                    mode = ModeEnum.Lite;
+            }
+
+            Mode = mode;
         }
 
         private static void ConfigureLogging(IConfigureThisEndpoint specifier)
@@ -92,5 +107,13 @@ namespace NServiceBus.Host.Internal
 
         private readonly Type endpointType;
         private IMessageEndpoint messageEndpoint;
+        private ModeEnum mode = ModeEnum.Production;
+    }
+
+    public enum ModeEnum
+    {
+        Production,
+        Integration,
+        Lite
     }
 }
