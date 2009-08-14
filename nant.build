@@ -285,12 +285,12 @@
 		<mkdir dir="tools/nunit/addins" />
 		<copy todir ="tools/nunit/addins">
 			<fileset>
-				<include name="${teamcity.dotnet.nunitaddin}-2.5.2.*" />
+				<include name="${teamcity.dotnet.nunitaddin}-2.5.0.*" />
 			</fileset>
 		</copy>
 		<copy todir ="tools/nunit">
 			<fileset>
-				<include name="${teamcity.dotnet.nunitaddin}-2.5.2.*" />
+				<include name="${teamcity.dotnet.nunitaddin}-2.5.0.*" />
 			</fileset>
 		</copy>
 	</target>
