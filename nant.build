@@ -281,15 +281,16 @@
 	</target>
 	
 	<target name="teamcity-nunit-addin" if="${property::exists('teamcity.dotnet.nunitaddin')}" >
+		<echo message="teamcity nunit addin found"/>
 		<mkdir dir="tools/nunit/addins" />
 		<copy todir ="tools/nunit/addins">
 			<fileset>
-				<include name="${teamcity.dotnet.nunitaddin}-2.4.8.*" />
+				<include name="${teamcity.dotnet.nunitaddin}-2.5.0.*" />
 			</fileset>
 		</copy>
 		<copy todir ="tools/nunit">
 			<fileset>
-				<include name="${teamcity.dotnet.nunitaddin}-2.4.8.*" />
+				<include name="${teamcity.dotnet.nunitaddin}-2.5.0.*" />
 			</fileset>
 		</copy>
 	</target>
