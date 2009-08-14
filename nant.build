@@ -22,20 +22,69 @@
 	<property name="container.output.dir" value="${output.dir}\containers"/>
 	<property name="nhibernate.build.dir" value="${build.base}\nhibernate"/>
 	<property name="nhibernate.output.dir" value="${output.dir}\nhibernate"/>
-	<property name="Is64BitProcess" value="${environment::get-variable('PROCESSOR_ARCHITECTURE')!='x86'}" />
-	<property name="architecture" value="x86" dynamic="true" />
+  <property name="Is64BitOperatingSystem" value="false" />
+  <property name="Is64BitProcess" value="false" />
+  <property name="IsWow64Process" value="false" />
+  <property name="architecture" value="x86" dynamic="true" />
 	<property name="msmq.version" value="" dynamic="true" />
 	<property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
-	
-			
-	<if test="${property::exists('build.number')}">
+
+
+  <target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
+    <description>
+      This will detect whether the current Operating System is running as a 32-bit or 64-bit Operating System regardless of whether this is a 32-bit or 64-bit process.
+    </description>
+    <property name="Is64BitOperatingSystem" value="${IsWow64Process or Is64BitProcess}" />
+
+    <if test="${Is64BitOperatingSystem}">
+      <property name="architecture" value="x64" />
+    </if>
+  </target>
+
+  <script language="C#" prefix="MyWin32Calls">
+    <code>
+      <![CDATA[
+            [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+            public static extern bool IsWow64Process(System.IntPtr hProcess, out bool lpSystemInfo);
+
+            [Function("IsWow64Process")]
+            public bool IsWow64Process()
+            {
+                bool retVal = false;
+               
+                IsWow64Process(System.Diagnostics.Process.GetCurrentProcess().Handle, out retVal);
+               
+                return retVal;
+            }
+    ]]>
+    </code>
+    <references>
+      <include name="System.dll" />
+    </references>
+  </script>
+
+  <target name="DetectIfWow64Process">
+    <description>
+      Detects whether we are currently in a WoW64 process or not.
+    </description>
+
+    <property name="IsWow64Process" value="${MyWin32Calls::IsWow64Process()}" />
+    <echo message="Setting the [IsWow64Process] property to ${IsWow64Process}." />
+  </target>
+
+  <target name="DetectIf64BitProcess">
+    <description>
+      Detects whether we are currently in a 32-bit or 64-bit process (not necessarily what the OS is running). Note that as of the time of this writing, this will ALWAYS return false because NAnt is compiled to run in 32-bit mode only.
+    </description>
+
+    <!-- This can return x86, x64, AMD64, or IA64 as of the time of this writing. This works for a 32-bit process in a 64-bit OS because the OS makes the 64-bitness transparent to the process in this environment variable. -->
+    <property name="Is64BitProcess" value="${environment::get-variable('PROCESSOR_ARCHITECTURE')!='x86'}" />
+    <echo message="Setting the [Is64BitProcess] property to ${Is64BitProcess}." />
+  </target>
+
+  <if test="${property::exists('build.number')}">
 		<property name="project.fullversion" value="${build.number}" />
 	</if>
-
-	<if test="${Is64BitProcess}">
-		<property name="architecture" value="x64"/>
-	</if>
-  <echo message="${architecture}" />
 	
 	<readregistry  property="msmq.version" key="SOFTWARE\Microsoft\MSMQ\Parameters\CurrentBuild" hive="LocalMachine" failonerror="false"/>
 	<echo message="${msmq.version}" />
@@ -45,16 +94,17 @@
 	<target name="build" depends="build_src,compile_tools,prepare_binaries,compile_samples"/>
 	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host,test"/>
 	
-	<target name="init" description="Initializes build properties">
+	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
 			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
 		</tstamp>
 		<delete dir="${build.base}"/>
 		<mkdir dir="${build.base}"/>
 		<echo message="Current Directory: ${project::get-base-directory()}"/>
-		
-			
-		<copy todir="${lib.dir}\sqlite" overwrite="true">
+
+
+    <echo message="${architecture}" />
+    <copy todir="${lib.dir}\sqlite" overwrite="true">
 			<fileset basedir="${lib.dir}\sqlite\${architecture}">
 				<include name="*.*" />
 			</fileset>
