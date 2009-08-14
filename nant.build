@@ -12,10 +12,12 @@
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
+	<property name="test.dir" value="${build.base}\test"/>
 	<property name="artifacts.dir" value="artifacts"/>
 	<property name="merge.dir" value="${build.base}/merge"/>
 	<property name="main.build.dir" value="${build.base}\nservicebus"/>
 	<property name="core.build.dir" value="${build.base}\nservicebus.core"/>
+	<property name="host.build.dir" value="${build.base}\host"/>
 	<property name="container.build.dir" value="${build.base}\containers"/>
 	<property name="container.output.dir" value="${output.dir}\containers"/>
 	<property name="nhibernate.build.dir" value="${build.base}\nhibernate"/>
@@ -198,17 +200,48 @@
 				workingdir="." />
 	</target>
 
-	<target name="test">
+	<target name="test" depends="teamcity-nunit-addin">
+		
+		<mkdir dir="${build.base}\test-reports" />
+		
+		<!-- run the core tests-->
+		<property name="nservicebus.testassemblies" value="" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${core.build.dir}\*Tests.dll" />
+			</items>
+			</in>
+			<do>
+				<property name="nservicebus.testassemblies" value="${nservicebus.testassemblies} ${filename}"/>
+			</do>
+		</foreach>
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${core.build.dir}">
+			<arg line="${nservicebus.testassemblies}" />
+			<arg value="/xml:..\test-reports\UnitTests.xml" />
+		</exec>
+		
+		<!-- run the host tests -->
+		<if test="${msmq.version != ''}">
+			<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${host.build.dir}">
+				<arg value="NServiceBus.Host.Tests.dll" />
+				<arg value="/xml:..\test-reports\UnitTests.xml" />
+			</exec>
+		</if>
+	</target>
 	
-		<nunit2 verbose="true">
-			<formatter type="Plain" />
-			<test>
-				<assemblies>
-					<include name="${build.base}\**Tests.dll" />
-					<exclude if="${msmq.version == ''}" name="${build.base}\**NServiceBus.Host.Tests.dll" />
-				</assemblies>
-			</test>
-		</nunit2>
+	<target name="teamcity-nunit-addin" if="${property::exists('teamcity.dotnet.nunitaddin')}" >
+		<mkdir dir="tools/nunit/addins" />
+		<copy todir ="tools/nunit/addins">
+			<fileset>
+				<include name="${teamcity.dotnet.nunitaddin}-2.4.8.*" />
+			</fileset>
+		</copy>
+		<copy todir ="tools/nunit">
+			<fileset>
+				<include name="${teamcity.dotnet.nunitaddin}-2.4.8.*" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="compile_tools">
