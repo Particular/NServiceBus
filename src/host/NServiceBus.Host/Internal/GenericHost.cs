@@ -22,9 +22,7 @@ namespace NServiceBus.Host.Internal
 
             var configurationSpecifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            ConfigureLogging(configurationSpecifier);
-
-            var busConfiguration = new ConfigurationBuilder(configurationSpecifier).Build();
+            var busConfiguration = new ConfigurationBuilder(configurationSpecifier, modeConfig).Build();
           
             Action startupAction = null;
 
@@ -74,40 +72,25 @@ namespace NServiceBus.Host.Internal
             }
 
             Mode = mode;
-        }
 
-        private static void ConfigureLogging(IConfigureThisEndpoint specifier)
-        {
-            if (specifier is IDontWant.Log4Net)
-                LogManager.Adapter = (specifier as IDontWant.Log4Net).UseThisInstead;
-            else
+            switch(mode)
             {
-                var props = new NameValueCollection();
-                props["configType"] = "EXTERNAL";
-                LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
-                if (specifier is ISpecify.MyOwnLog4NetConfiguration)
-                    (specifier as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
-                else
-                {
-                    var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-                    var level = (specifier is ISpecify.LoggingLevel
-                                     ? (specifier as ISpecify.LoggingLevel).Level
-                                     : log4net.Core.Level.Debug);
-
-                    var appender = new log4net.Appender.ConsoleAppender
-                    {
-                        Layout = layout,
-                        Threshold = level
-                    };
-                    log4net.Config.BasicConfigurator.Configure(appender);
-                }
+                case ModeEnum.Lite:
+                    modeConfig = new ConfigureLite();
+                    break;
+                case ModeEnum.Integration:
+                    modeConfig = new ConfigureIntegration();
+                    break;
+                case ModeEnum.Production:
+                    modeConfig = new ConfigureProduction();
+                    break;
             }
         }
 
         private readonly Type endpointType;
         private IMessageEndpoint messageEndpoint;
         private ModeEnum mode = ModeEnum.Production;
+        private readonly IModeConfiguration modeConfig = new ConfigureProduction();
     }
 
     public enum ModeEnum

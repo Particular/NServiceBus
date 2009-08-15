@@ -25,7 +25,7 @@ namespace NServiceBus.Host.Tests
                                         ISpecify.MyOwnConfigurationSource
   
     {
-        public IConfigurationSource ConfigurationSource { get; set; }
+        public static IConfigurationSource ConfigurationSource { get; set; }
         public IConfigurationSource Source
         {
             get { return ConfigurationSource; }

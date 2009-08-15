@@ -73,8 +73,12 @@
     <Compile Include="IConfigureThisEndpoint.cs" />
     <Compile Include="IDontWant.cs" />
     <Compile Include="Internal\ConfigurationBuilder.cs" />
+    <Compile Include="Internal\ConfigureIntegration.cs" />
+    <Compile Include="Internal\ConfigureLite.cs" />
+    <Compile Include="Internal\ConfigureProduction.cs" />
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="IMessageEndpoint.cs" />
+    <Compile Include="Internal\IModeConfiguration.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
     <Compile Include="ISpecify.cs" />

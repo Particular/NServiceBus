@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Reflection;
+using Common.Logging;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
@@ -15,15 +17,18 @@ namespace NServiceBus.Host.Internal
     public class ConfigurationBuilder
     {
         private readonly IConfigureThisEndpoint specifier;
+        private readonly IModeConfiguration mode;
         private Configure busConfiguration;
 
         /// <summary>
         /// Constructs the builder passing in the given specifier object.
         /// </summary>
         /// <param name="specifier"></param>
-        public ConfigurationBuilder(IConfigureThisEndpoint specifier)
+        /// <param name="mode"></param>
+        public ConfigurationBuilder(IConfigureThisEndpoint specifier, IModeConfiguration mode)
         {
             this.specifier = specifier;
+            this.mode = mode;
         }
 
         /// <summary>
@@ -32,6 +37,10 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public Configure Build()
         {
+            mode.Init(specifier);
+
+            mode.ConfigureLogging();
+
             busConfiguration = null;
 
             if (specifier is ISpecify.TypesToScan)
@@ -91,13 +100,7 @@ namespace NServiceBus.Host.Internal
             {
                 busConfiguration.Sagas();
 
-                if (GenericHost.Mode == ModeEnum.Lite)
-                    Configure.TypeConfigurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
-                else
-                {
-                    if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                        busConfiguration.NHibernateSagaPersister();
-                }
+                mode.ConfigureSagas(busConfiguration);
             }
 
             if (specifier is As.aClient && specifier is As.aServer)
@@ -155,7 +158,7 @@ namespace NServiceBus.Host.Internal
                 .ImpersonateSender(true);
 
             if (specifier is As.aPublisher)
-                ConfigurePublisherRole();
+                mode.ConfigureSubscriptionStorage(busConfiguration);
 
             return configUnicastBus;
         }
@@ -170,28 +173,6 @@ namespace NServiceBus.Host.Internal
                 .ImpersonateSender(false);
 
             return configUnicastBus;
-        }
-
-        private void ConfigurePublisherRole()
-        {
-            if (GenericHost.Mode == ModeEnum.Lite)
-            {
-                Configure.TypeConfigurer.ConfigureComponent<InMemorySubscriptionStorage>(
-                    ComponentCallModelEnum.Singleton);
-                return;
-            }
-
-            var subscriptionConfig =
-                Configure.GetConfigSection<DBSubscriptionStorageConfig>();
-
-            if (subscriptionConfig == null || GenericHost.Mode == ModeEnum.Lite)
-            {
-                string q = Program.GetEndpointId(specifier.GetType()) + "_subscriptions";
-                busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                    .ConfigureProperty(s => s.Queue, q);
-            }
-            else
-                busConfiguration.DBSubcriptionStorage();
         }
     }
 }

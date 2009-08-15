@@ -13,21 +13,6 @@ namespace NServiceBus.Host.Tests
     [TestFixture]
     public class When_configuring_an_endpoint_as_a_publisher
     {
-        private Configure busConfig;
-
-        [SetUp]
-        public void SetUp()
-        {
-            busConfig = new ConfigurationBuilder(new ServerEndpointConfig())
-                .Build();
-
-        }
-        [Test]
-        public void Msmq_should_be_default_subscription_storage()
-        {
-            busConfig.Builder.Build<MsmqSubscriptionStorage>().ShouldNotBeNull();
-        }
-
         [Test]
         public void Db_subscription_storage_should_be_used_if_config_section_is_found()
         {
@@ -36,11 +21,11 @@ namespace NServiceBus.Host.Tests
             configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
                 .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
 
-            Configure.With().CustomConfigurationSource(configSource);
+            ServerEndpointConfigWithCustomConfigSource.ConfigurationSource = configSource;
 
-            new ConfigurationBuilder(new ServerEndpointConfigWithCustomConfigSource { ConfigurationSource = configSource })
-                    .Build()
-                    .Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
+            var configure = Util.Init<ServerEndpointConfigWithCustomConfigSource>();
+
+            configure.Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
         }
     }
 

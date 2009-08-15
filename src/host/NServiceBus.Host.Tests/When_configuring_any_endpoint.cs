@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Host.Internal;
 using NServiceBus.Sagas.Impl;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -15,27 +13,24 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void XmlSerialization_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization())
-                .Build();
+            var configure = Util.Init<EndpointWithXmlSerialization>();
 
-            busConfig.Builder.Build<Serializers.XML.MessageSerializer>().ShouldNotBeNull();
+            configure.Builder.Build<Serializers.XML.MessageSerializer>().ShouldNotBeNull();
         }
 
         [Test]
         public void XmlSerialization_using_a_custom_namespace_can_be_requested()
         {
-            var busConfig = new ConfigurationBuilder(new EndpointWithXmlSerialization())
-                .Build();
+            var configure = Util.Init<EndpointWithXmlSerialization>();
 
-            busConfig.Builder.Build<Serializers.XML.MessageSerializer>().Namespace.ShouldEqual("testnamespace");
+            configure.Builder.Build<Serializers.XML.MessageSerializer>().Namespace.ShouldEqual("testnamespace");
         }
 
         [Test]
         public void Ordering_of_messagehandlers_can_be_specified()
         {
-            var allHandlers = new ConfigurationBuilder(new EndpointWithMessageHandlerOrdering())
-                .Build()
-                .Builder.BuildAll<IMessageHandler<IMessage>>();
+            var configure = Util.Init<EndpointWithMessageHandlerOrdering>();
+            var allHandlers = configure.Builder.BuildAll<IMessageHandler<IMessage>>();
 
             allHandlers.ElementAt(0).ShouldBeInstanceOfType(typeof (GridInterceptingMessageHandler));
             allHandlers.ElementAt(1).ShouldBeInstanceOfType(typeof(SagaMessageHandler));
@@ -43,9 +38,7 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void A_alternate_config_source_can_be_specified()
         {
-
-            new ConfigurationBuilder(new EndpointWithOwnConfigSource())
-                    .Build();
+            var configure = Util.Init<EndpointWithOwnConfigSource>();
 
             Configure.ConfigurationSource.ShouldBeInstanceOfType(typeof (TestConfigSource));
         }

@@ -14,17 +14,15 @@ namespace NServiceBus.Host.Tests
     [TestFixture]
     public class When_configuring_an_endpoint_as_a_server
     {
-        private Configure busConfig;
         private MsmqTransport transport;
+        private Configure configure;
         
         [SetUp]
         public void SetUp()
         {
-            busConfig = new ConfigurationBuilder(new ServerEndpointConfig())
-                .Build();
+            configure = Util.Init<ServerEndpointConfig>();
 
-            transport = busConfig.Builder.Build<ITransport>() as MsmqTransport;
-
+            transport = configure.Builder.Build<ITransport>() as MsmqTransport;
         }
 
         [Test]
@@ -49,7 +47,7 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void The_bus_should_impersonate_the_sender()
         {
-            var unicastbus = busConfig.Builder.Build<UnicastBus>();
+            var unicastbus = configure.Builder.Build<UnicastBus>();
             
             unicastbus.ShouldNotBeNull();
             unicastbus.ImpersonateSender.ShouldBeTrue();
