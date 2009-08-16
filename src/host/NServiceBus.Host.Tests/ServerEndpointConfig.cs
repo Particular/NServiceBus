@@ -5,7 +5,8 @@ using NServiceBus.ObjectBuilder;
 namespace NServiceBus.Host.Tests
 {
     public class ServerEndpointConfig : IConfigureThisEndpoint,
-                                        As.aPublisher  
+                                        As.aPublisher , 
+                                        IDontWant.Sagas
     {
     }
 
@@ -22,7 +23,8 @@ namespace NServiceBus.Host.Tests
     
     public class ServerEndpointConfigWithCustomConfigSource : IConfigureThisEndpoint,
                                         As.aPublisher,
-                                        ISpecify.MyOwnConfigurationSource
+                                        ISpecify.MyOwnConfigurationSource,
+                                        IDontWant.Sagas
   
     {
         public static IConfigurationSource ConfigurationSource { get; set; }

@@ -25,6 +25,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
             model.ConventionDiscovery.AddFromAssemblyOf<IdShouldBeAssignedConvention>()
                 .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
+
             return model;
         }
     }

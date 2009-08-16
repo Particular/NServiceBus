@@ -46,7 +46,7 @@ namespace NServiceBus.Host.Internal
         void IModeConfiguration.ConfigureSagas(Configure busConfiguration)
         {
             if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                busConfiguration.NHibernateSagaPersister();
+                busConfiguration.NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
         }
 
         void IModeConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)

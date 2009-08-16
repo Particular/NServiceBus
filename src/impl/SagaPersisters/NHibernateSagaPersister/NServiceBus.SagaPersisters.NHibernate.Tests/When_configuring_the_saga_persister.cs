@@ -25,7 +25,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             config = Configure.With(new[] {typeof (MySaga), typeof (MySagaData), typeof(SagaPersister)})
                 .SpringBuilder()
                 .Sagas()
-                .NHibernateSagaPersister();
+                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
         }
 
         [Test]
@@ -43,36 +43,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             sessionFactory.ShouldNotBeNull();
             sessionFactory.ShouldBeTheSameAs(config.Builder.Build<ISessionFactory>());
-
-        }
-
-        [Test]
-        public void Database_settings_should_be_read_from_custom_config_section()
-        {
-           
-            var sessionFactory = config.Builder.Build<ISessionFactory>() as SessionFactoryImpl;
-
-            sessionFactory.Dialect.ShouldBeInstanceOfType(typeof(SQLiteDialect));
-
-         
-            sessionFactory.ConnectionProvider.GetConnection().ConnectionString.ShouldEqual("Data Source=.\\DBFileNameFromAppConfig.sqlite;Version=3;New=True;");
-        }
-
-
-        [Test]
-        public void Persister_should_default_to_sqlite_if_config_section_is_missing()
-        {
-            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
-
-            var configWithMissingSection = Configure.With(new[] { typeof(MySaga), typeof(MySagaData), typeof(SagaPersister) })
-               .SpringBuilder()
-               .CustomConfigurationSource(configSource)
-               .Sagas()
-               .NHibernateSagaPersister();
-
-            var sessionFactory = configWithMissingSection.Builder.Build<ISessionFactory>() as SessionFactoryImpl;
-
-            sessionFactory.ConnectionProvider.GetConnection().ConnectionString.ShouldEqual("Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;");
 
         }
 
