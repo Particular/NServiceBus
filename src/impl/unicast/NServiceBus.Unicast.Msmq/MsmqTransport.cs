@@ -105,7 +105,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// <summary>
         /// Sets the object which will be used to serialize and deserialize messages.
         /// </summary>
-        public IMessageSerializer MessageSerializer { private get; set; }
+        public IMessageSerializer MessageSerializer { get; set; }
 
         #endregion
 
