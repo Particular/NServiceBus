@@ -9,7 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Autofac", "Ob
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Unity", "ObjectBuilder.Unity\ObjectBuilder.Unity.csproj", "{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Tests", "ObjectBuilder.Tests\ObjectBuilder.Tests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
+EndProject
 Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -31,6 +37,10 @@ Global
 		{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@ using NServiceBus.Host;
 
 namespace Client
 {
-    class ClientEndpoint : IMessageEndpoint
+    public class ClientEndpoint : IMessageEndpoint
     {
         public IBus Bus { get; set; }
 

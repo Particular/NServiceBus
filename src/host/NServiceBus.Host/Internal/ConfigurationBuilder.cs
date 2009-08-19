@@ -125,6 +125,19 @@ namespace NServiceBus.Host.Internal
                     configUnicastBus.DoNotAutoSubscribe();
             }
 
+            ConfigureSerialization();
+
+            if (specifier is IWantCustomInitialization)
+                (specifier as IWantCustomInitialization).Init(busConfiguration);
+
+            if (messageEndpointType != null)
+                Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
+            
+            return busConfiguration;
+        }
+
+        private void ConfigureSerialization()
+        {
             if (specifier is ISpecify.ToUseXmlSerialization)
             {
                 if (specifier is ISpecify.XmlSerializationNamespace)
@@ -135,14 +148,6 @@ namespace NServiceBus.Host.Internal
             else
                 if (!(specifier is ISpecify.MyOwnSerialization))
                     busConfiguration.BinarySerializer();
-
-            if (specifier is IWantCustomInitialization)
-                (specifier as IWantCustomInitialization).Init(busConfiguration);
-
-            if (messageEndpointType != null)
-                Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
-            
-            return busConfiguration;
         }
 
         private ConfigUnicastBus ConfigureServerRole()

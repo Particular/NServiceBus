@@ -29,17 +29,8 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         object Common.IContainer.Build(Type typeToBuild)
         {
-            try
-            {
-                return container.GetInstance(typeToBuild);
-            }
-            catch (StructureMapException ex)
-            {
-                if (ex.ErrorCode == 202)
-                    return null;
+            return container.TryGetInstance(typeToBuild);
 
-                throw;
-            }
         }
 
         IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)
