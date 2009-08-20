@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
@@ -262,7 +263,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             if (constructor != null)
                 return constructor.Invoke(null);
 
-            return Activator.CreateInstance(mapped);
+            return FormatterServices.GetUninitializedObject(mapped);
         }
 
         private static readonly string SUFFIX = ".__Impl";

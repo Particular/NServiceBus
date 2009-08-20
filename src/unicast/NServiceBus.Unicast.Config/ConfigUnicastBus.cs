@@ -35,8 +35,6 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-            CheckMessages();
-
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)
@@ -52,27 +50,6 @@ namespace NServiceBus.Unicast.Config
                 busConfig.ConfigureProperty(b => b.DistributorDataAddress, cfg.DistributorDataAddress);
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
-            }
-        }
-
-        private static void CheckMessages()
-        {
-            foreach(var t in TypesToScan)
-            {
-                if (typeof(IMessage) == t) continue;
-                if (!typeof(IMessage).IsAssignableFrom(t)) continue;
-                if (!t.IsClass) continue;
-
-                var hasDefaultConstructor = false;
-
-                var constructors = t.GetConstructors(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance);
-                constructors.ToList().ForEach(c => {
-                    if (c.GetParameters().Length == 0 && c.IsPublic)
-                        hasDefaultConstructor = true;
-                } );
-
-                if (!hasDefaultConstructor)
-                    throw new InvalidOperationException("Message type doesn't have required default constructor: " + t.FullName);
             }
         }
 
