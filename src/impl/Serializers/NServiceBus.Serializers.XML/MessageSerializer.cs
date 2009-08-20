@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using Common.Logging;
 using NServiceBus.Encryption;
 using NServiceBus.Utils.Reflection;
+using System.Xml.Serialization;
 
 namespace NServiceBus.Serializers.XML
 {
@@ -149,7 +150,17 @@ namespace NServiceBus.Serializers.XML
         /// <returns></returns>
         IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t)
         {
-            List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
+            var result = new List<PropertyInfo>();
+
+            foreach (var prop in t.GetProperties())
+            {
+                if (!prop.CanWrite)
+                    continue;
+                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
+                    continue;
+
+                result.Add(prop);
+            }
 
             if (t.IsInterface)
                 foreach (Type interfaceType in t.GetInterfaces())
