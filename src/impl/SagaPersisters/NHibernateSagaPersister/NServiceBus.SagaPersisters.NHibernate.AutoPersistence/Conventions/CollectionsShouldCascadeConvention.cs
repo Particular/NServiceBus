@@ -1,18 +1,13 @@
 using FluentNHibernate.Conventions;
-using FluentNHibernate.Mapping;
+using FluentNHibernate.Conventions.Instances;
 
 namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions
 {
     public class CollectionsShouldCascadeConvention : IHasManyConvention
     {
-        public bool Accept(IOneToManyPart target)
+        public void Apply(IOneToManyCollectionInstance instance)
         {
-            return true;
-        }
-
-        public void Apply(IOneToManyPart target)
-        {
-            target.Cascade.AllDeleteOrphan();
+            instance.Cascade.AllDeleteOrphan();
         }
     }
 }

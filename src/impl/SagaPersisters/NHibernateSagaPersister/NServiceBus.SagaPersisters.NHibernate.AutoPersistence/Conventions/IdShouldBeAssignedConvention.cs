@@ -1,19 +1,23 @@
 using FluentNHibernate.Conventions;
-using FluentNHibernate.Mapping;
+using FluentNHibernate.Conventions.Instances;
 using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions
 {
-    public class IdShouldBeAssignedConvention : IIdConvention
+    public class IdShouldBeAssignedConvention : IIdConvention 
+
     {
-        public bool Accept(IIdentityPart target)
+        public void Apply(IIdentityInstance instance)
         {
-            return typeof(ISagaEntity).IsAssignableFrom(target.EntityType);
+            if (typeof(ISagaEntity).IsAssignableFrom(instance.EntityType))
+            {
+                instance.GeneratedBy.Assigned();
+            }
+            else
+                instance.GeneratedBy.GuidComb();
         }
 
-        public void Apply(IIdentityPart target)
-        {
-            target.GeneratedBy.Assigned();
-        }
+
+   
     }
 }

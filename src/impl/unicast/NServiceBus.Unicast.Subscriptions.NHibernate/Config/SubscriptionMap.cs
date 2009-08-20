@@ -6,9 +6,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Config
     {
         public SubscriptionMap()
         {
-            UseCompositeId()
-                .WithKeyProperty(x => x.SubscriberEndpoint)
-                .WithKeyProperty(x => x.MessageType);
+            CompositeId()
+                .KeyProperty(x => x.SubscriberEndpoint)
+                .KeyProperty(x => x.MessageType);
 
         }
     }

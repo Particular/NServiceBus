@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentNHibernate.AutoMap;
+using FluentNHibernate.Automapping;
 using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions;
 
@@ -20,12 +20,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
             var model = new AutoPersistenceModel();
 
+            model.Conventions.AddFromAssemblyOf<IdShouldBeAssignedConvention>();
+
             foreach (var assembly in assembliesContainingSagas)
-                model.AddEntityAssembly(assembly);
+                model.AddEntityAssembly(assembly)
+               .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
 
-            model.ConventionDiscovery.AddFromAssemblyOf<IdShouldBeAssignedConvention>()
-                .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
-
+            
+            
+            model.BuildMappings();
             return model;
         }
     }

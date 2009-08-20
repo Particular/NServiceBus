@@ -36,6 +36,10 @@
       <HintPath>..\..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\external-bin\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -50,7 +54,6 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Conventions\EnumShouldBeMappedAsIntegerConvention.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Conventions\CollectionsShouldCascadeConvention.cs" />
     <Compile Include="Conventions\IdShouldBeAssignedConvention.cs" />
