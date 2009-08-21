@@ -15,18 +15,16 @@ namespace Server
             Console.WriteLine("Secret Question received: {0}.", message.SecretQuestion.Value);
             Console.WriteLine("Header 'Test' = {0}.", Bus.CurrentMessageContext.Headers["Test"]);
 
-            var response = new DataResponseMessage
-                               {
-                                   DataId = message.DataId,
-                                   String = message.String,
-                                   SecretAnswer = message.SecretQuestion.Value
-                               };
-
             Bus.OutgoingHeaders["Test"] = Bus.CurrentMessageContext.Headers["Test"];
             Bus.OutgoingHeaders["1"] = "1";
             Bus.OutgoingHeaders["2"] = "2";
 
-            Bus.Reply(response);
+            Bus.Reply<DataResponseMessage>(m => 
+            { 
+                m.DataId = message.DataId;
+                m.String = message.String;
+                m.SecretAnswer = message.SecretQuestion;
+            });
         }
     }
 }

@@ -15,19 +15,19 @@ namespace Client
 
             while (Console.ReadLine() != null)
             {
-                var m = new RequestDataMessage
-                            {
-                                DataId = Guid.NewGuid(),
-                                String = "<node>it's my \"node\" & i like it<node>",
-                                SecretQuestion = "What's your favorite color?"
-                            };
+                Guid g = Guid.NewGuid();
 
-                Console.WriteLine("Requesting to get data by id: {0}", m.DataId.ToString("N"));
+                Console.WriteLine("Requesting to get data by id: {0}", g.ToString("N"));
 
-                Bus.OutgoingHeaders["Test"] = m.DataId.ToString("N");
+                Bus.OutgoingHeaders["Test"] = g.ToString("N");
 
-                //notice that we're passing the message as our state object - gives context for handling responses (especially if they arrive out of order).
-                Bus.Send(m).Register(RequestDataComplete, m);
+                Bus.Send <RequestDataMessage>(m =>
+                                                  {
+                                                      m.DataId = g;
+                                                      m.String = "<node>it's my \"node\" & i like it<node>";
+                                                      m.SecretQuestion = "What's your favorite color?";
+                                                  })
+                                                  .Register(RequestDataComplete, null);
             }
         }
 

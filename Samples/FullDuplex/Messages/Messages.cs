@@ -1,20 +1,25 @@
 using NServiceBus;
 using System;
-using System.Collections.Generic;
 
 namespace Messages
 {
-    [Serializable]
     public class RequestDataMessage : IMessage
     {
+        private RequestDataMessage() // now showing that we can handle non-default constructors
+        {
+        }
+
         public Guid DataId { get; set; }
         public string String { get; set; }
         public WireEncryptedString SecretQuestion { get; set; }
     }
 
-    [Serializable]
     public class DataResponseMessage : IMessage
     {
+        private DataResponseMessage() // now showing that we can handle non-default constructors
+        {
+        }
+
         public Guid DataId { get; set; }
         public string String { get; set; }
         public WireEncryptedString SecretAnswer { get; set; }
