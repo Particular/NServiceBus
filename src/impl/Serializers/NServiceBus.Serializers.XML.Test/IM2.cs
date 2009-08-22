@@ -13,7 +13,11 @@ namespace NServiceBus.Serializers.XML.Test
         TimeSpan Duration { get; set; }
         DateTimeOffset Offset { get; set; }
         IM1[] MoreNames { get; set; }
-        object State { get; set; }
-        IDictionary<string, string> Lookup { get; set; }
+        MyDic Lookup { get; set; }
+    }
+
+    public class MyDic : Dictionary<string, string>
+    {
+        
     }
 }

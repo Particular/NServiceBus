@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace NServiceBus.Serializers.XML
+namespace NServiceBus.Utils.Reflection
 {
     /// <summary>
     /// Contains extension methods
@@ -33,8 +33,9 @@ namespace NServiceBus.Serializers.XML
         /// <returns></returns>
         public static string SerializationFriendlyName(this Type t)
         {
-            if (typeToNameLookup.ContainsKey(t))
-                return typeToNameLookup[t];
+            lock(TypeToNameLookup)
+                if (TypeToNameLookup.ContainsKey(t))
+                    return TypeToNameLookup[t];
 
             var args = t.GetGenericArguments();
             if (args != null)
@@ -50,15 +51,23 @@ namespace NServiceBus.Serializers.XML
                             result += "And";
                     }
 
-                    typeToNameLookup[t] = result;
+                    if (args.Length == 2)
+                        if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                            result = "NServiceBus." + result;
+
+                    lock(TypeToNameLookup)  
+                        TypeToNameLookup[t] = result;
+
                     return result;
                 }
             }
 
-            typeToNameLookup[t] = t.Name;
+            lock(TypeToNameLookup)
+                TypeToNameLookup[t] = t.Name;
+
             return t.Name;
         }
 
-        private static IDictionary<Type, string> typeToNameLookup = new Dictionary<Type, string>();
+        private static readonly IDictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();
     }
 }

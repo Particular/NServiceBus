@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.IO;
 using System.Runtime.Serialization;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
@@ -45,21 +45,28 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             if (t == null)
                 return;
 
-            if (t.IsPrimitive || t == typeof(string) || t == typeof(Guid) || t == typeof(DateTime) || t == typeof(TimeSpan) || t.IsEnum)
+            if (t.IsSimpleType())
                 return;
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
-                foreach (Type g in t.GetGenericArguments())
-                    InitType(g, moduleBuilder);
-
                 InitType(t.GetElementType(), moduleBuilder);
+
+                foreach (var interfaceType in t.GetInterfaces())
+                {
+                    foreach (var g in interfaceType.GetGenericArguments())
+                        InitType(g, moduleBuilder);
+
+                    continue;
+                }
 
                 return;
             }
 
+            var typeName = GetTypeName(t);
+
             //already handled this type, prevent infinite recursion
-            if (nameToType.ContainsKey(t.FullName))
+            if (nameToType.ContainsKey(typeName))
                 return;
 
             if (t.IsInterface)
@@ -72,13 +79,23 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             else
                 typeToConstructor[t] = t.GetConstructor(Type.EmptyTypes);
 
-            nameToType[t.FullName] = t;
+            nameToType[typeName] = t;
 
             foreach (FieldInfo field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
                 InitType(field.FieldType, moduleBuilder);
 
             foreach (PropertyInfo prop in t.GetProperties())
                 InitType(prop.PropertyType, moduleBuilder);
+        }
+
+        private static string GetTypeName(Type t)
+        {
+            var args = t.GetGenericArguments();
+            if (args.Length == 2)
+                if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                    return t.SerializationFriendlyName();
+
+            return t.FullName;
         }
 
         /// <summary>

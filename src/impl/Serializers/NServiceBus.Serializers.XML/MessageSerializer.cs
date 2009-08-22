@@ -116,7 +116,7 @@ namespace NServiceBus.Serializers.XML
 
             typesBeingInitialized.Add(t);
 
-            var props = GetAllPropertiesForType(t);
+            var props = GetAllPropertiesForType(t, isKeyValuePair);
             typeToProperties[t] = props;
             var fields = GetAllFieldsForType(t);
             typeToFields[t] = fields;
@@ -147,14 +147,15 @@ namespace NServiceBus.Serializers.XML
         /// Gets a PropertyInfo for each property of the given type.
         /// </summary>
         /// <param name="t"></param>
+        /// <param name="isKeyValuePair"></param>
         /// <returns></returns>
-        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t)
+        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();
 
             foreach (var prop in t.GetProperties())
             {
-                if (!prop.CanWrite)
+                if (!prop.CanWrite && !isKeyValuePair)
                     continue;
                 if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
                     continue;
@@ -164,7 +165,7 @@ namespace NServiceBus.Serializers.XML
 
             if (t.IsInterface)
                 foreach (Type interfaceType in t.GetInterfaces())
-                    result.AddRange(GetAllPropertiesForType(interfaceType));
+                    result.AddRange(GetAllPropertiesForType(interfaceType, false));
 
             return result;
         }
@@ -260,6 +261,9 @@ namespace NServiceBus.Serializers.XML
 
                 typeName = ns.Substring(nameSpace.LastIndexOf("/") + 1) + "." + name;
             }
+
+            if (name.Contains("NServiceBus."))
+                typeName = name;
 
             if (parent != null)
             {
@@ -439,31 +443,42 @@ namespace NServiceBus.Serializers.XML
             }
 
             //Handle dictionaries
-            Type[] arr = type.GetGenericArguments();
-            if (arr.Length == 2)
+            if (typeof(IDictionary).IsAssignableFrom(type))
             {
-                if (typeof(IDictionary<,>).MakeGenericType(arr).IsAssignableFrom(type))
+                var result = Activator.CreateInstance(type) as IDictionary;
+
+                var keyType = typeof (object);
+                var valueType = typeof (object);
+
+                foreach(var interfaceType in type.GetInterfaces())
                 {
-                    var result = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(arr)) as IDictionary;
-
-                    foreach (XmlNode xn in n.ChildNodes) // go over KeyValuePairs
-                    {
-                        object key = null;
-                        object value = null;
-
-                        foreach (XmlNode node in xn.ChildNodes)
+                    var args = interfaceType.GetGenericArguments();
+                    if (args.Length == 2)
+                        if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
                         {
-                            if (node.Name == "Key")
-                                key = GetObjectOfTypeFromNode(arr[0], node);
-                            if (node.Name == "Value")
-                                value = GetObjectOfTypeFromNode(arr[1], node);
+                            keyType = args[0];
+                            valueType = args[1];
+                            break;
                         }
+                }
 
-                        if (result != null && key != null) result[key] = value;
+                foreach (XmlNode xn in n.ChildNodes) // go over KeyValuePairs
+                {
+                    object key = null;
+                    object value = null;
+
+                    foreach (XmlNode node in xn.ChildNodes)
+                    {
+                        if (node.Name == "Key")
+                            key = GetObjectOfTypeFromNode(keyType, node);
+                        if (node.Name == "Value")
+                            value = GetObjectOfTypeFromNode(valueType, node);
                     }
 
-                    return result;
+                    if (result != null && key != null) result[key] = value;
                 }
+
+                return result;
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
@@ -474,20 +489,24 @@ namespace NServiceBus.Serializers.XML
                 if (isArray)
                     typeToCreate = typesToCreateForArrays[type];
 
-                IList list = Activator.CreateInstance(typeToCreate) as IList;
-
-                foreach (XmlNode xn in n.ChildNodes)
+                if (typeof(IList).IsAssignableFrom(typeToCreate))
                 {
-                    object m = Process(xn, list);
-
+                    var list = Activator.CreateInstance(typeToCreate) as IList;
                     if (list != null)
-                        list.Add(m);
-                }
+                    {
+                        foreach (XmlNode xn in n.ChildNodes)
+                        {
+                            object m = Process(xn, list);
 
-                if (isArray)
-                    return typeToCreate.GetMethod("ToArray").Invoke(list, null);
-                
-                return list;
+                            list.Add(m);
+                        }
+
+                        if (isArray)
+                            return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                    }
+
+                    return list;
+                }
             }
 
             if (n.ChildNodes.Count == 0)
@@ -603,7 +622,7 @@ namespace NServiceBus.Serializers.XML
             string prefix;
             namespacesToPrefix.TryGetValue(type.Namespace, out prefix);
 
-            if (string.IsNullOrEmpty(prefix) && type == typeof(object) && (value.GetType().IsValueType || value.GetType() == typeof(string)))
+            if (string.IsNullOrEmpty(prefix) && type == typeof(object) && (value.GetType().IsSimpleType()))
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
                     namespacesToAdd.Add(value.GetType());

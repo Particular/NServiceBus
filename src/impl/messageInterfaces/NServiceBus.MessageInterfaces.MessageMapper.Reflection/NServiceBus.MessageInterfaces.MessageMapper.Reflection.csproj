@@ -40,9 +40,14 @@
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=1.9.0.28662, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.MessageInterfaces, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.MessageInterfaces.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Utils.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.Reflection.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

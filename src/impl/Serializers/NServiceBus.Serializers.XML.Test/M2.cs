@@ -12,5 +12,7 @@ namespace NServiceBus.Serializers.XML.Test
         public SomeEnum Some { get; set; }
         public DateTime Start { get; set; }
         public TimeSpan Duration { get; set; }
+        public DateTimeOffset Offset { get; set; }
+        public M1[] MoreNames { get; set; }
     }    
 }

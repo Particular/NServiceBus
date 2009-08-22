@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {

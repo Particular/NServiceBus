@@ -18,12 +18,18 @@ namespace NServiceBus.Serializers.XML.Test
         private int number = 1;
         private int numberOfIterations = 100;
 
+        [Test]
+        public void Comparison()
+        {
+            TestInterfaces();
+            TestDataContractSerializer();
+        }
        
         [Test]
         public void TestInterfaces()
         {
             IMessageMapper mapper = new MessageMapper();
-            MessageSerializer serializer = new MessageSerializer();
+            var serializer = new MessageSerializer();
             serializer.MessageMapper = mapper;
 
             serializer.Initialize(typeof(IM2));
@@ -40,7 +46,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
             o.Offset = DateTimeOffset.Now;
-            o.Lookup = new Dictionary<string, string>();
+            o.Lookup = new MyDic();
             o.Lookup["1"] = "1";
 
             o.Parent = mapper.CreateInstance<IM1>();
@@ -54,7 +60,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Names = new List<IM1>();
             for (int i = 0; i < number; i++)
             {
-                IM1 m1 = mapper.CreateInstance<IM1>();
+                var m1 = mapper.CreateInstance<IM1>();
                 o.Names.Add(m1);
                 m1.Age = 10;
                 m1.Address = Guid.NewGuid().ToString();
@@ -62,6 +68,8 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Name = i.ToString();
                 m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             }
+
+            o.MoreNames = o.Names.ToArray();
 
             IMessage[] messages = new IMessage[] { o };
 
@@ -138,6 +146,9 @@ namespace NServiceBus.Serializers.XML.Test
             o.Name = "udi";
             o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             o.Some = SomeEnum.B;
+            o.Start = DateTime.Now;
+            o.Duration = TimeSpan.Parse("-01:15:27.123");
+            o.Offset = DateTimeOffset.Now;
 
             o.Parent = new M1();
             o.Parent.Name = "udi";
@@ -150,7 +161,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Names = new List<M1>();
             for (int i = 0; i < number; i++)
             {
-                M1 m1 = new M1();
+                var m1 = new M1();
                 o.Names.Add(m1);
                 m1.Age = 10;
                 m1.Address = Guid.NewGuid().ToString();
@@ -158,6 +169,8 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Name = i.ToString();
                 m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             }
+
+            o.MoreNames = o.Names.ToArray();
 
             return o;
         }
