@@ -104,6 +104,7 @@ namespace NServiceBus.Host
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
+            IList<Type> result = new List<Type>();
             foreach (var assemblyFile in new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
             {
                 Type[] types;
@@ -123,9 +124,11 @@ namespace NServiceBus.Host
 
                 foreach (Type type in types.Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
                 {
-                    yield return type;
+                    result.Add(type);
                 }
             }
+
+            return result;
         }
 
         private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
