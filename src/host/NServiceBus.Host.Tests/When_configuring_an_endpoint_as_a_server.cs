@@ -1,12 +1,8 @@
-using System;
-using NServiceBus.Host.Internal;
-using NServiceBus.Saga;
 using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Msmq;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
-using Rhino.Mocks;
 
 namespace NServiceBus.Host.Tests
 {

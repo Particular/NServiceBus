@@ -1,19 +1,15 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
+using NServiceBus.Host.Profiles;
 using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.Host.Internal
+namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    public class ConfigureLite : IModeConfiguration
+    public class LiteProfileHandler : IHandleProfile<Lite>
     {
-        private IConfigureThisEndpoint specifier;
+        void IHandleProfile.Init(IConfigureThisEndpoint specifier) {}
 
-        void IModeConfiguration.Init(IConfigureThisEndpoint specifier)
-        {
-            this.specifier = specifier;
-        }
-
-        void IModeConfiguration.ConfigureLogging()
+        void IHandleProfile.ConfigureLogging()
         {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";
@@ -27,15 +23,15 @@ namespace NServiceBus.Host.Internal
                 Layout = layout,
                 Threshold = level
             };
-            log4net.Config.BasicConfigurator.Configure(appender);        
+            log4net.Config.BasicConfigurator.Configure(appender);
         }
 
-        void IModeConfiguration.ConfigureSagas(Configure busConfiguration)
+        void IHandleProfile.ConfigureSagas(Configure busConfiguration)
         {
             Configure.TypeConfigurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
         }
 
-        void IModeConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
+        void IHandleProfile.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
             Configure.TypeConfigurer.ConfigureComponent<InMemorySubscriptionStorage>(
                 ComponentCallModelEnum.Singleton);

@@ -1,9 +1,6 @@
 using System.Configuration;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
-using NServiceBus.Host.Internal;
-using NServiceBus.Unicast.Subscriptions.Msmq;
-using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
 using Rhino.Mocks;

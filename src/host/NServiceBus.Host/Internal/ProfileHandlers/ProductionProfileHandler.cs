@@ -1,20 +1,18 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.Unicast.Subscriptions.Msmq;
-
-namespace NServiceBus.Host.Internal
+using NServiceBus.Host.Profiles;
+namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    public class ConfigureIntegration : IModeConfiguration
+    public class ProductionProfileHandler : IHandleProfile<Production>
     {
         private IConfigureThisEndpoint specifier;
 
-        void IModeConfiguration.Init(IConfigureThisEndpoint specifier)
+        void IHandleProfile.Init(IConfigureThisEndpoint specifier)
         {
             this.specifier = specifier;
         }
 
-        void IModeConfiguration.ConfigureLogging()
+        void IHandleProfile.ConfigureLogging()
         {
             if (specifier is IDontWant.Log4Net)
                 LogManager.Adapter = (specifier as IDontWant.Log4Net).UseThisInstead;
@@ -43,17 +41,15 @@ namespace NServiceBus.Host.Internal
             }
         }
 
-        void IModeConfiguration.ConfigureSagas(Configure busConfiguration)
+        void IHandleProfile.ConfigureSagas(Configure busConfiguration)
         {
             if (!(specifier is ISpecify.MyOwnSagaPersistence))
-                busConfiguration.NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
+                busConfiguration.NHibernateSagaPersister();
         }
 
-        void IModeConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
+        void IHandleProfile.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
-            string q = Program.GetEndpointId(specifier.GetType()) + "_subscriptions";
-            busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                .ConfigureProperty(s => s.Queue, q);
+            busConfiguration.DBSubcriptionStorage();
         }
     }
 }

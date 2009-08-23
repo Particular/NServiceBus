@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reflection;
-using Common.Logging;
-using NServiceBus.Config;
+using System.Linq;
+using System.Linq.Expressions;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Subscriptions.Msmq;
 
 namespace NServiceBus.Host.Internal
 {
@@ -17,18 +15,21 @@ namespace NServiceBus.Host.Internal
     public class ConfigurationBuilder
     {
         private readonly IConfigureThisEndpoint specifier;
-        private readonly IModeConfiguration mode;
         private Configure busConfiguration;
+
+        private readonly List<IHandleProfile> profileHandlers;
 
         /// <summary>
         /// Constructs the builder passing in the given specifier object.
         /// </summary>
         /// <param name="specifier"></param>
         /// <param name="mode"></param>
-        public ConfigurationBuilder(IConfigureThisEndpoint specifier, IModeConfiguration mode)
+        public ConfigurationBuilder(IConfigureThisEndpoint specifier, IEnumerable<IHandleProfile> handlers)
         {
             this.specifier = specifier;
-            this.mode = mode;
+            profileHandlers = handlers.ToList();
+
+            profileHandlers.ForEach(ph => ph.Init(specifier));
         }
 
         /// <summary>
@@ -37,9 +38,7 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public Configure Build()
         {
-            mode.Init(specifier);
-
-            mode.ConfigureLogging();
+            profileHandlers.ForEach(ph => ph.ConfigureLogging());
 
             busConfiguration = null;
 
@@ -100,7 +99,7 @@ namespace NServiceBus.Host.Internal
             {
                 busConfiguration.Sagas();
 
-                mode.ConfigureSagas(busConfiguration);
+                profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
             }
 
             if (specifier is As.aClient && specifier is As.aServer)
@@ -163,7 +162,7 @@ namespace NServiceBus.Host.Internal
                 .ImpersonateSender(true);
 
             if (specifier is As.aPublisher)
-                mode.ConfigureSubscriptionStorage(busConfiguration);
+                profileHandlers.ForEach(ph => ph.ConfigureSubscriptionStorage(busConfiguration));
 
             return configUnicastBus;
         }

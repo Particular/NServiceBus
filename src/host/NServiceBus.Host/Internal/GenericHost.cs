@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Common.Logging;
-using System.Collections.Specialized;
+using System.Reflection;
 using System.Linq;
+using NServiceBus.Host.Internal.ProfileHandlers;
 
 namespace NServiceBus.Host.Internal
 {
@@ -11,8 +12,6 @@ namespace NServiceBus.Host.Internal
     /// </summary>
     public class GenericHost : MarshalByRefObject
     {
-        public static ModeEnum Mode { get; private set; }
-
         /// <summary>
         /// Does startup work.
         /// </summary>
@@ -22,7 +21,7 @@ namespace NServiceBus.Host.Internal
 
             var configurationSpecifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            var busConfiguration = new ConfigurationBuilder(configurationSpecifier, modeConfig).Build();
+            var busConfiguration  = new ConfigurationBuilder(configurationSpecifier, profileHandlers).Build();
           
             Action startupAction = null;
 
@@ -61,42 +60,46 @@ namespace NServiceBus.Host.Internal
         {
             this.endpointType = endpointType;
 
-            var a = string.Join(" ", args);
+            var profiles = GetProfilesFrom(GetType().Assembly).Union(
+                GetProfilesFrom(endpointType.Assembly));
 
-            if (a.Contains(Enum.GetName(typeof(ModeEnum), ModeEnum.Integration).ToLower()))
-                mode = ModeEnum.Integration;
-            else
-            {
-                if (a.Contains(Enum.GetName(typeof(ModeEnum), ModeEnum.Lite).ToLower()))
-                    mode = ModeEnum.Lite;
-            }
+            var handlers = GetProfileHandlersFrom(GetType().Assembly).Union(
+                GetProfileHandlersFrom(endpointType.Assembly));
 
-            Mode = mode;
+            var a = string.Join(" ", args).ToLowerInvariant();
 
-            switch(mode)
-            {
-                case ModeEnum.Lite:
-                    modeConfig = new ConfigureLite();
-                    break;
-                case ModeEnum.Integration:
-                    modeConfig = new ConfigureIntegration();
-                    break;
-                case ModeEnum.Production:
-                    modeConfig = new ConfigureProduction();
-                    break;
-            }
+            var activeProfiles = profiles.Where(t => a.Contains(t.Name.ToLowerInvariant()));
+
+            var activeHandlers = handlers.Where(t =>
+                activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
+
+            profileHandlers = activeHandlers.Select(t => Activator.CreateInstance(t) as IHandleProfile) ??
+                              new[] {new ProductionProfileHandler()};
+        }
+
+        private static IEnumerable<Type> GetProfilesFrom(Assembly a)
+        {
+            return a.GetTypes().Where(t => typeof (IProfile).IsAssignableFrom(t) && t != typeof(IProfile));
+        }
+
+        private static IEnumerable<Type> GetProfileHandlersFrom(Assembly a)
+        {
+            foreach(Type t in a.GetTypes())
+                foreach (var i in t.GetInterfaces())
+                {
+                    var args = i.GetGenericArguments();
+                    if (args.Length == 1)
+                        if (typeof(IProfile).IsAssignableFrom(args[0]))
+                            if (typeof (IHandleProfile<>).MakeGenericType(args) == i)
+                            {
+                                yield return t;
+                                break;
+                            }
+                }
         }
 
         private readonly Type endpointType;
         private IMessageEndpoint messageEndpoint;
-        private ModeEnum mode = ModeEnum.Production;
-        private readonly IModeConfiguration modeConfig = new ConfigureProduction();
-    }
-
-    public enum ModeEnum
-    {
-        Production,
-        Integration,
-        Lite
+        private readonly IEnumerable<IHandleProfile> profileHandlers;
     }
 }
