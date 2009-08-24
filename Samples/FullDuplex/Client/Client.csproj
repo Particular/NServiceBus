@@ -55,8 +55,10 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataResponseMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="ClientEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

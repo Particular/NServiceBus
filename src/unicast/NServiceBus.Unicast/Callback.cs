@@ -44,6 +44,31 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+        void ICallback.Register(Action<int> callback)
+        {
+            (this as ICallback).Register<int>(callback);
+        }
+
+        void ICallback.Register<T>(Action<T> callback)
+        {
+            if (!typeof(T).IsEnum && typeof(T) != typeof(int))
+                throw new InvalidOperationException("Can only support registering callbacks for integer or enum types. The given type is neither: " + typeof(T).FullName);
+
+            (this as ICallback).Register(
+                asyncResult =>
+                {
+                    var cr = asyncResult.AsyncState as CompletionResult;
+                    if (cr == null) return;
+
+                    if (typeof(T) == typeof(int))
+                        (callback as Action<int>).Invoke(cr.ErrorCode);
+                    else
+                        callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
+                },
+                null
+                );
+        }
+
         void ICallback.RegisterWebCallback(Action<int> callback, object state)
         {
             var page = GetPageFromCallback(callback);

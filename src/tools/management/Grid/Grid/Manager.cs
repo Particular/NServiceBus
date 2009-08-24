@@ -158,7 +158,7 @@ namespace Grid
         {
             var message = new GetNumberOfWorkerThreadsMessage();
             bus.Send(queue, message).Register(
-                delegate(IAsyncResult aResult)
+                aResult =>
                     {
                         var result =
                             aResult.AsyncState as CompletionResult;

@@ -46,7 +46,7 @@ namespace Partner
                     if (!done)
                     {
                         float.TryParse(line, out quantity);
-                        orderlines.Add<OrderLine>(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
+                        orderlines.Add(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
                     }
 
                     bus.Send<OrderMessage>(m =>
@@ -56,7 +56,7 @@ namespace Partner
                         m.Done = done;
                         m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10);
                         m.OrderLines = orderlines;
-                    }).Register(asyncResult => { Console.WriteLine("OK"); }, null);
+                    }).Register(i => Console.WriteLine("OK"));
 
                     Console.WriteLine("Send PO Number {0}.", poId);
 
