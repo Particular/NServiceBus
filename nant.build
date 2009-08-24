@@ -334,6 +334,14 @@
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\"
 					workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
+		
+		<!-- copy the xsdgenerator to the tools directory -->
+		<copy todir="${build.base}\tools\">
+			<fileset basedir="${core.build.dir}\">
+				<include name="XsdGenerator.exe" />
+			</fileset>
+		</copy>
+		
 
 		<!-- Compile the gateway  -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
