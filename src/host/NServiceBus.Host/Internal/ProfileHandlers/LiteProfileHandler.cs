@@ -5,11 +5,14 @@ using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    public class LiteProfileHandler : IHandleProfile<Lite>
+    /// <summary>
+    /// Configures the infrastructure for the Lite profile
+    /// </summary>
+    public class LiteProfileHandler : IHandleProfileConfiguration<Lite>
     {
         void IHandleProfile.Init(IConfigureThisEndpoint specifier) {}
 
-        void IHandleProfile.ConfigureLogging()
+        void IHandleProfileConfiguration.ConfigureLogging()
         {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";
@@ -26,12 +29,12 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             log4net.Config.BasicConfigurator.Configure(appender);
         }
 
-        void IHandleProfile.ConfigureSagas(Configure busConfiguration)
+        void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
         {
             Configure.TypeConfigurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
         }
 
-        void IHandleProfile.ConfigureSubscriptionStorage(Configure busConfiguration)
+        void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
             Configure.TypeConfigurer.ConfigureComponent<InMemorySubscriptionStorage>(
                 ComponentCallModelEnum.Singleton);

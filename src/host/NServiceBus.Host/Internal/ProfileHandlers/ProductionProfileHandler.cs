@@ -1,34 +1,38 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
 using NServiceBus.Host.Profiles;
+
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    public class ProductionProfileHandler : IHandleProfile<Production>
+    /// <summary>
+    /// Configures the infrastructure for the Production profile.
+    /// </summary>
+    public class ProductionProfileHandler : IHandleProfileConfiguration<Production>
     {
-        private IConfigureThisEndpoint specifier;
+        private IConfigureThisEndpoint spec;
 
         void IHandleProfile.Init(IConfigureThisEndpoint specifier)
         {
-            this.specifier = specifier;
+            spec = specifier;
         }
 
-        void IHandleProfile.ConfigureLogging()
+        void IHandleProfileConfiguration.ConfigureLogging()
         {
-            if (specifier is IDontWant.Log4Net)
-                LogManager.Adapter = (specifier as IDontWant.Log4Net).UseThisInstead;
+            if (spec is IDontWant.Log4Net)
+                LogManager.Adapter = (spec as IDontWant.Log4Net).UseThisInstead;
             else
             {
                 var props = new NameValueCollection();
                 props["configType"] = "EXTERNAL";
                 LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
 
-                if (specifier is ISpecify.MyOwnLog4NetConfiguration)
-                    (specifier as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
+                if (spec is ISpecify.MyOwnLog4NetConfiguration)
+                    (spec as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
                 else
                 {
                     var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-                    var level = (specifier is ISpecify.LoggingLevel
-                                     ? (specifier as ISpecify.LoggingLevel).Level
+                    var level = (spec is ISpecify.LoggingLevel
+                                     ? (spec as ISpecify.LoggingLevel).Level
                                      : log4net.Core.Level.Debug);
 
                     var appender = new log4net.Appender.ConsoleAppender
@@ -41,13 +45,13 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             }
         }
 
-        void IHandleProfile.ConfigureSagas(Configure busConfiguration)
+        void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
         {
-            if (!(specifier is ISpecify.MyOwnSagaPersistence))
+            if (!(spec is ISpecify.MyOwnSagaPersistence))
                 busConfiguration.NHibernateSagaPersister();
         }
 
-        void IHandleProfile.ConfigureSubscriptionStorage(Configure busConfiguration)
+        void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
             busConfiguration.DBSubcriptionStorage();
         }

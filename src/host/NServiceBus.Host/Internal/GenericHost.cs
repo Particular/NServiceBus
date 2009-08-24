@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using NServiceBus.Host.Internal.ProfileHandlers;
+using NServiceBus.Host.Profiles;
 
 namespace NServiceBus.Host.Internal
 {
@@ -17,20 +17,16 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Start()
         {
-            Trace.WriteLine("Starting host for " + endpointType.FullName);
-
-            var configurationSpecifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
-
-            var busConfiguration  = new ConfigurationBuilder(configurationSpecifier, profileHandlers).Build();
+            var busConfiguration  = new ConfigurationBuilder(spec, profileConfigurationHandlers).Build();
           
             Action startupAction = null;
 
-            if (configurationSpecifier is ISpecify.StartupAction)
-                startupAction = (configurationSpecifier as ISpecify.StartupAction).StartupAction;
+            if (spec is ISpecify.StartupAction)
+                startupAction = (spec as ISpecify.StartupAction).StartupAction;
 
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 
-            if (!(configurationSpecifier is IDontWant.TheBusStartedAutomatically))
+            if (!(spec is IDontWant.TheBusStartedAutomatically))
                 busConfiguration.CreateBus().Start(startupAction);
 
             if (messageEndpoint == null)
@@ -58,8 +54,6 @@ namespace NServiceBus.Host.Internal
         /// <param name="args"></param>
         public GenericHost(Type endpointType, string[] args)
         {
-            this.endpointType = endpointType;
-
             var profiles = GetProfilesFrom(GetType().Assembly).Union(
                 GetProfilesFrom(endpointType.Assembly));
 
@@ -68,13 +62,22 @@ namespace NServiceBus.Host.Internal
 
             var a = string.Join(" ", args).ToLowerInvariant();
 
-            var activeProfiles = profiles.Where(t => a.Contains(t.Name.ToLowerInvariant()));
+            var activeProfiles = profiles.Where(t => a.Contains(t.Name.ToLowerInvariant())) ??
+                new[] {typeof(Production)};
 
             var activeHandlers = handlers.Where(t =>
                 activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
 
-            profileHandlers = activeHandlers.Select(t => Activator.CreateInstance(t) as IHandleProfile) ??
-                              new[] {new ProductionProfileHandler()};
+            var profileHandlers = new List<IHandleProfile>();
+            foreach (var h in activeHandlers)
+                profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
+
+            spec = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
+
+            profileHandlers.ForEach(hp => hp.Init(spec));
+
+            profileConfigurationHandlers = profileHandlers.Where(hp => hp is IHandleProfileConfiguration)
+                .Select(hp => hp as IHandleProfileConfiguration);
         }
 
         private static IEnumerable<Type> GetProfilesFrom(Assembly a)
@@ -90,7 +93,7 @@ namespace NServiceBus.Host.Internal
                     var args = i.GetGenericArguments();
                     if (args.Length == 1)
                         if (typeof(IProfile).IsAssignableFrom(args[0]))
-                            if (typeof (IHandleProfile<>).MakeGenericType(args) == i)
+                            if (typeof(IHandleProfile<>).MakeGenericType(args) == i)
                             {
                                 yield return t;
                                 break;
@@ -98,8 +101,8 @@ namespace NServiceBus.Host.Internal
                 }
         }
 
-        private readonly Type endpointType;
         private IMessageEndpoint messageEndpoint;
-        private readonly IEnumerable<IHandleProfile> profileHandlers;
+        private readonly IEnumerable<IHandleProfileConfiguration> profileConfigurationHandlers;
+        private readonly IConfigureThisEndpoint spec;
     }
 }

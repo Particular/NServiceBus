@@ -17,19 +17,17 @@ namespace NServiceBus.Host.Internal
         private readonly IConfigureThisEndpoint specifier;
         private Configure busConfiguration;
 
-        private readonly List<IHandleProfile> profileHandlers;
+        private readonly List<IHandleProfileConfiguration> profileHandlers;
 
         /// <summary>
         /// Constructs the builder passing in the given specifier object.
         /// </summary>
         /// <param name="specifier"></param>
-        /// <param name="mode"></param>
-        public ConfigurationBuilder(IConfigureThisEndpoint specifier, IEnumerable<IHandleProfile> handlers)
+        /// <param name="handlers"></param>
+        public ConfigurationBuilder(IConfigureThisEndpoint specifier, IEnumerable<IHandleProfileConfiguration> handlers)
         {
             this.specifier = specifier;
             profileHandlers = handlers.ToList();
-
-            profileHandlers.ForEach(ph => ph.Init(specifier));
         }
 
         /// <summary>

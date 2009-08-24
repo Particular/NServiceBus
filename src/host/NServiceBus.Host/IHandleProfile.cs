@@ -1,22 +1,34 @@
 ﻿namespace NServiceBus.Host
 {
     /// <summary>
-    /// Generic abstraction for code which handles configuration of a given profile.
+    /// Generic abstraction for code which will be called when the given profile is active.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IHandleProfile<T> : IHandleProfile where T : IProfile {}
 
     /// <summary>
-    /// Abstraction for code which handles configuration of a given profile
+    /// Generic abstraction for code which will configure how a given profile should behave.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IHandleProfileConfiguration<T> : IHandleProfileConfiguration, IHandleProfile<T> where T : IProfile { }
+
+    /// <summary>
+    /// Abstraction for code which will be called when the given profile is active.
     /// </summary>
     public interface IHandleProfile
     {
         /// <summary>
-        /// This method called before all others - you may want to store the given specifier.
+        /// Provides a reference for the endpoint configuration object.
         /// </summary>
         /// <param name="specifier"></param>
         void Init(IConfigureThisEndpoint specifier);
+    }
 
+    /// <summary>
+    /// Abstraction for code which will configure how a given profile should behave.
+    /// </summary>
+    public interface IHandleProfileConfiguration : IHandleProfile
+    {
         /// <summary>
         /// Configure how log4net is set up.
         /// </summary>
