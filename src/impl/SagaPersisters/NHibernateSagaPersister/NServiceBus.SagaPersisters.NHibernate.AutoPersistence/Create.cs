@@ -15,21 +15,44 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
             var assembliesContainingSagas = sagaEntites.Select(t => t.Assembly).Distinct();
 
-            if (assembliesContainingSagas.Count() == 0)
-                return null;
-
             var model = new AutoPersistenceModel();
 
             model.Conventions.AddFromAssemblyOf<IdShouldBeAssignedConvention>();
 
-            foreach (var assembly in assembliesContainingSagas)
-                model.AddEntityAssembly(assembly)
-               .Where(t => typeof(ISagaEntity).IsAssignableFrom(t) || t.GetProperty("Id") != null);
+            var componentTypes = GetTypesThatShouldBeMappedAsComponents(sagaEntites);
 
-            
-            
-            model.BuildMappings();
+            foreach (var assembly in assembliesContainingSagas)
+                model. AddEntityAssembly(assembly)
+               .Where(t =>
+                   typeof(ISagaEntity).IsAssignableFrom(t) ||
+                   t.GetProperty("Id") != null ||
+                   componentTypes.Contains(t));
+
+            model.Setup(s =>
+                          {
+                              s.IsComponentType =
+                                  type => componentTypes.Contains(type);
+                          });
+
             return model;
+        }
+
+        private static IEnumerable<Type> GetTypesThatShouldBeMappedAsComponents(IEnumerable<Type> sagaEntites)
+        {
+            IEnumerable<Type> componentTypes = new List<Type>();
+
+            foreach (var sagaEntity in sagaEntites)
+            {
+                var propertyTypes = sagaEntity.GetProperties()
+                    .Select(p => p.PropertyType)
+                    .Where(t =>
+                           !t.Namespace.StartsWith("System") &&
+                           t.GetProperty("Id") == null &&
+                           !t.IsEnum);
+
+                componentTypes = componentTypes.Concat(propertyTypes);
+            }
+            return componentTypes;
         }
     }
 }

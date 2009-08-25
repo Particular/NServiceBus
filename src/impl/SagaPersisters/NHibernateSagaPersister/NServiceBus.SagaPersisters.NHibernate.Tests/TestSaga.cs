@@ -19,11 +19,19 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual StatusEnum Status { get; set; }
 
         public virtual DateTime DateTimeProperty { get; set; }
+
+        public virtual TestComponent TestComponent { get; set; }
     }
 
     public enum StatusEnum
     {
         SomeStatus, AnotherStatus
+    }
+
+    public class TestComponent
+    {
+        public string Property { get; set; }
+        public string AnotherProperty { get; set; }
     }
 
     public class OrderLine

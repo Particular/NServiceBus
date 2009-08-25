@@ -22,7 +22,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var properties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Sagas.sqlite").ToProperties();
 
-            config = Configure.With(new[] {typeof (MySaga), typeof (MySagaData), typeof(SagaPersister)})
+            config = Configure.With(new[] { typeof(MySaga).Assembly})
                 .SpringBuilder()
                 .Sagas()
                 .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();

@@ -65,5 +65,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             dateTimeProperty.ShouldNotBeNull();
         }
 
+        [Test]
+        public void Public_setters_and_getters_of_concrete_classes_should_map_as_components()
+        {
+            persisterForTestSaga.EntityMetamodel.Properties
+                                       .Where(x => x.Type.ReturnedClass == typeof(TestComponent))
+                                       .Count().ShouldEqual(1);
+        }
+
+
     }
 }
