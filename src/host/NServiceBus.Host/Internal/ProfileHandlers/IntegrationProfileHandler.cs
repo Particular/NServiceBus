@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
+using NServiceBus.Config;
 using NServiceBus.Host.Profiles;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
@@ -55,9 +56,17 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
         void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
-            string q = Program.GetEndpointId(spec.GetType()) + "_subscriptions";
-            busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                .ConfigureProperty(s => s.Queue, q);
+
+            if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
+            {
+                string q = Program.GetEndpointId(spec.GetType()) + "_subscriptions";
+                busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
+                    .ConfigureProperty(s => s.Queue, q);
+            }
+            else
+            {
+                busConfiguration.MsmqSubscriptionStorage();
+            }
         }
     }
 }

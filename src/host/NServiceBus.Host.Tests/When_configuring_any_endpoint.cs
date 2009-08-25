@@ -1,7 +1,11 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Sagas.Impl;
+using NServiceBus.ObjectBuilder;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
 
@@ -43,6 +47,16 @@ namespace NServiceBus.Host.Tests
             Configure.ConfigurationSource.ShouldBeInstanceOfType(typeof (TestConfigSource));
         }
 
+        [Test]
+        public void Assemblies_can_be_specified_explicitly()
+        {
+            var configure = Util.Init<EndpointWithExplicitAssemblyScanning>();
+
+
+            configure.Builder.Build<TestDependency>().ShouldNotBeNull();
+        }
+
+
     }
 
     public class EndpointWithMessageHandlerOrdering : IConfigureThisEndpoint,As.aServer, ISpecify.MessageHandlerOrdering, IDontWant.Sagas
@@ -61,6 +75,37 @@ namespace NServiceBus.Host.Tests
             get { return "testnamespace"; }
         }
     }
+    public class EndpointWithExplicitAssemblyScanning : IConfigureThisEndpoint, 
+                                                    IDontWant.Sagas,
+                                                    As.aServer ,
+                                                    IWantCustomInitialization,
+                                                    ISpecify.AssembliesToScan
+
+    {
+        public string Namespace
+        {
+            get { return "testnamespace"; }
+        }
+
+        public void Init(Configure configure)
+        {
+            configure.Configurer.ConfigureComponent<TestDependency>(ComponentCallModelEnum.Singlecall);
+        }
+
+        public IEnumerable<Assembly> AssembliesToScan
+        {
+            get
+            {
+                //return new[] {typeof (TestDependency).Assembly};
+                return new[] { Assembly.LoadFile(new FileInfo(typeof(TestDependency).Assembly.ManifestModule.Name).FullName) };
+            }
+        }
+    }
+
+    public class TestDependency
+    {
+    }
+
 
     public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwnConfigurationSource, IDontWant.Sagas 
     {

@@ -1,13 +1,26 @@
-﻿using NServiceBus.Host.Internal;
+﻿using System.Collections.Generic;
+using NServiceBus.Host.Internal;
 using NServiceBus.Host.Internal.ProfileHandlers;
 
 namespace NServiceBus.Host.Tests
 {
     public static class Util
     {
-        public static Configure Init<T>() where T : IConfigureThisEndpoint, new()
+        public static Configure Init<TSpecfier>() where TSpecfier : IConfigureThisEndpoint, new()
         {
-            return new ConfigurationBuilder(new T(), new[] {new ProductionProfileHandler()}).Build();
+            return Init<TSpecfier, ProductionProfileHandler>();
+        }
+
+        public static Configure Init<TSpecfier, TProfileHandler>()
+            where TSpecfier : IConfigureThisEndpoint, new()
+            where TProfileHandler : IHandleProfileConfiguration, new()
+        {
+            var profile = new TProfileHandler();
+            var specifier = new TSpecfier();
+
+            profile.Init(specifier);
+
+            return new ConfigurationBuilder(specifier, new List<IHandleProfileConfiguration>{ profile }).Build();
         }
     }
 }
