@@ -78,6 +78,7 @@
     <Compile Include="When_configuring_an_endpoint_as_a_publisher.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_server.cs" />
     <Compile Include="When_running_in_the_integration_profile.cs" />
+    <Compile Include="When_using_the_profile_manager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Host\NServiceBus.Host.csproj">

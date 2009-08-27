@@ -81,6 +81,7 @@
     <Compile Include="Internal\ProfileHandlers\IntegrationProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\LiteProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\ProductionProfileHandler.cs" />
+    <Compile Include="Internal\ProfileManager.cs" />
     <Compile Include="IProfile.cs" />
     <Compile Include="ISpecify.cs" />
     <Compile Include="IWantCustomInitialization.cs" />
