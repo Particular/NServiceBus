@@ -17,6 +17,21 @@ namespace NServiceBus.Config
                 this["NHibernateProperties"] = value;
             }
         }
+
+        [ConfigurationProperty("UpdateSchema", IsRequired = false, DefaultValue = true)]
+        public bool UpdateSchema
+        {
+
+            get
+            {
+
+                return (bool)this["UpdateSchema"];
+            }
+            set
+            {
+                this["UpdateSchema"] = value;
+            }
+        }
     }
 
     public class NHibernatePropertyCollection: ConfigurationElementCollection

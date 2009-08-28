@@ -13,15 +13,14 @@ using NServiceBus.Saga;
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     [TestFixture]
-    public class When_configuring_the_saga_persister
+    public class When_configuring_the_saga_persister_to_use_sqlite
     {
         private Configure config;
 
         [SetUp]
         public void SetUp()
         {
-            var properties = SQLiteConfiguration.Standard.UsingFile(".\\NServiceBus.Sagas.sqlite").ToProperties();
-
+            
             config = Configure.With(new[] { typeof(MySaga).Assembly})
                 .SpringBuilder()
                 .Sagas()
@@ -46,24 +45,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
         }
 
-        [Test]
-        public void Update_schema_can_be_specified_by_the_user()
-        {
 
-        }
 
-        public class MySagaData : ISagaEntity
-        {
-            public System.Guid Id { get; set; }
-            public string OriginalMessageId { get; set; }
-            public string Originator { get; set; }
-        }
-
-        public class MySaga : Saga<MySagaData>
-        {
-            public override void Timeout(object state)
-            {
-            }
-        }
+        
     }
+
+  
 }
