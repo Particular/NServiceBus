@@ -1,4 +1,5 @@
 using System;
+using Common.Logging;
 
 namespace NServiceBus.Host.Internal
 {
@@ -32,7 +33,22 @@ namespace NServiceBus.Host.Internal
                 return;
 
             //give it its own thread so that logging continues to work.
-            Action onstart = () => messageEndpoint.OnStart();
+            Action onstart = () =>
+                                 {
+                                     try
+                                     {
+                                         messageEndpoint.OnStart();
+                                     }
+                                     catch (Exception ex)
+                                     {
+                                         LogManager.GetLogger(messageEndpoint.GetType())
+                                             .Error("Problem occurred when starting the endpoint.", ex);
+
+                                         //don't rethrow so that thread doesn't die before log message is shown.
+                                     }
+                                     
+                                 };
+
             onstart.BeginInvoke(null, null);
         }
 
