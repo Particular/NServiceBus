@@ -7,6 +7,7 @@ namespace Client
                                 As.aClient,
                                 ISpecify.ToUseXmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
+                                IDontWant.Sagas,
                                 IWantCustomInitialization,
                                 ISpecify.ToRun<ClientEndpoint>
     {
