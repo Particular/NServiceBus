@@ -19,4 +19,10 @@ namespace NServiceBus
 		/// the custom logic to execute when the message is received.</remarks>
         void Handle(T message);
     }
+
+    /// <summary>
+    /// Implement this class to be called when messages of the given type arrive at your endpoint.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IHandleMessages<T> : IMessageHandler<T> where T : IMessage {}
 }
