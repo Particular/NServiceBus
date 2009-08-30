@@ -35,14 +35,15 @@ namespace NServiceBus.Host.Internal
             //give it its own thread so that logging continues to work.
             Action onstart = () =>
                                  {
+                                     var logger = LogManager.GetLogger(messageEndpoint.GetType());
                                      try
                                      {
+                                         logger.Debug("Starting the message endpoint.");
                                          messageEndpoint.OnStart();
                                      }
                                      catch (Exception ex)
                                      {
-                                         LogManager.GetLogger(messageEndpoint.GetType())
-                                             .Error("Problem occurred when starting the endpoint.", ex);
+                                         logger.Error("Problem occurred when starting the endpoint.", ex);
 
                                          //don't rethrow so that thread doesn't die before log message is shown.
                                      }
@@ -58,7 +59,20 @@ namespace NServiceBus.Host.Internal
         public void Stop()
         {
             if (messageEndpoint != null)
-                messageEndpoint.OnStop();
+            {
+                var logger = LogManager.GetLogger(messageEndpoint.GetType());
+                logger.Debug("Stopping endpoint.");
+                try
+                {
+                    messageEndpoint.OnStop();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Could not stop endpoint.", ex);
+                    
+                    // no need to rethrow, closing the process anyway
+                }
+            }
         }
 
         /// <summary>
