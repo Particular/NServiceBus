@@ -7,7 +7,7 @@ namespace OrderService
 {
     public class EndpointConfig : IConfigureThisEndpoint,
                                     As.aPublisher,
-                                    ISpecify.ToUseXmlSerialization,
+                                    ISpecify.ToUse.XmlSerialization,
                                     ISpecify.MessageHandlerOrdering
     {
         public void SpecifyOrder(Order order)

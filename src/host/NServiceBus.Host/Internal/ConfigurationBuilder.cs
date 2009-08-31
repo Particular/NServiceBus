@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Unicast.Config;
+using NServiceBus.Serialization;
 
 namespace NServiceBus.Host.Internal
 {
@@ -51,14 +52,14 @@ namespace NServiceBus.Host.Internal
                     else
                         busConfiguration = Configure.With();
 
-            if (specifier is ISpecify.MyOwnConfigurationSource)
-                busConfiguration.CustomConfigurationSource((specifier as ISpecify.MyOwnConfigurationSource).Source);
+            if (specifier is ISpecify.MyOwn.ConfigurationSource)
+                busConfiguration.CustomConfigurationSource((specifier as ISpecify.MyOwn.ConfigurationSource).Source);
 
             IContainer container = null;
 
 
-            if (specifier is ISpecify.ContainerInstanceToUse)
-                container = (specifier as ISpecify.ContainerInstanceToUse).ContainerInstance;
+            if (specifier is ISpecify.ToUse.SpecificContainerInstance)
+                container = (specifier as ISpecify.ToUse.SpecificContainerInstance).ContainerInstance;
 
             Type containerType = null;
             Type messageEndpointType = null;
@@ -69,7 +70,7 @@ namespace NServiceBus.Host.Internal
                 if (args.Length == 1)
                 {
                     if (typeof(IContainer).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ContainerTypeToUse<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
+                        if (typeof(ISpecify.ToUse.ContainerType<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
                             containerType = args[0];
 
                     if (typeof(IMessageEndpoint).IsAssignableFrom(args[0]))
@@ -135,7 +136,10 @@ namespace NServiceBus.Host.Internal
 
         private void ConfigureSerialization()
         {
-            if (specifier is ISpecify.ToUseXmlSerialization)
+            if (specifier is ISpecify.MyOwn.Serialization)
+                return;
+
+            if (specifier is ISpecify.ToUse.XmlSerialization)
             {
                 if (specifier is ISpecify.XmlSerializationNamespace)
                     busConfiguration.XmlSerializer((specifier as ISpecify.XmlSerializationNamespace).Namespace);
@@ -143,8 +147,26 @@ namespace NServiceBus.Host.Internal
                     busConfiguration.XmlSerializer();
             }
             else
-                if (!(specifier is ISpecify.MyOwnSerialization))
+            {
+                bool found = false;
+                foreach(var i in specifier.GetType().GetInterfaces())
+                {
+                    var args = i.GetGenericArguments();
+                    if (args.Length == 1)
+                        if (typeof(IMessageSerializer).IsAssignableFrom(args[0]))
+                            if (typeof(ISpecify.ToUse.Serializer<>).MakeGenericType(args) == i)
+                            {
+                                found = true;
+                                Configure.TypeConfigurer
+                                    .ConfigureComponent(args[0], ComponentCallModelEnum.Singleton);
+
+                                break;
+                            }
+                }
+
+                if (!found)
                     busConfiguration.BinarySerializer();
+            }
         }
 
         private ConfigUnicastBus ConfigureServerRole()

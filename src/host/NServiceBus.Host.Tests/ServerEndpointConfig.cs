@@ -12,7 +12,7 @@ namespace NServiceBus.Host.Tests
 
     public class ServerEndpointConfigWithCustomSagaPersister : IConfigureThisEndpoint,
                                     As.aServer,
-                                    ISpecify.MyOwnSagaPersistence
+                                    ISpecify.MyOwn.SagaPersistence
     {
         public void Init(Configure configure)
         {
@@ -23,7 +23,7 @@ namespace NServiceBus.Host.Tests
     
     public class ServerEndpointConfigWithCustomConfigSource : IConfigureThisEndpoint,
                                         As.aPublisher,
-                                        ISpecify.MyOwnConfigurationSource,
+                                        ISpecify.MyOwn.ConfigurationSource,
                                         IDontWant.Sagas
   
     {

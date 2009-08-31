@@ -5,7 +5,7 @@ namespace Server
 {
     public class EndpointConfig:IConfigureThisEndpoint,
                                 As.aServer,
-                                ISpecify.ToUseXmlSerialization,
+                                ISpecify.ToUse.XmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
                                 IWantCustomInitialization,
                                 IDontWant.Sagas

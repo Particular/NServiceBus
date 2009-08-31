@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder.Common;
+using NServiceBus.Serialization;
 
 namespace NServiceBus.Host
 {
     /// <summary>
-    /// Container class for interface specifications.
+    /// Container class for sub-specifications.
     /// Implement the contained interfaces on the class which implements <see cref="IConfigureThisEndpoint"/>.
     /// </summary>
     public class ISpecify
@@ -69,40 +70,10 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specify the type of container that will be used for dependency injection in the endpoint.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public interface ContainerTypeToUse<T> where T : IContainer
-        {
-        }
-
-        /// <summary>
-        /// Specify a container instance that will be used for dependency injection in the endpoint.
-        /// </summary>
-        public interface ContainerInstanceToUse
-        {
-            /// <summary>
-            /// Return an instance of the container the rest of nServiceBus will use.
-            /// </summary>
-            IContainer ContainerInstance { get; }
-        }
-
-        /// <summary>
         /// Specify the type of endpoint that will be run after configuration is complete.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public interface ToRun<T> where T : IMessageEndpoint
-        {
-            
-        }
-
-        /// <summary>
-        /// Specify that the XML serializer should be used.
-        /// </summary>
-        public interface ToUseXmlSerialization
-        {
-            
-        }
+        public interface ToRun<T> where T : IMessageEndpoint { }
 
         /// <summary>
         /// Specify the XML serialization namespace that should be used.
@@ -113,33 +84,6 @@ namespace NServiceBus.Host
             /// The XML serialization namespace.
             /// </summary>
             string Namespace { get; }
-        }
-
-        /// <summary>
-        /// Specify that serialization will be independently configured in the container
-        /// </summary>
-        public interface MyOwnSerialization : IWantCustomInitialization
-        {
-            
-        }
-
-        /// <summary>
-        /// Specify that saga persistence will be independently configured.
-        /// </summary>
-        public interface MyOwnSagaPersistence : IWantCustomInitialization
-        {
-            
-        }
-
-        /// <summary>
-        /// Specify that Log4Net will be independently configured.
-        /// </summary>
-        public interface MyOwnLog4NetConfiguration
-        {
-            /// <summary>
-            /// In this method, do what you want to configure Log4Net.
-            /// </summary>
-            void ConfigureLog4Net();
         }
 
         /// <summary>
@@ -166,14 +110,75 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specify an alternate config source to use
+        /// Container class for sub-specifications
         /// </summary>
-        public interface MyOwnConfigurationSource
+        public class ToUse
         {
             /// <summary>
-            /// Source from which to pull configuration information.
+            /// Specify the type of container that will be used for dependency injection in the endpoint.
             /// </summary>
-            IConfigurationSource Source { get; }
+            /// <typeparam name="T"></typeparam>
+            public interface ContainerType<T> where T : IContainer { }
+
+            /// <summary>
+            /// Specify a container instance that will be used for dependency injection in the endpoint.
+            /// </summary>
+            public interface SpecificContainerInstance
+            {
+                /// <summary>
+                /// Return an instance of the container the rest of nServiceBus will use.
+                /// </summary>
+                IContainer ContainerInstance { get; }
+            }
+
+            /// <summary>
+            /// Specify that the XML serializer should be used.
+            /// </summary>
+            public interface XmlSerialization { }
+
+            /// <summary>
+            /// Specify that the given type will be used as the message serializer.
+            /// </summary>
+            public interface Serializer<T> where T : IMessageSerializer { }
         }
+
+        /// <summary>
+        /// Container class for sub-specifications
+        /// </summary>
+        public class MyOwn
+        {
+            /// <summary>
+            /// Specify that serialization will be independently configured in the container.
+            /// </summary>
+            public interface Serialization : IWantCustomInitialization { }
+
+            /// <summary>
+            /// Specify that saga persistence will be independently configured.
+            /// </summary>
+            public interface SagaPersistence : IWantCustomInitialization { }
+
+            /// <summary>
+            /// Specify that Log4Net will be independently configured.
+            /// </summary>
+            public interface Log4NetConfiguration
+            {
+                /// <summary>
+                /// In this method, do what you want to configure Log4Net.
+                /// </summary>
+                void ConfigureLog4Net();
+            }
+
+            /// <summary>
+            /// Specify an alternate config source to use
+            /// </summary>
+            public interface ConfigurationSource
+            {
+                /// <summary>
+                /// Source from which to pull configuration information.
+                /// </summary>
+                IConfigurationSource Source { get; }
+            }
+        }
+
     }
 }

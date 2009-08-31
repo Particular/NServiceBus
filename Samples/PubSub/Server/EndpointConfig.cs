@@ -7,7 +7,7 @@ namespace Server
 {
     class EndpointConfig : IConfigureThisEndpoint, 
         As.aPublisher,
-        ISpecify.ToUseXmlSerialization,
+        ISpecify.ToUse.XmlSerialization,
         ISpecify.ToRun<ServerEndpoint>,
         ISpecify.MessageHandlerOrdering
     {

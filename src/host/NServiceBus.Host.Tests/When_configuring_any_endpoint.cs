@@ -68,7 +68,7 @@ namespace NServiceBus.Host.Tests
         }
     }
 
-    public class EndpointWithXmlSerialization : IConfigureThisEndpoint,ISpecify.ToUseXmlSerialization,ISpecify.XmlSerializationNamespace, IDontWant.Sagas 
+    public class EndpointWithXmlSerialization : IConfigureThisEndpoint,ISpecify.ToUse.XmlSerialization,ISpecify.XmlSerializationNamespace, IDontWant.Sagas 
     {
         public string Namespace
         {
@@ -107,7 +107,7 @@ namespace NServiceBus.Host.Tests
     }
 
 
-    public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwnConfigurationSource, IDontWant.Sagas 
+    public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwn.ConfigurationSource, IDontWant.Sagas 
     {
        public IConfigurationSource Source
         {

@@ -5,7 +5,7 @@ namespace Client
 {
     public class EndpointConfig:IConfigureThisEndpoint,
                                 As.aClient,
-                                ISpecify.ToUseXmlSerialization,
+                                ISpecify.ToUse.XmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
                                 IDontWant.Sagas,
                                 IWantCustomInitialization,

@@ -26,8 +26,8 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
                 props["configType"] = "EXTERNAL";
                 LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
 
-                if (spec is ISpecify.MyOwnLog4NetConfiguration)
-                    (spec as ISpecify.MyOwnLog4NetConfiguration).ConfigureLog4Net();
+                if (spec is ISpecify.MyOwn.Log4NetConfiguration)
+                    (spec as ISpecify.MyOwn.Log4NetConfiguration).ConfigureLog4Net();
                 else
                 {
                     var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
@@ -47,7 +47,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
         void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
         {
-            if (!(spec is ISpecify.MyOwnSagaPersistence))
+            if (!(spec is ISpecify.MyOwn.SagaPersistence))
                 busConfiguration.NHibernateSagaPersister();
         }
 
