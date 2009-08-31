@@ -7,6 +7,7 @@ using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Serialization;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Host.Internal
 {
@@ -61,23 +62,8 @@ namespace NServiceBus.Host.Internal
             if (specifier is ISpecify.ToUse.SpecificContainerInstance)
                 container = (specifier as ISpecify.ToUse.SpecificContainerInstance).ContainerInstance;
 
-            Type containerType = null;
-            Type messageEndpointType = null;
-
-            foreach (var t in specifier.GetType().GetInterfaces())
-            {
-                var args = t.GetGenericArguments();
-                if (args.Length == 1)
-                {
-                    if (typeof(IContainer).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ToUse.ContainerType<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
-                            containerType = args[0];
-
-                    if (typeof(IMessageEndpoint).IsAssignableFrom(args[0]))
-                        if (typeof(ISpecify.ToRun<>).MakeGenericType(args[0]).IsAssignableFrom(specifier.GetType()))
-                            messageEndpointType = args[0];
-                }
-            }
+            Type containerType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToUse.ContainerType<>), typeof(IContainer));
+            Type messageEndpointType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToRun<>), typeof(IMessageEndpoint));
 
             if (container != null)
             {
@@ -148,23 +134,12 @@ namespace NServiceBus.Host.Internal
             }
             else
             {
-                bool found = false;
-                foreach(var i in specifier.GetType().GetInterfaces())
-                {
-                    var args = i.GetGenericArguments();
-                    if (args.Length == 1)
-                        if (typeof(IMessageSerializer).IsAssignableFrom(args[0]))
-                            if (typeof(ISpecify.ToUse.Serializer<>).MakeGenericType(args) == i)
-                            {
-                                found = true;
-                                Configure.TypeConfigurer
-                                    .ConfigureComponent(args[0], ComponentCallModelEnum.Singleton);
+                var serializerType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToUse.Serializer<>), typeof(IMessageSerializer));
 
-                                break;
-                            }
-                }
-
-                if (!found)
+                if (serializerType != null)
+                    Configure.TypeConfigurer
+                        .ConfigureComponent(serializerType, ComponentCallModelEnum.Singleton);
+                else
                     busConfiguration.BinarySerializer();
             }
         }

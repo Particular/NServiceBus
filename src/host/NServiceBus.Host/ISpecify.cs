@@ -4,6 +4,7 @@ using System.Reflection;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Serialization;
+using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Host
 {
@@ -140,6 +141,12 @@ namespace NServiceBus.Host
             /// Specify that the given type will be used as the message serializer.
             /// </summary>
             public interface Serializer<T> where T : IMessageSerializer { }
+
+            /// <summary>
+            /// Specify that the given type will be used as the subscription storage.
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            public interface SubscriptionStorage<T> where T : ISubscriptionStorage { }
         }
 
         /// <summary>
@@ -156,6 +163,11 @@ namespace NServiceBus.Host
             /// Specify that saga persistence will be independently configured.
             /// </summary>
             public interface SagaPersistence : IWantCustomInitialization { }
+
+            /// <summary>
+            /// Specify that subscription storage will be independently configured.
+            /// </summary>
+            public interface SubscriptionStorage : IWantCustomInitialization { }
 
             /// <summary>
             /// Specify that Log4Net will be independently configured.

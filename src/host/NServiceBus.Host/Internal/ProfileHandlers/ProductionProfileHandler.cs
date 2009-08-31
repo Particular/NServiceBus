@@ -1,6 +1,9 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
 using NServiceBus.Host.Profiles;
+using NServiceBus.Utils.Reflection;
+using NServiceBus.Unicast.Subscriptions;
+using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
@@ -53,7 +56,16 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
         void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
         {
-            busConfiguration.DBSubcriptionStorage();
+            if (spec is ISpecify.MyOwn.SubscriptionStorage)
+                return;
+
+            var storageType = spec.GetType().GetGenericallyContainedType(typeof (ISpecify.ToUse.SubscriptionStorage<>),
+                                                                         typeof (ISubscriptionStorage));
+
+            if (storageType != null)
+                Configure.TypeConfigurer.ConfigureComponent(storageType, ComponentCallModelEnum.Singleton);
+            else
+                busConfiguration.DBSubcriptionStorage();
         }
     }
 }

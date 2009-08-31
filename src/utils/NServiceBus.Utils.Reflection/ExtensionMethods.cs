@@ -9,6 +9,52 @@ namespace NServiceBus.Utils.Reflection
     public static class ExtensionMethods
     {
         /// <summary>
+        /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="openGenericType"></param>
+        /// <param name="genericArg"></param>
+        /// <returns></returns>
+        public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
+        {
+            bool result = false;
+            LoopAndAct(type, openGenericType, genericArg, t => result = true);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="openGenericType"></param>
+        /// <param name="genericArg"></param>
+        /// <returns></returns>
+        public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
+        {
+            Type result = null;
+            LoopAndAct(type, openGenericType, genericArg, t => result = t);
+
+            return result;
+        }
+
+        private static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
+        {
+            foreach (var i in type.GetInterfaces())
+            {
+                var args = i.GetGenericArguments();
+
+                if (args.Length == 1)
+                    if (genericArg.IsAssignableFrom(args[0]))
+                        if (openGenericType.MakeGenericType(args[0]) == i)
+                        {
+                            act(args[0]);
+                            break;
+                        }
+            }
+        }
+
+        /// <summary>
         /// Returns true if the type can be serialized as is.
         /// </summary>
         /// <param name="type"></param>
