@@ -27,8 +27,7 @@ namespace NServiceBus
             var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
 
             if (configSection == null)
-                throw new InvalidOperationException("Configuration section 'NHibernateSagaPersisterConfig' could not be found.");
-
+                throw new InvalidOperationException("Configuration section 'NHibernateSagaPersisterConfig' could not be found. If you don't want sagas for this endpoint, please implement IDontWant.Sagas on your IConfigureThisEndpoint class.");
             
             var nhibernateProperties = configSection.NHibernateProperties.ToProperties();
 
