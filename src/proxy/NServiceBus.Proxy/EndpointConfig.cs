@@ -9,7 +9,8 @@ namespace NServiceBus.Proxy
 {
     class EndpointConfig : IConfigureThisEndpoint,
         IWantCustomInitialization,
-        IDontWant.TheBusStartedAutomatically
+        IDontWant.TheBusStartedAutomatically,
+        IDontWant.Sagas
     {
         public void Init(Configure configure)
         {
@@ -48,16 +49,16 @@ namespace NServiceBus.Proxy
 
             configure.Configurer.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.RemoteServer, remoteServer);
-            logger.Info("Proxy configured for remoteserver: " +  remoteServer);
+            Logger.Info("Proxy configured for remoteserver: " +  remoteServer);
             var proxy = configure.Builder.Build<Proxy>();
             proxy.ExternalTransport = externalTransport;
             proxy.InternalTransport = internalTransport;
 
             proxy.Start();
 
-            logger.Info("Proxy successfully started");
+            Logger.Info("Proxy successfully started");
         }
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof (EndpointConfig));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointConfig));
     }
 }
