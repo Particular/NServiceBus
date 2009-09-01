@@ -6,7 +6,8 @@ namespace Timeout.MessageHandlers
 {
     class Endpoint : IConfigureThisEndpoint,
         As.aServer,
-        ISpecify.MyOwn.Serialization
+        ISpecify.MyOwn.Serialization,
+        IDontWant.Sagas
     {
         public void Init(Configure configure)
         {
