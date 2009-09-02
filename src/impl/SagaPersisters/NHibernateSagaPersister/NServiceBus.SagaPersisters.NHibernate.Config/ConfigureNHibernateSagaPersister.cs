@@ -24,14 +24,18 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersister(this Configure config)
         {
+            IDictionary<string, string> nhibernateProperties = null;
+            bool updateSchema = false;
+
             var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
 
-            if (configSection == null)
-                throw new InvalidOperationException("Configuration section 'NHibernateSagaPersisterConfig' could not be found. If you don't want sagas for this endpoint, please implement IDontWant.Sagas on your IConfigureThisEndpoint class.");
-            
-            var nhibernateProperties = configSection.NHibernateProperties.ToProperties();
+            if (configSection != null)
+            {
+                nhibernateProperties = configSection.NHibernateProperties.ToProperties();
+                updateSchema = configSection.UpdateSchema;
+            }
 
-            return NHibernateSagaPersister(config, nhibernateProperties, configSection.UpdateSchema);
+            return NHibernateSagaPersister(config, nhibernateProperties, updateSchema);
         }
 
         /// <summary>
@@ -43,7 +47,6 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-         
             var nhibernateProperties = SQLiteConfiguration.Standard
                     .UsingFile(".\\NServiceBus.Sagas.sqlite")
                     .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
@@ -68,6 +71,9 @@ namespace NServiceBus
         {
             if (!Sagas.Impl.Configure.SagasWereFound)
                 return config; //no sagas - don't need to do anything
+
+            if (nhibernateProperties == null)
+                throw new InvalidOperationException("No properties configured for NHibernate. Check that you have a configuration section called 'NHibernateSagaPersisterConfig'.");
 
             var builder = new SessionFactoryBuilder(Configure.TypesToScan);
 
