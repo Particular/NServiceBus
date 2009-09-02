@@ -9,8 +9,7 @@ namespace Server
         As.aPublisher,
         ISpecify.ToUse.XmlSerialization,
         ISpecify.ToRun<ServerEndpoint>,
-        ISpecify.MessageHandlerOrdering,
-        ISpecify.ToUse.SubscriptionAuthorizer<SubscriptionAuthorizer>
+        ISpecify.MessageHandlerOrdering
     {
         public void SpecifyOrder(Order order)
         {
