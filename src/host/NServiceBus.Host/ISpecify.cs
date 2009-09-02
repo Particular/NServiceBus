@@ -147,12 +147,6 @@ namespace NServiceBus.Host
             /// </summary>
             /// <typeparam name="T"></typeparam>
             public interface SubscriptionStorage<T> where T : ISubscriptionStorage { }
-
-            /// <summary>
-            /// Specify the class that will be used to authorize subscriptions for the endpoint.
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            public interface SubscriptionAuthorizer<T> where T : IAuthorizeSubscriptions { }
         }
 
         /// <summary>

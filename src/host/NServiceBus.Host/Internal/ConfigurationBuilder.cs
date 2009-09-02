@@ -34,7 +34,7 @@ namespace NServiceBus.Host.Internal
         {
             profileHandlers.ForEach(ph => ph.ConfigureLogging());
 
-            busConfiguration = Do_ConfigureWith(specifier);
+            busConfiguration = DoConfigureWith(specifier);
 
             if (specifier is ISpecify.MyOwn.ConfigurationSource)
                 busConfiguration.CustomConfigurationSource((specifier as ISpecify.MyOwn.ConfigurationSource).Source);
@@ -50,8 +50,6 @@ namespace NServiceBus.Host.Internal
 
                 profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
             }
-
-            ProcessSubscriptionAuthorization();
 
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
@@ -116,7 +114,7 @@ namespace NServiceBus.Host.Internal
             }
         }
 
-        private static Configure Do_ConfigureWith(IConfigureThisEndpoint specifier)
+        private static Configure DoConfigureWith(IConfigureThisEndpoint specifier)
         {
             if (specifier is ISpecify.TypesToScan)
                 return Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
@@ -128,15 +126,6 @@ namespace NServiceBus.Host.Internal
                 return Configure.With((specifier as ISpecify.ProbeDirectory).ProbeDirectory);
 
             return Configure.With();
-        }
-
-        private void ProcessSubscriptionAuthorization()
-        {
-            var subscriptionAuthorizer =
-                specifier.GetType().GetGenericallyContainedType(typeof (ISpecify.ToUse.SubscriptionAuthorizer<>),
-                                                                typeof (IAuthorizeSubscriptions));
-            if (subscriptionAuthorizer != null)
-                Configure.TypeConfigurer.ConfigureComponent(subscriptionAuthorizer, ComponentCallModelEnum.Singleton);
         }
 
         private void ProcessSerialization()
