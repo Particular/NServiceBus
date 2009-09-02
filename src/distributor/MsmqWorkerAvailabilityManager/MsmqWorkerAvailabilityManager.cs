@@ -67,14 +67,19 @@ namespace MsmqWorkerAvailabilityManager
         {
             lock (locker)
             {
-                Message[] existing = storageQueue.GetAllMessages();
+                try
+                {
+                    var m = storageQueue.Receive(TimeSpan.FromSeconds(1), MessageQueueTransactionType.Automatic);
 
-                if (existing.Length == 0)
+                    if (m == null)
+                        return null;
+
+                    return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
+                }
+                catch (Exception)
+                {
                     return null;
-                
-                storageQueue.ReceiveById(existing[0].Id, MessageQueueTransactionType.Automatic);
-
-                return MsmqUtilities.GetIndependentAddressForQueue(existing[0].ResponseQueue);
+                }
             }
         }
 
