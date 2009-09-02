@@ -183,10 +183,16 @@ namespace NServiceBus.Utils
             foreach (var i in installedComponents)
             {
                 if (UndesirableMsmqComponentsXp.Contains(i))
+                {
+                    Logger.Warn("Undesirable MSMQ component installed: " + i);
                     return false;
+                }
 
                 if (UndesirableMsmqComponentsV4.Contains(i))
+                {
+                    Logger.Warn("Undesirable MSMQ component installed: " + i);
                     return false;
+                }
 
                 needed.Remove(i);
             }
