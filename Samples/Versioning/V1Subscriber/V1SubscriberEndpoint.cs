@@ -5,7 +5,7 @@ namespace V1Subscriber
 {
     public class V1SubscriberEndpoint : IConfigureThisEndpoint, 
                                         As.aServer,
-                                        ISpecify.ToUseXmlSerialization
+                                        ISpecify.ToUse.XmlSerialization
     {
         
     }
