@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Linq.Expressions;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.Unicast.Config;
@@ -16,11 +15,6 @@ namespace NServiceBus.Host.Internal
     /// </summary>
     public class ConfigurationBuilder
     {
-        private readonly IConfigureThisEndpoint specifier;
-        private Configure busConfiguration;
-
-        private readonly List<IHandleProfileConfiguration> profileHandlers;
-
         /// <summary>
         /// Constructs the builder passing in the given specifier object.
         /// </summary>
@@ -40,42 +34,12 @@ namespace NServiceBus.Host.Internal
         {
             profileHandlers.ForEach(ph => ph.ConfigureLogging());
 
-            busConfiguration = null;
-
-            if (specifier is ISpecify.TypesToScan)
-                busConfiguration = Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
-            else
-                if (specifier is ISpecify.AssembliesToScan)
-                    busConfiguration = Configure.With(new List<Assembly>((specifier as ISpecify.AssembliesToScan).AssembliesToScan).ToArray());
-                else
-                    if (specifier is ISpecify.ProbeDirectory)
-                        busConfiguration = Configure.With((specifier as ISpecify.ProbeDirectory).ProbeDirectory);
-                    else
-                        busConfiguration = Configure.With();
+            busConfiguration = Do_ConfigureWith(specifier);
 
             if (specifier is ISpecify.MyOwn.ConfigurationSource)
                 busConfiguration.CustomConfigurationSource((specifier as ISpecify.MyOwn.ConfigurationSource).Source);
 
-            IContainer container = null;
-
-
-            if (specifier is ISpecify.ToUse.SpecificContainerInstance)
-                container = (specifier as ISpecify.ToUse.SpecificContainerInstance).ContainerInstance;
-
-            Type containerType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToUse.ContainerType<>), typeof(IContainer));
-            Type messageEndpointType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToRun<>), typeof(IMessageEndpoint));
-
-            if (container != null)
-            {
-                ObjectBuilder.Common.Config.ConfigureCommon.With(busConfiguration, container);
-            }
-            else if (containerType != null)
-                ObjectBuilder.Common.Config.ConfigureCommon.With(
-                    busConfiguration,
-                    Activator.CreateInstance(containerType) as IContainer
-                    );
-            else
-                busConfiguration.SpringBuilder();
+            ProcessContainer();
 
             if (!(specifier is IDontWant.MsmqInitialization))
                 Utils.MsmqInstallation.StartMsmqIfNecessary();
@@ -86,6 +50,8 @@ namespace NServiceBus.Host.Internal
 
                 profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
             }
+
+            ProcessSubscriptionAuthorization();
 
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
@@ -109,18 +75,71 @@ namespace NServiceBus.Host.Internal
                     configUnicastBus.DoNotAutoSubscribe();
             }
 
-            ConfigureSerialization();
+            ProcessSerialization();
 
             if (specifier is IWantCustomInitialization)
                 (specifier as IWantCustomInitialization).Init(busConfiguration);
 
-            if (messageEndpointType != null)
-                Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
-            
+            ProcessMessageEndpoint();
+
             return busConfiguration;
         }
 
-        private void ConfigureSerialization()
+        private void ProcessMessageEndpoint()
+        {
+            var messageEndpointType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToRun<>), typeof(IMessageEndpoint));
+
+            if (messageEndpointType != null)
+                Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
+        }
+
+        private void ProcessContainer()
+        {
+            if (specifier is ISpecify.ToUse.SpecificContainerInstance)
+            {
+                var container = (specifier as ISpecify.ToUse.SpecificContainerInstance).ContainerInstance;
+
+                if (container != null)
+                    ObjectBuilder.Common.Config.ConfigureCommon.With(busConfiguration, container);
+            }
+            else
+            {
+                var containerType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToUse.ContainerType<>), typeof(IContainer));
+ 
+                if (containerType != null)
+                    ObjectBuilder.Common.Config.ConfigureCommon.With(
+                        busConfiguration,
+                        Activator.CreateInstance(containerType) as IContainer
+                        );
+                else
+                    busConfiguration.SpringBuilder();
+            }
+        }
+
+        private static Configure Do_ConfigureWith(IConfigureThisEndpoint specifier)
+        {
+            if (specifier is ISpecify.TypesToScan)
+                return Configure.With((specifier as ISpecify.TypesToScan).TypesToScan);
+            
+            if (specifier is ISpecify.AssembliesToScan)
+                return Configure.With(new List<Assembly>((specifier as ISpecify.AssembliesToScan).AssembliesToScan).ToArray());
+
+            if (specifier is ISpecify.ProbeDirectory)
+                return Configure.With((specifier as ISpecify.ProbeDirectory).ProbeDirectory);
+
+            return Configure.With();
+        }
+
+        private void ProcessSubscriptionAuthorization()
+        {
+            var subscriptionAuthorizer =
+                specifier.GetType().GetGenericallyContainedType(typeof (ISpecify.ToUse.SubscriptionAuthorizer<>),
+                                                                typeof (IAuthorizeSubscriptions));
+            if (subscriptionAuthorizer != null)
+                Configure.TypeConfigurer.ConfigureComponent(subscriptionAuthorizer, ComponentCallModelEnum.Singleton);
+        }
+
+        private void ProcessSerialization()
         {
             if (specifier is ISpecify.MyOwn.Serialization)
                 return;
@@ -173,5 +192,11 @@ namespace NServiceBus.Host.Internal
 
             return configUnicastBus;
         }
+
+        private readonly IConfigureThisEndpoint specifier;
+        private Configure busConfiguration;
+
+        private readonly List<IHandleProfileConfiguration> profileHandlers;
+
     }
 }
