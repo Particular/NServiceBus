@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace Server
 {
-    public class RequestDataMessageHandler : IMessageHandler<RequestDataMessage>
+    public class RequestDataMessageHandler : IHandleMessages<RequestDataMessage>
     {
         public IBus Bus { get; set; }
 

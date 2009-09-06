@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace Client
 {
-    class DataResponseMessageHandler : IMessageHandler<DataResponseMessage>
+    class DataResponseMessageHandler : IHandleMessages<DataResponseMessage>
     {
         public void Handle(DataResponseMessage message)
         {
