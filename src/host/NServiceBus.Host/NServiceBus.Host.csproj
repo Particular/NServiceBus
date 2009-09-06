@@ -80,6 +80,7 @@
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
     <Compile Include="Internal\ProfileHandlers\IntegrationProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\LiteProfileHandler.cs" />
+    <Compile Include="Internal\ProfileHandlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\ProductionProfileHandler.cs" />
     <Compile Include="Internal\ProfileManager.cs" />
     <Compile Include="IProfile.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Order.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
+    <Compile Include="Profiles\PerformanceCounters.cs" />
     <Compile Include="Profiles\Production.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

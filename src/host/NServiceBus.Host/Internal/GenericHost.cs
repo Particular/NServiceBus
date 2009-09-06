@@ -9,6 +9,11 @@ namespace NServiceBus.Host.Internal
     public class GenericHost : MarshalByRefObject
     {
         /// <summary>
+        /// Event raised when configuration is complete
+        /// </summary>
+        public static event EventHandler ConfigurationComplete;
+
+        /// <summary>
         /// Does startup work.
         /// </summary>
         public void Start()
@@ -23,6 +28,9 @@ namespace NServiceBus.Host.Internal
 
             if (specifier is ISpecify.StartupAction)
                 startupAction = (specifier as ISpecify.StartupAction).StartupAction;
+
+            if (ConfigurationComplete != null)
+                ConfigurationComplete(this, null);
 
             messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
 

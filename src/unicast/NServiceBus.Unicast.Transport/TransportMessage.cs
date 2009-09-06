@@ -67,6 +67,11 @@ namespace NServiceBus.Unicast.Transport
         }
 
         /// <summary>
+        /// Gets/sets the time that the message was sent by the source machine.
+        /// </summary>
+        public DateTime TimeSent { get; set; }
+
+        /// <summary>
         /// Gets/sets other applicative out-of-band information.
         /// </summary>
         public List<HeaderInfo> Headers { get; set; }

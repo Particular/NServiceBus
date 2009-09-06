@@ -592,6 +592,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		                                  : m.CorrelationId),
 		                         Recoverable = m.Recoverable,
 		                         TimeToBeReceived = m.TimeToBeReceived,
+                                 TimeSent = m.SentTime,
                                  ReturnAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
 		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
