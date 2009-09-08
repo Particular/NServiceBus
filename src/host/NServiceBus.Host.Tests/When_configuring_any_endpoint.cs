@@ -59,7 +59,7 @@ namespace NServiceBus.Host.Tests
 
     }
 
-    public class EndpointWithMessageHandlerOrdering : IConfigureThisEndpoint,As.aServer, ISpecify.MessageHandlerOrdering, IDontWant.Sagas
+    public class EndpointWithMessageHandlerOrdering : IConfigureThisEndpoint,As.aServer, ISpecify.MessageHandlerOrdering
     {
         public void SpecifyOrder(Order order)
         {
@@ -68,15 +68,14 @@ namespace NServiceBus.Host.Tests
         }
     }
 
-    public class EndpointWithXmlSerialization : IConfigureThisEndpoint,ISpecify.ToUse.XmlSerialization,ISpecify.XmlSerializationNamespace, IDontWant.Sagas 
+    public class EndpointWithXmlSerialization : IConfigureThisEndpoint,ISpecify.ToUse.XmlSerialization,ISpecify.XmlSerializationNamespace
     {
         public string Namespace
         {
             get { return "testnamespace"; }
         }
     }
-    public class EndpointWithExplicitAssemblyScanning : IConfigureThisEndpoint, 
-                                                    IDontWant.Sagas,
+    public class EndpointWithExplicitAssemblyScanning : IConfigureThisEndpoint,
                                                     As.aServer ,
                                                     IWantCustomInitialization,
                                                     ISpecify.AssembliesToScan
@@ -107,7 +106,7 @@ namespace NServiceBus.Host.Tests
     }
 
 
-    public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwn.ConfigurationSource, IDontWant.Sagas 
+    public class EndpointWithOwnConfigSource : IConfigureThisEndpoint,ISpecify.MyOwn.ConfigurationSource
     {
        public IConfigurationSource Source
         {

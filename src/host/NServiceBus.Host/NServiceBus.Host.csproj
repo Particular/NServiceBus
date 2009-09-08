@@ -75,7 +75,6 @@
     <Compile Include="IHandleProfile.cs" />
     <Compile Include="Internal\ConfigurationBuilder.cs" />
     <Compile Include="Internal\GenericHost.cs" />
-    <Compile Include="IMessageEndpoint.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
     <Compile Include="Internal\ProfileHandlers\IntegrationProfileHandler.cs" />
@@ -86,6 +85,7 @@
     <Compile Include="IProfile.cs" />
     <Compile Include="ISpecify.cs" />
     <Compile Include="IWantCustomInitialization.cs" />
+    <Compile Include="IWantToRunAtStartup.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />

@@ -46,11 +46,5 @@ namespace NServiceBus.Host
         /// owned by other endpoints that are handled by this endpoint.
         /// </summary>
         public interface ToSubscribeAutomatically {}
-
-        /// <summary>
-        /// Indicate to the host that you don't want support for sagas.
-        /// This can shorten startup times ever so slightly.
-        /// </summary>
-        public interface Sagas {}
     }
 }

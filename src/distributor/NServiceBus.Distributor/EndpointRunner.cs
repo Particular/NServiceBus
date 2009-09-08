@@ -2,17 +2,17 @@
 
 namespace NServiceBus.Distributor
 {
-    class EndpointRunner : IMessageEndpoint
+    class EndpointRunner : IWantToRunAtStartup
     {
         public Unicast.Distributor.Distributor Distributor { get; set; }
 
-        public void OnStart()
+        public void Run()
         {
             Distributor.MessageBusTransport = Service.DataTransport;
             Distributor.Start();
         }
 
-        public void OnStop()
+        public void Stop()
         {
             Distributor.Stop();
         }

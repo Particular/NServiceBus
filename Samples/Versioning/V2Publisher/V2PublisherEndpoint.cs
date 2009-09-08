@@ -4,11 +4,11 @@ using NServiceBus.Host;
 
 namespace V2Publisher
 {
-    public class V2PublisherEndpoint : IMessageEndpoint
+    public class V2PublisherEndpoint : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
         
-        public void OnStart()
+        public void Run()
         {
             Console.WriteLine("Press 'Enter' to publish a message, Ctrl + C to exit.");
 
@@ -24,7 +24,7 @@ namespace V2Publisher
            }
         }
 
-        public void OnStop()
+        public void Stop()
         {
         }
     }

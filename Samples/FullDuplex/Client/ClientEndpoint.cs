@@ -5,11 +5,11 @@ using NServiceBus.Host;
 
 namespace Client
 {
-    public class ClientEndpoint : IMessageEndpoint
+    public class ClientEndpoint : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
 
-        public void OnStart()
+        public void Run()
         {
             Console.WriteLine("Press 'Enter' to send a message.To exit, Ctrl + C");
 
@@ -35,7 +35,7 @@ namespace Client
             }
         }
 
-        public void OnStop()
+        public void Stop()
         {
         }
     }

@@ -44,12 +44,9 @@ namespace NServiceBus.Host.Internal
             if (!(specifier is IDontWant.MsmqInitialization))
                 Utils.MsmqInstallation.StartMsmqIfNecessary();
 
-            if (!(specifier is IDontWant.Sagas))
-            {
-                busConfiguration.Sagas();
+            busConfiguration.Sagas();
 
-                profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
-            }
+            profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
 
             if (specifier is As.aClient && specifier is As.aServer)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
@@ -78,17 +75,19 @@ namespace NServiceBus.Host.Internal
             if (specifier is IWantCustomInitialization)
                 (specifier as IWantCustomInitialization).Init(busConfiguration);
 
-            ProcessMessageEndpoint();
+            ProcessThingsToRunAtStartup();
 
             return busConfiguration;
         }
 
-        private void ProcessMessageEndpoint()
+        private void ProcessThingsToRunAtStartup()
         {
-            var messageEndpointType = specifier.GetType().GetGenericallyContainedType(typeof(ISpecify.ToRun<>), typeof(IMessageEndpoint));
-
-            if (messageEndpointType != null)
-                Configure.TypeConfigurer.ConfigureComponent(messageEndpointType, ComponentCallModelEnum.Singleton);
+            Configure.TypesToScan.Where(t => typeof(IWantToRunAtStartup).IsAssignableFrom(t) && !t.IsInterface)
+                .ToList()
+                .ForEach(t =>
+                    Configure.TypeConfigurer.ConfigureComponent(t, ComponentCallModelEnum.Singleton)
+                );
+                
         }
 
         private void ProcessContainer()

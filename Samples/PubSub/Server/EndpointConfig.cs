@@ -8,7 +8,6 @@ namespace Server
     class EndpointConfig : IConfigureThisEndpoint, 
         As.aPublisher,
         ISpecify.ToUse.XmlSerialization,
-        ISpecify.ToRun<ServerEndpoint>,
         ISpecify.MessageHandlerOrdering
     {
         public void SpecifyOrder(Order order)

@@ -7,8 +7,7 @@ namespace Subscriber2
         As.aServer,
         ISpecify.ToUse.XmlSerialization, 
         ISpecify.ToUse.ContainerType<UnityObjectBuilder>, //just to show we can mix and match containers
-        IDontWant.ToSubscribeAutomatically,
-        ISpecify.ToRun<Subscriber2Endpoint>
+        IDontWant.ToSubscribeAutomatically
     {
     }
 }

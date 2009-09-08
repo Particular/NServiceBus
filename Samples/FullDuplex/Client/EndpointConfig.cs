@@ -7,8 +7,7 @@ namespace Client
                                 As.aClient,
                                 ISpecify.ToUse.XmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
-                                IWantCustomInitialization,
-                                ISpecify.ToRun<ClientEndpoint>
+                                IWantCustomInitialization
     {
         public string Namespace
         {

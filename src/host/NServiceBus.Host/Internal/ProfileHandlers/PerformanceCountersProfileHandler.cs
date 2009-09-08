@@ -10,6 +10,10 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// </summary>
     public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
+        /// <summary>
+        /// Registers the performance counter.
+        /// </summary>
+        /// <param name="specifier"></param>
         public void Init(IConfigureThisEndpoint specifier)
         {
             var categoryName = "NServiceBus";

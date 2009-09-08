@@ -5,11 +5,11 @@ using NServiceBus.Host;
 
 namespace Server
 {
-    public class ServerEndpoint : IMessageEndpoint
+    public class ServerEndpoint : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
 
-        public void OnStart()
+        public void Run()
         {
             Console.WriteLine("This will publish IEvent and EventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
@@ -31,7 +31,7 @@ namespace Server
             }
         }
 
-        public void OnStop()
+        public void Stop()
         {
 
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Common.Logging;
 
 namespace NServiceBus.Host.Internal
@@ -32,33 +33,36 @@ namespace NServiceBus.Host.Internal
             if (ConfigurationComplete != null)
                 ConfigurationComplete(this, null);
 
-            messageEndpoint = Configure.ObjectBuilder.Build<IMessageEndpoint>();
+            thingsToRunAtStartup = Configure.ObjectBuilder.BuildAll<IWantToRunAtStartup>();
 
             if (!(specifier is IDontWant.TheBusStartedAutomatically))
                 busConfiguration.CreateBus().Start(startupAction);
 
-            if (messageEndpoint == null)
+            if (thingsToRunAtStartup == null)
                 return;
 
-            //give it its own thread so that logging continues to work.
-            Action onstart = () =>
-                                 {
-                                     var logger = LogManager.GetLogger(messageEndpoint.GetType());
-                                     try
+            foreach (var thing in thingsToRunAtStartup)
+            {
+                var toRun = thing;
+                Action onstart = () =>
                                      {
-                                         logger.Debug("Starting the message endpoint.");
-                                         messageEndpoint.OnStart();
-                                     }
-                                     catch (Exception ex)
-                                     {
-                                         logger.Error("Problem occurred when starting the endpoint.", ex);
+                                         var logger = LogManager.GetLogger(toRun.GetType());
+                                         try
+                                         {
+                                             logger.Debug("Starting the message endpoint.");
+                                             toRun.Run();
+                                         }
+                                         catch (Exception ex)
+                                         {
+                                             logger.Error("Problem occurred when starting the endpoint.", ex);
 
-                                         //don't rethrow so that thread doesn't die before log message is shown.
-                                     }
-                                     
-                                 };
+                                             //don't rethrow so that thread doesn't die before log message is shown.
+                                         }
 
-            onstart.BeginInvoke(null, null);
+                                     };
+
+                onstart.BeginInvoke(null, null);
+            }
         }
 
         /// <summary>
@@ -66,19 +70,25 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Stop()
         {
-            if (messageEndpoint != null)
+            if (thingsToRunAtStartup == null)
+                return;
+
+            foreach (var thing in thingsToRunAtStartup)
             {
-                var logger = LogManager.GetLogger(messageEndpoint.GetType());
-                logger.Debug("Stopping endpoint.");
-                try
+                if (thing != null)
                 {
-                    messageEndpoint.OnStop();
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("Could not stop endpoint.", ex);
-                    
-                    // no need to rethrow, closing the process anyway
+                    var logger = LogManager.GetLogger(thing.GetType());
+                    logger.Debug("Stopping endpoint.");
+                    try
+                    {
+                        thing.Stop();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("Could not stop endpoint.", ex);
+
+                        // no need to rethrow, closing the process anyway
+                    }
                 }
             }
         }
@@ -100,7 +110,7 @@ namespace NServiceBus.Host.Internal
             profileManager = new ProfileManager(assembliesToScan,specifier);
         }
 
-        private IMessageEndpoint messageEndpoint;
+        private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;
         private readonly IConfigureThisEndpoint specifier;
         private readonly string[] args;
         private readonly ProfileManager profileManager;

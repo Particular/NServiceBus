@@ -71,12 +71,6 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specify the type of endpoint that will be run after configuration is complete.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public interface ToRun<T> where T : IMessageEndpoint { }
-
-        /// <summary>
         /// Specify the XML serialization namespace that should be used.
         /// </summary>
         public interface XmlSerializationNamespace
