@@ -19,25 +19,6 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             var categoryName = "NServiceBus";
             var counterName = "Critical Time";
 
-            try
-            {
-                PerformanceCounterCategory.Delete(categoryName);
-            }
-// ReSharper disable EmptyGeneralCatchClause
-            catch (Exception)
-// ReSharper restore EmptyGeneralCatchClause
-            {
-                //ignore
-            }
-
-            var data = new CounterCreationDataCollection();
-
-            var c1 = new CounterCreationData(counterName, "Age of the oldest message in the queue",
-                                             PerformanceCounterType.NumberOfItems32);
-            data.Add(c1);
-
-            PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
-                                              PerformanceCounterCategoryType.MultiInstance, data);
 
 			var counter = new PerformanceCounter(categoryName, counterName, Program.GetEndpointId(specifier),
                                                  false);

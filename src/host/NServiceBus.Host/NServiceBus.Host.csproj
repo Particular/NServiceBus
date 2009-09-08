@@ -77,6 +77,9 @@
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
+    <Compile Include="Internal\ProfileHandlers\InstallDtcProfileHandler.cs" />
+    <Compile Include="Internal\ProfileHandlers\InstallMsmqProfileHandler.cs" />
+    <Compile Include="Internal\ProfileHandlers\InstallPerformanceCountersProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\IntegrationProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\LiteProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\PerformanceCountersProfileHandler.cs" />
@@ -87,6 +90,9 @@
     <Compile Include="IWantCustomInitialization.cs" />
     <Compile Include="IWantToRunAtStartup.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="Profiles\InstallDtc.cs" />
+    <Compile Include="Profiles\InstallMsmq.cs" />
+    <Compile Include="Profiles\InstallPerformanceCounters.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
     <Compile Include="Profiles\PerformanceCounters.cs" />

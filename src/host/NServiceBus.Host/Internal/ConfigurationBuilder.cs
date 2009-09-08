@@ -41,9 +41,6 @@ namespace NServiceBus.Host.Internal
 
             ProcessContainer();
 
-            if (!(specifier is IDontWant.MsmqInitialization))
-                Utils.MsmqInstallation.StartMsmqIfNecessary();
-
             busConfiguration.Sagas();
 
             profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
@@ -153,9 +150,6 @@ namespace NServiceBus.Host.Internal
 
         private ConfigUnicastBus ConfigureServerRole()
         {
-            if (!(specifier is IDontWant.DtcInitialization))
-                Utils.DtcUtil.StartDtcIfNecessary();
-
             var configUnicastBus = busConfiguration
                 .MsmqTransport()
                 .IsTransactional(true)
