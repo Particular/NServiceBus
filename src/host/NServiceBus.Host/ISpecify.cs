@@ -186,5 +186,18 @@ namespace NServiceBus.Host
             }
         }
 
+		/// <summary>
+		/// Tell the topshelf framework to set services to start automatically
+		/// </summary>
+    	public interface ToStartAutomatically
+    	{
+    	}
+
+		/// <summary>
+		/// Tell the topshelf framework to set the service to run as the local system account
+		/// </summary>
+    	public interface ToRunAsLocalSystem
+    	{
+    	}
     }
 }

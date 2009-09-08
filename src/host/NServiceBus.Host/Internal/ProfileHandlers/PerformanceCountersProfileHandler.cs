@@ -39,7 +39,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
                                               PerformanceCounterCategoryType.MultiInstance, data);
 
-            var counter = new PerformanceCounter(categoryName, counterName, Program.GetEndpointId(specifier.GetType()),
+			var counter = new PerformanceCounter(categoryName, counterName, Program.GetEndpointId(specifier),
                                                  false);
 
             GenericHost.ConfigurationComplete += (o, e) =>

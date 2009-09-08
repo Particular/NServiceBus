@@ -30,8 +30,10 @@ namespace NServiceBus.Host
             {
                 throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
             }
-          
-            string endpointId = GetEndpointId(endpointConfigurationType);
+
+			var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+
+			string endpointId = GetEndpointId(endpointConfiguration);
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
@@ -49,9 +51,20 @@ namespace NServiceBus.Host
                     c.WhenStopped(service => service.Stop());
                     c.CreateServiceLocator(() =>  new HostServiceLocator());
                 });
-                x.DoNotStartAutomatically();
 
-                x.RunAsFromInteractive();
+				if (!(endpointConfiguration is ISpecify.ToStartAutomatically))
+				{
+					x.DoNotStartAutomatically();
+				}
+
+				if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
+				{
+					x.RunAsLocalSystem();
+				}
+				else
+				{
+					x.RunAsFromInteractive();
+				}
             });
 
             Runner.Host(cfg, args);
@@ -82,10 +95,10 @@ namespace NServiceBus.Host
         /// </summary>
         /// <param name="endpointConfigurationType"></param>
         /// <returns></returns>
-        public static string GetEndpointId(Type endpointConfigurationType)
+		public static string GetEndpointId(object endpointConfiguration)
         {
-            string endpointName = GetEndpointName(endpointConfigurationType);
-            return string.Format("{0}_v{1}", endpointName, endpointConfigurationType.Assembly.GetName().Version);
+			string endpointName = GetEndpointName(endpointConfiguration);
+            return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);
         }
 
         private static Type GetEndpointConfigurationType()
@@ -144,13 +157,14 @@ namespace NServiceBus.Host
             }
         }
 
-        private static string GetEndpointName(Type endpointConfigurationType)
+        private static string GetEndpointName(object endpointConfiguration)
         {
             string endpointName = null;
 
-            if (endpointConfigurationType is ISpecify.EndpointName)
+        	var iHaveEndpointName = endpointConfiguration as ISpecify.EndpointName;
+            if (iHaveEndpointName != null)
             {
-                endpointName = (endpointConfigurationType as ISpecify.EndpointName).EndpointName;
+                endpointName = iHaveEndpointName.EndpointName;
             }
 
             if (!string.IsNullOrEmpty(endpointName))
@@ -158,7 +172,7 @@ namespace NServiceBus.Host
                 return endpointName;
             }
 
-            return endpointConfigurationType.FullName;
+            return endpointConfiguration.GetType().FullName;
         }
     }
 }

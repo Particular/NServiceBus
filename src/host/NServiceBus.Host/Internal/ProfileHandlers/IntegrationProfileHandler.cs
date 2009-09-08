@@ -59,7 +59,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
             if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
             {
-                string q = Program.GetEndpointId(spec.GetType()) + "_subscriptions";
+				string q = Program.GetEndpointId(spec) + "_subscriptions";
                 busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                     .ConfigureProperty(s => s.Queue, q);
             }
