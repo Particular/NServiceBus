@@ -22,17 +22,28 @@ namespace NServiceBus
 
         IAsyncResult IWcfService<TRequest, TResponse>.BeginProcess(TRequest request, AsyncCallback callback, object state)
         {
-            return bus.Send(request).Register(callback, state);
+            var result = new ServiceAsyncResult(state);
+
+            return bus.Send(request).Register(r => ProxyCallback(callback, result, r), state);
         }
 
         TResponse IWcfService<TRequest, TResponse>.EndProcess(IAsyncResult asyncResult)
         {
-            var completionResult = asyncResult.AsyncState as CompletionResult;
+            var completionResult = ((ServiceAsyncResult) asyncResult).Result;
 
             if (completionResult == null)
                 throw new InvalidOperationException("Response returned from server did not contain a CompletionResult.");
 
             return (TResponse)Enum.ToObject(typeof(TResponse), completionResult.ErrorCode);
+        }
+
+        private static void ProxyCallback(AsyncCallback callback, ServiceAsyncResult result, IAsyncResult busResult)
+        {
+            var completionResult = (CompletionResult)busResult.AsyncState;
+
+            result.Complete(completionResult);
+
+            callback(result);
         }
 
         private readonly IBus bus;
