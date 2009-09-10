@@ -6,116 +6,127 @@ using NServiceBus.ObjectBuilder.Common;
 
 namespace NServiceBus.ObjectBuilder.Unity
 {
-   public class UnityObjectBuilder : IContainer
-   {
-      /// <summary>
-      /// The container itself.
-      /// </summary>
-      private readonly IUnityContainer container;
+    public class UnityObjectBuilder : IContainer
+    {
+        /// <summary>
+        /// The container itself.
+        /// </summary>
+        private readonly IUnityContainer container;
 
-      /// <summary>
-      /// Instantites the class with a new UnityContainer.
-      /// </summary>
-      public UnityObjectBuilder()
-         : this(new UnityContainer())
-      {
-      }
+        private readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
 
-      /// <summary>
-      /// Instantiates the class saving the given container.
-      /// </summary>
-      /// <param name="container"></param>
-      public UnityObjectBuilder(IUnityContainer container)
-      {
-         this.container = container;
-         var autowireContainerExtension = this.container.Configure<FullAutowireContainerExtension>();
-         if (autowireContainerExtension == null)
-         {
-            this.container.AddNewExtension<FullAutowireContainerExtension>();
-         }
-      }
+        /// <summary>
+        /// Instantites the class with a new UnityContainer.
+        /// </summary>
+        public UnityObjectBuilder()
+            : this(new UnityContainer())
+        {
+        }
 
-      public object Build(Type typeToBuild)
-      {
-          try
-          {
-              return container.Resolve(typeToBuild);
-          }
-          catch (ResolutionFailedException)
-          {
-              return null;
-          }
-      }
-
-      public IEnumerable<object> BuildAll(Type typeToBuild)
-      {
-         foreach (var component in container.ResolveAll(typeToBuild))
-         {
-            yield return component;
-         }
-      }
-
-      public void Configure(Type concreteComponent, ComponentCallModelEnum callModel)
-      {
-         ConfigureComponentAdapter config =
-            container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
-               FirstOrDefault();
-         if (config == null)
-         {
-            IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
-            config = new ConfigureComponentAdapter(container, concreteComponent);
-            container.RegisterInstance(Guid.NewGuid().ToString(), config);
-
-            foreach (Type t in interfaces)
+        /// <summary>
+        /// Instantiates the class saving the given container.
+        /// </summary>
+        /// <param name="container"></param>
+        public UnityObjectBuilder(IUnityContainer container)
+        {
+            this.container = container;
+            var autowireContainerExtension = this.container.Configure<FullAutowireContainerExtension>();
+            if (autowireContainerExtension == null)
             {
-               container.RegisterType(t, concreteComponent, GetLifetimeManager(callModel));
+                this.container.AddNewExtension<FullAutowireContainerExtension>();
             }
-         }          
-      }
+        }
 
-      public void ConfigureProperty(Type concreteComponent, string property, object value)
-      {
-         ConfigureComponentAdapter config =
-            container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
-               First();
-         config.ConfigureProperty(property, value);
-      }
+        public object Build(Type typeToBuild)
+        {
+            if (typesWithDefaultInstances.Contains(typeToBuild))
+            {
+                return container.Resolve(typeToBuild);
+            }
+            return null;
+        }
 
-      public void RegisterSingleton(Type lookupType, object instance)
-      {
-         container.RegisterInstance(lookupType, instance);
-      }
+        public IEnumerable<object> BuildAll(Type typeToBuild)
+        {
+            if (typesWithDefaultInstances.Contains(typeToBuild))
+            {
+                yield return container.Resolve(typeToBuild);
+                foreach (var component in container.ResolveAll(typeToBuild))
+                {
+                    yield return component;
+                }
+            }
+        }
 
-      private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
-      {
-         if (t == null)
-         {
-            return new List<Type>();
-         }
+        public void Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            ConfigureComponentAdapter config =
+               container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
+                  FirstOrDefault();
+            if (config == null)
+            {
+                IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
+                config = new ConfigureComponentAdapter(container, concreteComponent);
+                container.RegisterInstance(Guid.NewGuid().ToString(), config);
 
-         var result = new List<Type>(t.GetInterfaces());
-         result.Add(t);
+                foreach (Type t in interfaces)
+                {
+                    if (typesWithDefaultInstances.Contains(t))
+                    {
+                        container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(callModel));
+                    }
+                    else
+                    {
+                        container.RegisterType(t, concreteComponent, GetLifetimeManager(callModel));
+                        typesWithDefaultInstances.Add(t);
+                    }
+                }
+            }
+        }
 
-         foreach (Type interfaceType in t.GetInterfaces())
-         {
-            result.AddRange(GetAllServiceTypesFor(interfaceType));
-         }
+        public void ConfigureProperty(Type concreteComponent, string property, object value)
+        {
+            ConfigureComponentAdapter config =
+               container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
+                  First();
+            config.ConfigureProperty(property, value);
+        }
 
-         return result;
-      }
+        public void RegisterSingleton(Type lookupType, object instance)
+        {
+            container.RegisterInstance(lookupType, instance);
+        }
 
-      private static LifetimeManager GetLifetimeManager(ComponentCallModelEnum callModel)
-      {
-         switch (callModel)
-         {
-            case ComponentCallModelEnum.Singlecall:
-               return new TransientLifetimeManager();
-            case ComponentCallModelEnum.Singleton:
-               return new ContainerControlledLifetimeManager();
-            default:
-               return new TransientLifetimeManager();
-         }
+        private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
+        {
+            if (t == null)
+            {
+                return new List<Type>();
+            }
 
-      }
-   }
+            var result = new List<Type>(t.GetInterfaces());
+            result.Add(t);
+
+            foreach (Type interfaceType in t.GetInterfaces())
+            {
+                result.AddRange(GetAllServiceTypesFor(interfaceType));
+            }
+
+            return result.Distinct();
+        }
+
+        private static LifetimeManager GetLifetimeManager(ComponentCallModelEnum callModel)
+        {
+            switch (callModel)
+            {
+                case ComponentCallModelEnum.Singlecall:
+                    return new TransientLifetimeManager();
+                case ComponentCallModelEnum.Singleton:
+                    return new ContainerControlledLifetimeManager();
+                default:
+                    return new TransientLifetimeManager();
+            }
+
+        }
+    }
 }
