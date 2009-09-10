@@ -43,4 +43,9 @@ namespace NServiceBus.Saga
 		/// <param name="saga">The saga to complete.</param>
         void Complete(ISagaEntity saga);
     }
+
+    /// <summary>
+    /// Interface responsible for persisting sagas.
+    /// </summary>
+    public interface IPersistSagas : ISagaPersister {}
 }

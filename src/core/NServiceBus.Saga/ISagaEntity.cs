@@ -30,4 +30,9 @@ namespace NServiceBus.Saga
         /// </summary>
         string OriginalMessageId { get; set; }
     }
+
+    /// <summary>
+    /// The saga data that will be persisted.
+    /// </summary>
+    public interface IContainSagaData : ISagaEntity {}
 }
