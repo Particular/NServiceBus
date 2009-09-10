@@ -8,7 +8,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// </summary>
     public class InstallPerformanceCountersProfileHandler : IHandleProfile<InstallPerformanceCounters>
     {
-        void IHandleProfile.Init(IConfigureThisEndpoint specifier)
+        void IHandleProfile.ProfileActivated()
         {
             var categoryName = "NServiceBus";
             var counterName = "Critical Time";

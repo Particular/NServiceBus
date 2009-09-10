@@ -10,25 +10,31 @@
     /// Generic abstraction for code which will configure how a given profile should behave.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHandleProfileConfiguration<T> : IHandleProfileConfiguration, IHandleProfile<T> where T : IProfile { }
+    public interface IHandleProfileConfiguration<T> : IHandleProfileConfiguration where T : IProfile { }
 
     /// <summary>
     /// Abstraction for code which will be called when the given profile is active.
+    /// Implementors should implement IHandleProfile{T} rather than IHandleProfile.
     /// </summary>
     public interface IHandleProfile
+    {
+        /// <summary>
+        /// Called when a given profile is activated.
+        /// </summary>
+        void ProfileActivated();
+    }
+
+    /// <summary>
+    /// Abstraction for code which will configure how a given profile should behave.
+    /// </summary>
+    public interface IHandleProfileConfiguration
     {
         /// <summary>
         /// Provides a reference for the endpoint configuration object.
         /// </summary>
         /// <param name="specifier"></param>
         void Init(IConfigureThisEndpoint specifier);
-    }
 
-    /// <summary>
-    /// Abstraction for code which will configure how a given profile should behave.
-    /// </summary>
-    public interface IHandleProfileConfiguration : IHandleProfile
-    {
         /// <summary>
         /// Configure how log4net is set up.
         /// </summary>

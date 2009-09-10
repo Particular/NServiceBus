@@ -19,9 +19,7 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Start()
         {
-            var commandLine = string.Join(" ", args).ToLowerInvariant();
-
-            var profileConfigurationHandlers = profileManager.GetProfileConfigurationHandlersFor(commandLine);
+            var profileConfigurationHandlers = profileManager.GetProfileConfigurationHandlersFor(args);
  
             var busConfiguration  = new ConfigurationBuilder(specifier, profileConfigurationHandlers).Build();
           
@@ -49,7 +47,7 @@ namespace NServiceBus.Host.Internal
                                          var logger = LogManager.GetLogger(toRun.GetType());
                                          try
                                          {
-                                             logger.Debug("Starting the message endpoint.");
+                                             logger.Debug("Calling " + toRun.GetType().Name);
                                              toRun.Run();
                                          }
                                          catch (Exception ex)

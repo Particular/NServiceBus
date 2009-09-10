@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
@@ -33,14 +31,14 @@ namespace NServiceBus.Host
 
 			var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
-			string endpointId = GetEndpointId(endpointConfiguration);
+			EndpointId = GetEndpointId(endpointConfiguration);
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
             {
-                x.SetDisplayName(endpointId);
-                x.SetServiceName(endpointId);
+                x.SetDisplayName(EndpointId);
+                x.SetServiceName(EndpointId);
                 x.SetDescription("NServiceBus Message Endpoint Host Service");
 
                 x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
@@ -70,6 +68,11 @@ namespace NServiceBus.Host
             Runner.Host(cfg, args);
         }
 
+        /// <summary>
+        /// Gives an identifier for this endpoint
+        /// </summary>
+        public static string EndpointId { get; private set; }
+
         private static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
@@ -90,12 +93,7 @@ namespace NServiceBus.Host
                 endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
-        /// <summary>
-        /// Provides a user-friendly name based on the type.
-        /// </summary>
-        /// <param name="endpointConfigurationType"></param>
-        /// <returns></returns>
-		public static string GetEndpointId(object endpointConfiguration)
+ 		private static string GetEndpointId(object endpointConfiguration)
         {
 			string endpointName = GetEndpointName(endpointConfiguration);
             return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);

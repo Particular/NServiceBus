@@ -14,7 +14,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     {
         private IConfigureThisEndpoint spec;
 
-        void IHandleProfile.Init(IConfigureThisEndpoint specifier)
+        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier)
         {
             spec = specifier;
         }

@@ -10,7 +10,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// </summary>
     public class LiteProfileHandler : IHandleProfileConfiguration<Lite>
     {
-        void IHandleProfile.Init(IConfigureThisEndpoint specifier) {}
+        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier) { }
 
         void IHandleProfileConfiguration.ConfigureLogging()
         {

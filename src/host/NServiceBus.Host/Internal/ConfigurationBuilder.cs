@@ -69,10 +69,10 @@ namespace NServiceBus.Host.Internal
 
             ProcessSerialization();
 
+            ProcessThingsToRunAtStartup();
+
             if (specifier is IWantCustomInitialization)
                 (specifier as IWantCustomInitialization).Init(busConfiguration);
-
-            ProcessThingsToRunAtStartup();
 
             return busConfiguration;
         }

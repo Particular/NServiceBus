@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NServiceBus.Host.Profiles;
+using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Host.Internal
 {
@@ -29,32 +30,46 @@ namespace NServiceBus.Host.Internal
         /// Loads the profilehandlers that handles the given profile. Defaults to the Production profile 
         /// if no match is found
         /// </summary>
-        /// <param name="profile"></param>
+        /// <param name="profileArgs"></param>
         /// <returns></returns>
-        public IEnumerable<IHandleProfileConfiguration> GetProfileConfigurationHandlersFor(string profile)
+        public IEnumerable<IHandleProfileConfiguration> GetProfileConfigurationHandlersFor(string[] profileArgs)
         {
             var profiles = GetProfilesFrom(assembliesToScan);
 
-            var handlers = GetProfileHandlersFrom(assembliesToScan);
+            var handlers = new List<Type>();
+            var configurerers = new List<Type>();
 
-            var activeProfiles = profiles.Where(t => profile.Contains(t.Name.ToLowerInvariant()));
+            foreach (var assembly in assembliesToScan)
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (null != type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile)))
+                        handlers.Add(type);
+                    if (null != type.GetGenericallyContainedType(typeof(IHandleProfileConfiguration<>), typeof(IProfile)))
+                        configurerers.Add(type);
+                }
+
+            var activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.Name.ToLower() == pa));
 
            
             if(activeProfiles.Count() == 0)
                 activeProfiles = DefaultProfile;
 
-            var activeHandlers = handlers.Where(t =>
-                                                activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
+            var activeHandlers = handlers.Where(t => activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
+            var activeConfigurers = configurerers.Where(t => activeProfiles.Any(p => typeof(IHandleProfileConfiguration<>).MakeGenericType(p).IsAssignableFrom(t)));
+
+            var profileConfigurers = new List<IHandleProfileConfiguration>();
+            foreach(var c in activeConfigurers)
+                profileConfigurers.Add(Activator.CreateInstance(c) as IHandleProfileConfiguration);
+
+            profileConfigurers.ForEach(pc => pc.Init(specifier));
 
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
                 profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
 
+            profileHandlers.ForEach(hp => hp.ProfileActivated());
 
-            profileHandlers.ForEach(hp => hp.Init(specifier));
-
-            return profileHandlers.Where(hp => hp is IHandleProfileConfiguration)
-                .Select(hp => hp as IHandleProfileConfiguration);
+            return profileConfigurers;
         }
 
 
@@ -66,23 +81,6 @@ namespace NServiceBus.Host.Internal
                 profiles = profiles.Union(assembly.GetTypes().Where(t => typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile)));
 
             return profiles;
-        }
-
-        private static IEnumerable<Type> GetProfileHandlersFrom(IEnumerable<Assembly> assembliesToScan)
-        {
-            foreach (var assembly in assembliesToScan)
-                foreach (var type in assembly.GetTypes())
-                    foreach (var i in type.GetInterfaces())
-                    {
-                        var args = i.GetGenericArguments();
-                        if (args.Length == 1)
-                            if (typeof(IProfile).IsAssignableFrom(args[0]))
-                                if (typeof(IHandleProfile<>).MakeGenericType(args) == i)
-                                {
-                                    yield return type;
-                                    break;
-                                }
-                    }
         }
 
         private static readonly IEnumerable<Type> DefaultProfile = new[] { typeof(Production) };

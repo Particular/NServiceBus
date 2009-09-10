@@ -14,7 +14,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     {
         private IConfigureThisEndpoint spec;
 
-        void IHandleProfile.Init(IConfigureThisEndpoint specifier)
+        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier)
         {
             spec = specifier;
         }
@@ -59,7 +59,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
             if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
             {
-				string q = Program.GetEndpointId(spec) + "_subscriptions";
+				string q = Program.EndpointId + "_subscriptions";
                 busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                     .ConfigureProperty(s => s.Queue, q);
             }

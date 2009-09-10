@@ -7,7 +7,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// </summary>
     public class InstallMsmqProfileHandler : IHandleProfile<InstallMsmq>
     {
-        void IHandleProfile.Init(IConfigureThisEndpoint specifier)
+        void IHandleProfile.ProfileActivated()
         {
             Utils.MsmqInstallation.StartMsmqIfNecessary();
         }

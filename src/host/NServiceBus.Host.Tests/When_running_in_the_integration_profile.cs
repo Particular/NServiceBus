@@ -21,7 +21,7 @@ namespace NServiceBus.Host.Tests
 
             subscriptionStorage.ShouldNotBeNull();
 
-            subscriptionStorage.Queue.ShouldStartWith(typeof(ServerEndpointConfig).FullName);
+            //subscriptionStorage.Queue.ShouldStartWith(typeof(ServerEndpointConfig).FullName);
 
         }
 

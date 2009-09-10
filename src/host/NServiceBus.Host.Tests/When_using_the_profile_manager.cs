@@ -23,9 +23,9 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void The_production_profile_should_be_used_as_default()
         {
-            var reguestedProfile = string.Empty;
+            var requestedProfile = new string[]{};
 
-            var activeProfiles = profileManager.GetProfileConfigurationHandlersFor(reguestedProfile);
+            var activeProfiles = profileManager.GetProfileConfigurationHandlersFor(requestedProfile);
 
             activeProfiles.First().ShouldBeInstanceOfType(typeof (ProductionProfileHandler));       
         }
@@ -33,9 +33,9 @@ namespace NServiceBus.Host.Tests
         [Test]
         public void Specific_profile_should_be_used_if_match_is_found()
         {
-            var reguestedProfile = "integration";
+            var requestedProfile = new[] { "integration" };
 
-            var activeProfiles = profileManager.GetProfileConfigurationHandlersFor(reguestedProfile);
+            var activeProfiles = profileManager.GetProfileConfigurationHandlersFor(requestedProfile);
 
             activeProfiles.First().ShouldBeInstanceOfType(typeof(IntegrationProfileHandler));
         }

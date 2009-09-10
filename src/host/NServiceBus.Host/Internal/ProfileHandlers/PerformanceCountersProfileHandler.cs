@@ -10,18 +10,20 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// </summary>
     public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
     {
-        /// <summary>
-        /// Registers the performance counter.
-        /// </summary>
-        /// <param name="specifier"></param>
-        public void Init(IConfigureThisEndpoint specifier)
+        void IHandleProfile.ProfileActivated()
         {
             var categoryName = "NServiceBus";
             var counterName = "Critical Time";
+            PerformanceCounter counter = null;
 
-
-			var counter = new PerformanceCounter(categoryName, counterName, Program.GetEndpointId(specifier),
-                                                 false);
+            try
+            {
+                counter = new PerformanceCounter(categoryName, counterName, Program.EndpointId, false);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("NServiceBus performance counters not set up correctly. Running this process with the flag /InstallPerformanceCounters once should rectify this problem.", e);
+            }
 
             GenericHost.ConfigurationComplete += (o, e) =>
                                                      {
