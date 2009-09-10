@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace V2Subscriber
 {
-    public class SomethingHappenedHandler : IMessageHandler<SomethingHappened>
+    public class SomethingHappenedHandler : IHandleMessages<SomethingHappened>
     {
         public void Handle(SomethingHappened message)
         {

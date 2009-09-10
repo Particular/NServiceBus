@@ -8,9 +8,9 @@ using NServiceBus;
 namespace OrderService
 {
     public class OrderSaga : Saga<OrderSagaData>,
-        ISagaStartedBy<OrderMessage>,
-        IMessageHandler<OrderAuthorizationResponseMessage>,
-        IMessageHandler<CancelOrderMessage>
+        IAmStartedByMessages<OrderMessage>,
+        IHandleMessages<OrderAuthorizationResponseMessage>,
+        IHandleMessages<CancelOrderMessage>
     {
         public override void ConfigureHowToFindSaga()
         {

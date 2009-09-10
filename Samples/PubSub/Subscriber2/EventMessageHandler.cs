@@ -4,7 +4,7 @@ using Common.Logging;
 
 namespace Subscriber2
 {
-    public class EventMessageHandler : IMessageHandler<IEvent>
+    public class EventMessageHandler : IHandleMessages<IEvent>
     {
         public void Handle(IEvent message)
         {

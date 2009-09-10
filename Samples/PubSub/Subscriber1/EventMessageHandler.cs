@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace Subscriber1
 {
-    public class EventMessageHandler : IMessageHandler<EventMessage>
+    public class EventMessageHandler : IHandleMessages<EventMessage>
     {
         public void Handle(EventMessage message)
         {

@@ -3,7 +3,7 @@ using NServiceBus;
 
 namespace Server
 {
-    public class CommandMessageHandler : IMessageHandler<Command>
+    public class CommandMessageHandler : IHandleMessages<Command>
     {
         public IBus Bus { get; set; }
 

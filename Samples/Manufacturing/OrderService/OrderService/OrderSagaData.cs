@@ -4,7 +4,7 @@ using NServiceBus.Saga;
 
 namespace OrderService
 {
-    public class OrderSagaData : ISagaEntity
+    public class OrderSagaData : IContainSagaData
     {
         public virtual Guid Id { get; set; }
         public virtual string Originator { get; set; }

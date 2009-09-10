@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using NServiceBus;
 using OrderService.Messages;
 
 namespace Partner
 {
-    public class OrderStatusChangedMessageHandler : IMessageHandler<OrderStatusChangedMessage>
+    public class OrderStatusChangedMessageHandler : IHandleMessages<OrderStatusChangedMessage>
     {
         public void Handle(OrderStatusChangedMessage message)
         {

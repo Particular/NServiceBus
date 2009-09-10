@@ -4,7 +4,7 @@ using V1.Messages;
 
 namespace V1Subscriber
 {
-    public class SomethingHappenedHandler : IMessageHandler<SomethingHappened>
+    public class SomethingHappenedHandler : IHandleMessages<SomethingHappened>
     {
         public void Handle(SomethingHappened message)
         {
