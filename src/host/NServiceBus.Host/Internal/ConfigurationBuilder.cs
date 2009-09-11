@@ -63,7 +63,7 @@ namespace NServiceBus.Host.Internal
                 else
                     configUnicastBus.LoadMessageHandlers();
 
-                if (specifier is IDontWant.ToSubscribeAutomatically)
+                if (specifier is IDontWantToSubscribeAutomatically)
                     configUnicastBus.DoNotAutoSubscribe();
             }
 

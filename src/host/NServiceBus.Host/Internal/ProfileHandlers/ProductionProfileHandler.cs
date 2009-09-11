@@ -21,8 +21,8 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
         void IHandleProfileConfiguration.ConfigureLogging()
         {
-            if (spec is IDontWant.Log4Net)
-                LogManager.Adapter = (spec as IDontWant.Log4Net).UseThisInstead;
+            if (spec is IDontWantLog4Net)
+                LogManager.Adapter = (spec as IDontWantLog4Net).UseThisInstead;
             else
             {
                 var props = new NameValueCollection();

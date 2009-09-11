@@ -33,7 +33,7 @@ namespace NServiceBus.Host.Internal
 
             thingsToRunAtStartup = Configure.ObjectBuilder.BuildAll<IWantToRunAtStartup>();
 
-            if (!(specifier is IDontWant.TheBusStartedAutomatically))
+            if (!(specifier is IDontWantTheBusStartedAutomatically))
                 busConfiguration.CreateBus().Start(startupAction);
 
             if (thingsToRunAtStartup == null)
@@ -76,14 +76,14 @@ namespace NServiceBus.Host.Internal
                 if (thing != null)
                 {
                     var logger = LogManager.GetLogger(thing.GetType());
-                    logger.Debug("Stopping endpoint.");
+                    logger.Debug("Stopping " + thing.GetType().Name);
                     try
                     {
                         thing.Stop();
                     }
                     catch (Exception ex)
                     {
-                        logger.Error("Could not stop endpoint.", ex);
+                        logger.Error(thing.GetType().Name + " could not be stopped.", ex);
 
                         // no need to rethrow, closing the process anyway
                     }
