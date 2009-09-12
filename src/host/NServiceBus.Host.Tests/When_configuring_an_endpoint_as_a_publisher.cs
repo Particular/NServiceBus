@@ -10,20 +10,20 @@ namespace NServiceBus.Host.Tests
     [TestFixture]
     public class When_configuring_an_endpoint_as_a_publisher
     {
-        [Test]
-        public void Db_subscription_storage_should_be_used_if_config_section_is_found()
-        {
-            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+        //[Test]
+        //public void Db_subscription_storage_should_be_used_if_config_section_is_found()
+        //{
+        //    var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
-            configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
-                .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
+        //    configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
+        //        .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
 
-            ServerEndpointConfigWithCustomConfigSource.ConfigurationSource = configSource;
+        //    ServerEndpointConfigWithCustomConfigSource.ConfigurationSource = configSource;
 
-            var configure = Util.Init<ServerEndpointConfigWithCustomConfigSource>();
+        //    var configure = Util.Init<ServerEndpointConfigWithCustomConfigSource>();
 
-            configure.Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
-        }
+        //    configure.Builder.Build<Unicast.Subscriptions.NHibernate.SubscriptionStorage>().ShouldNotBeNull();
+        //}
     }
 
 }

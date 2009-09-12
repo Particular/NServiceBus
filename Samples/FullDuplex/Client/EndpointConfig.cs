@@ -4,7 +4,7 @@ using NServiceBus.Host;
 namespace Client
 {
     public class EndpointConfig:IConfigureThisEndpoint,
-                                As.aClient,
+                                AsA_Client,
                                 ISpecify.ToUse.XmlSerialization,
                                 ISpecify.XmlSerializationNamespace,
                                 IWantCustomInitialization

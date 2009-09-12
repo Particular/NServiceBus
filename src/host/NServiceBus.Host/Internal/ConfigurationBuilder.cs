@@ -45,15 +45,15 @@ namespace NServiceBus.Host.Internal
 
             profileHandlers.ForEach(ph => ph.ConfigureSagas(busConfiguration));
 
-            if (specifier is As.aClient && specifier is As.aServer)
+            if (specifier is AsA_Client && specifier is AsA_Server)
                 throw new InvalidOperationException("Cannot specify endpoint both as a client and as a server.");
 
             ConfigUnicastBus configUnicastBus = null;
 
-            if (specifier is As.aClient)
+            if (specifier is AsA_Client)
                 configUnicastBus = ConfigureClientRole();
 
-            if (specifier is As.aServer)
+            if (specifier is AsA_Server)
                 configUnicastBus = ConfigureServerRole();
 
             if (configUnicastBus != null)
@@ -157,7 +157,7 @@ namespace NServiceBus.Host.Internal
                 .UnicastBus()
                 .ImpersonateSender(true);
 
-            if (specifier is As.aPublisher)
+            if (specifier is AsA_Publisher)
                 profileHandlers.ForEach(ph => ph.ConfigureSubscriptionStorage(busConfiguration));
 
             return configUnicastBus;

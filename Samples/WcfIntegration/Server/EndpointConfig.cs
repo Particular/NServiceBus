@@ -3,7 +3,7 @@
 namespace Server
 {
     internal class EndpointConfig : IConfigureThisEndpoint,
-                                    As.aPublisher,
+                                    AsA_Publisher,
                                     ISpecify.ToUse.XmlSerialization
     {
     }

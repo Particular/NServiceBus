@@ -6,7 +6,7 @@ using NServiceBus.Sagas.Impl;
 namespace Server
 {
     class EndpointConfig : IConfigureThisEndpoint, 
-        As.aPublisher,
+        AsA_Publisher,
         ISpecify.ToUse.XmlSerialization,
         ISpecify.MessageHandlerOrdering
     {

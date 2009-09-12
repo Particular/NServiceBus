@@ -3,7 +3,7 @@
 namespace Subscriber1
 {
     class EndpointConfig : IConfigureThisEndpoint,
-        As.aServer,
+        AsA_Server,
         ISpecify.ToUse.XmlSerialization        
     {
     }

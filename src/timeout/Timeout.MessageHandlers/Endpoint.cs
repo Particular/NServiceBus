@@ -5,7 +5,7 @@ using NServiceBus.Host;
 namespace Timeout.MessageHandlers
 {
     class Endpoint : IConfigureThisEndpoint,
-        As.aServer,
+        AsA_Server,
         ISpecify.MyOwn.Serialization
     {
         public void Init(Configure configure)

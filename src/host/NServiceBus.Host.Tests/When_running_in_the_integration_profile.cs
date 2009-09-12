@@ -12,38 +12,38 @@ namespace NServiceBus.Host.Tests
     [TestFixture]
     public class When_running_in_the_integration_profile
     {
-        [Test]
-        public void Msmq_subscription_storage_should_be_used()
-        {
-            var config = Util.Init<ServerEndpointConfig, IntegrationProfileHandler>();
+        //[Test]
+        //public void Msmq_subscription_storage_should_be_used()
+        //{
+        //    var config = Util.Init<ServerEndpointConfig, IntegrationProfileHandler>();
 
-            var subscriptionStorage = config.Builder.Build<MsmqSubscriptionStorage>();
+        //    var subscriptionStorage = config.Builder.Build<MsmqSubscriptionStorage>();
 
-            subscriptionStorage.ShouldNotBeNull();
+        //    subscriptionStorage.ShouldNotBeNull();
 
-            //subscriptionStorage.Queue.ShouldStartWith(typeof(ServerEndpointConfig).FullName);
+        //    //subscriptionStorage.Queue.ShouldStartWith(typeof(ServerEndpointConfig).FullName);
 
-        }
+        //}
 
-        [Test]
-        public void Msmq_subscription_storage_should_pick_queue_name_from_app_config_if_present()
-        {
-            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
+        //[Test]
+        //public void Msmq_subscription_storage_should_pick_queue_name_from_app_config_if_present()
+        //{
+        //    var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
-            configSource.Stub(x => x.GetConfiguration<MsmqSubscriptionStorageConfig>())
-                .Return(ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig_with_queue_specified") as MsmqSubscriptionStorageConfig);
+        //    configSource.Stub(x => x.GetConfiguration<MsmqSubscriptionStorageConfig>())
+        //        .Return(ConfigurationManager.GetSection("MsmqSubscriptionStorageConfig_with_queue_specified") as MsmqSubscriptionStorageConfig);
 
-            ServerEndpointConfigWithCustomConfigSource.ConfigurationSource = configSource;
+        //    ServerEndpointConfigWithCustomConfigSource.ConfigurationSource = configSource;
 
-            var config = Util.Init<ServerEndpointConfigWithCustomConfigSource, IntegrationProfileHandler>();
+        //    var config = Util.Init<ServerEndpointConfigWithCustomConfigSource, IntegrationProfileHandler>();
 
-            var subscriptionStorage = config.Builder.Build<MsmqSubscriptionStorage>();
+        //    var subscriptionStorage = config.Builder.Build<MsmqSubscriptionStorage>();
 
-            subscriptionStorage.ShouldNotBeNull();
+        //    subscriptionStorage.ShouldNotBeNull();
 
-            subscriptionStorage.Queue.ShouldEqual("test_queue");
+        //    subscriptionStorage.Queue.ShouldEqual("test_queue");
 
-        }
+        //}
 
     }
 }

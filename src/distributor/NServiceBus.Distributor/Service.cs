@@ -8,7 +8,7 @@ using ConfigurationException=Common.Logging.ConfigurationException;
 
 namespace NServiceBus.Distributor
 {
-    public class Service : IConfigureThisEndpoint, As.aServer,
+    public class Service : IConfigureThisEndpoint, AsA_Server,
         ISpecify.MyOwn.Serialization,
         ISpecify.MessageHandlerOrdering,
         ISpecify.LoggingLevel

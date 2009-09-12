@@ -3,7 +3,7 @@ using NServiceBus.Host;
 namespace V2Subscriber
 {
     public class V2SubscriberEndpoint : IConfigureThisEndpoint, 
-                                        As.aServer,
+                                        AsA_Server,
                                         ISpecify.ToUse.XmlSerialization
     {
 
