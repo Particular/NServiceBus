@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentNHibernate.Cfg;
 using NHibernate;
 using NHibernate.ByteCode.LinFu;
@@ -22,8 +23,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
         public ISessionFactory Build(IDictionary<string, string> nhibernateProperties, bool updateSchema)
         {
             var model = Create.SagaPersistenceModel(typesToScan);
+            var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
 
-            var fluentConfiguration = Fluently.Configure(new Configuration().SetProperties(nhibernateProperties))
+            var nhibernateConfiguration = new Configuration().SetProperties(nhibernateProperties);
+
+            foreach (var assembly in scannedAssemblies)
+            {
+                nhibernateConfiguration.AddAssembly(assembly);
+            }
+            
+            var fluentConfiguration = Fluently.Configure(nhibernateConfiguration)
                                         .Mappings(m => m.AutoMappings.Add(model));
 
             ApplyDefaultsTo(fluentConfiguration);

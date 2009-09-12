@@ -49,4 +49,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
     }
 
+   public class TestSagaWithHbmlXmlOverride:ISagaEntity
+   {
+       public virtual Guid Id { get; set; }
+
+       public virtual string Originator { get; set; }
+
+       public virtual string OriginalMessageId { get; set; }
+
+       public virtual string SomeProperty { get; set; }
+   }
+     
 }

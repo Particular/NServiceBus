@@ -74,5 +74,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
 
+
+        [Test,Ignore("TODO")]
+        public void Users_can_override_automappings_by_embedding_hbm_files()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithHbmlXmlOverride).FullName);
+            persister.IdentifierGenerator.ShouldBeInstanceOfType(typeof(IdentityGenerator));
+
+            
+        }
+
+
     }
 }
