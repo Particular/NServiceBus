@@ -33,8 +33,9 @@ namespace NServiceBus.Host.Internal
 
             thingsToRunAtStartup = Configure.ObjectBuilder.BuildAll<IWantToRunAtStartup>();
 
-            if (!(specifier is IDontWantTheBusStartedAutomatically))
-                busConfiguration.CreateBus().Start(startupAction);
+            var bus = busConfiguration.CreateBus();
+            if (bus != null)
+                bus.Start(startupAction);
 
             if (thingsToRunAtStartup == null)
                 return;

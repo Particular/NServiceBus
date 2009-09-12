@@ -8,8 +8,7 @@ using NServiceBus.Unicast.Transport.Msmq;
 namespace NServiceBus.Proxy
 {
     class EndpointConfig : IConfigureThisEndpoint,
-        IWantCustomInitialization,
-        IDontWantTheBusStartedAutomatically
+        IWantCustomInitialization
     {
         public void Init(Configure configure)
         {
