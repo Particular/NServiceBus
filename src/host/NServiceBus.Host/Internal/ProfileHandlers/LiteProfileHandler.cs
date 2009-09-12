@@ -1,6 +1,5 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
-using NServiceBus.Host.Profiles;
 using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers

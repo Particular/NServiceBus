@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NServiceBus.Host.Profiles;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Host.Internal
@@ -48,7 +47,7 @@ namespace NServiceBus.Host.Internal
                         configurerers.Add(type);
                 }
 
-            var activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.Name.ToLower() == pa));
+            var activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower()));
 
            
             if(activeProfiles.Count() == 0)

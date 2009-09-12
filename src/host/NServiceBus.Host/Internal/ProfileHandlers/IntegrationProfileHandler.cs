@@ -1,7 +1,6 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
 using NServiceBus.Config;
-using NServiceBus.Host.Profiles;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 

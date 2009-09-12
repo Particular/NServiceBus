@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using NServiceBus.Host.Profiles;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using NServiceBus.Host.Profiles;
 using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers

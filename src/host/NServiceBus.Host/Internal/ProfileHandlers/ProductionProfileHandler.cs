@@ -1,6 +1,5 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
-using NServiceBus.Host.Profiles;
 using NServiceBus.Utils.Reflection;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.ObjectBuilder;

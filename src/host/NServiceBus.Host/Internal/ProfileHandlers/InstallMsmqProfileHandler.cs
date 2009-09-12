@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host.Profiles;
-
-namespace NServiceBus.Host.Internal.ProfileHandlers
+﻿namespace NServiceBus.Host.Internal.ProfileHandlers
 {
     /// <summary>
     /// Installs and starts MSMQ if necessary.

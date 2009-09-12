@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Host.Profiles
+﻿using NServiceBus.Host;
+
+namespace NServiceBus
 {
     /// <summary>
     /// Profile indicating that you want the host to install the performance counters.
