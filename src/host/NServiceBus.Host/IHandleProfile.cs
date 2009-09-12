@@ -36,11 +36,6 @@
         void Init(IConfigureThisEndpoint specifier);
 
         /// <summary>
-        /// Configure how log4net is set up.
-        /// </summary>
-        void ConfigureLogging();
-
-        /// <summary>
         /// Configure how sagas are handled.
         /// </summary>
         /// <param name="busConfiguration"></param>

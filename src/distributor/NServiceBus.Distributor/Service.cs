@@ -10,8 +10,7 @@ namespace NServiceBus.Distributor
 {
     public class Service : IConfigureThisEndpoint, AsA_Server,
         ISpecify.MyOwn.Serialization,
-        ISpecify.MessageHandlerOrdering,
-        ISpecify.LoggingLevel
+        ISpecify.MessageHandlerOrdering
     {
         public static MsmqTransport DataTransport { get; private set; }
 
@@ -62,11 +61,6 @@ namespace NServiceBus.Distributor
         {
             order.Specify(First<GridInterceptingMessageHandler>
                             .Then<ReadyMessageHandler>());
-        }
-
-        public log4net.Core.Level Level
-        {
-            get { return log4net.Core.Level.Warn; }
         }
     }
 }

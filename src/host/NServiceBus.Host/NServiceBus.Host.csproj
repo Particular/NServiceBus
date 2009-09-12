@@ -70,6 +70,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="As.cs" />
+    <Compile Include="IConfigureLogging.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
     <Compile Include="IDontWant.cs" />
     <Compile Include="IHandleProfile.cs" />
@@ -77,6 +78,9 @@
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
+    <Compile Include="Internal\Logging\IntegrationLoggingHandler.cs" />
+    <Compile Include="Internal\Logging\LiteLoggingHandler.cs" />
+    <Compile Include="Internal\Logging\ProductionLoggingHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\InstallDtcProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\InstallMsmqProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\InstallPerformanceCountersProfileHandler.cs" />

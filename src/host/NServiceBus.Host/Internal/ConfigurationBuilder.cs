@@ -32,8 +32,6 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public Configure Build()
         {
-            profileHandlers.ForEach(ph => ph.ConfigureLogging());
-
             busConfiguration = DoConfigureWith(specifier);
 
             if (specifier is ISpecify.MyOwn.ConfigurationSource)

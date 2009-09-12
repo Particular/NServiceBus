@@ -19,6 +19,9 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Start()
         {
+            var loggingConfigurer = profileManager.GetLoggingConfigurer();
+            loggingConfigurer.ConfigureLogging();
+
             var profileConfigurationHandlers = profileManager.GetProfileConfigurationHandlersFor(args);
  
             var busConfiguration  = new ConfigurationBuilder(specifier, profileConfigurationHandlers).Build();
@@ -106,7 +109,7 @@ namespace NServiceBus.Host.Internal
 
             var assembliesToScan = new[] {GetType().Assembly,specifier.GetType().Assembly};
 
-            profileManager = new ProfileManager(assembliesToScan,specifier);
+            profileManager = new ProfileManager(assembliesToScan, specifier, args);
         }
 
         private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;

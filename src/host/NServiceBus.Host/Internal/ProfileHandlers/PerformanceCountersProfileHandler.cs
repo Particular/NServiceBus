@@ -21,7 +21,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("NServiceBus performance counters not set up correctly. Running this process with the flag /InstallPerformanceCounters once should rectify this problem.", e);
+                throw new InvalidOperationException("NServiceBus performance counters not set up correctly. Running this process with the flag NServiceBus.InstallPerformanceCounters once should rectify this problem.", e);
             }
 
             GenericHost.ConfigurationComplete += (o, e) =>

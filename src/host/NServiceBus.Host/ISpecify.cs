@@ -82,17 +82,6 @@ namespace NServiceBus.Host
         }
 
         /// <summary>
-        /// Specify the level at which logging will be performed.
-        /// </summary>
-        public interface LoggingLevel
-        {
-            /// <summary>
-            /// The logging level that will be set for this endpoint.
-            /// </summary>
-            log4net.Core.Level Level { get; }
-        }
-
-        /// <summary>
         /// Specify the order in which message handlers will be invoked.
         /// </summary>
         public interface MessageHandlerOrdering
@@ -162,17 +151,6 @@ namespace NServiceBus.Host
             /// Specify that subscription storage will be independently configured.
             /// </summary>
             public interface SubscriptionStorage : IWantCustomInitialization { }
-
-            /// <summary>
-            /// Specify that Log4Net will be independently configured.
-            /// </summary>
-            public interface Log4NetConfiguration
-            {
-                /// <summary>
-                /// In this method, do what you want to configure Log4Net.
-                /// </summary>
-                void ConfigureLog4Net();
-            }
 
             /// <summary>
             /// Specify an alternate config source to use
