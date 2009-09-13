@@ -8,13 +8,13 @@ namespace Logging
         configuration of the endpoint so we specify "Logging.MyProductionProfile" on the command line.
      */
 
-    public class Endpoint : IConfigureThisEndpoint {}
+    public class Endpoint : IConfigureThisEndpoint, ISpecifyProfile<MyProductionProfile> {}
 
     public class MyProductionProfile : Production {}
 
     public class MyProductionLogging : IConfigureLoggingForProfile<MyProductionProfile>
     {
-        public void ConfigureLogging()
+        public void Configure(IConfigureThisEndpoint specifier)
         {
             Console.WriteLine("I'm configuring logging now.");
         }

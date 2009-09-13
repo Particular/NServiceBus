@@ -1,41 +1,20 @@
-﻿using System.Collections.Specialized;
-using Common.Logging;
-using NServiceBus.Utils.Reflection;
-using NServiceBus.Unicast.Subscriptions;
-using NServiceBus.ObjectBuilder;
-
-namespace NServiceBus.Host.Internal.ProfileHandlers
+﻿namespace NServiceBus.Host.Internal.ProfileHandlers
 {
     /// <summary>
     /// Configures the infrastructure for the Production profile.
     /// </summary>
-    public class ProductionProfileHandler : IHandleProfileConfiguration<Production>
+    public class ProductionProfileHandler : IConfigureTheBusForProfile<Production>
     {
-        private IConfigureThisEndpoint spec;
-
-        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
-            spec = specifier;
-        }
+            NServiceBus.Configure.With()
+                .SpringBuilder()
+                .XmlSerializer()
+                .Sagas()
+                .NHibernateSagaPersister();
 
-        void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
-        {
-            if (!(spec is ISpecify.MyOwn.SagaPersistence))
-                busConfiguration.NHibernateSagaPersister();
-        }
-
-        void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
-        {
-            if (spec is ISpecify.MyOwn.SubscriptionStorage)
-                return;
-
-            var storageType = spec.GetType().GetGenericallyContainedType(typeof (ISpecify.ToUse.SubscriptionStorage<>),
-                                                                         typeof (ISubscriptionStorage));
-
-            if (storageType != null)
-                Configure.TypeConfigurer.ConfigureComponent(storageType, ComponentCallModelEnum.Singleton);
-            else
-                busConfiguration.DBSubcriptionStorage();
+            if (specifier is AsA_Publisher)
+                Configure.Instance.DBSubcriptionStorage();
         }
     }
 }

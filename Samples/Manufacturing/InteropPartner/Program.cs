@@ -12,6 +12,7 @@ namespace InteropPartner
             Console.WriteLine("To exit, enter 'q'. Press 'Enter' to send a message.");
             
             string queueName = string.Format("FormatName:DIRECT=OS:{0}\\private$\\messagebus", Environment.MachineName);
+            var label = "<CorrId></CorrId><WinIdName>UDI_MOBILE_2\\Administrator</WinIdName>";
 
             var q = new MessageQueue(queueName);
 
@@ -31,6 +32,7 @@ namespace InteropPartner
                 var toSend = new Message();
                 serializer.Serialize(toSend.BodyStream, m1);
                 toSend.ResponseQueue = new MessageQueue(string.Format("FormatName:DIRECT=OS:{0}\\private$\\client", Environment.MachineName));
+                toSend.Label = label;
 
                 q.Send(toSend, MessageQueueTransactionType.Single);
                 Console.WriteLine("Sent order {0}", m1.PurchaseOrderNumber);

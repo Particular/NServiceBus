@@ -2,9 +2,5 @@
 
 namespace V2Publisher
 {
-    class EndpointConfig : IConfigureThisEndpoint,
-                            AsA_Publisher,
-                            ISpecify.ToUse.XmlSerialization
-    {
-    }
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher { }
 }

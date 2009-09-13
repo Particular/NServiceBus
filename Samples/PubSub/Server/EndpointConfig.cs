@@ -5,10 +5,8 @@ using NServiceBus.Sagas.Impl;
 
 namespace Server
 {
-    class EndpointConfig : IConfigureThisEndpoint, 
-        AsA_Publisher,
-        ISpecify.ToUse.XmlSerialization,
-        ISpecify.MessageHandlerOrdering
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, 
+        ISpecifyMessageHandlerOrdering
     {
         public void SpecifyOrder(Order order)
         {

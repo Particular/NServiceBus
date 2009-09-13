@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using NServiceBus.Config.ConfigurationSource;
-using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.Serialization;
-using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Host
 {
@@ -25,144 +19,6 @@ namespace NServiceBus.Host
             /// </summary>
             string EndpointName { get; }
         }
-        
-        /// <summary>
-        /// Specify the types to be configured in the endpoint.
-        /// </summary>
-        public interface TypesToScan
-        {
-            /// <summary>
-            /// The list of types that will be used by the rest of nServiceBus.
-            /// </summary>
-            IEnumerable<Type> TypesToScan { get; }
-        }
-
-        /// <summary>
-        /// Specify the assemblies whose types will be configured in the endpoint.
-        /// </summary>
-        public interface AssembliesToScan
-        {
-            /// <summary>
-            /// The list of assemblies whose types will be used by the rest of nServiceBus.
-            /// </summary>
-            IEnumerable<Assembly> AssembliesToScan { get; }
-        }
-
-        /// <summary>
-        /// Specify the directory that will be scanned, and whose assembly files will be loaded and their types scanned.
-        /// </summary>
-        public interface ProbeDirectory
-        {
-            /// <summary>
-            /// The directory to be scanned for assemblies.
-            /// </summary>
-            string ProbeDirectory { get; }
-        }
-
-        /// <summary>
-        /// Specify additional code to be run at startup.
-        /// </summary>
-        public interface StartupAction
-        {
-            /// <summary>
-            /// An action to be run at startup.
-            /// </summary>
-            Action StartupAction { get; }
-        }
-
-        /// <summary>
-        /// Specify the XML serialization namespace that should be used.
-        /// </summary>
-        public interface XmlSerializationNamespace
-        {
-            /// <summary>
-            /// The XML serialization namespace.
-            /// </summary>
-            string Namespace { get; }
-        }
-
-        /// <summary>
-        /// Specify the order in which message handlers will be invoked.
-        /// </summary>
-        public interface MessageHandlerOrdering
-        {
-            /// <summary>
-            /// In this method, use the order object to specify the order in which message handlers will be activated.
-            /// </summary>
-            /// <param name="order"></param>
-            void SpecifyOrder(Order order);
-        }
-
-        /// <summary>
-        /// Container class for sub-specifications
-        /// </summary>
-        public class ToUse
-        {
-            /// <summary>
-            /// Specify the type of container that will be used for dependency injection in the endpoint.
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            public interface ContainerType<T> where T : IContainer { }
-
-            /// <summary>
-            /// Specify a container instance that will be used for dependency injection in the endpoint.
-            /// </summary>
-            public interface SpecificContainerInstance
-            {
-                /// <summary>
-                /// Return an instance of the container the rest of nServiceBus will use.
-                /// </summary>
-                IContainer ContainerInstance { get; }
-            }
-
-            /// <summary>
-            /// Specify that the XML serializer should be used.
-            /// </summary>
-            public interface XmlSerialization { }
-
-            /// <summary>
-            /// Specify that the given type will be used as the message serializer.
-            /// </summary>
-            public interface Serializer<T> where T : IMessageSerializer { }
-
-            /// <summary>
-            /// Specify that the given type will be used as the subscription storage.
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            public interface SubscriptionStorage<T> where T : ISubscriptionStorage { }
-        }
-
-        /// <summary>
-        /// Container class for sub-specifications
-        /// </summary>
-        public class MyOwn
-        {
-            /// <summary>
-            /// Specify that serialization will be independently configured in the container.
-            /// </summary>
-            public interface Serialization : IWantCustomInitialization { }
-
-            /// <summary>
-            /// Specify that saga persistence will be independently configured.
-            /// </summary>
-            public interface SagaPersistence : IWantCustomInitialization { }
-
-            /// <summary>
-            /// Specify that subscription storage will be independently configured.
-            /// </summary>
-            public interface SubscriptionStorage : IWantCustomInitialization { }
-
-            /// <summary>
-            /// Specify an alternate config source to use
-            /// </summary>
-            public interface ConfigurationSource
-            {
-                /// <summary>
-                /// Source from which to pull configuration information.
-                /// </summary>
-                IConfigurationSource Source { get; }
-            }
-        }
 
 		/// <summary>
 		/// Tell the topshelf framework to set services to start automatically
@@ -178,4 +34,23 @@ namespace NServiceBus.Host
     	{
     	}
     }
+
+    /// <summary>
+    /// Specify the order in which message handlers will be invoked.
+    /// </summary>
+    public interface ISpecifyMessageHandlerOrdering
+    {
+        /// <summary>
+        /// In this method, use the order object to specify the order in which message handlers will be activated.
+        /// </summary>
+        /// <param name="order"></param>
+        void SpecifyOrder(Order order);
+    }
+
+    /// <summary>
+    /// Specify that the given statically defined profile should be active.
+    /// Any number of other optional profiles can be active on the command line.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISpecifyProfile<T> where T : IProfile {}
 }

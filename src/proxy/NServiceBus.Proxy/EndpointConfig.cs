@@ -7,10 +7,11 @@ using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Proxy
 {
-    class EndpointConfig : IConfigureThisEndpoint,
-        IWantCustomInitialization
+    class EndpointConfig : IConfigureThisEndpoint {}
+
+    public class NsbConfig : IConfigureTheBus
     {
-        public void Init(Configure configure)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var maxRetries = int.Parse(ConfigurationManager.AppSettings["MaxRetries"]);
@@ -38,6 +39,8 @@ namespace NServiceBus.Proxy
                 PurgeOnStartup = false,
                 SkipDeserialization = true
             };
+
+            var configure = Configure.With().SpringBuilder();
 
             configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.Queue, "NServiceBus_Proxy_Subscriptions");

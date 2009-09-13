@@ -8,7 +8,7 @@ namespace NServiceBus.Host.Internal.Logging
     /// </summary>
     public class LiteLoggingHandler : IConfigureLoggingForProfile<Lite>
     {
-        void IConfigureLogging.ConfigureLogging()
+        void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";

@@ -2,9 +2,5 @@
 
 namespace Subscriber1
 {
-    class EndpointConfig : IConfigureThisEndpoint,
-        AsA_Server,
-        ISpecify.ToUse.XmlSerialization        
-    {
-    }
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Server {}
 }

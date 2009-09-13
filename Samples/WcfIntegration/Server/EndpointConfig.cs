@@ -2,9 +2,5 @@
 
 namespace Server
 {
-    internal class EndpointConfig : IConfigureThisEndpoint,
-                                    AsA_Publisher,
-                                    ISpecify.ToUse.XmlSerialization
-    {
-    }
+    internal class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher { }
 }

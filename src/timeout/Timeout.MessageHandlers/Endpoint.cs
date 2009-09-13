@@ -4,12 +4,16 @@ using NServiceBus.Host;
 
 namespace Timeout.MessageHandlers
 {
-    class Endpoint : IConfigureThisEndpoint,
-        AsA_Server,
-        ISpecify.MyOwn.Serialization
+    public class Endpoint : IConfigureThisEndpoint, AsA_Server, ISpecifyProfile<TimeoutProfile> {}
+
+    public class TimeoutProfile : Lite {}
+
+    public class NsbConfig : IConfigureTheBusForProfile<TimeoutProfile>
     {
-        public void Init(Configure configure)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
+            var configure = NServiceBus.Configure.With().SpringBuilder();
+
             string nameSpace = ConfigurationManager.AppSettings["NameSpace"];
             string serialization = ConfigurationManager.AppSettings["Serialization"];
 

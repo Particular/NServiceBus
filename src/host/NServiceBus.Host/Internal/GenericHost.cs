@@ -20,51 +20,28 @@ namespace NServiceBus.Host.Internal
         public void Start()
         {
             var loggingConfigurer = profileManager.GetLoggingConfigurer();
-            loggingConfigurer.ConfigureLogging();
+            loggingConfigurer.Configure(specifier);
 
-            var profileConfigurationHandlers = profileManager.GetProfileConfigurationHandlersFor(args);
- 
-            var busConfiguration  = new ConfigurationBuilder(specifier, profileConfigurationHandlers).Build();
+            var busConfigurer = profileManager.GetBusConfigurer();
+            busConfigurer.Configure(specifier);
+
+            if (Configure.Instance == null)
+                throw new ConfigurationException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
+            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+                throw new ConfigurationException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
+
+            RoleManager.ConfigureBusForEndpoint(specifier);
+
+            configManager.ConfigureCustomInitAndStartup();
           
-            Action startupAction = null;
-
-            if (specifier is ISpecify.StartupAction)
-                startupAction = (specifier as ISpecify.StartupAction).StartupAction;
-
             if (ConfigurationComplete != null)
                 ConfigurationComplete(this, null);
 
-            thingsToRunAtStartup = Configure.ObjectBuilder.BuildAll<IWantToRunAtStartup>();
-
-            var bus = busConfiguration.CreateBus();
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
             if (bus != null)
-                bus.Start(startupAction);
+                bus.Start();
 
-            if (thingsToRunAtStartup == null)
-                return;
-
-            foreach (var thing in thingsToRunAtStartup)
-            {
-                var toRun = thing;
-                Action onstart = () =>
-                                     {
-                                         var logger = LogManager.GetLogger(toRun.GetType());
-                                         try
-                                         {
-                                             logger.Debug("Calling " + toRun.GetType().Name);
-                                             toRun.Run();
-                                         }
-                                         catch (Exception ex)
-                                         {
-                                             logger.Error("Problem occurred when starting the endpoint.", ex);
-
-                                             //don't rethrow so that thread doesn't die before log message is shown.
-                                         }
-
-                                     };
-
-                onstart.BeginInvoke(null, null);
-            }
+            configManager.Startup();
         }
 
         /// <summary>
@@ -72,27 +49,7 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Stop()
         {
-            if (thingsToRunAtStartup == null)
-                return;
-
-            foreach (var thing in thingsToRunAtStartup)
-            {
-                if (thing != null)
-                {
-                    var logger = LogManager.GetLogger(thing.GetType());
-                    logger.Debug("Stopping " + thing.GetType().Name);
-                    try
-                    {
-                        thing.Stop();
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(thing.GetType().Name + " could not be stopped.", ex);
-
-                        // no need to rethrow, closing the process anyway
-                    }
-                }
-            }
+            configManager.Shutdown();
         }
 
         /// <summary>
@@ -103,19 +60,17 @@ namespace NServiceBus.Host.Internal
         /// <param name="args"></param>
         public GenericHost(Type endpointType, string[] args)
         {
-            this.args = args;
-           
             specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             var assembliesToScan = new[] {GetType().Assembly,specifier.GetType().Assembly};
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
+            configManager = new ConfigManager(assembliesToScan);
         }
 
-        private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;
         private readonly IConfigureThisEndpoint specifier;
-        private readonly string[] args;
         private readonly ProfileManager profileManager;
+        private readonly ConfigManager configManager;
 
     }
 }

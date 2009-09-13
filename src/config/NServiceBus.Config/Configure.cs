@@ -14,19 +14,11 @@ namespace NServiceBus
     public class Configure
     {
         /// <summary>
-        /// Provides static access to object builder functionality.
+        /// Provides static access to the configuration object.
         /// </summary>
-        public static IBuilder ObjectBuilder
+        public static Configure Instance
         {
-            get { return instance.Builder; }
-        }
-
-        /// <summary>
-        /// Provides static access to type configuration functionality.
-        /// </summary>
-        public static IConfigureComponents TypeConfigurer
-        {
-            get { return instance.Configurer; }
+            get { return instance; }
         }
 
         /// <summary>
@@ -181,28 +173,40 @@ namespace NServiceBus
 
         private static IEnumerable<Type> GetTypesInDirectoryWithExtension(string path, string extension)
         {
-            foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
+            var result = new List<Type>();
+            try
             {
-                Type[] types;
-                try
+                foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
                 {
-                    Assembly a = Assembly.LoadFrom(file.FullName);
-
-                    types = a.GetTypes();
-                }
-                catch (ReflectionTypeLoadException err)
-                {
-                    foreach (var loaderException in err.LoaderExceptions)
+                    Type[] types;
+                    try
                     {
-                        Trace.Fail("Problem with loading " + file.FullName, loaderException.Message);
+                        Assembly a = Assembly.LoadFrom(file.FullName);
+
+                        types = a.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException err)
+                    {
+                        foreach (var loaderException in err.LoaderExceptions)
+                        {
+                            Trace.Fail("Problem with loading " + file.FullName, loaderException.Message);
+                        }
+
+                        throw;
                     }
 
-                    throw;
+                    result.AddRange(types);
                 }
-
-                foreach (Type t in types)
-                    yield return t;
             }
+            catch (BadImageFormatException bif)
+            {
+                if (bif.FileName.ToLower().Contains("system.data.sqlite.dll"))
+                    throw new BadImageFormatException("You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.", bif.FileName, bif);
+
+                throw;
+            }
+
+            return result;
         }
 
         private static Configure instance;

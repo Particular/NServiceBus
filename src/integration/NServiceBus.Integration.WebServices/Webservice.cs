@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         protected Webservice()
         {
-            bus = Configure.ObjectBuilder.Build<IBus>();            
+            bus = Configure.Instance.Builder.Build<IBus>();            
         }
 
         /// <summary>

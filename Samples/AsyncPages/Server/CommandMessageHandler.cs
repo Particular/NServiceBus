@@ -11,7 +11,7 @@ namespace Server
 
         public void Handle(Command message)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(4));
+            Thread.Sleep(TimeSpan.FromSeconds(1));
 
             if (message.Id % 2 == 0)
                 Bus.Return((int)ErrorCodes.Fail);

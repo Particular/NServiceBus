@@ -8,7 +8,7 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            Distributor.MessageBusTransport = Service.DataTransport;
+            Distributor.MessageBusTransport = NsbConfig.DataTransport;
             Distributor.Start();
         }
 

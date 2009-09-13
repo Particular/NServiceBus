@@ -27,18 +27,27 @@ namespace NServiceBus.Host.Internal
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
 
-            if (specifier is IDontWantProfiles)
+            var p = specifier.GetType().GetGenericallyContainedType(typeof (ISpecifyProfile<>), typeof (IProfile));
+            if (p != null)
+                activeProfiles = new[] {p};
+            else
             {
-                Logger.Debug("Configured not to use profiles.");
-                return;
+                var profiles = GetProfilesFrom(assembliesToScan);
+
+                activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower()));
+
+                if (activeProfiles.Count() == 0)
+                    activeProfiles = DefaultProfile;
             }
+        }
 
-            var profiles = GetProfilesFrom(assembliesToScan);
-
-            activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower()));
-
-            if (activeProfiles.Count() == 0)
-                activeProfiles = DefaultProfile;
+        /// <summary>
+        /// Returns an object to configure the bus based on the specification and profiles passed in.
+        /// </summary>
+        /// <returns></returns>
+        public IConfigureTheBus GetBusConfigurer()
+        {
+            return GetImplementor<IConfigureTheBus>(typeof(IConfigureTheBusForProfile<>));
         }
 
         /// <summary>
@@ -47,32 +56,23 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public IConfigureLogging GetLoggingConfigurer()
         {
-            IConfigureLogging result;
-
-            var options = new List<Type>();
-            foreach(var a in assembliesToScan)
-                foreach(var t in a.GetTypes())
-                    if (typeof(IConfigureLogging).IsAssignableFrom(t) && !t.IsInterface)
-                        options.Add(t);
-
-            if (specifier is IDontWantProfiles)
-            {
-                result = FindLoggingConfigurer(options, list => list.Where(item =>
-                        null == item.GetGenericallyContainedType(typeof(IConfigureLoggingForProfile<>), typeof(IProfile)))
-                    );
-            }
-            else
-            {
-                result = FindLoggingConfigurer(options, list => 
-                    activeProfiles.Select(ap => FindLoggingConfigurerForProfile(ap, list)).Where(t => t != null)
-                    );
-            }
-
-            Logger.Debug("Going to use " + result.GetType().FullName + " to configure logging.");
-            return result;
+            return GetImplementor<IConfigureLogging>(typeof (IConfigureLoggingForProfile<>));
         }
 
-        private IConfigureLogging FindLoggingConfigurer(IEnumerable<Type> options, Func<IEnumerable<Type>, IEnumerable<Type>> filter)
+        private T GetImplementor<T>(Type openGenericType) where T : class
+        {
+            var options = new List<Type>();
+            foreach (var a in assembliesToScan)
+                foreach (var t in a.GetTypes())
+                    if (typeof(T).IsAssignableFrom(t) && !t.IsInterface)
+                        options.Add(t);
+
+            return FindConfigurer<T>(options, list =>
+                activeProfiles.Select(ap => FindConfigurerForProfile(openGenericType, ap, list)).Where(t => t != null)
+                );
+        }
+
+        private T FindConfigurer<T>(IEnumerable<Type> options, Func<IEnumerable<Type>, IEnumerable<Type>> filter) where T : class
         {
             var myOptions = new List<Type>(filter(options));
 
@@ -81,22 +81,22 @@ namespace NServiceBus.Host.Internal
             if (myOptions.Count > 1)
                 throw new ConfigurationException("More than one class which implements IConfigureLogging was found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
 
-            return Activator.CreateInstance(myOptions[0]) as IConfigureLogging;
+            return Activator.CreateInstance(myOptions[0]) as T;
         }
 
-        private Type FindLoggingConfigurerForProfile(Type profile, IEnumerable<Type> options)
+        private Type FindConfigurerForProfile(Type openGenericType, Type profile, IEnumerable<Type> options)
         {
             if (profile == typeof(object)) return null;
 
             foreach(var o in options)
             {
-                var p = o.GetGenericallyContainedType(typeof (IConfigureLoggingForProfile<>), typeof (IProfile));
+                var p = o.GetGenericallyContainedType(openGenericType, typeof(IProfile));
                 if (p == profile)
                     return o;
             }
 
             //couldn't find exact match - try again recursively going up the type hierarchy
-            return FindLoggingConfigurerForProfile(profile.BaseType, options);
+            return FindConfigurerForProfile(openGenericType, profile.BaseType, options);
         }
 
         /// <summary>
@@ -149,8 +149,6 @@ namespace NServiceBus.Host.Internal
             return profiles;
         }
 
-        private static readonly IEnumerable<Type> DefaultProfile = new[] { typeof(Production) };
-
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Host");
+        private static readonly IEnumerable<Type> DefaultProfile = new[] { typeof(Lite) };
     }
 }

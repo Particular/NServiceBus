@@ -1,25 +1,23 @@
-﻿using System.Collections.Specialized;
-using Common.Logging;
-using NServiceBus.ObjectBuilder;
+﻿using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
     /// <summary>
     /// Configures the infrastructure for the Lite profile
     /// </summary>
-    public class LiteProfileHandler : IHandleProfileConfiguration<Lite>
+    public class LiteProfileHandler : IConfigureTheBusForProfile<Lite>
     {
-        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier) { }
-
-        void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
-            Configure.TypeConfigurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
-        }
+            NServiceBus.Configure.With()
+                .SpringBuilder()
+                .XmlSerializer()
+                .Sagas();
+                
+            Configure.Instance.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
 
-        void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
-        {
-            Configure.TypeConfigurer.ConfigureComponent<InMemorySubscriptionStorage>(
-                ComponentCallModelEnum.Singleton);
+            if (specifier is AsA_Publisher)
+                Configure.Instance.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(ComponentCallModelEnum.Singleton);
         }
     }
 }

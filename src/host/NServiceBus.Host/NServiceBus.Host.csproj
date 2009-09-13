@@ -71,10 +71,10 @@
     </Compile>
     <Compile Include="As.cs" />
     <Compile Include="IConfigureLogging.cs" />
+    <Compile Include="IConfigureTheBus.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
-    <Compile Include="IDontWant.cs" />
     <Compile Include="IHandleProfile.cs" />
-    <Compile Include="Internal\ConfigurationBuilder.cs" />
+    <Compile Include="Internal\ConfigurationManager.cs" />
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
@@ -89,10 +89,10 @@
     <Compile Include="Internal\ProfileHandlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Internal\ProfileHandlers\ProductionProfileHandler.cs" />
     <Compile Include="Internal\ProfileManager.cs" />
+    <Compile Include="Internal\RoleManager.cs" />
     <Compile Include="IProfile.cs" />
     <Compile Include="ISpecify.cs" />
-    <Compile Include="IWantCustomInitialization.cs" />
-    <Compile Include="IWantToRunAtStartup.cs" />
+    <Compile Include="IWant.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Profiles\InstallDtc.cs" />
     <Compile Include="Profiles\InstallMsmq.cs" />

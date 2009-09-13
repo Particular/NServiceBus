@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-using Common.Logging;
-using NServiceBus.Config;
+﻿using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 
@@ -9,33 +7,25 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     /// <summary>
     /// Configures the infrastructure for the Integration profile.
     /// </summary>
-    public class IntegrationProfileHandler : IHandleProfileConfiguration<Integration>
+    public class IntegrationProfileHandler : IConfigureTheBusForProfile<Integration>
     {
-        private IConfigureThisEndpoint spec;
-
-        void IHandleProfileConfiguration.Init(IConfigureThisEndpoint specifier)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
-            spec = specifier;
-        }
+            var busConfiguration = 
+                NServiceBus.Configure.With()
+                .SpringBuilder()
+                .XmlSerializer()
+                .Sagas()
+                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
-        void IHandleProfileConfiguration.ConfigureSagas(Configure busConfiguration)
-        {
-            if (!(spec is ISpecify.MyOwn.SagaPersistence))
-                busConfiguration.NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
-        }
-
-        void IHandleProfileConfiguration.ConfigureSubscriptionStorage(Configure busConfiguration)
-        {
-
-            if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
+            if (specifier is AsA_Publisher)
             {
-				string q = Program.EndpointId + "_subscriptions";
-                busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
-                    .ConfigureProperty(s => s.Queue, q);
-            }
-            else
-            {
-                busConfiguration.MsmqSubscriptionStorage();
+                if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
+                    busConfiguration.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(
+                        ComponentCallModelEnum.Singleton)
+                        .ConfigureProperty(s => s.Queue, Program.EndpointId + "_subscriptions");
+                else
+                    busConfiguration.MsmqSubscriptionStorage();
             }
         }
     }

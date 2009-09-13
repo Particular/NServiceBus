@@ -3,20 +3,12 @@ using NServiceBus.Host;
 
 namespace Server
 {
-    public class EndpointConfig:IConfigureThisEndpoint,
-                                AsA_Server,
-                                ISpecify.ToUse.XmlSerialization,
-                                ISpecify.XmlSerializationNamespace,
-                                IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,
+        IWantCustomInitialization
     {
-        public string Namespace
+        public void Init()
         {
-            get { return "http://www.UdiDahan.com"; }
-        }
-
-        public void Init(Configure configure)
-        {
-            configure.RijndaelEncryptionService();
+            Configure.Instance.RijndaelEncryptionService();
         }
     }
 }

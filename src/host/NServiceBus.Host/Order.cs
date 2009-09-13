@@ -7,7 +7,12 @@ namespace NServiceBus.Host
     /// </summary>
     public class Order
     {
-        internal ConfigUnicastBus config;
+        private readonly ConfigUnicastBus cfg;
+
+        internal Order(ConfigUnicastBus config)
+        {
+            cfg = config;
+        }
 
         /// <summary>
         /// Specifies that the given type will be activated before all others.
@@ -15,7 +20,7 @@ namespace NServiceBus.Host
         /// <typeparam name="TFirst"></typeparam>
         public void Specify<TFirst>()
         {
-            config.LoadMessageHandlers<TFirst>();
+            cfg.LoadMessageHandlers<TFirst>();
         }
 
         /// <summary>
@@ -26,7 +31,7 @@ namespace NServiceBus.Host
         /// <param name="ordering"></param>
         public void Specify<T>(First<T> ordering)
         {
-            config.LoadMessageHandlers(ordering);
+            cfg.LoadMessageHandlers(ordering);
         }
     }
 }

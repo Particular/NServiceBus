@@ -13,7 +13,7 @@ namespace WebService1
             {
             Bus = Configure.WithWeb()
                 .SpringBuilder()
-                .BinarySerializer()
+                .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()
                     .LoadMessageHandlers()

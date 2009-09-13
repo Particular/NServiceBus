@@ -8,7 +8,7 @@ namespace NServiceBus.Host.Internal.Logging
     /// </summary>
     public class ProductionLoggingHandler : IConfigureLoggingForProfile<Production>
     {
-        void IConfigureLogging.ConfigureLogging()
+        void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";
@@ -17,10 +17,17 @@ namespace NServiceBus.Host.Internal.Logging
             var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
             var level = log4net.Core.Level.Warn;
 
-            var appender = new log4net.Appender.ConsoleAppender
+            var appender = new log4net.Appender.RollingFileAppender
             {
                 Layout = layout,
-                Threshold = level
+                Threshold = level, 
+                CountDirection = 1,
+                DatePattern = "file.log.yyyy-mm-dd",
+                RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
+                MaxFileSize = 1024*1024,
+                MaxSizeRollBackups = 50,
+                LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
+                File = "/"
             };
             log4net.Config.BasicConfigurator.Configure(appender);
         }

@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         protected WcfService()
         {
-            bus = Configure.ObjectBuilder.Build<IBus>();            
+            bus = Configure.Instance.Builder.Build<IBus>();            
         }
 
         static WcfService()

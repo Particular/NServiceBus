@@ -26,7 +26,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
 
             GenericHost.ConfigurationComplete += (o, e) =>
                                                      {
-                     var msmqTransport = Configure.ObjectBuilder.Build<MsmqTransport>();
+                     var msmqTransport = Configure.Instance.Builder.Build<MsmqTransport>();
                      msmqTransport.TransportMessageReceived += (obj, args) =>
                        {
                            counter.RawValue =

@@ -8,14 +8,24 @@ using ConfigurationException=Common.Logging.ConfigurationException;
 
 namespace NServiceBus.Distributor
 {
-    public class Service : IConfigureThisEndpoint, AsA_Server,
-        ISpecify.MyOwn.Serialization,
-        ISpecify.MessageHandlerOrdering
+    public class Service : IConfigureThisEndpoint, ISpecifyProfile<DistributorProfile> { }
+
+    public class DistributorProfile : Lite {}
+
+    public class NsbConfig : IConfigureTheBusForProfile<DistributorProfile>
     {
         public static MsmqTransport DataTransport { get; private set; }
 
-        public void Init(Configure configure)
+        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
         {
+            var configure = Configure.With()
+                .SpringBuilder()
+                .XmlSerializer()
+                .MsmqTransport()
+                    .IsTransactional(true)
+                .UnicastBus()
+                    .ImpersonateSender(true);
+
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
 
@@ -44,23 +54,20 @@ namespace NServiceBus.Distributor
                 SkipDeserialization = true
             };
 
-            Configure.TypeConfigurer
+            Configure.Instance.Configurer
                 .ConfigureProperty<MsmqTransport>(t => t.InputQueue,ConfigurationManager.AppSettings["ControlInputQueue"])
                 .ConfigureProperty<MsmqTransport>(t => t.ErrorQueue, errorQueue)
                 .ConfigureProperty<MsmqTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
-               
 
-            Configure.TypeConfigurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
+
+            Configure.Instance.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                 ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.StorageQueue, ConfigurationManager.AppSettings["StorageQueue"]);
 
-            Configure.TypeConfigurer.ConfigureComponent<Unicast.Distributor.Distributor>(ComponentCallModelEnum.Singleton);
-        }
+            Configure.Instance.Configurer.ConfigureComponent<Unicast.Distributor.Distributor>(ComponentCallModelEnum.Singleton);
 
-        public void SpecifyOrder(Order order)
-        {
-            order.Specify(First<GridInterceptingMessageHandler>
-                            .Then<ReadyMessageHandler>());
+            configure.LoadMessageHandlers(First<GridInterceptingMessageHandler>
+                                              .Then<ReadyMessageHandler>());
         }
     }
 }
