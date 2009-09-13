@@ -77,9 +77,9 @@ namespace NServiceBus.Host.Internal
             var myOptions = new List<Type>(filter(options));
 
             if (myOptions.Count == 0)
-                throw new ConfigurationException("Could not find a class which implements IConfigureLogging.");
+                throw new ConfigurationException("Could not find a class which implements " + typeof(T).Name + ". If you've specified your own profile, try implementing " + typeof(T).Name + "ForProfile<T> for your profile.");
             if (myOptions.Count > 1)
-                throw new ConfigurationException("More than one class which implements IConfigureLogging was found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
+                throw new ConfigurationException("Can not have more than one class configured which implements " + typeof(T).Name + ". Implementors found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
 
             return Activator.CreateInstance(myOptions[0]) as T;
         }
