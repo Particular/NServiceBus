@@ -71,7 +71,7 @@ namespace NServiceBus.Host
         /// <summary>
         /// Gives an identifier for this endpoint
         /// </summary>
-        public static string EndpointId { get; private set; }
+        public static string EndpointId { get; set; }
 
         private static void SetHostServiceLocatorArgs(string[] args)
         {
@@ -93,7 +93,12 @@ namespace NServiceBus.Host
                 endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
-        private static string GetEndpointId(object endpointConfiguration)
+        /// <summary>
+        /// Gives a string which serves to identify the endpoint.
+        /// </summary>
+        /// <param name="endpointConfiguration"></param>
+        /// <returns></returns>
+        public static string GetEndpointId(object endpointConfiguration)
         {
             string endpointName = GetEndpointName(endpointConfiguration);
             return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);

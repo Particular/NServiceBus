@@ -13,7 +13,6 @@ namespace NServiceBus.Host.Internal
     public class ProfileManager
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
-        private readonly IConfigureThisEndpoint specifier;
         private readonly IEnumerable<Type> activeProfiles;
 
         /// <summary>
@@ -25,20 +24,17 @@ namespace NServiceBus.Host.Internal
         public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] profileArgs)
         {
             this.assembliesToScan = assembliesToScan;
-            this.specifier = specifier;
+
+            var profiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower())));
 
             var p = specifier.GetType().GetGenericallyContainedType(typeof (ISpecifyProfile<>), typeof (IProfile));
             if (p != null)
-                activeProfiles = new[] {p};
-            else
-            {
-                var profiles = GetProfilesFrom(assembliesToScan);
+                profiles.Add(p);
 
-                activeProfiles = profiles.Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower()));
+            activeProfiles = profiles;
 
-                if (activeProfiles.Count() == 0)
-                    activeProfiles = DefaultProfile;
-            }
+            if (activeProfiles.Count() == 0)
+                activeProfiles = DefaultProfile;
         }
 
         /// <summary>
@@ -100,42 +96,27 @@ namespace NServiceBus.Host.Internal
         }
 
         /// <summary>
-        /// Loads the profilehandlers that handles the given profile. Defaults to the Production profile 
-        /// if no match is found
+        /// Activates the profilehandlers that handle the previously identified active profiles. 
         /// </summary>
-        /// <param name="profileArgs"></param>
         /// <returns></returns>
-        public IEnumerable<IHandleProfileConfiguration> GetProfileConfigurationHandlersFor(string[] profileArgs)
+        public void ActivateProfileHandlers()
         {
             var handlers = new List<Type>();
-            var configurerers = new List<Type>();
 
             foreach (var assembly in assembliesToScan)
                 foreach (var type in assembly.GetTypes())
                 {
                     if (null != type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile)))
                         handlers.Add(type);
-                    if (null != type.GetGenericallyContainedType(typeof(IHandleProfileConfiguration<>), typeof(IProfile)))
-                        configurerers.Add(type);
                 }
 
-
             var activeHandlers = handlers.Where(t => activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
-            var activeConfigurers = configurerers.Where(t => activeProfiles.Any(p => typeof(IHandleProfileConfiguration<>).MakeGenericType(p).IsAssignableFrom(t)));
-
-            var profileConfigurers = new List<IHandleProfileConfiguration>();
-            foreach(var c in activeConfigurers)
-                profileConfigurers.Add(Activator.CreateInstance(c) as IHandleProfileConfiguration);
-
-            profileConfigurers.ForEach(pc => pc.Init(specifier));
 
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
                 profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
 
             profileHandlers.ForEach(hp => hp.ProfileActivated());
-
-            return profileConfigurers;
         }
 
 

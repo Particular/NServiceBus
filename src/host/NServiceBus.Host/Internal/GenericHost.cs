@@ -33,6 +33,8 @@ namespace NServiceBus.Host.Internal
             RoleManager.ConfigureBusForEndpoint(specifier);
 
             configManager.ConfigureCustomInitAndStartup();
+
+            profileManager.ActivateProfileHandlers();
           
             if (ConfigurationComplete != null)
                 ConfigurationComplete(this, null);
@@ -61,6 +63,8 @@ namespace NServiceBus.Host.Internal
         public GenericHost(Type endpointType, string[] args)
         {
             specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
+
+            Program.EndpointId = Program.GetEndpointId(specifier);
 
             var assembliesToScan = new[] {GetType().Assembly,specifier.GetType().Assembly};
 
