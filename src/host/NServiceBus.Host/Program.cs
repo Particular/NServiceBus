@@ -29,9 +29,9 @@ namespace NServiceBus.Host
                 throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
             }
 
-			var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
-			EndpointId = GetEndpointId(endpointConfiguration);
+            EndpointId = GetEndpointId(endpointConfiguration);
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
@@ -47,22 +47,22 @@ namespace NServiceBus.Host
                     c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
                     c.WhenStarted(service => service.Start());
                     c.WhenStopped(service => service.Stop());
-                    c.CreateServiceLocator(() =>  new HostServiceLocator());
+                    c.CreateServiceLocator(() => new HostServiceLocator());
                 });
 
-				if (!(endpointConfiguration is ISpecify.ToStartAutomatically))
-				{
-					x.DoNotStartAutomatically();
-				}
+                if (!(endpointConfiguration is ISpecify.ToStartAutomatically))
+                {
+                    x.DoNotStartAutomatically();
+                }
 
-				if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
-				{
-					x.RunAsLocalSystem();
-				}
-				else
-				{
-					x.RunAsFromInteractive();
-				}
+                if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
+                {
+                    x.RunAsLocalSystem();
+                }
+                else
+                {
+                    x.RunAsFromInteractive();
+                }
             });
 
             Runner.Host(cfg, args);
@@ -89,13 +89,13 @@ namespace NServiceBus.Host
         private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
         {
             return Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, 
+                AppDomain.CurrentDomain.BaseDirectory,
                 endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
- 		private static string GetEndpointId(object endpointConfiguration)
+        private static string GetEndpointId(object endpointConfiguration)
         {
-			string endpointName = GetEndpointName(endpointConfiguration);
+            string endpointName = GetEndpointName(endpointConfiguration);
             return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);
         }
 
@@ -123,13 +123,22 @@ namespace NServiceBus.Host
                 try
                 {
                     var assembly = Assembly.LoadFrom(assemblyFile.FullName);
-                    
+
                     types = assembly.GetTypes();
+                }
+
+                catch (ReflectionTypeLoadException err)
+                {
+                    foreach (var loaderException in err.LoaderExceptions)
+                    {
+                        Trace.Fail("Problem with loading " + assemblyFile.FullName, loaderException.Message);
+                    }
+
+                    continue;
                 }
                 catch (Exception e)
                 {
                     Trace.WriteLine("NServiceBus Host - assembly load failure - ignoring " + assemblyFile + " because of error: " + e);
-
                     continue;
                 }
 
@@ -146,7 +155,10 @@ namespace NServiceBus.Host
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
-                throw new InvalidOperationException("No endpoints found in scanned assemlies, scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
+                throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. "+
+                    "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint."+
+                    " Please enable Trace in NServiceBus.Host.exe.config to debug loader exceptions, "+
+                    "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
             if (endpointConfigurationTypes.Count() > 1)
@@ -159,7 +171,7 @@ namespace NServiceBus.Host
         {
             string endpointName = null;
 
-        	var iHaveEndpointName = endpointConfiguration as ISpecify.EndpointName;
+            var iHaveEndpointName = endpointConfiguration as ISpecify.EndpointName;
             if (iHaveEndpointName != null)
             {
                 endpointName = iHaveEndpointName.EndpointName;
