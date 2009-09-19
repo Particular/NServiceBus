@@ -235,6 +235,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private void CheckConfiguration()
         {
+            if (string.IsNullOrEmpty(InputQueue))
+                return;
+
             var machine = MsmqUtilities.GetMachineNameFromLogicalName(InputQueue);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
