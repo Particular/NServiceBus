@@ -540,7 +540,8 @@ namespace NServiceBus.Serializers.XML
                 if (i == 0)
                     prefix = "";
 
-                namespacesToPrefix[namespaces[i]] = prefix;
+                if (namespaces[i] != null)
+                    namespacesToPrefix[namespaces[i]] = prefix;
             }
 
             var messageBuilder = new StringBuilder();
