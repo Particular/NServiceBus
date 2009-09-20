@@ -59,35 +59,18 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
 
         [Test]
-        public void Persister_should_default_to_sqlite_if_no_config_section_is_found()
+        public void Persister_can_be_configured_to_use_sqlite_if_no_config_section_is_found()
         {
             var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
             var configWithoutConfigSection = Configure.With()
                                                     .SpringBuilder()
                                                     .CustomConfigurationSource(configSource)
-                                                    .DBSubcriptionStorage();
+                                                    .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
             configWithoutConfigSection.Builder.Build<ISessionSource>();
 
         }
-        [Test]
-        public void Persister_should_default_to_sqlite_if_no_nh_properties_is_found()
-        {
-            var configSource = MockRepository.GenerateStub<IConfigurationSource>();
-
-            configSource.Stub(x => x.GetConfiguration<DBSubscriptionStorageConfig>())
-                .Return(ConfigurationManager.GetSection("DBSubscriptionStorageConfig_with_no_nhproperties") as DBSubscriptionStorageConfig);
-
-            var configWithoutConfigSection = Configure.With()
-                                                    .SpringBuilder()
-                                                    .CustomConfigurationSource(configSource)
-                                                    .DBSubcriptionStorage();
-
-            configWithoutConfigSection.Builder.Build<ISessionSource>();
-
-        }
-
        
         [Test]
         public void NHibernate_proxy_factory_should_default_to_linfu()
