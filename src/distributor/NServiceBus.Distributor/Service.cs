@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
@@ -8,15 +9,11 @@ using ConfigurationException=Common.Logging.ConfigurationException;
 
 namespace NServiceBus.Distributor
 {
-    public class Service : IConfigureThisEndpoint, ISpecifyProfile<DistributorProfile> { }
-
-    public class DistributorProfile : Lite {}
-
-    public class NsbConfig : IConfigureTheBusForProfile<DistributorProfile>
+    public class Service : IConfigureThisEndpoint, IWantCustomInitialization 
     {
         public static MsmqTransport DataTransport { get; private set; }
 
-        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
+        public void Init()
         {
             var configure = Configure.With()
                 .SpringBuilder()

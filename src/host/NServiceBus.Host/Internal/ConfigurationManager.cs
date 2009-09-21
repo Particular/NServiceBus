@@ -8,12 +8,14 @@ namespace NServiceBus.Host.Internal
 {
     internal class ConfigManager
     {
-        public ConfigManager(IEnumerable<Assembly> assembliesToScan)
+        public ConfigManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
         {
+            this.specifier = specifier;
+
             foreach(var a in assembliesToScan)
                 foreach(var t in a.GetTypes())
                 {
-                    if (typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface)
+                    if (typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
                         toInitialize.Add(t);
                     if (typeof(IWantToRunAtStartup).IsAssignableFrom(t) && !t.IsInterface)
                         toRunAtStartup.Add(t);
@@ -26,7 +28,13 @@ namespace NServiceBus.Host.Internal
                 Configure.Instance.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singleton);
 
             foreach (var t in toInitialize)
-                ((IWantCustomInitialization) Activator.CreateInstance(t)).Init();
+            {
+                var o = (IWantCustomInitialization) Activator.CreateInstance(t);
+                if (o is IWantTheEndpointConfig)
+                    (o as IWantTheEndpointConfig).Config = specifier;
+
+                o.Init();
+            }
         }
 
         public void Startup()
@@ -87,6 +95,7 @@ namespace NServiceBus.Host.Internal
 
         private readonly IList<Type> toInitialize = new List<Type>();
         private readonly IList<Type> toRunAtStartup = new List<Type>();
+        private readonly IConfigureThisEndpoint specifier;
 
         private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;
     }

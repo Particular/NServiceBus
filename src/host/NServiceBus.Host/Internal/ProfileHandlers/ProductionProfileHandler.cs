@@ -1,20 +1,21 @@
-﻿namespace NServiceBus.Host.Internal.ProfileHandlers
+﻿using System;
+
+namespace NServiceBus.Host.Internal.ProfileHandlers
 {
     /// <summary>
     /// Configures the infrastructure for the Production profile.
     /// </summary>
-    public class ProductionProfileHandler : IConfigureTheBusForProfile<Production>
+    public class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
     {
-        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
+        void IHandleProfile.ProfileActivated()
         {
-            NServiceBus.Configure.With()
-                .SpringBuilder()
-                .XmlSerializer()
-                .Sagas()
+            NServiceBus.Configure.Instance
                 .NHibernateSagaPersister();
 
-            if (specifier is AsA_Publisher)
+            if (Config is AsA_Publisher)
                 Configure.Instance.DBSubcriptionStorage();
         }
+
+        public IConfigureThisEndpoint Config { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace NServiceBus.Host.Internal
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
         private readonly IEnumerable<Type> activeProfiles;
+        private readonly IConfigureThisEndpoint specifier;
 
         /// <summary>
         /// Initializes the manager with the assemblies to scan and the endpoint configuration to use
@@ -24,26 +25,12 @@ namespace NServiceBus.Host.Internal
         public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] profileArgs)
         {
             this.assembliesToScan = assembliesToScan;
+            this.specifier = specifier;
 
-            var profiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower())));
-
-            var p = specifier.GetType().GetGenericallyContainedType(typeof (ISpecifyProfile<>), typeof (IProfile));
-            if (p != null)
-                profiles.Add(p);
-
-            activeProfiles = profiles;
+            activeProfiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower())));
 
             if (activeProfiles.Count() == 0)
                 activeProfiles = DefaultProfile;
-        }
-
-        /// <summary>
-        /// Returns an object to configure the bus based on the specification and profiles passed in.
-        /// </summary>
-        /// <returns></returns>
-        public IConfigureTheBus GetBusConfigurer()
-        {
-            return GetImplementor<IConfigureTheBus>(typeof(IConfigureTheBusForProfile<>));
         }
 
         /// <summary>
@@ -115,6 +102,9 @@ namespace NServiceBus.Host.Internal
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
                 profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
+
+            profileHandlers.Where(ph => ph is IWantTheEndpointConfig).ToList().ForEach(
+                ph => (ph as IWantTheEndpointConfig).Config = specifier);
 
             profileHandlers.ForEach(hp => hp.ProfileActivated());
         }

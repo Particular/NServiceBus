@@ -46,11 +46,4 @@ namespace NServiceBus.Host
         /// <param name="order"></param>
         void SpecifyOrder(Order order);
     }
-
-    /// <summary>
-    /// Specify that the given statically defined profile should be active.
-    /// Any number of other optional profiles can be active on the command line.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ISpecifyProfile<T> where T : IProfile {}
 }

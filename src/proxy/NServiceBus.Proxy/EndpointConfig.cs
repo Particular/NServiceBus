@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using Common.Logging;
 using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
@@ -7,11 +8,9 @@ using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Proxy
 {
-    class EndpointConfig : IConfigureThisEndpoint {}
-
-    public class NsbConfig : IConfigureTheBus
+    class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
     {
-        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
+        public void Init()
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var maxRetries = int.Parse(ConfigurationManager.AppSettings["MaxRetries"]);

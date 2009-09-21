@@ -1,16 +1,13 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using NServiceBus;
 using NServiceBus.Host;
 
 namespace Timeout.MessageHandlers
 {
-    public class Endpoint : IConfigureThisEndpoint, AsA_Server, ISpecifyProfile<TimeoutProfile> {}
-
-    public class TimeoutProfile : Lite {}
-
-    public class NsbConfig : IConfigureTheBusForProfile<TimeoutProfile>
+    public class Endpoint : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
-        void IConfigureTheBus.Configure(IConfigureThisEndpoint specifier)
+        public void Init()
         {
             var configure = NServiceBus.Configure.With().SpringBuilder();
 

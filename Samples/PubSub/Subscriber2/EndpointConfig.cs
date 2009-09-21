@@ -1,15 +1,12 @@
-﻿using NServiceBus.Host;
+﻿using System;
+using NServiceBus.Host;
 using NServiceBus;
 
 namespace Subscriber2
 {
-    public class EndpointConfig : IConfigureThisEndpoint, ISpecifyProfile<MyProfile> {}
-
-    public class MyProfile : Lite {}
-
-    public class NsbConfig : IConfigureTheBusForProfile<MyProfile>
+    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
     {
-        public void Configure(IConfigureThisEndpoint specifier)
+        public void Init()
         {
             NServiceBus.Configure.With()
                 .UnityBuilder() // just to show we can mix and match containers
@@ -17,7 +14,8 @@ namespace Subscriber2
                 .MsmqTransport()
                     .IsTransactional(true)
                 .UnicastBus()
-                    .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
+                    .DoNotAutoSubscribe() //managed by the class Subscriber2Endpoint
+                    .LoadMessageHandlers();
         }
     }
 }

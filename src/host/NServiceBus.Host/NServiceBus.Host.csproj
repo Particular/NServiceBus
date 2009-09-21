@@ -71,7 +71,6 @@
     </Compile>
     <Compile Include="As.cs" />
     <Compile Include="IConfigureLogging.cs" />
-    <Compile Include="IConfigureTheBus.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
     <Compile Include="IHandleProfile.cs" />
     <Compile Include="Internal\ConfigurationManager.cs" />

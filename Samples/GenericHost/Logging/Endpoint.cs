@@ -8,7 +8,7 @@ namespace Logging
         configuration of the endpoint so we specify "Logging.MyProductionProfile" on the command line.
      */
 
-    public class Endpoint : IConfigureThisEndpoint, ISpecifyProfile<MyProductionProfile> {}
+    public class Endpoint : IConfigureThisEndpoint {}
 
     public class MyProductionProfile : Production {}
 

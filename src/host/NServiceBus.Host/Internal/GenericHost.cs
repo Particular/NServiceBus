@@ -22,8 +22,10 @@ namespace NServiceBus.Host.Internal
             var loggingConfigurer = profileManager.GetLoggingConfigurer();
             loggingConfigurer.Configure(specifier);
 
-            var busConfigurer = profileManager.GetBusConfigurer();
-            busConfigurer.Configure(specifier);
+            if (specifier is IWantCustomInitialization)
+                (specifier as IWantCustomInitialization).Init();
+            else
+                NServiceBus.Configure.With().SpringBuilder().XmlSerializer();
 
             if (Configure.Instance == null)
                 throw new ConfigurationException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
@@ -69,7 +71,7 @@ namespace NServiceBus.Host.Internal
             var assembliesToScan = new[] {GetType().Assembly,specifier.GetType().Assembly};
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
-            configManager = new ConfigManager(assembliesToScan);
+            configManager = new ConfigManager(assembliesToScan, specifier);
         }
 
         private readonly IConfigureThisEndpoint specifier;

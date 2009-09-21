@@ -51,6 +51,7 @@ namespace NServiceBus.Host.Internal
         private static ConfigUnicastBus ConfigureServerRole()
         {
             return Configure.Instance
+                .Sagas()
                 .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
