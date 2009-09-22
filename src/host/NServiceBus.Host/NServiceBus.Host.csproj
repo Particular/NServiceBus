@@ -73,6 +73,7 @@
     <Compile Include="IConfigureLogging.cs" />
     <Compile Include="IConfigureThisEndpoint.cs" />
     <Compile Include="IHandleProfile.cs" />
+    <Compile Include="Internal\AssemblyScanner.cs" />
     <Compile Include="Internal\ConfigurationManager.cs" />
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />

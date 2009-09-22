@@ -117,52 +117,22 @@ namespace NServiceBus.Host
             return endpoints.First();
         }
 
-        [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            IList<Type> result = new List<Type>();
-            foreach (var assemblyFile in new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
-            {
-                Type[] types;
-
-                try
+            foreach (var assembly in AssemblyScanner.GetScannableAssemblies())
+                foreach (Type type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
                 {
-                    var assembly = Assembly.LoadFrom(assemblyFile.FullName);
-
-                    types = assembly.GetTypes();
+                    yield return type;
                 }
-
-                catch (ReflectionTypeLoadException err)
-                {
-                    foreach (var loaderException in err.LoaderExceptions)
-                    {
-                        Trace.Fail("Problem with loading " + assemblyFile.FullName, loaderException.Message);
-                    }
-
-                    continue;
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine("NServiceBus Host - assembly load failure - ignoring " + assemblyFile + " because of error: " + e);
-                    continue;
-                }
-
-                foreach (Type type in types.Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
-                {
-                    result.Add(type);
-                }
-            }
-
-            return result;
         }
 
         private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
-                throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. "+
-                    "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint."+
-                    " Please enable Trace in NServiceBus.Host.exe.config to debug loader exceptions, "+
+                throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. " +
+                    "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint." +
+                    " Please enable Trace in NServiceBus.Host.exe.config to debug loader exceptions, " +
                     "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 

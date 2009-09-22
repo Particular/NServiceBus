@@ -68,7 +68,7 @@ namespace NServiceBus.Host.Internal
 
             Program.EndpointId = Program.GetEndpointId(specifier);
 
-            var assembliesToScan = new[] {GetType().Assembly,specifier.GetType().Assembly};
+		    var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
             configManager = new ConfigManager(assembliesToScan, specifier);
