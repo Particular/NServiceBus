@@ -3,8 +3,9 @@ using NServiceBus.Host;
 
 namespace Client
 {
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Client,
-        IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Client {}
+
+    public class ClientInit : IWantCustomInitialization
     {
         public void Init()
         {
