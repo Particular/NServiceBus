@@ -2,6 +2,10 @@
 {
     /// <summary>
     /// Called in order to configure logging.
+    /// 
+    /// If you want logging configured regardless of profiles, do not use this interface,
+    /// instead implement <see cref="IWantCustomLogging"/> on the class which implements <see cref="IConfigureThisEndpoint"/>.
+    /// 
     /// Implementors should work against the generic version of this interface.
     /// </summary>
     public interface IConfigureLogging

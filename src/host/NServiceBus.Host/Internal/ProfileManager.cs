@@ -39,9 +39,6 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public IConfigureLogging GetLoggingConfigurer()
         {
-            if (specifier is IConfigureLogging)
-                return specifier as IConfigureLogging;
-
             return GetImplementor<IConfigureLogging>(typeof (IConfigureLoggingForProfile<>));
         }
 

@@ -3,9 +3,9 @@ using NServiceBus.Host;
 
 namespace LoggingFromAppConfig
 {
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Client, IConfigureLogging
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Client, IWantCustomLogging
     {
-        public void Configure(IConfigureThisEndpoint specifier)
+        public void Init()
         {
             Console.WriteLine("I'm using the logging configured in the app.config.");
         }
