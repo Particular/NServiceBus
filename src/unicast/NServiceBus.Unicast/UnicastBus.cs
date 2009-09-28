@@ -266,6 +266,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler<MessageEventArgs> NoSubscribersForMessage;
 
+        /// <summary>
+        /// Event raised when client subscribed to a message type.
+        /// </summary>
+        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
+
         #endregion
 
         #region IBus Members
@@ -957,7 +962,7 @@ namespace NServiceBus.Unicast
         /// <param name="subscriptionStorage"></param>
         /// <param name="subscriptionAuthorizer"></param>
         /// <returns></returns>
-        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
+        public bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
         {
             string messageType = null;
             foreach (var header in msg.Headers)
@@ -986,7 +991,12 @@ namespace NServiceBus.Unicast
                         }
 
                     if (goAhead)
-                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] { messageType });
+                    {
+                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
+
+                        if (ClientSubscribed != null)
+                            ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberAddress = msg.ReturnAddress });
+                    }
 
                     return true;
                 }

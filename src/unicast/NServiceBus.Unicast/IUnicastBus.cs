@@ -32,5 +32,10 @@ namespace NServiceBus.Unicast
         /// registered for the message being published.
         /// </summary>
         event EventHandler<MessageEventArgs> NoSubscribersForMessage;
+
+        /// <summary>
+        /// Event raised when a client has been subscribed to a message type.
+        /// </summary>
+        event EventHandler<SubscriptionEventArgs> ClientSubscribed;
     }
 }

@@ -56,7 +56,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -68,6 +70,7 @@
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
