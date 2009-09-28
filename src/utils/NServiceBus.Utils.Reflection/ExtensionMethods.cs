@@ -92,7 +92,7 @@ namespace NServiceBus.Utils.Reflection
                     string result = t.Name.Substring(0, index) + "Of";
                     for (int i = 0; i < args.Length; i++)
                     {
-                        result += args[i].Name;
+                        result += args[i].SerializationFriendlyName();
                         if (i != args.Length - 1)
                             result += "And";
                     }

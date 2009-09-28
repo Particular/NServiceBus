@@ -48,6 +48,8 @@ namespace NServiceBus.Serializers.XML.Test
             o.Offset = DateTimeOffset.Now;
             o.Lookup = new MyDic();
             o.Lookup["1"] = "1";
+            o.Foos = new Dictionary<string, List<Foo>>();
+            o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name="1", Title = "1"}, new Foo { Name = "2", Title = "2"}});
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
@@ -199,7 +201,7 @@ namespace NServiceBus.Serializers.XML.Test
             IMessage[] result = null;
 
             for (int i = 0; i < numberOfIterations; i++)
-                using (MemoryStream forDeserializing = new MemoryStream(buffer))
+                using (var forDeserializing = new MemoryStream(buffer))
                     result = serializer.Deserialize(forDeserializing);
 
             watch.Stop();

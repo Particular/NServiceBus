@@ -14,6 +14,13 @@ namespace NServiceBus.Serializers.XML.Test
         DateTimeOffset Offset { get; set; }
         IM1[] MoreNames { get; set; }
         MyDic Lookup { get; set; }
+        Dictionary<string, List<Foo>> Foos { get; set; }
+    }
+
+    public class Foo
+    {
+        public string Name { get; set; }
+        public string Title { get; set; }
     }
 
     public class MyDic : Dictionary<string, string>

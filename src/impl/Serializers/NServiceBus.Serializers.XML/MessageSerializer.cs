@@ -328,6 +328,9 @@ namespace NServiceBus.Serializers.XML
 
             }
 
+            if (typeof(IEnumerable).IsAssignableFrom(t))
+                return GetPropertyValue(t, node);
+
             object result = MessageMapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
