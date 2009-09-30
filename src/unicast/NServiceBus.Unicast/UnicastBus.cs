@@ -938,9 +938,17 @@ namespace NServiceBus.Unicast
             }
 
             if (HandledSubscriptionMessage(msg, subscriptionStorage, SubscriptionAuthorizer))
-                return;
+            {
+                var messageType = GetSubscriptionMessageTypeFrom(msg);
 
-            Log.Debug("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
+                if (msg.MessageIntent == MessageIntentEnum.Subscribe)
+                    if (ClientSubscribed != null)
+                        ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberAddress = msg.ReturnAddress });
+
+                return;
+            }
+
+		    Log.Debug("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
 
             _messageBeingHandled = msg;
             _handleCurrentMessageLaterWasCalled = false;
@@ -954,6 +962,15 @@ namespace NServiceBus.Unicast
             Log.Debug("Finished handling message.");
         }
 
+        private static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
+        {
+            foreach (var header in msg.Headers)
+                if (header.Key == SubscriptionMessageType)
+                    return header.Value;
+
+            return null;
+        }
+
         /// <summary>
         /// Handles subscribe and unsubscribe requests managing the given subscription storage.
         /// Returns true if the message was a subscription message.
@@ -962,12 +979,9 @@ namespace NServiceBus.Unicast
         /// <param name="subscriptionStorage"></param>
         /// <param name="subscriptionAuthorizer"></param>
         /// <returns></returns>
-        public bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
+        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
         {
-            string messageType = null;
-            foreach (var header in msg.Headers)
-                if (header.Key == SubscriptionMessageType)
-                    messageType = header.Value;
+            string messageType = GetSubscriptionMessageTypeFrom(msg);
 
             Action warn = () =>
                               {
@@ -993,9 +1007,6 @@ namespace NServiceBus.Unicast
                     if (goAhead)
                     {
                         subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
-
-                        if (ClientSubscribed != null)
-                            ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberAddress = msg.ReturnAddress });
                     }
 
                     return true;
