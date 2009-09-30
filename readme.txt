@@ -22,4 +22,7 @@ If you see the build failing, check that you haven't put nServiceBus in a deep s
 = Running =
 ===========
 
+To run NServiceBus Msmq and MSDTC need to be installed and configured on your machine. To do this please
+run ConfigureMsmqAndDtc.bat.
+
 Running an nServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.

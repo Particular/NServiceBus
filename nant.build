@@ -369,6 +369,15 @@
 
 	</target>
 	
+	<target name="ConfigureMsmqAndDtc">
+		<!-- Build the utils project -->
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config}"
+				workingdir="${solution.dir}\utils" />
+
+		<!-- Execute the runner which performs Msmq and Dtc checks -->
+		<exec 	program="${solution.dir}\utils\runner\bin\${project.config}\runner.exe"/>
+	</target>
 	<target name="prepare_binaries">
 		<delete dir="${binaries.dir}" failonerror="false"></delete>
 		<mkdir dir="${binaries.dir}" />
