@@ -91,7 +91,7 @@
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
-	<target name="build" depends="build_src,compile_tools,prepare_binaries,compile_samples"/>
+	<target name="build" depends="build_src,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
 	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host,test"/>
 	
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
@@ -342,7 +342,7 @@
 			</fileset>
 		</copy>
 		
-
+	
 		<!-- Compile the gateway  -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
 
@@ -357,6 +357,13 @@
 				  
 	</target>
 
+	<target name="compile_msmqutils">
+		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\"
+				workingdir="${solution.dir}\utils" />
+
+	</target>
+
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
 					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration"
@@ -369,14 +376,9 @@
 
 	</target>
 	
-	<target name="ConfigureMsmqAndDtc">
-		<!-- Build the utils project -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-				commandline="/p:Configuration=${project.config}"
-				workingdir="${solution.dir}\utils" />
-
+	<target name="ConfigureMsmqAndDtc" depends="compile_msmqutils">
 		<!-- Execute the runner which performs Msmq and Dtc checks -->
-		<exec 	program="${solution.dir}\utils\runner\bin\${project.config}\runner.exe"/>
+		<exec 	program="${build.dir.absolutepath}\tools\MsmqUtils\runner.exe"/>
 	</target>
 	<target name="prepare_binaries">
 		<delete dir="${binaries.dir}" failonerror="false"></delete>
@@ -511,6 +513,7 @@
 
 		<copy todir="${release.dir}">
 			<fileset basedir="${trunk.dir}">
+				<include name="RunMeFirst.bat" />
 				<include name="samples\**" />
 				<exclude name="**/obj/**" />
 				<exclude name="**/bin/**" />
