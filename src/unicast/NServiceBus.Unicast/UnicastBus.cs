@@ -649,7 +649,6 @@ namespace NServiceBus.Unicast
                 if (subscriptionStorage != null)
                     subscriptionStorage.Init();
 
-                transport.MessageTypesToBeReceived = messageTypes;
                 transport.Start();
 
                 if (autoSubscribe)
@@ -1186,7 +1185,6 @@ namespace NServiceBus.Unicast
                     return;
 
                 messageTypeToDestinationLookup[messageType] = destination;
-                AddMessageType(messageType);
 
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + destination + ".");
 
@@ -1198,19 +1196,6 @@ namespace NServiceBus.Unicast
 
                 return;
             }            
-        }
-
-	    /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// </summary>
-        /// <param name="messageType"></param>
-        public void AddMessageType(Type messageType)
-        {
-            if (!messageTypes.Contains(messageType))
-            {
-                messageTypes.Add(messageType);
-                Log.Debug("Message identified: " + messageType.FullName);
-            }
         }
 
 		/// <summary>
@@ -1296,12 +1281,6 @@ namespace NServiceBus.Unicast
 
             foreach(var messageType in GetMessageTypesIfIsMessageHandler(t))
             {
-                //foreach (Type msgType in messageType.Assembly.GetTypes())
-                //    if (typeof(IMessage).IsAssignableFrom(msgType))
-                //        AddMessageType(msgType);
-
-                AddMessageType(messageType);
-
                 if (skipHandlerRegistration)
                     continue;
 
@@ -1432,8 +1411,6 @@ namespace NServiceBus.Unicast
         /// The list of message modules.
         /// </summary>
         protected readonly List<IMessageModule> modules = new List<IMessageModule>();
-
-        private readonly List<Type> messageTypes = new List<Type>(new[] { typeof(CompletionMessage), typeof(SubscriptionMessage), typeof(ReadyMessage), typeof(IMessage[]) });
 
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
         private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();

@@ -169,14 +169,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-		/// <summary>
-		/// Sets a list of the message types the transport will receive.
-		/// </summary>
-        public virtual IList<Type> MessageTypesToBeReceived
-        {
-            set { MessageSerializer.Initialize(GetExtraTypes(value)); }
-        }
-
         /// <summary>
         /// Changes the number of worker threads to the given target,
         /// stopping or starting worker threads as needed.
@@ -742,20 +734,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             mpf.SetAll();
 
             queue.MessageReadPropertyFilter = mpf;
-        }
-
-		/// <summary>
-		/// Get a list of serializable types from the list of types provided.
-		/// </summary>
-		/// <param name="value">A list of types process.</param>
-		/// <returns>A list of serializable types.</returns>
-        private static Type[] GetExtraTypes(IEnumerable<Type> value)
-        {
-            var types = new List<Type>(value);
-            if (!types.Contains(typeof(List<object>)))
-                types.Add(typeof(List<object>));
-
-            return types.ToArray();
         }
 
         private bool OnFinishedMessageProcessing()

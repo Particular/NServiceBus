@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
+using System.Linq;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
@@ -17,12 +18,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// Scans the given types generating concrete classes for interfaces.
         /// </summary>
         /// <param name="types"></param>
-        public void Initialize(params Type[] types)
+        public void Initialize(IEnumerable<Type> types)
         {
-            if (types == null || types.Length == 0)
+            if (types == null || types.Count() == 0)
                 return;
 
-            string name = types[0].Namespace + SUFFIX;
+            string name = types.First().Namespace + SUFFIX;
 
             AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName(name),

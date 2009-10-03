@@ -32,7 +32,7 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = new MessageSerializer();
             serializer.MessageMapper = mapper;
 
-            serializer.Initialize(typeof(IM2));
+            serializer.MessageTypes = new List<Type>(new[] {typeof(IM2)});
 
             var o = mapper.CreateInstance<IM2>();
 

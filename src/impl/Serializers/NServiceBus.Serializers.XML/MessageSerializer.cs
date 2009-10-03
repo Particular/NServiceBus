@@ -24,7 +24,19 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// The message mapper used to translate between types.
         /// </summary>
-        public IMessageMapper MessageMapper { get; set; }
+        public IMessageMapper MessageMapper
+        {
+            get { return mapper; }
+            set
+            {
+                mapper = value;
+
+                if (messageTypes != null)
+                    mapper.Initialize(messageTypes);
+            }
+        }
+
+        private IMessageMapper mapper;
 
         /// <summary>
         /// The encryption service used to encrypt and decrypt WireEncryptedStrings.
@@ -43,26 +55,26 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        /// Gets/sets additional types to be serialized on top of those detected by the caller of Initialize.
+        /// Gets/sets message types to be serialized
         /// </summary>
-        public List<Type> AdditionalTypes { get; set; }
-
-        /// <summary>
-        /// Initializes the serializer, passing the given types in addition to those in AdditionalTypes to the message mapper.
-        /// </summary>
-        /// <param name="types"></param>
-        public void Initialize(params Type[] types)
+        public List<Type> MessageTypes
         {
-            if (AdditionalTypes == null)
-                AdditionalTypes = new List<Type>();
+            get { return messageTypes; }
+            set
+            {
+                messageTypes = value;
+                if (!messageTypes.Contains(typeof(EncryptedValue)))
+                    messageTypes.Add(typeof(EncryptedValue));
 
-            AdditionalTypes.Add(typeof(EncryptedValue));
-            AdditionalTypes.AddRange(types);
-            MessageMapper.Initialize(AdditionalTypes.ToArray());
+                if (MessageMapper != null)
+                    MessageMapper.Initialize(messageTypes.ToArray());
 
-            foreach (Type t in AdditionalTypes)
-                InitType(t);
+                foreach (Type t in messageTypes)
+                    InitType(t);
+            }
         }
+
+        private List<Type> messageTypes;
 
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.

@@ -13,11 +13,6 @@ namespace NServiceBus.Unicast.Transport
 		/// </summary>
         void Start();
 
-		/// <summary>
-		/// Sets the list of message types to be received by the transport.
-		/// </summary>
-        IList<Type> MessageTypesToBeReceived { set; }
-
         /// <summary>
         /// Gets the number of worker threads currently running in the transport.
         /// </summary>

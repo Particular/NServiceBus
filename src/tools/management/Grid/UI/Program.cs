@@ -27,19 +27,7 @@ namespace UI
             switch (serialization)
             {
                 case "xml":
-                    func = (cfg =>
-                        {
-                            List<Type> additionalTypes = new List<Type>{
-                                typeof(ChangeNumberOfWorkerThreadsMessage),
-                                typeof(GetNumberOfWorkerThreadsMessage),
-                                typeof(GotNumberOfWorkerThreadsMessage)
-                            };
-
-                            cfg.Configurer.ConfigureComponent<NServiceBus.Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                                .ConfigureProperty(x => x.AdditionalTypes, additionalTypes);
-
-                            return cfg.XmlSerializer(nameSpace);
-                        });
+                    func = cfg => cfg.XmlSerializer(nameSpace);
                     break;
                 case "binary":
                     func = cfg => cfg.BinarySerializer();

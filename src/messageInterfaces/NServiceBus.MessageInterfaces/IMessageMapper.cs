@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NServiceBus.MessageInterfaces
 {
@@ -12,7 +13,7 @@ namespace NServiceBus.MessageInterfaces
         /// Initializes the mapper with the given types to be scanned.
         /// </summary>
         /// <param name="types"></param>
-        void Initialize(params Type[] types);
+        void Initialize(IEnumerable<Type> types);
 
         /// <summary>
         /// If the given type is an interface, returns the generated concrete type.

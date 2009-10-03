@@ -1,4 +1,5 @@
 ﻿using NServiceBus.ObjectBuilder;
+using System.Linq;
 
 namespace NServiceBus
 {
@@ -14,8 +15,11 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config)
         {
+            var messageTypes = Configure.TypesToScan.Where(t => typeof (IMessage).IsAssignableFrom(t)).ToList();
+
             config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(ms => ms.MessageTypes, messageTypes);
 
             return config;
         }
@@ -29,9 +33,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config, string nameSpace)
         {
-            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
-                .ConfigureProperty(x => x.Namespace, nameSpace);
+            config.XmlSerializer();
+
+            config.Configurer.ConfigureProperty<Serializers.XML.MessageSerializer>(x => x.Namespace, nameSpace);
 
             return config;
         }

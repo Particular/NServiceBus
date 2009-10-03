@@ -12,14 +12,6 @@ namespace NServiceBus.Serializers.Binary
     public class MessageSerializer : IMessageSerializer
     {
         /// <summary>
-        /// Doesn't do anything.
-        /// </summary>
-        /// <param name="types"></param>
-        public void Initialize(params Type[] types)
-        {
-        }
-
-        /// <summary>
         /// Serializes the given messages to the given stream.
         /// </summary>
         /// <param name="messages"></param>

@@ -9,12 +9,6 @@ namespace NServiceBus.Serialization
     public interface IMessageSerializer
     {
         /// <summary>
-        /// Initializes the object given the types to expect for serializing and deserializing.
-        /// </summary>
-        /// <param name="types"></param>
-        void Initialize(params Type[] types);
-
-        /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>
         /// <param name="messages"></param>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NServiceBus.MessageInterfaces;
 
 namespace NServiceBus.Serializers.Binary
@@ -26,7 +27,7 @@ namespace NServiceBus.Serializers.Binary
             return Activator.CreateInstance(messageType);
         }
 
-        void IMessageMapper.Initialize(params Type[] types)
+        void IMessageMapper.Initialize(IEnumerable<Type> types)
         {
         }
 
