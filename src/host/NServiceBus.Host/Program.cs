@@ -58,8 +58,8 @@ namespace NServiceBus.Host
 
                 var parser = new ArgumentParser();
                 var arguments = parser.Parse(args);
-                var username = arguments.SingleOrDefault(argument => argument.Key.Equals("username"));
-                var password = arguments.SingleOrDefault(argument => argument.Key.Equals("password"));
+                var username = arguments.SingleOrDefault(argument => argument.Key == "username");
+                var password = arguments.SingleOrDefault(argument => argument.Key == "password");
 
                 if (username != null && password != null)
                 {
