@@ -8,6 +8,7 @@ using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
 using System.Configuration;
+using Topshelf.Internal.ArgumentParsing;
 
 namespace NServiceBus.Host
 {
@@ -55,7 +56,16 @@ namespace NServiceBus.Host
                     x.DoNotStartAutomatically();
                 }
 
-                if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
+                var parser = new ArgumentParser();
+                var arguments = parser.Parse(args);
+                var username = arguments.SingleOrDefault(argument => argument.Key.Equals("username"));
+                var password = arguments.SingleOrDefault(argument => argument.Key.Equals("password"));
+
+                if (username != null && password != null)
+                {
+                    x.RunAs(username.Value, password.Value);
+                }
+                else if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
                 {
                     x.RunAsLocalSystem();
                 }
