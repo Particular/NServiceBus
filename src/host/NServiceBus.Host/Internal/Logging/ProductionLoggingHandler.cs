@@ -22,13 +22,17 @@ namespace NServiceBus.Host.Internal.Logging
                 Layout = layout,
                 Threshold = level, 
                 CountDirection = 1,
-                DatePattern = "file.log.yyyy-mm-dd",
+                DatePattern = "yyyy-mm-dd",
                 RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
                 MaxFileSize = 1024*1024,
-                MaxSizeRollBackups = 50,
+                MaxSizeRollBackups = 10,
                 LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
-                File = "/"
+                StaticLogFileName = true,
+                File = "logfile",
+                AppendToFile = true
             };
+            appender.ActivateOptions();
+
             log4net.Config.BasicConfigurator.Configure(appender);
         }
     }
