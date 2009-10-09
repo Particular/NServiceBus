@@ -301,7 +301,22 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 toSend.AppSpecific = (int) m.MessageIntent;
 
-                q.Send(toSend, GetTransactionTypeForSend());
+                try
+                {
+                    q.Send(toSend, GetTransactionTypeForSend());
+                }
+                catch(MessageQueueException ex)
+                {
+                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                        throw new ConfigurationException("The destination queue '" + destination +
+                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
+                                                         m.Body[0].GetType().FullName +
+                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
+                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
+                                                        , ex);
+
+                    throw;
+                }
 
                 m.Id = toSend.Id;
             }
