@@ -9,7 +9,7 @@ namespace Subscriber2
         public void Init()
         {
             NServiceBus.Configure.With()
-                .UnityBuilder() // just to show we can mix and match containers
+                .CastleWindsorBuilder() // just to show we can mix and match containers
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)
