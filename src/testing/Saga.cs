@@ -3,87 +3,75 @@ using System.Collections.Generic;
 using System.Reflection;
 using NServiceBus.Saga;
 using Rhino.Mocks;
+using System.IO;
 
 namespace NServiceBus.Testing
 {
-    /// <summary>
-    /// Saga unit testing framework.
-    /// </summary>
-    public class Saga
+    public static class Saga
     {
-        private readonly IBus bus;
-        private readonly MockRepository m;
-        private readonly IMessageCreator messageCreator;
-        private string messageId;
-        private string clientAddress;
-        private readonly List<Delegate> delegates = new List<Delegate>();
-        private readonly List<Type> messageTypes = new List<Type>();
-        private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
-        private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
-        
-        private ISagaEntity sagaData;
-
-        private Saga(MockRepository mocks, IBus b, ISagaEntity sagaData, IMessageCreator messageCreator, List<Type> types)
+        public static void Initialize()
         {
-            m = mocks;
-            bus = b;
-            this.sagaData = sagaData;
-            this.messageCreator = messageCreator;
+            var mapper = new NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+            messageTypes = new List<Type>();
+            NServiceBus.Configure.With();
+            
+            foreach (var t in Configure.TypesToScan)
+                if (typeof(IMessage).IsAssignableFrom(t))
+                    if (!messageTypes.Contains(t))
+                        messageTypes.Add(t);
+
+            mapper.Initialize(messageTypes.ToArray());
+
+            messageCreator = mapper;
+
             ExtensionMethods.MessageCreator = messageCreator;
-            messageTypes = types;
         }
 
         /// <summary>
         /// Begin the test script for a saga of type T.
-        /// Receive the instance of the saga in the out parameter.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="saga"></param>
         /// <returns></returns>
-        public static Saga Test<T>(out T saga) where T : ISaga, new()
+        public static Saga<T> Test<T>() where T : ISaga, new()
         {
-            saga = (T)Activator.CreateInstance(typeof (T));
-
-            PropertyInfo prop = typeof (T).GetProperty("Data");
-            ISagaEntity sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
-
-            saga.Entity = sagaData;
-
-            saga.Entity.Id = Guid.NewGuid();
-
-            MockRepository mocks = new MockRepository();
-            IBus bus = mocks.DynamicMock<IBus>();
-
-            saga.Bus = bus;
-
-            var mapper = new NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-            var typesToMap = new List<Type>();
-            foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                try
-                {
-                    foreach (Type t in a.GetTypes())
-                        if (typeof(IMessage).IsAssignableFrom(t))
-                            if (!typesToMap.Contains(t))
-                                typesToMap.Add(t);
-                }
-                catch
-                {
-                    //swallow exceptions on purpose
-                }
-
-            mapper.Initialize(typesToMap.ToArray());
-
-            return new Saga(mocks, bus, sagaData, mapper, typesToMap);
+            return Test<T>(Guid.NewGuid());
         }
 
         /// <summary>
-        /// Instantiate a new message of type T.
+        /// Begin the test script for a saga of type T while specifying the saga id.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T CreateInstance<T>() where T : IMessage
+        public static Saga<T> Test<T>(Guid sagaId) where T : ISaga, new()
         {
-            return messageCreator.CreateInstance<T>();
+            if (messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+
+            var saga = (T)Activator.CreateInstance(typeof(T));
+
+            var prop = typeof(T).GetProperty("Data");
+            var sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+
+            saga.Entity = sagaData;
+
+            saga.Entity.Id = sagaId;
+
+            var mocks = new MockRepository();
+            var bus = mocks.DynamicMock<IBus>();
+
+            saga.Bus = bus;
+
+            return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
+        }
+
+        /// <summary>
+        /// Instantiate a new message of type M.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static M CreateInstance<M>() where M : IMessage
+        {
+            return messageCreator.CreateInstance<M>();
         }
 
         /// <summary>
@@ -93,9 +81,38 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="action"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(Action<T> action) where T : IMessage
+        public static M CreateInstance<M>(Action<M> action) where M : IMessage
         {
-            return messageCreator.CreateInstance<T>(action);
+            return messageCreator.CreateInstance(action);
+        }
+
+        private static IMessageCreator messageCreator;
+        private static List<Type> messageTypes;
+    }
+
+    /// <summary>
+    /// Saga unit testing framework.
+    /// </summary>
+    public class Saga<T> where T : ISaga, new()
+    {
+        private readonly IBus bus;
+        private readonly T saga;
+        private readonly MockRepository m;
+        private readonly IMessageCreator messageCreator;
+        private string messageId;
+        private string clientAddress;
+        private readonly List<Delegate> delegates = new List<Delegate>();
+        private readonly List<Type> messageTypes = new List<Type>();
+        private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
+        private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
+
+        public Saga(T saga, MockRepository mocks, IBus b, IMessageCreator messageCreator, List<Type> types)
+        {
+            this.saga = saga;
+            m = mocks;
+            bus = b;
+            this.messageCreator = messageCreator;
+            messageTypes = types;
         }
 
         /// <summary>
@@ -103,10 +120,10 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public Saga WhenReceivesMessageFrom(string client)
+        public Saga<T> WhenReceivesMessageFrom(string client)
         {
-            this.clientAddress = client;
-            this.sagaData.Originator = client;
+            clientAddress = client;
+            saga.Entity.Originator = client;
 
             return this;
         }
@@ -117,9 +134,9 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="headers"></param>
         /// <returns></returns>
-        public Saga SetIncomingHeaders(IDictionary<string, string> headers)
+        public Saga<T> SetIncomingHeaders(IDictionary<string, string> headers)
         {
-            this.incomingHeaders = headers;
+            incomingHeaders = headers;
 
             return this;
         }
@@ -130,7 +147,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="messageId"></param>
         /// <returns></returns>
-        public Saga SetMessageId(string messageId)
+        public Saga<T> SetMessageId(string messageId)
         {
             this.messageId = messageId;
 
@@ -151,25 +168,22 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectSend<T>(SendPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectSend<M>(SendPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToSend(
-                        delegate(IMessage[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(msg))
-                                    return false;
+                () => ExpectCallToSend(
+                          delegate(IMessage[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -179,25 +193,22 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectReply<T>(SendPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectReply<M>(SendPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToReply(
-                        delegate(IMessage[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(msg))
-                                    return false;
+                () => ExpectCallToReply(
+                          delegate(IMessage[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -205,28 +216,25 @@ namespace NServiceBus.Testing
         /// Check that the saga sends the given message type to its local queue
         /// and that the message complies with the given predicate.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="M"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectSendLocal<T>(SendPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectSendLocal<M>(SendPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToSendLocal(
-                        delegate(IMessage[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(msg))
-                                    return false;
+                () => ExpectCallToSendLocal(
+                          delegate(IMessage[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -235,24 +243,13 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectReturn(ReturnPredicate check)
+        public Saga<T> ExpectReturn(ReturnPredicate check)
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToReturn(
-                        delegate(int returnCode)
-                        {
-                            if (!check(returnCode))
-                                return false;
+                () => ExpectCallToReturn(check)
+                );
 
-                            return true;
-                        }
-                        );
-                }
-            );
-
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -262,25 +259,22 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectSendToDestination<T>(SendToDestinationPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectSendToDestination<M>(SendToDestinationPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToSend(
-                        delegate(string destination, IMessage[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(destination, msg))
-                                    return false;
+                () => ExpectCallToSend(
+                          delegate(string destination, IMessage[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(destination, msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -290,25 +284,22 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectReplyToOrginator<T>(SendPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectReplyToOrginator<M>(SendPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToSend(
-                        delegate(string destination, string correlationId, IMessage[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(msg))
-                                    return false;
+                () => ExpectCallToSend(
+                          delegate(string destination, string correlationId, IMessage[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
@@ -318,53 +309,64 @@ namespace NServiceBus.Testing
         /// <typeparam name="T"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga ExpectPublish<T>(PublishPredicate<T> check) where T : IMessage
+        public Saga<T> ExpectPublish<M>(PublishPredicate<M> check) where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
-                delegate
-                {
-                    ExpectCallToPublish<T>(
-                        delegate(T[] msgs)
-                        {
-                            foreach (T msg in msgs)
-                                if (!check(msg))
-                                    return false;
+                () => ExpectCallToPublish(
+                          delegate(M[] msgs)
+                              {
+                                  foreach (M msg in msgs)
+                                      if (!check(msg))
+                                          return false;
 
-                            return true;
-                        }
-                        );
-                }
-            );
+                                  return true;
+                              }
+                          )
+                );
 
-            this.delegates.Add(d);
+            delegates.Add(d);
             return this;
         }
 
         /// <summary>
-        /// Uses the given delegate to invoke the saga, checking all the expectations previously set up.
+        /// Uses the given delegate to invoke the saga, checking all the expectations previously set up,
+        /// and then clearing them for continued testing.
         /// </summary>
         /// <param name="handle"></param>
-        public void When(HandleMessageDelegate handle)
+        public Saga<T> When(Action<T> sagaIsInvoked)
         {
-            MessageContext context = new MessageContext { Id = this.messageId, ReturnAddress = this.clientAddress, Headers = this.incomingHeaders };
+            var context = new MessageContext { Id = messageId, ReturnAddress = clientAddress, Headers = incomingHeaders };
 
             using (m.Record())
             {
-                foreach (Type t in messageTypes)
-                    typeof(Saga).GetMethod("PrepareBusGenericMethods", BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(t).Invoke(this, null);
+                foreach (var t in messageTypes)
+                    GetType().GetMethod("PrepareBusGenericMethods", BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(t).Invoke(this, null);
 
                 SetupResult.For(bus.CurrentMessageContext).Return(context);
 
-                foreach (Delegate d in this.delegates)
+                foreach (var d in delegates)
                     d.DynamicInvoke();
             }
 
             using (m.Playback())
-                handle();
+                sagaIsInvoked(saga);
 
             m.BackToRecordAll();
 
-            this.delegates.Clear();
+            delegates.Clear();
+
+            return this;
+        }
+
+        public Saga<T> AssertSagaCompletionIs(bool complete)
+        {
+            if (saga.Completed == complete)
+                return this;
+
+            if (saga.Completed)
+                throw new Exception("Assert failed. Saga has been completed.");
+            else
+                throw new Exception("Assert failed. Saga has not been completed.");
         }
 
         private void ExpectCallToReturn(ReturnPredicate callback)
@@ -431,67 +433,67 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
-        private void PrepareBusGenericMethods<T>() where T : IMessage
+        private void PrepareBusGenericMethods<M>() where M : IMessage
         {
             Delegate d = new HandleMessageDelegate(
                 delegate
                 {
-                    Action<T> act = null;
+                    Action<M> act = null;
                     string destination = null;
 
-                    bus.CreateInstance<T>();
+                    bus.CreateInstance<M>();
                     LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
                     {
-                        mi.ReturnValue = this.messageCreator.CreateInstance<T>();
+                        mi.ReturnValue = this.messageCreator.CreateInstance<M>();
                     }
                     );
 
-                    bus.CreateInstance<T>(act);
+                    bus.CreateInstance<M>(act);
                     LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
                     {
-                        Action<T> action = mi.Arguments[0] as Action<T>;
-                        mi.ReturnValue = this.messageCreator.CreateInstance<T>(action);
+                        Action<M> action = mi.Arguments[0] as Action<M>;
+                        mi.ReturnValue = this.messageCreator.CreateInstance<M>(action);
                     }
                     );
 
-                    bus.Reply<T>(act);
+                    bus.Reply<M>(act);
                     LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
                     {
-                        Action<T> action = mi.Arguments[0] as Action<T>;
-                        bus.Reply(this.messageCreator.CreateInstance<T>(action));
+                        Action<M> action = mi.Arguments[0] as Action<M>;
+                        bus.Reply(this.messageCreator.CreateInstance<M>(action));
                     }
                     );
 
-                    bus.Send<T>(act);
+                    bus.Send<M>(act);
                     LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
                     {
-                        Action<T> action = mi.Arguments[0] as Action<T>;
-                        bus.Send(this.messageCreator.CreateInstance<T>(action));
+                        Action<M> action = mi.Arguments[0] as Action<M>;
+                        bus.Send(this.messageCreator.CreateInstance<M>(action));
                     }
                     );
                     
-                    bus.Send<T>(destination, act);
+                    bus.Send<M>(destination, act);
                     LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
                     {
                         string dest = mi.Arguments[0] as string;
-                        Action<T> action = mi.Arguments[1] as Action<T>;
-                        bus.Send(dest, this.messageCreator.CreateInstance<T>(action));
+                        Action<M> action = mi.Arguments[1] as Action<M>;
+                        bus.Send(dest, this.messageCreator.CreateInstance<M>(action));
                     }
                     );
 
-                    bus.SendLocal<T>(act);
+                    bus.SendLocal<M>(act);
                     LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
                     {
-                        Action<T> action = mi.Arguments[0] as Action<T>;
-                        bus.SendLocal(this.messageCreator.CreateInstance<T>(action));
+                        Action<M> action = mi.Arguments[0] as Action<M>;
+                        bus.SendLocal(this.messageCreator.CreateInstance<M>(action));
                     }
                     );
 
-                    bus.Publish<T>(act);
+                    bus.Publish<M>(act);
                     LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
                     {
-                        Action<T> action = mi.Arguments[0] as Action<T>;
-                        bus.Publish(this.messageCreator.CreateInstance<T>(action));
+                        Action<M> action = mi.Arguments[0] as Action<M>;
+                        bus.Publish(this.messageCreator.CreateInstance<M>(action));
                     }
                     );
 
