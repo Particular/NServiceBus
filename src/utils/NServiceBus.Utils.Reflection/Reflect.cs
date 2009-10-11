@@ -85,12 +85,18 @@ namespace NServiceBus.Utils.Reflection
             return ((MethodCallExpression)lambda.Body).Method;
         }
 
+        protected static MemberInfo GetMemberInfo(Expression member)
+        {
+            return GetMemberInfo(member, false);
+        }
+
         /// <summary>
         /// Returns a MemberInfo for an expression containing a call to a property.
         /// </summary>
         /// <param name="member"></param>
+        /// <param name="checkForSingleDot">Checks that the member expression doesn't have more than one dot like a.Prop.Val</param>
         /// <returns></returns>
-        protected static MemberInfo GetMemberInfo(Expression member)
+        protected static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
             if (member == null) throw new ArgumentNullException("member");
 
@@ -113,6 +119,12 @@ namespace NServiceBus.Utils.Reflection
             }
 
             if (memberExpr == null) throw new ArgumentException("Not a member access", "member");
+
+            if (checkForSingleDot)
+                if (memberExpr.Expression is ParameterExpression)
+                    return memberExpr.Member;
+                else
+                    throw new ArgumentException("Argument passed contains more than a single dot which is not allowed: " + member, "member");
 
             return memberExpr.Member;
         }
@@ -174,11 +186,25 @@ namespace NServiceBus.Utils.Reflection
         /// <exception cref="ArgumentException">The <paramref name="property"/> is not a lambda expression or it does not represent a property access.</exception>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
-            var info = GetMemberInfo(property) as PropertyInfo;
+            return GetProperty(property, false);
+        }
+
+        /// <summary>
+        /// Gets the property represented by the lambda expression.
+        /// If <see cref="checkForSingleDot"/> is true, then the property expression is checked to see that
+        /// only a single dot is present.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="checkForSingleDot"></param>
+        /// <returns></returns>
+        public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
+        {
+            var info = GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
             if (info == null) throw new ArgumentException("Member is not a property");
 
             return info;
         }
+
 
         /// <summary>
         /// Gets the field represented by the lambda expression.

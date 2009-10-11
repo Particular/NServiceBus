@@ -13,8 +13,8 @@ namespace NServiceBus.Sagas.Impl
     {
         void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
         {
-            var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty);
-            var messageProp = Reflect<TMessage>.GetProperty(messageProperty);
+            var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
+            var messageProp = Reflect<TMessage>.GetProperty(messageProperty, false);
 
             Configure.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
         }
