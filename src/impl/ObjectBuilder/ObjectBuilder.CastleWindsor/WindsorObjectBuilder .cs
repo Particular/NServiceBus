@@ -65,7 +65,14 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         object IContainer.Build(Type typeToBuild)
         {
-            return Container.Resolve(typeToBuild);
+            try
+            {
+                return Container.Resolve(typeToBuild);
+            }
+            catch (ComponentNotFoundException)
+            {
+                return null;
+            }
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
