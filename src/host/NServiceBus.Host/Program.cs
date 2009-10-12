@@ -65,13 +65,9 @@ namespace NServiceBus.Host
                 {
                     x.RunAs(username.Value, password.Value);
                 }
-                else if (endpointConfiguration is ISpecify.ToRunAsLocalSystem)
-                {
-                    x.RunAsLocalSystem();
-                }
                 else
                 {
-                    x.RunAsFromInteractive();
+                    x.RunAsLocalSystem();
                 }
             });
 
