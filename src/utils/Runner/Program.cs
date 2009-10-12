@@ -26,6 +26,8 @@ namespace Runner
             MsmqInstallation.StartMsmqIfNecessary();
 
             DtcUtil.StartDtcIfNecessary();
+
+            PerformanceCounterInstallation.InstallConters();
         }
     }
 }
