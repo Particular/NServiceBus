@@ -148,7 +148,15 @@ namespace NServiceBus.Host
 
             if (endpointConfigurationTypes.Count() > 1)
             {
-                throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints");
+                throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints. " +
+                                                    "Endpoint classes found: " +
+                                                    string.Join(", ",
+                                                                endpointConfigurationTypes.Select(
+                                                                    e => e.AssemblyQualifiedName).ToArray()) +
+                                                    " You may have some old assemblies in your runtime directory." +
+                                                    " Try right-clicking your VS project, and selecting 'Clean'."
+                                                    );
+                
             }
         }
 
