@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Reflection;
 using NServiceBus.Saga;
 using Rhino.Mocks;
-using System.IO;
 
 namespace NServiceBus.Testing
 {
+    /// <summary>
+    /// Entry class used for unit testing sagas.
+    /// </summary>
     public static class Saga
     {
+        /// <summary>
+        /// Initializes the testing infrastructure.
+        /// </summary>
         public static void Initialize()
         {
             var mapper = new NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
@@ -113,6 +118,18 @@ namespace NServiceBus.Testing
             bus = b;
             this.messageCreator = messageCreator;
             messageTypes = types;
+        }
+
+        /// <summary>
+        /// Provides a way to set external dependencies on the saga under test.
+        /// </summary>
+        /// <param name="actionToSetUpExternalDependencies"></param>
+        /// <returns></returns>
+        public Saga<T> WithExternalDependencies(Action<T> actionToSetUpExternalDependencies)
+        {
+            actionToSetUpExternalDependencies(saga);
+
+            return this;
         }
 
         /// <summary>
