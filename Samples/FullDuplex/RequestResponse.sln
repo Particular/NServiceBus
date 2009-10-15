@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{9F8E556C-0AFA-4C5D-B64F-AE9376ABF145}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "MyClient\MyClient.csproj", "{9F8E556C-0AFA-4C5D-B64F-AE9376ABF145}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "MyServer\MyServer.csproj", "{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{20F613ED-C871-477C-B1E4-48B96CACF794}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "MyMessages\MyMessages.csproj", "{20F613ED-C871-477C-B1E4-48B96CACF794}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
