@@ -1,5 +1,5 @@
 using Common.Logging;
-using Messages;
+using MyMessages;
 using NServiceBus;
 
 namespace Subscriber1

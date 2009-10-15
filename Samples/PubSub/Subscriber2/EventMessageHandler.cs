@@ -1,4 +1,4 @@
-using Messages;
+using MyMessages;
 using NServiceBus;
 using Common.Logging;
 

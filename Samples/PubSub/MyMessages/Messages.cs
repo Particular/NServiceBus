@@ -1,7 +1,7 @@
 using NServiceBus;
 using System;
 
-namespace Messages
+namespace MyMessages
 {
     [Serializable]
     public class EventMessage : IEvent

@@ -70,9 +70,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Messages\Messages.csproj">
+    <ProjectReference Include="..\MyMessages\MyMessages.csproj">
       <Project>{5686FE6C-A5E3-40D1-A6BD-25F94DA612F8}</Project>
-      <Name>Messages %28Samples\PubSub\Messages%29</Name>
+      <Name>MyMessages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
