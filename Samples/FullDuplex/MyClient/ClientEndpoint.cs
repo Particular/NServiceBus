@@ -1,6 +1,6 @@
 using System;
 using NServiceBus;
-using Messages;
+using MyMessages;
 using NServiceBus.Host;
 
 namespace Client

@@ -1,5 +1,5 @@
 ﻿using System;
-using Messages;
+using MyMessages;
 using NServiceBus;
 
 namespace Client
