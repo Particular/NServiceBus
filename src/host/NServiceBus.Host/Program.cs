@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Common.Logging;
 using NServiceBus.Host.Internal;
 using Topshelf;
 using Topshelf.Configuration;
 using System.Configuration;
-using Topshelf.Internal.ArgumentParsing;
+using Topshelf.Internal;
 
 namespace NServiceBus.Host
 {
@@ -42,10 +40,6 @@ namespace NServiceBus.Host
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
             {
-                x.SetDisplayName(EndpointId);
-                x.SetServiceName(EndpointId);
-                x.SetDescription("NServiceBus Message Endpoint Host Service");
-
                 x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
                 {
                     c.ConfigurationFile(endpointConfigurationFile);
@@ -60,19 +54,27 @@ namespace NServiceBus.Host
                     x.DoNotStartAutomatically();
                 }
 
-                var parser = new ArgumentParser();
-                var arguments = parser.Parse(args);
-                var username = arguments.SingleOrDefault(argument => argument.Key == "username");
-                var password = arguments.SingleOrDefault(argument => argument.Key == "password");
+                Parser.Args arguments = Parser.ParseArgs(args);
+
+                var username = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "username");
+                var password = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "password");
 
                 if (username != null && password != null)
                 {
                     x.RunAs(username.Value, password.Value);
+
+                    //remove these arguments so they're not included in the service command line below
+                    arguments.CustomArguments = arguments.CustomArguments.Except(new[] {username, password});
                 }
                 else
                 {
                     x.RunAsLocalSystem();
                 }
+
+                x.SetDisplayName(EndpointId);
+                x.SetServiceName(EndpointId);
+                x.SetDescription("NServiceBus Message Endpoint Host Service");
+                x.SetServiceCommandLine(arguments.CustomArguments.AsCommandLine());
             });
 
             Runner.Host(cfg, args);
