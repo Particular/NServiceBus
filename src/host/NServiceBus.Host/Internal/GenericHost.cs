@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Common.Logging;
 
 namespace NServiceBus.Host.Internal
@@ -19,38 +18,50 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         public void Start()
         {
-            if (specifier is IWantCustomLogging)
-                (specifier as IWantCustomLogging).Init();
-            else
+            try
             {
-                var loggingConfigurer = profileManager.GetLoggingConfigurer();
-                loggingConfigurer.Configure(specifier);
+
+                if (specifier is IWantCustomLogging)
+                    (specifier as IWantCustomLogging).Init();
+                else
+                {
+                    var loggingConfigurer = profileManager.GetLoggingConfigurer();
+                    loggingConfigurer.Configure(specifier);
+                }
+
+                if (specifier is IWantCustomInitialization)
+                    (specifier as IWantCustomInitialization).Init();
+                else
+                    Configure.With().SpringBuilder().XmlSerializer();
+
+                if (Configure.Instance == null)
+                    throw new ConfigurationException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
+                if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+                    throw new ConfigurationException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
+
+                RoleManager.ConfigureBusForEndpoint(specifier);
+
+                configManager.ConfigureCustomInitAndStartup();
+
+                profileManager.ActivateProfileHandlers();
+
+                if (ConfigurationComplete != null)
+                    ConfigurationComplete(this, null);
+
+                var bus = Configure.Instance.Builder.Build<IStartableBus>();
+                if (bus != null)
+                    bus.Start();
+
+                configManager.Startup();
             }
+            catch (Exception ex)
+            {
+                //we log the error here in order to avoid issues with non serializable exceptions
+                //going across the appdomain back to topshelf
+                LogManager.GetLogger(typeof(GenericHost)).Fatal(ex);
 
-            if (specifier is IWantCustomInitialization)
-                (specifier as IWantCustomInitialization).Init();
-            else
-                NServiceBus.Configure.With().SpringBuilder().XmlSerializer();
-
-            if (Configure.Instance == null)
-                throw new ConfigurationException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
-            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
-                throw new ConfigurationException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
-
-            RoleManager.ConfigureBusForEndpoint(specifier);
-
-            configManager.ConfigureCustomInitAndStartup();
-
-            profileManager.ActivateProfileHandlers();
-          
-            if (ConfigurationComplete != null)
-                ConfigurationComplete(this, null);
-
-            var bus = Configure.Instance.Builder.Build<IStartableBus>();
-            if (bus != null)
-                bus.Start();
-
-            configManager.Startup();
+                throw new Exception("Exception when starting endpoint, error has been logged. Reason: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -73,7 +84,7 @@ namespace NServiceBus.Host.Internal
 
             Program.EndpointId = Program.GetEndpointId(specifier);
 
-		    var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
+            var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
             configManager = new ConfigManager(assembliesToScan, specifier);
@@ -82,6 +93,7 @@ namespace NServiceBus.Host.Internal
         private readonly IConfigureThisEndpoint specifier;
         private readonly ProfileManager profileManager;
         private readonly ConfigManager configManager;
+        private readonly ILog logger = LogManager.GetLogger(typeof(GenericHost));
 
     }
 }
