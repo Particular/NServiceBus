@@ -74,7 +74,7 @@ namespace NServiceBus
         {
 
             var fluentConfiguration = Fluently.Configure(new Configuration().SetProperties(nhibernateProperties))
-              .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Subscription>());
+              .Mappings(m => m.FluentMappings.Add(typeof(SubscriptionMap)));
 
             var cfg = fluentConfiguration.BuildConfiguration();
 
