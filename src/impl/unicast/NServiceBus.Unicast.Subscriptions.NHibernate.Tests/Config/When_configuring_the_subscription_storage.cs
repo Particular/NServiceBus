@@ -1,6 +1,4 @@
-using System.Configuration;
 using FluentNHibernate;
-using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -44,7 +42,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             subscriptionStorage.ShouldNotBeTheSameAs(config.Builder.Build<SubscriptionStorage>());
 
         }
-        
+
         [Test]
         public void Database_schema_should_be_updated_as_default()
         {

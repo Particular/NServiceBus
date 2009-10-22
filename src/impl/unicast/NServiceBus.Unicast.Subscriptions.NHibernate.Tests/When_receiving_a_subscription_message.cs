@@ -8,14 +8,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
     [TestFixture]
     public class When_receiving_a_subscription_message : InMemoryDBFixture
     {
-        private ISubscriptionStorage storage;
-        protected override void Before_each_test()
-        {
-            base.Before_each_test();
-
-            storage = new SubscriptionStorage(sessionSource);
-        }
-
         [Test]
         public void A_subscription_entry_should_be_added_to_the_database()
         {
@@ -29,26 +21,27 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                 transaction.Complete();
             }
 
-            var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
+            using (var session = sessionSource.CreateSession())
+            {
+                var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
 
-            Assert.AreEqual(subscriptions.Count, 2);
-
+                Assert.AreEqual(subscriptions.Count, 2);
+            }
         }
 
         [Test]
-        public void Duplicate_subcription_shouldnt_create_aditional_db_rows()
+        public void Duplicate_subcriptions_shouldnt_create_aditional_db_rows()
         {
 
-            using (var transaction = new TransactionScope())
+            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
+            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
+
+
+            using (var session = sessionSource.CreateSession())
             {
-                storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
-                storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
-
-                transaction.Complete();
+                var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
+                Assert.AreEqual(subscriptions.Count, 1);
             }
-            var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
-            Assert.AreEqual(subscriptions.Count, 1);
-
         }
     }
 }

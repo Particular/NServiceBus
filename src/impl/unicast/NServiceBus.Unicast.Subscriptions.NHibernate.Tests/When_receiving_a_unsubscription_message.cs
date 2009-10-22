@@ -5,16 +5,8 @@ using NUnit.Framework;
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
     [TestFixture]
-    public class When_receiving_a_unsubscription_message :InMemoryDBFixture
+    public class When_receiving_a_unsubscription_message : InMemoryDBFixture
     {
-        private ISubscriptionStorage storage;
-        protected override void Before_each_test()
-        {
-            base.Before_each_test();
-
-            storage = new SubscriptionStorage(sessionSource);
-        }
-      
         [Test]
         public void All_subscription_entries_for_specfied_message_types_should_be_removed()
         {
@@ -36,9 +28,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
             }
 
 
-            var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
-
-            Assert.AreEqual(subscriptions.Count, 0);
+            using (var session = sessionSource.CreateSession())
+            {
+                var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
+                Assert.AreEqual(subscriptions.Count, 0);
+            }
         }
     }
 }
