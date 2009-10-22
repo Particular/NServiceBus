@@ -22,7 +22,7 @@ namespace NServiceBus.Host.Internal.Logging
                 Layout = layout,
                 Threshold = level, 
                 CountDirection = 1,
-                DatePattern = "yyyy-mm-dd",
+                DatePattern = "yyyy-MM-dd",
                 RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
                 MaxFileSize = 1024*1024,
                 MaxSizeRollBackups = 10,
