@@ -13,18 +13,20 @@ namespace Server
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
             Console.WriteLine("Secret Question received: {0}.", message.SecretQuestion.Value);
-            Console.WriteLine("Header 'Test' = {0}.", Bus.CurrentMessageContext.Headers["Test"]);
+            Console.WriteLine("Header 'Test' = {0}.", message.GetHeader("Test"));
 
-            Bus.OutgoingHeaders["Test"] = Bus.CurrentMessageContext.Headers["Test"];
-            Bus.OutgoingHeaders["1"] = "1";
-            Bus.OutgoingHeaders["2"] = "2";
-
-            Bus.Reply<DataResponseMessage>(m => 
+            var response = Bus.CreateInstance<DataResponseMessage>(m => 
             { 
                 m.DataId = message.DataId;
                 m.String = message.String;
                 m.SecretAnswer = message.SecretQuestion;
             });
+
+            response.CopyHeaderFromRequest("Test");
+            response.SetHeader("1", "1");
+            response.SetHeader("2", "2");
+
+            Bus.Reply(response);
         }
     }
 }
