@@ -123,7 +123,9 @@ namespace NServiceBus.Unicast
             set 
             { 
                 messageMapper = value;
-                ExtensionMethods.MessageCreator = messageMapper;
+
+                ExtensionMethods.MessageCreator = value;
+                ExtensionMethods.Bus = this;
             }
 	    }
 
@@ -801,6 +803,8 @@ namespace NServiceBus.Unicast
 
             foreach (var toHandle in m.Body)
             {
+                ExtensionMethods.CurrentMessageBeingHandled = toHandle;
+
                 var canDispatch = true;
                 foreach (var condition in subscriptionsManager.GetConditionsForMessage(toHandle))
                 {
@@ -814,6 +818,8 @@ namespace NServiceBus.Unicast
                 if (canDispatch)
                     DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
             }
+
+            ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
 		/// <summary>
