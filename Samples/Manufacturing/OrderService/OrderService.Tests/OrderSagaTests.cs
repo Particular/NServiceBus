@@ -26,7 +26,7 @@ namespace OrderService.Tests
         [TestFixtureSetUp]
         public void Setup()
         {
-            Saga.Initialize();
+            Test.Initialize();
 
             partnerAddress = "partner";
             productId = Guid.NewGuid();
@@ -42,7 +42,7 @@ namespace OrderService.Tests
         {
             var sagaId = Guid.NewGuid();
 
-            Saga.Test<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
+            Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(Check)
@@ -60,7 +60,7 @@ namespace OrderService.Tests
             object state = null;
             var sagaId = Guid.NewGuid();
 
-            Saga.Test<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
+            Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(Check)
@@ -78,7 +78,7 @@ namespace OrderService.Tests
 
         private OrderMessage CreateRequest()
         {
-            return Saga.CreateInstance<OrderMessage>(m =>
+            return Test.CreateInstance<OrderMessage>(m =>
             {
                 m.PurchaseOrderNumber = purchaseOrderNumber;
                 m.PartnerId = partnerId;
@@ -92,14 +92,14 @@ namespace OrderService.Tests
         {
             var hrLines = new List<IOrderLine>
                               {
-                                  Saga.CreateInstance<IOrderLine>(m =>
+                                  Test.CreateInstance<IOrderLine>(m =>
                                   {
                                       m.ProductId = productId;
                                       m.Quantity = quantity;
                                   })
                               };
 
-            return Saga.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = sagaId; m.Success = true; m.OrderLines = hrLines; });
+            return Test.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = sagaId; m.Success = true; m.OrderLines = hrLines; });
         }
 
         private bool Check(OrderStatusChangedMessage m, OrderStatusEnum status)

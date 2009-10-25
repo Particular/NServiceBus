@@ -31,9 +31,15 @@ namespace NServiceBus
         public static string GetHeader(this IMessage msg, string key)
         {
             if (msg == CurrentMessageBeingHandled)
-                return Bus.CurrentMessageContext.Headers[key];
+                if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
+                    return Bus.CurrentMessageContext.Headers[key];
+                else
+                    return null;
 
-            return Bus.OutgoingHeaders[key];
+            if (Bus.OutgoingHeaders.ContainsKey(key))
+                return Bus.OutgoingHeaders[key];
+
+            return null;
         }
 
         /// <summary>
@@ -60,7 +66,8 @@ namespace NServiceBus
             if (msg == CurrentMessageBeingHandled)
                 throw new InvalidOperationException("This method is not supported on the request message.");
 
-            Bus.OutgoingHeaders[key] = Bus.CurrentMessageContext.Headers[key];
+            if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
+                Bus.OutgoingHeaders[key] = Bus.CurrentMessageContext.Headers[key];
         }
 
         /// <summary>

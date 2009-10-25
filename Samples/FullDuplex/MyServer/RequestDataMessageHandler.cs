@@ -2,7 +2,7 @@ using System;
 using MyMessages;
 using NServiceBus;
 
-namespace Server
+namespace MyServer
 {
     public class RequestDataMessageHandler : IHandleMessages<RequestDataMessage>
     {

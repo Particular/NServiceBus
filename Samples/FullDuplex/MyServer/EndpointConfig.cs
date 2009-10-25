@@ -1,7 +1,7 @@
 using NServiceBus;
 using NServiceBus.Host;
 
-namespace Server
+namespace MyServer
 {
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server {}
 
