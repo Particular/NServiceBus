@@ -81,21 +81,9 @@ namespace NServiceBus.Testing
             where TMessage : IMessage, new()
             where T : IMessageHandler<TMessage>, new()
         {
-            if (messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-
             var handler = (T)Activator.CreateInstance(typeof(T));
 
-            var mocks = new MockRepository();
-            var bus = mocks.DynamicMock<IBus>();
-
-            var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
-            if (prop != null)
-                prop.SetValue(handler, bus, null);
-
-            ExtensionMethods.Bus = bus;
-
-            return new Handler<T, TMessage>(handler, mocks, bus, messageCreator, messageTypes);
+            return Handler<T, TMessage>(handler);
         }
 
         /// <summary>
