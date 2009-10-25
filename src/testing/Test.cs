@@ -72,7 +72,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Begin the test script for a saga of type T while specifying the saga id.
+        /// Specify a test for a message handler of type T for a given message of type TMessage.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TMessage"></typeparam>
@@ -85,6 +85,32 @@ namespace NServiceBus.Testing
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             var handler = (T)Activator.CreateInstance(typeof(T));
+
+            var mocks = new MockRepository();
+            var bus = mocks.DynamicMock<IBus>();
+
+            var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
+            if (prop != null)
+                prop.SetValue(handler, bus, null);
+
+            ExtensionMethods.Bus = bus;
+
+            return new Handler<T, TMessage>(handler, mocks, bus, messageCreator, messageTypes);
+        }
+
+        /// <summary>
+        /// Specify a test for a message handler while supplying the instance to
+        /// test - useful if you use constructor-based dependency injection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <returns></returns>
+        public static Handler<T, TMessage> Handler<T, TMessage>(T handler)
+            where TMessage : IMessage, new()
+            where T : IMessageHandler<TMessage>, new()
+        {
+            if (messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             var mocks = new MockRepository();
             var bus = mocks.DynamicMock<IBus>();
