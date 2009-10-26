@@ -53,6 +53,7 @@ namespace NServiceBus.Host.Internal
                     bus.Start();
 
                 configManager.Startup();
+                wcfManager.Startup();
             }
             catch (Exception ex)
             {
@@ -70,6 +71,7 @@ namespace NServiceBus.Host.Internal
         public void Stop()
         {
             configManager.Shutdown();
+            wcfManager.Shutdown();
         }
 
         /// <summary>
@@ -88,11 +90,13 @@ namespace NServiceBus.Host.Internal
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
             configManager = new ConfigManager(assembliesToScan, specifier);
+            wcfManager = new WcfManager(assembliesToScan, specifier);
         }
 
         private readonly IConfigureThisEndpoint specifier;
         private readonly ProfileManager profileManager;
         private readonly ConfigManager configManager;
+        private readonly WcfManager wcfManager;
         private readonly ILog logger = LogManager.GetLogger(typeof(GenericHost));
 
     }

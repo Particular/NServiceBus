@@ -59,6 +59,9 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Topshelf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -91,6 +94,7 @@
     <Compile Include="Internal\ProfileHandlers\ProductionProfileHandler.cs" />
     <Compile Include="Internal\ProfileManager.cs" />
     <Compile Include="Internal\RoleManager.cs" />
+    <Compile Include="Internal\WcfManager.cs" />
     <Compile Include="IProfile.cs" />
     <Compile Include="ISpecify.cs" />
     <Compile Include="IWant.cs" />
