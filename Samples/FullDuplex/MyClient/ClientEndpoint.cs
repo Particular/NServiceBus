@@ -3,7 +3,7 @@ using NServiceBus;
 using MyMessages;
 using NServiceBus.Host;
 
-namespace Client
+namespace MyClient
 {
     public class ClientEndpoint : IWantToRunAtStartup
     {

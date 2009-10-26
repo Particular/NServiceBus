@@ -2,7 +2,7 @@
 using MyMessages;
 using NServiceBus;
 
-namespace Client
+namespace MyClient
 {
     class DataResponseMessageHandler : IHandleMessages<DataResponseMessage>
     {
