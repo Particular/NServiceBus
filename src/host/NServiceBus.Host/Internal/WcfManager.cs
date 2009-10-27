@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using Common.Logging;
 
-namespace NServiceBus.Host
+namespace NServiceBus.Host.Internal
 {
-    internal class WcfManager
+    public class WcfManager
     {
         private readonly List<Type> serviceTypes = new List<Type>();
         private readonly List<ServiceHost> hosts = new List<ServiceHost>();
+        private readonly IConfigureThisEndpoint specifier;
+
 
         public WcfManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
         {
+            this.specifier = specifier;
+
             foreach (var a in assembliesToScan)
                 foreach (var t in a.GetTypes())
                     if (IsWcfService(t) && !t.IsAbstract)
@@ -38,13 +43,21 @@ namespace NServiceBus.Host
 
         public void Startup()
         {
-            foreach(var t in serviceTypes)
+            foreach (var serviceType in serviceTypes)
             {
-                var h = new ServiceHost(t);
-                hosts.Add(h);
+                var host = new WcfServiceHost(serviceType);
 
-                logger.Debug("Going to host the WCF service: " + t.AssemblyQualifiedName);
-                h.Open();
+                Binding defaultBinding = GetDefaultBinding(specifier);
+               
+
+                host.AddDefaultEndpoint(   GetContractType(serviceType),
+                                        defaultBinding
+                                        ,"");
+
+                hosts.Add(host);
+
+                logger.Debug("Going to host the WCF service: " + serviceType.AssemblyQualifiedName);
+                host.Open();
             }
         }
 
@@ -53,6 +66,27 @@ namespace NServiceBus.Host
             hosts.ForEach(h => h.Close());
         }
 
+
+
+        private static Binding GetDefaultBinding(IConfigureThisEndpoint specifier)
+        {
+            if (specifier is ISpecifyDefaultWcfBinding)
+            {
+                return (specifier as ISpecifyDefaultWcfBinding).SpecifyBinding();
+            }
+
+            return new BasicHttpBinding();
+        }
+
+        private static Type GetContractType(Type t)
+        {
+            var args = t.BaseType.GetGenericArguments();
+
+            return typeof(IWcfService<,>).MakeGenericType(args);
+        }
+
+
+       
         private readonly ILog logger = LogManager.GetLogger(typeof(WcfManager));
     }
 }

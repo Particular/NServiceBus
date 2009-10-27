@@ -82,6 +82,7 @@
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
+    <Compile Include="ISpecifyDefaultWcfBinding.cs" />
     <Compile Include="Internal\Logging\IntegrationLoggingHandler.cs" />
     <Compile Include="Internal\Logging\LiteLoggingHandler.cs" />
     <Compile Include="Internal\Logging\ProductionLoggingHandler.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Internal\ProfileManager.cs" />
     <Compile Include="Internal\RoleManager.cs" />
     <Compile Include="Internal\WcfManager.cs" />
+    <Compile Include="Internal\WcfServiceHost.cs" />
     <Compile Include="IProfile.cs" />
     <Compile Include="ISpecify.cs" />
     <Compile Include="IWant.cs" />

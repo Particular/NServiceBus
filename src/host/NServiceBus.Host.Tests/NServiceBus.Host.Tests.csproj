@@ -60,6 +60,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\external-bin\sqlite\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -73,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerEndpointConfig.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="WcfManagerTests.cs" />
     <Compile Include="When_configuring_any_endpoint.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_publisher.cs" />
     <Compile Include="When_configuring_an_endpoint_as_a_server.cs" />
