@@ -82,7 +82,6 @@
     <Compile Include="Internal\GenericHost.cs" />
     <Compile Include="Internal\InMemorySagaPersister.cs" />
     <Compile Include="Internal\InMemorySubscriptionStorage.cs" />
-    <Compile Include="ISpecifyDefaultWcfBinding.cs" />
     <Compile Include="Internal\Logging\IntegrationLoggingHandler.cs" />
     <Compile Include="Internal\Logging\LiteLoggingHandler.cs" />
     <Compile Include="Internal\Logging\ProductionLoggingHandler.cs" />

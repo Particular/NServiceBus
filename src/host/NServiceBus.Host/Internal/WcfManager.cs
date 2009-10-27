@@ -47,11 +47,12 @@ namespace NServiceBus.Host.Internal
             {
                 var host = new WcfServiceHost(serviceType);
 
-                Binding defaultBinding = GetDefaultBinding(specifier);
-               
+                var binding = Configure.Instance.Builder.Build<Binding>();
+                if (binding == null)
+                    binding = new BasicHttpBinding();
 
                 host.AddDefaultEndpoint(   GetContractType(serviceType),
-                                        defaultBinding
+                                        binding
                                         ,"");
 
                 hosts.Add(host);
@@ -64,18 +65,6 @@ namespace NServiceBus.Host.Internal
         public void Shutdown()
         {
             hosts.ForEach(h => h.Close());
-        }
-
-
-
-        private static Binding GetDefaultBinding(IConfigureThisEndpoint specifier)
-        {
-            if (specifier is ISpecifyDefaultWcfBinding)
-            {
-                return (specifier as ISpecifyDefaultWcfBinding).SpecifyBinding();
-            }
-
-            return new BasicHttpBinding();
         }
 
         private static Type GetContractType(Type t)

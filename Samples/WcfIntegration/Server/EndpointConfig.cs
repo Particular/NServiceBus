@@ -1,16 +1,8 @@
-﻿using System.ServiceModel;
-using System.ServiceModel.Channels;
-using NServiceBus.Host;
+﻿using NServiceBus.Host;
 
 namespace Server
 {
-    internal class EndpointConfig : IConfigureThisEndpoint, 
-                                    ISpecifyDefaultWcfBinding,
-                                    AsA_Publisher
+    internal class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher
     {
-        public Binding SpecifyBinding()
-        {
-            return new BasicHttpBinding();
-        }
     }
 }
