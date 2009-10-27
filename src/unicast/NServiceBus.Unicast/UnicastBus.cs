@@ -622,6 +622,11 @@ namespace NServiceBus.Unicast
             return types;
         }
 
+        /// <summary>
+        /// Implementation of IStartableBus.Started event.
+        /// </summary>
+	    public event EventHandler Started;
+
         IBus IStartableBus.Start()
         {
             return (this as IStartableBus).Start(null);
@@ -683,6 +688,9 @@ namespace NServiceBus.Unicast
 
                 started = true;
             }
+
+            if (Started != null)
+                Started(this, null);
 
             return this;
         }

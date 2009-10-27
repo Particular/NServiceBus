@@ -19,5 +19,10 @@ namespace NServiceBus
         /// </summary>
         /// <returns></returns>
         IBus Start();
+
+        /// <summary>
+        /// Event raised when the bus is started.
+        /// </summary>
+        event EventHandler Started;
     }
 }
