@@ -8,8 +8,7 @@ namespace NServiceBus.Testing
     /// Message handler unit testing framework.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <typeparam name="K"></typeparam>
-    public class Handler<T, K>  where K : IMessage, new() where T : IMessageHandler<K>, new()
+    public class Handler<T>
     {
         private readonly Helper helper;
         private readonly T handler;
@@ -41,7 +40,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="actionToSetUpExternalDependencies"></param>
         /// <returns></returns>
-        public Handler<T, K> WithExternalDependencies(Action<T> actionToSetUpExternalDependencies)
+        public Handler<T> WithExternalDependencies(Action<T> actionToSetUpExternalDependencies)
         {
             actionToSetUpExternalDependencies(handler);
 
@@ -63,14 +62,20 @@ namespace NServiceBus.Testing
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Handler<T, K> SetIncomingHeader(string key, string value)
+        public Handler<T> SetIncomingHeader(string key, string value)
         {
             incomingHeaders[key] = value;
 
             return this;
         }
 
-        public Handler<T, K> AssertOutgoingHeader(string key, string value)
+        /// <summary>
+        /// Asserts that the given value is stored under the given key in the outgoing headers.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Handler<T> AssertOutgoingHeader(string key, string value)
         {
             assertions.Add(() =>
                                {
@@ -91,7 +96,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectSend<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSend<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
         {
             helper.ExpectSend(check);
             return this;
@@ -103,7 +108,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectReply<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectReply<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
         {
             helper.ExpectReply(check);
             return this;
@@ -116,7 +121,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
         {
             helper.ExpectSendLocal(check);
             return this;
@@ -127,7 +132,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectReturn(ReturnPredicate check)
+        public Handler<T> ExpectReturn(ReturnPredicate check)
         {
             helper.ExpectReturn(check);
             return this;
@@ -139,7 +144,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check) where TMessage : IMessage
         {
             helper.ExpectSendToDestination(check);
             return this;
@@ -151,7 +156,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T, K> ExpectPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
         {
             helper.ExpectPublish(check);
             return this;
@@ -161,7 +166,7 @@ namespace NServiceBus.Testing
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>
-        public void OnMessage(Action<K> initializeMessage)
+        public void OnMessage<TMessage>(Action<TMessage> initializeMessage) where TMessage : IMessage
         {
             OnMessage(initializeMessage, Guid.NewGuid().ToString("N"));
         }
@@ -172,14 +177,14 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="initializeMessage"></param>
         /// <param name="messageId"></param>
-        public void OnMessage(Action<K> initializeMessage, string messageId)
+        public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId) where TMessage : IMessage
         {
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
 
             var msg = messageCreator.CreateInstance(initializeMessage);
             ExtensionMethods.CurrentMessageBeingHandled = msg;
 
-            helper.Go(context, () => handler.Handle(msg));
+            helper.Go(context, () => handler.GetType().GetMethod("Handle",new[] { msg.GetType() }).Invoke(handler, new object[] { msg }));
             assertions.ForEach(a => a());
 
             assertions.Clear();

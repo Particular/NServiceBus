@@ -75,15 +75,12 @@ namespace NServiceBus.Testing
         /// Specify a test for a message handler of type T for a given message of type TMessage.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TMessage"></typeparam>
         /// <returns></returns>
-        public static Handler<T, TMessage> Handler<T, TMessage>()
-            where TMessage : IMessage, new()
-            where T : IMessageHandler<TMessage>, new()
+        public static Handler<T> Handler<T>() where T : new()
         {
             var handler = (T)Activator.CreateInstance(typeof(T));
 
-            return Handler<T, TMessage>(handler);
+            return Handler(handler);
         }
 
         /// <summary>
@@ -91,14 +88,23 @@ namespace NServiceBus.Testing
         /// test - useful if you use constructor-based dependency injection.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TMessage"></typeparam>
         /// <returns></returns>
-        public static Handler<T, TMessage> Handler<T, TMessage>(T handler)
-            where TMessage : IMessage, new()
-            where T : IMessageHandler<TMessage>, new()
+        public static Handler<T> Handler<T>(T handler)
         {
             if (messageCreator == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+
+            bool isHandler = false;
+            foreach(var i in handler.GetType().GetInterfaces())
+            {
+                var args = i.GetGenericArguments();
+                if (args.Length == 1)
+                    if (typeof(IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i))
+                        isHandler = true;
+            }
+
+            if (!isHandler)
+                throw new ArgumentException("The handler object given does not implement IMessageHandler<T> where T : IMessage.", "handler");
 
             var mocks = new MockRepository();
             var bus = mocks.DynamicMock<IBus>();
@@ -109,7 +115,7 @@ namespace NServiceBus.Testing
 
             ExtensionMethods.Bus = bus;
 
-            return new Handler<T, TMessage>(handler, mocks, bus, messageCreator, messageTypes);
+            return new Handler<T>(handler, mocks, bus, messageCreator, messageTypes);
         }
 
         /// <summary>

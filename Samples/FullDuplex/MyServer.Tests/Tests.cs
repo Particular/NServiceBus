@@ -18,11 +18,11 @@ namespace MyServer.Tests
             var str = "hello";
             WireEncryptedString secret = "secret";
 
-            Test.Handler<RequestDataMessageHandler, RequestDataMessage>()
+            Test.Handler<RequestDataMessageHandler>()
                 .SetIncomingHeader("Test", "abc")
                 .ExpectReply<DataResponseMessage>(m => m.DataId == dataId && m.String == str && m.SecretAnswer == secret)
                 .AssertOutgoingHeader("Test", "abc")
-                .OnMessage(m => { m.DataId = dataId; m.String = str; m.SecretQuestion = secret; });
+                .OnMessage<RequestDataMessage>(m => { m.DataId = dataId; m.String = str; m.SecretQuestion = secret; });
         }
     }
 }
