@@ -9,7 +9,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            PerformanceCounterInstallation.InstallConters();
+            PerformanceCounterInstallation.InstallCounters();
         }
     }
 }

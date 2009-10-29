@@ -6,7 +6,6 @@ namespace Runner
 {
     class Program
     {
-
         static void Main()
         {
             var props = new NameValueCollection();
@@ -27,7 +26,7 @@ namespace Runner
 
             DtcUtil.StartDtcIfNecessary();
 
-            PerformanceCounterInstallation.InstallConters();
+            PerformanceCounterInstallation.InstallCounters();
         }
     }
 }

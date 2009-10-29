@@ -28,8 +28,8 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         /// <param name="contractType"></param>
         /// <param name="binding"></param>
-        /// <param name="adress"></param>
-        public void AddDefaultEndpoint(Type contractType,Binding binding,string adress)
+        /// <param name="address"></param>
+        public void AddDefaultEndpoint(Type contractType,Binding binding,string address)
         {
             var serviceModel = ServiceModelSectionGroup.GetSectionGroup(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));
 
@@ -41,7 +41,7 @@ namespace NServiceBus.Host.Internal
                 {
                     foreach (ServiceEndpointElement endpoint in se.Endpoints)
                     {
-                        if (endpoint.Contract == contractType.FullName && endpoint.Address.OriginalString == adress)
+                        if (endpoint.Contract == contractType.FullName && endpoint.Address.OriginalString == address)
                             endpointAlreadyConfigured = true;
                     }
 
@@ -50,7 +50,7 @@ namespace NServiceBus.Host.Internal
             if (!endpointAlreadyConfigured)
             {
                 logger.Debug("Endpoint for contract: " + contractType.Name + " is not found in configuration, going to add it programatically");
-                AddServiceEndpoint(contractType, binding, adress);
+                AddServiceEndpoint(contractType, binding, address);
             }
                 
         }

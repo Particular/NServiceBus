@@ -11,7 +11,7 @@ namespace NServiceBus.Utils
         /// <summary>
         /// Starts the install
         /// </summary>
-        public static void InstallConters()
+        public static void InstallCounters()
         {
             Logger.Debug("Starting installation of PerformanceCounters ");
 
