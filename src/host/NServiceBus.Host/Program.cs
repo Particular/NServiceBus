@@ -49,11 +49,6 @@ namespace NServiceBus.Host
                     c.CreateServiceLocator(() => new HostServiceLocator());
                 });
 
-                if (!(endpointConfiguration is ISpecify.ToStartAutomatically))
-                {
-                    x.DoNotStartAutomatically();
-                }
-
                 Parser.Args arguments = Parser.ParseArgs(args);
 
                 var username = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "username");
@@ -166,7 +161,7 @@ namespace NServiceBus.Host
         {
             string endpointName = null;
 
-            var iHaveEndpointName = endpointConfiguration as ISpecify.EndpointName;
+            var iHaveEndpointName = endpointConfiguration as ISpecifyEndpointName;
             if (iHaveEndpointName != null)
             {
                 endpointName = iHaveEndpointName.EndpointName;

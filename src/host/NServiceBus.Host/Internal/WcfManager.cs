@@ -7,7 +7,7 @@ using Common.Logging;
 
 namespace NServiceBus.Host.Internal
 {
-    public class WcfManager
+    internal class WcfManager
     {
         private readonly List<Type> serviceTypes = new List<Type>();
         private readonly List<ServiceHost> hosts = new List<ServiceHost>();

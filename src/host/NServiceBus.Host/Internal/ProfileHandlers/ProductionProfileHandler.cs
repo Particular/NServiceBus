@@ -1,15 +1,10 @@
-﻿using System;
-
-namespace NServiceBus.Host.Internal.ProfileHandlers
+﻿namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    /// <summary>
-    /// Configures the infrastructure for the Production profile.
-    /// </summary>
-    public class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
+    internal class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            NServiceBus.Configure.Instance
+            Configure.Instance
                 .NHibernateSagaPersister();
 
             if (Config is AsA_Publisher)

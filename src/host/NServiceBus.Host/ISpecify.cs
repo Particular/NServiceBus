@@ -1,31 +1,15 @@
-﻿using System;
-
-namespace NServiceBus.Host
+﻿namespace NServiceBus.Host
 {
     /// <summary>
-    /// Container class for sub-specifications.
-    /// Implement the contained interfaces on the class which implements <see cref="IConfigureThisEndpoint"/>.
+    /// Specify the name of the endpoint that will be used as the name of the installed Windows Service
+    /// instead of the default name.
     /// </summary>
-    public class ISpecify
+    public interface ISpecifyEndpointName
     {
         /// <summary>
-        /// Specify the name of the endpoint that will be used as the name of the installed Windows Service
-        /// instead of the default name.
+        /// The name of the installed windows service.
         /// </summary>
-        public interface EndpointName
-        {
-            /// <summary>
-            /// The name of the installed windows service.
-            /// </summary>
-            string EndpointName { get; }
-        }
-
-		/// <summary>
-		/// Tell the topshelf framework to set services to start automatically
-		/// </summary>
-    	public interface ToStartAutomatically
-    	{
-    	}
+        string EndpointName { get; }
     }
 
     /// <summary>

@@ -1,18 +1,14 @@
-﻿using System;
-using NServiceBus.Config;
+﻿using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    /// <summary>
-    /// Configures the infrastructure for the Integration profile.
-    /// </summary>
-    public class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
+    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            NServiceBus.Configure.Instance
+            Configure.Instance
                 .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
             if (Config is AsA_Publisher)

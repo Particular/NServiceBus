@@ -2,10 +2,7 @@
 
 namespace NServiceBus.Host.Internal.ProfileHandlers
 {
-    /// <summary>
-    /// Configures the infrastructure for the Lite profile
-    /// </summary>
-    public class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
