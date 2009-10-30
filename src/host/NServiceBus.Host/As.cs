@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Host
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Indicates this endpoint is a server.

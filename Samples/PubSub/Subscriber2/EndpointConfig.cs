@@ -1,6 +1,4 @@
-﻿using System;
-using NServiceBus.Host;
-using NServiceBus;
+﻿using NServiceBus;
 
 namespace Subscriber2
 {

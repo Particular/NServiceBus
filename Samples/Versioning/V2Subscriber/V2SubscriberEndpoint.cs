@@ -1,4 +1,4 @@
-using NServiceBus.Host;
+using NServiceBus;
 
 namespace V2Subscriber
 {

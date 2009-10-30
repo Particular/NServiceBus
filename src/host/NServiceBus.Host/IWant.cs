@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Host
+﻿namespace NServiceBus
 {
     /// <summary>
     /// If you want to specify your own container or serializer,

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Host
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Specify the name of the endpoint that will be used as the name of the installed Windows Service

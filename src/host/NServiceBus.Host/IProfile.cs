@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Host
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Marker interface to indicate a run-time profile.

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Host
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Called in order to configure logging.

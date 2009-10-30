@@ -1,6 +1,6 @@
 ﻿using NServiceBus.Unicast.Config;
 
-namespace NServiceBus.Host
+namespace NServiceBus
 {
     /// <summary>
     /// Used to specify the order in which message handlers will be activated.
