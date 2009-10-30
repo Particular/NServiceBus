@@ -70,6 +70,7 @@ namespace NServiceBus.Host
                 x.SetServiceName(EndpointId);
                 x.SetDescription("NServiceBus Message Endpoint Host Service");
                 x.SetServiceCommandLine(arguments.CustomArguments.AsCommandLine());
+                x.DependencyOnMsmq();
             });
 
             Runner.Host(cfg, args);
