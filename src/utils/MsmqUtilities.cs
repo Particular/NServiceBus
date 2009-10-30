@@ -12,12 +12,8 @@ namespace NServiceBus.Utils
     public class MsmqUtilities
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
-        private static readonly string LocalAdministratorsGroupName;
-
-        static MsmqUtilities()
-        {
-            LocalAdministratorsGroupName = new SecurityIdentifier("S-1-5-32-544").Translate(typeof(NTAccount)).ToString();
-        }
+        private static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
+        private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
 
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
@@ -64,6 +60,7 @@ namespace NServiceBus.Utils
             var createdQueue = MessageQueue.Create(queueName, true);
 
             createdQueue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+            createdQueue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
 
             Logger.Debug("Queue created: " + queueName);
         }
