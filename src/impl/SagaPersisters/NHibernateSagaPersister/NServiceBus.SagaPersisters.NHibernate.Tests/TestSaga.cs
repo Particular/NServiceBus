@@ -47,6 +47,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     {
         public virtual Guid Id { get; set; }
 
+
+        public virtual TestSaga ParentSaga { get; set; }
     }
 
    public class TestSagaWithHbmlXmlOverride:ISagaEntity
