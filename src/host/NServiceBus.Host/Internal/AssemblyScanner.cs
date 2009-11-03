@@ -17,7 +17,7 @@ namespace NServiceBus.Host.Internal
         /// Gets a list with assemblies that can be scanned
         /// </summary>
         /// <returns></returns>
-        //[DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
+        [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         public static IEnumerable<Assembly> GetScannableAssemblies()
         {
             ILog logger = LogManager.GetLogger(typeof(AssemblyScanner));
