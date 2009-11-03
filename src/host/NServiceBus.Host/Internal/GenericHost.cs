@@ -97,7 +97,5 @@ namespace NServiceBus.Host.Internal
         private readonly ProfileManager profileManager;
         private readonly ConfigManager configManager;
         private readonly WcfManager wcfManager;
-        private readonly ILog logger = LogManager.GetLogger(typeof(GenericHost));
-
     }
 }

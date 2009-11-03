@@ -20,60 +20,69 @@ namespace NServiceBus.Host
         private static void Main(string[] args)
         {
             InitializeLogging();
-
-            Type endpointConfigurationType = GetEndpointConfigurationType();
-
-            AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
-
-            string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
-
-            if (!File.Exists(endpointConfigurationFile))
+            try
             {
-                throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
-            }
+                Type endpointConfigurationType = GetEndpointConfigurationType();
 
-            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+                AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
 
-            EndpointId = GetEndpointId(endpointConfiguration);
+                string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-            AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
-
-            IRunConfiguration cfg = RunnerConfigurator.New(x =>
-            {
-                x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                if (!File.Exists(endpointConfigurationFile))
                 {
-                    c.ConfigurationFile(endpointConfigurationFile);
-                    c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
-                    c.WhenStarted(service => service.Start());
-                    c.WhenStopped(service => service.Stop());
-                    c.CreateServiceLocator(() => new HostServiceLocator());
+                    throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
+                }
+
+                var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+
+                EndpointId = GetEndpointId(endpointConfiguration);
+
+                AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
+
+                IRunConfiguration cfg = RunnerConfigurator.New(x =>
+                {
+                    x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                    {
+                        c.ConfigurationFile(endpointConfigurationFile);
+                        c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
+                        c.WhenStarted(service => service.Start());
+                        c.WhenStopped(service => service.Stop());
+                        c.CreateServiceLocator(() => new HostServiceLocator());
+                    });
+
+                    Parser.Args arguments = Parser.ParseArgs(args);
+
+                    var username = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "username");
+                    var password = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "password");
+
+                    if (username != null && password != null)
+                    {
+                        x.RunAs(username.Value, password.Value);
+
+                        //remove these arguments so they're not included in the service command line below
+                        arguments.CustomArguments = arguments.CustomArguments.Except(new[] { username, password });
+                    }
+                    else
+                    {
+                        x.RunAsLocalSystem();
+                    }
+
+                    x.SetDisplayName(EndpointId);
+                    x.SetServiceName(EndpointId);
+                    x.SetDescription("NServiceBus Message Endpoint Host Service");
+                    x.SetServiceCommandLine(arguments.CustomArguments.AsCommandLine());
+                    x.DependencyOnMsmq();
                 });
 
-                Parser.Args arguments = Parser.ParseArgs(args);
+                Runner.Host(cfg, args);
 
-                var username = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "username");
-                var password = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "password");
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(typeof(Program)).Fatal(ex);
+                throw;
+            }
 
-                if (username != null && password != null)
-                {
-                    x.RunAs(username.Value, password.Value);
-
-                    //remove these arguments so they're not included in the service command line below
-                    arguments.CustomArguments = arguments.CustomArguments.Except(new[] {username, password});
-                }
-                else
-                {
-                    x.RunAsLocalSystem();
-                }
-
-                x.SetDisplayName(EndpointId);
-                x.SetServiceName(EndpointId);
-                x.SetDescription("NServiceBus Message Endpoint Host Service");
-                x.SetServiceCommandLine(arguments.CustomArguments.AsCommandLine());
-                x.DependencyOnMsmq();
-            });
-
-            Runner.Host(cfg, args);
         }
 
         /// <summary>
@@ -140,7 +149,7 @@ namespace NServiceBus.Host
             {
                 throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. " +
                     "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint." +
-                    " Please enable Trace in NServiceBus.Host.exe.config to debug loader exceptions, " +
+                    " Loader exceptions are logged to the hostlogfile in the current working directory, " +
                     "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
@@ -154,7 +163,7 @@ namespace NServiceBus.Host
                                                     " You may have some old assemblies in your runtime directory." +
                                                     " Try right-clicking your VS project, and selecting 'Clean'."
                                                     );
-                
+
             }
         }
 
