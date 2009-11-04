@@ -2,5 +2,5 @@
 
 namespace V2Publisher
 {
-    class EndpointConfig : AsA_Publisher { }
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher { }
 }
