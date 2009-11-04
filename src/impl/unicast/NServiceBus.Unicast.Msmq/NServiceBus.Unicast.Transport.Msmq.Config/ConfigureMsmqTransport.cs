@@ -1,4 +1,5 @@
 ﻿using NServiceBus.Unicast.Transport.Msmq.Config;
+using NServiceBus.Unicast.Queueing.Msmq.Config;
 
 namespace NServiceBus
 {
@@ -14,6 +15,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigMsmqTransport MsmqTransport(this Configure config)
         {
+            config.MsmqMessageQueue();
+
             var cfg = new ConfigMsmqTransport();
             cfg.Configure(config);
 

@@ -45,6 +45,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queueing.Msmq.Config, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Msmq.Config.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.Msmq, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>

@@ -45,9 +45,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             {
                 var m = queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
 
-                var failedQueue = MsmqTransport.GetFailedQueue(m);
+                var failedQueue = MsmqTransport.GetFailedQueue(m.Label);
 
-                m.Label = MsmqTransport.GetLabelWithoutFailedQueue(m);
+                m.Label = MsmqTransport.GetLabelWithoutFailedQueue(m.Label);
 
                 using (var q = new MessageQueue(failedQueue))
                 {

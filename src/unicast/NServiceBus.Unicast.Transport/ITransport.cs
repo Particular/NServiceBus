@@ -42,12 +42,6 @@ namespace NServiceBus.Unicast.Transport
 		/// <param name="m">The message to process later.</param>
         void ReceiveMessageLater(TransportMessage m);
 
-        /// <summary>
-        /// Access the underlying technology to get the number of unhandled messages.
-        /// </summary>
-        /// <returns>The number of pending messages.</returns>
-	    int GetNumberOfPendingMessages();
-
 		/// <summary>
 		/// Gets the address at which the transport receives messages.
 		/// </summary>

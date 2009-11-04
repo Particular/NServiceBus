@@ -179,6 +179,23 @@ namespace NServiceBus.Utils
             }
         }
 
+        /// <summary>
+        /// Returns the number of messages in the queue.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetNumberOfPendingMessages(string queueName)
+        {
+            var q = new MessageQueue(GetFullPath(queueName));
+
+            var qMgmt = new MSMQ.MSMQManagementClass();
+            object machine = Environment.MachineName;
+            var missing = Type.Missing;
+            object formatName = q.FormatName;
+
+            qMgmt.Init(ref machine, ref missing, ref formatName);
+            return qMgmt.MessageCount;
+        }
+
         private const string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;

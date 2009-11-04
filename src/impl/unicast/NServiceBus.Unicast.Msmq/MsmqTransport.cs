@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Messaging;
 using System.Threading;
 using System.Transactions;
 using Common.Logging;
 using NServiceBus.Serialization;
 using System.Xml.Serialization;
 using System.IO;
-using NServiceBus.Utils;
 using System.Diagnostics;
+using NServiceBus.Unicast.Queuing;
+using NServiceBus.Utils;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -106,6 +106,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Sets the object which will be used to serialize and deserialize messages.
         /// </summary>
         public IMessageSerializer MessageSerializer { get; set; }
+
+        /// <summary>
+        /// Sets the object which will be used for sending and receiving messages.
+        /// </summary>
+        public IMessageQueue MessageQueue { get; set; }
 
         #endregion
 
@@ -209,17 +214,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
             CheckConfiguration();
             CreateQueuesIfNecessary();
 
-            if (ErrorQueue != null)
-                errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue));
+            MessageQueue.Init(InputQueue, PurgeOnStartup, SecondsToWaitForMessage);
 
             if (!string.IsNullOrEmpty(InputQueue))
             {
-                var q = new MessageQueue(MsmqUtilities.GetFullPath(InputQueue));
-                SetLocalQueue(q);
-
-                if (PurgeOnStartup)
-                    queue.Purge();
-
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
             }
@@ -227,14 +225,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private void CheckConfiguration()
         {
-            if (string.IsNullOrEmpty(InputQueue))
-                return;
-
-            var machine = MsmqUtilities.GetMachineNameFromLogicalName(InputQueue);
-
-            if (machine.ToLower() != Environment.MachineName.ToLower())
-                throw new InvalidOperationException("Input queue must be on the same machine as this process.");
-
             if (MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
@@ -243,8 +233,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             if (!DoNotCreateQueues)
             {
-                MsmqUtilities.CreateQueueIfNecessary(InputQueue);
-                MsmqUtilities.CreateQueueIfNecessary(ErrorQueue);
+                MessageQueue.CreateQueue(InputQueue);
+                MessageQueue.CreateQueue(ErrorQueue);
             }
         }
 
@@ -269,75 +259,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
-            var address = MsmqUtilities.GetFullPath(destination);
+		    var toSend = Convert(m);
 
-            using (var q = new MessageQueue(address, QueueAccessMode.Send))
+            try
             {
-                var toSend = new Message();
-
-                if (m.Body == null && m.BodyStream != null)
-                    toSend.BodyStream = m.BodyStream;
-                else
-                    MessageSerializer.Serialize(m.Body, toSend.BodyStream);
-
-                if (m.CorrelationId != null)
-                    toSend.CorrelationId = m.CorrelationId;
-
-                toSend.Recoverable = m.Recoverable;
-
-                if (!string.IsNullOrEmpty(m.ReturnAddress))
-                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(m.ReturnAddress));
-
-                FillLabel(toSend, m);
-
-                if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
-                    toSend.TimeToBeReceived = m.TimeToBeReceived;
-
-                if (m.Headers != null && m.Headers.Count > 0)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        headerSerializer.Serialize(stream, m.Headers);
-                        toSend.Extension = stream.GetBuffer();
-                    }
-                }
-
-                toSend.AppSpecific = (int) m.MessageIntent;
-
-                try
-                {
-                    q.Send(toSend, GetTransactionTypeForSend());
-                }
-                catch(MessageQueueException ex)
-                {
-                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                        throw new ConfigurationException("The destination queue '" + destination +
-                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                         m.Body[0].GetType().FullName +
-                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
-                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                                                        , ex);
-
-                    throw;
-                }
-
-                m.Id = toSend.Id;
+                MessageQueue.Send(toSend, destination, IsTransactional);
             }
-        }
+            catch(QueueNotFoundException ex)
+            {
+                throw new ConfigurationException("The destination queue '" + destination +
+                                                     "' could not be found. You may have misconfigured the destination for this kind of message (" +
+                                                     m.Body[0].GetType().FullName +
+                                                     ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
+                                                     "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
+                                                    , ex);
+            }
 
-        /// <summary>
-        /// Returns the number of messages in the queue.
-        /// </summary>
-        /// <returns></returns>
-        public int GetNumberOfPendingMessages()
-        {
-            var qMgmt = new MSMQ.MSMQManagementClass();
-            object machine = Environment.MachineName;
-            var missing = Type.Missing;
-            object formatName = queue.FormatName;
-
-            qMgmt.Init(ref machine, ref missing, ref formatName);
-            return qMgmt.MessageCount;
+            m.Id = toSend.Id;
         }
 
         #endregion
@@ -373,7 +311,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         private void Process()
         {
-            if (!MessageInQueue())
+		    var message = Peek();
+            if (message == null)
                 return;
 
 		    _needToAbort = false;
@@ -382,9 +321,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
             try
             {
                 if (IsTransactional)
-                    new TransactionWrapper().RunInTransaction(ReceiveFromQueue, IsolationLevel, TransactionTimeout);
+                    new TransactionWrapper().RunInTransaction(() => ProcessMessage(message), IsolationLevel, TransactionTimeout);
                 else
-                    ReceiveFromQueue();
+                    ProcessMessage(message);
 
                 ClearFailuresForMessage(_messageId);
             }
@@ -408,11 +347,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <remarks>
 		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
 		/// </remarks>
-        public void ReceiveFromQueue()
+        public void ProcessMessage(QueuedMessage m)
         {
-            var m = ReceiveMessageFromQueueAfterPeekWasSuccessful();
-            if (m == null)
-                return;
+	        RemoveQueuedMessage(m.Id);
 
             _messageId = m.Id;
 
@@ -514,57 +451,40 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    }
 
 	    [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private bool MessageInQueue()
+        private QueuedMessage Peek()
         {
             try
             {
-                queue.Peek(TimeSpan.FromSeconds(SecondsToWaitForMessage));
-                return true;
-            }
-            catch (MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return false;
-
-                Logger.Error("Problem in peeking a message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
-                return false;
+                return MessageQueue.Peek();
             }
             catch (ObjectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                return false;
+                return null;
             }
             catch (Exception e)
             {
                 Logger.Error("Error in peeking a message from queue.", e);
-                return false;
+                return null;
             }
         }
 
         [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private Message ReceiveMessageFromQueueAfterPeekWasSuccessful()
+        private void RemoveQueuedMessage(string id)
         {
             try
             {
-                return queue.Receive(TimeSpan.FromSeconds(SecondsToWaitForMessage), GetTransactionTypeForReceive());
-            }
-            catch(MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return null;
-
-                Logger.Error("Problem in receiving message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
-                return null;
+                MessageQueue.RemoveQueuedMessage(id, IsTransactional);
             }
             catch (ObjectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                return null;
+                return;
             }
             catch(Exception e)
             {
                 Logger.Error("Error in receiving message from queue.", e);
-                return null;
+                return;
             }
         }
 
@@ -572,13 +492,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Moves the given message to the configured error queue.
         /// </summary>
         /// <param name="m"></param>
-	    protected void MoveToErrorQueue(Message m)
+	    protected void MoveToErrorQueue(QueuedMessage m)
 	    {
             m.Label = m.Label +
-                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue));
+                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, InputQueue);
 
-	        if (errorQueue != null)
-                errorQueue.Send(m, MessageQueueTransactionType.Single);
+	        if (ErrorQueue != null)
+	            MessageQueue.Send(m, ErrorQueue, false);
 	    }
 
         /// <summary>
@@ -590,11 +510,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
 		/// <summary>
-		/// Converts an MSMQ <see cref="Message"/> into an NServiceBus message.
+        /// Converts a <see cref="QueuedMessage"/> into an NServiceBus message.
 		/// </summary>
-		/// <param name="m">The MSMQ message to convert.</param>
+        /// <param name="m">The QueuedMessage to convert.</param>
 		/// <returns>An NServiceBus message.</returns>
-        public TransportMessage Convert(Message m)
+        public TransportMessage Convert(QueuedMessage m)
         {
 		    var result = new TransportMessage
 		                     {
@@ -605,8 +525,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		                                  : m.CorrelationId),
 		                         Recoverable = m.Recoverable,
 		                         TimeToBeReceived = m.TimeToBeReceived,
-                                 TimeSent = m.SentTime,
-                                 ReturnAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
+                                 TimeSent = m.TimeSent,
+                                 ReturnAddress = m.ResponseQueue,
 		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
 
@@ -615,7 +535,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (string.IsNullOrEmpty(result.IdForCorrelation))
                 result.IdForCorrelation = result.Id;
 
-            if (m.Extension.Length > 0)
+            if (m.Extension != null && m.Extension.Length > 0)
             {
                 var stream = new MemoryStream(m.Extension);
                 var o = headerSerializer.Deserialize(stream);
@@ -630,46 +550,83 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
         /// <summary>
+        /// Converts the given message to its QueuedMessage equivalent.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public QueuedMessage Convert(TransportMessage message)
+        {
+            var result = new QueuedMessage
+                             {
+                                 AppSpecific = (int)message.MessageIntent,
+                                 CorrelationId = message.CorrelationId,
+                                 Label = GetLabel(message),
+                                 Recoverable = message.Recoverable,
+                                 ResponseQueue = message.ReturnAddress,
+                                 TimeToBeReceived = message.TimeToBeReceived
+                             };
+
+            if (message.Body == null && message.BodyStream != null)
+                result.BodyStream = message.BodyStream;
+            else
+            {
+                result.BodyStream = new MemoryStream();
+                MessageSerializer.Serialize(message.Body, result.BodyStream);
+            }
+
+            if (message.Headers != null && message.Headers.Count > 0)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    headerSerializer.Serialize(stream, message.Headers);
+                    result.Extension = stream.GetBuffer();
+                }
+            }
+
+            return result;
+        }
+        
+        /// <summary>
         /// Returns the queue whose process failed processing the given message
         /// by accessing the label of the message.
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="label"></param>
         /// <returns></returns>
-        public static string GetFailedQueue(Message m)
+        public static string GetFailedQueue(string label)
         {
-            if (m.Label == null)
+            if (label == null)
                 return null;
 
-            if (!m.Label.Contains(FAILEDQUEUE))
+            if (!label.Contains(FAILEDQUEUE))
                 return null;
 
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
-            var count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
+            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
+            var count = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
 
-            return MsmqUtilities.GetFullPath(m.Label.Substring(startIndex, count));
+            return label.Substring(startIndex, count);
         }
 
         /// <summary>
         /// Gets the label of the message stripping out the failed queue.
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="label"></param>
         /// <returns></returns>
-        public static string GetLabelWithoutFailedQueue(Message m)
+        public static string GetLabelWithoutFailedQueue(string label)
         {
-            if (m.Label == null)
+            if (label == null)
                 return null;
 
-            if (!m.Label.Contains(FAILEDQUEUE))
-                return m.Label;
+            if (!label.Contains(FAILEDQUEUE))
+                return label;
 
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
-            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
+            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
+            var endIndex = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
             endIndex += FAILEDQUEUE.Length + 3;
 
-            return m.Label.Remove(startIndex, endIndex - startIndex);
+            return label.Remove(startIndex, endIndex - startIndex);
         }
 
-        private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, Message m)
+        private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, QueuedMessage m)
         {
             if (m.Label == null)
                 return;
@@ -691,67 +648,19 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-        private static void FillLabel(Message toSend, TransportMessage m)
+        private static string GetLabel(TransportMessage m)
         {
-            toSend.Label = string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>",IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
+            return string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>",IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
         }
 
         /// <summary>
-        /// Extracts the messages from an MSMQ <see cref="Message"/>.
+        /// Extracts the messages from a <see cref="QueuedMessage"/>.
         /// </summary>
-        /// <param name="message">The MSMQ message to extract from.</param>
+        /// <param name="message">The message to extract from.</param>
         /// <returns>An array of handleable messages.</returns>
-        private IMessage[] Extract(Message message)
+        private IMessage[] Extract(QueuedMessage message)
         {
             return MessageSerializer.Deserialize(message.BodyStream);
-        }
-
-		/// <summary>
-		/// Gets the transaction type to use when receiving a message from the queue.
-		/// </summary>
-		/// <returns>The transaction type to use.</returns>
-        private MessageQueueTransactionType GetTransactionTypeForReceive()
-		{
-		    return IsTransactional ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
-		}
-
-	    /// <summary>
-		/// Gets the transaction type to use when sending a message.
-		/// </summary>
-		/// <returns>The transaction type to use.</returns>
-        private MessageQueueTransactionType GetTransactionTypeForSend()
-	    {
-	        if (IsTransactional)
-	            return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
-
-	        return MessageQueueTransactionType.Single;
-	    }
-
-	    /// <summary>
-		/// Sets the queue on the transport to the specified MSMQ queue.
-		/// </summary>
-		/// <param name="q">The MSMQ queue to set.</param>
-        private void SetLocalQueue(MessageQueue q)
-        {
-            bool transactional;
-            try
-            {
-                transactional = q.Transactional;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(string.Format("There is a problem with the input queue given: {0}. See the enclosed exception for details.", q.Path), ex);
-            }
-
-            if (!transactional)
-                throw new ArgumentException("Queue must be transactional (" + q.Path + ").");
-	        
-            queue = q;
-
-	        var mpf = new MessagePropertyFilter();
-            mpf.SetAll();
-
-            queue.MessageReadPropertyFilter = mpf;
         }
 
         private bool OnFinishedMessageProcessing()
@@ -810,8 +719,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
 	    private static readonly string FAILEDQUEUE = "FailedQ";
 
-        private MessageQueue queue;
-        private MessageQueue errorQueue;
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
@@ -833,15 +740,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
         #region IDisposable Members
 
 		/// <summary>
-		/// Stops all worker threads and disposes the MSMQ queue.
+		/// Stops all worker threads.
 		/// </summary>
         public void Dispose()
         {
             lock (workerThreads)
                 for (var i = 0; i < workerThreads.Count; i++)
                     workerThreads[i].Stop();
-
-            queue.Dispose();
         }
 
         #endregion
