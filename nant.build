@@ -525,7 +525,7 @@
 		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
-		<zip zipfile="${artifacts.dir}\NServiceBus.Trunk.${project.fullversion}.zip" includeemptydirs="false" >
+		<zip zipfile="${artifacts.dir}\NServiceBus.${project.fullversion}.zip" includeemptydirs="false" >
 			<fileset basedir="${release.dir}">
 				<include name="**"/>
 			</fileset>
