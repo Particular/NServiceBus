@@ -469,7 +469,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             failuresPerMessageLocker.EnterReadLock();
 
             if (failuresPerMessage.ContainsKey(messageId) &&
-                   (failuresPerMessage[messageId] == maxRetries))
+                   (failuresPerMessage[messageId] >= maxRetries))
             {
                 failuresPerMessageLocker.ExitReadLock();
                 failuresPerMessageLocker.EnterWriteLock();
