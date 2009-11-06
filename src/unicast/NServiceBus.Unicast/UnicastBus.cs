@@ -12,6 +12,7 @@ using NServiceBus.ObjectBuilder;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 using System.Text;
+using System.Linq;
 
 namespace NServiceBus.Unicast
 {
@@ -1251,14 +1252,42 @@ namespace NServiceBus.Unicast
                 if (recoverableMessageTypes.Contains(message.GetType()))
                     result.Recoverable = true;
 
-                if (timeToBeReceivedPerMessageType.ContainsKey(message.GetType()))
-                {
-                    var span = timeToBeReceivedPerMessageType[message.GetType()];
-                    timeToBeReceived = (span < timeToBeReceived ? span : timeToBeReceived);
-                }
+                var span = GetTimeToBeReceivedForMessageType(message.GetType());
+                timeToBeReceived = (span < timeToBeReceived ? span : timeToBeReceived);
             }
 
             result.TimeToBeReceived = timeToBeReceived;
+
+            return result;
+        }
+
+        private TimeSpan GetTimeToBeReceivedForMessageType(Type messageType)
+        {
+            var result = TimeSpan.MaxValue;
+
+            timeToBeReceivedPerMessageTypeLocker.EnterReadLock();
+            if (timeToBeReceivedPerMessageType.ContainsKey(messageType))
+            {
+                result = timeToBeReceivedPerMessageType[messageType];
+                timeToBeReceivedPerMessageTypeLocker.ExitReadLock();
+                return result;
+            }
+
+            var options = new List<TimeSpan>();
+            foreach(var interfaceType in messageType.GetInterfaces())
+            {
+                if (timeToBeReceivedPerMessageType.ContainsKey(interfaceType))
+                    options.Add(timeToBeReceivedPerMessageType[interfaceType]);
+            }
+
+            timeToBeReceivedPerMessageTypeLocker.ExitReadLock();
+
+            if (options.Count > 0)
+                result = options.Min();
+
+            timeToBeReceivedPerMessageTypeLocker.EnterWriteLock();
+            timeToBeReceivedPerMessageType[messageType] = result;
+            timeToBeReceivedPerMessageTypeLocker.ExitWriteLock();
 
             return result;
         }
@@ -1430,7 +1459,9 @@ namespace NServiceBus.Unicast
         private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
         private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 	    private readonly IList<Type> recoverableMessageTypes = new List<Type>();
-	    private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
+	    
+        private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
+        private readonly ReaderWriterLockSlim timeToBeReceivedPerMessageTypeLocker = new ReaderWriterLockSlim();
 
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
