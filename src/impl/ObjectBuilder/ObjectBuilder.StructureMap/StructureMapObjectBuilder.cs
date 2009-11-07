@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common.Logging;
 using StructureMap;
 using StructureMap.Attributes;
 using StructureMap.Graph;
-using StructureMap.Interceptors;
 using StructureMap.Pipeline;
 using IContainer = StructureMap.IContainer;
 
 namespace NServiceBus.ObjectBuilder.StructureMap
 {
+    /// <summary>
+    /// ObjectBuilder implementation for the StructureMap IoC-Container
+    /// </summary>
     public class StructureMapObjectBuilder : Common.IContainer
     {
         private readonly IContainer container;
@@ -26,19 +27,33 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             this.container = container;
         }
 
-
+        /// <summary>
+        /// Gets the requested type, null is returned if type is not configured
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <returns></returns>
         object Common.IContainer.Build(Type typeToBuild)
         {
             return container.TryGetInstance(typeToBuild);
 
         }
 
+        /// <summary>
+        /// Returns all instances of the given type
+        /// </summary>
+        /// <param name="typeToBuild"></param>
+        /// <returns></returns>
         IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)
         {
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
-
+        /// <summary>
+        /// Configures a property value for the given type
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
         void Common.IContainer.ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)
@@ -46,10 +61,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 return;
             }
 
-
-            LogManager.GetLogger("ObjectBuilder").Debug("Configuring property for " + component.Name +
-                                                                ", propertyName: " + property +
-                                                                " withvalue: " + value);
             lock (configuredInstances)
             {
                 ConfiguredInstance configuredInstance;
@@ -62,10 +73,14 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                     configuredInstance.WithProperty(property).EqualTo(value);
                 else
                     configuredInstance.Child(property).Is(value);
-
             }
         }
 
+        /// <summary>
+        /// Registers the given type in the conitainer
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="callModel"></param>
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             var scope = GetInstanceScopeFrom(callModel);
@@ -78,22 +93,23 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                      .CacheBy(scope)
                      .TheDefaultIsConcreteType(component);
 
-                foreach (var serviceType in GetAllInterfacesImplementedBy(component))
+                foreach (var implementedInterface in GetAllInterfacesImplementedBy(component))
                 {
-                    x.ForRequestedType(serviceType)
-                        .TheDefaultIsConcreteType(component)
-                        .Interceptor = new RedirectToConcreteTypeInterceptor(component, container);
+                    x.RegisterAdditionalInterfaceForPluginType(implementedInterface, component);
 
-                    PluginCache.AddFilledType(serviceType);
+                    x.EnableSetterInjectionFor(implementedInterface);
                 }
-
-
             });
 
             lock (configuredInstances)
                 configuredInstances.Add(component, configuredInstance);
         }
 
+        /// <summary>
+        /// Registers the given object as a singletion in the container
+        /// </summary>
+        /// <param name="lookupType"></param>
+        /// <param name="instance"></param>
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
         {
 
@@ -129,28 +145,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
             return result;
         }
-    }
-
-    public class RedirectToConcreteTypeInterceptor : InstanceInterceptor
-    {
-        private readonly Type baseType;
-        private readonly IContainer container;
-
-
-
-
-        public RedirectToConcreteTypeInterceptor(Type baseType, IContainer container)
-        {
-            this.baseType = baseType;
-            this.container = container;
-        }
-
-
-        public object Process(object target, IContext context)
-        {
-            return container.GetInstance(baseType);
-        }
 
     }
-
 }
