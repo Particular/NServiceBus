@@ -107,7 +107,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     TimeToBeReceived = m.TimeToBeReceived,
                     TimeSent = m.SentTime,
                     ResponseQueue = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
-                    AppSpecific = m.AppSpecific
+                    AppSpecific = m.AppSpecific,
+                    LookupId = m.LookupId
                 };
             }
             catch (MessageQueueException mqe)
@@ -119,11 +120,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        public void RemoveQueuedMessage(string messageId, bool transactional)
+        public void RemoveQueuedMessage(QueuedMessage message, bool transactional)
         {
             try
             {
-                myQueue.ReceiveById(messageId, TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive(transactional));
+                myQueue.ReceiveByLookupId(MessageLookupAction.Current, message.LookupId, GetTransactionTypeForReceive(transactional));
             }
             catch(MessageQueueException mqe)
             {

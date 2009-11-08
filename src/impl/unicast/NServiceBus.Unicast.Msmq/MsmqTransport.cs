@@ -349,7 +349,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         public void ProcessMessage(QueuedMessage m)
         {
-	        RemoveQueuedMessage(m.Id);
+	        RemoveQueuedMessage(m);
 
             _messageId = m.Id;
 
@@ -470,11 +470,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
         [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private void RemoveQueuedMessage(string id)
+        private void RemoveQueuedMessage(QueuedMessage m)
         {
             try
             {
-                MessageQueue.RemoveQueuedMessage(id, IsTransactional);
+                MessageQueue.RemoveQueuedMessage(m, IsTransactional);
             }
             catch (ObjectDisposedException)
             {

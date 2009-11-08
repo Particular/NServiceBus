@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast.Queuing
         public TimeSpan TimeToBeReceived { get; set; }
         public DateTime TimeSent { get; set; }
         public int AppSpecific { get; set; }
+        public long LookupId { get; set; }
 
         public Stream BodyStream { get; set; }
         public byte[] Extension { get; set; }

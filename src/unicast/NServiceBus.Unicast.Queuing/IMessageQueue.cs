@@ -28,12 +28,11 @@
         QueuedMessage Peek();
 
         /// <summary>
-        /// Removes a message with the given ID from the queue passed in Init, flowing transactions as requested.
+        /// Removes the given message from the queue passed in Init, flowing transactions as requested.
         /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="fromQueue"></param>
+        /// <param name="message"></param>
         /// <param name="transactional"></param>
-        void RemoveQueuedMessage(string messageId, bool transactional);
+        void RemoveQueuedMessage(QueuedMessage message, bool transactional);
 
         /// <summary>
         /// Creates the given queue if it doesn't already exist.
