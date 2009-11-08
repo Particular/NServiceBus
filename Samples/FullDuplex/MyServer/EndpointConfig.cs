@@ -1,5 +1,4 @@
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace MyServer
 {
