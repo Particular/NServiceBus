@@ -22,17 +22,16 @@
         void Send(QueuedMessage message, string destination, bool transactional);
 
         /// <summary>
-        /// Peeks into the queue passed in Init, and returning a message if one is there.
+        /// Returns true if there's a message in the queue passed in the Init method.
         /// </summary>
         /// <returns></returns>
-        QueuedMessage Peek();
+        bool HasMessage();
 
         /// <summary>
-        /// Removes the given message from the queue passed in Init, flowing transactions as requested.
+        /// Tries to receive a message from the queue passed in Init, flowing transactions as requested.
         /// </summary>
-        /// <param name="message"></param>
         /// <param name="transactional"></param>
-        void RemoveQueuedMessage(QueuedMessage message, bool transactional);
+        QueuedMessage Receive(bool transactional);
 
         /// <summary>
         /// Creates the given queue if it doesn't already exist.

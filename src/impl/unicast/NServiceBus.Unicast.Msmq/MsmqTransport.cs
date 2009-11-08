@@ -311,8 +311,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </remarks>
         private void Process()
         {
-		    var message = Peek();
-            if (message == null)
+            if (!HasMessage())
                 return;
 
 		    _needToAbort = false;
@@ -321,9 +320,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
             try
             {
                 if (IsTransactional)
-                    new TransactionWrapper().RunInTransaction(() => ProcessMessage(message), IsolationLevel, TransactionTimeout);
+                    new TransactionWrapper().RunInTransaction(ProcessMessage, IsolationLevel, TransactionTimeout);
                 else
-                    ProcessMessage(message);
+                    ProcessMessage();
 
                 ClearFailuresForMessage(_messageId);
             }
@@ -347,9 +346,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <remarks>
 		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
 		/// </remarks>
-        public void ProcessMessage(QueuedMessage m)
+        public void ProcessMessage()
         {
-	        RemoveQueuedMessage(m);
+	        var m = Receive();
+            if (m == null)
+                return;
 
             _messageId = m.Id;
 
@@ -451,40 +452,40 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    }
 
 	    [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private QueuedMessage Peek()
+        private bool HasMessage()
         {
             try
             {
-                return MessageQueue.Peek();
+                return MessageQueue.HasMessage();
             }
             catch (ObjectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                return null;
+                return false;
             }
             catch (Exception e)
             {
                 Logger.Error("Error in peeking a message from queue.", e);
-                return null;
+                return false;
             }
         }
 
         [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private void RemoveQueuedMessage(QueuedMessage m)
+        private QueuedMessage Receive()
         {
             try
             {
-                MessageQueue.RemoveQueuedMessage(m, IsTransactional);
+                return MessageQueue.Receive(IsTransactional);
             }
             catch (ObjectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                return;
+                return null;
             }
             catch(Exception e)
             {
                 Logger.Error("Error in receiving message from queue.", e);
-                return;
+                return null;
             }
         }
 

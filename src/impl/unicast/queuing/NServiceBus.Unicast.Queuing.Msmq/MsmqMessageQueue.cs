@@ -85,11 +85,27 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 myQueue.Purge();
         }
 
-        public QueuedMessage Peek()
+        public bool HasMessage()
         {
             try
             {
                 var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait));
+                return m != null;
+            }
+            catch (MessageQueueException mqe)
+            {
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                    return false;
+
+                throw;
+            }
+        }
+
+        public QueuedMessage Receive(bool transactional)
+        {
+            try
+            {
+                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive(transactional));
                 if (m == null)
                     return null;
 
@@ -115,21 +131,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return null;
-
-                throw;
-            }
-        }
-
-        public void RemoveQueuedMessage(QueuedMessage message, bool transactional)
-        {
-            try
-            {
-                myQueue.ReceiveByLookupId(MessageLookupAction.Current, message.LookupId, GetTransactionTypeForReceive(transactional));
-            }
-            catch(MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return;
 
                 throw;
             }
