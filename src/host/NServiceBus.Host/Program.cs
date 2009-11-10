@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Common.Logging;
 using NServiceBus.Host.Internal;
+using NServiceBus.Host.Internal.Arguments;
 using Topshelf;
 using Topshelf.Configuration;
 using System.Configuration;
@@ -20,8 +22,19 @@ namespace NServiceBus.Host
         private static void Main(string[] args)
         {
             InitializeLogging();
+
             try
             {
+                Parser.Args commandLineArguments = Parser.ParseArgs(args);
+                var arguments = new HostArguments(commandLineArguments);
+
+                if (arguments.Help != null)
+                {
+                    DisplayHelpContent();
+
+                    return;
+                }
+
                 Type endpointConfigurationType = GetEndpointConfigurationType();
 
                 AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
@@ -50,28 +63,40 @@ namespace NServiceBus.Host
                         c.CreateServiceLocator(() => new HostServiceLocator());
                     });
 
-                    Parser.Args arguments = Parser.ParseArgs(args);
-
-                    var username = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "username");
-                    var password = arguments.CustomArguments.SingleOrDefault(argument => argument.Key == "password");
-
-                    if (username != null && password != null)
+                    if (arguments.Username != null && arguments.Password != null)
                     {
-                        x.RunAs(username.Value, password.Value);
-
-                        //remove these arguments so they're not included in the service command line below
-                        arguments.CustomArguments = arguments.CustomArguments.Except(new[] { username, password });
+                        x.RunAs(arguments.Username.Value, arguments.Password.Value);
                     }
                     else
                     {
                         x.RunAsLocalSystem();
                     }
 
-                    x.SetDisplayName(EndpointId);
-                    x.SetServiceName(EndpointId);
-                    x.SetDescription("NServiceBus Message Endpoint Host Service");
-                    x.SetServiceCommandLine(arguments.CustomArguments.AsCommandLine());
+                    if (arguments.StartManually != null)
+                    {
+                        x.DoNotStartAutomatically();
+                    }
+
+                    x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : EndpointId);
+                    x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : EndpointId);
+                    x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
+                    x.SetServiceCommandLine(commandLineArguments.CustomArguments.AsCommandLine());
                     x.DependencyOnMsmq();
+
+                    if (arguments.DependsOn != null)
+                    {
+                        var dependencies = arguments.DependsOn.Value.Split(',');
+
+                        foreach (var dependency in dependencies)
+                        {
+                            if (dependency.ToUpper() == KnownServiceNames.Msmq)
+                            {
+                                continue;
+                            }
+
+                            x.DependsOn(dependency);
+                        }
+                    }
                 });
 
                 Runner.Host(cfg, args);
@@ -83,6 +108,25 @@ namespace NServiceBus.Host
                 throw;
             }
 
+        }
+
+        private static void DisplayHelpContent()
+        {
+            try
+            {
+                var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("NServiceBus.Host.Content.Help.txt");
+
+                if (stream != null)
+                {
+                    var helpText = new StreamReader(stream).ReadToEnd();
+
+                    Console.WriteLine(helpText);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         /// <summary>
@@ -117,7 +161,7 @@ namespace NServiceBus.Host
         /// <returns></returns>
         public static string GetEndpointId(object endpointConfiguration)
         {
-            string endpointName = GetEndpointName(endpointConfiguration);
+            string endpointName = endpointConfiguration.GetType().FullName;
             return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);
         }
 
@@ -166,25 +210,6 @@ namespace NServiceBus.Host
 
             }
         }
-
-        private static string GetEndpointName(object endpointConfiguration)
-        {
-            string endpointName = null;
-
-            var iHaveEndpointName = endpointConfiguration as ISpecifyEndpointName;
-            if (iHaveEndpointName != null)
-            {
-                endpointName = iHaveEndpointName.EndpointName;
-            }
-
-            if (!string.IsNullOrEmpty(endpointName))
-            {
-                return endpointName;
-            }
-
-            return endpointConfiguration.GetType().FullName;
-        }
-
 
         private static void InitializeLogging()
         {
