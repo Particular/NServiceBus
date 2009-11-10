@@ -1,18 +1,6 @@
 ﻿namespace NServiceBus
 {
     /// <summary>
-    /// Specify the name of the endpoint that will be used as the name of the installed Windows Service
-    /// instead of the default name.
-    /// </summary>
-    public interface ISpecifyEndpointName
-    {
-        /// <summary>
-        /// The name of the installed windows service.
-        /// </summary>
-        string EndpointName { get; }
-    }
-
-    /// <summary>
     /// Specify the order in which message handlers will be invoked.
     /// </summary>
     public interface ISpecifyMessageHandlerOrdering

@@ -1,0 +1,43 @@
+﻿NServiceBus Message Endpoint Host Service
+
+USAGE:
+	NServiceBus.Host.exe [/install	[/serviceName]
+					[/displayName]
+					[/description]
+					[/instance]
+					[/startManually]
+					[/username]
+					[/password]] |
+			     [/uninstall[/serviceName]
+					[/instance]]
+										
+OPTIONS:
+
+/install	Install the message endpoint as a Windows service
+/serviceName	Specify the service name for the installed service
+/displayName	Friendly name for the installed service
+/description	Description for the service
+/instance	Specify the unique name of the service instance you wish to install
+		ex: "NServiceBus.Host.exe /install /instance:Instance5"
+/startManually	Specifies that the service should start manually
+/username	Username for the account the service should run under
+/password	Password for the service account
+
+If no service name is specified NServiceBus will use the full name of the discovered
+endpoint configuration class (that which implements NServiceBus.IConfigureThisEndpoint)
+along with the version number of the assembly it is contained within, for example:
+
+	MyPublisher.Endpoint_v1.0.0.0
+	
+The default for the display name is the same value as the service name, and the description
+defaults to a generic NServiceBus host description.
+
+If you set the service name and/or instance name during installation you will need to specify
+them when uninstalling them as well, ex:
+
+	NServiceBus.Host.exe /uninstall /serviceName:"MyPublisher" /instance:Instance89
+	
+EXAMPLES:
+	NServiceBus.Host.exe /install /serviceName:"MyPublisher" /displayName:"My Publisher Service"
+		/description:"Service for publishing event messages" /username:"corp\serviceuser"
+		/password:"p@ssw0rd!" NServiceBus.Production
