@@ -225,7 +225,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private void CheckConfiguration()
         {
-            if (MessageSerializer == null)
+            if (MessageSerializer == null && !SkipDeserialization)
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
 
