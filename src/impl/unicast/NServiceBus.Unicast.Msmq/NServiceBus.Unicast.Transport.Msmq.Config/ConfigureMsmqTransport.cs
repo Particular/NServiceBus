@@ -1,5 +1,6 @@
 ﻿using NServiceBus.Unicast.Transport.Msmq.Config;
 using NServiceBus.Unicast.Queueing.Msmq.Config;
+using NServiceBus.Unicast.Queueing.Azure.Config;
 
 namespace NServiceBus
 {
@@ -22,5 +23,17 @@ namespace NServiceBus
 
             return cfg;
         }
+
+
+        public static ConfigMsmqTransport AzureQueuesTransport(this Configure config)
+        {
+            config.AzureMessageQueue();
+
+            var cfg = new ConfigMsmqTransport();
+            cfg.Configure(config);
+
+            return cfg;
+        }
+
     }
 }

@@ -4,7 +4,9 @@ using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Host.Internal
 {
-    class InMemorySubscriptionStorage : ISubscriptionStorage
+	//TODO, Andreas: This classed should be moved to src\impl\unicast\InMemorySubscriptionStorage so that we can use it 
+	//without having to reference the host in "non host" deployments
+    public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
         public void Subscribe(string client, IList<string> messageTypes)
         {

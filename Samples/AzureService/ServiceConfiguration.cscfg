@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
+  <Role name="OrderWebSite">
+    <Instances count="1" />
+    <ConfigurationSettings />
+  </Role>
+  <Role name="OrderService">
+    <Instances count="1" />
+    <ConfigurationSettings />
+  </Role>
+</ServiceConfiguration>

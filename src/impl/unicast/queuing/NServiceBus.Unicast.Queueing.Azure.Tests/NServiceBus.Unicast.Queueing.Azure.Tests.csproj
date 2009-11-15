@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{2D3D9033-200C-423E-BF8A-8FB40D8D1572}</ProjectGuid>
+    <ProjectGuid>{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Transport.Msmq.Config</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Transport.Msmq.Config</AssemblyName>
+    <RootNamespace>NServiceBus.Unicast.Queueing.Azure.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Unicast.Queueing.Azure.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.Unicast.Transport.Msmq.Config.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,70 +29,75 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.Unicast.Transport.Msmq.Config.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ServiceHosting.ServiceRuntime, Version=0.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.ServiceHosting.ServiceRuntime.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Azure, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder.Spring, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Azure.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Spring.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Azure.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder.Spring.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Azure.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Msmq.Config, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Msmq.Config.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Spring.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
-      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.Msmq, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="StorageClient, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\..\..\external-bin\Azure\StorageClient.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ConfigMsmqTransport.cs" />
-    <Compile Include="ConfigureMsmqTransport.cs" />
-    <Compile Include="MsmqTransportConfig.cs" />
+    <Compile Include="AzureQueueFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="When_configuring_the_azure_queue.cs" />
+    <Compile Include="When_creating_a_queue.cs" />
+    <Compile Include="When_initializing_the_queue.cs" />
+    <Compile Include="When_receiving_messages.cs" />
+    <Compile Include="When_sending_messages.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Unicast.Transport.Msmq.csproj">
-      <Project>{487809CE-0B5D-4425-A6CA-06F7C444DBCC}</Project>
-      <Name>NServiceBus.Unicast.Transport.Msmq</Name>
-      <Private>False</Private>
+    <ProjectReference Include="..\NServiceBus.Unicast.Queueing.Azure.Config\NServiceBus.Unicast.Queueing.Azure.Config.csproj">
+      <Project>{87C365D3-7D4A-4686-A042-5E7B83869CBF}</Project>
+      <Name>NServiceBus.Unicast.Queueing.Azure.Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Unicast.Queueing.Azure\NServiceBus.Unicast.Queueing.Azure.csproj">
+      <Project>{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}</Project>
+      <Name>NServiceBus.Unicast.Queueing.Azure</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -103,7 +107,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\"</notused>
-  </PropertyGroup>
 </Project>

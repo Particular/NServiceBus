@@ -27,6 +27,7 @@
   <property name="IsWow64Process" value="false" />
   <property name="architecture" value="x86" dynamic="true" />
 	<property name="msmq.version" value="" dynamic="true" />
+	<property name="servicehosting.version" value="" dynamic="true" />
 	<property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
 
 
@@ -87,7 +88,9 @@
 	</if>
 	
 	<readregistry  property="msmq.version" key="SOFTWARE\Microsoft\MSMQ\Parameters\CurrentBuild" hive="LocalMachine" failonerror="false"/>
+	<readregistry  property="servicehosting.version" key="SOFTWARE\Microsoft\Microsoft SDKs\ServiceHosting\v1.0\FullVersion" hive="LocalMachine" failonerror="false"/>
 	<echo message="${msmq.version}" />
+	<echo message="${servicehosting.version}" />
 	<!-- default configuration -->
 	<property name="project.config" value="release" />
 
@@ -176,7 +179,7 @@
 	<target name="compile_core" depends="compile_main">	
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\Serializers,impl\ObjectBuilder.Common,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
+					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,impl\ObjectBuilder.Common,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\Serializers,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
 					delim=","
 					property="pathToBuild">
 			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
@@ -198,6 +201,10 @@
 					<include name="${core.build.dir}\FluentNHibernate.dll" />
 					<include name="${core.build.dir}\Iesi.Collections.dll" />
 					<include name="${core.build.dir}\LinFu*.dll" />
+					<include name="${core.build.dir}\StorageClient.dll" />
+					<!-- The hosting has a dependency on RDManagedAPI so we can't ilmerge it
+					<include name="${lib.dir}\azure\Microsoft.ServiceHosting.ServiceRuntime.dll" />
+					-->
 					<exclude name="${core.build.dir}\**Tests.dll" />
 					
 					<!-- exclude the main dll -->
@@ -260,6 +267,8 @@
 			<in>
 				<items>
 					<include name="${core.build.dir}\*Tests.dll" />
+					<exclude if="${servicehosting.version == ''}" name="${core.build.dir}\*Azure.Tests.dll" />
+					
 			</items>
 			</in>
 			<do>
@@ -373,6 +382,10 @@
 			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
 					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
+		<if test="${servicehosting.version != ''}">
+			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+					workingdir="${trunk.dir}\samples\AzureService" />
+		</if>
 
 	</target>
 	
@@ -412,6 +425,12 @@
 		<copy todir="${binaries.dir}\x64">
 			<fileset basedir="${lib.dir}\sqlite\x64">
 				<include name="*.dll" />
+			</fileset>
+		</copy>
+
+		<copy todir="${binaries.dir}">
+			<fileset basedir="${lib.dir}\azure">
+				<include name="Microsoft*.dll" />
 			</fileset>
 		</copy>
 
