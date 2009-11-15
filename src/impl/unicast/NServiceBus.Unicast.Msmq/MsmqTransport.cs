@@ -235,7 +235,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
 
-            if (MessageSerializer == null)
+            if (MessageSerializer == null && !SkipDeserialization)
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
 
