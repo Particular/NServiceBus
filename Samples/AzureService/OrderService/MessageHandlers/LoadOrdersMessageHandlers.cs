@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Microsoft.ServiceHosting.ServiceRuntime;
 using MyMessages;
 using NServiceBus;
-using Order=MyMessages.Order;
 
 namespace OrderService.MessageHandlers
 {
@@ -21,8 +17,6 @@ namespace OrderService.MessageHandlers
 
         public void Handle(LoadOrdersMessage message)
         {
-            RoleManager.WriteToLog("Information", "LoadOrdersMessage received");
-
             var reply = new LoadOrdersResponseMessage
                             {
                                 Orders = orders.GetCurrentOrders().ToList()

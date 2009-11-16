@@ -2,13 +2,13 @@
 using System.Collections.Specialized;
 using System.Threading;
 using Common.Logging;
-using Microsoft.ServiceHosting.ServiceRuntime;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.WindowsAzure.ServiceRuntime;
 using MyMessages;
 using NServiceBus;
 using NServiceBus.Host.Internal;
 using NServiceBus.ObjectBuilder;
-using Order=MyMessages.Order;
-using RoleManager=Microsoft.ServiceHosting.ServiceRuntime.RoleManager;
 
 namespace OrderService
 {
@@ -17,17 +17,23 @@ namespace OrderService
         public IBus Bus;
 
         public OrderList orders = new OrderList();
+        private ILog logger;
 
-        public override void Start()
+        public override void Run()
         {
+            
             ConfigureLogging();
+            
+            logger.Info("Starting order worker with instance id:" + RoleEnvironment.CurrentRoleInstance.Id);
+            
             ConfigureNServiceBus();
 
             while (true)
             {
                 Thread.Sleep(10000);
-                RoleManager.WriteToLog("Information", "Approving orders");
 
+                logger.Info("Approving orders");
+                
                 foreach (var order in orders.GetOrdersToApprove())
                 {
                     var updatedOrder = orders.UpdateStatus(order,OrderStatus.Approved);
@@ -41,7 +47,8 @@ namespace OrderService
 
         private void ConfigureNServiceBus()
         {
-            RoleManager.WriteToLog("Information", "Worker Process entry point called");
+          
+            logger.Info("Initalizing NServiceBus");
             try
             {
                 var config = Configure.With()
@@ -50,7 +57,7 @@ namespace OrderService
                     .UnicastBus()
                     .LoadMessageHandlers()
                     .AzureQueuesTransport()
-                    .IsTransactional(false)
+                    .IsTransactional(true)
                     .PurgeOnStartup(false);
 
                 //we use inmemory storage until we have a sub storage for TableStorage or SQL Services
@@ -64,25 +71,25 @@ namespace OrderService
             }
             catch (Exception ex)
             {
-
-                RoleManager.WriteToLog("Error", ex.ToString());
+                logger.Error(ex);
+                throw;
             }
-            RoleManager.WriteToLog("Information", "NServiceBus started");
+        
+            logger.Info("NServiceBus started");
+          
         }
 
-        public override RoleStatus GetHealthStatus()
+       
+        private void ConfigureLogging()
         {
-            return RoleStatus.Healthy;
-        }
+            DiagnosticMonitor.Start(CloudStorageAccount.DevelopmentStorageAccount,new DiagnosticMonitorConfiguration());
 
-        private static void ConfigureLogging()
-        {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";
             LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
 
             var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-             var appender = new AzureAppender
+             var appender = new log4net.Appender.TraceAppender()
             {
                 Layout = layout,
                 Threshold = log4net.Core.Level.Warn
@@ -90,6 +97,8 @@ namespace OrderService
             appender.ActivateOptions();
 
             log4net.Config.BasicConfigurator.Configure(appender);
+
+            logger = LogManager.GetLogger(typeof(WorkerRole));
         }
 
 

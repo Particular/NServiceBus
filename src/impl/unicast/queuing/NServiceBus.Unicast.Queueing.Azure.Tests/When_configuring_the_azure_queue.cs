@@ -1,5 +1,4 @@
-using System;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 using NBehave.Spec.NUnit;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Unicast.Queueing.Azure.Config;
@@ -20,7 +19,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
                 .CustomConfigurationSource(new NullSource())
                 .AzureMessageQueue();
 
-            Configure.Instance.Builder.Build<QueueStorage>().AccountName.ShouldEqual("devstoreaccount1");
+            Configure.Instance.Builder.Build<CloudQueueClient>().Credentials.AccountName.ShouldEqual("devstoreaccount1");
         }
 
 
@@ -32,10 +31,10 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
                 .SpringBuilder()
                 .AzureMessageQueue();
 
-            var storage = Configure.Instance.Builder.Build<QueueStorage>();
+            var storage = Configure.Instance.Builder.Build<CloudQueueClient>();
 
-            storage.AccountName.ShouldEqual("myaccount");
-            storage.BaseUri.ShouldEqual(new Uri("http://queue.core.windows.net"));
+            storage.Credentials.AccountName.ShouldEqual("myaccount");
+            //client. BaseUri.ShouldEqual(new Uri("http://queue.core.windows.net"));
             storage.UsePathStyleUris.ShouldBeFalse();
         }
 

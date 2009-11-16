@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Unicast.Queueing.Azure
@@ -74,14 +74,14 @@ namespace NServiceBus.Unicast.Queueing.Azure
                        };
         }
 
-        public Message ToNativeMessage()
+        public CloudQueueMessage ToNativeMessage()
         {
             
             using (var stream = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
                 formatter.Serialize(stream, this);
-                return new Message(stream.ToArray());
+                return new CloudQueueMessage(stream.ToArray());
             }
 
         }

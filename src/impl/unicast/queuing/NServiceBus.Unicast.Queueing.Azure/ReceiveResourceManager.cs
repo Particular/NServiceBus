@@ -1,14 +1,14 @@
 using System.Transactions;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 
 namespace NServiceBus.Unicast.Queueing.Azure
 {
     public class ReceiveResourceManager : IEnlistmentNotification
     {
-        private readonly MessageQueue queue;
-        private readonly Message receivedMessage;
+        private readonly CloudQueue queue;
+        private readonly CloudQueueMessage receivedMessage;
 
-        public ReceiveResourceManager(MessageQueue queue, Message receivedMessage)
+        public ReceiveResourceManager(CloudQueue queue, CloudQueueMessage receivedMessage)
         {
             this.queue = queue;
             this.receivedMessage = receivedMessage;

@@ -1,14 +1,14 @@
 using System.Transactions;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 
 namespace NServiceBus.Unicast.Queueing.Azure
 {
     public class SendResourceManager : IEnlistmentNotification
     {
-        private readonly MessageQueue queue;
-        private readonly Message message;
+        private readonly CloudQueue queue;
+        private readonly CloudQueueMessage message;
 
-        public SendResourceManager(MessageQueue queue, Message message)
+        public SendResourceManager(CloudQueue queue, CloudQueueMessage message)
         {
             this.queue = queue;
             this.message = message;
@@ -16,12 +16,12 @@ namespace NServiceBus.Unicast.Queueing.Azure
 
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
-            preparingEnlistment.Done();
+            preparingEnlistment.Prepared();
         }
 
         public void Commit(Enlistment enlistment)
         {
-            queue.PutMessage(message);
+            queue.AddMessage(message);
             enlistment.Done();
         }
 

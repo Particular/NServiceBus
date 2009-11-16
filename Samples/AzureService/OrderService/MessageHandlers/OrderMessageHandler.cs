@@ -1,5 +1,4 @@
 using System.Threading;
-using Microsoft.ServiceHosting.ServiceRuntime;
 using MyMessages;
 using NServiceBus;
 using Order=MyMessages.Order;
@@ -19,7 +18,6 @@ namespace OrderService.MessageHandlers
 
         public void Handle(OrderMessage message)
         {
-            RoleManager.WriteToLog("Information", "OrderMessage received");
             var order = new Order
                             {
                                 Id = message.Id, 

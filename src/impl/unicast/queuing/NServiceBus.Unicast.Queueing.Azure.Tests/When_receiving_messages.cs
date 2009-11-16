@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         [Test]
         public void Should_throw_if_non_nservicebus_messages_are_received()
         {
-            nativeQueue.PutMessage(new Message("whatever"));
+            nativeQueue.AddMessage(new CloudQueueMessage("whatever"));
 
             Assert.Throws<SerializationException>(() => queue.Receive(false));
         }

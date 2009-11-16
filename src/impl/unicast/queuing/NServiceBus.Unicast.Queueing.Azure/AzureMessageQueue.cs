@@ -4,22 +4,22 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Unicast.Queueing.Azure
 {
     public class AzureMessageQueue : IMessageQueue
     {
-        private MessageQueue queue;
-        private readonly QueueStorage storage;
+        private CloudQueue queue;
+        private readonly CloudQueueClient client;
         private int secondsToWait;
         
         public int MessageInvisibleTime { get; set; }
 
-        public AzureMessageQueue(QueueStorage storage)
+        public AzureMessageQueue(CloudQueueClient client)
         {
-            this.storage = storage;
+            this.client = client;
             MessageInvisibleTime = 30;
         }
 
@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
         {
             secondsToWait = secondsToWaitForMessage;
 
-            queue = storage.GetQueue(inputqueue);
+            queue = client.GetQueueReference(inputqueue);
 
             if (purge)
                 queue.Clear();
@@ -35,9 +35,9 @@ namespace NServiceBus.Unicast.Queueing.Azure
 
         public void Send(QueuedMessage message, string destination, bool transactional)
         {
-            var sendQueue = storage.GetQueue(destination);
+            var sendQueue = client.GetQueueReference(destination);
 
-            if (!sendQueue.DoesQueueExist())
+            if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
 
 
@@ -46,7 +46,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
             var rawMessage = SerializeMessage(message);
 
             if (!transactional || Transaction.Current == null)
-                sendQueue.PutMessage(rawMessage);
+                sendQueue.AddMessage(rawMessage);
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
 
@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
             return DeserializeMessage(rawMessage);
         }
 
-        private Message GetMessage(bool transactional)
+        private CloudQueueMessage GetMessage(bool transactional)
         {
             var receivedMessage = PollForMessage();
 
@@ -83,13 +83,13 @@ namespace NServiceBus.Unicast.Queueing.Azure
             return receivedMessage;
         }
 
-        private Message PollForMessage()
+        private CloudQueueMessage PollForMessage()
         {
-            Message message;
+            CloudQueueMessage message;
             var maxTime = DateTime.Now.AddSeconds(secondsToWait);
 
 
-            while ((message = queue.GetMessage(MessageInvisibleTime)) == null && DateTime.Now < maxTime)
+            while ((message = queue.GetMessage(TimeSpan.FromSeconds(MessageInvisibleTime))) == null && DateTime.Now < maxTime)
             {
                 Thread.Sleep(500);
             }
@@ -97,18 +97,16 @@ namespace NServiceBus.Unicast.Queueing.Azure
             return message;
         }
 
-        private static Message SerializeMessage(QueuedMessage originalMessage)
+        private static CloudQueueMessage SerializeMessage(QueuedMessage originalMessage)
         {
             return new AzureMessage(originalMessage).ToNativeMessage();
         }
 
-        private static QueuedMessage DeserializeMessage(Message rawMessage)
+        private static QueuedMessage DeserializeMessage(CloudQueueMessage rawMessage)
         {
             var formatter = new BinaryFormatter();
 
-            byte[] data = rawMessage.ContentAsBytes();
-
-            using (var stream = new MemoryStream(data))
+            using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
                 var message = formatter.Deserialize(stream) as AzureMessage;
 
@@ -121,8 +119,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
 
         public void CreateQueue(string queueName)
         {
-            storage.GetQueue(queueName)
-                .CreateQueue();
+            client.GetQueueReference(queueName).CreateIfNotExist();
         }
     }
 }

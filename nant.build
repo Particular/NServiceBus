@@ -201,9 +201,8 @@
 					<include name="${core.build.dir}\FluentNHibernate.dll" />
 					<include name="${core.build.dir}\Iesi.Collections.dll" />
 					<include name="${core.build.dir}\LinFu*.dll" />
-					<include name="${core.build.dir}\StorageClient.dll" />
-					<!-- The hosting has a dependency on RDManagedAPI so we can't ilmerge it
-					<include name="${lib.dir}\azure\Microsoft.ServiceHosting.ServiceRuntime.dll" />
+					<!--
+					<include name="${core.build.dir}\Microsoft.WindowsAzure.*.dll" />
 					-->
 					<exclude name="${core.build.dir}\**Tests.dll" />
 					

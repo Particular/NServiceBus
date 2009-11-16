@@ -1,5 +1,5 @@
-using System;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
 using NUnit.Framework;
 
@@ -8,8 +8,8 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
     public abstract class AzureQueueFixture
     {
         protected AzureMessageQueue queue;
-        protected QueueStorage storage;
-        protected MessageQueue nativeQueue;
+        protected CloudQueueClient client;
+        protected CloudQueue nativeQueue;
 
 
         protected virtual string QueueName
@@ -27,17 +27,15 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         [SetUp]
         public void Setup()
         {
-            storage = QueueStorage.Create(new Uri("http://127.0.0.1:10001"), true, "devstoreaccount1",
-                                          "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==");
+            client = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
+       
+            nativeQueue = client.GetQueueReference(QueueName);
+
+            nativeQueue.CreateIfNotExist();
+            nativeQueue.Clear();
+
             
-            nativeQueue = storage.GetQueue(QueueName);
-
-            if (nativeQueue.DoesQueueExist())
-                nativeQueue.Clear();
-
-            nativeQueue.CreateQueue();
-
-            queue = new AzureMessageQueue(storage);
+            queue = new AzureMessageQueue(client);
 
             queue.Init(QueueName, PurgeOnStartup, SecondsToWaitForMessage);
         }

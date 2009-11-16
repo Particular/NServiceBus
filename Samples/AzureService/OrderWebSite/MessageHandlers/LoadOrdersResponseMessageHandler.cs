@@ -1,4 +1,3 @@
-using Microsoft.ServiceHosting.ServiceRuntime;
 using MyMessages;
 using NServiceBus;
 
@@ -8,8 +7,6 @@ namespace OrderWebSite.MessageHandlers
     {
         public void Handle(LoadOrdersResponseMessage message)
         {
-            RoleManager.WriteToLog("Information", "LoadOrdersResponseMessage received");
-
             lock (Global.Orders)
                 Global.Orders = message.Orders;
         }

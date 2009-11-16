@@ -5,6 +5,21 @@ namespace NServiceBus.Config
 {
     public class AzureQueueConfig : ConfigurationSection
     {
+        [ConfigurationProperty("UseHttps", IsRequired = false, DefaultValue = false)]
+        public bool UseHttps
+        {
+
+            get
+            {
+
+                return (bool)this["UseHttps"];
+            }
+            set
+            {
+                this["UseHttps"] = value;
+            }
+        }
+
         [ConfigurationProperty("BaseUri", IsRequired = false, DefaultValue = "http://queue.core.windows.net")]
         public string BaseUri
         {
@@ -17,21 +32,6 @@ namespace NServiceBus.Config
             set
             {
                 this["BaseUri"] = value;
-            }
-        }
-
-
-        [ConfigurationProperty("UsePathStyleUris", IsRequired = false,DefaultValue = false)]
-        public bool UsePathStyleUris
-        {
-
-            get
-            {
-                return (bool)this["UsePathStyleUris"];
-            }
-            set
-            {
-                this["UsePathStyleUris"] = value;
             }
         }
 

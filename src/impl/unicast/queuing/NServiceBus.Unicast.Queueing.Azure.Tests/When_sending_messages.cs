@@ -1,5 +1,5 @@
 using System.Transactions;
-using Microsoft.Samples.ServiceHosting.StorageClient;
+using Microsoft.WindowsAzure.StorageClient;
 using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Queuing;
 using NUnit.Framework;
@@ -22,11 +22,11 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             destinationQueue.GetMessage().ShouldBeNull();
         }
 
-        private MessageQueue GetDestinationQueue()
+        private CloudQueue GetDestinationQueue()
         {
-            var destinationQueue = storage.GetQueue(destinationQueueName);
+            var destinationQueue = client.GetQueueReference(destinationQueueName);
 
-            destinationQueue.CreateQueue();
+            destinationQueue.CreateIfNotExist();
             destinationQueue.Clear();
 
             return destinationQueue;

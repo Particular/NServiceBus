@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         { 
             queue.CreateQueue(QueueName);
 
-            Assert.True(nativeQueue.DoesQueueExist());
+            Assert.True(nativeQueue.Exists());
         }
     }
 } 
