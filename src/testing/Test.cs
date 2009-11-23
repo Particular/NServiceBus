@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NServiceBus.Saga;
 using Rhino.Mocks;
 
@@ -16,21 +17,36 @@ namespace NServiceBus.Testing
         /// </summary>
         public static void Initialize()
         {
+            Configure.With();
+            InitializeInternal();
+        }
+
+        /// <summary>
+        /// Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
+        public static void Initialize(params Assembly[] assemblies)
+        {
+            Configure.With(assemblies);
+            InitializeInternal();
+        }
+
+        private static void InitializeInternal()
+        {
             var mapper = new MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-            messageTypes = new List<Type>();
+            _messageTypes = new List<Type>();
             
             Configure.With();
 
             foreach (var t in Configure.TypesToScan)
                 if (typeof(IMessage).IsAssignableFrom(t))
-                    if (!messageTypes.Contains(t))
-                        messageTypes.Add(t);
+                    if (!_messageTypes.Contains(t))
+                        _messageTypes.Add(t);
 
-            mapper.Initialize(messageTypes.ToArray());
+            mapper.Initialize(_messageTypes.ToArray());
 
-            messageCreator = mapper;
+            _messageCreator = mapper;
 
-            ExtensionMethods.MessageCreator = messageCreator;
+            ExtensionMethods.MessageCreator = _messageCreator;
         }
 
         /// <summary>
@@ -50,7 +66,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(Guid sagaId) where T : ISaga, new()
         {
-            if (messageCreator == null)
+            if (_messageCreator == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             var saga = (T)Activator.CreateInstance(typeof(T));
@@ -68,7 +84,7 @@ namespace NServiceBus.Testing
             saga.Bus = bus;
             ExtensionMethods.Bus = bus;
 
-            return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
+            return new Saga<T>(saga, mocks, bus, _messageCreator, _messageTypes);
         }
 
         /// <summary>
@@ -91,7 +107,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Handler<T> Handler<T>(T handler)
         {
-            if (messageCreator == null)
+            if (_messageCreator == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             bool isHandler = false;
@@ -115,7 +131,7 @@ namespace NServiceBus.Testing
 
             ExtensionMethods.Bus = bus;
 
-            return new Handler<T>(handler, mocks, bus, messageCreator, messageTypes);
+            return new Handler<T>(handler, mocks, bus, _messageCreator, _messageTypes);
         }
 
         /// <summary>
@@ -125,7 +141,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static TMessage CreateInstance<TMessage>() where TMessage : IMessage
         {
-            return messageCreator.CreateInstance<TMessage>();
+            return _messageCreator.CreateInstance<TMessage>();
         }
 
         /// <summary>
@@ -137,14 +153,14 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static TMessage CreateInstance<TMessage>(Action<TMessage> action) where TMessage : IMessage
         {
-            return messageCreator.CreateInstance(action);
+            return _messageCreator.CreateInstance(action);
         }
 
         /// <summary>
         /// Returns the message creator.
         /// </summary>
-        private static IMessageCreator messageCreator;
+        private static IMessageCreator _messageCreator;
 
-        private static List<Type> messageTypes;
+        private static List<Type> _messageTypes;
     }
 }
