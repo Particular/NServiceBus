@@ -1,7 +1,6 @@
 using System;
 using NServiceBus;
 using MyMessages;
-using NServiceBus.Host;
 
 namespace MyClient
 {
