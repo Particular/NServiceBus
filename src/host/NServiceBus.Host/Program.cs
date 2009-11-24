@@ -80,7 +80,16 @@ namespace NServiceBus.Host
                     x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : EndpointId);
                     x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : EndpointId);
                     x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
-                    x.SetServiceCommandLine(commandLineArguments.CustomArguments.AsCommandLine());
+
+                    var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
+
+                    if (arguments.ServiceName != null)
+                    {
+                        serviceCommandLine += " /serviceName:\"" + arguments.ServiceName.Value + "\"";
+                    }
+
+                    x.SetServiceCommandLine(serviceCommandLine);
+
                     x.DependencyOnMsmq();
 
                     if (arguments.DependsOn != null)
