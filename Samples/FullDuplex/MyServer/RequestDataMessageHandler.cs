@@ -26,7 +26,7 @@ namespace MyServer
             response.SetHeader("1", "1");
             response.SetHeader("2", "2");
 
-            Bus.Reply(response);
+            Bus.Reply(response); //You can try experimenting with sending multiple replies
         }
     }
 }

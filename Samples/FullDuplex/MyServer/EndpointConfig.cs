@@ -1,11 +1,11 @@
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace MyServer
 {
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server {}
 
-    // this can't be done in the EndpointConfig class above without the full NServiceBus.Configure.With() thing
+    // This demonstrates the kind of extensible initialization that NServiceBus supports.
+    // You can implement as many IWantCustomInitialization classes as you need in as many places as you want
     public class ServerInit : IWantCustomInitialization
     {
         public void Init()
