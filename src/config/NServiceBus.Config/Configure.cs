@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
+using Common.Logging;
 
 namespace NServiceBus
 {
@@ -71,6 +73,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With()
         {
+            if (HttpContext.Current != null)
+                throw new InvalidOperationException("NServiceBus has detected that you're running in the context of a web application. The method 'NServiceBus.Configure.With()' is not recommended for web scenarios. Use 'NServiceBus.Configure.WithWeb()' instead, or consider explicitly passing in the assemblies you want to be scanned to one of the overloads to the 'With' method.");
+
             return With(new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory)));
         }
 
@@ -189,7 +194,7 @@ namespace NServiceBus
                     {
                         foreach (var loaderException in err.LoaderExceptions)
                         {
-                            Trace.Fail("Problem with loading " + file.FullName, loaderException.Message);
+                            logger.Error("Problem with loading " + file.FullName, loaderException);
                         }
 
                         throw;
@@ -210,5 +215,6 @@ namespace NServiceBus
         }
 
         private static Configure instance;
+        private static ILog logger = LogManager.GetLogger("NServiceBus.Config");
     }
 }
