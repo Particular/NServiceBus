@@ -9,8 +9,6 @@ namespace WebService1
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            try
-            {
             Bus = Configure.WithWeb()
                 .SpringBuilder()
                 .XmlSerializer()
@@ -19,12 +17,6 @@ namespace WebService1
                     .LoadMessageHandlers()
                 .CreateBus()
                 .Start();
-
-            }
-            catch (Exception ex)
-            {
-                string s = ex.Message;
-            }
         }
 
         protected void Application_End(object sender, EventArgs e)
