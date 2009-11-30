@@ -5,9 +5,13 @@
       <!-- Must use port 80 for http and port 443 for https when running in the cloud -->
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
     </InputEndpoints>
-    <ConfigurationSettings />
+    <ConfigurationSettings>
+      <Setting name="AzureQueueConfig.ConnectionString"/>
+    </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
-    <ConfigurationSettings />
+    <ConfigurationSettings>
+      <Setting name="AzureQueueConfig.ConnectionString"/>
+    </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

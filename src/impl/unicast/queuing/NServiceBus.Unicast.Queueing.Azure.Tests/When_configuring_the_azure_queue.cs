@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
     [TestFixture]
     public class When_configuring_the_azure_queue
     {
-
         [Test]
         public void The_storage_should_default_to_dev_settings_if_no_config_section_is_found()
         {
@@ -24,7 +23,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
 
         [Test]
-        public void The_storage_should_read_setting_from_appconfig()
+        public void Storage_setting_should_be_read_from_configuration_source()
         {
 
             Configure.With()
@@ -34,8 +33,6 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             var storage = Configure.Instance.Builder.Build<CloudQueueClient>();
 
             storage.Credentials.AccountName.ShouldEqual("myaccount");
-            //client. BaseUri.ShouldEqual(new Uri("http://queue.core.windows.net"));
-            storage.UsePathStyleUris.ShouldBeFalse();
         }
 
         [Test]

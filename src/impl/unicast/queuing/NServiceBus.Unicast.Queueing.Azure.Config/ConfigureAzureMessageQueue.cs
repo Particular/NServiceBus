@@ -12,15 +12,12 @@ namespace NServiceBus.Unicast.Queueing.Azure.Config
         {
             CloudQueueClient queueClient;
 
-            var cfg = Configure.GetConfigSection<AzureQueueConfig>();
+            var configSection = Configure.GetConfigSection<AzureQueueConfig>();
 
-            if (cfg != null)
+            if (configSection != null)
             {
-                
-                var account =
-                    new CloudStorageAccount(new StorageCredentialsAccountAndKey(cfg.AccountName, cfg.Base64Key),cfg.UseHttps);
-
-                queueClient = account.CreateCloudQueueClient();
+                queueClient = CloudStorageAccount.Parse(configSection.ConnectionString)
+                                        .CreateCloudQueueClient();
             }
             else
             {

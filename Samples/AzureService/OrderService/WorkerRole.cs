@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Common.Logging;
 using Microsoft.WindowsAzure;
@@ -7,6 +10,7 @@ using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Config;
 using NServiceBus.Host.Internal;
 using NServiceBus.ObjectBuilder;
 
@@ -21,7 +25,6 @@ namespace OrderService
 
         public override void Run()
         {
-            
             ConfigureLogging();
             
             logger.Info("Starting order worker with instance id:" + RoleEnvironment.CurrentRoleInstance.Id);
@@ -53,7 +56,8 @@ namespace OrderService
             {
                 var config = Configure.With()
                     .SpringBuilder()
-                    .XmlSerializer()
+                    .AzureConfigurationSource()
+                    .XmlSerializer()        
                     .UnicastBus()
                     .LoadMessageHandlers()
                     .AzureQueuesTransport()

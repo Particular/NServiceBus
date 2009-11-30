@@ -7,6 +7,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Config;
 
 namespace OrderWebSite
 {
@@ -26,7 +27,6 @@ namespace OrderWebSite
             Orders = new List<Order>();
             //request all orders to "warmup" the cache
             Bus.Send(new LoadOrdersMessage());
-
         }
 
         protected void Session_Start(object sender, EventArgs e)
@@ -36,9 +36,7 @@ namespace OrderWebSite
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-
-          
-
+       
         }
 
         private void ConfigureNServiceBus()
@@ -48,6 +46,7 @@ namespace OrderWebSite
             {
                 Bus = Configure.WithWeb()
                     .SpringBuilder()
+                    .AzureConfigurationSource()
                     .XmlSerializer()
                     .UnicastBus()
                     .LoadMessageHandlers()
