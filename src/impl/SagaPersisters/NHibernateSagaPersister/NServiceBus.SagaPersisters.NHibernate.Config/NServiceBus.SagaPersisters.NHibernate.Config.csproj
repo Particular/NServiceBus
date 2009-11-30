@@ -33,6 +33,11 @@
     <DocumentationFile>bin\Release\NServiceBus.SagaPersisters.NHibernate.Config.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="FluentNHibernate, Version=0.1.0.534, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
