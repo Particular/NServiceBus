@@ -42,7 +42,17 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
                 UpdateDatabaseSchemaUsing(fluentConfiguration);
             }
 
-            return fluentConfiguration.BuildSessionFactory();
+            try
+            {
+                return fluentConfiguration.BuildSessionFactory();
+            }
+            catch (FluentConfigurationException e)
+            {
+                if (e.InnerException != null)
+                    throw new Common.Logging.ConfigurationException(e.InnerException.Message, e);
+
+                throw;
+            }
         }
 
         private static void UpdateDatabaseSchemaUsing(FluentConfiguration fluentConfiguration)
