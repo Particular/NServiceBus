@@ -15,6 +15,21 @@ namespace NServiceBus.Integration.Azure.Tests
             {
                 this["StringSetting"] = value;
             }
+
+
+        }
+
+        [ConfigurationProperty("IntSetting", IsRequired = false)]
+        public int IntSetting
+        {
+            get
+            {
+                return (int)this["IntSetting"];
+            }
+            set
+            {
+                this["IntSetting"] = value;
+            }
         }
     }
 }

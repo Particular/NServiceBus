@@ -49,7 +49,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
     public class NullSource : IConfigurationSource
     {
-        public T GetConfiguration<T>() where T : class
+        T IConfigurationSource.GetConfiguration<T>()
         {
             return null;
         }

@@ -16,7 +16,7 @@ namespace NServiceBus.Config.UnitTests
             Configure.With()
                 .CustomConfigurationSource(this.userConfigurationSource);
         }
-
+        
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
         {
@@ -30,7 +30,7 @@ namespace NServiceBus.Config.UnitTests
 
     public class UserConfigurationSource : IConfigurationSource
     {
-        public T GetConfiguration<T>() where T : class
+        T IConfigurationSource.GetConfiguration<T>()
         {
             var section = new TestConfigurationSection {TestSetting = "TestValue"};
 

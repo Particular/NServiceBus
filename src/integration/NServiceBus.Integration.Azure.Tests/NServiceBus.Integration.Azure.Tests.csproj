@@ -58,6 +58,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SectionNotPresentInConfig.cs" />
     <Compile Include="TestConfigSection.cs" />
     <Compile Include="When_using_the_azure_configuration_source.cs" />
   </ItemGroup>

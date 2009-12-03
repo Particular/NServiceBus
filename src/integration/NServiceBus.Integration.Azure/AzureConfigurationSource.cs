@@ -17,7 +17,7 @@ namespace NServiceBus.Integration.Azure
             azureConfigurationSettings = configurationSettings;
         }
 
-        public T GetConfiguration<T>() where T : class
+        T IConfigurationSource.GetConfiguration<T>()
         {
             var sectionName = typeof(T).Name;
 
@@ -31,9 +31,9 @@ namespace NServiceBus.Integration.Azure
                 if (!string.IsNullOrEmpty(setting))
                 {
                     if (section == null)
-                        throw new InvalidOperationException("Can't override non existing section");
-
-                    property.SetValue(section, setting, null);
+                        section = new T();
+                    
+                    property.SetValue(section, Convert.ChangeType(setting, property.PropertyType), null);
                 }
             }
 

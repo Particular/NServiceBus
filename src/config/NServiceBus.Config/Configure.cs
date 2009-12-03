@@ -162,7 +162,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetConfigSection<T>() where T : class
+        public static T GetConfigSection<T>() where T : class,new()
         {
             return ConfigurationSource.GetConfiguration<T>();
         }

@@ -10,6 +10,6 @@ namespace NServiceBus.Config.ConfigurationSource
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T GetConfiguration<T>() where T : class;
+        T GetConfiguration<T>() where T : class,new();
     }
 }
