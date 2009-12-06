@@ -8,7 +8,6 @@ using MyMessages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Integration.Azure;
-using NServiceBus.ObjectBuilder;
 
 namespace OrderService
 {
@@ -58,11 +57,9 @@ namespace OrderService
                     .LoadMessageHandlers()
                     .AzureQueuesTransport()
                     .IsTransactional(true)
-                    .PurgeOnStartup(false);
-
-                //we use inmemory storage until we have a sub storage for TableStorage or SQL Services
-                //Configure.Instance.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(ComponentCallModelEnum.Singleton);
-
+                    .PurgeOnStartup(false)
+                    .InMemorySubscriptionStorage();//we use inmemory storage until we have a sub storage for TableStorage or SQL Services
+                
                 Configure.Instance.Configurer.RegisterSingleton<OrderList>(Orders);
 
                 Bus = config.CreateBus()

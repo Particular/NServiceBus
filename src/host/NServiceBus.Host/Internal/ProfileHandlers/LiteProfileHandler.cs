@@ -9,7 +9,7 @@ namespace NServiceBus.Host.Internal.ProfileHandlers
             Configure.Instance.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
 
             if (Config is AsA_Publisher)
-                Configure.Instance.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(ComponentCallModelEnum.Singleton);
+                Configure.Instance.InMemorySubscriptionStorage();
         }
 
         public IConfigureThisEndpoint Config { get; set; }
