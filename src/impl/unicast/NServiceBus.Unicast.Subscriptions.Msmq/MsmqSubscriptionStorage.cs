@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-        IList<string> ISubscriptionStorage.GetSubscribersForMessage(IList<string> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
             var result = new List<string>();
 
@@ -69,7 +69,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             return (Transaction.Current == null && !DontUseExternalTransaction);                
         }
 
-        void ISubscriptionStorage.Subscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
             lock (locker)
             {
@@ -95,7 +95,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-        void ISubscriptionStorage.Unsubscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
             lock (locker)
             {

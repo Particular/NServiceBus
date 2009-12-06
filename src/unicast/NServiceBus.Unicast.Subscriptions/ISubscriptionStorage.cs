@@ -12,14 +12,14 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-	    void Subscribe(string client, IList<string> messageTypes);
+	    void Subscribe(string client, IEnumerable<string> messageTypes);
 
         /// <summary>
         /// Unsubscribes the given client address from messages of the given types.
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-        void Unsubscribe(string client, IList<string> messageTypes);
+        void Unsubscribe(string client, IEnumerable<string> messageTypes);
 
         /// <summary>
         /// Returns a list of addresses of subscribers that previously requested to be notified
@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         /// <param name="messageTypes"></param>
         /// <returns></returns>
-        IList<string> GetSubscribersForMessage(IList<string> messageTypes);
+        IEnumerable<string> GetSubscribersForMessage(IEnumerable<string> messageTypes);
 
         /// <summary>
         /// Notifies the subscription storage that now is the time to perform

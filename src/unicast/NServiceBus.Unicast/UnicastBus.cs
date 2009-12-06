@@ -335,7 +335,7 @@ namespace NServiceBus.Unicast
 
             var subscribers = subscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
             
-            if (subscribers.Count == 0)
+            if (subscribers.Count() == 0)
                 if (NoSubscribersForMessage != null)
                     NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
 

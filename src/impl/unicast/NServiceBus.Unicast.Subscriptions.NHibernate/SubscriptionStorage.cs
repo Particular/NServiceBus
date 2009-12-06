@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 using FluentNHibernate;
 using NHibernate.Criterion;
@@ -26,7 +27,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-        public void Subscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
             using (var session = sessionSource.CreateSession())
             using(var transaction = new TransactionScope())
@@ -54,7 +55,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-        public void Unsubscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
 
             using (var session = sessionSource.CreateSession())
@@ -72,19 +73,23 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// </summary>
         /// <param name="messageTypes"></param>
         /// <returns></returns>
-        public IList<string> GetSubscribersForMessage(IList<string> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
-            var mt = new string[messageTypes.Count];
-            messageTypes.CopyTo(mt, 0);
+            IEnumerable<string> result;
 
             using (var session = sessionSource.CreateSession())
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = IsolationLevel.ReadCommitted}))
             {
-                return session.CreateCriteria(typeof(Subscription))
-                                    .Add(Restrictions.In("MessageType", mt))
+                result = session.CreateCriteria(typeof(Subscription))
+                                    .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
                                     .SetProjection(Projections.Property("SubscriberEndpoint"))
                                     .SetResultTransformer(new DistinctRootEntityResultTransformer())
                                     .List<string>();
+
+                transaction.Complete();
             }
+
+            return result;
         }
 
         public void Init()

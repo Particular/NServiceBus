@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
@@ -18,8 +19,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             var subscriptionsForMessageType = storage.GetSubscribersForMessage(new List<String> { "MessageType1" });
 
-            Assert.AreEqual(subscriptionsForMessageType.Count, 2);
-            Assert.AreEqual(subscriptionsForMessageType[0], clientEndpoint);
+            Assert.AreEqual(subscriptionsForMessageType.Count(), 2);
+            Assert.AreEqual(subscriptionsForMessageType.First(), clientEndpoint);
         }
     }
 }

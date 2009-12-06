@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-        public void Subscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
                                               {
@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
         /// </summary>
         /// <param name="client"></param>
         /// <param name="messageTypes"></param>
-        public void Unsubscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
                                               {
@@ -44,7 +44,7 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
         /// </summary>
         /// <param name="messageTypes"></param>
         /// <returns></returns>
-        public IList<string> GetSubscribersForMessage(IList<string> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
             var result = new List<string>();
             messageTypes.ToList().ForEach(m =>
