@@ -374,7 +374,7 @@
 
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration"
+					in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks"
 					delim=","
 					property="pathToBuild">
 			<echo message="${pathToBuild}" />
