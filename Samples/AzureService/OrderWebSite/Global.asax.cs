@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Web;
 using Common.Logging;
+using log4net.Core;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using MyMessages;
 using NServiceBus;
 using NServiceBus.Config;
+using NServiceBus.Integration.Azure;
 
 namespace OrderWebSite
 {
@@ -90,17 +92,15 @@ namespace OrderWebSite
 
         private void ConfigureLogging()
         {
-            DiagnosticMonitor.Start(CloudStorageAccount.DevelopmentStorageAccount, new DiagnosticMonitorConfiguration());
+            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection
+                                                                                            {
+                                                                                                {"configType","EXTERNAL"}
+                                                                                            });
 
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
-            var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            var appender = new log4net.Appender.TraceAppender()
+            var appender = new AzureAppender
             {
-                Layout = layout,
-                Threshold = log4net.Core.Level.Warn
+                ConnectionStringKey = "AzureQueueConfig.ConnectionString",
+                Threshold = Level.Debug
             };
             appender.ActivateOptions();
 
