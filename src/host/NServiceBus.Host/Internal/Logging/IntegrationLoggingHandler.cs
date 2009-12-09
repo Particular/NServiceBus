@@ -1,7 +1,7 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
 
-namespace NServiceBus.Host.Internal.Logging
+namespace NServiceBus.Host.LoggingHandlers
 {
     /// <summary>
     /// Handles logging configuration for the integration profile.
@@ -18,10 +18,10 @@ namespace NServiceBus.Host.Internal.Logging
             var level = log4net.Core.Level.Info;
 
             var appender = new log4net.Appender.ConsoleAppender
-            {
-                Layout = layout,
-                Threshold = level
-            };
+                               {
+                                   Layout = layout,
+                                   Threshold = level
+                               };
             log4net.Config.BasicConfigurator.Configure(appender);
         }
     }
