@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NServiceBus.Saga;
 
-namespace NServiceBus.Host
+namespace NServiceBus.SagaPersisters.InMemory
 {
     /// <summary>
     /// In memory implementation of ISagaPersister for quick development.

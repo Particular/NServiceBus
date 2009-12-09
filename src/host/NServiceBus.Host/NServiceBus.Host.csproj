@@ -79,7 +79,6 @@
     </Compile>
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Arguments\HostArguments.cs" />
-    <Compile Include="InMemorySagaPersister.cs" />
     <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
     <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
     <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
