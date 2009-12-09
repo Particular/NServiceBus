@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting", "NServiceBus.Hosting\NServiceBus.Hosting.csproj", "{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting.Tests", "NServiceBus.Hosting.Tests\NServiceBus.Hosting.Tests.csproj", "{93B2CD66-7860-47A3-A039-B7D778E9A8F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93B2CD66-7860-47A3-A039-B7D778E9A8F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93B2CD66-7860-47A3-A039-B7D778E9A8F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93B2CD66-7860-47A3-A039-B7D778E9A8F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93B2CD66-7860-47A3-A039-B7D778E9A8F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

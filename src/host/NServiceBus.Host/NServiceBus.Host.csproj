@@ -53,6 +53,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -73,33 +77,22 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="As.cs" />
-    <Compile Include="IConfigureLogging.cs" />
-    <Compile Include="IConfigureThisEndpoint.cs" />
-    <Compile Include="IHandleProfile.cs" />
-    <Compile Include="Internal\Arguments\HostArguments.cs" />
-    <Compile Include="Internal\AssemblyScanner.cs" />
-    <Compile Include="Internal\ConfigurationManager.cs" />
-    <Compile Include="Internal\GenericHost.cs" />
-    <Compile Include="Internal\InMemorySagaPersister.cs" />
-    <Compile Include="Internal\Logging\IntegrationLoggingHandler.cs" />
-    <Compile Include="Internal\Logging\LiteLoggingHandler.cs" />
-    <Compile Include="Internal\Logging\ProductionLoggingHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\InstallDtcProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\InstallMsmqProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\InstallPerformanceCountersProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\IntegrationProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\LiteProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\PerformanceCountersProfileHandler.cs" />
-    <Compile Include="Internal\ProfileHandlers\ProductionProfileHandler.cs" />
-    <Compile Include="Internal\ProfileManager.cs" />
-    <Compile Include="Internal\RoleManager.cs" />
-    <Compile Include="Internal\WcfManager.cs" />
-    <Compile Include="Internal\WcfServiceHost.cs" />
-    <Compile Include="IProfile.cs" />
-    <Compile Include="ISpecify.cs" />
-    <Compile Include="IWant.cs" />
-    <Compile Include="Order.cs" />
+    <Compile Include="Roles\AsA_Publisher.cs" />
+    <Compile Include="Arguments\HostArguments.cs" />
+    <Compile Include="InMemorySagaPersister.cs" />
+    <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
+    <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
+    <Compile Include="Profiles\Handlers\InstallDtcProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\InstallMsmqProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\InstallPerformanceCountersProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
+    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
+    <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\InstallDtc.cs" />
     <Compile Include="Profiles\InstallMsmq.cs" />
     <Compile Include="Profiles\InstallPerformanceCounters.cs" />
@@ -109,7 +102,9 @@
     <Compile Include="Profiles\Production.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Internal\HostServiceLocator.cs" />
+    <Compile Include="HostServiceLocator.cs" />
+    <Compile Include="Roles\AsA_Client.cs" />
+    <Compile Include="Roles\AsA_Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Help.txt" />

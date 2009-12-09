@@ -245,14 +245,19 @@
 	</target>
 	
 	<target name="compile_host">
-		<!-- Host -->
+    <!-- Hosting -->
+    <exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+		        commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting\"
+				workingdir="${solution.dir}\hosting" />
+
+    <!-- Windows Host -->
 		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" 
 		        commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\host\"
 				workingdir="${solution.dir}\host\NServiceBus.Host" />
 
 		<mkdir 	dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Magnum.dll ${build.base}\host\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host.txt"
+				commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Host.exe ${build.base}\host\NServiceBus.Hosting.dll ${build.base}\host\Microsoft.Practices.ServiceLocation.dll ${build.base}\host\Magnum.dll ${build.base}\host\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_host.txt"
 				workingdir="." />
 	</target>
 
@@ -266,7 +271,8 @@
 			<in>
 				<items>
 					<include name="${core.build.dir}\*Tests.dll" />
-					<exclude if="${servicehosting.version == ''}" name="${core.build.dir}\*Azure.Tests.dll" />
+          <include name="${host.build.dir}\*Tests.dll" />
+          <exclude if="${servicehosting.version == ''}" name="${core.build.dir}\*Azure.Tests.dll" />
 					
 			</items>
 			</in>
@@ -278,14 +284,6 @@
 			<arg line="${nservicebus.testassemblies}" />
 			<arg value="/xml:..\test-reports\UnitTests.xml" />
 		</exec>
-		
-		<!-- run the host tests -->
-		<if test="${msmq.version != ''}">
-			<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${host.build.dir}">
-				<arg value="NServiceBus.Host.Tests.dll" />
-				<arg value="/xml:..\test-reports\Host.UnitTests.xml" />
-			</exec>
-		</if>
 	</target>
 	
 	<target name="teamcity-nunit-addin" if="${property::exists('teamcity.dotnet.nunitaddin')}" >

@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Common.Logging;
-using NServiceBus.Host.Internal;
-using NServiceBus.Host.Internal.Arguments;
+using NServiceBus.Host.Arguments;
+using NServiceBus.Hosting.Helpers;
 using Topshelf;
 using Topshelf.Configuration;
 using System.Configuration;
@@ -54,7 +54,7 @@ namespace NServiceBus.Host
 
                 IRunConfiguration cfg = RunnerConfigurator.New(x =>
                 {
-                    x.ConfigureServiceInIsolation<GenericHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                    x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
                     {
                         c.ConfigurationFile(endpointConfigurationFile);
                         c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
