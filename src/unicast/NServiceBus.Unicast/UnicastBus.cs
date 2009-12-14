@@ -752,6 +752,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Dispose()
         {
+            transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+            transport.TransportMessageReceived -= TransportMessageReceived;
+            transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+            transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+
             transport.Dispose();
         }
 
