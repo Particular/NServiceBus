@@ -163,6 +163,26 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the handler tells the bus to stop processing the current message.
+        /// </summary>
+        /// <returns></returns>
+        public Handler<T> ExpectDoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            helper.ExpectDoNotContinueDispatchingCurrentMessageToHandlers();
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler tells the bus to handle the current message later.
+        /// </summary>
+        /// <returns></returns>
+        public Handler<T> ExpectHandleCurrentMessageLater()
+        {
+            helper.ExpectHandleCurrentMessageLater();
+            return this;
+        }
+
+        /// <summary>
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>

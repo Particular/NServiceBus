@@ -181,6 +181,32 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the object tells the bus to not dispatch the current message to any other handlers.
+        /// </summary>
+        /// <returns></returns>
+        public void ExpectDoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            Delegate d = new HandleMessageDelegate(
+                this.ExpectCallToDoNotContinueDispatchingCurrentMessageToHandlers
+                );
+
+            delegates.Add(d);
+        }
+
+        /// <summary>
+        /// Check that the object tells the bus to handle the current message later
+        /// </summary>
+        /// <returns></returns>
+        public void ExpectHandleCurrentMessageLater()
+        {
+            Delegate d = new HandleMessageDelegate(
+                this.ExpectCallToHandleCurrentMessageLater
+                );
+
+            delegates.Add(d);
+        }
+
+        /// <summary>
         /// Uses the given delegate to invoke the object, checking all the expectations previously set up,
         /// and then clearing them for continued testing.
         /// </summary>
@@ -269,6 +295,18 @@ namespace NServiceBus.Testing
             Expect.Call(() => bus.Publish(messages))
                 .IgnoreArguments()
                 .Callback(callback);
+        }
+
+        private void ExpectCallToDoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            Expect.Call(() => bus.DoNotContinueDispatchingCurrentMessageToHandlers())
+                .IgnoreArguments();
+        }
+
+        private void ExpectCallToHandleCurrentMessageLater()
+        {
+            Expect.Call(() => bus.HandleCurrentMessageLater())
+                .IgnoreArguments();
         }
 
         /// <summary>
