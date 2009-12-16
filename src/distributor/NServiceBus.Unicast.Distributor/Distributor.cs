@@ -38,6 +38,7 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         public int MillisToWaitIfCannotDispatchToWorker
         {
+            get { return millisToWaitIfCannotDispatchToWorker; }
             set { millisToWaitIfCannotDispatchToWorker = value; }
         }
 
