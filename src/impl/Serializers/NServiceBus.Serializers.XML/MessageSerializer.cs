@@ -664,6 +664,9 @@ namespace NServiceBus.Serializers.XML
         {
             if (value == null)
             {
+                if (typeof(IEnumerable).IsAssignableFrom(type))
+                    return;
+
                 var args = type.GetGenericArguments();
                 if (args.Length == 1)
                 {
