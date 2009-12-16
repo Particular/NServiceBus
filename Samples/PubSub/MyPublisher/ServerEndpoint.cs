@@ -1,7 +1,6 @@
 using System;
 using MyMessages;
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace MyPublisher
 {
