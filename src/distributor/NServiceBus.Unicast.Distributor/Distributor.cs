@@ -38,6 +38,7 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         public int MillisToWaitIfCannotDispatchToWorker
         {
+            get { return millisToWaitIfCannotDispatchToWorker;  }
             set { millisToWaitIfCannotDispatchToWorker = value; }
         }
 
@@ -64,6 +65,7 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         public void Stop()
         {
+            MessageBusTransport.TransportMessageReceived -= messageBusTransport_TransportMessageReceived;
         }
 
         /// <summary>

@@ -69,7 +69,7 @@ namespace MsmqWorkerAvailabilityManager
             {
                 try
                 {
-                    var m = storageQueue.Receive(TimeSpan.FromSeconds(1), MessageQueueTransactionType.Automatic);
+                    var m = storageQueue.Receive(MessageQueueTransactionType.Automatic);
 
                     if (m == null)
                         return null;
