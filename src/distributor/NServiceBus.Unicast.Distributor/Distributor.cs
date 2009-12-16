@@ -64,6 +64,7 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         public void Stop()
         {
+            MessageBusTransport.TransportMessageReceived -= messageBusTransport_TransportMessageReceived;
         }
 
         /// <summary>
