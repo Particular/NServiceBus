@@ -90,6 +90,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\external-bin\sqlite\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -103,6 +104,7 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="MessageModuleFixture.cs" />
     <Compile Include="MySaga.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_automapping_sagas.cs" />
@@ -110,6 +112,8 @@
     <Compile Include="When_configuring_the_saga_persister_from_appconfig.cs" />
     <Compile Include="When_configuring_the_saga_persister_to_use_sqlite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="When_persisting_sagas_on_non_transactional_endpoints.cs" />
+    <Compile Include="When_persisting_sagas_on_transactional_endpoints.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate.AutoPersistence\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.csproj">
