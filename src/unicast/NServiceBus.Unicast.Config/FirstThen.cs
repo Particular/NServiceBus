@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
 
 namespace NServiceBus
 {
@@ -22,11 +19,10 @@ namespace NServiceBus
         /// <returns></returns>
         public static First<T> Then<K>()
         {
-            if (instance == null)
-                instance = new First<T>();
+            var instance = new First<T>();
 
-            instance.Add<T>();
-            instance.Add<K>();
+            instance.AndThen<T>();
+            instance.AndThen<K>();
 
             return instance;
         }
@@ -39,14 +35,19 @@ namespace NServiceBus
             get { return types; }
         }
 
-        private void Add<TYPE>()
+        /// <summary>
+        /// Specifies the type which will run next
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <returns></returns>
+        public First<T> AndThen<K>()
         {
-            if (!types.Contains(typeof(TYPE)))
-                types.Add(typeof(TYPE));
+            if (!types.Contains(typeof(K)))
+                types.Add(typeof(K));
+
+            return this;
         }
 
         private IList<Type> types = new List<Type>();
-
-        private static First<T> instance;
     }
 }
