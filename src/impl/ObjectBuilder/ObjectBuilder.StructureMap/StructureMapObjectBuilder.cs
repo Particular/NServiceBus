@@ -117,6 +117,11 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             PluginCache.AddFilledType(lookupType);
         }
 
+        bool Common.IContainer.HasComponent(Type componentType)
+        {
+            throw new InvalidOperationException();
+        }
+
         private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
         {
             switch (callModel)

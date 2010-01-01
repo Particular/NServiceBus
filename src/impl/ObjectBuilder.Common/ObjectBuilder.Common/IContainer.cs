@@ -46,5 +46,12 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="lookupType"></param>
         /// <param name="instance"></param>
         void RegisterSingleton(Type lookupType, object instance);
+
+        /// <summary>
+        /// Indicates if a component of the given type has been configured.
+        /// </summary>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
+        bool HasComponent(Type componentType);
     }
 }

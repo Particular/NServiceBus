@@ -83,6 +83,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             }
         }
 
+        bool IContainer.HasComponent(Type componentType)
+        {
+            return Container.Kernel.HasComponent(componentType);
+        }
+
         private static LifestyleType GetLifestyleTypeFrom(ComponentCallModelEnum callModel)
         {
             switch (callModel)

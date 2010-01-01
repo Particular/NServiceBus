@@ -84,6 +84,16 @@ namespace NServiceBus.ObjectBuilder.Common
             return this;
         }
 
+        bool IConfigureComponents.HasComponent<T>()
+        {
+            return Container.HasComponent(typeof(T));
+        }
+
+        bool IConfigureComponents.HasComponent(Type componentType)
+        {
+            return Container.HasComponent(componentType);
+        }
+
         #endregion
 
         #region IBuilder Members

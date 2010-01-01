@@ -37,20 +37,23 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         object IContainer.Build(Type typeToBuild)
         {
-            this.Init();
+            Init();
             IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);
 
             if (dict.Count == 0)
                 return null;
 
-            IDictionaryEnumerator de = dict.GetEnumerator();
+            var de = dict.GetEnumerator();
 
-            return (de.MoveNext() ? de.Value : null);
+            if (de.MoveNext())
+                return de.Value;
+            
+            throw new ArgumentException(string.Format("{0} has not been configured. In order to avoid this exception, check the return value of the 'HasComponent' method for this type.", typeToBuild));
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
-            this.Init();
+            Init();
             IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);
 
             IDictionaryEnumerator de = dict.GetEnumerator();
@@ -86,6 +89,20 @@ namespace NServiceBus.ObjectBuilder.Spring
             ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
+        bool IContainer.HasComponent(Type componentType)
+        {
+            if (componentProperties.ContainsKey(componentType))
+                return true;
+
+            if (((IConfigurableApplicationContext) context).ObjectFactory.ContainsObjectDefinition(componentType.FullName))
+                return true;
+
+            if (((IConfigurableApplicationContext)context).ObjectFactory.ContainsSingleton(componentType.FullName))
+                return true;
+
+            return false;
+        }
+
         #endregion
 
         private void Init()
@@ -93,9 +110,9 @@ namespace NServiceBus.ObjectBuilder.Spring
             if (initialized)
                 return;
 
-            lock (this.componentProperties)
+            lock (componentProperties)
             {
-                foreach (Type t in this.componentProperties.Keys)
+                foreach (Type t in componentProperties.Keys)
                 {
                     ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
                         .SetAutowireMode(AutoWiringMode.AutoDetect)

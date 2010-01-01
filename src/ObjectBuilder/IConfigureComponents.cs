@@ -54,5 +54,19 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="instance"></param>
         /// <returns></returns>
         IConfigureComponents RegisterSingleton<T>(object instance);
+
+        /// <summary>
+        /// Indicates if a component of the given type has been configured.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        bool HasComponent<T>();
+
+        /// <summary>
+        /// Indicates if a component of the given type has been configured.
+        /// </summary>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
+        bool HasComponent(Type componentType);
     }
 }

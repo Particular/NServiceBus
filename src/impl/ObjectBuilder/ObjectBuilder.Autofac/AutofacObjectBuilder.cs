@@ -99,6 +99,11 @@ namespace NServiceBus.ObjectBuilder.Autofac
             builder.Build(this.Container);
         }
 
+        public bool HasComponent(Type componentType)
+        {
+            throw new InvalidOperationException();
+        }
+
         private void Initialize()
         {
             var builder = new ContainerBuilder();

@@ -97,6 +97,11 @@ namespace NServiceBus.ObjectBuilder.Unity
             container.RegisterInstance(lookupType, instance);
         }
 
+        public bool HasComponent(Type componentType)
+        {
+            throw new InvalidOperationException();
+        }
+
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
             if (t == null)
