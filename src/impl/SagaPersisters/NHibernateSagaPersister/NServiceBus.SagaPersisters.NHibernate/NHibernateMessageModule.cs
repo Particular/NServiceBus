@@ -13,34 +13,36 @@ namespace NServiceBus.SagaPersisters.NHibernate
     {
         void IMessageModule.HandleBeginMessage()
         {
-            if (SessionFactory != null)
+            if (SessionFactory == null) return;
+
+            var session = SessionFactory.OpenSession();
+
+            CurrentSessionContext.Bind(session);
+
+            if (NoAmbientTransaction())
             {
-                var session = SessionFactory.OpenSession();
-
-                CurrentSessionContext.Bind(session);
-
-                if (NoAmbientTransaction())
-                {
-                    session.BeginTransaction();
-                }
+                session.BeginTransaction();
             }
         }
 
         void IMessageModule.HandleEndMessage()
         {
-            if (NoAmbientTransaction())
-            {
-                var session = SessionFactory.GetCurrentSession();
+            if (SessionFactory == null) return;
 
-                session.Transaction.Commit();
-                session.Transaction.Dispose();
+            if (!NoAmbientTransaction()) return;
 
-                session.Close();
-            }
+            var session = SessionFactory.GetCurrentSession();
+
+            session.Transaction.Commit();
+            session.Transaction.Dispose();
+
+            session.Close();
         }
 
         void IMessageModule.HandleError()
         {
+            if (SessionFactory == null) return;
+
             //HandleError always run after the transactionscope so we can't check for ambient trans here
             var session = SessionFactory.GetCurrentSession();
 
