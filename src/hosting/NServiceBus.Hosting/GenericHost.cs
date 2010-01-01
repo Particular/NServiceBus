@@ -36,7 +36,31 @@ namespace NServiceBus.Hosting
                 }
 
                 if (specifier is IWantCustomInitialization)
-                    (specifier as IWantCustomInitialization).Init();
+                {
+                    if (specifier is IWantCustomLogging)
+                    {
+                        bool called = false;
+                        //make sure we don't call the Init method again, unless there's an explicit impl
+                        var initMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomInitialization));
+                        foreach (var m in initMap.TargetMethods)
+                            if (!m.IsPublic && m.Name == "NServiceBus.IWantCustomInitialization.Init")
+                            {
+                                (specifier as IWantCustomInitialization).Init();
+                                called = true;
+                            }
+
+                        if (!called)
+                        {
+                            //call the regular Init method if IWantCustomLogging was an explicitly implemented method
+                            var logMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomLogging));
+                            foreach (var tm in logMap.TargetMethods)
+                                if (!tm.IsPublic && tm.Name == "NServiceBus.IWantCustomLogging.Init")
+                                    (specifier as IWantCustomInitialization).Init();
+                        }
+                    }
+                    else
+                        (specifier as IWantCustomInitialization).Init();
+                }
                 else
                     Configure.With().SpringBuilder().XmlSerializer();
 
