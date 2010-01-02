@@ -101,7 +101,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         public bool HasComponent(Type componentType)
         {
-            throw new InvalidOperationException();
+            return this.Container.IsRegistered(componentType);
         }
 
         private void Initialize()
