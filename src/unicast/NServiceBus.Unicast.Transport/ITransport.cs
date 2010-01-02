@@ -37,12 +37,6 @@ namespace NServiceBus.Unicast.Transport
         void Send(TransportMessage m, string destination);
 
 		/// <summary>
-		/// Re-queues a message for processing at another time.
-		/// </summary>
-		/// <param name="m">The message to process later.</param>
-        void ReceiveMessageLater(TransportMessage m);
-
-		/// <summary>
 		/// Gets the address at which the transport receives messages.
 		/// </summary>
         string Address { get; }

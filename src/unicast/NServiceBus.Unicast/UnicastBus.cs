@@ -450,7 +450,7 @@ namespace NServiceBus.Unicast
             if (DistributorDataAddress != null)
                 transport.Send(_messageBeingHandled, DistributorDataAddress);
             else
-                transport.ReceiveMessageLater(_messageBeingHandled);
+                transport.Send(_messageBeingHandled, transport.Address);
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -486,7 +486,7 @@ namespace NServiceBus.Unicast
             {
                 m.ReturnAddress = GetReturnAddressFor(transport.Address);
 
-                transport.ReceiveMessageLater(m);
+                transport.Send(m, transport.Address);
             }
         }
 
@@ -702,7 +702,7 @@ namespace NServiceBus.Unicast
             toSend.ReturnAddress = transport.Address;
             toSend.MessageIntent = MessageIntentEnum.Init;
 
-            transport.ReceiveMessageLater(toSend);
+            transport.Send(toSend, transport.Address);
         }
 
         /// <summary>
