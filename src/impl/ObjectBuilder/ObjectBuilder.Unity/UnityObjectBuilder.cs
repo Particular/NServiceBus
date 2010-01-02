@@ -99,7 +99,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public bool HasComponent(Type componentType)
         {
-            throw new InvalidOperationException();
+            return container.ResolveAll<ConfigureComponentAdapter>().Any(x => x.ConfiguredType == componentType);
         }
 
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)

@@ -27,33 +27,17 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             this.container = container;
         }
 
-        /// <summary>
-        /// Gets the requested type, null is returned if type is not configured
-        /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <returns></returns>
         object Common.IContainer.Build(Type typeToBuild)
         {
             return container.TryGetInstance(typeToBuild);
 
         }
 
-        /// <summary>
-        /// Returns all instances of the given type
-        /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <returns></returns>
         IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)
         {
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
-        /// <summary>
-        /// Configures a property value for the given type
-        /// </summary>
-        /// <param name="component"></param>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
         void Common.IContainer.ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)
@@ -76,11 +60,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             }
         }
 
-        /// <summary>
-        /// Registers the given type in the conitainer
-        /// </summary>
-        /// <param name="component"></param>
-        /// <param name="callModel"></param>
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             var scope = GetInstanceScopeFrom(callModel);
@@ -105,11 +84,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 configuredInstances.Add(component, configuredInstance);
         }
 
-        /// <summary>
-        /// Registers the given object as a singletion in the container
-        /// </summary>
-        /// <param name="lookupType"></param>
-        /// <param name="instance"></param>
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
         {
 
@@ -119,7 +93,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         bool Common.IContainer.HasComponent(Type componentType)
         {
-            throw new InvalidOperationException();
+            return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
 
         private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
