@@ -238,20 +238,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-	    /// <summary>
-		/// Re-queues a message for processing at another time.
-		/// </summary>
-		/// <param name="m">The message to process later.</param>
-		/// <remarks>
-		/// This method will place the message onto the back of the queue
-		/// which may break message ordering.
-		/// </remarks>
-        public void ReceiveMessageLater(TransportMessage m)
-        {
-            if (!string.IsNullOrEmpty(InputQueue))
-                Send(m, InputQueue);
-        }
-
 		/// <summary>
 		/// Sends a message to the specified destination.
 		/// </summary>
