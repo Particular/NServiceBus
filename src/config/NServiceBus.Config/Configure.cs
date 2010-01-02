@@ -196,7 +196,7 @@ namespace NServiceBus
                             logger.Error("Problem with loading " + file.FullName, loaderException);
                         }
 
-                        throw;
+                        throw new InvalidOperationException("Could not load " + file.FullName + ". Consider using 'Configure.With(assemblies)' to tell NServiceBus not to load this file.", err);
                     }
 
                     result.AddRange(types);
