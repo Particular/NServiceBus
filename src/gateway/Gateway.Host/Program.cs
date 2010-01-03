@@ -29,7 +29,6 @@ namespace Gateway.Host
                                 {
                                     InputQueue = inputQueue,
                                     IsTransactional = true,
-                                    SkipDeserialization = true,
                                     NumberOfWorkerThreads = 1
                                 };
 

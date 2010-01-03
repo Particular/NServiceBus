@@ -47,8 +47,7 @@ namespace NServiceBus.Distributor
                 NumberOfWorkerThreads = numberOfThreads,
                 ErrorQueue = errorQueue,
                 IsTransactional = true,
-                PurgeOnStartup = false,
-                SkipDeserialization = true
+                PurgeOnStartup = false
             };
 
             Configure.Instance.Configurer

@@ -23,11 +23,7 @@ namespace WebGateway
             outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
             remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
 
-            transport = new MsmqTransport();
-            transport.InputQueue = inputQueue;
-            transport.IsTransactional = true;
-            transport.SkipDeserialization = true;
-            transport.NumberOfWorkerThreads = 1;
+            transport = new MsmqTransport {InputQueue = inputQueue, IsTransactional = true, NumberOfWorkerThreads = 1};
 
             transport.TransportMessageReceived += (s, args) =>
                 MsmqHandler.Handle(args.Message, remoteUrl);

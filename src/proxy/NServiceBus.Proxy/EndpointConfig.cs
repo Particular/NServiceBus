@@ -24,8 +24,7 @@ namespace NServiceBus.Proxy
                   MaxRetries = maxRetries,
                   ErrorQueue = errorQueue,
                   IsTransactional = true,
-                  PurgeOnStartup = false,
-                  SkipDeserialization = true
+                  PurgeOnStartup = false
               };
 
             var internalTransport = new MsmqTransport
@@ -35,8 +34,7 @@ namespace NServiceBus.Proxy
                 MaxRetries = maxRetries,
                 ErrorQueue = errorQueue,
                 IsTransactional = true,
-                PurgeOnStartup = false,
-                SkipDeserialization = true
+                PurgeOnStartup = false
             };
 
             var configure = Configure.With().SpringBuilder();

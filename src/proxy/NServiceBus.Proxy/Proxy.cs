@@ -112,9 +112,8 @@ namespace NServiceBus.Proxy
                 return;
             }
 
-            if (e.Message.Body != null)
-                if (e.Message.Body[0] is CompletionMessage)
-                    return;
+            if (e.Message.MessageIntent == MessageIntentEnum.Init)
+                return;
 
             var data = new ProxyData
                            {

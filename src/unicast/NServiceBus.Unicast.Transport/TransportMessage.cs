@@ -76,57 +76,13 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public List<HeaderInfo> Headers { get; set; }
 
-        private IMessage[] body;
-
-		/// <summary>
-		/// Gets/sets the array of messages in the message bundle.
-		/// </summary>
-		/// <remarks>
-		/// Since the XmlSerializer doesn't work well with interfaces,
-		/// we ask it to ignore this data and synchronize with the <see cref="messages"/> field.
-		/// </remarks>
-        [XmlIgnore]
-        public IMessage[] Body
-        {
-            get { return body; }
-            set { body = value; messages = new List<object>(body); }
-        }
-
-        private Stream bodyStream;
-
-        
 		/// <summary>
 		/// Gets/sets a stream to the body content of the message
 		/// </summary>
 		/// <remarks>
 		/// Used for cases where we can't deserialize the contents.
 		/// </remarks>
-		[XmlIgnore]
-        public Stream BodyStream
-        {
-            get { return bodyStream; }
-            set { bodyStream = value; }
-        }
-
-        private List<object> messages;
-
-		/// <summary>
-		/// Gets/sets the list of messages in the message bundle.
-		/// </summary>
-        public List<object> Messages
-        {
-            get { return messages; }
-            set { messages = value; }
-        }
-
-		/// <summary>
-		/// Recreates the list of messages in the body field
-		/// from the contents of the messages field.
-		/// </summary>
-        public void CopyMessagesToBody()
-        {
-            body = new IMessage[messages.Count];
-            messages.CopyTo(body);
-        }
+        [XmlIgnore]
+        public Stream BodyStream { get; set; }
     }
 }

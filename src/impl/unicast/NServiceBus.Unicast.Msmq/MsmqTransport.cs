@@ -42,12 +42,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public bool IsTransactional { get; set; }
 
-		/// <summary>
-		/// Sets whether or not the transport should deserialize
-		/// the body of the message placed on the queue.
-		/// </summary>
-        public bool SkipDeserialization { get; set; }
-
 	    /// <summary>
 	    /// Sets whether or not the transport should purge the input
 	    /// queue when it is started.
@@ -101,11 +95,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// if they do not already exist.
         /// </summary>
         public bool DoNotCreateQueues { get; set; }
-
-        /// <summary>
-        /// Sets the object which will be used to serialize and deserialize messages.
-        /// </summary>
-        public IMessageSerializer MessageSerializer { get; set; }
 
         /// <summary>
         /// Sets the object which will be used for sending and receiving messages.
@@ -211,7 +200,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Start()
         {
-            CheckConfiguration();
             CreateQueuesIfNecessary();
 
             MessageQueue.Init(InputQueue, PurgeOnStartup, SecondsToWaitForMessage);
@@ -221,12 +209,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
             }
-        }
-
-        private void CheckConfiguration()
-        {
-            if (MessageSerializer == null && !SkipDeserialization)
-                throw new InvalidOperationException("No message serializer has been configured.");
         }
 
         private void CreateQueuesIfNecessary()
@@ -255,7 +237,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 throw new ConfigurationException("The destination queue '" + destination +
                                                      "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                     m.Body[0].GetType().FullName +
+                                                     //m.Body[0].GetType().FullName +
                                                      ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
                                                      "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
                                                     , ex);
@@ -354,25 +336,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 StartedMessageProcessing(this, null);
 
             var result = Convert(m);
-
-            if (SkipDeserialization)
-                result.BodyStream = m.BodyStream;
-            else
-            {
-                try
-                {
-                    result.Body = Extract(m);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Could not extract message data.", e);
-
-                    MoveToErrorQueue(m);
-
-                    OnFinishedMessageProcessing(); // don't care about failures here
-                    return; // deserialization failed - no reason to try again, so don't throw
-                }
-            }
 
             //care about failures here
             var exceptionNotThrown = OnTransportMessageReceived(result);
@@ -506,6 +469,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		    var result = new TransportMessage
 		                     {
 		                         Id = m.Id,
+                                 BodyStream = m.BodyStream,
 		                         CorrelationId =
 		                             (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
 		                                  ? null
@@ -545,21 +509,14 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             var result = new QueuedMessage
                              {
-                                 AppSpecific = (int)message.MessageIntent,
+                                 AppSpecific = (int) message.MessageIntent,
                                  CorrelationId = message.CorrelationId,
                                  Label = GetLabel(message),
                                  Recoverable = message.Recoverable,
                                  ResponseQueue = message.ReturnAddress,
-                                 TimeToBeReceived = message.TimeToBeReceived
+                                 TimeToBeReceived = message.TimeToBeReceived,
+                                 BodyStream = message.BodyStream
                              };
-
-            if (message.Body == null && message.BodyStream != null)
-                result.BodyStream = message.BodyStream;
-            else
-            {
-                result.BodyStream = new MemoryStream();
-                MessageSerializer.Serialize(message.Body, result.BodyStream);
-            }
 
             if (message.Headers != null && message.Headers.Count > 0)
             {
@@ -638,16 +595,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         private static string GetLabel(TransportMessage m)
         {
             return string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>",IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
-        }
-
-        /// <summary>
-        /// Extracts the messages from a <see cref="QueuedMessage"/>.
-        /// </summary>
-        /// <param name="message">The message to extract from.</param>
-        /// <returns>An array of handleable messages.</returns>
-        private IMessage[] Extract(QueuedMessage message)
-        {
-            return MessageSerializer.Deserialize(message.BodyStream);
         }
 
         private bool OnFinishedMessageProcessing()

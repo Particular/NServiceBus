@@ -13,6 +13,8 @@ using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 using System.Text;
 using System.Linq;
+using NServiceBus.Serialization;
+using System.IO;
 
 namespace NServiceBus.Unicast
 {
@@ -95,16 +97,17 @@ namespace NServiceBus.Unicast
 
 		/// <summary>
         /// Should be used by programmer, not administrator.
-        /// Sets an <see cref="ISubscriptionStorage"/> implementation to
+        /// Gets and sets an <see cref="ISubscriptionStorage"/> implementation to
 		/// be used for subscription storage for the bus.
 		/// </summary>
-        public virtual ISubscriptionStorage SubscriptionStorage
-        {
-            set
-            {
-                subscriptionStorage = value;
-            }
-        }
+        public virtual ISubscriptionStorage SubscriptionStorage { get; set;  }
+
+        /// <summary>
+        /// Should be used by the programmer, not the administrator.
+        /// Gets and sets an <see cref="IMessageSerializer"/> implementation to
+        /// be used for subscription storage for the bus.
+        /// </summary>
+        public virtual IMessageSerializer MessageSerializer { get; set; }
 
 		/// <summary>
         /// Should be used by programmer, not administrator.
@@ -330,10 +333,10 @@ namespace NServiceBus.Unicast
 		/// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
-            if (subscriptionStorage == null)
+            if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
-            var subscribers = subscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
+            var subscribers = SubscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
             
             if (subscribers.Count() == 0)
                 if (NoSubscribersForMessage != null)
@@ -645,6 +648,9 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
+                if (MessageSerializer == null)
+                    throw new InvalidOperationException("No message serializer has been configured.");
+
                 if (startupAction != null)
                     startupAction();
 
@@ -654,8 +660,8 @@ namespace NServiceBus.Unicast
                 if (mods != null)
                     modules.AddRange(mods);
 
-                if (subscriptionStorage != null)
-                    subscriptionStorage.Init();
+                if (SubscriptionStorage != null)
+                    SubscriptionStorage.Init();
 
                 transport.Start();
 
@@ -813,25 +819,28 @@ namespace NServiceBus.Unicast
 
             ForwardMessageIfNecessary(m);
 
-            HandleCorellatedMessage(m);
+            var messages = MessageSerializer.Deserialize(m.BodyStream);
 
-            foreach (var toHandle in m.Body)
-            {
-                ExtensionMethods.CurrentMessageBeingHandled = toHandle;
+            HandleCorellatedMessage(m, messages);
 
-                var canDispatch = true;
-                foreach (var condition in subscriptionsManager.GetConditionsForMessage(toHandle))
+            if (messages != null)
+                foreach (var toHandle in messages)
                 {
-                    if (condition(toHandle)) continue;
+                    ExtensionMethods.CurrentMessageBeingHandled = toHandle;
 
-                    Log.Debug(string.Format("Condition {0} failed for message {1}", condition, toHandle.GetType().Name));
-                    canDispatch = false;
-                    break;
+                    var canDispatch = true;
+                    foreach (var condition in subscriptionsManager.GetConditionsForMessage(toHandle))
+                    {
+                        if (condition(toHandle)) continue;
+
+                        Log.Debug(string.Format("Condition {0} failed for message {1}", condition, toHandle.GetType().Name));
+                        canDispatch = false;
+                        break;
+                    }
+
+                    if (canDispatch)
+                        DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
                 }
-
-                if (canDispatch)
-                    DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
-            }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
@@ -908,8 +917,9 @@ namespace NServiceBus.Unicast
 		/// If the message contains a correlationId, attempts to
 		/// invoke callbacks for that Id.
 		/// </summary>
-		/// <param name="msg">The message to evaluate.</param>
-        private void HandleCorellatedMessage(TransportMessage msg)
+        /// <param name="msg">The message to evaluate.</param>
+        /// <param name="messages">The logical messages in the transport message.</param>
+        private void HandleCorellatedMessage(TransportMessage msg, IMessage[] messages)
         {
             if (msg.CorrelationId == null)
                 return;
@@ -923,14 +933,14 @@ namespace NServiceBus.Unicast
             }
 
             if (busAsyncResult != null)
-                if (msg.Body != null)
-                    if (msg.Body.Length == 1)
+                if (messages != null)
+                    if (messages.Length == 1)
                     {
-                        var cm = msg.Body[0] as CompletionMessage;
+                        var cm = messages[0] as CompletionMessage;
                         if (cm != null)
                             busAsyncResult.Complete(cm.ErrorCode, null);
                         else
-                            busAsyncResult.Complete(int.MinValue, msg.Body);
+                            busAsyncResult.Complete(int.MinValue, messages);
                     }
         }
 
@@ -956,7 +966,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            if (HandledSubscriptionMessage(msg, subscriptionStorage, SubscriptionAuthorizer))
+            if (HandledSubscriptionMessage(msg, SubscriptionStorage, SubscriptionAuthorizer))
             {
                 var messageType = GetSubscriptionMessageTypeFrom(msg);
 
@@ -967,7 +977,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-		    Log.Debug("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
+		    Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReturnAddress);
 
             _messageBeingHandled = msg;
             _handleCurrentMessageLaterWasCalled = false;
@@ -1117,12 +1127,7 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent != MessageIntentEnum.Init)
                 return false;
 
-            if (msg.Body.Length > 1)
-                return false;
-
-            // A CompletionMessage is used out of convenience as the initialization message.
-            var em = msg.Body[0] as CompletionMessage;
-            return em != null;
+            return true;
         }
 
         #endregion
@@ -1241,9 +1246,11 @@ namespace NServiceBus.Unicast
         {
             var result = new TransportMessage
                              {
-                                 Body = messages,
-                                 WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name
+                                 WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name,
+                                 BodyStream = new MemoryStream()
                              };
+
+		    MessageSerializer.Serialize(messages, result.BodyStream);
 
 		    if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = transport.Address;
@@ -1449,11 +1456,6 @@ namespace NServiceBus.Unicast
 		/// Gets/sets the subscription manager to use for the bus.
 		/// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
-
-        /// <summary>
-        /// Gets/sets the subscription storage.
-        /// </summary>
-	    protected ISubscriptionStorage subscriptionStorage;
 
         /// <summary>
         /// The list of message modules.
