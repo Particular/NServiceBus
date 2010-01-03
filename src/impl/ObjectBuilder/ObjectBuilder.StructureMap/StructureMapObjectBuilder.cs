@@ -29,8 +29,10 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         object Common.IContainer.Build(Type typeToBuild)
         {
-            return container.TryGetInstance(typeToBuild);
-
+            if(container.Model.PluginTypes.Any(t=>t.PluginType == typeToBuild))
+               return container.GetInstance(typeToBuild);
+    
+            throw new ArgumentException(typeToBuild + " is not registered in the container");
         }
 
         IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)

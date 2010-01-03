@@ -63,7 +63,7 @@ namespace NServiceBus.Hosting.Helpers
         }
     }
 
-    public static class AssemblyListExtensions
+    internal static class AssemblyListExtensions
     {
         public static IEnumerable<Type> AllTypes(this IEnumerable<Assembly> assemblies)
         {

@@ -37,19 +37,20 @@ namespace ObjectBuilder.Tests
                            c.Configure(typeof (ExistingComponentWithUnsatisfiedDep), ComponentCallModelEnum.Singlecall);
                        };
         }
-    }
-    public class NonExistingComponent
-    {
-    }
-
-    public class ExistingComponent
-    {
-    }
-    public class ExistingComponentWithUnsatisfiedDep
-    {
-        public ExistingComponentWithUnsatisfiedDep(NonExistingComponent dependency)
+        public class NonExistingComponent
         {
-            
+        }
+
+        public class ExistingComponent
+        {
+        }
+        public class ExistingComponentWithUnsatisfiedDep
+        {
+            public ExistingComponentWithUnsatisfiedDep(NonExistingComponent dependency)
+            {
+
+            }
         }
     }
+   
 }

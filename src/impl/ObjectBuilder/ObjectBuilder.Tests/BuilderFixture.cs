@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.CastleWindsor;
@@ -21,10 +22,25 @@ namespace ObjectBuilder.Tests
 
         private IList<IContainer> objectBuilders;
 
-        protected void VerifyForAllBuilders(Action<IContainer> assertion)
+        protected void VerifyForAllBuilders(Action<IContainer> assertion,params Type[] containersToIgnore)
         {
-            objectBuilders.ToList().ForEach(builder => { assertion(builder); });
-        }
+            bool failed = false;
+
+            foreach (var builder in objectBuilders.Where(b=>!containersToIgnore.Contains(b.GetType())))
+            {
+                try
+                {
+                    assertion(builder);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Test failed for: " + builder.GetType().Name);
+                    Debug.WriteLine(ex);
+                    failed = true;
+                }
+            }
+            Assert.False(failed,"One or more of the builers failed");
+         }
 
         [SetUp]
         public void SetUp()

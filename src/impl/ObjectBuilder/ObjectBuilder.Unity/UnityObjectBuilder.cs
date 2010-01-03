@@ -39,11 +39,10 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public object Build(Type typeToBuild)
         {
-            if (typesWithDefaultInstances.Contains(typeToBuild))
-            {
-                return container.Resolve(typeToBuild);
-            }
-            return null;
+            if (!typesWithDefaultInstances.Contains(typeToBuild))
+                throw new ArgumentException(typeToBuild + " is not registered in the container");
+
+            return container.Resolve(typeToBuild);
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)

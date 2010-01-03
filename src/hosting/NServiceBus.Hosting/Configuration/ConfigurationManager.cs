@@ -6,8 +6,16 @@ using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting.Configuration
 {
+    /// <summary>
+    /// Configures the host upon startup
+    /// </summary>
     public class ConfigManager
     {
+        /// <summary>
+        /// Contructs the manager with the given user configuration and the list of assemblies that should be scanned
+        /// </summary>
+        /// <param name="assembliesToScan"></param>
+        /// <param name="specifier"></param>
         public ConfigManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
         {
             this.specifier = specifier;
@@ -22,6 +30,9 @@ namespace NServiceBus.Hosting.Configuration
                 }
         }
 
+        /// <summary>
+        /// Configures the user classes that need custom config and those that are marked to run at startup
+        /// </summary>
         public void ConfigureCustomInitAndStartup()
         {
             foreach (var t in toRunAtStartup)
@@ -37,6 +48,9 @@ namespace NServiceBus.Hosting.Configuration
             }
         }
 
+        /// <summary>
+        /// Executes the user classes that are marked as "run at startup"
+        /// </summary>
         public void Startup()
         {
             thingsToRunAtStartup = Configure.Instance.Builder.BuildAll<IWantToRunAtStartup>();
@@ -68,6 +82,9 @@ namespace NServiceBus.Hosting.Configuration
             }
         }
 
+        /// <summary>
+        /// Shutsdown the user classes started earlier
+        /// </summary>
         public void Shutdown()
         {
             if (thingsToRunAtStartup == null)

@@ -110,6 +110,7 @@ namespace NServiceBus.Hosting
         /// </summary>
         /// <param name="specifier"></param>
         /// <param name="args"></param>
+        /// <param name="defaultProfiles"></param>
         public GenericHost(IConfigureThisEndpoint specifier, string[] args,IEnumerable<Type> defaultProfiles)
         {
             this.specifier = specifier;

@@ -17,6 +17,10 @@ namespace NServiceBus.Hosting.Roles
         private readonly IDictionary<Type, Type> availableRoles;
         private static readonly ILog logger = LogManager.GetLogger(typeof (RoleManager));
 
+        /// <summary>
+        /// Creates the manager with the list of assemblies to scan for roles
+        /// </summary>
+        /// <param name="assembliesToScan"></param>
         public RoleManager(IEnumerable<Assembly> assembliesToScan)
         {
             availableRoles = assembliesToScan.AllTypes()
