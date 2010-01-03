@@ -28,6 +28,9 @@ namespace NServiceBus.Serializers.Binary
         /// <returns></returns>
         public IMessage[] Deserialize(Stream stream)
         {
+            if (stream == null)
+                return null;
+
             var body = binaryFormatter.Deserialize(stream) as List<object>;
 
             if (body == null)

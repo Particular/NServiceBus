@@ -201,6 +201,9 @@ namespace NServiceBus.Serializers.XML
         /// <returns></returns>
         public IMessage[] Deserialize(Stream stream)
         {
+            if (stream == null)
+                return null;
+
             prefixesToNamespaces = new Dictionary<string, string>();
             messageBaseTypes = new List<Type>();
             var result = new List<IMessage>();
