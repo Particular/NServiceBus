@@ -467,7 +467,7 @@
 
   </target>
 
-  <target name="package" dependes="build">
+  <target name="package" depends="build">
     <delete dir="${release.dir}" failonerror="false"></delete>
     <mkdir dir="${release.dir}" />
 
