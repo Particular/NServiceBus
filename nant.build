@@ -276,6 +276,7 @@
       <in>
         <items>
           <include name="${core.build.dir}\*Tests.dll" />
+          <exclude if="${servicehosting.version == ''}" name="${core.build.dir}\*Azure.Tests.dll" />
         </items>
       </in>
       <do>
