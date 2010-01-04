@@ -12,6 +12,8 @@ namespace NServiceBus.Host.Profiles.Handlers
             Configure.Instance
                 .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
+            Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+
             if (Config is AsA_Publisher)
             {
                 if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
