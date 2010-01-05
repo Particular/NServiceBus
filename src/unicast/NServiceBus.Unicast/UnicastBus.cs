@@ -15,6 +15,7 @@ using System.Text;
 using System.Linq;
 using NServiceBus.Serialization;
 using System.IO;
+using NServiceBus.Faults;
 
 namespace NServiceBus.Unicast
 {
@@ -238,6 +239,11 @@ namespace NServiceBus.Unicast
         /// Object that will be used to authorize subscription requests.
         /// </summary>
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get; set; }
+
+        /// <summary>
+        /// Object that will be used to manage failures.
+        /// </summary>
+        public IManageMessageFailures FailureManager { get; set; }
 
         #endregion
 
@@ -819,7 +825,7 @@ namespace NServiceBus.Unicast
 
             ForwardMessageIfNecessary(m);
 
-            var messages = MessageSerializer.Deserialize(m.BodyStream);
+            var messages = Extract(m);
 
             HandleCorellatedMessage(m, messages);
 
@@ -843,6 +849,19 @@ namespace NServiceBus.Unicast
                 }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
+        }
+
+        private IMessage[] Extract(TransportMessage m)
+        {
+            try
+            {
+                return MessageSerializer.Deserialize(m.BodyStream);
+            }
+            catch (Exception e)
+            {
+                FailureManager.SerializationFailedForMessage(m, e);
+                return null;
+            }
         }
 
 		/// <summary>
