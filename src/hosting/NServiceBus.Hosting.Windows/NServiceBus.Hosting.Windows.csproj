@@ -53,10 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -107,6 +103,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Hosting\NServiceBus.Hosting.csproj">
+      <Project>{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}</Project>
+      <Name>NServiceBus.Hosting</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "OrderServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMessages", "MyMessages\MyMessages.csproj", "{3871CC9B-235F-4E60-98F7-FEF04DB1201B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Host.Azure", "..\NServiceBus.Host.Azure\NServiceBus.Host.Azure.csproj", "{5BBA0B6E-9896-4A46-81BB-44115B6B637C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{3871CC9B-235F-4E60-98F7-FEF04DB1201B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3871CC9B-235F-4E60-98F7-FEF04DB1201B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3871CC9B-235F-4E60-98F7-FEF04DB1201B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BBA0B6E-9896-4A46-81BB-44115B6B637C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BBA0B6E-9896-4A46-81BB-44115B6B637C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BBA0B6E-9896-4A46-81BB-44115B6B637C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BBA0B6E-9896-4A46-81BB-44115B6B637C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

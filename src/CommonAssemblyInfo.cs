@@ -15,7 +15,7 @@ using System.Security;
 
 [assembly: AssemblyVersionAttribute("2.1.0.0")]
 [assembly: AssemblyFileVersionAttribute("2.1.0.0")]
-[assembly: AssemblyCopyrightAttribute("Copyright © NServiceBus 2007-2009")]
+[assembly: AssemblyCopyrightAttribute("Copyright © NServiceBus 2007-2010")]
 [assembly: AssemblyProductAttribute("NServiceBus")]
 [assembly: AssemblyCompanyAttribute("NServiceBus")]
 [assembly: AssemblyConfigurationAttribute("release")]

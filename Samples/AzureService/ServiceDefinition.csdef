@@ -13,5 +13,6 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString"/>
     </ConfigurationSettings>
+   
   </WorkerRole>
 </ServiceDefinition>
