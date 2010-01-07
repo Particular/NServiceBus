@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Transactions;
 using Common.Logging;
-using NServiceBus.Serialization;
+using NServiceBus.Faults;
 using System.Xml.Serialization;
 using System.IO;
 using System.Diagnostics;
@@ -100,6 +100,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Sets the object which will be used for sending and receiving messages.
         /// </summary>
         public IMessageQueue MessageQueue { get; set; }
+
+        /// <summary>
+        /// Manages failed message processing.
+        /// </summary>
+        public IManageMessageFailures FailureManager { get; set; }
 
         #endregion
 
