@@ -1,7 +1,7 @@
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
 
-namespace NServiceBus.Host.Roles.Handlers
+namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     /// <summary>
     /// Handles configuration related to the client role

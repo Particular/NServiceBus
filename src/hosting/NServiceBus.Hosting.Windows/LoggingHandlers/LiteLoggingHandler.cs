@@ -1,7 +1,7 @@
 ﻿using System.Collections.Specialized;
 using Common.Logging;
 
-namespace NServiceBus.Host.LoggingHandlers
+namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     /// <summary>
     /// Handles logging configuration for the lite profile.

@@ -1,7 +1,7 @@
 ﻿using NServiceBus.Hosting.Profiles;
 using NServiceBus.Utils;
 
-namespace NServiceBus.Host.Profiles.Handlers
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     /// <summary>
     /// Installs performance counters.

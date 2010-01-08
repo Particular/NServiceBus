@@ -70,10 +70,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NServiceBus.Host.Azure\NServiceBus.Host.Azure.csproj">
-      <Project>{5BBA0B6E-9896-4A46-81BB-44115B6B637C}</Project>
-      <Name>NServiceBus.Host.Azure</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">
       <Project>{3871CC9B-235F-4E60-98F7-FEF04DB1201B}</Project>
       <Name>MyMessages</Name>

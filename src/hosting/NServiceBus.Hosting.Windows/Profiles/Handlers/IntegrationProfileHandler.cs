@@ -3,7 +3,7 @@ using NServiceBus.Hosting.Profiles;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 
-namespace NServiceBus.Host.Profiles.Handlers
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
     {
@@ -12,7 +12,7 @@ namespace NServiceBus.Host.Profiles.Handlers
             Configure.Instance
                 .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
-            Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.Configurer.ConfigureComponent<Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
 
             if (Config is AsA_Publisher)
             {

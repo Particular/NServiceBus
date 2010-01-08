@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor
 {
     class EndpointRunner : IWantToRunAtStartup
     {

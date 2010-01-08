@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Indicates that the lightest weight infrastructure should be used.

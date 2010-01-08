@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace Timeout.MessageHandlers
 {

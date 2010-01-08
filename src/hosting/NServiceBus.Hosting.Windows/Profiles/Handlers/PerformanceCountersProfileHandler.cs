@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using NServiceBus.Hosting;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Unicast.Transport.Msmq;
 
-namespace NServiceBus.Host.Profiles.Handlers
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     /// <summary>
     /// Handles the PerformanceCounters profile.

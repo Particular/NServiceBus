@@ -1,6 +1,6 @@
 ﻿using NServiceBus.Hosting.Profiles;
 
-namespace NServiceBus.Host.Profiles.Handlers
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     /// <summary>
     /// Installs the distributed transaction coordinator.

@@ -2,7 +2,7 @@ using System.Linq;
 using Topshelf.Internal;
 using Topshelf.Internal.ArgumentParsing;
 
-namespace NServiceBus.Host.Arguments
+namespace NServiceBus.Hosting.Windows.Arguments
 {
     internal class HostArguments
     {

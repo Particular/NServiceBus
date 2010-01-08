@@ -261,7 +261,7 @@
     <!-- Merge the windowshost and it's dependecies -->
     <mkdir 	dir="${output.dir}\host" />
     <exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt"
+				commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt"
 				workingdir="." />
   </target>
 

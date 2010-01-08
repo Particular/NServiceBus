@@ -1,7 +1,7 @@
 ﻿using NServiceBus.Hosting.Profiles;
 using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.Host.Profiles.Handlers
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
@@ -9,7 +9,7 @@ namespace NServiceBus.Host.Profiles.Handlers
         {
             Configure.Instance.InMemorySagaPersister();
 
-            Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.Configurer.ConfigureComponent<Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
 
             if (Config is AsA_Publisher)
                 Configure.Instance.InMemorySubscriptionStorage();

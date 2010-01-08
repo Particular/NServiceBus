@@ -1,7 +1,6 @@
 using System;
-using NServiceBus.Hosting;
 
-namespace NServiceBus.Host
+namespace NServiceBus.Hosting.Windows
 {
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution

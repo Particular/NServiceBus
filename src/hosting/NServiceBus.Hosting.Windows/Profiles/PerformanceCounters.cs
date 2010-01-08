@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Indicates that performance counters should be published.

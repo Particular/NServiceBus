@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Profile indicating that you want the host to automatically check if MSMQ is installed,

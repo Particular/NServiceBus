@@ -1,5 +1,4 @@
 ﻿using System;
-using NServiceBus.Host;
 using NServiceBus;
 
 namespace Logging

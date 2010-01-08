@@ -1,6 +1,4 @@
-﻿using NServiceBus.Host;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Indicates that infrastructure suitable for integration environments be used.

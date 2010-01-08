@@ -1,7 +1,5 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Transport.Msmq;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using Common.Logging;
-using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using NServiceBus.Unicast.Transport.Msmq;

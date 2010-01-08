@@ -1,6 +1,5 @@
 ﻿using MyMessages;
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace Subscriber2
 {
