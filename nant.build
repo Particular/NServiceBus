@@ -541,7 +541,7 @@
     <property name="msmqinterop.reference" value="&lt;Reference Include='Interop.MSMQ, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null'&gt;&lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;&lt;HintPath&gt;..\..\..\..\..\external-bin\Interop.MSMQ.dll&lt;/HintPath&gt;&lt;/Reference&gt;" />
 
     <!-- Modify projects to reference common.logging directly-->
-    <property name="addreference.project" value="src\host\nservicebus.host\nservicebus.host.csproj"/>
+    <property name="addreference.project" value="src\hosting\nservicebus.hosting.windows\nservicebus.hosting.windows.csproj"/>
     <property name="addreference.reference_to_add" value="${logging.reference}${log4net.reference}"/>
     <call target="utilities.addreference"/>
 
