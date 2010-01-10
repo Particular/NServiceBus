@@ -7,12 +7,12 @@ namespace Barista
     {
         public BaristaRegistry()
         {
-            ForRequestedType<IStarbucksBaristaView>()
-                .CacheBy(InstanceScope.Singleton)
-                .TheDefault.Is.OfConcreteType<StarbucksBarista>();
+            For<IStarbucksBaristaView>()
+                .Singleton()
+                .Use<StarbucksBarista>();
 
-            ForRequestedType<IMessageSubscriptions>()
-                .TheDefault.Is.OfConcreteType<MessageSubscriptions>();
+            For<IMessageSubscriptions>()
+                .Use<MessageSubscriptions>();
         }
     }
 }

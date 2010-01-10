@@ -1,4 +1,3 @@
-using StructureMap.Attributes;
 using StructureMap.Configuration.DSL;
 
 namespace Cashier
@@ -7,9 +6,9 @@ namespace Cashier
     {
         public CashierRegistry()
         {
-            ForRequestedType<IStarbucksCashierView>()
-                .CacheBy(InstanceScope.Singleton)
-                .TheDefault.Is.OfConcreteType<StarbucksCashier>();  
+            For<IStarbucksCashierView>()
+                .Singleton()
+                .Use<StarbucksCashier>();  
         }
     }
 }
