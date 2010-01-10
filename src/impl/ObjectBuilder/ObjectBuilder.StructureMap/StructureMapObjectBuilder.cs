@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using StructureMap;
-using StructureMap.Attributes;
 using StructureMap.Graph;
 using StructureMap.Pipeline;
 using IContainer = StructureMap.IContainer;
@@ -64,15 +63,15 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
-            var scope = GetInstanceScopeFrom(callModel);
+            var lifecycle = GetLifecycleFrom(callModel);
 
             ConfiguredInstance configuredInstance = null;
 
             container.Configure(x =>
             {
-                configuredInstance = x.ForRequestedType(component)
-                     .CacheBy(scope)
-                     .TheDefaultIsConcreteType(component);
+                configuredInstance = x.For(component)
+                     .LifecycleIs(lifecycle)
+                     .Use(component);
 
                 foreach (var implementedInterface in GetAllInterfacesImplementedBy(component))
                 {
@@ -98,12 +97,12 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
 
-        private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
+        private static ILifecycle GetLifecycleFrom(ComponentCallModelEnum callModel)
         {
             switch (callModel)
             {
-                case ComponentCallModelEnum.Singlecall: return InstanceScope.PerRequest;
-                case ComponentCallModelEnum.Singleton: return InstanceScope.Singleton;
+                case ComponentCallModelEnum.Singlecall: return new UniquePerRequestLifecycle();
+                case ComponentCallModelEnum.Singleton: return new SingletonLifecycle();
             }
 
             throw new ArgumentException("Unhandled call model:" + callModel);

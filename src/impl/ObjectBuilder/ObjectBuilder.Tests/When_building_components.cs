@@ -17,6 +17,15 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        public void Singlecall_components_should_yield_unique_instances()
+        {
+            VerifyForAllBuilders((builder) =>
+               builder.Build(typeof(SinglecallComponent)).ShouldNotBeTheSameAs(builder.Build(typeof(SinglecallComponent))));
+        }
+
+
+
+        [Test]
         public void Reguesting_an_unregistered_component_should_throw()
         {
             
@@ -31,13 +40,16 @@ namespace ObjectBuilder.Tests
             return (config) =>
                        {
                            config.Configure(typeof(SingletonComponent),ComponentCallModelEnum.Singleton);
+                           config.Configure(typeof(SinglecallComponent), ComponentCallModelEnum.Singlecall);
                        };
         }
 
         public class SingletonComponent
         {
         }
-
+        public class SinglecallComponent
+        {
+        }
         public class UnregisteredComponent
         {
         }
