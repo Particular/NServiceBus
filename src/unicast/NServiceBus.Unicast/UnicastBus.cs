@@ -855,7 +855,7 @@ namespace NServiceBus.Unicast
         {
             try
             {
-                return MessageSerializer.Deserialize(m.BodyStream);
+                return MessageSerializer.Deserialize(new MemoryStream(m.Body));
             }
             catch (Exception e)
             {
@@ -1266,10 +1266,11 @@ namespace NServiceBus.Unicast
             var result = new TransportMessage
                              {
                                  WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name,
-                                 BodyStream = new MemoryStream()
                              };
 
-		    MessageSerializer.Serialize(messages, result.BodyStream);
+		    var ms = new MemoryStream();
+		    MessageSerializer.Serialize(messages, ms);
+		    result.Body = ms.ToArray();
 
 		    if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = transport.Address;

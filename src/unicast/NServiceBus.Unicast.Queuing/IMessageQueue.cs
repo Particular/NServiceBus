@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Unicast.Queuing
+﻿using NServiceBus.Unicast.Transport;
+namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
     /// Abstraction of a message queue
@@ -19,7 +20,7 @@
         /// <param name="message"></param>
         /// <param name="destination"></param>
         /// <param name="transactional"></param>
-        void Send(QueuedMessage message, string destination, bool transactional);
+        void Send(TransportMessage message, string destination, bool transactional);
 
         /// <summary>
         /// Returns true if there's a message in the queue passed in the Init method.
@@ -31,7 +32,7 @@
         /// Tries to receive a message from the queue passed in Init, flowing transactions as requested.
         /// </summary>
         /// <param name="transactional"></param>
-        QueuedMessage Receive(bool transactional);
+        TransportMessage Receive(bool transactional);
 
         /// <summary>
         /// Creates the given queue if it doesn't already exist.

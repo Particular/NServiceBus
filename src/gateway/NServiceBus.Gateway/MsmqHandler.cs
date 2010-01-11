@@ -17,18 +17,15 @@ namespace NServiceBus.Gateway
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
 
-            byte[] buffer = new byte[msg.BodyStream.Length];
-            msg.BodyStream.Read(buffer, 0, (int)msg.BodyStream.Length);
-
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = buffer.Length;
+            request.ContentLength = msg.Body.Length;
 
             HeaderMapper.Map(msg, request.Headers);
 
-            string hash = Hasher.Hash(buffer);
+            string hash = Hasher.Hash(msg.Body);
             request.Headers[Hasher.HeaderKey] = hash;
 
-            request.GetRequestStream().Write(buffer, 0, buffer.Length);
+            request.GetRequestStream().Write(msg.Body, 0, msg.Body.Length);
 
             Console.WriteLine("Sending HTTP Request.");
 
@@ -44,7 +41,7 @@ namespace NServiceBus.Gateway
             for (int i = 0; i < read; i++)
                 bytes[i] = b[i];
 
-            string result = System.Text.ASCIIEncoding.ASCII.GetString(bytes);
+            string result = Encoding.ASCII.GetString(bytes);
 
             if (result == hash)
                 Console.WriteLine("Message transferred successfully.");

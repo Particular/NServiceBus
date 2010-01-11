@@ -2,6 +2,7 @@ using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
 using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Queuing;
+using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queueing.Azure.Tests
@@ -17,7 +18,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             var destinationQueue = GetDestinationQueue();
             using (new TransactionScope())
             {
-                queue.Send(new QueuedMessage(), destinationQueueName, true);
+                queue.Send(new TransportMessage(), destinationQueueName, true);
             }
             destinationQueue.GetMessage().ShouldBeNull();
         }
@@ -37,7 +38,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         {
             var destinationQueue = GetDestinationQueue();
 
-            queue.Send(new QueuedMessage(), destinationQueueName, false);
+            queue.Send(new TransportMessage(), destinationQueueName, false);
 
             destinationQueue.GetMessage().ShouldNotBeNull();
         }
@@ -46,7 +47,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         public void The_message_id_should_be_updated_with_the_native_id()
         {
             GetDestinationQueue();
-            var message = new QueuedMessage();
+            var message = new TransportMessage();
 
             queue.Send(message, destinationQueueName, false);
 
@@ -55,7 +56,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         [Test]
         public void A_QueueNotFoundException_should_be_thrown_if_the_desitnation_queue_does_not_exists()
         {
-            Assert.Throws<QueueNotFoundException>(() => queue.Send(new QueuedMessage(), "whatever", true));
+            Assert.Throws<QueueNotFoundException>(() => queue.Send(new TransportMessage(), "whatever", true));
         }
     }
 }

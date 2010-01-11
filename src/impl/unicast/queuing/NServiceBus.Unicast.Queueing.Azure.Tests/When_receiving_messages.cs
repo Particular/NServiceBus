@@ -6,6 +6,7 @@ using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
+using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
 
@@ -116,7 +117,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
             var message = queue.Receive(false);
 
-            message.BodyStream.ShouldBeNull();
+            message.Body.ShouldBeNull();
         }
 
         [Test]
@@ -129,17 +130,14 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
                 var testMessage = new TestMessage {TestProperty = "Test"};
                 formatter.Serialize(stream,testMessage);
 
-                var original = new QueuedMessage
+                var original = new TransportMessage
                                    {
-                                       Label = "TestLabel",
-                                       BodyStream = stream,
-                                       AppSpecific = 1,
+                                       Body = stream.ToArray(),
+                                       MessageIntent = MessageIntentEnum.Send,
                                        CorrelationId = "123",
                                        //Id = "11111",
-                                       Extension = new byte[4],
-                                       LookupId = 444,
                                        Recoverable = true,
-                                       ResponseQueue = "response",
+                                       ReturnAddress= "response",
                                        TimeSent = DateTime.Now,
                                        TimeToBeReceived = TimeSpan.FromHours(1)
                                    };
@@ -147,18 +145,15 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
                 var result = queue.Receive(false);
 
-                var resultMessage = formatter.Deserialize(result.BodyStream) as TestMessage;
+                var resultMessage = formatter.Deserialize(new MemoryStream(result.Body)) as TestMessage;
                 resultMessage.TestProperty.ShouldEqual("Test");
 
 
-                result.AppSpecific.ShouldEqual(original.AppSpecific);
+                result.MessageIntent.ShouldEqual(original.MessageIntent);
                 result.CorrelationId.ShouldEqual(original.CorrelationId);
-                result.Extension.ShouldEqual(original.Extension);
                 result.Id.ShouldNotBeNull();
-                result.Label.ShouldEqual(original.Label);
-                result.LookupId.ShouldEqual(original.LookupId);
                 result.Recoverable.ShouldEqual(original.Recoverable);
-                result.ResponseQueue.ShouldEqual(original.ResponseQueue);
+                result.ReturnAddress.ShouldEqual(original.ReturnAddress);
                 result.TimeSent.ShouldEqual(original.TimeSent);
                 result.TimeToBeReceived.ShouldEqual(original.TimeToBeReceived);
 

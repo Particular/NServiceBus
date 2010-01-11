@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using NServiceBus.Unicast.Transport;
 using System.IO;
@@ -20,8 +21,7 @@ namespace NServiceBus.Gateway
 
             if (myHash == hash)
             {
-                TransportMessage msg = new TransportMessage();
-                msg.BodyStream = new MemoryStream(buffer);
+                var msg = new TransportMessage {Body = buffer};
 
                 HeaderMapper.Map(ctx.RequestHeaders, msg);
 
@@ -32,7 +32,7 @@ namespace NServiceBus.Gateway
             {
                 Console.WriteLine("Sending HTTP response.");
 
-                byte[] b = System.Text.ASCIIEncoding.ASCII.GetBytes(hash);
+                byte[] b = Encoding.ASCII.GetBytes(hash);
                 ctx.ResponseOutputStream.Write(b, 0, b.Length);
             }
 

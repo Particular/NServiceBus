@@ -4,8 +4,6 @@ using System.Threading;
 using System.Transactions;
 using Common.Logging;
 using NServiceBus.Faults;
-using System.Xml.Serialization;
-using System.IO;
 using System.Diagnostics;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Utils;
@@ -232,11 +230,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
-		    var toSend = Convert(m);
-
             try
             {
-                MessageQueue.Send(toSend, destination, IsTransactional);
+                MessageQueue.Send(m, destination, IsTransactional);
             }
             catch(QueueNotFoundException ex)
             {
@@ -247,8 +243,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                                                      "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
                                                     , ex);
             }
-
-            m.Id = toSend.Id;
         }
 
         #endregion
@@ -304,10 +298,12 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 //in case AbortHandlingCurrentMessage was called
                 return; //don't increment failures, we want this message kept around.
             }
-            catch
+            catch(Exception e)
             {
                 if (IsTransactional)
-                    IncrementFailuresForMessage(_messageId);
+                {
+                    IncrementFailuresForMessage(_messageId, e);
+                }
 
                 OnFailedMessageProcessing();
             }
@@ -329,21 +325,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (IsTransactional)
             {
-                if (HandledMaxRetries(m.Id))
-                {
-                    MoveToErrorQueue(m);
+                if (HandledMaxRetries(m))
                     return;
-                }                    
             }
 
             //exceptions here will cause a rollback - which is what we want.
             if (StartedMessageProcessing != null)
                 StartedMessageProcessing(this, null);
 
-            var result = Convert(m);
-
             //care about failures here
-            var exceptionNotThrown = OnTransportMessageReceived(result);
+            var exceptionNotThrown = OnTransportMessageReceived(m);
             //and here
             var otherExNotThrown = OnFinishedMessageProcessing();
 
@@ -356,8 +347,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 throw new ApplicationException("Exception occured while processing message.");
         }
 
-        private bool HandledMaxRetries(string messageId)
+        private bool HandledMaxRetries(TransportMessage message)
         {
+            string messageId = message.Id;
+
             failuresPerMessageLocker.EnterReadLock();
 
             if (failuresPerMessage.ContainsKey(messageId) &&
@@ -365,7 +358,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 failuresPerMessageLocker.ExitReadLock();
                 failuresPerMessageLocker.EnterWriteLock();
+
+                var ex = exceptionsForMessages[messageId];
+                FailureManager.ProcessingAlwaysFailsForMessage(message, ex);
+
                 failuresPerMessage.Remove(messageId);
+                exceptionsForMessages.Remove(messageId);
+
                 failuresPerMessageLocker.ExitWriteLock();
 
                 return true;
@@ -382,14 +381,17 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	        {
 	            failuresPerMessageLocker.ExitReadLock();
 	            failuresPerMessageLocker.EnterWriteLock();
+
 	            failuresPerMessage.Remove(messageId);
-	            failuresPerMessageLocker.ExitWriteLock();
+	            exceptionsForMessages.Remove(messageId);
+	            
+                failuresPerMessageLocker.ExitWriteLock();
 	        }
 	        else
 	            failuresPerMessageLocker.ExitReadLock();
 	    }
 
-	    private void IncrementFailuresForMessage(string messageId)
+	    private void IncrementFailuresForMessage(string messageId, Exception e)
 	    {
 	        failuresPerMessageLocker.EnterWriteLock();
 	        try
@@ -398,6 +400,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	                failuresPerMessage[messageId] = 1;
 	            else
 	                failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
+
+                exceptionsForMessages[messageId] = e;
 	        }
 	        finally
 	        {
@@ -425,7 +429,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
         [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private QueuedMessage Receive()
+        private TransportMessage Receive()
         {
             try
             {
@@ -444,162 +448,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
         /// <summary>
-        /// Moves the given message to the configured error queue.
-        /// </summary>
-        /// <param name="m"></param>
-	    protected void MoveToErrorQueue(QueuedMessage m)
-	    {
-            m.Label = m.Label +
-                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, InputQueue);
-
-	        if (ErrorQueue != null)
-	            MessageQueue.Send(m, ErrorQueue, false);
-	    }
-
-        /// <summary>
         /// Causes the processing of the current message to be aborted.
         /// </summary>
 	    public void AbortHandlingCurrentMessage()
         {
             _needToAbort = true;
-        }
-
-		/// <summary>
-        /// Converts a <see cref="QueuedMessage"/> into an NServiceBus message.
-		/// </summary>
-        /// <param name="m">The QueuedMessage to convert.</param>
-		/// <returns>An NServiceBus message.</returns>
-        public TransportMessage Convert(QueuedMessage m)
-        {
-		    var result = new TransportMessage
-		                     {
-		                         Id = m.Id,
-                                 BodyStream = m.BodyStream,
-		                         CorrelationId =
-		                             (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
-		                                  ? null
-		                                  : m.CorrelationId),
-		                         Recoverable = m.Recoverable,
-		                         TimeToBeReceived = m.TimeToBeReceived,
-                                 TimeSent = m.TimeSent,
-                                 ReturnAddress = m.ResponseQueue,
-		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
-                             };
-
-		    FillIdForCorrelationAndWindowsIdentity(result, m);
-
-            if (string.IsNullOrEmpty(result.IdForCorrelation))
-                result.IdForCorrelation = result.Id;
-
-            if (m.Extension != null && m.Extension.Length > 0)
-            {
-                var stream = new MemoryStream(m.Extension);
-                var o = headerSerializer.Deserialize(stream);
-                result.Headers = o as List<HeaderInfo>;
-            }
-            else
-            {
-                result.Headers = new List<HeaderInfo>();
-            }
-
-		    return result;
-        }
-
-        /// <summary>
-        /// Converts the given message to its QueuedMessage equivalent.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public QueuedMessage Convert(TransportMessage message)
-        {
-            var result = new QueuedMessage
-                             {
-                                 AppSpecific = (int) message.MessageIntent,
-                                 CorrelationId = message.CorrelationId,
-                                 Label = GetLabel(message),
-                                 Recoverable = message.Recoverable,
-                                 ResponseQueue = message.ReturnAddress,
-                                 TimeToBeReceived = message.TimeToBeReceived,
-                                 BodyStream = message.BodyStream
-                             };
-
-            if (message.Headers != null && message.Headers.Count > 0)
-            {
-                using (var stream = new MemoryStream())
-                {
-                    headerSerializer.Serialize(stream, message.Headers);
-                    result.Extension = stream.GetBuffer();
-                }
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Returns the queue whose process failed processing the given message
-        /// by accessing the label of the message.
-        /// </summary>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        public static string GetFailedQueue(string label)
-        {
-            if (label == null)
-                return null;
-
-            if (!label.Contains(FAILEDQUEUE))
-                return null;
-
-            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
-            var count = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
-
-            return label.Substring(startIndex, count);
-        }
-
-        /// <summary>
-        /// Gets the label of the message stripping out the failed queue.
-        /// </summary>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        public static string GetLabelWithoutFailedQueue(string label)
-        {
-            if (label == null)
-                return null;
-
-            if (!label.Contains(FAILEDQUEUE))
-                return label;
-
-            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
-            var endIndex = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
-            endIndex += FAILEDQUEUE.Length + 3;
-
-            return label.Remove(startIndex, endIndex - startIndex);
-        }
-
-        private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, QueuedMessage m)
-        {
-            if (m.Label == null)
-                return;
-
-            if (m.Label.Contains(IDFORCORRELATION))
-            {
-                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", IDFORCORRELATION)) + IDFORCORRELATION.Length + 2;
-                int idCount = m.Label.IndexOf(string.Format("</{0}>", IDFORCORRELATION)) - idStartIndex;
-
-                result.IdForCorrelation = m.Label.Substring(idStartIndex, idCount);
-            }
-
-            if (m.Label.Contains(WINDOWSIDENTITYNAME))
-            {
-                int winStartIndex = m.Label.IndexOf(string.Format("<{0}>", WINDOWSIDENTITYNAME)) + WINDOWSIDENTITYNAME.Length + 2;
-                int winCount = m.Label.IndexOf(string.Format("</{0}>", WINDOWSIDENTITYNAME)) - winStartIndex;
-
-                result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
-            }
-        }
-
-        private static string GetLabel(TransportMessage m)
-        {
-            return string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>",IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
         }
 
         private bool OnFinishedMessageProcessing()
@@ -654,10 +507,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         #region members
 
-	    private static readonly string IDFORCORRELATION = "CorrId";
-	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
-	    private static readonly string FAILEDQUEUE = "FailedQ";
-
         private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
@@ -666,6 +515,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// </summary>
 	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 
+        /// <summary>
+        /// Accessed by multiple threads, manage together with failuresPerMessage.
+        /// </summary>
+        private readonly IDictionary<string, Exception> exceptionsForMessages = new Dictionary<string, Exception>();
+
 	    [ThreadStatic] 
         private static volatile bool _needToAbort;
 
@@ -673,7 +527,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqTransport));
 
-        private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         #endregion
 
         #region IDisposable Members

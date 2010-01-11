@@ -9,7 +9,7 @@ namespace ReturnToSourceQueue
     {
         static void Main(string[] args)
         {
-            Class1 c = new Class1();
+            ErrorManager c = new ErrorManager();
 
             string inputQueue = null;
             string messageId = null;

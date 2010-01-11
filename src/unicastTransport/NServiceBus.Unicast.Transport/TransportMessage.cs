@@ -77,12 +77,8 @@ namespace NServiceBus.Unicast.Transport
         public List<HeaderInfo> Headers { get; set; }
 
 		/// <summary>
-		/// Gets/sets a stream to the body content of the message
+		/// Gets/sets a byte array to the body content of the message
 		/// </summary>
-		/// <remarks>
-		/// Used for cases where we can't deserialize the contents.
-		/// </remarks>
-        [XmlIgnore]
-        public Stream BodyStream { get; set; }
+        public byte[] Body { get; set; }
     }
 }

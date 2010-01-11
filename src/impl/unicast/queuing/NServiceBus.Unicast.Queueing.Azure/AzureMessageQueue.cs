@@ -6,6 +6,7 @@ using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.Queueing.Azure
 {
@@ -33,7 +34,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
                 queue.Clear();
         }
 
-        public void Send(QueuedMessage message, string destination, bool transactional)
+        public void Send(TransportMessage message, string destination, bool transactional)
         {
             var sendQueue = client.GetQueueReference(destination);
 
@@ -58,7 +59,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
             return queue.PeekMessage() != null;
         }
 
-        public QueuedMessage Receive(bool transactional)
+        public TransportMessage Receive(bool transactional)
         {
             var rawMessage = GetMessage(transactional);
 
@@ -97,23 +98,28 @@ namespace NServiceBus.Unicast.Queueing.Azure
             return message;
         }
 
-        private static CloudQueueMessage SerializeMessage(QueuedMessage originalMessage)
+        private static CloudQueueMessage SerializeMessage(TransportMessage originalMessage)
         {
-            return new AzureMessage(originalMessage).ToNativeMessage();
+            using (var stream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(stream, originalMessage);
+                return new CloudQueueMessage(stream.ToArray());
+            }
         }
 
-        private static QueuedMessage DeserializeMessage(CloudQueueMessage rawMessage)
+        private static TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
         {
             var formatter = new BinaryFormatter();
 
             using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
-                var message = formatter.Deserialize(stream) as AzureMessage;
+                var message = formatter.Deserialize(stream) as TransportMessage;
 
                 if (message == null)
                     throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
 
-                return message.ToQueueMessage();
+                return message;
             }
         }
 

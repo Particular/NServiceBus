@@ -1,6 +1,6 @@
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Queuing;
+using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queueing.Azure.Tests
@@ -42,10 +42,10 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
         protected void AddTestMessage()
         {
-            AddTestMessage(new QueuedMessage());
+            AddTestMessage(new TransportMessage());
         }
 
-        protected void AddTestMessage(QueuedMessage messageToAdd)
+        protected void AddTestMessage(TransportMessage messageToAdd)
         {
             queue.Send(messageToAdd,QueueName,false);
         }
