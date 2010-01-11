@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using NServiceBus;
 using MyMessages;
 
@@ -20,6 +21,8 @@ namespace MyClient
 
                 Bus.OutgoingHeaders["Test"] = g.ToString("N");
 
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
                 Bus.Send<RequestDataMessage>(m =>
                                                  {
                                                      m.DataId = g;
@@ -31,6 +34,9 @@ namespace MyClient
                                        Bus.CurrentMessageContext.Headers["Test"],
                                        Bus.CurrentMessageContext.Headers["1"],
                                        Bus.CurrentMessageContext.Headers["2"]));
+                watch.Stop();
+
+                Console.WriteLine("Elapsed time: {0}", watch.ElapsedMilliseconds);
             }
         }
 
