@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,8 +20,6 @@ namespace NServiceBus.Host
     {
         private static void Main(string[] args)
         {
-            InitializeLogging();
-
             try
             {
                 Parser.Args commandLineArguments = Parser.ParseArgs(args);
@@ -219,35 +216,5 @@ namespace NServiceBus.Host
 
             }
         }
-
-        private static void InitializeLogging()
-        {
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
-            var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            var level = log4net.Core.Level.Warn;
-
-            var appender = new log4net.Appender.RollingFileAppender
-            {
-                Layout = layout,
-                Threshold = level,
-                CountDirection = 1,
-                DatePattern = "yyyy-MM-dd",
-                RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
-                MaxFileSize = 1024 * 1024,
-                MaxSizeRollBackups = 10,
-                LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
-                StaticLogFileName = true,
-                File = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "hostlogfile"),
-                AppendToFile = true
-            };
-            appender.ActivateOptions();
-
-            log4net.Config.BasicConfigurator.Configure(appender);
-        }
-
-
     }
 }
