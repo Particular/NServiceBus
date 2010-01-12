@@ -1,4 +1,5 @@
 using System;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast;
@@ -34,6 +35,10 @@ namespace NServiceBus.Proxy
             }
         }
 
+        public IMessageQueue InternalQueue { get; set; }
+
+        public IMessageQueue ExternalQueue { get; set; }
+
         public IProxyDataStorage Storage { private get; set; }
 
         public string RemoteServer
@@ -55,6 +60,8 @@ namespace NServiceBus.Proxy
         }
 
         private string remoteServer;
+
+        public string ExternalAddress { get; set; }
 
         #endregion
 
@@ -81,7 +88,7 @@ namespace NServiceBus.Proxy
                 Logger.Debug("Received notification from " + remoteServer + ".");
 
                 foreach(var s in subs)
-                    internalTransport.Send(e.Message, s);
+                    InternalQueue.Send(e.Message, s);
             }
             else
             {
@@ -97,7 +104,7 @@ namespace NServiceBus.Proxy
 
                 Logger.Debug("Received response from " + remoteServer + ".");
 
-                internalTransport.Send(e.Message, data.ClientAddress);
+                InternalQueue.Send(e.Message, data.ClientAddress);
             }
         }
 
@@ -105,8 +112,8 @@ namespace NServiceBus.Proxy
         {
             if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers, null))
             {
-                e.Message.ReturnAddress = externalTransport.Address;
-                externalTransport.Send(e.Message, remoteServer);
+                e.Message.ReturnAddress = ExternalAddress;
+                ExternalQueue.Send(e.Message, remoteServer);
 
                 Logger.Debug("Received subscription message.");
                 return;
@@ -127,9 +134,9 @@ namespace NServiceBus.Proxy
             Logger.Debug("Forwarding request to " + remoteServer + ".");
 
             e.Message.IdForCorrelation = data.Id;
-            e.Message.ReturnAddress = externalTransport.Address;
+            e.Message.ReturnAddress = ExternalAddress;
 
-            externalTransport.Send(e.Message, remoteServer);
+            ExternalQueue.Send(e.Message, remoteServer);
 
             return;
         }

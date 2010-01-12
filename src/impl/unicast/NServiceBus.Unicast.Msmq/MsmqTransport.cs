@@ -23,19 +23,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         #region config info
 
 		/// <summary>
-		/// The path to the queue the transport will read from.
-		/// Only specify the name of the queue - msmq specific address not required.
-		/// When using MSMQ v3, only local queues are supported.
-		/// </summary>
-        public string InputQueue { get; set; }
-
-		/// <summary>
-		/// Sets the path to the queue the transport will transfer
-		/// errors to.
-		/// </summary>
-        public string ErrorQueue { get; set; }
-
-		/// <summary>
 		/// Sets whether or not the transport is transactional.
 		/// </summary>
         public bool IsTransactional { get; set; }
@@ -135,17 +122,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
-		/// <summary>
-		/// Gets the address of the input queue.
-		/// </summary>
-        public string Address
-        {
-            get
-            {
-                return InputQueue;
-            }
-        }
-
         /// <summary>
         /// Changes the number of worker threads to the given target,
         /// stopping or starting worker threads as needed.
@@ -183,46 +159,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public void Start()
         {
-            CreateQueuesIfNecessary();
-
-            MessageQueue.Init(InputQueue);
-
-            if (!string.IsNullOrEmpty(InputQueue))
-            {
-                for (int i = 0; i < numberOfWorkerThreads; i++)
-                    AddWorkerThread().Start();
-            }
-        }
-
-        private void CreateQueuesIfNecessary()
-        {
-            if (!DoNotCreateQueues)
-            {
-                MessageQueue.CreateQueue(InputQueue);
-                MessageQueue.CreateQueue(ErrorQueue);
-            }
-        }
-
-		/// <summary>
-		/// Sends a message to the specified destination.
-		/// </summary>
-		/// <param name="m">The message to send.</param>
-		/// <param name="destination">The address of the destination to send the message to.</param>
-        public void Send(TransportMessage m, string destination)
-        {
-            try
-            {
-                MessageQueue.Send(m, destination, IsTransactional);
-            }
-            catch(QueueNotFoundException ex)
-            {
-                throw new ConfigurationException("The destination queue '" + destination +
-                                                     "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                     //m.Body[0].GetType().FullName +
-                                                     ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
-                                                     "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                                                    , ex);
-            }
+            for (int i = 0; i < numberOfWorkerThreads; i++)
+                AddWorkerThread().Start();
         }
 
         #endregion

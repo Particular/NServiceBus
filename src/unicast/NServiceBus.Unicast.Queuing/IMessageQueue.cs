@@ -13,12 +13,11 @@ namespace NServiceBus.Unicast.Queuing
         void Init(string inputqueue);
 
         /// <summary>
-        /// Sends the given message to the destination, flowing transactions as requested.
+        /// Sends the given message to the destination.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="destination"></param>
-        /// <param name="transactional"></param>
-        void Send(TransportMessage message, string destination, bool transactional);
+        void Send(TransportMessage message, string destination);
 
         /// <summary>
         /// Returns true if there's a message in the queue passed in the Init method.

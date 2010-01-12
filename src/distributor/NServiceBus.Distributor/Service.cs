@@ -2,14 +2,18 @@
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Distributor;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport.Msmq;
 using ConfigurationException=Common.Logging.ConfigurationException;
+using NServiceBus.Unicast.Queuing.Msmq;
+using NServiceBus.Unicast;
 
 namespace NServiceBus.Distributor
 {
     public class Service : IConfigureThisEndpoint, IWantCustomInitialization 
     {
         public static MsmqTransport DataTransport { get; private set; }
+        public static IMessageQueue MessageSender { get; private set; }
 
         public void Init()
         {
@@ -39,18 +43,22 @@ namespace NServiceBus.Distributor
                     throw new ConfigurationException("Serialization can only be either 'xml', or 'binary'.");
             }
 
+            MessageSender = new MsmqMessageQueue();
+            MessageSender.Init(ConfigurationManager.AppSettings["DataInputQueue"]);
+
             DataTransport = new MsmqTransport
             {
-                InputQueue = ConfigurationManager.AppSettings["DataInputQueue"],
                 NumberOfWorkerThreads = numberOfThreads,
-                ErrorQueue = errorQueue,
-                IsTransactional = true
+                IsTransactional = true,
+                MessageQueue = MessageSender
             };
 
+
+
             Configure.Instance.Configurer
-                .ConfigureProperty<MsmqTransport>(t => t.InputQueue,ConfigurationManager.AppSettings["ControlInputQueue"])
-                .ConfigureProperty<MsmqTransport>(t => t.ErrorQueue, errorQueue)
                 .ConfigureProperty<MsmqTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
+            Configure.Instance.Configurer
+                .ConfigureProperty<UnicastBus>(t => t.Address, ConfigurationManager.AppSettings["ControlInputQueue"]);
 
 
             Configure.Instance.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(

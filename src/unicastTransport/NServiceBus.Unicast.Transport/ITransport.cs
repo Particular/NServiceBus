@@ -30,18 +30,6 @@ namespace NServiceBus.Unicast.Transport
 	    void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
 		/// <summary>
-		/// Sends a message to the specified destination.
-		/// </summary>
-		/// <param name="m">The message to send.</param>
-		/// <param name="destination">The address to send the message to.</param>
-        void Send(TransportMessage m, string destination);
-
-		/// <summary>
-		/// Gets the address at which the transport receives messages.
-		/// </summary>
-        string Address { get; }
-
-		/// <summary>
 		/// Raised when a message is received at the transport's <see cref="Address"/>.
 		/// </summary>
         event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

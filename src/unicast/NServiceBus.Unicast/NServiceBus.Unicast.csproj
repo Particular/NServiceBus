@@ -87,6 +87,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Queuing\NServiceBus.Unicast.Queuing.csproj">
+      <Project>{04E1CE2E-C0F5-492B-BF5B-C7E9DABE92F7}</Project>
+      <Name>NServiceBus.Unicast.Queuing</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
       <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
       <Name>NServiceBus.Unicast.Subscriptions</Name>

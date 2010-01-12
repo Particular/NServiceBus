@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             var destinationQueue = GetDestinationQueue();
             using (new TransactionScope())
             {
-                queue.Send(new TransportMessage(), destinationQueueName, true);
+                queue.Send(new TransportMessage(), destinationQueueName);
             }
             destinationQueue.GetMessage().ShouldBeNull();
         }
@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
         {
             var destinationQueue = GetDestinationQueue();
 
-            queue.Send(new TransportMessage(), destinationQueueName, false);
+            queue.Send(new TransportMessage(), destinationQueueName);
 
             destinationQueue.GetMessage().ShouldNotBeNull();
         }
@@ -49,14 +49,14 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             GetDestinationQueue();
             var message = new TransportMessage();
 
-            queue.Send(message, destinationQueueName, false);
+            queue.Send(message, destinationQueueName);
 
             message.Id.ShouldNotBeNull();
         }
         [Test]
         public void A_QueueNotFoundException_should_be_thrown_if_the_desitnation_queue_does_not_exists()
         {
-            Assert.Throws<QueueNotFoundException>(() => queue.Send(new TransportMessage(), "whatever", true));
+            Assert.Throws<QueueNotFoundException>(() => queue.Send(new TransportMessage(), "whatever"));
         }
     }
 }

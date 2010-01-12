@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using Common.Logging;
+using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport.Msmq;
 using System.Net;
 using System.Threading;
@@ -25,9 +26,12 @@ namespace Gateway.Host
 
             status();
 
+            var q = new MsmqMessageQueue();
+            q.Init(inputQueue);
+
             var transport = new MsmqTransport
                                 {
-                                    InputQueue = inputQueue,
+                                    MessageQueue = q,
                                     IsTransactional = true,
                                     NumberOfWorkerThreads = 1
                                 };
@@ -49,7 +53,7 @@ namespace Gateway.Host
                 HttpListenerContext context = listener.GetContext();
                 new Thread(o =>
                                {
-                                   HttpRequestHandler.Handle(((HttpListenerContext)o).AsIContext(), transport, outputQueue);
+                                   HttpRequestHandler.Handle(((HttpListenerContext)o).AsIContext(), q, outputQueue);
                                    status();
                                }).Start(context);
             }

@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
 
         protected void AddTestMessage(TransportMessage messageToAdd)
         {
-            queue.Send(messageToAdd,QueueName,false);
+            queue.Send(messageToAdd, QueueName);
         }
 
     }

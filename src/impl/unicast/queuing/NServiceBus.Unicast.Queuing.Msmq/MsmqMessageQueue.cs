@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 {
     public class MsmqMessageQueue : IMessageQueue
     {
-        public void Send(TransportMessage message, string destination, bool transactional)
+        public void Send(TransportMessage message, string destination)
         {
             var address = MsmqUtilities.GetFullPath(destination);
 
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 try
                 {
-                    q.Send(toSend, GetTransactionTypeForSend(transactional));
+                    q.Send(toSend, GetTransactionTypeForSend());
                 }
                 catch (MessageQueueException ex)
                 {
@@ -212,12 +212,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return transactional ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
         }
 
-        private static MessageQueueTransactionType GetTransactionTypeForSend(bool transactional)
+        private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if (transactional)
-                return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
-
-            return MessageQueueTransactionType.Single;
+            return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
         }
 
         private static string GetLabel(TransportMessage m)

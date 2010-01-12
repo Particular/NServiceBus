@@ -7,6 +7,7 @@
         public void Run()
         {
             Distributor.MessageBusTransport = Service.DataTransport;
+            Distributor.MessageSender = Service.MessageSender;
             Distributor.Start();
         }
 

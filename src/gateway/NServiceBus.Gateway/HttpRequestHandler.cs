@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
 using System.IO;
 using NServiceBus.Unicast.Transport.Msmq;
@@ -11,7 +12,7 @@ namespace NServiceBus.Gateway
 {
     public class HttpRequestHandler
     {
-        public static void Handle(IContext ctx, MsmqTransport transport, string queue)
+        public static void Handle(IContext ctx, IMessageQueue sender, string queue)
         {
             byte[] buffer = new byte[ctx.RequestContentLength];
             ctx.RequestInputStream.Read(buffer, 0, buffer.Length);
@@ -25,7 +26,7 @@ namespace NServiceBus.Gateway
 
                 HeaderMapper.Map(ctx.RequestHeaders, msg);
 
-                transport.Send(msg, queue);
+                sender.Send(msg, queue);
             }
 
             if (hash != null)

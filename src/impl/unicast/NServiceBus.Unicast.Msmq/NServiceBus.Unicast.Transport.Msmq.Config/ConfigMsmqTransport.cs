@@ -29,9 +29,11 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
 
             if (cfg != null)
             {
-                transportConfig.ConfigureProperty(t => t.InputQueue, cfg.InputQueue);
+                NServiceBus.Configure.Instance.Configurer
+                    .ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton)
+                        .ConfigureProperty(t => t.Address, cfg.InputQueue);
+
                 transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
-                transportConfig.ConfigureProperty(t => t.ErrorQueue, cfg.ErrorQueue);
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
             }
         }

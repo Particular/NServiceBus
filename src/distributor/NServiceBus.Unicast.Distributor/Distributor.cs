@@ -2,6 +2,7 @@ using System.Threading;
 using Common.Logging;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
+using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Unicast.Distributor
 {
@@ -24,6 +25,11 @@ namespace NServiceBus.Unicast.Distributor
         /// to access the bus containing messages to distribute.
         /// </summary>
         public ITransport MessageBusTransport { get; set; }
+
+        /// <summary>
+        /// Object used to send messages.
+        /// </summary>
+        public IMessageQueue MessageSender { get; set; }
 
         /// <summary>
         /// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be
@@ -89,7 +95,7 @@ namespace NServiceBus.Unicast.Distributor
             else
             {
                 logger.Debug("Sending message to: " + destination);
-                MessageBusTransport.Send(e.Message, destination);
+                MessageSender.Send(e.Message, destination);
             }
         }
 

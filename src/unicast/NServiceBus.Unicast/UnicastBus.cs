@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using Common.Logging;
 using NServiceBus.Messages;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.ObjectBuilder;
@@ -62,6 +63,11 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// The address that the bus will listen to for messages.
+        /// </summary>
+        public string Address { get; set; }
+
+        /// <summary>
         /// A reference to the transport.
         /// </summary>
         protected ITransport transport;
@@ -69,7 +75,7 @@ namespace NServiceBus.Unicast
 		/// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
-		/// message transport for the bus.
+		/// listening endpoint for the bus.
 		/// </summary>
         public virtual ITransport Transport
         {
@@ -83,6 +89,11 @@ namespace NServiceBus.Unicast
                 transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
         }
+
+        /// <summary>
+        /// Message queue used to send messages.
+        /// </summary>
+        public IMessageQueue MessageSender { get; set; }
 
 	    /// <summary>
 		/// A delegate for a method that will handle the <see cref="MessageReceived"/>
@@ -457,9 +468,9 @@ namespace NServiceBus.Unicast
                 return;
 
             if (DistributorDataAddress != null)
-                transport.Send(_messageBeingHandled, DistributorDataAddress);
+                MessageSender.Send(_messageBeingHandled, DistributorDataAddress);
             else
-                transport.Send(_messageBeingHandled, transport.Address);
+                MessageSender.Send(_messageBeingHandled, Address);
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -489,13 +500,13 @@ namespace NServiceBus.Unicast
             {
                 m.ReturnAddress = GetReturnAddressFor(DistributorDataAddress);
 
-                transport.Send(m, DistributorDataAddress);
+                MessageSender.Send(m, DistributorDataAddress);
             }
             else
             {
-                m.ReturnAddress = GetReturnAddressFor(transport.Address);
+                m.ReturnAddress = GetReturnAddressFor(Address);
 
-                transport.Send(m, transport.Address);
+                MessageSender.Send(m, Address);
             }
         }
 
@@ -570,7 +581,19 @@ namespace NServiceBus.Unicast
 
                 toSend.ReturnAddress = GetReturnAddressFor(destination);
 
-                transport.Send(toSend, destination);
+                try
+                {
+                    MessageSender.Send(toSend, destination);
+                }
+                catch (QueueNotFoundException ex)
+                {
+                    throw new ConfigurationException("The destination queue '" + destination +
+                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
+                                                        messages[0].GetType().FullName +
+                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
+                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
+                                                        , ex);
+                }
 
                 if (Log.IsDebugEnabled)
                     Log.Debug("Sending message " + messages[0].GetType().AssemblyQualifiedName + " with ID " + toSend.Id + " to destination " + destination + ".");
@@ -669,7 +692,10 @@ namespace NServiceBus.Unicast
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
 
-                transport.Start();
+                MessageSender.Init(Address);
+
+                if (!string.IsNullOrEmpty(Address))
+                    transport.Start();
 
                 if (autoSubscribe)
                 {
@@ -690,7 +716,7 @@ namespace NServiceBus.Unicast
 
                         destination = queue + "@" + machine;
 
-                        if (destination.ToLower() != transport.Address.ToLower())
+                        if (destination.ToLower() != Address.ToLower())
                             Subscribe(messageType);
                     }
                 }
@@ -711,10 +737,10 @@ namespace NServiceBus.Unicast
         private void InitializeSelf()
         {
             var toSend = GetTransportMessageFor(new CompletionMessage());
-            toSend.ReturnAddress = transport.Address;
+            toSend.ReturnAddress = Address;
             toSend.MessageIntent = MessageIntentEnum.Init;
 
-            transport.Send(toSend, transport.Address);
+            MessageSender.Send(toSend, Address);
         }
 
         /// <summary>
@@ -752,9 +778,9 @@ namespace NServiceBus.Unicast
 
 
             var toSend = GetTransportMessageFor(messages);
-            toSend.ReturnAddress = transport.Address;
+            toSend.ReturnAddress = Address;
 
-            transport.Send(toSend, DistributorControlAddress);
+            MessageSender.Send(toSend, DistributorControlAddress);
 
             Log.Debug("Sending ReadyMessage to " + DistributorControlAddress);
         }
@@ -981,7 +1007,7 @@ namespace NServiceBus.Unicast
 
             if (IsInitializationMessage(msg))
             {
-                Log.Info(transport.Address + " initialized.");
+                Log.Info(Address + " initialized.");
                 return;
             }
 
@@ -1137,7 +1163,7 @@ namespace NServiceBus.Unicast
             if (msg.ReturnAddress == null)
                 return false;
 
-            if (!msg.ReturnAddress.Contains(transport.Address))
+            if (!msg.ReturnAddress.Contains(Address))
                 return false;
 
             if (msg.CorrelationId != null)
@@ -1201,7 +1227,7 @@ namespace NServiceBus.Unicast
         private void ForwardMessageIfNecessary(TransportMessage m)
         {
             if (ForwardReceivedMessagesTo != null)
-                transport.Send(m, ForwardReceivedMessagesTo);
+                MessageSender.Send(m, ForwardReceivedMessagesTo);
         }
 
 		/// <summary>
@@ -1273,7 +1299,7 @@ namespace NServiceBus.Unicast
 		    result.Body = ms.ToArray();
 
 		    if (PropogateReturnAddressOnSend)
-                result.ReturnAddress = transport.Address;
+                result.ReturnAddress = Address;
 
 		    result.Headers = HeaderAdapter.From(_outgoingHeaders);
 
@@ -1326,7 +1352,7 @@ namespace NServiceBus.Unicast
 
         private string GetReturnAddressFor(string destination)
         {
-            var result = transport.Address;
+            var result = Address;
 
             // if we're a worker
             if (DistributorDataAddress != null)
@@ -1335,7 +1361,7 @@ namespace NServiceBus.Unicast
 
                 //if we're sending a message to the control bus, then use our own address
                 if (destination == DistributorControlAddress)
-                    result = transport.Address;
+                    result = Address;
             }
 
             return result;

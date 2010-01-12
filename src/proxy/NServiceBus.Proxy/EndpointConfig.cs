@@ -2,6 +2,7 @@
 using System.Configuration;
 using Common.Logging;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using NServiceBus.Unicast.Transport.Msmq;
 
@@ -16,22 +17,24 @@ namespace NServiceBus.Proxy
             var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
             var remoteServer = ConfigurationManager.AppSettings["RemoteServer"];
 
+            var externalQueue = new MsmqMessageQueue();
+            externalQueue.Init(ConfigurationManager.AppSettings["ExternalQueue"]);
             var externalTransport = new MsmqTransport
               {
-                  InputQueue = ConfigurationManager.AppSettings["ExternalQueue"],
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
-                  ErrorQueue = errorQueue,
-                  IsTransactional = true
+                  IsTransactional = true,
+                  MessageQueue = externalQueue
               };
 
+            var internalQueue = new MsmqMessageQueue();
+            internalQueue.Init(ConfigurationManager.AppSettings["InternalQueue"]);
             var internalTransport = new MsmqTransport
             {
-                InputQueue = ConfigurationManager.AppSettings["InternalQueue"],
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
-                ErrorQueue = errorQueue,
-                IsTransactional = true
+                IsTransactional = true,
+                MessageQueue = internalQueue
             };
 
             var configure = Configure.With().SpringBuilder();
@@ -45,9 +48,14 @@ namespace NServiceBus.Proxy
             configure.Configurer.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.RemoteServer, remoteServer);
             Logger.Info("Proxy configured for remoteserver: " +  remoteServer);
+
             var proxy = configure.Builder.Build<Proxy>();
             proxy.ExternalTransport = externalTransport;
+            proxy.ExternalQueue = externalQueue;
             proxy.InternalTransport = internalTransport;
+            proxy.InternalQueue = internalQueue;
+
+            proxy.ExternalAddress = ConfigurationManager.AppSettings["ExternalQueue"];
 
             proxy.Start();
 

@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
                 queue.Clear();
         }
 
-        public void Send(TransportMessage message, string destination, bool transactional)
+        public void Send(TransportMessage message, string destination)
         {
             var sendQueue = client.GetQueueReference(destination);
 
@@ -57,7 +57,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
 
             var rawMessage = SerializeMessage(message);
 
-            if (!transactional || Transaction.Current == null)
+            if (Transaction.Current == null)
                 sendQueue.AddMessage(rawMessage);
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
