@@ -69,6 +69,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
 
+            MsmqUtilities.CreateQueueIfNecessary(queue);
+
             myQueue = new MessageQueue(MsmqUtilities.GetFullPath(queue));
 
             bool transactional;
@@ -160,11 +162,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 throw;
             }
-        }
-
-        public void CreateQueue(string queue)
-        {
-            MsmqUtilities.CreateQueueIfNecessary(queue);
         }
 
         /// <summary>

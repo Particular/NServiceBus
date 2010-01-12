@@ -30,11 +30,5 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         /// <param name="transactional"></param>
         TransportMessage Receive(bool transactional);
-
-        /// <summary>
-        /// Creates the given queue if it doesn't already exist.
-        /// </summary>
-        /// <param name="queue"></param>
-        void CreateQueue(string queue);
     }
 }
