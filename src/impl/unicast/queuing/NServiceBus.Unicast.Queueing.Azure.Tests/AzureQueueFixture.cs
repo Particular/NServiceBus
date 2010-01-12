@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             
             queue = new AzureMessageQueue(client);
 
-            queue.Init(QueueName, PurgeOnStartup, SecondsToWaitForMessage);
+            queue.Init(QueueName);
         }
 
         protected void AddTestMessage()

@@ -14,8 +14,21 @@ namespace NServiceBus.Unicast.Queueing.Azure
     {
         private CloudQueue queue;
         private readonly CloudQueueClient client;
-        private int secondsToWait;
-        
+
+        private int secondsToWait = 1;
+        public int SecondsToWaitForMessage
+        {
+            get { return secondsToWait; }
+            set { secondsToWait = value; }
+        }
+
+        /// <summary>
+        /// Sets whether or not the transport should purge the input
+        /// queue when it is started.
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
+
+
         public int MessageInvisibleTime { get; set; }
 
         public AzureMessageQueue(CloudQueueClient client)
@@ -24,13 +37,11 @@ namespace NServiceBus.Unicast.Queueing.Azure
             MessageInvisibleTime = 30;
         }
 
-        public void Init(string inputqueue, bool purge, int secondsToWaitForMessage)
+        public void Init(string inputqueue)
         {
-            secondsToWait = secondsToWaitForMessage;
-
             queue = client.GetQueueReference(inputqueue);
 
-            if (purge)
+            if (PurgeOnStartup)
                 queue.Clear();
         }
 
@@ -87,7 +98,7 @@ namespace NServiceBus.Unicast.Queueing.Azure
         private CloudQueueMessage PollForMessage()
         {
             CloudQueueMessage message;
-            var maxTime = DateTime.Now.AddSeconds(secondsToWait);
+            var maxTime = DateTime.Now.AddSeconds(SecondsToWaitForMessage);
 
 
             while ((message = queue.GetMessage(TimeSpan.FromSeconds(MessageInvisibleTime))) == null && DateTime.Now < maxTime)

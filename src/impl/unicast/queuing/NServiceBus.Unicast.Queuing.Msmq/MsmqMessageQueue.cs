@@ -62,10 +62,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        public void Init(string queue, bool purge, int secondsToWaitForMessage)
+        public void Init(string queue)
         {
-            secondsToWait = secondsToWaitForMessage;
-
             var machine = MsmqUtilities.GetMachineNameFromLogicalName(queue);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
@@ -91,7 +89,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             myQueue.MessageReadPropertyFilter = mpf;
 
-            if (purge)
+            if (PurgeOnStartup)
                 myQueue.Purge();
         }
 
@@ -249,8 +247,21 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
+        /// <summary>
+        /// Sets whether or not the transport should purge the input
+        /// queue when it is started.
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
+
+
+        private int secondsToWait = 1;
+        public int SecondsToWaitForMessage
+        {
+            get { return secondsToWait;  }
+            set { secondsToWait = value; }
+        }
+
         private MessageQueue myQueue;
-        private int secondsToWait;
 
         private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
 

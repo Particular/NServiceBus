@@ -40,12 +40,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// </summary>
         public bool IsTransactional { get; set; }
 
-	    /// <summary>
-	    /// Sets whether or not the transport should purge the input
-	    /// queue when it is started.
-	    /// </summary>
-	    public bool PurgeOnStartup { get; set; }
-
 	    private int maxRetries = 5;
 
         /// <summary>
@@ -61,20 +55,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             get { return maxRetries; }
 	        set { maxRetries = value; }
 	    }
-
-	    private int secondsToWaitForMessage = 10;
-
-        /// <summary>
-        /// Sets the maximum interval of time for when a thread thinks there is a message in the queue
-        /// that it tries to receive, until it gives up.
-        /// 
-        /// Default value is 10.
-        /// </summary>
-        public int SecondsToWaitForMessage
-        {
-            get { return secondsToWaitForMessage; }
-            set { secondsToWaitForMessage = value; }
-        }
 
         /// <summary>
         /// Property for getting/setting the period of time when the transaction times out.
@@ -205,7 +185,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
             CreateQueuesIfNecessary();
 
-            MessageQueue.Init(InputQueue, PurgeOnStartup, SecondsToWaitForMessage);
+            MessageQueue.Init(InputQueue);
 
             if (!string.IsNullOrEmpty(InputQueue))
             {

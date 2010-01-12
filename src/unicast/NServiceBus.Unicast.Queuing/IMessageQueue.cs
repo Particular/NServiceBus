@@ -7,12 +7,10 @@ namespace NServiceBus.Unicast.Queuing
     public interface IMessageQueue
     {
         /// <summary>
-        /// Initializes the message queue with the given queue used for peeking and removal, purging it as requested.
+        /// Initializes the message queue.
         /// </summary>
         /// <param name="inputqueue"></param>
-        /// <param name="purge"></param>
-        /// <param name="secondsToWaitForMessage"></param>
-        void Init(string inputqueue, bool purge, int secondsToWaitForMessage);
+        void Init(string inputqueue);
 
         /// <summary>
         /// Sends the given message to the destination, flowing transactions as requested.

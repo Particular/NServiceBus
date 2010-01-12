@@ -22,8 +22,7 @@ namespace NServiceBus.Proxy
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
                   ErrorQueue = errorQueue,
-                  IsTransactional = true,
-                  PurgeOnStartup = false
+                  IsTransactional = true
               };
 
             var internalTransport = new MsmqTransport
@@ -32,8 +31,7 @@ namespace NServiceBus.Proxy
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
                 ErrorQueue = errorQueue,
-                IsTransactional = true,
-                PurgeOnStartup = false
+                IsTransactional = true
             };
 
             var configure = Configure.With().SpringBuilder();

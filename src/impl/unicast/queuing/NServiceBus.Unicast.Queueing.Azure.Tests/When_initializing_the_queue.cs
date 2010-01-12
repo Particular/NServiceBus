@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             AddTestMessage();
             AddTestMessage();
 
-            queue.Init(QueueName,true,1);
+            queue.Init(QueueName);
 
 
             queue.Receive(false).ShouldBeNull();

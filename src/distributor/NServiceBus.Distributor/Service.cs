@@ -44,8 +44,7 @@ namespace NServiceBus.Distributor
                 InputQueue = ConfigurationManager.AppSettings["DataInputQueue"],
                 NumberOfWorkerThreads = numberOfThreads,
                 ErrorQueue = errorQueue,
-                IsTransactional = true,
-                PurgeOnStartup = false
+                IsTransactional = true
             };
 
             Configure.Instance.Configurer

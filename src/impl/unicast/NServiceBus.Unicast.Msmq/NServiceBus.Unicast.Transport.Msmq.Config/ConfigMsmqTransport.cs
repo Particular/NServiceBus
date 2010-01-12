@@ -2,6 +2,7 @@ using System;
 using NServiceBus.ObjectBuilder;
 using System.Transactions;
 using NServiceBus.Config;
+using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus.Unicast.Transport.Msmq.Config
 {
@@ -60,7 +61,9 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// <returns></returns>
         public ConfigMsmqTransport PurgeOnStartup(bool value)
         {
-            transportConfig.ConfigureProperty(t => t.PurgeOnStartup, value);
+            NServiceBus.Configure.Instance.Configurer
+                .ConfigureProperty<MsmqMessageQueue>(t => t.PurgeOnStartup, value);
+
             return this;
         }
 
