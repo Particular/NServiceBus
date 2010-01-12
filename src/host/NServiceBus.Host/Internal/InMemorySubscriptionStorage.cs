@@ -4,7 +4,10 @@ using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Host.Internal
 {
-    class InMemorySubscriptionStorage : ISubscriptionStorage
+    /// <summary>
+    /// In memory storage of subscriptions
+    /// </summary>
+    public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
         public void Subscribe(string client, IList<string> messageTypes)
         {
