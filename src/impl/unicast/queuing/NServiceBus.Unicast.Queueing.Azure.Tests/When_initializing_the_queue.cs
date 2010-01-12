@@ -14,6 +14,8 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             AddTestMessage();
             AddTestMessage();
 
+            queue.PurgeOnStartup = true;
+
             queue.Init(QueueName);
 
 

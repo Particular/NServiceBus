@@ -15,26 +15,24 @@ namespace NServiceBus.Unicast.Queueing.Azure
         private CloudQueue queue;
         private readonly CloudQueueClient client;
 
-        private int secondsToWait = 1;
-        public int SecondsToWaitForMessage
-        {
-            get { return secondsToWait; }
-            set { secondsToWait = value; }
-        }
-
+        public int SecondsToWaitForMessage{ get; set;}
+   
         /// <summary>
         /// Sets whether or not the transport should purge the input
         /// queue when it is started.
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
-
+        /// <summary>
+        /// Controls how long messages should be invisible to other callers when receiving messages from the queue
+        /// </summary>
         public int MessageInvisibleTime { get; set; }
 
         public AzureMessageQueue(CloudQueueClient client)
         {
             this.client = client;
             MessageInvisibleTime = 30;
+            SecondsToWaitForMessage = 1;
         }
 
         public void Init(string inputqueue)

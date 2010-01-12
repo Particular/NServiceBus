@@ -34,8 +34,12 @@ namespace NServiceBus.Unicast.Queueing.Azure.Tests
             nativeQueue.CreateIfNotExist();
             nativeQueue.Clear();
 
-            
-            queue = new AzureMessageQueue(client);
+
+            queue = new AzureMessageQueue(client)
+                        {
+                            SecondsToWaitForMessage = SecondsToWaitForMessage,
+                            PurgeOnStartup = PurgeOnStartup
+                        };
 
             queue.Init(QueueName);
         }
