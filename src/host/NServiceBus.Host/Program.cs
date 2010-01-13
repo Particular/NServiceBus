@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.Host.Internal;
 using NServiceBus.Host.Internal.Arguments;
 using Topshelf;
@@ -20,8 +19,6 @@ namespace NServiceBus.Host
     {
         private static void Main(string[] args)
         {
-            try
-            {
                 Parser.Args commandLineArguments = Parser.ParseArgs(args);
                 var arguments = new HostArguments(commandLineArguments);
 
@@ -106,14 +103,6 @@ namespace NServiceBus.Host
                 });
 
                 Runner.Host(cfg, args);
-
-            }
-            catch (Exception ex)
-            {
-                LogManager.GetLogger(typeof(Program)).Fatal(ex);
-                throw;
-            }
-
         }
 
         private static void DisplayHelpContent()
@@ -197,9 +186,9 @@ namespace NServiceBus.Host
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
-                throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. " +
+                throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
                     "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint." +
-                    " Loader exceptions are logged to the hostlogfile in the current working directory, " +
+                    " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType" +
                     "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
