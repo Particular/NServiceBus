@@ -17,7 +17,6 @@ namespace NServiceBus.Distributor
         {
             var configure = Configure.With()
                 .SpringBuilder()
-                .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(true)
                 .UnicastBus()
