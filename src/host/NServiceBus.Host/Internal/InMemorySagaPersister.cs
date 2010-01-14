@@ -20,7 +20,7 @@ namespace NServiceBus.Host.Internal
             {
                 var prop = entity.GetType().GetProperty(property);
                 if (prop != null)
-                    if (prop.GetValue(entity, null) == value)
+                    if (prop.GetValue(entity, null).Equals(value))
                         return (T)entity;
             }
 
