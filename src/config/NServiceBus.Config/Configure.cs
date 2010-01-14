@@ -76,7 +76,7 @@ namespace NServiceBus
             if (HttpContext.Current != null)
                 throw new InvalidOperationException("NServiceBus has detected that you're running in the context of a web application. The method 'NServiceBus.Configure.With()' is not recommended for web scenarios. Use 'NServiceBus.Configure.WithWeb()' instead, or consider explicitly passing in the assemblies you want to be scanned to one of the overloads to the 'With' method.");
 
-            return With(new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.BaseDirectory)));
+            return With(AppDomain.CurrentDomain.BaseDirectory);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure WithWeb()
         {
-            return With(new List<Type>(GetTypesInDirectory(AppDomain.CurrentDomain.DynamicDirectory)));
+            return With(AppDomain.CurrentDomain.DynamicDirectory);
         }
 
         /// <summary>
