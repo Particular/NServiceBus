@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Windows.Arguments;
 using Topshelf;
@@ -21,101 +19,89 @@ namespace NServiceBus.Hosting.Windows
     {
         private static void Main(string[] args)
         {
-            InitializeLogging();
+            Parser.Args commandLineArguments = Parser.ParseArgs(args);
+            var arguments = new HostArguments(commandLineArguments);
 
-            try
+            if (arguments.Help != null)
             {
-                Parser.Args commandLineArguments = Parser.ParseArgs(args);
-                var arguments = new HostArguments(commandLineArguments);
+                DisplayHelpContent();
 
-                if (arguments.Help != null)
-                {
-                    DisplayHelpContent();
+                return;
+            }
 
-                    return;
-                }
+            Type endpointConfigurationType = GetEndpointConfigurationType();
 
-                Type endpointConfigurationType = GetEndpointConfigurationType();
+            AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
 
-                AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
+            string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-                string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
+            if (!File.Exists(endpointConfigurationFile))
+            {
+                throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
+            }
 
-                if (!File.Exists(endpointConfigurationFile))
-                {
-                    throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
-                }
+            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
-                var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+            EndpointId = GetEndpointId(endpointConfiguration);
 
-                EndpointId = GetEndpointId(endpointConfiguration);
+            AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
-                AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
+            IRunConfiguration cfg = RunnerConfigurator.New(x =>
+                                                               {
+                                                                   x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
+                                                                                                                                                                   {
+                                                                                                                                                                       c.ConfigurationFile(endpointConfigurationFile);
+                                                                                                                                                                       c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
+                                                                                                                                                                       c.WhenStarted(service => service.Start());
+                                                                                                                                                                       c.WhenStopped(service => service.Stop());
+                                                                                                                                                                       c.CreateServiceLocator(() => new HostServiceLocator());
+                                                                                                                                                                   });
 
-                IRunConfiguration cfg = RunnerConfigurator.New(x =>
+                                                                   if (arguments.Username != null && arguments.Password != null)
                                                                    {
-                                                                       x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
-                                                                                                                                                                       {
-                                                                                                                                                                           c.ConfigurationFile(endpointConfigurationFile);
-                                                                                                                                                                           c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
-                                                                                                                                                                           c.WhenStarted(service => service.Start());
-                                                                                                                                                                           c.WhenStopped(service => service.Stop());
-                                                                                                                                                                           c.CreateServiceLocator(() => new HostServiceLocator());
-                                                                                                                                                                       });
+                                                                       x.RunAs(arguments.Username.Value, arguments.Password.Value);
+                                                                   }
+                                                                   else
+                                                                   {
+                                                                       x.RunAsLocalSystem();
+                                                                   }
 
-                                                                       if (arguments.Username != null && arguments.Password != null)
+                                                                   if (arguments.StartManually != null)
+                                                                   {
+                                                                       x.DoNotStartAutomatically();
+                                                                   }
+
+                                                                   x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : EndpointId);
+                                                                   x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : EndpointId);
+                                                                   x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
+                                                                   x.DependencyOnMsmq();
+
+                                                                   var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
+
+                                                                   if (arguments.ServiceName != null)
+                                                                   {
+                                                                       serviceCommandLine += " /serviceName:\"" + arguments.ServiceName.Value + "\"";
+                                                                   }
+
+                                                                   x.SetServiceCommandLine(serviceCommandLine);
+
+                                                                   if (arguments.DependsOn != null)
+                                                                   {
+                                                                       var dependencies = arguments.DependsOn.Value.Split(',');
+
+                                                                       foreach (var dependency in dependencies)
                                                                        {
-                                                                           x.RunAs(arguments.Username.Value, arguments.Password.Value);
-                                                                       }
-                                                                       else
-                                                                       {
-                                                                           x.RunAsLocalSystem();
-                                                                       }
-
-                                                                       if (arguments.StartManually != null)
-                                                                       {
-                                                                           x.DoNotStartAutomatically();
-                                                                       }
-
-                                                                       x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : EndpointId);
-                                                                       x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : EndpointId);
-                                                                       x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
-                                                                       x.DependencyOnMsmq();
-
-                                                                       var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
-
-                                                                       if (arguments.ServiceName != null)
-                                                                       {
-                                                                           serviceCommandLine += " /serviceName:\"" + arguments.ServiceName.Value + "\"";
-                                                                       }
-
-                                                                       x.SetServiceCommandLine(serviceCommandLine);
-
-                                                                       if (arguments.DependsOn != null)
-                                                                       {
-                                                                           var dependencies = arguments.DependsOn.Value.Split(',');
-
-                                                                           foreach (var dependency in dependencies)
+                                                                           if (dependency.ToUpper() == KnownServiceNames.Msmq)
                                                                            {
-                                                                               if (dependency.ToUpper() == KnownServiceNames.Msmq)
-                                                                               {
-                                                                                   continue;
-                                                                               }
-
-                                                                               x.DependsOn(dependency);
+                                                                               continue;
                                                                            }
+
+                                                                           x.DependsOn(dependency);
                                                                        }
-                                                                   });
+                                                                   }
+                                                               });
 
-                Runner.Host(cfg, args);
-
-            }
-            catch (Exception ex)
-            {
-                LogManager.GetLogger(typeof(Program)).Fatal(ex);
-                throw;
-            }
-
+            Runner.Host(cfg, args);
         }
 
         private static void DisplayHelpContent()
@@ -201,7 +187,7 @@ namespace NServiceBus.Hosting.Windows
             {
                 throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. " +
                                                     "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint." +
-                                                    " Loader exceptions are logged to the hostlogfile in the current working directory, " +
+                                                    " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
                                                     "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
@@ -218,35 +204,6 @@ namespace NServiceBus.Hosting.Windows
 
             }
         }
-
-        private static void InitializeLogging()
-        {
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
-            var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            var level = log4net.Core.Level.Warn;
-
-            var appender = new log4net.Appender.RollingFileAppender
-                               {
-                                   Layout = layout,
-                                   Threshold = level,
-                                   CountDirection = 1,
-                                   DatePattern = "yyyy-MM-dd",
-                                   RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
-                                   MaxFileSize = 1024 * 1024,
-                                   MaxSizeRollBackups = 10,
-                                   LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
-                                   StaticLogFileName = true,
-                                   File = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "hostlogfile"),
-                                   AppendToFile = true
-                               };
-            appender.ActivateOptions();
-
-            log4net.Config.BasicConfigurator.Configure(appender);
-        }
-
 
     }
 }

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Hosting.Helpers
@@ -21,8 +20,6 @@ namespace NServiceBus.Hosting.Helpers
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         public static IEnumerable<Assembly> GetScannableAssemblies()
         {
-            ILog logger = LogManager.GetLogger(typeof(AssemblyScanner));
-
             var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories)
                 .Union(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.exe", SearchOption.AllDirectories));
 
@@ -39,27 +36,13 @@ namespace NServiceBus.Hosting.Helpers
                     assembly.GetTypes();
                 }
 
-                catch (ReflectionTypeLoadException err)
+                catch (Exception)
                 {
-                    foreach (var loaderException in err.LoaderExceptions)
-                    {
-                        logger.Warn("Problem with loading " + assemblyFile.FullName + ", reason: " + loaderException.Message);
-                    }
-
-                    continue;
-                }
-                catch (Exception e)
-                {
-                    logger.Warn("NServiceBus Host - assembly load failure - ignoring " + assemblyFile + " because of error: " + e);
                     continue;
                 }
 
                 yield return assembly;
-
-
             }
-
-
         }
     }
 
