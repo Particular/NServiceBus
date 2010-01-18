@@ -100,6 +100,10 @@ namespace NServiceBus.ObjectBuilder.Spring
             if (((IConfigurableApplicationContext)context).ObjectFactory.ContainsSingleton(componentType.FullName))
                 return true;
 
+            foreach(var component in componentProperties.Keys)
+                if (componentType.IsAssignableFrom(component))
+                    return true;
+
             return false;
         }
 
