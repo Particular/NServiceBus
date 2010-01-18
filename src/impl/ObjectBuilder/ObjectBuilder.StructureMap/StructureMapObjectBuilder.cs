@@ -63,6 +63,12 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
+            lock (configuredInstances)
+            {
+                if(configuredInstances.ContainsKey(component))
+                    return;
+            }
+
             var lifecycle = GetLifecycleFrom(callModel);
 
             ConfiguredInstance configuredInstance = null;
