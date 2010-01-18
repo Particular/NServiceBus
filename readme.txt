@@ -26,3 +26,10 @@ To run NServiceBus Msmq and MSDTC need to be installed and configured on your ma
 run RunMeFirst.bat.
 
 Running an nServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.
+
+
+=========
+= Sagas =
+=========
+
+The 'Manufacturing' sample shows the use of sagas.
