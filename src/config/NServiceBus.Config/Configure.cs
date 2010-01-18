@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
@@ -79,7 +80,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures nServiceBus to scan for assemblies 
+        /// Configures NServiceBus to scan for assemblies 
         /// in the relevant web directory instead of regular
         /// runtime directory.
         /// </summary>
@@ -90,7 +91,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures nServiceBus to scan for assemblies
+        /// Configures NServiceBus to scan for assemblies
         /// in the given directory rather than the regular
         /// runtime directory.
         /// </summary>
@@ -98,7 +99,30 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
-            return With(new List<Type>(GetTypesInDirectory(probeDirectory)));
+            return With(GetAssembliesInDirectory(probeDirectory));
+        }
+
+        /// <summary>
+        /// Configures NServiceBus to use the types found in the given assemblies.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        public static Configure With(IEnumerable<Assembly> assemblies)
+        {
+            return With(assemblies.ToArray());
+        }
+
+        /// <summary>
+        /// Configures nServiceBus to scan the given assemblies only.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        public static Configure With(params Assembly[] assemblies)
+        {
+            var types = new List<Type>();
+            Array.ForEach(assemblies, a => { foreach (Type t in a.GetTypes()) types.Add(t); });
+
+            return With(types);
         }
 
         /// <summary>
@@ -116,19 +140,6 @@ namespace NServiceBus
             TypesToScan = typesToScan;
 
             return instance;
-        }
-
-        /// <summary>
-        /// Configures nServiceBus to scan the given assemblies only.
-        /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        public static Configure With(params Assembly[] assemblies)
-        {
-            var types = new List<Type>();
-            new List<Assembly>(assemblies).ForEach(a => { foreach (Type t in a.GetTypes()) types.Add(t); });
-
-            return With(types);
         }
 
         /// <summary>
@@ -167,49 +178,55 @@ namespace NServiceBus
             return ConfigurationSource.GetConfiguration<T>();
         }
 
-        private static IEnumerable<Type> GetTypesInDirectory(string path)
+        /// <summary>
+        /// Load and return all assemblies in the given directory except the given ones to exclude
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="assembliesToSkip"></param>
+        /// <returns></returns>
+        public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            foreach (Type t in GetTypesInDirectoryWithExtension(path, "*.exe"))
-                yield return t;
-            foreach (Type t in GetTypesInDirectoryWithExtension(path, "*.dll"))
-                yield return t;
+            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.exe", assembliesToSkip))
+                yield return a;
+            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", assembliesToSkip))
+                yield return a;
         }
 
-        private static IEnumerable<Type> GetTypesInDirectoryWithExtension(string path, string extension)
+        private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, params string[] assembliesToSkip)
         {
-            var result = new List<Type>();
-            try
+            var result = new List<Assembly>();
+            foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
-                foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
+                try
                 {
-                    Type[] types;
-                    try
-                    {
-                        Assembly a = Assembly.LoadFrom(file.FullName);
+                    if (assembliesToSkip.Contains(file.Name, StringComparer.InvariantCultureIgnoreCase))
+                        continue;
 
-                        types = a.GetTypes();
-                    }
-                    catch (ReflectionTypeLoadException err)
+                    result.Add(Assembly.LoadFrom(file.FullName));
+                }
+                catch (ReflectionTypeLoadException err)
+                {
+                    foreach (var loaderException in err.LoaderExceptions)
                     {
-                        foreach (var loaderException in err.LoaderExceptions)
-                        {
-                            logger.Error("Problem with loading " + file.FullName, loaderException);
-                        }
-
-                        throw new InvalidOperationException("Could not load " + file.FullName + ". Consider using 'Configure.With(assemblies)' to tell NServiceBus not to load this file.", err);
+                        logger.Error("Problem with loading " + file.FullName, loaderException);
                     }
 
-                    result.AddRange(types);
+                    throw new InvalidOperationException(
+                        "Could not load " + file.FullName +
+                        ". Consider using 'Configure.With(assemblies)' to tell NServiceBus not to load this file.",
+                        err);
+                }
+                catch (BadImageFormatException bif)
+                {
+                    if (bif.FileName.ToLower().Contains("system.data.sqlite.dll"))
+                        throw new BadImageFormatException(
+                            "You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.",
+                            bif.FileName, bif);
+
+                    throw;
                 }
             }
-            catch (BadImageFormatException bif)
-            {
-                if (bif.FileName.ToLower().Contains("system.data.sqlite.dll"))
-                    throw new BadImageFormatException("You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.", bif.FileName, bif);
-
-                throw;
-            }
-
+            
             return result;
         }
 
