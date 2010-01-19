@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
+using System.Linq;
 using Common.Logging;
 using NServiceBus.Utils;
 
@@ -6,7 +8,7 @@ namespace Runner
 {
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
             var props = new NameValueCollection();
             props["configType"] = "EXTERNAL";
@@ -22,6 +24,16 @@ namespace Runner
             };
             log4net.Config.BasicConfigurator.Configure(appender);
 
+            if(!MsmqInstallation.IsInstallationGood())
+            {
+                Console.WriteLine("MSMQ is not configured correctly for use with NServiceBus");
+
+                if(!args.ToList().Contains("/i"))
+                {
+                    Console.WriteLine("Please run with /i to reconfigure MSMQ");
+                    return;
+                }
+            }
             MsmqInstallation.StartMsmqIfNecessary();
 
             DtcUtil.StartDtcIfNecessary();
