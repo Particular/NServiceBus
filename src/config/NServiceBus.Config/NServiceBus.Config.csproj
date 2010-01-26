@@ -61,6 +61,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AllAssemblies.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
