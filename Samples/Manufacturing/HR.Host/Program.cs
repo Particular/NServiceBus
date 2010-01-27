@@ -1,5 +1,6 @@
 using System;
 using log4net;
+using log4net.Config;
 using NServiceBus;
 
 namespace HR.Host
@@ -10,7 +11,10 @@ namespace HR.Host
         {
             try
             {
+                XmlConfigurator.Configure();
+
                 var bus = NServiceBus.Configure.With()
+                    .Log4Net()
                     .SpringBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
@@ -30,5 +34,9 @@ namespace HR.Host
 
             Console.Read();
         }
+    }
+
+    internal class HelloJob
+    {
     }
 }
