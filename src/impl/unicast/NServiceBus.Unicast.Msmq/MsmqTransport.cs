@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Messaging;
 using System.Threading;
 using System.Transactions;
@@ -311,7 +312,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 catch(MessageQueueException ex)
                 {
                     if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                        throw new ConfigurationException("The destination queue '" + destination +
+                        throw new ConfigurationErrorsException("The destination queue '" + destination +
                                                          "' could not be found. You may have misconfigured the destination for this kind of message (" +
                                                          m.Body[0].GetType().FullName +
                                                          ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +

@@ -1,7 +1,5 @@
-
 using System;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
-using Common.Logging;
 
 namespace ReturnToSourceQueue
 {
@@ -9,7 +7,7 @@ namespace ReturnToSourceQueue
     {
         static void Main(string[] args)
         {
-            Class1 c = new Class1();
+            var c = new Class1();
 
             string inputQueue = null;
             string messageId = null;
@@ -53,8 +51,8 @@ namespace ReturnToSourceQueue
             }
             catch(Exception e)
             {
-                Console.WriteLine("Could not return message to source queue.");
-                LogManager.GetLogger("ReturnToSourceQueue").Debug("Could not return message to source queue.", e);
+                Console.WriteLine("Could not return message to source queue.\nReason: " + e.Message);
+                
             }
         }
     }

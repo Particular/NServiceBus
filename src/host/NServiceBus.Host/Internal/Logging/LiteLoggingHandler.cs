@@ -1,7 +1,4 @@
-﻿using System.Collections.Specialized;
-using Common.Logging;
-
-namespace NServiceBus.Host.Internal.Logging
+﻿namespace NServiceBus.Host.Internal.Logging
 {
     /// <summary>
     /// Handles logging configuration for the lite profile.
@@ -10,10 +7,6 @@ namespace NServiceBus.Host.Internal.Logging
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
             var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
             var level = log4net.Core.Level.Debug;
 

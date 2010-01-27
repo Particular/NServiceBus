@@ -1,6 +1,6 @@
+using log4net;
 using MyMessages;
 using NServiceBus;
-using Common.Logging;
 
 namespace Subscriber2
 {

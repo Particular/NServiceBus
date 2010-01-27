@@ -1,8 +1,6 @@
 using System;
-using Common.Logging;
+using log4net;
 using NServiceBus;
-using NServiceBus.Grid.MessageHandlers;
-using HR.MessageHandlers;
 
 namespace HR.Host
 {
@@ -10,8 +8,6 @@ namespace HR.Host
     {
         static void Main()
         {
-            LogManager.GetLogger("hello").Debug("HR Started.");
-
             try
             {
                 var bus = NServiceBus.Configure.With()
@@ -28,7 +24,7 @@ namespace HR.Host
             }
             catch (Exception e)
             {
-                LogManager.GetLogger("hello").Fatal("Exiting", e);
+                LogManager.GetLogger("HR").Fatal("Exiting", e);
                 Console.Read();
             }
 

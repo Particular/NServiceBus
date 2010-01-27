@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Host.Internal
@@ -60,9 +60,9 @@ namespace NServiceBus.Host.Internal
             var myOptions = new List<Type>(filter(options));
 
             if (myOptions.Count == 0)
-                throw new ConfigurationException("Could not find a class which implements " + typeof(T).Name + ". If you've specified your own profile, try implementing " + typeof(T).Name + "ForProfile<T> for your profile.");
+                throw new ConfigurationErrorsException("Could not find a class which implements " + typeof(T).Name + ". If you've specified your own profile, try implementing " + typeof(T).Name + "ForProfile<T> for your profile.");
             if (myOptions.Count > 1)
-                throw new ConfigurationException("Can not have more than one class configured which implements " + typeof(T).Name + ". Implementors found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
+                throw new ConfigurationErrorsException("Can not have more than one class configured which implements " + typeof(T).Name + ". Implementors found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
 
             return Activator.CreateInstance(myOptions[0]) as T;
         }

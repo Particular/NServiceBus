@@ -1,5 +1,6 @@
 using System;
-using Common.Logging;
+using System.Configuration;
+using log4net;
 
 namespace NServiceBus.Host.Internal
 {
@@ -20,6 +21,7 @@ namespace NServiceBus.Host.Internal
         {
             try
             {
+                NServiceBus.Logging.UseLog4Net();
 
                 if (specifier is IWantCustomLogging)
                     (specifier as IWantCustomLogging).Init();
@@ -59,9 +61,9 @@ namespace NServiceBus.Host.Internal
                     Configure.With().SpringBuilder().XmlSerializer();
 
                 if (Configure.Instance == null)
-                    throw new ConfigurationException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
+                    throw new ConfigurationErrorsException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
                 if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
-                    throw new ConfigurationException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
+                    throw new ConfigurationErrorsException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
 
                 RoleManager.ConfigureBusForEndpoint(specifier);
 

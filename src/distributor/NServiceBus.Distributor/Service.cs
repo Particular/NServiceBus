@@ -1,11 +1,8 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Host;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Transport.Msmq;
-using ConfigurationException=Common.Logging.ConfigurationException;
 
 namespace NServiceBus.Distributor
 {
@@ -16,6 +13,7 @@ namespace NServiceBus.Distributor
         public void Init()
         {
             var configure = Configure.With()
+                .Log4Net()
                 .SpringBuilder()
                 .MsmqTransport()
                     .IsTransactional(true)
@@ -37,7 +35,7 @@ namespace NServiceBus.Distributor
                     configure.BinarySerializer();
                     break;
                 default:
-                    throw new ConfigurationException("Serialization can only be either 'xml', or 'binary'.");
+                    throw new ConfigurationErrorsException("Serialization can only be either 'xml', or 'binary'.");
             }
 
             DataTransport = new MsmqTransport

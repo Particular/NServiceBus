@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Common.Logging;
 using NServiceBus.ObjectBuilder;
+using log4net;
 
 namespace NServiceBus.Host.Internal
 {

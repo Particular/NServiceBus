@@ -9,7 +9,7 @@ namespace NServiceBus.Host.Internal
     /// </summary>
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        public void Subscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(string client, IList<string> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
@@ -21,7 +21,7 @@ namespace NServiceBus.Host.Internal
             });
         }
 
-        public void Unsubscribe(string client, IList<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string client, IList<string> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
@@ -30,7 +30,7 @@ namespace NServiceBus.Host.Internal
             });
         }
 
-        public IList<string> GetSubscribersForMessage(IList<string> messageTypes)
+        IList<string> ISubscriptionStorage.GetSubscribersForMessage(IList<string> messageTypes)
         {
             var result = new List<string>();
             messageTypes.ToList().ForEach(m =>
@@ -42,7 +42,7 @@ namespace NServiceBus.Host.Internal
             return result;
         }
 
-        public void Init()
+        void ISubscriptionStorage.Init()
         {
         }
 

@@ -11,6 +11,7 @@ namespace WebApplication1
         protected void Application_Start(object sender, EventArgs e)
         {
             Bus = NServiceBus.Configure.WithWeb()
+                .Log4Net()
                 .SpringBuilder()
                 .XmlSerializer()
                 .MsmqTransport()

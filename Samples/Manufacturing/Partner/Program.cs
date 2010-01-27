@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Common.Logging;
+using log4net;
 using NServiceBus;
 using OrderService.Messages;
 
@@ -11,8 +11,6 @@ namespace Partner
     {
         static void Main()
         {
-            LogManager.GetLogger("hello").Debug("Partner Started.");
-
             try
             {
                 var bus = NServiceBus.Configure.With()
@@ -66,7 +64,7 @@ namespace Partner
             }
             catch (Exception e)
             {
-                LogManager.GetLogger("hello").Fatal("Exiting", e);
+                LogManager.GetLogger("Partner").Fatal("Exiting", e);
                 Console.Read();
             }
         }

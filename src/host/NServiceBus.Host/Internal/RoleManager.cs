@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.Logging;
+using System.Configuration;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Host.Internal
@@ -29,7 +29,7 @@ namespace NServiceBus.Host.Internal
             if (specifier is ISpecifyMessageHandlerOrdering)
             {
                 if (config == null)
-                    throw new ConfigurationException("You must implement either AsA_Client or AsA_Server to use ISpecifyMessageHandlerOrdering. If you are doing your own bus configuration, specify the order in .UnicastBus().LoadMessageHandlers(order);");
+                    throw new ConfigurationErrorsException("You must implement either AsA_Client or AsA_Server to use ISpecifyMessageHandlerOrdering. If you are doing your own bus configuration, specify the order in .UnicastBus().LoadMessageHandlers(order);");
 
                 (specifier as ISpecifyMessageHandlerOrdering).SpecifyOrder(new Order(config));
             }

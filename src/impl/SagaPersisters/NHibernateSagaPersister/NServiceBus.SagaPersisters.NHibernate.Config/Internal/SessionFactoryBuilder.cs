@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using FluentNHibernate.Cfg;
 using NHibernate;
@@ -49,7 +50,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
             catch (FluentConfigurationException e)
             {
                 if (e.InnerException != null)
-                    throw new Common.Logging.ConfigurationException(e.InnerException.Message, e);
+                    throw new ConfigurationErrorsException(e.InnerException.Message, e);
 
                 throw;
             }
@@ -73,9 +74,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
                         //default to LinFu if not specifed by user
                         if (!c.Properties.Keys.Contains(PROXY_FACTORY_KEY))
                             c.SetProperty(PROXY_FACTORY_KEY,typeof(ProxyFactoryFactory).AssemblyQualifiedName);
-
-
-
                     }
                 );
         }
