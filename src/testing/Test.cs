@@ -35,8 +35,6 @@ namespace NServiceBus.Testing
             var mapper = new MessageInterfaces.MessageMapper.Reflection.MessageMapper();
             _messageTypes = new List<Type>();
 
-            Configure.With();
-
             foreach (var t in Configure.TypesToScan)
                 if (typeof(IMessage).IsAssignableFrom(t))
                     if (!_messageTypes.Contains(t))
