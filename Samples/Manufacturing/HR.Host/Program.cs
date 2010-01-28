@@ -11,8 +11,6 @@ namespace HR.Host
         {
             try
             {
-                XmlConfigurator.Configure();
-
                 var bus = NServiceBus.Configure.With()
                     .Log4Net()
                     .SpringBuilder()

@@ -21,8 +21,6 @@ namespace NServiceBus.Host.Internal
         {
             try
             {
-                NServiceBus.Logging.UseLog4Net();
-
                 if (specifier is IWantCustomLogging)
                     (specifier as IWantCustomLogging).Init();
                 else

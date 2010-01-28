@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Host.Internal.Logging
+﻿using log4net.Appender;
+using log4net.Core;
+
+namespace NServiceBus.Host.Internal.Logging
 {
     /// <summary>
     /// Handles logging configuration for the lite profile.
@@ -7,15 +10,7 @@
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            var level = log4net.Core.Level.Debug;
-
-            var appender = new log4net.Appender.ConsoleAppender
-            {
-                Layout = layout,
-                Threshold = level
-            };
-            log4net.Config.BasicConfigurator.Configure(appender);
+            NServiceBus.SetLoggingLibrary.Log4Net<ConsoleAppender>(null, ca => ca.Threshold = Level.Debug);
         }
     }
 }

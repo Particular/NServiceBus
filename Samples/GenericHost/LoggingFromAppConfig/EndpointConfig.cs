@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus;
-using log4net;
 
 namespace LoggingFromAppConfig
 {
@@ -9,7 +8,7 @@ namespace LoggingFromAppConfig
         public void Init()
         {
             Console.WriteLine("I'm using the logging configured in the app.config.");
-            log4net.Config.XmlConfigurator.Configure();
+            NServiceBus.SetLoggingLibrary.Log4Net(log4net.Config.XmlConfigurator.Configure);
         }
     }
 }
