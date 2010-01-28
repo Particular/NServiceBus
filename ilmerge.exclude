@@ -1,5 +1,4 @@
 NServiceBus*
-MSMQ.MSMQManagementClass
 Spring.Reflection.Dynamic
 Rhino.Mocks.Interfaces.IMockedObject
 Castle.Core.Interceptor.IProxyTargetAccessor
