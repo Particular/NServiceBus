@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.MicroKernel.Releasers;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -33,6 +34,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             Container = container;
+            container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
