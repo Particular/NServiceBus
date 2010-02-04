@@ -1,1 +1,3 @@
-IF EXIST nant.build (.\tools\nant\nant ConfigureMsmqAndDtc) ELSE (.\tools\msmqutils\runner.exe)
+IF EXIST nant.build (.\tools\nant\nant BuildMsmqUtils)
+
+.\tools\msmqutils\runner.exe %1

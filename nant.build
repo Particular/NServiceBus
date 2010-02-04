@@ -376,10 +376,16 @@
 
   </target>
 
-  <target name="ConfigureMsmqAndDtc" depends="compile_msmqutils">
-    <!-- Execute the runner which performs Msmq and Dtc checks -->
-    <exec 	program="${build.dir.absolutepath}\tools\MsmqUtils\runner.exe"/>
+  <target name="BuildMsmqUtils" depends="compile_msmqutils">
+    <!-- copy the runner to the tools directory -->
+    <copy todir="tools\msmqutils">
+      <fileset basedir="${build.dir.absolutepath}\tools\MsmqUtils">
+        <include name="*.*" />
+      </fileset>
+    </copy>
+    
   </target>
+  
   <target name="prepare_binaries">
     <delete dir="${binaries.dir}" failonerror="false"></delete>
     <mkdir dir="${binaries.dir}" />
