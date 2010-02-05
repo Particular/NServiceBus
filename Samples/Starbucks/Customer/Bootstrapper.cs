@@ -23,6 +23,7 @@ namespace Customer
         private static void BootstrapNServiceBus()
         {
             Configure.With()
+                .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()

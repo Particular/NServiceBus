@@ -10,27 +10,18 @@ namespace HR.Host
     {
         static void Main()
         {
-            LogManager.GetLogger("hello").Debug("HR Started.");
-
-            try
-            {
-                var bus = NServiceBus.Configure.With()
-                    .SpringBuilder()
-                    .XmlSerializer()
-                    .MsmqTransport()
-                        .IsTransactional(true)
-                        .PurgeOnStartup(false)
-                    .UnicastBus()
-                        .ImpersonateSender(false)
-                        .LoadMessageHandlers()
-                    .CreateBus()
-                    .Start();
-            }
-            catch (Exception e)
-            {
-                LogManager.GetLogger("hello").Fatal("Exiting", e);
-                Console.Read();
-            }
+            var bus = NServiceBus.Configure.With()
+                .Log4Net()
+                .SpringBuilder()
+                .XmlSerializer()
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false)
+                    .LoadMessageHandlers()
+                .CreateBus()
+                .Start();
 
             Console.Read();
         }
