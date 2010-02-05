@@ -15,7 +15,7 @@ namespace Logging
     {
         public void Configure(IConfigureThisEndpoint specifier)
         {
-            Console.WriteLine("I'm configuring logging now.");
+            Console.WriteLine("I'm going to do my custom logging setup in here using my own profile.");
         }
     }
 }
