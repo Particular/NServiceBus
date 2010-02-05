@@ -1,13 +1,8 @@
 using System;
+using System.Configuration;
 using System.Windows.Forms;
 using NServiceBus;
 using Grid;
-using NServiceBus.Grid.MessageHandlers;
-using NServiceBus.Grid.Messages;
-using System.Reflection;
-using Common.Logging;
-using System.Collections.Generic;
-using NServiceBus.ObjectBuilder;
 
 namespace UI
 {
@@ -19,8 +14,8 @@ namespace UI
         [STAThread]
         static void Main()
         {
-            string nameSpace = System.Configuration.ConfigurationManager.AppSettings["NameSpace"];
-            string serialization = System.Configuration.ConfigurationManager.AppSettings["Serialization"];
+            string nameSpace = ConfigurationManager.AppSettings["NameSpace"];
+            string serialization = ConfigurationManager.AppSettings["Serialization"];
 
             Func<Configure, Configure> func;
 
@@ -33,7 +28,7 @@ namespace UI
                     func = cfg => cfg.BinarySerializer();
                     break;
                 default:
-                    throw new ConfigurationException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
+                    throw new ConfigurationErrorsException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
             }
 
             var busMgr = func(NServiceBus.Configure.With()
