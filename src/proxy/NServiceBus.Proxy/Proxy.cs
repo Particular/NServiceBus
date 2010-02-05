@@ -1,9 +1,9 @@
 using System;
+using log4net;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast;
-using Common.Logging;
 
 namespace NServiceBus.Proxy
 {
