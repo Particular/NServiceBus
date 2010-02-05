@@ -6,7 +6,6 @@ using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
 using System.Reflection;
-using Common.Logging;
 
 namespace NServiceBus
 {
@@ -204,18 +203,6 @@ namespace NServiceBus
 
                     result.Add(Assembly.LoadFrom(file.FullName));
                 }
-                catch (ReflectionTypeLoadException err)
-                {
-                    foreach (var loaderException in err.LoaderExceptions)
-                    {
-                        logger.Error("Problem with loading " + file.FullName, loaderException);
-                    }
-
-                    throw new InvalidOperationException(
-                        "Could not load " + file.FullName +
-                        ". Consider using 'Configure.With(assemblies)' to tell NServiceBus not to load this file.",
-                        err);
-                }
                 catch (BadImageFormatException bif)
                 {
                     if (bif.FileName.ToLower().Contains("system.data.sqlite.dll"))
@@ -223,7 +210,10 @@ namespace NServiceBus
                             "You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.",
                             bif.FileName, bif);
 
-                    throw;
+                    throw new InvalidOperationException(
+                        "Could not load " + file.FullName +
+                        ". Consider using 'Configure.With(AllAssemblies.Except(\"" + file.Name + "\"))' to tell NServiceBus not to load this file.",
+                        bif);
                 }
             }
             
@@ -231,6 +221,5 @@ namespace NServiceBus
         }
 
         private static Configure instance;
-        private static ILog logger = LogManager.GetLogger("NServiceBus.Config");
     }
 }
