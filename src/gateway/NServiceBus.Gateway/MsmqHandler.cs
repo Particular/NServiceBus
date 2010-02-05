@@ -1,9 +1,7 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport.Msmq;
 using System.Net;
+using log4net;
 using NServiceBus.Unicast.Transport;
-using System.Security.Cryptography;
-using System.Text;
 using System.IO;
 
 namespace NServiceBus.Gateway
@@ -12,7 +10,7 @@ namespace NServiceBus.Gateway
     {
         public static void Handle(TransportMessage msg, string remoteUrl)
         {
-            Console.WriteLine("Message received.");
+            Logger.Debug("Message received.");
 
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
@@ -30,11 +28,11 @@ namespace NServiceBus.Gateway
 
             request.GetRequestStream().Write(buffer, 0, buffer.Length);
 
-            Console.WriteLine("Sending HTTP Request.");
+            Logger.Debug("Sending HTTP Request.");
 
             var response = request.GetResponse();
 
-            Console.WriteLine("Got HTTP Response.");
+            Logger.Debug("Got HTTP Response.");
 
             Stream s = response.GetResponseStream();
             byte[] b = new byte[1024];
@@ -44,15 +42,17 @@ namespace NServiceBus.Gateway
             for (int i = 0; i < read; i++)
                 bytes[i] = b[i];
 
-            string result = System.Text.ASCIIEncoding.ASCII.GetString(bytes);
+            string result = System.Text.Encoding.ASCII.GetString(bytes);
 
             if (result == hash)
-                Console.WriteLine("Message transferred successfully.");
+                Logger.Debug("Message transferred successfully.");
             else
             {
-                Console.WriteLine("Message not transferred successfully. Trying again...");
+                Logger.Info("Message not transferred successfully. Trying again...");
                 throw new Exception();
             }
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

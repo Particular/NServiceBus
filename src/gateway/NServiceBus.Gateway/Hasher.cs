@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Security.Cryptography;
 
 namespace NServiceBus.Gateway
@@ -13,7 +12,7 @@ namespace NServiceBus.Gateway
             MD5 hasher = MD5.Create();
             byte[] data = hasher.ComputeHash(buffer);
 
-            StringBuilder sBuilder = new StringBuilder();
+            var sBuilder = new StringBuilder();
 
             for (int i = 0; i < data.Length; i++)
                 sBuilder.Append(data[i].ToString("x2"));

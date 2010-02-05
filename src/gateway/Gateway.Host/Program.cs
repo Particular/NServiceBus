@@ -17,13 +17,8 @@ namespace Gateway.Host
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
 
-            Action status = () =>
-            {
-                Logger.Info("Listening on queue: " + inputQueue);
-                Logger.Info("Listening on url: " + listenUrl);
-            };
-
-            status();
+            Logger.Info("Listening on queue: " + inputQueue);
+            Logger.Info("Listening on url: " + listenUrl);
 
             var transport = new MsmqTransport
                                 {
@@ -33,11 +28,7 @@ namespace Gateway.Host
                                     NumberOfWorkerThreads = 1
                                 };
 
-            transport.TransportMessageReceived += (s, e) =>
-                {
-                    MsmqHandler.Handle(e.Message, remoteUrl);
-                    status();
-                };
+            transport.TransportMessageReceived += (s, e) => MsmqHandler.Handle(e.Message, remoteUrl);
 
             transport.Start();
 
@@ -48,11 +39,8 @@ namespace Gateway.Host
             while (true)
             {
                 HttpListenerContext context = listener.GetContext();
-                new Thread(o =>
-                               {
-                                   HttpRequestHandler.Handle(((HttpListenerContext)o).AsIContext(), transport, outputQueue);
-                                   status();
-                               }).Start(context);
+                new Thread(o => HttpRequestHandler.Handle(((HttpListenerContext)o).AsIContext(), transport, outputQueue))
+                    .Start(context);
             }
 // ReSharper disable FunctionNeverReturns
         }

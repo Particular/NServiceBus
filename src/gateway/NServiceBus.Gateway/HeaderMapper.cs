@@ -32,7 +32,7 @@ namespace NServiceBus.Gateway
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
             to[NServiceBus + WindowsIdentityName] = from.WindowsIdentityName;
 
-            from.Headers.ForEach((info) => to[NServiceBus + Header + info.Key] = info.Value);
+            from.Headers.ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
         }
 
         private const string NServiceBus = "NServiceBus.";

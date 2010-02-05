@@ -1,14 +1,12 @@
-﻿using System;
-using System.Web;
+﻿using System.Web;
 using System.Collections.Specialized;
 using System.IO;
-using System.Net;
 
 namespace NServiceBus.Gateway
 {
     public class WebHttpContext : IContext
     {
-        private HttpContext context;
+        private readonly HttpContext context;
         public WebHttpContext (HttpContext ctx)
         {
             context = ctx;

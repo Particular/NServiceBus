@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using log4net;
 using NServiceBus.Unicast.Transport;
 using System.IO;
 using NServiceBus.Unicast.Transport.Msmq;
@@ -12,7 +9,7 @@ namespace NServiceBus.Gateway
     {
         public static void Handle(IContext ctx, MsmqTransport transport, string queue)
         {
-            byte[] buffer = new byte[ctx.RequestContentLength];
+            var buffer = new byte[ctx.RequestContentLength];
             ctx.RequestInputStream.Read(buffer, 0, buffer.Length);
 
             string myHash = Hasher.Hash(buffer);
@@ -20,8 +17,7 @@ namespace NServiceBus.Gateway
 
             if (myHash == hash)
             {
-                TransportMessage msg = new TransportMessage();
-                msg.BodyStream = new MemoryStream(buffer);
+                var msg = new TransportMessage {BodyStream = new MemoryStream(buffer)};
 
                 HeaderMapper.Map(ctx.RequestHeaders, msg);
 
@@ -30,13 +26,15 @@ namespace NServiceBus.Gateway
 
             if (hash != null)
             {
-                Console.WriteLine("Sending HTTP response.");
+                Logger.Debug("Sending HTTP response.");
 
-                byte[] b = System.Text.ASCIIEncoding.ASCII.GetBytes(hash);
+                byte[] b = System.Text.Encoding.ASCII.GetBytes(hash);
                 ctx.ResponseOutputStream.Write(b, 0, b.Length);
             }
 
             ctx.EndResponse();
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }
