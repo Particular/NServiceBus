@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Configuration;
-using Common.Logging;
+using log4net;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport.Msmq;
 using System.Net;
