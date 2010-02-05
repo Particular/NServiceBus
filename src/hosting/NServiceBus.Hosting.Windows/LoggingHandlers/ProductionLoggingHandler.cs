@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using Common.Logging;
+﻿using log4net.Appender;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
@@ -10,30 +9,19 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
-
-            var layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            var level = log4net.Core.Level.Warn;
-
-            var appender = new log4net.Appender.RollingFileAppender
-                               {
-                                   Layout = layout,
-                                   Threshold = level, 
-                                   CountDirection = 1,
-                                   DatePattern = "yyyy-MM-dd",
-                                   RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Composite,
-                                   MaxFileSize = 1024*1024,
-                                   MaxSizeRollBackups = 10,
-                                   LockingModel = new log4net.Appender.FileAppender.MinimalLock(),
-                                   StaticLogFileName = true,
-                                   File = "logfile",
-                                   AppendToFile = true
-                               };
-            appender.ActivateOptions();
-
-            log4net.Config.BasicConfigurator.Configure(appender);
+            NServiceBus.SetLoggingLibrary.Log4Net<RollingFileAppender>(null,
+                a =>
+                {
+                    a.CountDirection = 1;
+                    a.DatePattern = "yyyy-MM-dd";
+                    a.RollingStyle = RollingFileAppender.RollingMode.Composite;
+                    a.MaxFileSize = 1024 * 1024;
+                    a.MaxSizeRollBackups = 10;
+                    a.LockingModel = new FileAppender.MinimalLock();
+                    a.StaticLogFileName = true;
+                    a.File = "logfile";
+                    a.AppendToFile = true;
+                });
         }
     }
 }

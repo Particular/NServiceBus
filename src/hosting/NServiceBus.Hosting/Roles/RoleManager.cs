@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using Common.Logging;
+using log4net;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Utils.Reflection;
@@ -15,7 +16,7 @@ namespace NServiceBus.Hosting.Roles
     public class RoleManager
     {
         private readonly IDictionary<Type, Type> availableRoles;
-        private static readonly ILog logger = LogManager.GetLogger(typeof (RoleManager));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (RoleManager));
 
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles
@@ -26,8 +27,7 @@ namespace NServiceBus.Hosting.Roles
             availableRoles = assembliesToScan.AllTypes()
                 .Select(t => new {Role = t.GetGenericallyContainedType(typeof (IConfigureRole<>), typeof (IRole)),Configurer=t})
                 .Where(x=>x.Role != null)
-                .ToDictionary(key => key.Role, value => value.Configurer);;
-    
+                .ToDictionary(key => key.Role, value => value.Configurer);
         }
 
         /// <summary>
@@ -52,14 +52,14 @@ namespace NServiceBus.Hosting.Roles
 
                     config = roleConfigurer.ConfigureRole(specifier);
 
-                    logger.Info("Role " + roleType + " configured");
+                    Logger.Info("Role " + roleType + " configured");
                 }
             }
 
             if (specifier is ISpecifyMessageHandlerOrdering)
             {
                 if (config == null)
-                    throw new ConfigurationException("You must implement a role in order to use ISpecifyMessageHandlerOrdering. If you are doing your own bus configuration, specify the order in .UnicastBus().LoadMessageHandlers(order);");
+                    throw new ConfigurationErrorsException("You must implement a role in order to use ISpecifyMessageHandlerOrdering. If you are doing your own bus configuration, specify the order in .UnicastBus().LoadMessageHandlers(order);");
 
                 (specifier as ISpecifyMessageHandlerOrdering).SpecifyOrder(new Order(config));
             }

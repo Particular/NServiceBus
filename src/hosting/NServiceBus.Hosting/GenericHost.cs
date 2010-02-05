@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Common.Logging;
+using log4net;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Profiles;
