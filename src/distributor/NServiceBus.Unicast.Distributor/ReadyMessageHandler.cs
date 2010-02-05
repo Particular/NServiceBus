@@ -1,4 +1,4 @@
-using Common.Logging;
+using log4net;
 using NServiceBus.Messages;
 
 namespace NServiceBus.Unicast.Distributor

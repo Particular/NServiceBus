@@ -1,5 +1,5 @@
 using System.Threading;
-using Common.Logging;
+using log4net;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Queuing;
