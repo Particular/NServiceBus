@@ -1,12 +1,11 @@
 ﻿using System.Configuration;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing;
-using NServiceBus.Unicast.Transport.Msmq;
-using ConfigurationException=Common.Logging.ConfigurationException;
 using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Unicast;
+using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Distributor
 {
@@ -39,7 +38,7 @@ namespace NServiceBus.Distributor
                     configure.BinarySerializer();
                     break;
                 default:
-                    throw new ConfigurationException("Serialization can only be either 'xml', or 'binary'.");
+                    throw new ConfigurationErrorsException("Serialization can only be either 'xml', or 'binary'.");
             }
 
             MessageSender = new MsmqMessageQueue();
