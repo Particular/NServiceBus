@@ -1,8 +1,5 @@
 using System;
-using Common.Logging;
 using NServiceBus;
-using NServiceBus.Grid.MessageHandlers;
-using HR.MessageHandlers;
 
 namespace HR.Host
 {
