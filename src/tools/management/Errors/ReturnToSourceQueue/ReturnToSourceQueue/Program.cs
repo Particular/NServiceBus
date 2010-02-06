@@ -52,7 +52,7 @@ namespace ReturnToSourceQueue
             catch(Exception e)
             {
                 Console.WriteLine("Could not return message to source queue.\nReason: " + e.Message);
-                
+                Console.WriteLine(e.StackTrace);
             }
         }
     }
