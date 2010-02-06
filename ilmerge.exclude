@@ -1,8 +1,6 @@
 NServiceBus*
-MSMQ.MSMQManagementClass
 Spring.Reflection.Dynamic
 Rhino.Mocks.Interfaces.IMockedObject
 Castle.Core.Interceptor.IProxyTargetAccessor
 Castle.DynamicProxy.AbstractInvocation
 NHibernate.Cfg.MappingSchema.*
-NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions.*
