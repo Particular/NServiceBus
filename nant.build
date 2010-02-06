@@ -24,7 +24,7 @@
   <property name="IsWow64Process" value="false" />
   <property name="architecture" value="x86" dynamic="true" />
   <property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
-  <property name="build.type" value="default" dynamic="true" />
+  <property name="include.dependencies" value="true" dynamic="true" />
   <property name="run_azure_test" value="false" dynamic="true" />
   <property name="servicehosting.version" value="" dynamic="true" />
   <property name="addreference.project" value="" dynamic="true" />
@@ -200,7 +200,7 @@
     </foreach>
     <!-- Create list of all depending assemblies that will be merged into NServiceBus.Core.dll -->
     <property name="nservicebus.merged_dependencies" value="" dynamic="true" />
-    <if test="${build.type != 'core_only'}">
+    <if test="${include.dependencies != 'false'}">
       <foreach item="File" property="filename">
         <in>
           <items>
@@ -539,79 +539,4 @@
     <delete dir="${release.dir}" failonerror="false"/>
 
   </target>
-  <target name="build_core_only" >
-    <property name="build.type" value="core_only" dynamic="true"/>
-    <property name="logging.reference" value="&lt;Reference Include='Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e'&gt;&lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;&lt;HintPath&gt;..\..\..\external-bin\Common.Logging.dll&lt;/HintPath&gt;&lt;/Reference&gt;" />
-    <property name="logging.reference2" value="&lt;Reference Include='Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e'&gt;&lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;&lt;HintPath&gt;..\..\..\..\..\external-bin\Common.Logging.dll&lt;/HintPath&gt;&lt;/Reference&gt;" />
-    <property name="log4net.reference" value="&lt;Reference Include='Common.Logging.Log4Net, Version=1.2.0.2, Culture=neutral, PublicKeyToken=af08829b84f0328e'&gt;&lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;&lt;HintPath&gt;..\..\..\external-bin\Common.Logging.Log4Net.dll&lt;/HintPath&gt;&lt;/Reference&gt;" />
-    <property name="msmqinterop.reference" value="&lt;Reference Include='Interop.MSMQ, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null'&gt;&lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;&lt;HintPath&gt;..\..\..\..\..\external-bin\Interop.MSMQ.dll&lt;/HintPath&gt;&lt;/Reference&gt;" />
-
-    <!-- Modify projects to reference common.logging directly-->
-    <property name="addreference.project" value="src\hosting\nservicebus.hosting.windows\nservicebus.hosting.windows.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}${log4net.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\hosting\NServiceBus.Hosting\NServiceBus.Hosting.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\distributor\NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\distributor\NServiceBus.Distributor\NServiceBus.Distributor.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\proxy\NServiceBus.Proxy\NServiceBus.Proxy.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\tools\management\Grid\Grid\Grid.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference2}${msmqinterop.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\tools\management\Grid\UI\UI.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference2}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\tools\management\Errors\ReturnToSourceQueue\ReturnToSourceQueue\ReturnToSourceQueue.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference2}"/>
-    <call target="utilities.addreference"/>
-
-    <property name="addreference.project" value="src\gateway\Gateway.Host\Gateway.Host.csproj"/>
-    <property name="addreference.reference_to_add" value="${logging.reference}"/>
-    <call target="utilities.addreference"/>
-
-    <call target="build_src"/>
-
-    <call target="compile_tools"/>
-  </target>
-
-  <target name="utilities.addreference" >
-
-    <!-- Modify projects to reference common.logging directly-->
-    <property name="references" value=""/>
- 
-    <!-- Make a copy of the original file -->
-    <copy file="${addreference.project}" tofile="${addreference.project}.bak" overwrite="true"/>
-
-    <xmlpeek xpath="//x:ItemGroup[x:Reference]"
-             file="${addreference.project}"
-             property="references">
-      <namespaces>
-        <namespace prefix="x" uri="http://schemas.microsoft.com/developer/msbuild/2003"></namespace>
-      </namespaces>
-    </xmlpeek>
-
-    <property name="references" value="${references}${addreference.reference_to_add}" />
-
-    <!-- rewrite it back out to the xml file using xmlpeek -->
-    <xmlpoke file="${addreference.project}" xpath="//x:ItemGroup[x:Reference]" value="${references}">
-      <namespaces>
-        <namespace prefix="x" uri="http://schemas.microsoft.com/developer/msbuild/2003"></namespace>
-      </namespaces>
-    </xmlpoke>
-  </target>
-
 </project>
