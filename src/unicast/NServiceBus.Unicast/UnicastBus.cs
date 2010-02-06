@@ -784,7 +784,7 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                return new MessageContext(_messageBeingHandled);
+                return _messageBeingHandled == null ? null : new MessageContext(_messageBeingHandled);
             }
         }
 
