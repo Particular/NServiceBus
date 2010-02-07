@@ -14,7 +14,7 @@ namespace Partner
             try
             {
                 var bus = NServiceBus.Configure.With()
-                    .SpringBuilder()
+                    .DefaultBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)

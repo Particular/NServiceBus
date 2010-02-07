@@ -56,7 +56,7 @@ namespace NServiceBus.Host.Internal
                         (specifier as IWantCustomInitialization).Init();
                 }
                 else
-                    Configure.With().SpringBuilder().XmlSerializer();
+                    Configure.With().DefaultBuilder().XmlSerializer();
 
                 if (Configure.Instance == null)
                     throw new ConfigurationErrorsException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");

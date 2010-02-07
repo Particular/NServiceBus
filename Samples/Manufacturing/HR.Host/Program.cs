@@ -13,7 +13,7 @@ namespace HR.Host
             {
                 var bus = NServiceBus.Configure.With()
                     .Log4Net()
-                    .SpringBuilder()
+                    .DefaultBuilder()
                     .XmlSerializer()
                     .MsmqTransport()
                         .IsTransactional(true)

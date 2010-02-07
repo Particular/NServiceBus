@@ -37,7 +37,7 @@ namespace NServiceBus.Proxy
                 SkipDeserialization = true
             };
 
-            var configure = Configure.With().SpringBuilder();
+            var configure = Configure.With().DefaultBuilder();
 
             configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.Queue, "NServiceBus_Proxy_Subscriptions");

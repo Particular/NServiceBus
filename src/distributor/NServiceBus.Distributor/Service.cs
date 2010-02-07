@@ -14,7 +14,7 @@ namespace NServiceBus.Distributor
         {
             var configure = Configure.With()
                 .Log4Net()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .MsmqTransport()
                     .IsTransactional(true)
                 .UnicastBus()

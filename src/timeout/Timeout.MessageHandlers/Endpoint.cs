@@ -1,15 +1,16 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using NServiceBus;
-using NServiceBus.Host;
 
 namespace Timeout.MessageHandlers
 {
+    /// <summary>
+    /// Configures the timeout host.
+    /// </summary>
     public class Endpoint : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
-        public void Init()
+        void IWantCustomInitialization.Init()
         {
-            var configure = NServiceBus.Configure.With().SpringBuilder();
+            var configure = NServiceBus.Configure.With().DefaultBuilder();
 
             string nameSpace = ConfigurationManager.AppSettings["NameSpace"];
             string serialization = ConfigurationManager.AppSettings["Serialization"];
