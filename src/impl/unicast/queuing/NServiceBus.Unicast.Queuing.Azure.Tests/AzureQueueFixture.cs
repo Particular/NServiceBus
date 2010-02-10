@@ -3,7 +3,7 @@ using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
-namespace NServiceBus.Unicast.Queueing.Azure.Tests
+namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     public abstract class AzureQueueFixture
     {

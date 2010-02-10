@@ -1,10 +1,10 @@
 using Microsoft.WindowsAzure.StorageClient;
 using NBehave.Spec.NUnit;
 using NServiceBus.Config.ConfigurationSource;
-using NServiceBus.Unicast.Queueing.Azure.Config;
+using NServiceBus.Unicast.Queuing.Azure.Config;
 using NUnit.Framework;
 
-namespace NServiceBus.Unicast.Queueing.Azure.Tests
+namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
     public class When_configuring_the_azure_queue

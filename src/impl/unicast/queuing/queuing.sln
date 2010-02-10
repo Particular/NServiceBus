@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Msmq", "NServiceBus.Unicast.Queuing.Msmq\NServiceBus.Unicast.Queuing.Msmq.csproj", "{4D4FA577-EFBD-4DFF-BFFC-2DA1A71F36ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queueing.Msmq.Config", "NServiceBus.Unicast.Queueing.Msmq.Config\NServiceBus.Unicast.Queueing.Msmq.Config.csproj", "{2702CE9B-839F-40DD-8738-5C1B95170F0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Msmq.Config", "NServiceBus.Unicast.Queuing.Msmq.Config\NServiceBus.Unicast.Queuing.Msmq.Config.csproj", "{2702CE9B-839F-40DD-8738-5C1B95170F0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queueing.Azure", "NServiceBus.Unicast.Queueing.Azure\NServiceBus.Unicast.Queueing.Azure.csproj", "{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Azure", "NServiceBus.Unicast.Queuing.Azure\NServiceBus.Unicast.Queuing.Azure.csproj", "{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queueing.Azure.Tests", "NServiceBus.Unicast.Queueing.Azure.Tests\NServiceBus.Unicast.Queueing.Azure.Tests.csproj", "{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Azure.Tests", "NServiceBus.Unicast.Queuing.Azure.Tests\NServiceBus.Unicast.Queuing.Azure.Tests.csproj", "{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queueing.Azure.Config", "NServiceBus.Unicast.Queueing.Azure.Config\NServiceBus.Unicast.Queueing.Azure.Config.csproj", "{87C365D3-7D4A-4686-A042-5E7B83869CBF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Azure.Config", "NServiceBus.Unicast.Queuing.Azure.Config\NServiceBus.Unicast.Queuing.Azure.Config.csproj", "{87C365D3-7D4A-4686-A042-5E7B83869CBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

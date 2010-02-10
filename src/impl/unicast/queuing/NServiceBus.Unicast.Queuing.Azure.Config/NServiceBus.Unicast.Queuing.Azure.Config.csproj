@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}</ProjectGuid>
+    <ProjectGuid>{87C365D3-7D4A-4686-A042-5E7B83869CBF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Queueing.Azure.Tests</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Queueing.Azure.Tests</AssemblyName>
+    <RootNamespace>NServiceBus.Unicast.Queuing.Azure.Config</RootNamespace>
+    <AssemblyName>NServiceBus.Unicast.Queuing.Azure.Config</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
@@ -42,10 +38,6 @@
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
-    </Reference>
-    <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -55,62 +47,30 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.Spring, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Spring.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.Spring.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Spring.Config.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino.Mocks, Version=3.5.0.1337, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AzureQueueFixture.cs" />
+    <Compile Include="AzureQueueConfig.cs" />
+    <Compile Include="ConfigureAzureMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="When_configuring_the_azure_queue.cs" />
-    <Compile Include="When_creating_a_queue.cs" />
-    <Compile Include="When_initializing_the_queue.cs" />
-    <Compile Include="When_receiving_messages.cs" />
-    <Compile Include="When_sending_messages.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queueing.Azure.Config\NServiceBus.Unicast.Queueing.Azure.Config.csproj">
-      <Project>{87C365D3-7D4A-4686-A042-5E7B83869CBF}</Project>
-      <Name>NServiceBus.Unicast.Queueing.Azure.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queueing.Azure\NServiceBus.Unicast.Queueing.Azure.csproj">
+    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Azure\NServiceBus.Unicast.Queuing.Azure.csproj">
       <Project>{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}</Project>
-      <Name>NServiceBus.Unicast.Queueing.Azure</Name>
+      <Name>NServiceBus.Unicast.Queuing.Azure</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

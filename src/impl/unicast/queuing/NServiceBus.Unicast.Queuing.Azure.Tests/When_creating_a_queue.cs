@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace NServiceBus.Unicast.Queueing.Azure.Tests
+namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
     public class When_creating_a_queue:AzureQueueFixture

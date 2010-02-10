@@ -10,7 +10,7 @@ using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
 
-namespace NServiceBus.Unicast.Queueing.Azure.Tests
+namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
     public class When_receiving_messages : AzureQueueFixture

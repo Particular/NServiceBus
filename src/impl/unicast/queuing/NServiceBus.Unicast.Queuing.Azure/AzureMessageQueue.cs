@@ -8,7 +8,7 @@ using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
 
-namespace NServiceBus.Unicast.Queueing.Azure
+namespace NServiceBus.Unicast.Queuing.Azure
 {
     public class AzureMessageQueue : IMessageQueue
     {

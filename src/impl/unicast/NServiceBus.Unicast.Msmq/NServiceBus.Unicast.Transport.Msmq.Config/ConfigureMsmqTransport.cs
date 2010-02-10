@@ -1,6 +1,6 @@
 ﻿using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Unicast.Queueing.Msmq.Config;
-using NServiceBus.Unicast.Queueing.Azure.Config;
+using NServiceBus.Unicast.Queuing.Msmq.Config;
+using NServiceBus.Unicast.Queuing.Azure.Config;
 
 namespace NServiceBus
 {

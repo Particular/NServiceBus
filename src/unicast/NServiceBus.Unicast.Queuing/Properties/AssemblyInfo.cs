@@ -20,4 +20,4 @@
 
 using System.Reflection;
 [assembly: AssemblyTitle("NServiceBus Unicast Queuing Functionality")]
-[assembly: AssemblyDescription("Unicast queueing functionality for NServiceBus")]
+[assembly: AssemblyDescription("Unicast Queuing functionality for NServiceBus")]

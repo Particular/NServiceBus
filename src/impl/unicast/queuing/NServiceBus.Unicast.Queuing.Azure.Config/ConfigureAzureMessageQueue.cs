@@ -4,7 +4,7 @@ using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.Unicast.Queueing.Azure.Config
+namespace NServiceBus.Unicast.Queuing.Azure.Config
 {
     public static class ConfigureAzureMessageQueue
     {

@@ -50,17 +50,17 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Azure, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Queuing.Azure, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Azure.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Azure.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Azure.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Queuing.Azure.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Azure.Config.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Azure.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queueing.Msmq.Config, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Unicast.Queuing.Msmq.Config, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queueing.Msmq.Config.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
