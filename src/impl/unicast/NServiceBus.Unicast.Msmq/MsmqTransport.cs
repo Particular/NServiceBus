@@ -841,9 +841,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
             lock (workerThreads)
                 for (var i = 0; i < workerThreads.Count; i++)
                     workerThreads[i].Stop();
-
-            if (queue != null)
-                queue.Dispose();
         }
 
         #endregion
