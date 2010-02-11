@@ -842,7 +842,8 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 for (var i = 0; i < workerThreads.Count; i++)
                     workerThreads[i].Stop();
 
-            queue.Dispose();
+            if (queue != null)
+                queue.Dispose();
         }
 
         #endregion
