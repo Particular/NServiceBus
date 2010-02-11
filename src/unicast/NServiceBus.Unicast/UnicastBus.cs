@@ -417,6 +417,8 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
+            Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
+
 		    ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
@@ -441,6 +443,8 @@ namespace NServiceBus.Unicast
 
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+
+            Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
             ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
@@ -1080,7 +1084,8 @@ namespace NServiceBus.Unicast
 
                     if (goAhead)
                     {
-                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] {messageType});
+                        Log.Info("Subscribing " + msg.ReturnAddress + " to message type " + messageType);
+                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] { messageType });
                     }
 
                     return true;
@@ -1103,7 +1108,10 @@ namespace NServiceBus.Unicast
                         }
 
                     if (goAhead)
+                    {
+                        Log.Info("Unsubscribing " + msg.ReturnAddress + " from message type " + messageType);
                         subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
+                    }
 
                     return true;
                 }
