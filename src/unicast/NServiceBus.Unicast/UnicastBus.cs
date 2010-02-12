@@ -433,6 +433,12 @@ namespace NServiceBus.Unicast
 
         void IBus.Reply(params IMessage[] messages)
         {
+            var from = ExtensionMethods.CurrentMessageBeingHandled.GetHttpFromHeader();
+            if (from != null)
+                messages[0].SetHttpToHeader(from);
+
+            messages[0].CopyHeaderFromRequest("ReturnAddress");
+
             SendMessage(_messageBeingHandled.ReturnAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
