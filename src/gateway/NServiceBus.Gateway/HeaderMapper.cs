@@ -11,9 +11,15 @@ namespace NServiceBus.Gateway
             to.Id = from[NServiceBus + Id];
             to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
             to.CorrelationId = from[NServiceBus + CorrelationId];
-            to.Recoverable = bool.Parse(from[NServiceBus + Recoverable]);
-            to.ReturnAddress = from[NServiceBus + ReturnAddress];
-            to.TimeToBeReceived = TimeSpan.Parse(from[NServiceBus + TimeToBeReceived]);
+
+            bool recoverable;
+            bool.TryParse(from[NServiceBus + Recoverable], out recoverable);
+            to.Recoverable = recoverable;
+
+            TimeSpan timeToBeReceived;
+            TimeSpan.TryParse(from[NServiceBus + TimeToBeReceived], out timeToBeReceived);
+            to.TimeToBeReceived = timeToBeReceived;
+
             to.WindowsIdentityName = from[NServiceBus + WindowsIdentityName];
 
             to.Headers = new System.Collections.Generic.List<HeaderInfo>();
@@ -28,9 +34,15 @@ namespace NServiceBus.Gateway
             to[NServiceBus + IdForCorrelation] = from.IdForCorrelation;
             to[NServiceBus + CorrelationId] = from.CorrelationId;
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
-            to[NServiceBus + ReturnAddress] = from.ReturnAddress;
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
             to[NServiceBus + WindowsIdentityName] = from.WindowsIdentityName;
+
+            to[NServiceBus + ReturnAddress] = from.ReturnAddress;
+            to[NServiceBus + Header + ReturnAddress] = from.ReturnAddress;
+
+            var header = from.Headers.Find(hi => hi.Key == ReturnAddress);
+            if (header != null)
+                to[NServiceBus + Header + RouteTo] = header.Value;
 
             from.Headers.ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
         }
@@ -44,5 +56,13 @@ namespace NServiceBus.Gateway
         private const string TimeToBeReceived = "TimeToBeReceived";
         private const string WindowsIdentityName = "WindowsIdentityName";
         private const string Header = "Header.";
+
+        public const string RouteTo = "RouteTo";
+    }
+
+    public static class Headers
+    {
+        public const string ContentMd5Key = "Content-MD5";
+        public const string FromKey = "From";
     }
 }
