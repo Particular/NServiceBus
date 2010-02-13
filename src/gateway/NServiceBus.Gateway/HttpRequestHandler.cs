@@ -107,9 +107,9 @@ namespace NServiceBus.Gateway
                 {
                     Logger.Info("Could not notify client about exception.");
                 }
-
-                Logger.Info("Http request processing complete.");
             }
+
+            Logger.Info("Http request processing complete.");
         }
 
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
