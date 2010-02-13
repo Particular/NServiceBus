@@ -166,6 +166,13 @@ namespace NServiceBus
 		/// </summary>
         void HandleCurrentMessageLater();
 
+        /// <summary>
+        /// Forwards the current message being handled to the destination maintaining
+        /// all of its transport-level properties and headers.
+        /// </summary>
+        /// <param name="destination"></param>
+	    void ForwardCurrentMessageTo(string destination);
+
 		/// <summary>
 		/// Tells the bus to stop dispatching the current message to additional
 		/// handlers.
