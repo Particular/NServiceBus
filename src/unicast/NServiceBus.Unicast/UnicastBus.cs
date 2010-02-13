@@ -579,7 +579,15 @@ namespace NServiceBus.Unicast
                 transport.Send(toSend, destination);
 
                 if (Log.IsDebugEnabled)
-                    Log.Debug("Sending message " + messages[0].GetType().AssemblyQualifiedName + " with ID " + toSend.Id + " to destination " + destination + ".");
+                    Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
+                                            "ToString() of the message yields: {3}\n" +
+                                            "Message headers:\n{4}",
+                        messages[0].GetType().AssemblyQualifiedName,
+                        toSend.Id,
+                        destination,
+                        messages[0],
+                        string.Join(", ", ((IBus)this).OutgoingHeaders.Select(h => h.Key + ":" + h.Value).ToArray())
+                        ));
 
                 result.Add(toSend.Id);
             }
