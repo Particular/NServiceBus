@@ -465,6 +465,11 @@ namespace NServiceBus.Unicast
             _handleCurrentMessageLaterWasCalled = true;
         }
 
+        void IBus.ForwardCurrentMessageTo(string destination)
+        {
+            transport.Send(_messageBeingHandled, destination);
+        }
+
         /// <summary>
         /// ThreadStatic variable indicating if the current message was already
         /// marked to be handled later so we don't do this more than once.
