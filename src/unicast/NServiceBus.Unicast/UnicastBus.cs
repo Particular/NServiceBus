@@ -13,6 +13,7 @@ using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 using System.Text;
 using System.Linq;
+using System.Net;
 
 namespace NServiceBus.Unicast
 {
@@ -696,7 +697,7 @@ namespace NServiceBus.Unicast
                         var machine = Environment.MachineName;
 
                         if (arr.Length == 2)
-                            if (arr[1] != "." && arr[1].ToLower() != "localhost")
+                            if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
                                 machine = arr[1];
 
                         destination = queue + "@" + machine;
@@ -985,7 +986,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-		    Log.Debug("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
+		    Log.Info("Received message " + msg.Body[0].GetType().AssemblyQualifiedName + " with ID " + msg.Id + " from sender " + msg.ReturnAddress);
 
             _messageBeingHandled = msg;
             _handleCurrentMessageLaterWasCalled = false;
