@@ -11,7 +11,7 @@ namespace WebService1
         {
             Bus = Configure.WithWeb()
                 .Log4Net()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()

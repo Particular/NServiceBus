@@ -1,7 +1,6 @@
 ﻿using System;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Common.Config;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
@@ -11,16 +10,30 @@ namespace NServiceBus
     public static class ConfigureSpringBuilder
     {
         /// <summary>
-        /// Use the Spring Framework as the container.
-        /// The given actions will be performed as a part of the initialization process.
+        /// Obsolete - use DefaultBuilder if you don't care which container is used.
+        /// If you want to use the Spring Framework as your container, call <see cref="SpringFrameworkBuilder"/>.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
+        [Obsolete]
         public static Configure SpringBuilder(this Configure config)
         {
             ConfigureCommon.With(config, new SpringObjectBuilder());
 
             return config;
         }
+
+        /// <summary>
+        /// Use the Spring Framework as the container.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure SpringFrameworkBuilder(this Configure config)
+        {
+            ConfigureCommon.With(config, new SpringObjectBuilder());
+
+            return config;
+        }
+
     }
 }

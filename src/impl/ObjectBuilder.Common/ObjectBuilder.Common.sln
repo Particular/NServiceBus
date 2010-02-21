@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Spring", "Obj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Spring.Config", "ObjectBuilder.Spring.Config\ObjectBuilder.Spring.Config.csproj", "{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ObjectBuilder.DefaultBuilder", "NServiceBus.ObjectBuilder.DefaultBuilder\NServiceBus.ObjectBuilder.DefaultBuilder.csproj", "{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

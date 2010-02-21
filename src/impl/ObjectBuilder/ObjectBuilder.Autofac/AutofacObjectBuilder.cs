@@ -11,16 +11,21 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///<summary>
     /// Autofac implementation of IContainer.
     ///</summary>
-    public class AutofacObjectBuilder : Common.IContainer
+    internal class AutofacObjectBuilder : Common.IContainer
     {
+        /// <summary>
+        /// The container itself.
+        /// </summary>
+        private readonly IContainer container;
+
         ///<summary>
         /// Instantiates the class saving the given container.
         ///</summary>
         ///<param name="container"></param>
         public AutofacObjectBuilder(IContainer container)
         {
-            this.Container = container;
-            this.Initialize();
+            this.container = container;
+            Initialize();
         }
 
         ///<summary>
@@ -30,11 +35,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
         }
 
-        /// <summary>
-        /// The container itself.
-        /// </summary>
-        public IContainer Container { get; set; }
-
+        
         ///<summary>
         /// Build an instance of a given type using Autofac.
         ///</summary>
@@ -42,7 +43,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<returns></returns>
         public object Build(Type typeToBuild)
         {
-            return this.Container.Resolve(typeToBuild);
+            return container.Resolve(typeToBuild);
         }
 
         ///<summary>
@@ -52,12 +53,12 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<returns></returns>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return this.Container.ResolveAll(typeToBuild);
+            return container.ResolveAll(typeToBuild);
         }
 
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
-            IComponentRegistration registration = this.GetComponentRegistration(component);
+            IComponentRegistration registration = GetComponentRegistration(component);
 
             if (registration == null)
             {
@@ -65,7 +66,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 InstanceScope instanceScope = GetInstanceScopeFrom(callModel);
                 Type[] services = component.GetAllServices().ToArray();
                 builder.Register(component).As(services).WithScope(instanceScope).OnActivating(ActivatingHandler.InjectUnsetProperties);
-                builder.Build(this.Container);
+                builder.Build(container);
             }
         }
 
@@ -77,7 +78,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<param name="value"></param>
         public void ConfigureProperty(Type component, string property, object value)
         {
-            var registration = this.GetComponentRegistration(component);
+            var registration = GetComponentRegistration(component);
 
             if (registration == null)
             {
@@ -96,19 +97,19 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
             var builder = new ContainerBuilder();
             builder.Register(instance).As(lookupType).ExternallyOwned().OnActivating(ActivatingHandler.InjectUnsetProperties);
-            builder.Build(this.Container);
+            builder.Build(container);
         }
 
         public bool HasComponent(Type componentType)
         {
-            return this.Container.IsRegistered(componentType);
+            return container.IsRegistered(componentType);
         }
 
         private void Initialize()
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new ImplicitCollectionSupportModule());
-            builder.Build(this.Container);
+            builder.Build(container);
         }
 
         private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
@@ -126,7 +127,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         private IComponentRegistration GetComponentRegistration(Type concreteComponent)
         {
-            return this.Container.GetAllRegistrations().Where(x => x.Descriptor.BestKnownImplementationType == concreteComponent).FirstOrDefault();
+            return container.GetAllRegistrations().Where(x => x.Descriptor.BestKnownImplementationType == concreteComponent).FirstOrDefault();
         }
     }
 }
+
+

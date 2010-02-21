@@ -12,7 +12,7 @@ namespace WebApplication1
         {
             Bus = NServiceBus.Configure.WithWeb()
                 .Log4Net()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(false)

@@ -1,8 +1,4 @@
-﻿using System;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.ObjectBuilder.Common;
-
-namespace NServiceBus.ObjectBuilder.Common.Config
+﻿namespace NServiceBus.ObjectBuilder.Common.Config
 {
     /// <summary>
     /// Utility configuration class for implementers of IContainer.

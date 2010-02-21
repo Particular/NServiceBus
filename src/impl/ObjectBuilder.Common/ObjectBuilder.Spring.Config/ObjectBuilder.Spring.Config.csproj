@@ -39,7 +39,7 @@
     </Reference>
     <Reference Include="NServiceBus.Config, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Config.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="Spring.Core, Version=1.1.2.20125, Culture=neutral, PublicKeyToken=65e474d141e25e07, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -50,14 +50,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">

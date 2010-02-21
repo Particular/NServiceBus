@@ -28,12 +28,12 @@ namespace UI
                     func = cfg => cfg.BinarySerializer();
                     break;
                 default:
-                    throw new ConfigurationErrorsException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
+                    throw new ConfigurationErrorsException("Serialization can only be either 'xml' or 'binary'.");
             }
 
             var busMgr = func(NServiceBus.Configure.With()
                 .Synchronization()
-                .SpringBuilder())
+                .DefaultBuilder())
                 .MsmqTransport()
                     .IsTransactional(false)
                     .PurgeOnStartup(false)

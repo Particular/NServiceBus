@@ -208,6 +208,7 @@
             <include name="${core.build.dir}\common.logging.dll"/>
             <include name="${lib.dir}\common.logging.log4net.dll"/>
             <include name="${core.build.dir}\Interop.MSMQ.dll" />
+			<include name="${core.build.dir}\AutoFac.dll"/>
             <include name="${core.build.dir}\Spring.Core.dll"/>
             <include name="${core.build.dir}\NHibernate*.dll" />
             <include name="${core.build.dir}\FluentNHibernate.dll" />

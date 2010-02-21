@@ -77,7 +77,7 @@ namespace NServiceBus.Hosting
                     Configure.With();
 
                 if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
-                    Configure.Instance.SpringBuilder();
+                    Configure.Instance.DefaultBuilder();
 
                 roleManager.ConfigureBusForEndpoint(specifier);
 

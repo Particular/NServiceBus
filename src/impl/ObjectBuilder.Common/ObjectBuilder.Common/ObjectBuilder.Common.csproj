@@ -35,25 +35,17 @@
   <ItemGroup>
     <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Utils.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Utils.Reflection.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.Reflection.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">

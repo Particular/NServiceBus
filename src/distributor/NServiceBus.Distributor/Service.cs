@@ -17,7 +17,7 @@ namespace NServiceBus.Distributor
         public void Init()
         {
             var configure = Configure.With()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .MsmqTransport()
                     .IsTransactional(true)
                 .UnicastBus()
