@@ -25,11 +25,10 @@
   <property name="architecture" value="x86" dynamic="true" />
   <property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
   <property name="include.dependencies" value="true" dynamic="true" />
+  <property name="include.spring.dependencies" value="false" dynamic="true" />
   <property name="run_azure_test" value="false" dynamic="true" />
   <property name="servicehosting.version" value="" dynamic="true" />
-  <property name="addreference.project" value="" dynamic="true" />
-  <property name="addreference.reference_to_add" value="" dynamic="true" />
-
+  
 
   <target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
     <description>
@@ -208,8 +207,8 @@
             <include name="${core.build.dir}\common.logging.dll"/>
             <include name="${lib.dir}\common.logging.log4net.dll"/>
             <include name="${core.build.dir}\Interop.MSMQ.dll" />
-			<include name="${core.build.dir}\AutoFac.dll"/>
-            <include name="${core.build.dir}\Spring.Core.dll"/>
+	    <include name="${core.build.dir}\AutoFac.dll"/>
+            <include name="${core.build.dir}\Spring.Core.dll" if="${include.spring.dependencies != 'false'}"/>
             <include name="${core.build.dir}\NHibernate*.dll" />
             <include name="${core.build.dir}\FluentNHibernate.dll" />
             <include name="${core.build.dir}\Iesi.Collections.dll" />

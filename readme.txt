@@ -17,6 +17,11 @@ If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\
 
 If you see the build failing, check that you haven't put nServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
+If you want to build NServiceBus without any merged external dependecies please use the UnsupporterCoreOnlyBuild.bat
+
+If you want to include Spring.Core.dll in the set of merged assemblies please build using:
+.\tools\nant\NAnt -D:include.spring.dependencies=true
+
 
 ===========
 = Running =
