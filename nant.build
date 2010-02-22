@@ -534,7 +534,25 @@
       </fileset>
     </copy>
 
-    <delete dir="${artifacts.dir}" failonerror="false"/>
+	<if test="${include.dependencies != 'true'}">
+	  <copy todir="${release.dir}\dependencies" flatten="true">
+		  <fileset basedir="${trunk.dir}" >
+			  <include name="${core.build.dir}\antlr*.dll" />
+			  <include name="${core.build.dir}\common.logging.dll"/>
+			  <include name="${lib.dir}\common.logging.log4net.dll"/>
+			  <include name="${core.build.dir}\Interop.MSMQ.dll" />
+			  <include name="${core.build.dir}\AutoFac.dll"/>
+			  <include name="${core.build.dir}\Spring.Core.dll" />
+			  <include name="${core.build.dir}\NHibernate*.dll" />
+			  <include name="${core.build.dir}\FluentNHibernate.dll" />
+			  <include name="${core.build.dir}\Iesi.Collections.dll" />
+			  <include name="${core.build.dir}\LinFu*.dll" />
+			  <exclude name="${core.build.dir}\**Tests.dll" />
+		  </fileset>
+	  </copy>
+	</if>
+
+	<delete dir="${artifacts.dir}" failonerror="false"/>
     <mkdir dir="${artifacts.dir}" />
 
     <zip zipfile="${artifacts.dir}\NServiceBus.${project.fullversion}.zip" includeemptydirs="false" >
