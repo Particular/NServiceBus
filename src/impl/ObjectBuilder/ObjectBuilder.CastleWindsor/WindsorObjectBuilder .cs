@@ -21,10 +21,12 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public IWindsorContainer Container { get; set; }
 
         /// <summary>
-        /// Instantites the class with a new WindsorContainer.
+        /// Instantites the class with a new WindsorContainer setting the NoTrackingReleasePolicy.
         /// </summary>
-        public WindsorObjectBuilder() : this(new WindsorContainer())
+        public WindsorObjectBuilder()
         {
+            Container = new WindsorContainer();
+            Container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
         }
 
         /// <summary>
@@ -34,7 +36,6 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             Container = container;
-            container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)

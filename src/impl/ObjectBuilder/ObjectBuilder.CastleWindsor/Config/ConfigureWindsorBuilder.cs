@@ -10,7 +10,7 @@ namespace NServiceBus
     public static class ConfigureWindsorBuilder
     {
         /// <summary>
-        /// Use the Castle Windsor builder.
+        /// Use the Castle Windsor builder with the NoTrackingReleasePolicy.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
