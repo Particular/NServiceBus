@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace NServiceBus.Unicast.Transport
 {
@@ -30,7 +29,7 @@ namespace NServiceBus.Unicast.Transport
 	    void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
 		/// <summary>
-		/// Raised when a message is received at the transport's <see cref="Address"/>.
+		/// Raised when a message is received.
 		/// </summary>
         event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
