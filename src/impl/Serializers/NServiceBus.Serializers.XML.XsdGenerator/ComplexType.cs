@@ -10,11 +10,14 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         private ComplexType()
         {
+            TimeToBeReceived = TimeSpan.Zero;
         }
 
         public string Name { get; private set; }
 
         public string BaseName { get; private set; }
+
+        public TimeSpan TimeToBeReceived { get; private set; }
 
         public IEnumerable<Element> Elements
         {
@@ -87,6 +90,9 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                         complex.elements.Add(e);
                 }
             }
+
+            foreach(TimeToBeReceivedAttribute a in type.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
+                complex.TimeToBeReceived = a.TimeToBeReceived;
 
             return complex;
         }

@@ -60,7 +60,18 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
             foreach (ComplexType complex in Repository.ComplexTypes)
             {
-                builder.AppendFormat("<xs:element name=\"{0}\" nillable=\"true\" type=\"{0}\" />\n", complex.Name);
+                builder.AppendFormat("<xs:element name=\"{0}\" nillable=\"true\" type=\"{0}\">\n", complex.Name);
+
+                if (complex.TimeToBeReceived > TimeSpan.Zero)
+                {
+                    builder.AppendLine("<xs:annotation>");
+                    builder.AppendLine("<xs:appinfo>");
+                    builder.AppendFormat("<TimeToBeReceived>{0}</TimeToBeReceived>\n", complex.TimeToBeReceived);
+                    builder.AppendLine("</xs:appinfo>");
+                    builder.AppendLine("</xs:annotation>");
+                }
+
+                builder.AppendLine("</xs:element>");
                 ComplexTypeWriter.Write(complex, builder);
             }
 
