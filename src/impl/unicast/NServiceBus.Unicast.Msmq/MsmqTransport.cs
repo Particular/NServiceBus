@@ -244,7 +244,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (IsTransactional)
             {
                 if (HandledMaxRetries(m))
+                {
+                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
                     return;
+                }
             }
 
             //exceptions here will cause a rollback - which is what we want.
@@ -398,7 +401,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
             catch (Exception e)
             {
-                Logger.Error("Failed raising 'transport message received' event.", e);
+                Logger.Warn("Failed raising 'transport message received' event for message with ID=" + msg.Id, e);
                 return false;
             }
 
@@ -414,7 +417,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
             catch (Exception e)
             {
-                Logger.Error("Failed raising 'failed message processing' event.", e);
+                Logger.Warn("Failed raising 'failed message processing' event.", e);
                 return false;
             }
 
