@@ -328,9 +328,14 @@
 					workingdir="${solution.dir}\${pathToBuild}" />
     </foreach>
 
+    <!-- ilmerge dependent assemblies into XsdGenerator -->
+    <exec program="${lib.dir}\ilmerge.exe"
+    commandline="/out:..\XsdGenerator.exe XsdGenerator.exe NServiceBus.Serializers.XML.dll NServiceBus.Utils.Reflection.dll /target:exe /log:output_xsdgenerator.txt"
+    workingdir="${core.build.dir}" />
+
     <!-- copy the xsdgenerator to the tools directory -->
     <copy todir="${build.base}\tools\">
-      <fileset basedir="${core.build.dir}\">
+      <fileset basedir="${build.base}\">
         <include name="XsdGenerator.exe" />
       </fileset>
     </copy>
