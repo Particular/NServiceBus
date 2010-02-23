@@ -7,7 +7,7 @@ namespace NServiceBus.Serializers.XML.Test
     {
         Guid Id { get; set; }
         IM1 Parent { get; set; }
-        IList<IM1> Names { get; set; }
+        List<IM1> Names { get; set; }
         SomeEnum Some { get; set; }
         DateTime Start { get; set; }
         TimeSpan Duration { get; set; }
