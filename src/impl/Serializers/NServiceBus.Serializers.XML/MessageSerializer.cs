@@ -167,7 +167,15 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var prop in t.GetProperties())
             {
+                if (typeof(IList) == prop.PropertyType)
+                    throw new NotSupportedException("IList is not a supported property type for serialization.Type: " + t.FullName + " Property: " + prop.Name);
+
                 var args = prop.PropertyType.GetGenericArguments();
+
+                if (args.Length == 1)
+                    if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
+                        throw new NotSupportedException("IList<T> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name);
+
                 if (args.Length == 2)
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name);
