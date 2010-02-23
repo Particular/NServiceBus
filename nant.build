@@ -175,7 +175,7 @@
   <target name="compile_core" depends="compile_main">
     <!-- NServiceBus.Core -->
     <foreach 	item="String"
-					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,faults,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\Serializers,impl\encryption,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
+					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,faults,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\encryption,impl\Serializers,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
 					delim=","
 					property="pathToBuild">
       <exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
