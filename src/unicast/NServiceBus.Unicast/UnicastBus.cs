@@ -17,6 +17,7 @@ using System.Linq;
 using NServiceBus.Serialization;
 using System.IO;
 using NServiceBus.Faults;
+using System.Net;
 
 namespace NServiceBus.Unicast
 {
@@ -720,7 +721,7 @@ namespace NServiceBus.Unicast
                         var machine = Environment.MachineName;
 
                         if (arr.Length == 2)
-                            if (arr[1] != "." && arr[1].ToLower() != "localhost")
+                            if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
                                 machine = arr[1];
 
                         destination = queue + "@" + machine;
