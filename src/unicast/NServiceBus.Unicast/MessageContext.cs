@@ -22,8 +22,6 @@ namespace NServiceBus.Unicast
             headers = new HeaderAdapter(transportMessage.Headers);
         }
 
-        #region IMessageContext Members
-
         IDictionary<string, string> IMessageContext.Headers
         {
             get { return headers; }
@@ -31,14 +29,17 @@ namespace NServiceBus.Unicast
 
         string IMessageContext.Id
         {
-            get { return this.transportMessage.IdForCorrelation; }
+            get { return transportMessage.IdForCorrelation; }
         }
 
         string IMessageContext.ReturnAddress
         {
-            get { return this.transportMessage.ReturnAddress; }
+            get { return transportMessage.ReturnAddress; }
         }
 
-        #endregion
+        DateTime IMessageContext.TimeSent
+        {
+            get { return transportMessage.TimeSent;  }
+        }
     }
 }

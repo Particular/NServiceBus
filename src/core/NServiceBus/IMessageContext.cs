@@ -19,6 +19,11 @@ namespace NServiceBus
         string ReturnAddress { get; }
 
         /// <summary>
+        /// Returns the time at which the message was sent.
+        /// </summary>
+        DateTime TimeSent { get; }
+
+        /// <summary>
         /// Gets the list of key/value pairs found in the header of the message.
         /// </summary>
         IDictionary<string, string> Headers { get; }

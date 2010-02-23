@@ -7,6 +7,7 @@ namespace NServiceBus.Testing
     {
         public string Id { get; set; }
         public string ReturnAddress { get; set; }
+        public DateTime TimeSent { get; set; }
         public IDictionary<string, string> Headers { get; set; }
     }
 }
