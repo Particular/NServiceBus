@@ -23,9 +23,9 @@ namespace NServiceBus.Hosting.Configuration
             foreach(var a in assembliesToScan)
                 foreach(var t in a.GetTypes())
                 {
-                    if (typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
+                    if (typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
                         toInitialize.Add(t);
-                    if (typeof(IWantToRunAtStartup).IsAssignableFrom(t) && !t.IsInterface)
+                    if (typeof(IWantToRunAtStartup).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
                         toRunAtStartup.Add(t);
                 }
         }
