@@ -28,4 +28,28 @@ namespace Timeout.MessageHandlers
             }
         }
     }
+
+    /// <summary>
+    /// Configures performance behavior of the timeout manager
+    /// </summary>
+    public class PerformanceConfig : IWantCustomInitialization
+    {
+        void IWantCustomInitialization.Init()
+        {
+            string maxSagaIdsToStore = ConfigurationManager.AppSettings["MaxSagasIdsToStore"];
+            string millisToSleepBetweenMessages = ConfigurationManager.AppSettings["MillisToSleepBetweenMessages"];
+            
+            int sagas = 1000;
+            if (!string.IsNullOrEmpty(maxSagaIdsToStore))
+                int.TryParse(maxSagaIdsToStore, out sagas);
+
+            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MaxSagaIdsToStore, sagas);
+
+            int millis = 10;
+            if (!string.IsNullOrEmpty(millisToSleepBetweenMessages))
+                int.TryParse(millisToSleepBetweenMessages, out millis);
+
+            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MillisToSleepBetweenMessages, millis);
+        }
+    }
 }

@@ -2,6 +2,7 @@ using System;
 using NServiceBus;
 using NServiceBus.Saga;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Timeout.MessageHandlers
 {
@@ -21,29 +22,29 @@ namespace Timeout.MessageHandlers
         /// <param name="message"></param>
         public void Handle(TimeoutMessage message)
         {
+            Thread.Sleep(MillisToSleepBetweenMessages);
+
             if (message.ClearTimeout)
             {
-                sagaIdsToClear.Add(message.SagaId);
+                SagaIdsToClear.Add(message.SagaId);
 
-                if (sagaIdsToClear.Count > this.maxSagaIdsToStore)
-                    sagaIdsToClear.RemoveAt(0);
+                if (SagaIdsToClear.Count > MaxSagaIdsToStore)
+                    SagaIdsToClear.RemoveAt(0);
 
                 return;
             }
 
-            if (sagaIdsToClear.Contains(message.SagaId))
+            if (SagaIdsToClear.Contains(message.SagaId))
             {
-                sagaIdsToClear.Remove(message.SagaId);
+                SagaIdsToClear.Remove(message.SagaId);
                 return;
             }
 
             if (message.HasNotExpired())
-                this.Bus.HandleCurrentMessageLater();
+                Bus.HandleCurrentMessageLater();
             else
-                this.Bus.Send(this.Bus.CurrentMessageContext.ReturnAddress, message);
+                Bus.Send(Bus.CurrentMessageContext.ReturnAddress, message);
         }
-
-        private int maxSagaIdsToStore = 100;
 
         /// <summary>
         /// There are cases when the notification about clearing sagas
@@ -51,13 +52,14 @@ namespace Timeout.MessageHandlers
         /// can't know that we won't get a timeout message with a given id,
         /// this caps the number that are stored so that memory doesn't leak.
         /// For simplicity, we don't try to decrease the list in the background.
-        /// The default value is 100.
         /// </summary>
-        public int MaxSagaIdsToStore
-        {
-            set { this.maxSagaIdsToStore = value; }
-        }
-        
-        private static readonly List<Guid> sagaIdsToClear = new List<Guid>();
+        public int MaxSagaIdsToStore { get; set; }
+
+        /// <summary>
+        /// The time in milliseconds that the handler sleeps before processing a message.
+        /// </summary>
+        public int MillisToSleepBetweenMessages { get; set; }
+
+        private static readonly List<Guid> SagaIdsToClear = new List<Guid>();
     }
 }
