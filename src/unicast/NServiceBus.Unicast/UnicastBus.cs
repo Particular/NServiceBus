@@ -549,6 +549,10 @@ namespace NServiceBus.Unicast
                         return null;
             }
 
+            if (destination == null)
+                throw new InvalidOperationException(
+                    string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
+
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
                 var result = new Callback(id);
@@ -579,10 +583,6 @@ namespace NServiceBus.Unicast
 
             foreach (var destination in destinations)
             {
-                if (destination == null)
-                    throw new InvalidOperationException(
-                        "No destination specified. Messages cannot be sent. Check the UnicastBusConfig section in your config file.");
-
                 toSend.ReturnAddress = GetReturnAddressFor(destination);
 
                 transport.Send(toSend, destination);
