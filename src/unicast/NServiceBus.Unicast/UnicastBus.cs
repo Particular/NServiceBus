@@ -541,6 +541,14 @@ namespace NServiceBus.Unicast
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
         {
+            if (destination == null)
+            {
+                var tm = messages[0] as TimeoutMessage;
+                if (tm != null)
+                    if (tm.ClearTimeout)
+                        return null;
+            }
+
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
                 var result = new Callback(id);
