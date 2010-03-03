@@ -5,7 +5,6 @@ using Spring.Objects.Factory.Support;
 using Spring.Objects.Factory.Config;
 using System.Collections;
 using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.ObjectBuilder;
 using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
@@ -33,15 +32,10 @@ namespace NServiceBus.ObjectBuilder.Spring
             context = container;
         }
 
-        #region IContainer Members
-
         object IContainer.Build(Type typeToBuild)
         {
             Init();
             IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);
-
-            if (dict.Count == 0)
-                return null;
 
             var de = dict.GetEnumerator();
 
@@ -107,8 +101,6 @@ namespace NServiceBus.ObjectBuilder.Spring
             return false;
         }
 
-        #endregion
-
         private void Init()
         {
             if (initialized)
@@ -129,7 +121,7 @@ namespace NServiceBus.ObjectBuilder.Spring
                 }
             }
 
-            this.initialized = true;
+            initialized = true;
         }
 
         private readonly Dictionary<Type, ComponentCallModelEnum> typeHandleLookup = new Dictionary<Type, ComponentCallModelEnum>();

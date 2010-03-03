@@ -5,10 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Common", "Obj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Common.Config", "ObjectBuilder.Common.Config\ObjectBuilder.Common.Config.csproj", "{34C89D80-4F8D-48A6-AAB5-2D6DC5A1B953}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Spring", "ObjectBuilder.Spring\ObjectBuilder.Spring.csproj", "{734D30CF-4376-488A-A6B4-1033FED93660}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Spring.Config", "ObjectBuilder.Spring.Config\ObjectBuilder.Spring.Config.csproj", "{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ObjectBuilder.DefaultBuilder", "NServiceBus.ObjectBuilder.DefaultBuilder\NServiceBus.ObjectBuilder.DefaultBuilder.csproj", "{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}"
 EndProject
 Global
@@ -25,14 +21,6 @@ Global
 		{34C89D80-4F8D-48A6-AAB5-2D6DC5A1B953}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34C89D80-4F8D-48A6-AAB5-2D6DC5A1B953}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34C89D80-4F8D-48A6-AAB5-2D6DC5A1B953}.Release|Any CPU.Build.0 = Release|Any CPU
-		{734D30CF-4376-488A-A6B4-1033FED93660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{734D30CF-4376-488A-A6B4-1033FED93660}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{734D30CF-4376-488A-A6B4-1033FED93660}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{734D30CF-4376-488A-A6B4-1033FED93660}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8C4C690F-6B4A-4908-AA7D-1AF9D117E267}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A37DAEEC-1FB1-4637-B0E7-3A986A29B0DE}.Release|Any CPU.ActiveCfg = Release|Any CPU

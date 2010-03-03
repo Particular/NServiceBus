@@ -27,20 +27,10 @@ namespace OrderWebSite
             Bus.Send(new LoadOrdersMessage());
         }
 
-        protected void Session_Start(object sender, EventArgs e)
-        {
-
-        }
-
-        protected void Application_BeginRequest(object sender, EventArgs e)
-        {
-
-        }
-
         private void ConfigureNServiceBus()
         {
             Bus = Configure.WithWeb()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .Log4Net(new AzureAppender
                           {
                               ConnectionStringKey = "AzureQueueConfig.ConnectionString",

@@ -1,6 +1,6 @@
-﻿using System;
-using NServiceBus.ObjectBuilder.Spring;
+﻿using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Common.Config;
+using Spring.Context.Support;
 
 namespace NServiceBus
 {
@@ -9,20 +9,6 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureSpringBuilder
     {
-        /// <summary>
-        /// Obsolete - use DefaultBuilder if you don't care which container is used.
-        /// If you want to use the Spring Framework as your container, call <see cref="SpringFrameworkBuilder"/>.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public static Configure SpringBuilder(this Configure config)
-        {
-            ConfigureCommon.With(config, new SpringObjectBuilder());
-
-            return config;
-        }
-
         /// <summary>
         /// Use the Spring Framework as the container.
         /// </summary>
@@ -34,6 +20,21 @@ namespace NServiceBus
 
             return config;
         }
+
+        /// <summary>
+        /// Use the Spring Framework as the container with the inilialized application context
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="applicationContext"></param>
+        /// <returns></returns>
+        public static Configure SpringFrameworkBuilder(this Configure config,GenericApplicationContext applicationContext)
+        {
+            ConfigureCommon.With(config, new SpringObjectBuilder(applicationContext));
+
+            return config;
+        }
+
+        
 
     }
 }

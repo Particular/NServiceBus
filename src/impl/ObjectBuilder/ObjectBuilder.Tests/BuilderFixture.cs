@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.CastleWindsor;
+using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
@@ -51,7 +52,8 @@ namespace ObjectBuilder.Tests
                                      new StructureMapObjectBuilder(new Container()),
                                      new AutofacObjectBuilder(),
                                      new WindsorObjectBuilder(),
-                                     new UnityObjectBuilder()
+                                     new UnityObjectBuilder(),
+                                     new SpringObjectBuilder()
                                  };
 
             var inilialize = InitializeBuilder();

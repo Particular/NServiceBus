@@ -12,8 +12,8 @@
     <AssemblyName>ObjectBuilder.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-<SignAssembly>true</SignAssembly>
- <AssemblyOriginatorKeyFile>..\..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -77,6 +77,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Spring.Core, Version=1.2.0.20313, Culture=neutral, PublicKeyToken=65e474d141e25e07, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\external-bin\Spring.Core.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap, Version=2.5.4.0, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\external-bin\StructureMap.dll</HintPath>
@@ -104,6 +108,10 @@
     <ProjectReference Include="..\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj">
       <Project>{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}</Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
+      <Project>{734D30CF-4376-488A-A6B4-1033FED93660}</Project>
+      <Name>ObjectBuilder.Spring</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
       <Project>{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}</Project>

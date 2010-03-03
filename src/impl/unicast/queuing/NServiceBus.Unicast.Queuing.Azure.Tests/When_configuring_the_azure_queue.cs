@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
 
             Configure.With()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .CustomConfigurationSource(new NullSource())
                 .AzureMessageQueue();
 
@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
 
             Configure.With()
-                .SpringBuilder()
+                .DefaultBuilder()
                 .AzureMessageQueue();
 
             var storage = Configure.Instance.Builder.Build<CloudQueueClient>();
@@ -39,7 +39,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         public void The_azurequeue_should_be_singleton()
         {
             Configure.With()
-             .SpringBuilder()
+             .DefaultBuilder()
              .AzureMessageQueue();
 
             Configure.Instance.Builder.Build<AzureMessageQueue>()

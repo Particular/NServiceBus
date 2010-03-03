@@ -3,8 +3,14 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// Config section for the NHibernate Saga Persister
+    /// </summary>
     public class NHibernateSagaPersisterConfig:ConfigurationSection
     {
+        /// <summary>
+        /// Collection of NHibernate properties to set
+        /// </summary>
         [ConfigurationProperty("NHibernateProperties", IsRequired = false)]
         public NHibernatePropertyCollection NHibernateProperties
         {
@@ -18,6 +24,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// ´Determines if the database should be auto updated
+        /// </summary>
         [ConfigurationProperty("UpdateSchema", IsRequired = false, DefaultValue = true)]
         public bool UpdateSchema
         {
@@ -34,19 +43,34 @@ namespace NServiceBus.Config
         }
     }
 
+    /// <summary>
+    /// Collection of NHibernate properties
+    /// </summary>
     public class NHibernatePropertyCollection: ConfigurationElementCollection
     {
+        /// <summary>
+        /// Creates a new empty property
+        /// </summary>
+        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new NHibernateProperty();
         }
 
+        /// <summary>
+        /// Returns the key for the given element
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
             return ((NHibernateProperty)element).Key;
         }
 
-       
+       /// <summary>
+       /// Converts the collection to a dictionary
+       /// </summary>
+       /// <returns></returns>
         public IDictionary<string,string> ToProperties()
         {
             var retval = new Dictionary<string, string>();
@@ -63,8 +87,14 @@ namespace NServiceBus.Config
         }
     }
 
+    /// <summary>
+    /// A NHibernate property
+    /// </summary>
     public class NHibernateProperty : ConfigurationElement
     {
+        /// <summary>
+        /// The key
+        /// </summary>
         [ConfigurationProperty("Key", IsRequired = true, IsKey = true)]
         public string Key
         {
@@ -78,6 +108,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// The value to use
+        /// </summary>
         [ConfigurationProperty("Value", IsRequired = true, IsKey = false)]
         public string Value
         {

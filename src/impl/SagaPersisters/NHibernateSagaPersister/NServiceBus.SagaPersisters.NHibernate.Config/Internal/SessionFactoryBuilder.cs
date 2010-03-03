@@ -12,15 +12,28 @@ using Configuration=NHibernate.Cfg.Configuration;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 {
+    /// <summary>
+    /// Builder class for the NHibernate Session Factory
+    /// </summary>
     public class SessionFactoryBuilder
     {
         private readonly IEnumerable<Type> typesToScan;
 
+        /// <summary>
+        /// Constructor that accepts the types to scan for saga data classes
+        /// </summary>
+        /// <param name="typesToScan"></param>
         public SessionFactoryBuilder(IEnumerable<Type> typesToScan)
         {
             this.typesToScan = typesToScan;
         }
 
+        /// <summary>
+        /// Builds the session factory with the given properties. Database is updated if updateSchema is set
+        /// </summary>
+        /// <param name="nhibernateProperties"></param>
+        /// <param name="updateSchema"></param>
+        /// <returns></returns>
         public ISessionFactory Build(IDictionary<string, string> nhibernateProperties, bool updateSchema)
         {
             var model = Create.SagaPersistenceModel(typesToScan);

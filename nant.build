@@ -25,7 +25,6 @@
   <property name="architecture" value="x86" dynamic="true" />
   <property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
   <property name="include.dependencies" value="true" dynamic="true" />
-  <property name="include.spring.dependencies" value="false" dynamic="true" />
   <property name="run_azure_test" value="false" dynamic="true" />
   <property name="servicehosting.version" value="" dynamic="true" />
   
@@ -203,12 +202,11 @@
       <foreach item="File" property="filename">
         <in>
           <items>
-            <include name="${core.build.dir}\antlr*.dll" />
+            <include name="${core.build.dir}\antlr3*.dll" />
             <include name="${core.build.dir}\common.logging.dll"/>
             <include name="${lib.dir}\common.logging.log4net.dll"/>
             <include name="${core.build.dir}\Interop.MSMQ.dll" />
-	    <include name="${core.build.dir}\AutoFac.dll"/>
-            <include name="${core.build.dir}\Spring.Core.dll" if="${include.spring.dependencies != 'false'}"/>
+	        <include name="${core.build.dir}\AutoFac.dll"/>
             <include name="${core.build.dir}\NHibernate*.dll" />
             <include name="${core.build.dir}\FluentNHibernate.dll" />
             <include name="${core.build.dir}\Iesi.Collections.dll" />
@@ -297,7 +295,7 @@
 
     <mkdir 	dir="${output.dir}\testing" />
     <exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.MessageInterfaces.dll ${build.base}\testing\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
+				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
 				workingdir="." />
 
     <!-- distributor -->
@@ -460,7 +458,17 @@
       </fileset>
     </copy>
 
-    <mkdir dir="${binaries.dir}\containers\unity" />
+	<mkdir dir="${binaries.dir}\containers\spring" />
+	<copy todir="${binaries.dir}\containers\spring">
+	  <fileset basedir="${container.build.dir}">
+		  <include name="NServiceBus.ObjectBuilder.Spring.dll" />
+		  <include name="Spring.Core.dll" />
+		  <include name="antlr.runtime.dll" />
+		  <include name="Common.Logging.dll" />
+	  </fileset>
+	</copy>
+
+	<mkdir dir="${binaries.dir}\containers\unity" />
     <copy todir="${binaries.dir}\containers\unity">
       <fileset basedir="${lib.dir}">
         <include name="Microsoft.Practices.ObjectBuilder2.dll" />

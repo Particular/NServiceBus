@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         public void SetUp()
         {
             config = Configure.With()
-          .SpringBuilder()
+          .DefaultBuilder()
           .DBSubcriptionStorage();
 
         }
@@ -62,7 +62,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
             var configWithoutConfigSection = Configure.With()
-                                                    .SpringBuilder()
+                                                    .DefaultBuilder()
                                                     .CustomConfigurationSource(configSource)
                                                     .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
