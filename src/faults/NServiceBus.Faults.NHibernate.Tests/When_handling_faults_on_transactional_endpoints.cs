@@ -1,0 +1,44 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Transactions;
+using NBehave.Spec.NUnit;
+using NServiceBus.Unicast.Transport;
+using NUnit.Framework;
+
+namespace NServiceBus.Faults.NHibernate.Tests
+{
+   [TestFixture]
+   public class When_handling_faults_on_transactional_endpoints : FaultManagerSpecification
+   {
+      [Test]
+      public void Ambient_transaction_should_commit_saving_failure_info()
+      {
+         using (var transactionScope = new TransactionScope())
+         {
+            FaultManager.SerializationFailedForMessage(new TransportMessage{ ReturnAddress = "returnAddress" }, new Exception());            
+            transactionScope.Complete();
+         }
+         using (var session = SessionFactory.OpenSession())
+         {
+            session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count.ShouldEqual(1);
+         }
+      }
+
+      [Test]
+      public void Ambient_transaction_should_rollback_saving_failure_info()
+      {
+         using (var transactionScope = new TransactionScope())
+         {
+            FaultManager.SerializationFailedForMessage(new TransportMessage { ReturnAddress = "returnAddress" }, new Exception());
+         }
+
+         using (var session = SessionFactory.OpenSession())
+         {
+            session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count.ShouldEqual(0);
+         }
+
+      }
+
+   }
+}
