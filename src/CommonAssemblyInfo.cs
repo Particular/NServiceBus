@@ -13,13 +13,13 @@ using System.Security;
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: AssemblyVersionAttribute("2.1.0.0")]
-[assembly: AssemblyFileVersionAttribute("2.1.0.0")]
+[assembly: AssemblyVersionAttribute("2.1.0.0000")]
+[assembly: AssemblyFileVersionAttribute("2.1.0.0000")]
 [assembly: AssemblyCopyrightAttribute("Copyright © NServiceBus 2007-2010")]
 [assembly: AssemblyProductAttribute("NServiceBus")]
 [assembly: AssemblyCompanyAttribute("NServiceBus")]
 [assembly: AssemblyConfigurationAttribute("release")]
-[assembly: AssemblyInformationalVersionAttribute("2.1.0.0")]
+[assembly: AssemblyInformationalVersionAttribute("2.1.0.0000")]
 [assembly: AllowPartiallyTrustedCallersAttribute()]
 [assembly: ComVisibleAttribute(false)]
 
