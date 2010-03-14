@@ -304,7 +304,7 @@
 
     <mkdir 	dir="${output.dir}\testing" />
     <exec 	program="${lib.dir}\ilmerge.exe"
-				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.MessageInterfaces.dll ${build.base}\testing\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
+				commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
 				workingdir="." />
 
     <!-- distributor -->
