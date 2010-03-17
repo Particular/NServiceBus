@@ -11,6 +11,8 @@ namespace Server
 
         public void Handle(Command message)
         {
+            Console.WriteLine("======================================================================");
+
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
             if (message.Id % 2 == 0)

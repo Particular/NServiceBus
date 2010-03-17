@@ -17,6 +17,7 @@ namespace MyClient
             {
                 Guid g = Guid.NewGuid();
 
+                Console.WriteLine("==========================================================================");
                 Console.WriteLine("Requesting to get data by id: {0}", g.ToString("N"));
 
                 Bus.OutgoingHeaders["Test"] = g.ToString("N");
@@ -29,11 +30,16 @@ namespace MyClient
                                                      m.String = "<node>it's my \"node\" & i like it<node>";
                                                      m.SecretQuestion = "What's your favorite color?";
                                                  })
-                    .Register(i => Console.Out.WriteLine(
-                                       "Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.",
-                                       Bus.CurrentMessageContext.Headers["Test"],
-                                       Bus.CurrentMessageContext.Headers["1"],
-                                       Bus.CurrentMessageContext.Headers["2"]));
+                    .Register(i => 
+                        {
+                            Console.WriteLine("==========================================================================");
+                            Console.WriteLine(
+                                "Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.",
+                                Bus.CurrentMessageContext.Headers["Test"],
+                                Bus.CurrentMessageContext.Headers["1"],
+                                Bus.CurrentMessageContext.Headers["2"]);
+                        });
+
                 watch.Stop();
 
                 Console.WriteLine("Elapsed time: {0}", watch.ElapsedMilliseconds);

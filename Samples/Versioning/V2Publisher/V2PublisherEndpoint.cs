@@ -20,6 +20,7 @@ namespace V2Publisher
                                                               });
 
                Console.WriteLine("Published event.");
+               Console.WriteLine("======================================================================");
            }
         }
 

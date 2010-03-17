@@ -8,6 +8,8 @@ namespace V2Subscriber
     {
         public void Handle(SomethingHappened message)
         {
+            Console.WriteLine("======================================================================");
+
             Console.WriteLine("Something happened with some data {0} and more info {1}", message.SomeData, message.MoreInfo);
         }
     }

@@ -10,6 +10,7 @@ namespace MyServer
 
         public void Handle(RequestDataMessage message)
         {
+            Console.WriteLine("=========================================================================="); 
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
             Console.WriteLine("Secret Question received: {0}.", message.SecretQuestion.Value);
