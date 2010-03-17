@@ -12,7 +12,7 @@ namespace NServiceBus.Faults.Forwarder
       {
          Bus.Send(AggregatorEndpoint, new SerializationFailedMessage
          {
-           Exception = e,
+           ExceptionInfo = e.GetInfo(),
            FailedMessage = message
          });
       }
@@ -25,7 +25,7 @@ namespace NServiceBus.Faults.Forwarder
          }
          Bus.Send(AggregatorEndpoint, new ProcessingFailedMessage
          {
-            Exception = e,
+            ExceptionInfo = e.GetInfo(),
             FailedMessage = message
          });
       }

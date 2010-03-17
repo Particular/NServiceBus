@@ -9,6 +9,6 @@ namespace NServiceBus.Faults.Forwarder
    public class ProcessingFailedMessage : IMessage
    {
       public TransportMessage FailedMessage { get; set; }
-      public Exception Exception { get; set; }
+      public ExceptionInfo ExceptionInfo { get; set; }
    }
 }
