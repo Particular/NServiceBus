@@ -60,6 +60,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Config\ConfigureStructureMapBuilder.cs" />
+    <Compile Include="NServiceBusThreadLocalStorageLifestyle.cs" />
     <Compile Include="StructureMapExtensions.cs" />
     <Compile Include="StructureMapObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
