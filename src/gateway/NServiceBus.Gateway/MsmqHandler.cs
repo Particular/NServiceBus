@@ -1,55 +1,68 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport.Msmq;
+using log4net;
 using System.Net;
 using NServiceBus.Unicast.Transport;
-using System.Security.Cryptography;
-using System.Text;
-using System.IO;
 
 namespace NServiceBus.Gateway
 {
     public class MsmqHandler
     {
-        public static void Handle(TransportMessage msg, string remoteUrl)
+        private readonly string from;
+        public MsmqHandler(string listenUrl)
         {
-            Console.WriteLine("Message received.");
+            from = listenUrl;
+        }
+        public void Handle(TransportMessage msg, string remoteUrl)
+        {
+            var address = remoteUrl;
 
-            var request = WebRequest.Create(remoteUrl);
+            var header = msg.Headers.Find(h => h.Key == NServiceBus.Headers.HttpTo);
+            if (header != null)
+                address = header.Value;
+
+            var request = WebRequest.Create(address);
             request.Method = "POST";
 
+            var buffer = msg.Body;
+
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = msg.Body.Length;
 
             HeaderMapper.Map(msg, request.Headers);
 
-            string hash = Hasher.Hash(msg.Body);
-            request.Headers[Hasher.HeaderKey] = hash;
+            string hash = Hasher.Hash(buffer);
+            request.Headers[Headers.ContentMd5Key] = hash;
+            request.Headers["NServiceBus.Gateway"] = "true";
+            request.Headers[Headers.FromKey] = from;
 
-            request.GetRequestStream().Write(msg.Body, 0, msg.Body.Length);
+            request.ContentLength = buffer.Length;
 
-            Console.WriteLine("Sending HTTP Request.");
+            var stream = request.GetRequestStream();
+            stream.Write(buffer, 0, buffer.Length);
+
+            Logger.Debug("Sending message to: " + address);
 
             var response = request.GetResponse();
 
-            Console.WriteLine("Got HTTP Response.");
+            Logger.Debug("Got HTTP Response, going to check MD5.");
 
-            Stream s = response.GetResponseStream();
-            byte[] b = new byte[1024];
-            int read = s.Read(b, 0, 1024);
-            byte[] bytes = new byte[read];
+            var md5 = response.Headers[Headers.ContentMd5Key];
+            response.Close();
 
-            for (int i = 0; i < read; i++)
-                bytes[i] = b[i];
+            if (md5 == null)
+            {
+                Logger.Error("Integration Error: Response did not contain necessary header " + Headers.ContentMd5Key + ". Can't be sure that data arrived intact at target " + address);
+                return;
+            }
 
-            string result = Encoding.ASCII.GetString(bytes);
-
-            if (result == hash)
-                Console.WriteLine("Message transferred successfully.");
+            if (md5 == hash)
+                Logger.Debug("Message transferred successfully.");
             else
             {
-                Console.WriteLine("Message not transferred successfully. Trying again...");
-                throw new Exception();
+                Logger.Info(Headers.ContentMd5Key + " header received from client not the same as that sent. Message not transferred successfully. Trying again...");
+                throw new Exception("Retrying");
             }
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }
