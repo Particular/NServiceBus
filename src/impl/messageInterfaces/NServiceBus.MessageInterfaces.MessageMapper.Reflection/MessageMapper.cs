@@ -190,9 +190,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         private IEnumerable<PropertyInfo> GetAllProperties(Type t)
         {
-            List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
-            foreach (Type interfaceType in t.GetInterfaces())
-                result.AddRange(GetAllProperties(interfaceType));
+            var result = new List<PropertyInfo>(t.GetProperties());
+            foreach (var interfaceType in t.GetInterfaces())
+                foreach (var prop in GetAllProperties(interfaceType))
+                    if (!result.Contains(prop))
+                        result.Add(prop);
 
             return result;
         }
