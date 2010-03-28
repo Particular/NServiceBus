@@ -76,8 +76,7 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
         /// Higher levels like RepeatableRead and Serializable promise a higher level
         /// of consistency, but at the cost of lower parallelism and throughput.
         /// 
-        /// If you wish to run sagas on this endpoint, RepeatableRead is the suggested value
-        /// and is the default value.
+        /// If you wish to run sagas on this endpoint, RepeatableRead is the suggested value.
         /// </summary>
         /// <param name="isolationLevel"></param>
         /// <returns></returns>
