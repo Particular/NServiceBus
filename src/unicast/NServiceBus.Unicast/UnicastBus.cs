@@ -1022,6 +1022,15 @@ namespace NServiceBus.Unicast
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             var msg = e.Message;
+            Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReturnAddress);
+
+            _messageBeingHandled = msg;
+
+            foreach (var module in modules)
+            {
+                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
+                module.HandleBeginMessage(); //don't need to call others if one fails
+            }
 
             if (IsInitializationMessage(msg))
             {
@@ -1040,9 +1049,6 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-		    Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReturnAddress);
-
-            _messageBeingHandled = msg;
             _handleCurrentMessageLaterWasCalled = false;
 
             if (MessageReceived != null)
@@ -1173,11 +1179,6 @@ namespace NServiceBus.Unicast
 
         private void TransportStartedMessageProcessing(object sender, EventArgs e)
         {
-            foreach (var module in modules)
-            {
-                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
-                module.HandleBeginMessage(); //don't need to call others if one fails
-            }
         }
 
         private bool IsInitializationMessage(TransportMessage msg)
