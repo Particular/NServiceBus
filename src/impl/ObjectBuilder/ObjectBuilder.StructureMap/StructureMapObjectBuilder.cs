@@ -77,12 +77,18 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         }
 
         /// <summary>
-        /// Registers the given type in the conitainer
+        /// Register the given type in the container
         /// </summary>
         /// <param name="component"></param>
         /// <param name="callModel"></param>
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
+            lock (configuredInstances)
+            {
+                if (configuredInstances.ContainsKey(component))
+                    return;
+            }
+
             var scope = GetInstanceScopeFrom(callModel);
 
             ConfiguredInstance configuredInstance = null;
