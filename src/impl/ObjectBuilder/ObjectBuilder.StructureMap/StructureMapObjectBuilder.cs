@@ -69,7 +69,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 if (configuredInstance == null)
                     throw new InvalidOperationException("Cannot configure property before the component has been configured. Please call 'Configure' first.");
 
-                if (value.GetType().IsPrimitive || value is string)
+                if (value.GetType().IsSimple() || value is string)
                     configuredInstance.WithProperty(property).EqualTo(value);
                 else
                     configuredInstance.Child(property).Is(value);

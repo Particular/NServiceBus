@@ -14,8 +14,8 @@ namespace ObjectBuilder.Tests
         [SetUp]
         public void SetUp()
         {
-             config = Configure.With()
-              .StructureMapBuilder();
+            config = Configure.With()
+             .StructureMapBuilder();
         }
 
         [Test]
@@ -24,44 +24,60 @@ namespace ObjectBuilder.Tests
             Assert.DoesNotThrow(() => config.Builder.Build<INonConfiguredInterface>());
         }
 
-         [Test]
+        [Test]
         public void Should_satisfy_setter_dependencies()
         {
 
             config.Configurer.ConfigureComponent<ClassThatImplementsDependency>(ComponentCallModelEnum.Singleton);
             config.Configurer.ConfigureComponent<ClassWithSetterDependency>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureProperty<ClassWithSetterDependency>(x => x.EnumDependency, SomeEnum.X);
+            config.Configurer.ConfigureProperty<ClassWithSetterDependency>(x => x.SimpleDependecy, 1);
+            config.Configurer.ConfigureProperty<ClassWithSetterDependency>(x => x.StringDependecy, "Test");
 
 
-             config.Builder.Build<ClassWithSetterDependency>().Dependency.ShouldNotBeNull();
+            var component = config.Builder.Build<ClassWithSetterDependency>();
+
+            component.Dependency.ShouldNotBeNull();
+
+            component.EnumDependency.ShouldEqual(SomeEnum.X);
+            component.SimpleDependecy.ShouldEqual(1);
+            component.StringDependecy.ShouldEqual("Test");
         }
 
 
-         [Test]
-         public void Ordering_of_component_registrations_should_not_matter()
-         {
-             config.Configurer.ConfigureComponent<ClassWithSetterDependency>(ComponentCallModelEnum.Singleton);
-
-             
-             config.Configurer.ConfigureComponent<ClassThatImplementsDependency>(ComponentCallModelEnum.Singleton);
+        [Test]
+        public void Ordering_of_component_registrations_should_not_matter()
+        {
+            config.Configurer.ConfigureComponent<ClassWithSetterDependency>(ComponentCallModelEnum.Singleton);
 
 
-             config.Builder.Build<ClassWithSetterDependency>().Dependency.ShouldNotBeNull();
+            config.Configurer.ConfigureComponent<ClassThatImplementsDependency>(ComponentCallModelEnum.Singleton);
 
-         }
+            var component = config.Builder.Build<ClassWithSetterDependency>();
 
-
+            component.Dependency.ShouldNotBeNull();
+        }
     }
 
-    
+
     public class ClassWithSetterDependency
     {
         public ISomeDependency Dependency { get; set; }
         public IList<string> SystemDependency { get; set; }
+        public SomeEnum EnumDependency { get; set; }
+        public int SimpleDependecy { get; set; }
+        public string StringDependecy { get; set; }
+
     }
 
-    public interface ISomeDependency{}
+    public enum SomeEnum
+    {
+        X
+    }
 
-    public class ClassThatImplementsDependency:ISomeDependency{}
+    public interface ISomeDependency { }
+
+    public class ClassThatImplementsDependency : ISomeDependency { }
 
     public interface INonConfiguredInterface { }
 
