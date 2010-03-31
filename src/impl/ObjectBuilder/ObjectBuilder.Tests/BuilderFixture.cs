@@ -35,8 +35,8 @@ namespace ObjectBuilder.Tests
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Test failed for: " + builder.GetType().Name);
-                    Debug.WriteLine(ex);
+                    Trace.WriteLine("Test failed for: " + builder.GetType().Name);
+                    Trace.WriteLine(ex);
                     failed = true;
                 }
             }

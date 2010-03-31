@@ -39,11 +39,44 @@ namespace ObjectBuilder.Tests
             });
             
         }
+
+
+        [Test]
+        public void Setter_dependencies_should_be_supported()
+        {
+            VerifyForAllBuilders((builder) =>
+            {
+                builder.Configure(typeof(ClassWithSetterDependencies), ComponentCallModelEnum.Singleton);
+                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "EnumDependency", SomeEnum.X);
+                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "SimpleDependency",1);
+                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "StringDependency", "Test");
+
+                var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
+
+                component.EnumDependency.ShouldEqual(SomeEnum.X);
+                component.SimpleDependency.ShouldEqual(1);
+                component.StringDependency.ShouldEqual("Test");
+            });
+
+        }
+
     }
 
     public class DuplicateClass
     {
         public bool SomeProperty { get; set; }
         public bool AnotherProperty { get; set; }
+    }
+
+    public class ClassWithSetterDependencies
+    {
+        public SomeEnum EnumDependency { get; set; }
+        public int SimpleDependency { get; set; }
+        public string StringDependency { get; set; }
+    }
+
+    public enum SomeEnum
+    {
+        X
     }
 }

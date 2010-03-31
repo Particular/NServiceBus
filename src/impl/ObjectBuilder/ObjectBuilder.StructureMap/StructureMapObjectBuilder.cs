@@ -4,6 +4,7 @@ using System.Linq;
 using StructureMap;
 using StructureMap.Graph;
 using StructureMap.Pipeline;
+using StructureMap.TypeRules;
 using IContainer = StructureMap.IContainer;
 
 namespace NServiceBus.ObjectBuilder.StructureMap
@@ -54,7 +55,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 if (configuredInstance == null)
                     throw new InvalidOperationException("Cannot configure property before the component has been configured. Please call 'Configure' first.");
 
-                if (value.GetType().IsPrimitive || value is string)
+                if (value.GetType().IsSimple())
                     configuredInstance.WithProperty(property).EqualTo(value);
                 else
                     configuredInstance.Child(property).Is(value);
