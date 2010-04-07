@@ -52,7 +52,7 @@ namespace NServiceBus.Saga
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
-        protected void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
+        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
@@ -93,7 +93,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"></param>
         /// <param name="withState"></param>
-        protected void RequestTimeout(DateTime at, object withState)
+        protected virtual void RequestTimeout(DateTime at, object withState)
         {
             RequestTimeout(at - DateTime.Now, withState);
         }
@@ -104,7 +104,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within"></param>
         /// <param name="withState"></param>
-        protected void RequestTimeout(TimeSpan within, object withState)
+        protected virtual void RequestTimeout(TimeSpan within, object withState)
         {
             if (within <= TimeSpan.Zero)
                 Timeout(withState);
@@ -116,7 +116,7 @@ namespace NServiceBus.Saga
         /// Sends the given messages using the bus to the endpoint that caused this saga to start.
         /// </summary>
         /// <param name="messages"></param>
-        protected void ReplyToOriginator(params IMessage[] messages)
+        protected virtual void ReplyToOriginator(params IMessage[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
                 HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();
@@ -130,7 +130,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="messageConstructor"></param>
-        protected void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : IMessage
+        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : IMessage
         {
             var message = Bus.CreateInstance(messageConstructor);
             ReplyToOriginator(message);
@@ -140,7 +140,7 @@ namespace NServiceBus.Saga
         /// Marks the saga as complete.
         /// This may result in the sagas state being deleted by the persister.
         /// </summary>
-        protected void MarkAsComplete()
+        protected virtual void MarkAsComplete()
         {
             Completed = true;
         }
