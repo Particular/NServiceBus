@@ -577,7 +577,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    protected void MoveToErrorQueue(Message m)
 	    {
             m.Label = m.Label +
-                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue));
+                      string.Format("<{0}>{1}</{0}><{2}>{3}<{2}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue), ORIGINALID, m.Id);
 
 	        if (errorQueue != null)
                 errorQueue.Send(m, MessageQueueTransactionType.Single);
@@ -811,6 +811,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    private static readonly string IDFORCORRELATION = "CorrId";
 	    private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
 	    private static readonly string FAILEDQUEUE = "FailedQ";
+	    private static readonly string ORIGINALID = "OriginalId";
 
         private MessageQueue queue;
         private MessageQueue errorQueue;
