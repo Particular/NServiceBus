@@ -21,6 +21,18 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual DateTime DateTimeProperty { get; set; }
 
         public virtual TestComponent TestComponent { get; set; }
+
+        public virtual PolymorpicPropertyBase PolymorpicRelatedProperty { get; set; }
+    }
+
+    public class PolymorpicProperty : PolymorpicPropertyBase
+    {
+        public virtual int SomeInt { get; set; }
+    }
+
+    public class PolymorpicPropertyBase
+    {
+        public virtual Guid Id { get; set; }
     }
 
     public enum StatusEnum

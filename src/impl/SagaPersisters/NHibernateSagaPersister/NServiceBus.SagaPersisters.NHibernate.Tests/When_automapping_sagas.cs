@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using FluentNHibernate.Cfg.Db;
 using NBehave.Spec.NUnit;
@@ -28,9 +29,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
              .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
              .ToProperties(), false) as SessionFactoryImpl;
 
-            persisterForTestSaga = sessionFactory.GetEntityPersister(typeof(TestSaga).FullName);
-
-            persisterForTestSaga.ShouldNotBeNull();
+            persisterForTestSaga = sessionFactory.GetEntityPersisterFor<TestSaga>();
         }
 
         [Test]
@@ -42,35 +41,26 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Enums_should_be_mapped_as_integers()
         {
-            persisterForTestSaga.EntityMetamodel.Properties
-                            .Where(x => x.Type.ReturnedClass == typeof(StatusEnum))
-                            .Count().ShouldEqual(1);
+            persisterForTestSaga.ShouldContainMappingsFor<StatusEnum>();
         }
 
         [Test]
         public void Related_entities_should_also_be_mapped()
         {
-            var persisterForOrderLine = sessionFactory.GetEntityPersister(typeof(OrderLine).FullName);
-
-            persisterForOrderLine.IdentifierGenerator.ShouldBeInstanceOfType(typeof(GuidCombGenerator));
+            sessionFactory.GetEntityPersisterFor<OrderLine>()
+                .IdentifierGenerator.ShouldBeInstanceOfType(typeof(GuidCombGenerator));
         }
 
         [Test]
         public void Datetime_properties_should_be_mapped()
         {
-            var dateTimeProperty = persisterForTestSaga.EntityMetamodel.Properties
-                .Where(x => x.Name == "DateTimeProperty")
-                .FirstOrDefault();
-
-            dateTimeProperty.ShouldNotBeNull();
+            persisterForTestSaga.ShouldContainMappingsFor<DateTime>();
         }
 
         [Test]
         public void Public_setters_and_getters_of_concrete_classes_should_map_as_components()
         {
-            persisterForTestSaga.EntityMetamodel.Properties
-                                       .Where(x => x.Type.ReturnedClass == typeof(TestComponent))
-                                       .Count().ShouldEqual(1);
+            persisterForTestSaga.ShouldContainMappingsFor<TestComponent>();
         }
 
 
@@ -78,12 +68,41 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Users_can_override_automappings_by_embedding_hbm_files()
         {
-            var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithHbmlXmlOverride).FullName);
-            persister.IdentifierGenerator.ShouldBeInstanceOfType(typeof(IdentityGenerator));
-
-            
+            sessionFactory.GetEntityPersisterFor<TestSagaWithHbmlXmlOverride>()
+                .IdentifierGenerator.ShouldBeInstanceOfType(typeof(IdentityGenerator));
         }
 
 
+        [Test]
+        public void Inherited_property_classes_should_be_mapped()
+        {
+            persisterForTestSaga.ShouldContainMappingsFor<PolymorpicPropertyBase>();
+
+            sessionFactory.ShouldContainPersisterFor<PolymorpicProperty>();
+        }
+
+    }
+
+    public static class SessionFactoryExtensions
+    {
+        public static IEntityPersister GetEntityPersisterFor<T>(this SessionFactoryImpl sessionFactory)
+        {
+            return sessionFactory.GetEntityPersister(typeof(T).FullName);
+        }
+        public static void ShouldContainPersisterFor<T>(this SessionFactoryImpl sessionFactory)
+        {
+            sessionFactory.GetEntityPersisterFor<T>().ShouldNotBeNull();
+        }
+    }
+
+    public static class EntityPersisterExtensions
+    {
+        public static void ShouldContainMappingsFor<T>(this IEntityPersister persister)
+        {
+            persister.EntityMetamodel.Properties
+                            .Any(x => x.Type.ReturnedClass == typeof(T))
+                            .ShouldBeTrue();
+
+        }
     }
 }

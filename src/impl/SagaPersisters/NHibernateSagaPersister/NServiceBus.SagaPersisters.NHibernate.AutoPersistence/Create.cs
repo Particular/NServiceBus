@@ -18,7 +18,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
             model.Conventions.AddFromAssemblyOf<IdShouldBeAssignedConvention>();
 
-            var entityTypes = GetTypesThatShouldBeAutoMapped(sagaEntites);
+            var entityTypes = GetTypesThatShouldBeAutoMapped(sagaEntites,typesToScan);
 
             var assembliesContainingSagas = sagaEntites.Select(t => t.Assembly).Distinct();
             
@@ -36,18 +36,18 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             return model;
         }
 
-        private static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites)
+        private static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites, IEnumerable<Type> typesToScan)
         {
             IList<Type> entityTypes = new List<Type>();
 
             foreach (var rootEntity in sagaEntites)
             {
-                AddEntitesToBeMapped(rootEntity,entityTypes);
+                AddEntitesToBeMapped(rootEntity,entityTypes,typesToScan);
             }
             return entityTypes;
         }
 
-        private static void AddEntitesToBeMapped(Type rootEntity,ICollection<Type> foundEntities)
+        private static void AddEntitesToBeMapped(Type rootEntity, ICollection<Type> foundEntities, IEnumerable<Type> typesToScan)
         {
             if(foundEntities.Contains(rootEntity))
                 return;
@@ -60,16 +60,22 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             foreach (var propertyType in propertyTypes)
             {
                 if (propertyType.GetProperty("Id") != null)
-                    AddEntitesToBeMapped(propertyType, foundEntities);
+                    AddEntitesToBeMapped(propertyType, foundEntities,typesToScan);
 
                 if (propertyType.IsGenericType)
                 {
                     var args = propertyType.GetGenericArguments();
 
                     if(args[0].GetProperty("Id") != null)
-                        AddEntitesToBeMapped(args[0],foundEntities);
+                        AddEntitesToBeMapped(args[0],foundEntities,typesToScan);
 
                 }
+            }
+            var derivedTypes = typesToScan.Where(t => t.IsSubclassOf(rootEntity));
+
+            foreach (var derivedType in derivedTypes)
+            {
+                AddEntitesToBeMapped(derivedType, foundEntities, typesToScan);
             }
         }
 
