@@ -36,7 +36,7 @@ namespace NServiceBus.Hosting.Configuration
         public void ConfigureCustomInitAndStartup()
         {
             foreach (var t in toRunAtStartup)
-                Configure.Instance.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singleton);
+                Configure.Instance.Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
 
             foreach (var t in toInitialize)
             {
