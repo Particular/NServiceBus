@@ -57,29 +57,34 @@ namespace ObjectBuilder.Tests
 
             component.Dependency.ShouldNotBeNull();
         }
+
+        [Test]
+        public void Should_register_singleton_instance_using_type()
+        {
+            var instance = new ClassThatImplementsDependency();
+
+            this.config.Configurer.RegisterSingleton(typeof(ClassThatImplementsDependency), instance);
+
+            var component = this.config.Builder.Build<ClassThatImplementsDependency>();
+
+            component.GetHashCode().ShouldEqual(instance.GetHashCode());
+        }
+
+        [Test]
+        public void Should_register_singleton_instance_using_generics()
+        {
+            var instance = new ClassThatImplementsDependency();
+
+            this.config.Configurer.RegisterSingleton<ClassThatImplementsDependency>(instance);
+
+            var component = this.config.Builder.Build<ClassThatImplementsDependency>();
+
+            component.GetHashCode().ShouldEqual(instance.GetHashCode());
+        }
     }
 
 
-    public class ClassWithSetterDependency
-    {
-        public ISomeDependency Dependency { get; set; }
-        public IList<string> SystemDependency { get; set; }
-        public SomeEnum EnumDependency { get; set; }
-        public int SimpleDependecy { get; set; }
-        public string StringDependecy { get; set; }
-
-    }
-
-    public enum SomeEnum
-    {
-        X
-    }
-
-    public interface ISomeDependency { }
-
-    public class ClassThatImplementsDependency : ISomeDependency { }
-
-    public interface INonConfiguredInterface { }
+    
 
 
 }
