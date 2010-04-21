@@ -64,6 +64,7 @@
     <Compile Include="AutofacObjectBuilder.cs" />
     <Compile Include="Config\ConfigureAutofacBuilder.cs" />
     <Compile Include="Internal\ContainerExtensions.cs" />
+    <Compile Include="Internal\ContainerUpdater.cs" />
     <Compile Include="Internal\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />

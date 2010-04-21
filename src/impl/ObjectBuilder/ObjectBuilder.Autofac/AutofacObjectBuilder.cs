@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Autofac.Builder;
-using Autofac.Modules;
+using Autofac.Core;
 using NServiceBus.ObjectBuilder.Autofac.Internal;
 
 namespace NServiceBus.ObjectBuilder.Autofac
@@ -25,16 +25,14 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public AutofacObjectBuilder(IContainer container)
         {
             this.container = container;
-            Initialize();
         }
 
         ///<summary>
         /// Instantites the class with a new Autofac container.
         ///</summary>
-        public AutofacObjectBuilder() : this(new Container())
+        public AutofacObjectBuilder() : this(new ContainerBuilder().Build())
         {
         }
-
         
         ///<summary>
         /// Build an instance of a given type using Autofac.
@@ -58,15 +56,15 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
-            IComponentRegistration registration = GetComponentRegistration(component);
+            IComponentRegistration registration = this.GetComponentRegistration(component);
 
             if (registration == null)
             {
-                var builder = new ContainerBuilder();
-                InstanceScope instanceScope = GetInstanceScopeFrom(callModel);
+                var updater = new ContainerUpdater();
                 Type[] services = component.GetAllServices().ToArray();
-                builder.Register(component).As(services).WithScope(instanceScope).OnActivating(ActivatingHandler.InjectUnsetProperties);
-                builder.Build(container);
+                var registrationBuilder = updater.RegisterType(component).As(services).PropertiesAutowired();
+                SetLifetimeScope(callModel, registrationBuilder);
+                updater.Update(this.container);
             }
         }
 
@@ -95,9 +93,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            var builder = new ContainerBuilder();
-            builder.Register(instance).As(lookupType).ExternallyOwned().OnActivating(ActivatingHandler.InjectUnsetProperties);
-            builder.Build(container);
+            var updater = new ContainerUpdater();
+            updater.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
+            updater.Update(this.container);
         }
 
         public bool HasComponent(Type componentType)
@@ -105,29 +103,25 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.IsRegistered(componentType);
         }
 
-        private void Initialize()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new ImplicitCollectionSupportModule());
-            builder.Build(container);
-        }
-
-        private static InstanceScope GetInstanceScopeFrom(ComponentCallModelEnum callModel)
+        private static void SetLifetimeScope(ComponentCallModelEnum callModel, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> registrationBuilder)
         {
             switch (callModel)
             {
                 case ComponentCallModelEnum.Singlecall:
-                    return InstanceScope.Factory;
+                    registrationBuilder.InstancePerDependency();
+                    break;
                 case ComponentCallModelEnum.Singleton:
-                    return InstanceScope.Singleton;
+                    registrationBuilder.SingleInstance();
+                    break;
+                default:
+                    registrationBuilder.InstancePerLifetimeScope();
+                    break;
             }
-
-            return InstanceScope.Container;
         }
 
         private IComponentRegistration GetComponentRegistration(Type concreteComponent)
         {
-            return container.GetAllRegistrations().Where(x => x.Descriptor.BestKnownImplementationType == concreteComponent).FirstOrDefault();
+            return this.container.ComponentRegistry.Registrations.Where(x => x.Activator.LimitType == concreteComponent).FirstOrDefault();
         }
     }
 }
