@@ -1,12 +1,14 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using NServiceBus;
+using NServiceBus.Sagas.Impl;
 
 namespace Timeout.MessageHandlers
 {
     /// <summary>
     /// Configures the timeout host.
     /// </summary>
-    public class Endpoint : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
+    public class Endpoint : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization, ISpecifyMessageHandlerOrdering
     {
         void IWantCustomInitialization.Init()
         {
@@ -26,6 +28,11 @@ namespace Timeout.MessageHandlers
                 default:
                     throw new ConfigurationErrorsException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
             }
+        }
+
+        void ISpecifyMessageHandlerOrdering.SpecifyOrder(Order order)
+        {
+            order.Specify(First<TimeoutMessageHandler>.Then<SagaMessageHandler>());
         }
     }
 
