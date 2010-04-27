@@ -8,7 +8,6 @@
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="2.1.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
-	<property name="nant.settings.currentframework" value="net-3.5" />
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
@@ -29,7 +28,11 @@
 	<property name="run_azure_test" value="false" dynamic="true" />
 	<property name="servicehosting.version" value="" dynamic="true" />
 	<property name="project.config" value="release" />
-
+	<property name="targetframework" value="net-3.5" dynamic="true" />
+	<property name="msbuild" value="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" dynamic="true" />
+	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
+	<property name="ilmerge.targetframework" value="" dynamic="true" />
+	
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
 		<description>
@@ -104,6 +107,19 @@
 				<include name="*.*" />
 			</fileset>
 		</copy>
+
+		<if test="${targetframework == 'net-4.0'}">
+		    <property name="netfx.installroot" value="" dynamic="true" />
+			<readregistry 	property="netfx.installroot" key="SOFTWARE\Microsoft\.NETFramework\InstallRoot" hive="LocalMachine" />
+			<echo message="Netfx in:  ${netfx.installroot}" />
+
+			<property name="netfx.current" value="${netfx.installroot}v4.0.30319"/>
+			<property name="msbuild" value="${netfx.current}\msbuild.exe"/>
+			<echo message=".Net 4.0 build requested - ${msbuild}" />
+
+			<property name="ilmerge.targetframework" value="/targetplatform:v4,${netfx.current}" />
+			<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"/>
+		</if>
 	</target>
 
 	<target name="clean" description="delete build artifacts">
@@ -134,7 +150,10 @@
 				<attribute type="AssemblyCompanyAttribute" value="${company.name}" />
 				<attribute type="AssemblyConfigurationAttribute" value="${project.config}" />
 				<attribute type="AssemblyInformationalVersionAttribute" value="${file.version}" />
-				<attribute type="AllowPartiallyTrustedCallersAttribute" asis="true" />
+				<!-- TODO : Figure out how to handle non trusted callers i .net 4.0 -->
+				<if test="${targetframework != 'net-4.0'}">
+					<attribute type="AllowPartiallyTrustedCallersAttribute" asis="true" />
+				</if>
 				<attribute type="ComVisibleAttribute" value="false" />
 			</attributes>
 			<references>
@@ -149,8 +168,8 @@
 						in="core"
 						delim=","
 						property="pathToBuild">
-			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus\"
+			<exec 	program="${msbuild}"
+						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus\ ${msbuild.targetframework}"
 						  workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
@@ -168,7 +187,7 @@
 		<!-- Create the merged NServiceBus.dll-->
 		<mkdir dir="${output.dir}" />
 		<exec program="${lib.dir}\ilmerge.exe"
-					commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.assemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output.txt"
+					commandline="/out:${output.dir}\NServiceBus.dll ${nservicebus.assemblies} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output.txt ${ilmerge.targetframework}"
 					workingdir="." />
 
 	</target>
@@ -178,8 +197,8 @@
 						in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,faults,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\encryption,impl\Serializers,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
 						delim=","
 						property="pathToBuild">
-			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
+			<exec 	program="${msbuild}"
+						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework}"
 						  workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 		<!-- Create list of all "core" assemblies -->
@@ -226,7 +245,7 @@
 
 		<!-- Create the merged NServiceBus.Core.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
-					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output_core.txt"
+					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output_core.txt ${ilmerge.targetframework}"
 					workingdir="." />
 
 	</target>
@@ -234,8 +253,8 @@
 
 	<target name="compile_containers">
 		<!-- Containers -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\containers\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\containers\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\impl\ObjectBuilder" />
 
 		<!-- Copy the container assemblies to the output directory -->
@@ -253,18 +272,22 @@
 		<property name="hosting.build.dir" value="${build.base}\hosting" />
 
 		<!-- Compile all hosts -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting\ ${msbuild.targetframework}"
 						workingdir="${solution.dir}\hosting" />
 
 		<!-- Merge the windowshost and it's dependecies -->
 		<mkdir 	dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
-					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt"
+					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt ${ilmerge.targetframework}"
 					workingdir="." />
 	</target>
 
 	<target name="test">
+		<property name="nunit.targetframework" value="/framework=3.5" dynamic="true" />
+		<if test="${targetframework == 'net-4.0'}">
+			<property name="nunit.targetframework" value="/framework=4.0.30319"/>
+		</if>
 
 		<mkdir dir="${build.base}\test-reports" />
 
@@ -281,39 +304,42 @@
 				<property name="nservicebus.testassemblies" value="${nservicebus.testassemblies} ${filename}"/>
 			</do>
 		</foreach>
+		<!-- TODO - enable tests for .net4 when nunit bug is fixed-->
 		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${core.build.dir}">
 			<arg line="${nservicebus.testassemblies}" />
 			<arg value="/xml:..\test-reports\UnitTests.xml" />
+			<arg value="${nunit.targetframework}" />
+
 		</exec>
 	</target>
 
 	<target name="compile_tools">
 
 		<!-- Testing -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\testing" />
 
 		<mkdir 	dir="${output.dir}\testing" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
-					commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt"
+					commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt ${ilmerge.targetframework}"
 					workingdir="." />
 
 		<!-- distributor -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\distributor\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\distributor\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\distributor" />
 
 
 		<!-- timeout -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\timeout\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\timeout\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\timeout" />
 
 
 		<!-- proxy -->
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\proxy\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\proxy\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\proxy" />
 
 
@@ -322,14 +348,14 @@
 						in="tools\management\Grid,tools\management\Errors\ReturnToSourceQueue"
 						delim=","
 						property="pathToBuild">
-			<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\"
+			<exec 	program="${msbuild}"
+						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\ ${msbuild.targetframework}"
 						  workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
 		<!-- ilmerge dependent assemblies into XsdGenerator -->
 		<exec program="${lib.dir}\ilmerge.exe"
-		commandline="/out:..\XsdGenerator.exe XsdGenerator.exe NServiceBus.Serializers.XML.dll NServiceBus.Utils.Reflection.dll /target:exe /log:output_xsdgenerator.txt"
+		commandline="/out:..\XsdGenerator.exe XsdGenerator.exe NServiceBus.Serializers.XML.dll NServiceBus.Utils.Reflection.dll /target:exe /log:output_xsdgenerator.txt ${ilmerge.targetframework}"
 		workingdir="${core.build.dir}" />
 
 		<!-- copy the xsdgenerator to the tools directory -->
@@ -343,20 +369,20 @@
 		<!-- Compile the gateway  -->
 		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
 
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
+		<exec 	program="${msbuild}"
 					commandline="${solution.dir}\gateway\gateway.sln 
 					/nologo 
 					/t:Clean
 					/t:Rebuild        
 					/p:OutDir=${gateway.builddir}\bin\        
-					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config}"
+					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config} ${msbuild.targetframework}"
 					workingdir="." />
 
 	</target>
 
 	<target name="compile_msmqutils">
-		<exec 	program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\"
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\utils" />
 
 	</target>
@@ -367,11 +393,13 @@
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
-						  workingdir="${trunk.dir}\samples\${pathToBuild}" />
+			<exec	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
+					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
 		<if test="${servicehosting.version != ''}">
-			<exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" commandline="/p:Configuration=${project.config}"
+			<exec	program="${msbuild}" 
+					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\AzureService" />
 		</if>
 
