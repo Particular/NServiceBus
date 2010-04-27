@@ -304,7 +304,10 @@
 				<property name="nservicebus.testassemblies" value="${nservicebus.testassemblies} ${filename}"/>
 			</do>
 		</foreach>
-		<!-- TODO - enable tests for .net4 when nunit bug is fixed-->
+	
+		
+		<echo message="${nservicebus.testassemblies}" />
+		
 		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${core.build.dir}">
 			<arg line="${nservicebus.testassemblies}" />
 			<arg value="/xml:..\test-reports\UnitTests.xml" />
