@@ -284,9 +284,9 @@
 	</target>
 
 	<target name="test">
-		<property name="nunit.targetframework" value="/framework=3.5" dynamic="true" />
+		<property name="nunit.targetframework" value="" dynamic="true" />
 		<if test="${targetframework == 'net-4.0'}">
-			<property name="nunit.targetframework" value="/framework=4.0.30319"/>
+			<property name="nunit.targetframework" value="/framework=4.0"/>
 		</if>
 
 		<mkdir dir="${build.base}\test-reports" />
