@@ -59,7 +59,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public void ReleaseInstance(object instance)
         {
-            throw new NotImplementedException();
+            container.Teardown(instance);
         }
 
         public void Configure(Type concreteComponent, ComponentCallModelEnum callModel)
