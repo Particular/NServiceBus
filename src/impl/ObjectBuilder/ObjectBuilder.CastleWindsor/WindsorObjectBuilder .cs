@@ -34,7 +34,6 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             Container = container;
-            container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
