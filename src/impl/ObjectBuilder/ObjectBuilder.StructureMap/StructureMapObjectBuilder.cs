@@ -42,7 +42,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         void Common.IContainer.ReleaseInstance(object instance)
         {
-            throw new NotImplementedException();
+            //no-op since structuremap doesn't have a release feature 
         }
 
         void Common.IContainer.ConfigureProperty(Type component, string property, object value)
