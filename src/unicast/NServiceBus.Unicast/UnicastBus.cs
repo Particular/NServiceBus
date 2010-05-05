@@ -527,7 +527,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.Send(params IMessage[] messages)
         {
-		    var destination = GetDestinationForMessageType(messages[0].GetType());
+		    var destination = GetDestinationForMessages(messages);
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
@@ -566,6 +566,12 @@ namespace NServiceBus.Unicast
             if (destination == null)
                 throw new InvalidOperationException(
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
+
+            if (messages == null || messages.Length == 0)
+            {
+                Log.Warn("No messages have been passed to send - not sending anything.");
+                return null;
+            }
 
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
@@ -1476,6 +1482,14 @@ namespace NServiceBus.Unicast
                 foreach (var msgTypeHandled in handlerList[handlerType])
                     yield return msgTypeHandled;
        }
+
+        protected string GetDestinationForMessages(IMessage[] messages)
+        {
+            if (messages == null || messages.Length == 0)
+                return null;
+
+            return GetDestinationForMessageType(messages[0].GetType());
+        }
 
 		/// <summary>
 		/// Gets the destination address for a message type.

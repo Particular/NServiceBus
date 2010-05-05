@@ -40,6 +40,11 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
+        void Common.IContainer.ReleaseInstance(object instance)
+        {
+            throw new NotImplementedException();
+        }
+
         void Common.IContainer.ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)

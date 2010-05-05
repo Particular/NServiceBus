@@ -54,6 +54,15 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.ResolveAll(typeToBuild);
         }
 
+        /// <summary>
+        /// Tells Autofac to release the given instance.
+        /// </summary>
+        /// <param name="instance"></param>
+        public void ReleaseInstance(object instance)
+        {
+            throw new NotImplementedException();
+        }
+
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
         {
             IComponentRegistration registration = this.GetComponentRegistration(component);

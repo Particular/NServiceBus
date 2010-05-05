@@ -24,6 +24,13 @@ namespace NServiceBus.ObjectBuilder.Common
         IEnumerable<object> BuildAll(Type typeToBuild);
 
         /// <summary>
+        /// Indicates to the container that the instance that was previously built by the container
+        /// can now be disposed and all of its resources released.
+        /// </summary>
+        /// <param name="instance"></param>
+        void ReleaseInstance(object instance);
+
+        /// <summary>
         /// Configures the call model of the given component type.
         /// </summary>
         /// <param name="component"></param>

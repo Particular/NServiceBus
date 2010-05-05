@@ -127,6 +127,11 @@ namespace NServiceBus.ObjectBuilder.Common
                 action(Container.Build(typeToBuild));
         }
 
+        void IBuilder.ReleaseInstance(object instance)
+        {
+            Container.ReleaseInstance(instance);
+        }
+
         #endregion
 
         private static SynchronizedInvoker sync;

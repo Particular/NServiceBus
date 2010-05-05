@@ -78,6 +78,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             }
         }
 
+        void IContainer.ReleaseInstance(object instance)
+        {
+            Container.Release(instance);
+        }
+
         bool IContainer.HasComponent(Type componentType)
         {
             return Container.Kernel.HasComponent(componentType);
