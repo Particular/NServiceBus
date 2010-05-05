@@ -124,7 +124,12 @@ namespace NServiceBus.ObjectBuilder.Common
             if (sync != null)
                 sync.BuildAndDispatch(typeToBuild, action);
             else
-                action(Container.Build(typeToBuild));
+            {
+                var o = Container.Build(typeToBuild);
+                action(o);
+
+                Container.ReleaseInstance(o);
+            }
         }
 
         void IBuilder.ReleaseInstance(object instance)

@@ -25,7 +25,10 @@ namespace NServiceBus.ObjectBuilder.Common
             if (Container == null)
                 throw new InvalidOperationException("Cannot perform this action without a Container configured.");
 
-            action(Container.Build(typeToBuild));
+            var o = Container.Build(typeToBuild);
+            action(o);
+
+            Container.ReleaseInstance(o);
         }
     }
 }
