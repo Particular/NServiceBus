@@ -87,7 +87,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
                 foreach (var implementedInterface in GetAllInterfacesImplementedBy(component))
                 {
-                    x.RegisterAdditionalInterfaceForPluginType(implementedInterface, component);
+                    x.RegisterAdditionalInterfaceForPluginType(implementedInterface, component,lifecycle);
 
                     x.EnableSetterInjectionFor(implementedInterface);
                 }

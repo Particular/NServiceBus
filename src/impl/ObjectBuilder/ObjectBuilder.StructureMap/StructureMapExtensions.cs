@@ -1,6 +1,7 @@
 using System;
 using StructureMap;
 using StructureMap.Graph;
+using StructureMap.Pipeline;
 
 namespace NServiceBus.ObjectBuilder.StructureMap
 {
@@ -15,13 +16,14 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         /// <param name="configuration"></param>
         /// <param name="implementedInterface"></param>
         /// <param name="pluginType"></param>
-        public static void RegisterAdditionalInterfaceForPluginType(this ConfigurationExpression configuration,Type implementedInterface, Type pluginType)
+        /// <param name="lifecycle"></param>
+        public static void RegisterAdditionalInterfaceForPluginType(this ConfigurationExpression configuration, Type implementedInterface, Type pluginType, ILifecycle lifecycle)
         {
             var type = typeof(Registration<,>).MakeGenericType(implementedInterface, pluginType);
 
             var registration = (IRegistration)Activator.CreateInstance(type);
 
-            registration.RegisterServiceInterface(configuration);
+            registration.RegisterServiceInterface(configuration,lifecycle);
         }
 
         /// <summary>
@@ -38,14 +40,16 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         // grease the generic wheels
         interface IRegistration
         {
-            void RegisterServiceInterface(ConfigurationExpression config);
+            void RegisterServiceInterface(ConfigurationExpression config, ILifecycle callModel);
         }
 
         class Registration<TInterface, TImplementor> : IRegistration where TImplementor : TInterface
         {
-            public void RegisterServiceInterface(ConfigurationExpression config)
+            public void RegisterServiceInterface(ConfigurationExpression config, ILifecycle lifecycle)
             {
-                config.For<TInterface>().TheDefault.Is.ConstructedBy(ctx => ctx.GetInstance<TImplementor>());
+                config.For<TInterface>()
+                    .LifecycleIs(lifecycle)
+                    .Use(ctx => ctx.GetInstance<TImplementor>());
             }
         }
 

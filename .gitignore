@@ -1,0 +1,16 @@
+build
+binaries
+obj
+bin
+_ReSharper.*
+_UpgradeReport.*
+*.csproj.user
+*.resharper.user
+*.resharper
+*.suo
+*.cache
+*~
+*.swp
+*.user
+TestResult.xml
+results
