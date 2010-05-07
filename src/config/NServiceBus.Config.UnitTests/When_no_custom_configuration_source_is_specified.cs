@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using NBehave.Spec.NUnit;
 using NUnit.Framework;
 
@@ -11,7 +12,7 @@ namespace NServiceBus.Config.UnitTests
         [SetUp]
         public void SetUp()
         {
-            Configure.With();
+            Configure.With(new Type[]{});
         }
 
         [Test]

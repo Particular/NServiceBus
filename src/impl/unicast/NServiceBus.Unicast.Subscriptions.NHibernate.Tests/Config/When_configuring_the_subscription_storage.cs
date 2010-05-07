@@ -1,3 +1,4 @@
+using System;
 using FluentNHibernate;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
@@ -14,9 +15,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            config = Configure.With()
-          .DefaultBuilder()
-          .DBSubcriptionStorage();
+            config = Configure.With(new Type[] { })
+                                .DefaultBuilder()
+                                .DBSubcriptionStorage();
 
         }
 
@@ -31,7 +32,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
         }
 
-        
+
         [Test]
         public void The_storage_should_be_registered_as_singlecall()
         {
@@ -61,7 +62,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         {
             var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
-            var configWithoutConfigSection = Configure.With()
+            var configWithoutConfigSection = Configure.With(new Type[]{})
                                                     .DefaultBuilder()
                                                     .CustomConfigurationSource(configSource)
                                                     .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
@@ -69,7 +70,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             configWithoutConfigSection.Builder.Build<ISessionSource>();
 
         }
-       
+
         [Test]
         public void NHibernate_proxy_factory_should_default_to_linfu()
         {

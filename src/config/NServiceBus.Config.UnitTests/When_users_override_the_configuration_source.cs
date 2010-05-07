@@ -1,3 +1,4 @@
+using System;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -12,9 +13,9 @@ namespace NServiceBus.Config.UnitTests
         [SetUp]
         public void SetUp()
         {
-            this.userConfigurationSource = new UserConfigurationSource();
-            Configure.With()
-                .CustomConfigurationSource(this.userConfigurationSource);
+            userConfigurationSource = new UserConfigurationSource();
+            Configure.With(new Type[]{})
+                .CustomConfigurationSource(userConfigurationSource);
         }
         
         [Test]
