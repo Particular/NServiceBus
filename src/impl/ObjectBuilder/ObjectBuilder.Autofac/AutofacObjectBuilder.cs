@@ -60,7 +60,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// <param name="instance"></param>
         public void ReleaseInstance(object instance)
         {
-            throw new NotImplementedException();
+            //no-op
         }
 
         void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
