@@ -620,7 +620,15 @@ namespace NServiceBus.Unicast
                 }
 
                 if (Log.IsDebugEnabled)
-                    Log.Debug("Sending message " + messages[0].GetType().AssemblyQualifiedName + " with ID " + toSend.Id + " to destination " + destination + ".");
+                    Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
+                                            "ToString() of the message yields: {3}\n" +
+                                            "Message headers:\n{4}",
+                                            messages[0].GetType().AssemblyQualifiedName,
+                                            toSend.Id,
+                                            destination,
+                                            messages[0],
+                                            string.Join(", ", ((IBus)this).OutgoingHeaders.Select(h => h.Key + ":" + h.Value).ToArray())
+                        ));
 
                 result.Add(toSend.Id);
             }
@@ -1481,8 +1489,13 @@ namespace NServiceBus.Unicast
             foreach (var handlerType in handlerList.Keys)
                 foreach (var msgTypeHandled in handlerList[handlerType])
                     yield return msgTypeHandled;
-       }
+        }
 
+        /// <summary>
+        /// Uses the first message in the array to pass to <see cref="GetDestinationForMessageType"/>.
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <returns></returns>
         protected string GetDestinationForMessages(IMessage[] messages)
         {
             if (messages == null || messages.Length == 0)
