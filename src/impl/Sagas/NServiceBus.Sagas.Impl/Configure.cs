@@ -445,8 +445,9 @@ namespace NServiceBus.Sagas.Impl
                 SagaTypeToHandleMethodLookup[sagaType] = methods;
             }
 
-            MethodInfo handleMethod = sagaType.GetMethod("Handle", new[] { messageType });
-            methods[messageType] = handleMethod;
+            Type directType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+            if (directType.IsAssignableFrom(sagaType))
+                methods[messageType] = directType.GetMethod("Handle", new[] { messageType });
         }
 
         private static void MapSagaTypeToSagaEntityType(Type sagaType, Type sagaEntityType)
