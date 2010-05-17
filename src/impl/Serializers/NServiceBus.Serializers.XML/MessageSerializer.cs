@@ -113,7 +113,7 @@ namespace NServiceBus.Serializers.XML
                 isKeyValuePair = (typeof (KeyValuePair<,>).MakeGenericType(args) == t);
             }
 
-            if (args.Length == 1)
+            if (args.Length == 1 && args[0].IsValueType)
             {
                 if (typeof(Nullable<>).MakeGenericType(args) == t)
                 {

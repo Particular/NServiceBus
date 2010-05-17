@@ -19,6 +19,41 @@ namespace NServiceBus.Serializers.XML.Test
         private int number = 1;
         private int numberOfIterations = 100;
 
+
+        [Test]
+        public void Generic_properties_should_be_supported()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = new MessageSerializer
+                                 {
+                                     MessageMapper = mapper,
+                                     MessageTypes = new List<Type>(new[] {typeof (MessageWithGenericProperty)})
+                                 };
+
+            using (var stream = new MemoryStream())
+            {
+                var message = new MessageWithGenericProperty
+                                  {
+                                      GenericProperty = new GenericProperty<string>("test"){WhatEver = "a property"}
+                                  };
+
+                serializer.Serialize(new IMessage[] { message }, stream);
+
+                stream.Position = 0;
+
+                Debug.WriteLine(new StreamReader(stream).ReadToEnd());
+
+                stream.Position = 0;
+
+                var result = serializer.Deserialize(stream)[0] as MessageWithGenericProperty;
+
+                Assert.NotNull(result);
+
+                Assert.AreEqual(message.GenericProperty.WhatEver,result.GenericProperty.WhatEver);
+            }
+                
+        }
+
         [Test]
         public void Comparison()
         {
@@ -227,5 +262,29 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
+    }
+
+    public class MessageWithGenericProperty:IMessage
+    {
+        public GenericProperty<string> GenericProperty { get; set; }
+    }
+
+    public class GenericProperty<T>
+    {
+        private T value;
+
+        public GenericProperty(T value)
+        {
+            this.value = value;
+        }
+
+        public T ReadOnlyBlob {
+            get
+            {
+                return value;
+            }
+        }
+
+        public string WhatEver { get; set; }
     }
 }
