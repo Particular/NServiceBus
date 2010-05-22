@@ -1434,10 +1434,24 @@ namespace NServiceBus.Unicast
                 if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(t))
                     handlerToMessageTypeToHandleMethodMap.Add(t, new Dictionary<Type, MethodInfo>());
 
+                MethodInfo h = GetMessageHandler(t, messageType);
+
                 if (!(handlerToMessageTypeToHandleMethodMap[t].ContainsKey(messageType)))
-                    handlerToMessageTypeToHandleMethodMap[t].Add(messageType, t.GetMethod("Handle", new[] { messageType }));
+                    handlerToMessageTypeToHandleMethodMap[t].Add(messageType, h);
             }
         }
+
+        private static MethodInfo GetMessageHandler(Type targetType, Type messageType)
+        {
+            var method = targetType.GetMethod("Handle", new[] { messageType });
+            if (method != null) return method;
+
+            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+            return targetType.GetInterfaceMap(handlerType)
+            .TargetMethods
+            .FirstOrDefault();
+        }
+
 
         /// <summary>
         /// If the type is a message handler, returns all the message types that it handles
