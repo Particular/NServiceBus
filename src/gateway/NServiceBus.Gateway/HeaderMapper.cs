@@ -20,8 +20,6 @@ namespace NServiceBus.Gateway
             TimeSpan.TryParse(from[NServiceBus + TimeToBeReceived], out timeToBeReceived);
             to.TimeToBeReceived = timeToBeReceived;
 
-            to.WindowsIdentityName = from[NServiceBus + WindowsIdentityName];
-
             to.Headers = new System.Collections.Generic.List<HeaderInfo>();
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Header))
@@ -35,7 +33,6 @@ namespace NServiceBus.Gateway
             to[NServiceBus + CorrelationId] = from.CorrelationId;
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
-            to[NServiceBus + WindowsIdentityName] = from.WindowsIdentityName;
 
             to[NServiceBus + ReturnAddress] = from.ReturnAddress;
             to[NServiceBus + Header + ReturnAddress] = from.ReturnAddress;

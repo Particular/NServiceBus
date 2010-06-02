@@ -38,12 +38,6 @@ namespace NServiceBus.Unicast.Transport
         public string ReturnAddress { get; set; }
 
 		/// <summary>
-		/// Gets/sets the name of the Windows identity the message
-		/// is being sent as.
-		/// </summary>
-        public string WindowsIdentityName { get; set; }
-
-		/// <summary>
 		/// Gets/sets whether or not the message is supposed to
 		/// be guaranteed deliverable.
 		/// </summary>

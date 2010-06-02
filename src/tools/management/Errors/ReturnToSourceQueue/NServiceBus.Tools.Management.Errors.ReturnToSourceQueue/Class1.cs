@@ -1,7 +1,6 @@
 using System;
 using System.Messaging;
 using System.Transactions;
-using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Utils;
 
 namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
@@ -45,11 +44,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             {
                 var m = queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
 
-                var failedQueue = MsmqMessageQueue.GetFailedQueue(m.Label);
-
-                m.Label = MsmqMessageQueue.GetLabelWithoutFailedQueue(m.Label);
-
-                using (var q = new MessageQueue(failedQueue))
+                using (var q = m.ResponseQueue)
                 {
                     q.Send(m, MessageQueueTransactionType.Automatic);
                 }

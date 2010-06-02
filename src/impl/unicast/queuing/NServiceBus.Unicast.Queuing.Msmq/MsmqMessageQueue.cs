@@ -30,18 +30,18 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (!string.IsNullOrEmpty(message.ReturnAddress))
                     toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(message.ReturnAddress));
 
-                toSend.Label = GetLabel(message);
-
                 if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = message.TimeToBeReceived;
 
-                if (message.Headers != null && message.Headers.Count > 0)
+                if (message.Headers == null)
+                    message.Headers = new List<HeaderInfo>();
+
+                message.Headers.Add(new HeaderInfo {Key = IDFORCORRELATION, Value = message.IdForCorrelation});
+
+                using (var stream = new MemoryStream())
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        headerSerializer.Serialize(stream, message.Headers);
-                        toSend.Extension = stream.GetBuffer();
-                    }
+                    headerSerializer.Serialize(stream, message.Headers);
+                    toSend.Extension = stream.GetBuffer();
                 }
 
                 toSend.AppSpecific = (int)message.MessageIntent;
@@ -137,11 +137,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 result.Body = new byte[m.BodyStream.Length];
                 m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
-                FillIdForCorrelationAndWindowsIdentity(result, m);
-
-                if (string.IsNullOrEmpty(result.IdForCorrelation))
-                    result.IdForCorrelation = result.Id;
-
                 if (m.Extension.Length > 0)
                 {
                     var stream = new MemoryStream(m.Extension);
@@ -152,6 +147,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 {
                     result.Headers = new List<HeaderInfo>();
                 }
+
+                result.IdForCorrelation = GetIdForCorrelation(result.Headers);
+                if (result.IdForCorrelation == null)
+                    result.IdForCorrelation = result.Id;
 
                 return result;
             }
@@ -164,44 +163,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        /// <summary>
-        /// Returns the queue whose process failed processing the given message
-        /// by accessing the label of the message.
-        /// </summary>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        public static string GetFailedQueue(string label)
+        private static string GetIdForCorrelation(List<HeaderInfo> list)
         {
-            if (label == null)
-                return null;
-
-            if (!label.Contains(FAILEDQUEUE))
-                return null;
-
-            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
-            var count = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
-
-            return label.Substring(startIndex, count);
-        }
-
-        /// <summary>
-        /// Gets the label of the message stripping out the failed queue.
-        /// </summary>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        public static string GetLabelWithoutFailedQueue(string label)
-        {
-            if (label == null)
-                return null;
-
-            if (!label.Contains(FAILEDQUEUE))
-                return label;
-
-            var startIndex = label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
-            var endIndex = label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
-            endIndex += FAILEDQUEUE.Length + 3;
-
-            return label.Remove(startIndex, endIndex - startIndex);
+            var header = list.Find(hi => hi.Key == IDFORCORRELATION);
+            return header != null ? header.Value : null;
         }
 
         private static MessageQueueTransactionType GetTransactionTypeForReceive(bool transactional)
@@ -212,33 +177,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
-        }
-
-        private static string GetLabel(TransportMessage m)
-        {
-            return string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", IDFORCORRELATION, WINDOWSIDENTITYNAME, m.IdForCorrelation, m.WindowsIdentityName);
-        }
-
-        private static void FillIdForCorrelationAndWindowsIdentity(TransportMessage result, Message m)
-        {
-            if (m.Label == null)
-                return;
-
-            if (m.Label.Contains(IDFORCORRELATION))
-            {
-                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", IDFORCORRELATION)) + IDFORCORRELATION.Length + 2;
-                int idCount = m.Label.IndexOf(string.Format("</{0}>", IDFORCORRELATION)) - idStartIndex;
-
-                result.IdForCorrelation = m.Label.Substring(idStartIndex, idCount);
-            }
-
-            if (m.Label.Contains(WINDOWSIDENTITYNAME))
-            {
-                int winStartIndex = m.Label.IndexOf(string.Format("<{0}>", WINDOWSIDENTITYNAME)) + WINDOWSIDENTITYNAME.Length + 2;
-                int winCount = m.Label.IndexOf(string.Format("</{0}>", WINDOWSIDENTITYNAME)) - winStartIndex;
-
-                result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
-            }
         }
 
         /// <summary>
@@ -256,11 +194,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         private MessageQueue myQueue;
-
+        private const string IDFORCORRELATION = "CorrId";
         private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
-
-        private static readonly string IDFORCORRELATION = "CorrId";
-        private static readonly string WINDOWSIDENTITYNAME = "WinIdName";
-        private static readonly string FAILEDQUEUE = "FailedQ";
     }
 }

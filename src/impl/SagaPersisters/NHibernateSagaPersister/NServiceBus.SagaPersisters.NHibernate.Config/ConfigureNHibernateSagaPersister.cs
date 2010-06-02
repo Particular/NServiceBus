@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Common.Logging;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using NHibernate.ByteCode.LinFu;
@@ -86,20 +85,7 @@ namespace NServiceBus
             config.Configurer.RegisterSingleton<ISessionFactory>(sessionFactory);
             config.Configurer.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall);
 
-            NServiceBus._Dispatcher.GetAndCallEntity = (o, t, a) =>
-            {
-                var entity = sessionFactory.GetCurrentSession().Get(t, o);
-                if (entity == null)
-                {
-                    Logger.Warn(string.Format("Could not find entity of type {0} with Id {1}", t.FullName, o));
-                    return;
-                }
-                a(entity);
-            };
-
             return config;
         }
-
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (ConfigureNHibernateSagaPersister));
     }
 }

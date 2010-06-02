@@ -159,7 +159,7 @@ namespace NServiceBus.Unicast
         /// Sets whether or not the bus should impersonate the sender
 		/// of a message it has received when re-sending the message.
 		/// What occurs is that the thread sets its current principal
-        /// to the value found in the <see cref="TransportMessage.WindowsIdentityName" />
+        /// to the value found in the header called <see cref="WINDOWSIDENTITYNAME" />
         /// when that thread handles a message.
 		/// </summary>
         public virtual bool ImpersonateSender { get; set; }
@@ -877,7 +877,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
 		public void HandleMessage(TransportMessage m)
         {
-            Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]) : null;
+            HandleImpersonation(m);
 
             ((IBus)this).OutgoingHeaders.Clear();
 
@@ -907,6 +907,13 @@ namespace NServiceBus.Unicast
                 }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
+        }
+
+        private void HandleImpersonation(TransportMessage m)
+        {
+            var header = m.Headers.Find(hi => hi.Key == WINDOWSIDENTITYNAME);
+            if (header != null)
+                Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(header.Value), new string[0]) : null;
         }
 
         private IMessage[] Extract(TransportMessage m)
@@ -1110,7 +1117,7 @@ namespace NServiceBus.Unicast
                 {
                     bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, new HeaderAdapter(msg.Headers)))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
@@ -1135,7 +1142,7 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.WindowsIdentityName, new HeaderAdapter(msg.Headers)))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, new HeaderAdapter(msg.Headers)))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
@@ -1326,10 +1333,7 @@ namespace NServiceBus.Unicast
         /// <returns>The envelope containing the messages.</returns>
         protected TransportMessage GetTransportMessageFor(params IMessage[] messages)
         {
-            var result = new TransportMessage
-                             {
-                                 WindowsIdentityName = Thread.CurrentPrincipal.Identity.Name,
-                             };
+		    var result = new TransportMessage();
 
 		    var ms = new MemoryStream();
 		    MessageSerializer.Serialize(messages, ms);
@@ -1339,6 +1343,7 @@ namespace NServiceBus.Unicast
                 result.ReturnAddress = Address;
 
 		    result.Headers = HeaderAdapter.From(_outgoingHeaders);
+		    result.Headers.Add(new HeaderInfo {Key = WINDOWSIDENTITYNAME, Value = Thread.CurrentPrincipal.Identity.Name});
 
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -1562,6 +1567,7 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
+	    private const string WINDOWSIDENTITYNAME = "WinIdName";
         /// <summary>
 		/// Gets/sets the subscription manager to use for the bus.
 		/// </summary>
