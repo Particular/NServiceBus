@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ServiceModel;
 
 namespace NServiceBus
 {
@@ -7,6 +8,8 @@ namespace NServiceBus
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, 
+                     ConcurrencyMode = ConcurrencyMode.Multiple)]
     public abstract class WcfService<TRequest, TResponse> : IWcfService<TRequest, TResponse> where TRequest : IMessage
     {
         protected WcfService()
