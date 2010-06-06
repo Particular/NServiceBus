@@ -44,6 +44,15 @@ namespace NServiceBus.Testing.Tests
                 .ExpectHandleCurrentMessageLater()
                 .OnMessage<TestMessage>(m => {});
         }
+        
+        [Test]
+		public void ShouldCallHandleOnExplicitInterfaceImplementation()
+		{
+			var handler = new ExplicitInterfaceImplementation();
+			Assert.IsFalse(handler.IsHandled);
+			Test.Handler(handler).OnMessage<TestMessage>(m => { });
+			Assert.IsTrue(handler.IsHandled);
+		}
 
         public interface TestMessage : IMessage {}
 
@@ -71,5 +80,24 @@ namespace NServiceBus.Testing.Tests
                 this.Bus.HandleCurrentMessageLater();
             }
         }
+        
+		public class ExplicitInterfaceImplementation : IHandleMessages<TestMessage>
+		{
+
+			public bool IsHandled { get; set; }
+
+			void IMessageHandler<TestMessage>.Handle(TestMessage message) {
+				IsHandled = true;
+			}
+
+			// Unit test fails if this is uncommented; seems to me that this should
+			// be made to pass, but it looks like a design decision based on commit
+			// revision 1210.
+			//public void Handle(TestMessage message) {
+			//    throw new System.Exception("Shouldn't call this.");
+			//}
+
+		}
+
     }
 }
