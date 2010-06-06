@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Rhino.Mocks;
 
 namespace NServiceBus.Testing
@@ -204,11 +206,24 @@ namespace NServiceBus.Testing
             var msg = messageCreator.CreateInstance(initializeMessage);
             ExtensionMethods.CurrentMessageBeingHandled = msg;
 
-            helper.Go(context, () => handler.GetType().GetMethod("Handle",new[] { msg.GetType() }).Invoke(handler, new object[] { msg }));
+            MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
+            helper.Go(context, () => method.Invoke(handler, new object[] { msg }));
+
             assertions.ForEach(a => a());
 
             assertions.Clear();
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
+
+        private static MethodInfo GetMessageHandler(Type targetType, Type messageType) 
+        {
+			var method = targetType.GetMethod("Handle", new[] { messageType });
+			if (method != null) return method;
+
+			var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+			return targetType.GetInterfaceMap(handlerType)
+			                .TargetMethods
+			                .FirstOrDefault();
+		}
     }
 }
