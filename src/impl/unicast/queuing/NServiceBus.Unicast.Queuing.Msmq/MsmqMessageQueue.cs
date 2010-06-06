@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Messaging;
+using System.Security.Principal;
+using System.Threading;
 using System.Transactions;
 using System.Xml.Serialization;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
+using Common.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
@@ -159,6 +162,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return null;
 
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+                {
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent().Name));
+                    Thread.Sleep(10000); //long enough for someone to notice
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
+
                 throw;
             }
         }
@@ -196,5 +206,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private MessageQueue myQueue;
         private const string IDFORCORRELATION = "CorrId";
         private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqMessageQueue));
     }
 }
