@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.IO;
 using NServiceBus.Utils;
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace NServiceBus.Unicast.Transport.Msmq
 {
@@ -527,6 +528,13 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return false;
+
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+                {
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", Address, WindowsIdentity.GetCurrent().Name));
+                    Thread.Sleep(10000); //long enough for someone to notice
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
 
                 Logger.Error("Problem in peeking a message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
                 return false;
