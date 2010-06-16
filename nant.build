@@ -392,7 +392,7 @@
 
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-						in="AsyncPages,WebServiceBridge,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks"
+						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks"
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
@@ -404,6 +404,12 @@
 			<exec	program="${msbuild}" 
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\AzureService" />
+		</if>
+                <!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 -->
+		<if test="${targetframework != 'net-4.0'}">
+			<exec	program="${msbuild}" 
+					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
+					workingdir="${trunk.dir}\samples\WebServiceBridge" />
 		</if>
 
 	</target>
