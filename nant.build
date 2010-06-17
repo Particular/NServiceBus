@@ -499,13 +499,27 @@
         <include name="StructureMap*.*" />
       </fileset>
     </copy>
+	  
     <copy todir="${binaries.dir}\containers\structuremap">
       <fileset basedir="${container.build.dir}">
         <include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
       </fileset>
     </copy>
 
-    <mkdir dir="${binaries.dir}\containers\unity" />
+	  <mkdir dir="${binaries.dir}\containers\structuremap262" />
+	  <copy todir="${binaries.dir}\containers\structuremap262">
+		  <fileset basedir="${lib.dir}\structuremap\2.6.2">
+			  <include name="StructureMap*.*" />
+		  </fileset>
+	  </copy>
+
+	  <copy todir="${binaries.dir}\containers\structuremap262">
+		  <fileset basedir="${container.build.dir}">
+			  <include name="NServiceBus.ObjectBuilder.StructureMap262.dll" />
+		  </fileset>
+	  </copy>
+
+	  <mkdir dir="${binaries.dir}\containers\unity" />
     <copy todir="${binaries.dir}\containers\unity">
       <fileset basedir="${lib.dir}">
         <include name="Microsoft.Practices.ObjectBuilder2.dll" />

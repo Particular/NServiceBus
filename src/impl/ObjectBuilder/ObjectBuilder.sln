@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Tests", "Obje
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.Autofac2", "ObjectBuilder.Autofac2\ObjectBuilder.Autofac2.csproj", "{C03F4A73-7ABF-4900-A2AE-72CCF35F3CDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.StructureMap262", "ObjectBuilder.StructureMap262\ObjectBuilder.StructureMap262.csproj", "{FE227BB8-E24E-41E4-B7ED-677B27C4DC4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{C03F4A73-7ABF-4900-A2AE-72CCF35F3CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C03F4A73-7ABF-4900-A2AE-72CCF35F3CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C03F4A73-7ABF-4900-A2AE-72CCF35F3CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE227BB8-E24E-41E4-B7ED-677B27C4DC4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE227BB8-E24E-41E4-B7ED-677B27C4DC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE227BB8-E24E-41E4-B7ED-677B27C4DC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE227BB8-E24E-41E4-B7ED-677B27C4DC4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
