@@ -1,5 +1,7 @@
 using System;
+using System.Web;
 using System.Web.UI;
+using System.Web.Mvc;
 
 namespace NServiceBus.Unicast
 {
@@ -44,83 +46,73 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        void ICallback.Register(Action<int> callback)
-        {
-            (this as ICallback).Register<int>(callback);
-        }
-
         void ICallback.Register<T>(Action<T> callback)
         {
-            if (!typeof(T).IsEnum && typeof(T) != typeof(int))
-                throw new InvalidOperationException("Can only support registering callbacks for integer or enum types. The given type is neither: " + typeof(T).FullName);
+            var page = callback.Target as Page;
 
-            (this as ICallback).Register(
-                asyncResult =>
-                {
-                    var cr = asyncResult.AsyncState as CompletionResult;
-                    if (cr == null) return;
+            if (page != null)
+            {
+                (this as ICallback).Register(callback, page);
+                return;
+            }
 
-                    if (typeof(T) == typeof(int))
-                        (callback as Action<int>).Invoke(cr.ErrorCode);
-                    else
-                        callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
-                },
-                null
-                );
+            var controller = callback.Target as AsyncController;
+
+            if (controller != null)
+                (this as ICallback).Register(callback, controller);
         }
 
-        void ICallback.RegisterWebCallback(Action<int> callback, object state)
-        {
-            var page = GetPageFromCallback(callback);
-
-            (this as ICallback).RegisterWebCallback(callback, state, page);
-        }
-
-        void ICallback.RegisterWebCallback(Action<int> callback, object state, Page page)
-        {
-            (this as ICallback).RegisterWebCallback<int>(callback, state, page);
-        }
-
-        void ICallback.RegisterWebCallback<T>(Action<T> callback, object state)
-        {
-            var page = GetPageFromCallback(callback);
-
-            (this as ICallback).RegisterWebCallback(callback, state, page);
-        }
-
-        void ICallback.RegisterWebCallback<T>(Action<T> callback, object state, Page page)
+        void ICallback.Register<T>(Action<T> callback, object synchronizer)
         {
             if (!typeof(T).IsEnum && typeof(T) != typeof(int))
-                throw new InvalidOperationException("Can only support registering web callbacks for integer or enum types. The given type is neither: " + typeof(T).FullName);
+                throw new InvalidOperationException("Can only support registering callbacks for integer or enum types. The given type is: " + typeof(T).FullName);
 
-            page.RegisterAsyncTask(new PageAsyncTask(
-                (sender, e, cb, extraData) => (this as ICallback).Register(cb, extraData),
-                asyncResult =>
-                {
-                    var cr = asyncResult.AsyncState as CompletionResult;
-                    if (cr == null) return;
+            if (HttpContext.Current != null && synchronizer == null)
+                throw new ArgumentNullException("synchronizer", "NServiceBus has detected that you're running in a web context but have passed in a null synchronizer. Please pass in a reference to a System.Web.UI.Page or a System.Web.Mvc.AsyncController.");
 
-                    if (typeof(T) == typeof(int))
-                        (callback as Action<int>).Invoke(cr.ErrorCode);
-                    else
-                        callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
-                },
-                null,
-                state
+            if (synchronizer == null)
+            {
+                (this as ICallback).Register(GetCallbackInvocationActionFrom(callback), null);
+                return;
+            }
+
+            if (synchronizer is Page)
+            {
+                (synchronizer as Page).RegisterAsyncTask(new PageAsyncTask(
+                    (sender, e, cb, extraData) => (this as ICallback).Register(cb, extraData),
+                    new EndEventHandler(GetCallbackInvocationActionFrom(callback)),
+                    null,
+                    null
                 ));
+                return;
+            }
 
+            if (synchronizer is AsyncController)
+            {
+                var am = (synchronizer as AsyncController).AsyncManager;
+                am.OutstandingOperations.Increment();
+
+                (this as ICallback).Register(GetCallbackInvocationActionFrom(callback), null);
+
+                am.OutstandingOperations.Decrement();
+                return;
+            }
         }
 
         #endregion
 
-
-        private static Page GetPageFromCallback(Delegate callback)
+        private static AsyncCallback GetCallbackInvocationActionFrom<T>(Action<T> callback)
         {
-            var page = callback.Target as Page;
-            if (page == null)
-                throw new InvalidOperationException(
-                    "Callback must be to an object that is a System.Web.UI.Page, or explicitly pass in a reference to the page object.");
-            return page;
+            return asyncResult =>
+                       {
+                           var cr = asyncResult.AsyncState as CompletionResult;
+                           if (cr == null) return;
+
+                           if (typeof (T) == typeof (int))
+                               (callback as Action<int>).Invoke(cr.ErrorCode);
+                           else
+                               callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
+                       };
         }
     }
 

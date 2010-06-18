@@ -12,9 +12,8 @@ namespace WebApplication1
             int number = int.Parse(TextBox1.Text);
             var command = new Command { Id = number };
 
-            Global.Bus.Send(command).RegisterWebCallback<ErrorCodes>(
+            Global.Bus.Send(command).Register<ErrorCodes>(
                 code => Label1.Text = Enum.GetName(typeof (ErrorCodes), code)
-                , null
                 );
         }
 

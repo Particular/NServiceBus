@@ -152,13 +152,13 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         void Reply<T>(Action<T> messageConstructor) where T : IMessage;
 
-
-		/// <summary>
-		/// Returns a completion message with the specified error code to the sender
-		/// of the message being handled.
-		/// </summary>
-		/// <param name="errorCode">A code specifying the result.</param>
-        void Return(int errorCode);
+        /// <summary>
+        /// Returns a completion message with the specified error code to the sender
+        /// of the message being handled. The type T can only be an enum or an integer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="errorEnum"></param>
+	    void Return<T>(T errorEnum);
 
 		/// <summary>
 		/// Moves the message being handled to the back of the list of available 

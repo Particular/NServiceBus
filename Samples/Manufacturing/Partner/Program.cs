@@ -54,7 +54,7 @@ namespace Partner
                         m.Done = done;
                         m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10);
                         m.OrderLines = orderlines;
-                    }).Register(i => Console.WriteLine("OK"));
+                    }).Register<int>(i => Console.WriteLine("OK"));
 
                     Console.WriteLine("Send PO Number {0}.", poId);
 

@@ -462,9 +462,9 @@ namespace NServiceBus.Unicast
             ((IBus)this).Reply(CreateInstance(messageConstructor));
         }
 
-        void IBus.Return(int errorCode)
+        void IBus.Return<T>(T errorCode)
         {
-            ((IBus)this).Reply(new CompletionMessage { ErrorCode = errorCode });
+            ((IBus)this).Reply(new CompletionMessage { ErrorCode = errorCode.GetHashCode() });
         }
 
         void IBus.HandleCurrentMessageLater()
@@ -1578,10 +1578,14 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected readonly List<IMessageModule> modules = new List<IMessageModule>();
 
+        /// <summary>
+        /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
+        /// </summary>
+        protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
+
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
         private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
-        private readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
-	    private readonly IList<Type> recoverableMessageTypes = new List<Type>();
+        private readonly IList<Type> recoverableMessageTypes = new List<Type>();
 	    
         private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
         private readonly ReaderWriterLockSlim timeToBeReceivedPerMessageTypeLocker = new ReaderWriterLockSlim();

@@ -1,5 +1,4 @@
 using System;
-using System.Web.UI;
 
 namespace NServiceBus
 {
@@ -20,56 +19,20 @@ namespace NServiceBus
 
         /// <summary>
         /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// Not designed for web scenarios.
+        /// The return code is cast to the given enumerated type - T.
         /// </summary>
-        /// <param name="callback"></param>
-        void Register(Action<int> callback);
-
-        /// <summary>
-        /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// The return code is casted to the given enumerated type - T.
-        /// </summary>
-        /// <typeparam name="T">An enumeration type.</typeparam>
+        /// <typeparam name="T">An enumeration type or an integer.</typeparam>
         /// <param name="callback"></param>
         void Register<T>(Action<T> callback);
 
         /// <summary>
         /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
-        /// Only works when the callback is on the Page object itself.
+        /// The return code is cast to the given enumerated type - T.
+        /// Pass either a System.Web.UI.Page or a System.Web.Mvc.AsyncController as the synchronizer.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="callback"></param>
-        /// <param name="state"></param>
-        void RegisterWebCallback(Action<int> callback, object state);
-
-        /// <summary>
-        /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        /// <param name="page"></param>
-        void RegisterWebCallback(Action<int> callback, object state, Page page);
-
-        /// <summary>
-        /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
-        /// Only works when the callback is on the Page object itself.
-        /// </summary>
-        /// <typeparam name="T">An enumeration type.</typeparam>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        void RegisterWebCallback<T>(Action<T> callback, object state);
-
-        /// <summary>
-        /// Registers a callback to be invoked when a response arrives to the message sent.
-        /// Designed specifically for web scenarios so that you don't need to write PageAsyncTasks.
-        /// </summary>
-        /// <typeparam name="T">An enumeration type.</typeparam>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        /// <param name="page"></param>
-        void RegisterWebCallback<T>(Action<T> callback, object state, Page page);
-
+        /// <param name="synchronizer"></param>
+        void Register<T>(Action<T> callback, object synchronizer);
     }
 }

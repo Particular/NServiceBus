@@ -30,7 +30,7 @@ namespace MyClient
                                                      m.String = "<node>it's my \"node\" & i like it<node>";
                                                      m.SecretQuestion = "What's your favorite color?";
                                                  })
-                    .Register(i => 
+                    .Register<int>(i => 
                         {
                             Console.WriteLine("==========================================================================");
                             Console.WriteLine(
