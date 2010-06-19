@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.Mvc;
@@ -49,7 +50,6 @@ namespace NServiceBus.Unicast
         void ICallback.Register<T>(Action<T> callback)
         {
             var page = callback.Target as Page;
-
             if (page != null)
             {
                 (this as ICallback).Register(callback, page);
@@ -57,9 +57,18 @@ namespace NServiceBus.Unicast
             }
 
             var controller = callback.Target as AsyncController;
-
             if (controller != null)
+            {
                 (this as ICallback).Register(callback, controller);
+                return;
+            }
+
+            var context = SynchronizationContext.Current;
+            if (context != null)
+            {
+                (this as ICallback).Register(callback, context);
+                return;
+            }
         }
 
         void ICallback.Register<T>(Action<T> callback, object synchronizer)
@@ -95,6 +104,16 @@ namespace NServiceBus.Unicast
                 (this as ICallback).Register(GetCallbackInvocationActionFrom(callback), null);
 
                 am.OutstandingOperations.Decrement();
+                return;
+            }
+
+            if (synchronizer is SynchronizationContext)
+            {
+                (this as ICallback).Register(
+                    ar => (synchronizer as SynchronizationContext).Send(
+                              x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
+                    null
+                    );
                 return;
             }
         }
