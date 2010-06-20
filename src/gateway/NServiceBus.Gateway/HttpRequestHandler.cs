@@ -87,7 +87,7 @@ namespace NServiceBus.Gateway
                 {
                     Logger.Debug("Sending HTTP response.");
 
-                    ctx.Response.AddHeader(Headers.ContentMd5Key, hash);
+                    ctx.Response.AddHeader(Headers.ContentMd5Key, myHash);
                     ctx.Response.StatusCode = 200;
                     ctx.Response.StatusDescription = "OK";
 
