@@ -64,9 +64,6 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(Guid sagaId) where T : ISaga, new()
         {
-            if (_messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
@@ -75,6 +72,21 @@ namespace NServiceBus.Testing
             saga.Entity = sagaData;
 
             if (saga.Entity != null) saga.Entity.Id = sagaId;
+
+            return Saga(saga);
+        }
+
+        /// <summary>
+        /// Begin the test script for the passed in saga instance.
+        /// Callers need to instantiate the saga's data class as well as give it an ID.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="saga"></param>
+        /// <returns></returns>
+        public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
+        {
+            if (_messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             var mocks = new MockRepository();
             var bus = mocks.DynamicMock<IBus>();
