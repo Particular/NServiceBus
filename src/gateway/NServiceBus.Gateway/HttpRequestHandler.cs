@@ -10,7 +10,9 @@ namespace NServiceBus.Gateway
 {
     public class HttpRequestHandler
     {
+        private const int maximumBytesToRead = 100000;
         private bool requireMD5FromClient = true;
+
         public HttpRequestHandler(bool requireMD5)
         {
             requireMD5FromClient = requireMD5;
@@ -48,7 +50,22 @@ namespace NServiceBus.Gateway
 
                 var length = (int) ctx.Request.ContentLength64;
                 var buffer = new byte[length];
-                ctx.Request.InputStream.Read(buffer, 0, length);
+
+                int numBytesToRead = length;
+                int numBytesRead = 0;
+                while (numBytesToRead > 0)
+                {
+                    int n = ctx.Request.InputStream.Read(
+                        buffer, 
+                        numBytesRead, 
+                        numBytesToRead < maximumBytesToRead ? numBytesToRead : maximumBytesToRead);
+
+                    if (n == 0)
+                        break;
+
+                    numBytesRead += n;
+                    numBytesToRead -= n;
+                }
 
                 string myHash = Hasher.Hash(buffer);
                 TransportMessage msg;
