@@ -834,7 +834,7 @@ namespace NServiceBus.Unicast
 		/// </remarks>
 		public void HandleMessage(TransportMessage m)
         {
-            Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(m.WindowsIdentityName), new string[0]) : null;
+            Thread.CurrentPrincipal = GetPrincipalToExecuteAs(m.WindowsIdentityName);
 
             ((IBus)this).OutgoingHeaders.Clear();
 
@@ -863,7 +863,7 @@ namespace NServiceBus.Unicast
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
-		/// <summary>
+	    /// <summary>
 		/// Finds the message handlers associated with the message type and dispatches
 		/// the message to the found handlers.
 		/// </summary>
@@ -1471,6 +1471,21 @@ namespace NServiceBus.Unicast
             if(starting == false)
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
+
+        IPrincipal GetPrincipalToExecuteAs(string windowsIdentityName)
+        {
+            if (!ImpersonateSender)
+                return null;
+
+            if (string.IsNullOrEmpty(windowsIdentityName))
+            {
+                Log.Info("Can't impersonate because no windows identity specified in incoming message. This is common in interop scenarios.");
+                return null;
+            }
+
+            return new GenericPrincipal(new GenericIdentity(windowsIdentityName), new string[0]);
+        }
+
 
         #endregion
 
