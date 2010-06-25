@@ -119,7 +119,19 @@ namespace NServiceBus
         public static Configure With(params Assembly[] assemblies)
         {
             var types = new List<Type>();
-            Array.ForEach(assemblies, a => { foreach (Type t in a.GetTypes()) types.Add(t); });
+            Array.ForEach(
+                assemblies, 
+                a =>
+                    {
+                        try
+                        {
+                            foreach (Type t in a.GetTypes()) types.Add(t);
+                        }
+                        catch(ReflectionTypeLoadException)
+                        {
+                            return; //intentionally swallow exception
+                        }
+                    });
 
             return With(types);
         }
