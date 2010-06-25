@@ -3,13 +3,15 @@ using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using NHibernate.ByteCode.LinFu;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
+using NServiceBus.UnitOfWork;
 using NUnit.Framework;
+using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     public class MessageModuleFixture
     {
-        protected IMessageModule MessageModule;
+        protected IManageUnitsOfWork UnitOfWork;
         protected SagaPersister SagaPersister;
         protected ISessionFactory SessionFactory;
 
@@ -24,9 +26,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             SessionFactory = new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())
                 .Build(nhibernateProperties, true);
 
-
-            MessageModule = new NHibernateMessageModule { SessionFactory = SessionFactory };
             SagaPersister = new SagaPersister { SessionFactory = SessionFactory };
+
+            UnitOfWork = new UnitOfWorkManager { SessionFactory = SessionFactory };
         }
     }
 }

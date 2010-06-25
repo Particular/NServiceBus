@@ -11,14 +11,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Successful_execution_should_commit_nhibernate_transaction()
         {
-            MessageModule.HandleBeginMessage();
+            UnitOfWork.Begin();
 
             SagaPersister.Save(new TestSaga
             {
                 Id = Guid.NewGuid()
             });
 
-            MessageModule.HandleEndMessage();
+            UnitOfWork.End();
 
             using (var session = SessionFactory.OpenSession())
             {
@@ -29,13 +29,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Error_should_rollback_nhibernate_transaction()
         {
-            MessageModule.HandleBeginMessage();
+            UnitOfWork.Begin();
 
             SagaPersister.Save(new TestSaga
             {
                 Id = Guid.NewGuid()
             });
-            MessageModule.HandleError();
+            UnitOfWork.Error();
 
             using (var session = SessionFactory.OpenSession())
             {

@@ -14,14 +14,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {     
             using (var transactionScope = new TransactionScope())
             {
-                MessageModule.HandleBeginMessage();
+                UnitOfWork.Begin();
                
                 SagaPersister.Save(new TestSaga
                                    {
                                        Id = Guid.NewGuid()
                                    });
 
-                MessageModule.HandleEndMessage();
+                UnitOfWork.End();
                 transactionScope.Complete();
             }
             using (var session = SessionFactory.OpenSession())
@@ -38,7 +38,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             using (var transactionScope = new TransactionScope())
             {
-                MessageModule.HandleBeginMessage();
+                UnitOfWork.Begin();
 
                 SagaPersister.Save(new TestSaga
                 {
@@ -47,7 +47,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             }
 
-            MessageModule.HandleError();
+            UnitOfWork.Error();
        
             using (var session = SessionFactory.OpenSession())
             {

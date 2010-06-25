@@ -1,5 +1,6 @@
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
+using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
@@ -15,6 +16,9 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
+            if (!Configure.Instance.Configurer.HasComponent<IManageUnitsOfWork>())
+                Configure.Instance.NHibernateUnitOfWork();
+
             return Configure.Instance
                 .Sagas()
                 .MsmqTransport()

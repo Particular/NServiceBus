@@ -18,6 +18,7 @@ using NServiceBus.Serialization;
 using System.IO;
 using NServiceBus.Faults;
 using System.Net;
+using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
@@ -95,6 +96,11 @@ namespace NServiceBus.Unicast
         /// Message queue used to send messages.
         /// </summary>
         public IMessageQueue MessageSender { get; set; }
+
+        /// <summary>
+        /// Object used to manage units of work.
+        /// </summary>
+        public IManageUnitsOfWork UnitOfWorkManager { get; set;  }
 
 	    /// <summary>
 		/// A delegate for a method that will handle the <see cref="MessageReceived"/>
@@ -1047,6 +1053,9 @@ namespace NServiceBus.Unicast
 
             _messageBeingHandled = msg;
 
+            if (UnitOfWorkManager != null)
+                UnitOfWorkManager.Begin();
+
             foreach (var module in modules)
             {
                 Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
@@ -1176,6 +1185,9 @@ namespace NServiceBus.Unicast
                 Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
                 module.HandleEndMessage();
             }
+
+            if (UnitOfWorkManager != null)
+                UnitOfWorkManager.End();
         }
 
         private void TransportFailedMessageProcessing(object sender, EventArgs e)
@@ -1193,6 +1205,9 @@ namespace NServiceBus.Unicast
                     Log.Error("Module " + module.GetType().FullName + " failed when handling error.", ex);
                     exceptionThrown = true;
                 }
+
+            if (UnitOfWorkManager != null)
+                UnitOfWorkManager.Error();
 
             if (exceptionThrown)
                 throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
