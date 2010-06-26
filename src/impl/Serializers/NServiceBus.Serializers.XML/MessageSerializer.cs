@@ -471,6 +471,9 @@ namespace NServiceBus.Serializers.XML
 
                 if (type.IsEnum)
                     return Enum.Parse(type, n.ChildNodes[0].InnerText);
+
+                if (type == typeof(byte[]))
+                    return Convert.FromBase64String(n.ChildNodes[0].InnerText);
             }
 
             //Handle dictionaries
@@ -707,26 +710,35 @@ namespace NServiceBus.Serializers.XML
             {
                 builder.AppendFormat("<{0}>\n", name);
 
-                Type baseType = typeof(object);
-
-                //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
-                foreach(Type interfaceType in type.GetInterfaces())
+                if (type == typeof(byte[]))
                 {
-                    Type[] arr = interfaceType.GetGenericArguments();
-                    if (arr.Length == 1)
-                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
-                        {
-                            baseType = arr[0];
-                            break;
-                        }
+                    var str = Convert.ToBase64String((byte[])value);
+                    builder.Append(str);
                 }
+                else
+                {
+                    Type baseType = typeof(object);
+
+                    //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
+                    foreach(Type interfaceType in type.GetInterfaces())
+                    {
+                        Type[] arr = interfaceType.GetGenericArguments();
+                        if (arr.Length == 1)
+                            if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
+                            {
+                                baseType = arr[0];
+                                break;
+                            }
+                    }
 
 
-                foreach (object obj in ((IEnumerable)value))
-                    if (obj.GetType().IsSimpleType())
-                        WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
-                    else
-                        WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
+                    foreach (object obj in ((IEnumerable)value))
+                        if (obj.GetType().IsSimpleType())
+                            WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
+                        else
+                            WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
+
+                }
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
