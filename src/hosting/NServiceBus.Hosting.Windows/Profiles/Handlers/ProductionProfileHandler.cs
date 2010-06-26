@@ -1,5 +1,4 @@
 ﻿using NServiceBus.Hosting.Profiles;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -10,7 +9,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             Configure.Instance
                 .NHibernateSagaPersister();
 
-            Configure.Instance.Configurer.ConfigureComponent<Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.MessageForwardingInCaseOfFault();
 
             if (Config is AsA_Publisher)
                 Configure.Instance.DBSubcriptionStorage();

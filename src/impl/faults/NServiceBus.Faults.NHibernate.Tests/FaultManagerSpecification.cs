@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using NHibernate.ByteCode.LinFu;

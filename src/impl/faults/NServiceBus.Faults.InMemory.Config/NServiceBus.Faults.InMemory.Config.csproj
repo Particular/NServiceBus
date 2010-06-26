@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{81D0B1CB-9620-4C0E-ACDA-7ABB6359FB74}</ProjectGuid>
+    <ProjectGuid>{7604F70B-DDF2-474A-97E7-6FB1C888D2FA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Faults.Forwarder</RootNamespace>
-    <AssemblyName>NServiceBus.Faults.Forwarder</AssemblyName>
+    <RootNamespace>NServiceBus.Faults.InMemory.Config</RootNamespace>
+    <AssemblyName>NServiceBus.Faults.InMemory.Config</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\NServiceBus.Faults.InMemory.Config.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,44 +32,46 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Faults, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ConfigureFaultsForwarder.cs" />
-    <Compile Include="ExceptionInfo.cs" />
-    <Compile Include="ExceptionSanitizer.cs" />
-    <Compile Include="FaultManager.cs" />
-    <Compile Include="ProcessingFailedMessage.cs" />
+    <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerializationFailedMessage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Faults\NServiceBus.Faults.csproj">
-      <Project>{EF79596C-0636-4CE0-945C-966F95F3909F}</Project>
-      <Name>NServiceBus.Faults</Name>
+    <ProjectReference Include="..\NServiceBus.Faults.InMemory\NServiceBus.Faults.InMemory.csproj">
+      <Project>{192A06E8-1BFE-4D03-9902-B8F529EDE6F4}</Project>
+      <Name>NServiceBus.Faults.InMemory</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

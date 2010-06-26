@@ -14,7 +14,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             Configure.Instance
                 .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
-            Configure.Instance.Configurer.ConfigureComponent<Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.MessageForwardingInCaseOfFault();
 
             AppDomain.CurrentDomain.UnhandledException += (o, e) =>
             {

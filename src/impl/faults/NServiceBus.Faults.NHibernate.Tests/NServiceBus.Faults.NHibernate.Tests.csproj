@@ -33,66 +33,70 @@
   <ItemGroup>
     <Reference Include="FluentNHibernate, Version=1.0.0.597, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NBehave.Spec.Framework, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\tools\NBehave\NBehave.Spec.Framework.dll</HintPath>
     </Reference>
     <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
+      <HintPath>..\..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.ByteCode.LinFu, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\NHibernate.ByteCode.LinFu.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Faults, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.Common, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Common.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Common.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.Common.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Common.Config.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.Common.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.5.0.1337, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.64.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\sqlite\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="When_handling_fault_caused_by_a_nested_exception.cs" />
     <Compile Include="When_configuring_nhibernate_fault_manager_to_use_sqlite.cs" />
@@ -107,10 +111,6 @@
     <ProjectReference Include="..\NServiceBus.Faults.NHibernate\NServiceBus.Faults.NHibernate.csproj">
       <Project>{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}</Project>
       <Name>NServiceBus.Faults.NHibernate</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Faults\NServiceBus.Faults.csproj">
-      <Project>{EF79596C-0636-4CE0-945C-966F95F3909F}</Project>
-      <Name>NServiceBus.Faults</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

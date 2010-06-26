@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;

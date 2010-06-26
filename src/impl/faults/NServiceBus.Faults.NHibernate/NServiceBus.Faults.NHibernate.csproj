@@ -33,39 +33,48 @@
   <ItemGroup>
     <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="FluentNHibernate, Version=1.0.0.597, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\FluentNHibernate\FluentNHibernate.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NHibernate, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\NHibernate.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NHibernate.ByteCode.LinFu, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\NHibernate.ByteCode.LinFu.dll</HintPath>
+      <HintPath>..\..\..\..\external-bin\NHibernate.ByteCode.LinFu.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Faults, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -75,8 +84,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigureNHibernateFaultManager.cs" />
     <Compile Include="FailureInfo.cs" />
@@ -85,12 +94,6 @@
     <Compile Include="MultiConfiguration.cs" />
     <Compile Include="ConfigurationSectionHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Faults\NServiceBus.Faults.csproj">
-      <Project>{EF79596C-0636-4CE0-945C-966F95F3909F}</Project>
-      <Name>NServiceBus.Faults</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

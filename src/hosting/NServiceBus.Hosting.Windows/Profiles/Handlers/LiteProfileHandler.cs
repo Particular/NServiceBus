@@ -1,5 +1,4 @@
 ﻿using NServiceBus.Hosting.Profiles;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -9,7 +8,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         {
             Configure.Instance.InMemorySagaPersister();
 
-            Configure.Instance.Configurer.ConfigureComponent<Faults.InMemory.FaultManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.InMemoryFaultManagement();
 
             if (Config is AsA_Publisher)
                 Configure.Instance.InMemorySubscriptionStorage();
