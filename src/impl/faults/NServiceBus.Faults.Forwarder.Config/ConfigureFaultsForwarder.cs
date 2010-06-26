@@ -35,7 +35,7 @@ namespace NServiceBus
                 errorQueue = section.ErrorQueue;
 
             config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singlecall)
-                .ConfigureProperty(fm => fm.AggregatorEndpoint, errorQueue);
+                .ConfigureProperty(fm => fm.ErrorQueue, errorQueue);
 
             return config;
         }
