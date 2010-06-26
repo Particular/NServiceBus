@@ -56,7 +56,7 @@ namespace NServiceBus.Unicast.Config
         private void RegisterMessageModules()
         {
             TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
-                type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singleton)
+                type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singlecall)
                 );
         }
 
