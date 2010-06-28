@@ -1,6 +1,6 @@
 
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cashier", "Cashier\Cashier.csproj", "{DCCBF183-A703-4999-BB10-046E6C2800B9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customer", "Customer\Customer.csproj", "{88B4585B-A73D-4EFC-9FA4-14B33FBBBE79}"

@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport.Msmq", "NServiceBus.Unicast.Transport.Msmq.csproj", "{487809CE-0B5D-4425-A6CA-06F7C444DBCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Transport.Msmq.Config", "NServiceBus.Unicast.Transport.Msmq.Config\NServiceBus.Unicast.Transport.Msmq.Config.csproj", "{2D3D9033-200C-423E-BF8A-8FB40D8D1572}"

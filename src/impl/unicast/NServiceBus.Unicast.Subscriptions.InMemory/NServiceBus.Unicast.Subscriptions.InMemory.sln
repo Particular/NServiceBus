@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions.InMemory", "NServiceBus.Unicast.Subscriptions.InMemory.csproj", "{34BFC9A1-7A28-48C9-B909-397B05204BD9}"
 EndProject
 Global

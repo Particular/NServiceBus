@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Config", "NServiceBus.Config\NServiceBus.Config.csproj", "{444FAA3D-D5E1-498E-9AE1-201DB619CAF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Config.UnitTests", "NServiceBus.Config.UnitTests\NServiceBus.Config.UnitTests.csproj", "{3F2577A6-D767-4A02-92A6-725B0FA7A9C5}"

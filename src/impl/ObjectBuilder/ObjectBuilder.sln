@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor", "ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj", "{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.StructureMap", "ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj", "{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}"

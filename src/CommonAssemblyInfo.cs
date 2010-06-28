@@ -20,6 +20,5 @@ using System.Security;
 [assembly: AssemblyCompanyAttribute("NServiceBus")]
 [assembly: AssemblyConfigurationAttribute("release")]
 [assembly: AssemblyInformationalVersionAttribute("2.1.0.0000")]
-[assembly: AllowPartiallyTrustedCallersAttribute()]
 [assembly: ComVisibleAttribute(false)]
 

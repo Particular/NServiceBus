@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate", "NServiceBus.SagaPersisters.NHibernate\NServiceBus.SagaPersisters.NHibernate.csproj", "{4A904B94-8DC4-4C02-A4FD-374E78990374}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SagaPersisters.NHibernate.Tests", "NServiceBus.SagaPersisters.NHibernate.Tests\NServiceBus.SagaPersisters.NHibernate.Tests.csproj", "{7F1A7421-0335-43D4-8C50-4ED444D19336}"

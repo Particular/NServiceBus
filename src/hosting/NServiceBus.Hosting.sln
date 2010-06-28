@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting", "NServiceBus.Hosting\NServiceBus.Hosting.csproj", "{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Hosting.Tests", "NServiceBus.Hosting.Tests\NServiceBus.Hosting.Tests.csproj", "{93B2CD66-7860-47A3-A039-B7D778E9A8F4}"

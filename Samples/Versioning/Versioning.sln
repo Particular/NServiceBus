@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V1.Messages", "V1.Messages\V1.Messages.csproj", "{9D27D517-B938-4594-8836-CE06A2955FFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V2.Messages", "V2.Messages\V2.Messages.csproj", "{D22F0CFF-D47F-4541-BD6D-3F07808EE468}"

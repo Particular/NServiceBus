@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Saga", "NServiceBus.Saga\NServiceBus.Saga.csproj", "{C1DE5465-4694-475A-8D06-E17733C41D69}"

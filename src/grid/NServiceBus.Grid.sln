@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Grid.Messages", "NServiceBus.Grid.Messages\NServiceBus.Grid.Messages.csproj", "{1C22F3DF-F020-491D-A680-5AE98D390140}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Grid.MessageHandlers", "NServiceBus.Grid.MessageHandlers\NServiceBus.Grid.MessageHandlers.csproj", "{02D21488-C00A-4DD2-97BE-C0EA1CDB7206}"

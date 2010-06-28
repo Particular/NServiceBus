@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.MessageHandlers", "Timeout.MessageHandlers\Timeout.MessageHandlers.csproj", "{7EA93511-0B01-4E6B-95C4-A3069A4A107A}"
 EndProject
 Global

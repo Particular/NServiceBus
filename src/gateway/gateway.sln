@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway", "NServiceBus.Gateway\NServiceBus.Gateway.csproj", "{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}"
 EndProject
 Global

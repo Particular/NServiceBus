@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Encryption", "NServiceBus.Encryption\NServiceBus.Encryption.csproj", "{5F4AD8CE-D651-4891-BBAD-116F341163C1}"
 EndProject
 Global

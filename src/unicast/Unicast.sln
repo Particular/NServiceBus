@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast", "NServiceBus.Unicast\NServiceBus.Unicast.csproj", "{EB2C42A2-70FD-4469-959B-C577470B001B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions", "NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj", "{CD9FA43E-A56D-4B62-8245-F911B137EC09}"
