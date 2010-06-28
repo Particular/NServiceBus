@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Faults.InMemory", "NServiceBus.Faults.InMemory\NServiceBus.Faults.InMemory.csproj", "{192A06E8-1BFE-4D03-9902-B8F529EDE6F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Faults.Forwarder", "NServiceBus.Faults.Forwarder\NServiceBus.Faults.Forwarder.csproj", "{81D0B1CB-9620-4C0E-ACDA-7ABB6359FB74}"
