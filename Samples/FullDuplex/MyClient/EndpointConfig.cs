@@ -9,6 +9,7 @@ namespace MyClient
         public void Init()
         {
             Configure.Instance.RijndaelEncryptionService();
+            Configure.Instance.UnicastBus().DoNotAutoSubscribe();
         }
     }
 }
