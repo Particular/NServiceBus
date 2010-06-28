@@ -22,9 +22,9 @@ using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
-	/// <summary>
-	/// A unicast implementation of <see cref="IBus"/> for NServiceBus.
-	/// </summary>
+    /// <summary>
+    /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
+    /// </summary>
     public class UnicastBus : IUnicastBus, IStartableBus
     {
         /// <summary>
@@ -39,7 +39,7 @@ namespace NServiceBus.Unicast
 
         #region config properties
 
-	    private bool autoSubscribe = true;
+        private bool autoSubscribe = true;
 
         /// <summary>
         /// When set, when starting up, the bus performs 
@@ -47,18 +47,18 @@ namespace NServiceBus.Unicast
         /// handlers and that are owned by a different endpoint.
         /// Default is true.
         /// </summary>
-	    public bool AutoSubscribe
-	    {
+        public bool AutoSubscribe
+        {
             get { return autoSubscribe; }
             set { autoSubscribe = value; }
-	    }
+        }
 
         private bool disableMessageHandling;
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
-		/// </summary>
+        /// </summary>
         public virtual bool DisableMessageHandling
         {
             set { disableMessageHandling = value; }
@@ -74,11 +74,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected ITransport transport;
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets an <see cref="ITransport"/> implementation to use as the
-		/// listening endpoint for the bus.
-		/// </summary>
+        /// listening endpoint for the bus.
+        /// </summary>
         public virtual ITransport Transport
         {
             set
@@ -100,26 +100,26 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Object used to manage units of work.
         /// </summary>
-        public IManageUnitsOfWork UnitOfWorkManager { get; set;  }
+        public IManageUnitsOfWork UnitOfWorkManager { get; set; }
 
-	    /// <summary>
-		/// A delegate for a method that will handle the <see cref="MessageReceived"/>
-		/// event.
-		/// </summary>
-		/// <param name="message">The message received.</param>
+        /// <summary>
+        /// A delegate for a method that will handle the <see cref="MessageReceived"/>
+        /// event.
+        /// </summary>
+        /// <param name="message">The message received.</param>
         public delegate void MessageReceivedDelegate(TransportMessage message);
 
-		/// <summary>
-		/// Event raised when a message is received.
-		/// </summary>
+        /// <summary>
+        /// Event raised when a message is received.
+        /// </summary>
         public event MessageReceivedDelegate MessageReceived;
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Gets and sets an <see cref="ISubscriptionStorage"/> implementation to
-		/// be used for subscription storage for the bus.
-		/// </summary>
-        public virtual ISubscriptionStorage SubscriptionStorage { get; set;  }
+        /// be used for subscription storage for the bus.
+        /// </summary>
+        public virtual ISubscriptionStorage SubscriptionStorage { get; set; }
 
         /// <summary>
         /// Should be used by the programmer, not the administrator.
@@ -128,11 +128,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual IMessageSerializer MessageSerializer { get; set; }
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
-		/// dynamically instantiate and execute message handlers.
-		/// </summary>
+        /// dynamically instantiate and execute message handlers.
+        /// </summary>
         public IBuilder Builder { get; set; }
 
         private IMessageMapper messageMapper;
@@ -140,42 +140,42 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Gets/sets the message mapper.
         /// </summary>
-	    public virtual IMessageMapper MessageMapper
-	    {
+        public virtual IMessageMapper MessageMapper
+        {
             get { return messageMapper; }
-            set 
-            { 
+            set
+            {
                 messageMapper = value;
 
                 ExtensionMethods.MessageCreator = value;
                 ExtensionMethods.Bus = this;
             }
-	    }
+        }
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets whether or not the return address of a received message 
-		/// should be propogated when the message is forwarded. This field is
-		/// used primarily for the Distributor.
-		/// </summary>
+        /// should be propogated when the message is forwarded. This field is
+        /// used primarily for the Distributor.
+        /// </summary>
         public bool PropogateReturnAddressOnSend { get; set; }
 
-		/// <summary>
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets whether or not the bus should impersonate the sender
-		/// of a message it has received when re-sending the message.
-		/// What occurs is that the thread sets its current principal
+        /// of a message it has received when re-sending the message.
+        /// What occurs is that the thread sets its current principal
         /// to the value found in the header called <see cref="WINDOWSIDENTITYNAME" />
         /// when that thread handles a message.
-		/// </summary>
+        /// </summary>
         public virtual bool ImpersonateSender { get; set; }
 
-		/// <summary>
+        /// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the address to which the messages received on this bus
-		/// will be sent when the method HandleCurrentMessageLater is called.
-		/// </summary>
-        public string DistributorDataAddress { get; set; }        
+        /// will be sent when the method HandleCurrentMessageLater is called.
+        /// </summary>
+        public string DistributorDataAddress { get; set; }
 
         /// <summary>
         /// Should be used by administrator, not programmer.
@@ -198,17 +198,17 @@ namespace NServiceBus.Unicast
         /// </summary>
         public string ForwardReceivedMessagesTo { get; set; }
 
-		/// <summary>
-		/// Should be used by administrator, not programmer.
-		/// Sets the message types associated with the bus.
-		/// </summary>
-		/// <remarks>
-		/// This property accepts a dictionary where the key can be the name of a type implementing
-		/// <see cref="IMessage"/> or the name of an assembly that contains message types.  The value 
-		/// of each entry is the address of the owner of the message type defined in the key.
-		/// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
-		/// will be registered against the address defined in the value of the entry.
-		/// </remarks>
+        /// <summary>
+        /// Should be used by administrator, not programmer.
+        /// Sets the message types associated with the bus.
+        /// </summary>
+        /// <remarks>
+        /// This property accepts a dictionary where the key can be the name of a type implementing
+        /// <see cref="IMessage"/> or the name of an assembly that contains message types.  The value 
+        /// of each entry is the address of the owner of the message type defined in the key.
+        /// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
+        /// will be registered against the address defined in the value of the entry.
+        /// </remarks>
         public IDictionary MessageOwners
         {
             get { return messageOwners; }
@@ -222,7 +222,7 @@ namespace NServiceBus.Unicast
 
         /// <summary>
         /// Sets the list of assemblies which contain a message handlers
-		/// for the bus.
+        /// for the bus.
         /// </summary>
         public virtual IList MessageHandlerAssemblies
         {
@@ -247,7 +247,7 @@ namespace NServiceBus.Unicast
             {
                 messageHandlerTypes = value;
 
-                foreach(Type t in value)
+                foreach (Type t in value)
                     IfTypeIsMessageHandlerThenLoad(t);
             }
         }
@@ -351,17 +351,17 @@ namespace NServiceBus.Unicast
             Publish(CreateInstance(messageConstructor));
         }
 
-		/// <summary>
-		/// Publishes the messages to all subscribers of the first message's type.
-		/// </summary>
-		/// <param name="messages"></param>
+        /// <summary>
+        /// Publishes the messages to all subscribers of the first message's type.
+        /// </summary>
+        /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages) where T : IMessage
         {
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
             var subscribers = SubscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
-            
+
             if (subscribers.Count() == 0)
                 if (NoSubscribersForMessage != null)
                     NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
@@ -378,10 +378,10 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T));
         }
 
-		/// <summary>
-		/// Subcribes to recieve published messages of the specified type.
-		/// </summary>
-		/// <param name="messageType">The type of message to subscribe to.</param>
+        /// <summary>
+        /// Subcribes to recieve published messages of the specified type.
+        /// </summary>
+        /// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
         {
             Subscribe(messageType, null);
@@ -399,7 +399,7 @@ namespace NServiceBus.Unicast
             {
                 if (m is T)
                     return condition((T)m);
-                
+
                 return true;
             }
             );
@@ -407,12 +407,12 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T), p);
         }
 
-		/// <summary>
-		/// Subscribes to receive published messages of the specified type if
-		/// they meet the provided condition.
-		/// </summary>
-		/// <param name="messageType">The type of message to subscribe to.</param>
-		/// <param name="condition">The condition under which to receive the message.</param>
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type if
+        /// they meet the provided condition.
+        /// </summary>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        /// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<IMessage> condition)
         {
             AssertBusIsStarted();
@@ -426,7 +426,7 @@ namespace NServiceBus.Unicast
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
-		    ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+            ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
@@ -440,10 +440,10 @@ namespace NServiceBus.Unicast
             Unsubscribe(typeof(T));
         }
 
-		/// <summary>
-		/// Unsubscribes from receiving published messages of the specified type.
-		/// </summary>
-		/// <param name="messageType"></param>
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
             var destination = GetDestinationForMessageType(messageType);
@@ -533,7 +533,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.Send(params IMessage[] messages)
         {
-		    var destination = GetDestinationForMessages(messages);
+            var destination = GetDestinationForMessages(messages);
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
@@ -666,8 +666,8 @@ namespace NServiceBus.Unicast
         public static IList<string> DeserializeEnclosedMessageTypes(string serialized)
         {
             string temp = serialized.Replace("<MessageTypes><s>", "");
-            temp = temp.Replace("</s></MessageTypes>","");
-            string[] arr = temp.Split(new[] {"</s><s>"}, StringSplitOptions.RemoveEmptyEntries);
+            temp = temp.Replace("</s></MessageTypes>", "");
+            string[] arr = temp.Split(new[] { "</s><s>" }, StringSplitOptions.RemoveEmptyEntries);
 
             return new List<string>(arr);
         }
@@ -696,7 +696,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Implementation of IStartableBus.Started event.
         /// </summary>
-	    public event EventHandler Started;
+        public event EventHandler Started;
 
         IBus IStartableBus.Start()
         {
@@ -798,7 +798,7 @@ namespace NServiceBus.Unicast
             if (startup)
             {
                 messages = new IMessage[transport.NumberOfWorkerThreads];
-                for(var i=0; i < transport.NumberOfWorkerThreads; i++)
+                for (var i = 0; i < transport.NumberOfWorkerThreads; i++)
                 {
                     var rm = new ReadyMessage
                                  {
@@ -845,13 +845,13 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
 
-	    [ThreadStatic] 
+        [ThreadStatic]
         private static IDictionary<string, string> _outgoingHeaders = new Dictionary<string, string>();
 
         //private static IDictionary<string, string> OutgoingHeaders 
 
-	    IDictionary<string, string> IBus.OutgoingHeaders
-	    {
+        IDictionary<string, string> IBus.OutgoingHeaders
+        {
             get
             {
                 if (_outgoingHeaders == null)
@@ -859,7 +859,7 @@ namespace NServiceBus.Unicast
 
                 return _outgoingHeaders;
             }
-	    }
+        }
 
         IMessageContext IBus.CurrentMessageContext
         {
@@ -877,11 +877,11 @@ namespace NServiceBus.Unicast
         /// Handles a received message.
         /// </summary>
         /// <param name="m">The received message.</param>
-		/// <remarks>
-		/// run by multiple threads so must be thread safe
-		/// public for testing
-		/// </remarks>
-		public void HandleMessage(TransportMessage m)
+        /// <remarks>
+        /// run by multiple threads so must be thread safe
+        /// public for testing
+        /// </remarks>
+        public void HandleMessage(TransportMessage m)
         {
             HandleImpersonation(m);
 
@@ -894,25 +894,40 @@ namespace NServiceBus.Unicast
             HandleCorellatedMessage(m, messages);
 
             if (messages != null)
-                foreach (var toHandle in messages)
+                foreach (var originalMessage in messages)
                 {
-                    ExtensionMethods.CurrentMessageBeingHandled = toHandle;
+                    var messageToHandle = ApplyIncomingMessageMutatorsTo(originalMessage);
+
+                    ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
                     var canDispatch = true;
-                    foreach (var condition in subscriptionsManager.GetConditionsForMessage(toHandle))
+                    foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
                     {
-                        if (condition(toHandle)) continue;
+                        if (condition(messageToHandle)) continue;
 
-                        Log.Debug(string.Format("Condition {0} failed for message {1}", condition, toHandle.GetType().Name));
+                        Log.Debug(string.Format("Condition {0} failed for message {1}", condition, messageToHandle.GetType().Name));
                         canDispatch = false;
                         break;
                     }
 
                     if (canDispatch)
-                        DispatchMessageToHandlersBasedOnType(toHandle, toHandle.GetType());
+                        DispatchMessageToHandlersBasedOnType(messageToHandle, messageToHandle.GetType());
                 }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
+        }
+
+        IMessage ApplyIncomingMessageMutatorsTo(IMessage originalMessage)
+        {
+            var mutators = Builder.BuildAll<IMutateIncomingMessages>();
+
+            var mutatedMessage = originalMessage;
+            mutators.ToList().ForEach(m =>
+            {
+                mutatedMessage = m.MutateIncoming(mutatedMessage);
+            });
+
+            return mutatedMessage;
         }
 
         private void HandleImpersonation(TransportMessage m)
@@ -935,18 +950,18 @@ namespace NServiceBus.Unicast
             }
         }
 
-		/// <summary>
-		/// Finds the message handlers associated with the message type and dispatches
-		/// the message to the found handlers.
-		/// </summary>
-		/// <param name="toHandle">The message to dispatch to the handlers.</param>
-		/// <param name="messageType">The message type by which to locate the correct handlers.</param>
-		/// <returns></returns>
-		/// <remarks>
-		/// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
-		/// this prevents the message from being further dispatched.
-		/// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
-		/// </remarks>
+        /// <summary>
+        /// Finds the message handlers associated with the message type and dispatches
+        /// the message to the found handlers.
+        /// </summary>
+        /// <param name="toHandle">The message to dispatch to the handlers.</param>
+        /// <param name="messageType">The message type by which to locate the correct handlers.</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
+        /// this prevents the message from being further dispatched.
+        /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
+        /// </remarks>
         private void DispatchMessageToHandlersBasedOnType(IMessage toHandle, Type messageType)
         {
             foreach (var messageHandlerType in GetHandlerTypes(messageType))
@@ -956,7 +971,7 @@ namespace NServiceBus.Unicast
                     Log.Debug("Activating: " + messageHandlerType.Name);
 
                     Builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
-                    
+
                     Log.Debug(messageHandlerType.Name + " Done.");
 
                     if (_doNotContinueDispatchingCurrentMessageToHandlers)
@@ -976,24 +991,24 @@ namespace NServiceBus.Unicast
 
         private Action<object> GetAction<T>(T message) where T : IMessage
         {
-            return (o => 
+            return (o =>
                 {
                     var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[o.GetType()];
-                    foreach(var messageType in messageTypesToMethods.Keys)
+                    foreach (var messageType in messageTypesToMethods.Keys)
                         if (messageType.IsAssignableFrom(message.GetType()))
                             messageTypesToMethods[messageType].Invoke(o, new object[] { message });
                 }
             );
         }
 
-		/// <summary>
-		/// Gets the inner most exception from an exception stack.
-		/// </summary>
-		/// <param name="e">The exception to get the inner most exception for.</param>
-		/// <returns>The innermost exception.</returns>
-		/// <remarks>
-		/// If the exception has no inner exceptions the provided exception will be returned.
-		/// </remarks>
+        /// <summary>
+        /// Gets the inner most exception from an exception stack.
+        /// </summary>
+        /// <param name="e">The exception to get the inner most exception for.</param>
+        /// <returns>The innermost exception.</returns>
+        /// <remarks>
+        /// If the exception has no inner exceptions the provided exception will be returned.
+        /// </remarks>
         private static Exception GetInnermostException(Exception e)
         {
             var result = e;
@@ -1003,10 +1018,10 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-		/// <summary>
-		/// If the message contains a correlationId, attempts to
-		/// invoke callbacks for that Id.
-		/// </summary>
+        /// <summary>
+        /// If the message contains a correlationId, attempts to
+        /// invoke callbacks for that Id.
+        /// </summary>
         /// <param name="msg">The message to evaluate.</param>
         /// <param name="messages">The logical messages in the transport message.</param>
         private void HandleCorellatedMessage(TransportMessage msg, IMessage[] messages)
@@ -1034,18 +1049,18 @@ namespace NServiceBus.Unicast
                     }
         }
 
-		/// <summary>
+        /// <summary>
         /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
-		/// for the bus.
-		/// </summary>
-		/// <param name="sender">The sender of the event.</param>
-		/// <param name="e">The arguments for the event.</param>
-		/// <remarks>
+        /// for the bus.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The arguments for the event.</param>
+        /// <remarks>
         /// When the transport passes up the <see cref="TransportMessage"/> its received,
-		/// the bus checks for initializiation, 
-		/// sets the message as that which is currently being handled for the current thread
-		/// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
-		/// </remarks>
+        /// the bus checks for initializiation, 
+        /// sets the message as that which is currently being handled for the current thread
+        /// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
+        /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             var msg = e.Message;
@@ -1260,7 +1275,7 @@ namespace NServiceBus.Unicast
                         continue;
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Log.Error("Problem loading message type: " + key, ex);
                 }
@@ -1271,7 +1286,7 @@ namespace NServiceBus.Unicast
                     foreach (var t in a.GetTypes())
                         RegisterMessageType(t, de.Value.ToString(), true);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new ArgumentException("Problem loading message assembly: " + key, ex);
                 }
@@ -1289,20 +1304,20 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(m, ForwardReceivedMessagesTo);
         }
 
-		/// <summary>
-		/// Registers a message type to a destination.
-		/// </summary>
-		/// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
-		/// <param name="destination">The address of the destination the message type is registered to.</param>
-		/// <param name="configuredByAssembly">
-		/// Indicates whether or not this registration call is related to a type configured from an
-		/// assembly.
-		/// </param>
-		/// <remarks>
-		/// Since the same message type may be configured specifically to one address
-		/// and via its assembly to a different address, the configuredByAssembly
-		/// parameter dictates that the specific message type data is to be used.
-		/// </remarks>
+        /// <summary>
+        /// Registers a message type to a destination.
+        /// </summary>
+        /// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
+        /// <param name="destination">The address of the destination the message type is registered to.</param>
+        /// <param name="configuredByAssembly">
+        /// Indicates whether or not this registration call is related to a type configured from an
+        /// assembly.
+        /// </param>
+        /// <remarks>
+        /// Since the same message type may be configured specifically to one address
+        /// and via its assembly to a different address, the configuredByAssembly
+        /// parameter dictates that the specific message type data is to be used.
+        /// </remarks>
         public void RegisterMessageType(Type messageType, string destination, bool configuredByAssembly)
         {
             if (typeof(IMessage) == messageType)
@@ -1324,41 +1339,43 @@ namespace NServiceBus.Unicast
                     timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
 
                 return;
-            }            
+            }
         }
 
-		/// <summary>
-		/// Checks whether or not the existing configuration can be overridden for a message type.
-		/// </summary>
-		/// <param name="messageType">The type of message to check the configuration for.</param>
-		/// <param name="configuredByAssembly">
-		/// Indicates whether or not this check is related to a type configured from an
-		/// assembly.
-		/// </param>
-		/// <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
+        /// <summary>
+        /// Checks whether or not the existing configuration can be overridden for a message type.
+        /// </summary>
+        /// <param name="messageType">The type of message to check the configuration for.</param>
+        /// <param name="configuredByAssembly">
+        /// Indicates whether or not this check is related to a type configured from an
+        /// assembly.
+        /// </param>
+        /// <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
         private bool MustNotOverrideExistingConfiguration(Type messageType, bool configuredByAssembly)
         {
             return messageTypeToDestinationLookup.ContainsKey(messageType) && configuredByAssembly;
         }
 
-		/// <summary>
-		/// Wraps the provided messages in an NServiceBus envelope, does not include destination.
-		/// </summary>
-        /// <param name="messages">The messages to wrap.</param>
+        /// <summary>
+        /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
+        /// </summary>
+        /// <param name="rawMessages">The messages to wrap.</param>
         /// <returns>The envelope containing the messages.</returns>
-        protected TransportMessage GetTransportMessageFor(params IMessage[] messages)
+        protected TransportMessage GetTransportMessageFor(params IMessage[] rawMessages)
         {
-		    var result = new TransportMessage();
+            var result = new TransportMessage();
+            var ms = new MemoryStream();
 
-		    var ms = new MemoryStream();
-		    MessageSerializer.Serialize(messages, ms);
-		    result.Body = ms.ToArray();
+            var messages = ApplyOutgoingMessageMutatorsTo(rawMessages);
 
-		    if (PropogateReturnAddressOnSend)
+            MessageSerializer.Serialize(messages.ToArray(), ms);
+            result.Body = ms.ToArray();
+
+            if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = Address;
 
-		    result.Headers = HeaderAdapter.From(_outgoingHeaders);
-		    result.Headers.Add(new HeaderInfo {Key = WINDOWSIDENTITYNAME, Value = Thread.CurrentPrincipal.Identity.Name});
+            result.Headers = HeaderAdapter.From(_outgoingHeaders);
+            result.Headers.Add(new HeaderInfo { Key = WINDOWSIDENTITYNAME, Value = Thread.CurrentPrincipal.Identity.Name });
 
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -1376,6 +1393,24 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+        IEnumerable<IMessage> ApplyOutgoingMessageMutatorsTo(IEnumerable<IMessage> messages)
+        {
+            var mutators = Builder.BuildAll<IMutateOutgoingMessages>();
+
+            foreach (var originalMessage in messages)
+            {
+
+                var mutatedMessage = originalMessage;
+                mutators.ToList().ForEach(m =>
+                {
+                    mutatedMessage = m.MutateOutgoing(mutatedMessage);
+                });
+
+                yield return mutatedMessage;
+            }
+
+        }
+
         private TimeSpan GetTimeToBeReceivedForMessageType(Type messageType)
         {
             var result = TimeSpan.MaxValue;
@@ -1389,7 +1424,7 @@ namespace NServiceBus.Unicast
             }
 
             var options = new List<TimeSpan>();
-            foreach(var interfaceType in messageType.GetInterfaces())
+            foreach (var interfaceType in messageType.GetInterfaces())
             {
                 if (timeToBeReceivedPerMessageType.ContainsKey(interfaceType))
                     options.Add(timeToBeReceivedPerMessageType[interfaceType]);
@@ -1424,10 +1459,10 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-		/// <summary>
-		/// Evaluates a type and loads it if it implements IMessageHander{T}.
-		/// </summary>
-		/// <param name="t">The type to evaluate.</param>
+        /// <summary>
+        /// Evaluates a type and loads it if it implements IMessageHander{T}.
+        /// </summary>
+        /// <param name="t">The type to evaluate.</param>
         private void IfTypeIsMessageHandlerThenLoad(Type t)
         {
             if (t.IsAbstract)
@@ -1437,7 +1472,7 @@ namespace NServiceBus.Unicast
             if (typeof(ISaga).IsAssignableFrom(t))
                 skipHandlerRegistration = true;
 
-            foreach(var messageType in GetMessageTypesIfIsMessageHandler(t))
+            foreach (var messageType in GetMessageTypesIfIsMessageHandler(t))
             {
                 if (skipHandlerRegistration)
                     continue;
@@ -1488,21 +1523,21 @@ namespace NServiceBus.Unicast
                     if (args.Length != 1)
                         continue;
 
-                    if (!typeof (IMessage).IsAssignableFrom(args[0]))
+                    if (!typeof(IMessage).IsAssignableFrom(args[0]))
                         continue;
 
-                    var handlerType = typeof (IMessageHandler<>).MakeGenericType(args[0]);
+                    var handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
                     if (handlerType.IsAssignableFrom(t))
                         yield return args[0];
                 }
             }
         }
 
-		/// <summary>
-		/// Gets a list of handler types associated with a message type.
-		/// </summary>
-		/// <param name="messageType">The type of message to get the handlers for.</param>
-		/// <returns>The list of handler types associated with the message type.</returns>
+        /// <summary>
+        /// Gets a list of handler types associated with a message type.
+        /// </summary>
+        /// <param name="messageType">The type of message to get the handlers for.</param>
+        /// <returns>The list of handler types associated with the message type.</returns>
         private IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
             foreach (var handlerType in handlerList.Keys)
@@ -1538,11 +1573,11 @@ namespace NServiceBus.Unicast
             return GetDestinationForMessageType(messages[0].GetType());
         }
 
-		/// <summary>
-		/// Gets the destination address for a message type.
-		/// </summary>
-		/// <param name="messageType">The message type to get the destination for.</param>
-		/// <returns>The address of the destination associated with the message type.</returns>
+        /// <summary>
+        /// Gets the destination address for a message type.
+        /// </summary>
+        /// <param name="messageType">The message type to get the destination for.</param>
+        /// <returns>The address of the destination associated with the message type.</returns>
         protected string GetDestinationForMessageType(Type messageType)
         {
             string destination;
@@ -1566,7 +1601,7 @@ namespace NServiceBus.Unicast
                 }
             }
 
-		    return destination;
+            return destination;
         }
 
         /// <summary>
@@ -1574,7 +1609,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected void AssertBusIsStarted()
         {
-            if(starting == false)
+            if (starting == false)
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
 
@@ -1582,10 +1617,10 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
-	    private const string WINDOWSIDENTITYNAME = "WinIdName";
+        private const string WINDOWSIDENTITYNAME = "WinIdName";
         /// <summary>
-		/// Gets/sets the subscription manager to use for the bus.
-		/// </summary>
+        /// Gets/sets the subscription manager to use for the bus.
+        /// </summary>
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
         /// <summary>
@@ -1601,18 +1636,18 @@ namespace NServiceBus.Unicast
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
         private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
         private readonly IList<Type> recoverableMessageTypes = new List<Type>();
-	    
+
         private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
         private readonly ReaderWriterLockSlim timeToBeReceivedPerMessageTypeLocker = new ReaderWriterLockSlim();
 
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
-		/// </remarks>
+        /// </remarks>
         private readonly IDictionary<Type, string> messageTypeToDestinationLookup = new Dictionary<Type, string>();
 
-		/// <remarks>
+        /// <remarks>
         /// ThreadStatic
-		/// </remarks>
+        /// </remarks>
         [ThreadStatic]
         static TransportMessage _messageBeingHandled;
 
@@ -1624,9 +1659,10 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// ThreadStatic
         /// </summary>
-	    [ThreadStatic] private static bool _skipSendingReadyMessageOnce;
+        [ThreadStatic]
+        private static bool _skipSendingReadyMessageOnce;
 
-	    private volatile bool started;
+        private volatile bool started;
         private volatile bool starting;
         private readonly object startLocker = new object();
 
