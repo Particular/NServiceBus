@@ -36,10 +36,8 @@
       <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Encryption, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Encryption.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="NServiceBus.Encryption">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
