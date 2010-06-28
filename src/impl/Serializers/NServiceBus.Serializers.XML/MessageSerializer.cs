@@ -10,7 +10,6 @@ using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
 using System.Runtime.Serialization;
 using Common.Logging;
-using NServiceBus.Encryption;
 using NServiceBus.Utils.Reflection;
 using System.Xml.Serialization;
 
@@ -37,11 +36,6 @@ namespace NServiceBus.Serializers.XML
         }
 
         private IMessageMapper mapper;
-
-        /// <summary>
-        /// The encryption service used to encrypt and decrypt WireEncryptedStrings.
-        /// </summary>
-        public IEncryptionService EncryptionService { get; set; }
 
         private string nameSpace = "http://tempuri.net";
 
@@ -335,27 +329,6 @@ namespace NServiceBus.Serializers.XML
             if (t.IsSimpleType())
                 return GetPropertyValue(t, node);
 
-            if (t == typeof(WireEncryptedString))
-            {
-                if (EncryptionService != null)
-                {
-                    var encrypted = GetObjectOfTypeFromNode(typeof (EncryptedValue), node) as EncryptedValue;
-                    var s = EncryptionService.Decrypt(encrypted);
-
-                    return new WireEncryptedString {Value = s};
-                }
-
-                foreach (XmlNode n in node.ChildNodes)
-                    if (n.Name.ToLower() == "encryptedbase64value")
-                    {
-                        var wes = new WireEncryptedString();
-                        wes.Value = GetPropertyValue(typeof (String), n) as string;
-
-                        return wes;
-                    }
-
-            }
-
             if (typeof(IEnumerable).IsAssignableFrom(t))
                 return GetPropertyValue(t, node);
 
@@ -642,17 +615,6 @@ namespace NServiceBus.Serializers.XML
 
         private void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
-            if (value is WireEncryptedString)
-            {
-                if (EncryptionService == null)
-                    throw new InvalidOperationException(String.Format("Cannot encrypt field {0} because no encryption service was configured.", name));
-                
-                var encryptedValue = EncryptionService.Encrypt((value as WireEncryptedString).Value);
-                WriteObject(name, typeof(EncryptedValue), encryptedValue, builder);
-
-                return;
-            }
-
             string element = name;
             string prefix;
             namespacesToPrefix.TryGetValue(type.Namespace, out prefix);

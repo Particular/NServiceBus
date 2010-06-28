@@ -8,8 +8,10 @@ namespace MyClient
     {
         public void Init()
         {
-            Configure.Instance.RijndaelEncryptionService();
-            Configure.Instance.UnicastBus().DoNotAutoSubscribe();
+            Configure.Instance
+                .XmlSerializer()
+                .RijndaelEncryptionService()
+                .UnicastBus().DoNotAutoSubscribe();
         }
     }
 }

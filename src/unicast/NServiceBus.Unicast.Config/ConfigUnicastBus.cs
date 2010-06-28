@@ -1,4 +1,5 @@
 using System;
+using NServiceBus.Encryption;
 using NServiceBus.ObjectBuilder;
 using System.Collections;
 using System.Reflection;
@@ -35,6 +36,8 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
+            RegisterEncryptionMutator();
+
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)
@@ -51,6 +54,11 @@ namespace NServiceBus.Unicast.Config
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
+        }
+
+        void RegisterEncryptionMutator()
+        {
+            Configurer.ConfigureComponent<EncryptionMessageMutator>(ComponentCallModelEnum.Singlecall);
         }
 
         private void RegisterMessageModules()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace NServiceBus
 {
@@ -6,12 +7,32 @@ namespace NServiceBus
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
     [Serializable]
-    public class WireEncryptedString
+    public class WireEncryptedString:ISerializable
     {
+        /// <summary>
+        /// Default contstructor
+        /// </summary>
+        public WireEncryptedString()
+        {}
+
+        /// <summary>
+        /// Deseralizing contructor
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public WireEncryptedString(SerializationInfo info, StreamingContext context)
+        {
+            EncryptedValue = info.GetValue("EncryptedValue", typeof (EncryptedValue)) as EncryptedValue;
+        }
         /// <summary>
         /// The unencrypted string.
         /// </summary>
         public string Value { get; set; }
+
+        /// <summary>
+        /// The encrypted value of this string
+        /// </summary>
+        public EncryptedValue EncryptedValue { get; set; }
 
         /// <summary>
         /// Gets the string value from the WireEncryptedString.
@@ -32,5 +53,27 @@ namespace NServiceBus
         {
             return new WireEncryptedString { Value = s };
         }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("EncryptedValue", EncryptedValue);
+        }
+    }
+
+    /// <summary>
+    /// Class used to represent an encrypted value with an initialization vector.
+    /// </summary>
+    [Serializable]
+    public class EncryptedValue
+    {
+        /// <summary>
+        /// The encrypted value represented as a Base64 string.
+        /// </summary>
+        public string EncryptedBase64Value { get; set; }
+
+        /// <summary>
+        /// The initialization vector represented as a Base64 string.
+        /// </summary>
+        public string Base64Iv { get; set; }
     }
 }

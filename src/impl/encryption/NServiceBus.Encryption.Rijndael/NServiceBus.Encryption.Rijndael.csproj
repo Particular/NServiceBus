@@ -36,6 +36,9 @@
       <HintPath>..\..\..\..\external-bin\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Encryption">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.dll</HintPath>
     </Reference>
