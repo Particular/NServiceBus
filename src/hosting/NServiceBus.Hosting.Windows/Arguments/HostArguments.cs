@@ -12,6 +12,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
             ServiceName = GetArgument(arguments, "serviceName");
             DisplayName = GetArgument(arguments, "displayName");
             Description = GetArgument(arguments, "description");
+            EndpointConfigurationType = GetArgument(arguments, "endpointConfigurationType");
             DependsOn = GetArgument(arguments, "dependsOn");
             StartManually = GetArgument(arguments, "startManually");
             Username = GetArgument(arguments, "username");
@@ -22,6 +23,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
         public IArgument ServiceName { get; set; }
         public IArgument DisplayName { get; set; }
         public IArgument Description { get; set; }
+        public IArgument EndpointConfigurationType { get; set; }
         public IArgument DependsOn { get; set; }
         public IArgument StartManually { get; set; }
         public IArgument Username { get; set; }

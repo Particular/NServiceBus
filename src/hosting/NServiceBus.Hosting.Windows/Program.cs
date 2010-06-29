@@ -29,7 +29,7 @@ namespace NServiceBus.Hosting.Windows
                 return;
             }
 
-            Type endpointConfigurationType = GetEndpointConfigurationType();
+            Type endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
 
@@ -159,11 +159,30 @@ namespace NServiceBus.Hosting.Windows
             return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);
         }
 
-        private static Type GetEndpointConfigurationType()
+        private static Type GetEndpointConfigurationType(HostArguments arguments)
         {
+            if (arguments.EndpointConfigurationType != null)
+            {
+                string t = arguments.EndpointConfigurationType.Value;
+                if (t != null)
+                {
+                    Type endpointType = Type.GetType(t, false);
+                    if (endpointType == null)
+                        throw new ConfigurationErrorsException(string.Format("Command line argument 'endpointConfigurationType' has specified to use the type '{0}' but that type could not be loaded.", t));
+
+                    return endpointType;
+                }
+            }
+
             string endpoint = ConfigurationManager.AppSettings["EndpointConfigurationType"];
             if (endpoint != null)
-                return Type.GetType(endpoint, true);
+            {
+                var endpointType = Type.GetType(endpoint, false);
+                if (endpointType == null)
+                    throw new ConfigurationErrorsException(string.Format("The 'EndpointConfigurationType' entry in the NServiceBus.Host.exe.config has specified to use the type '{0}' but that type could not be loaded.", endpoint));
+
+                return endpointType;
+            }
 
             IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
 
