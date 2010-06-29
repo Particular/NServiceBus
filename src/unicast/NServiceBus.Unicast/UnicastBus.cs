@@ -1195,10 +1195,10 @@ namespace NServiceBus.Unicast
 
             _skipSendingReadyMessageOnce = false;
 
-            foreach (var module in modules)
+            for (int i = modules.Count-1; i >= 0; i--)
             {
-                Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
-                module.HandleEndMessage();
+                Log.Debug("Calling 'HandleEndMessage' on " + modules[i].GetType().FullName);
+                modules[i].HandleEndMessage();
             }
 
             if (UnitOfWorkManager != null)
@@ -1209,15 +1209,15 @@ namespace NServiceBus.Unicast
         {
             var exceptionThrown = false;
 
-            foreach (var module in modules)
+            for (int i = modules.Count - 1; i >= 0; i--)
                 try
                 {
-                    Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
-                    module.HandleError();
+                    Log.Debug("Calling 'HandleError' on " + modules[i].GetType().FullName);
+                    modules[i].HandleError();
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Module " + module.GetType().FullName + " failed when handling error.", ex);
+                    Log.Error("Module " + modules[i].GetType().FullName + " failed when handling error.", ex);
                     exceptionThrown = true;
                 }
 
