@@ -60,7 +60,6 @@
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
-    <Compile Include="IMessageMutator.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

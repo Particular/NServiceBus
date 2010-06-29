@@ -1,4 +1,5 @@
-namespace NServiceBus
+
+namespace NServiceBus.MessageMutator
 {
     /// <summary>
     /// Use this interface to hook into the seralization pipeline

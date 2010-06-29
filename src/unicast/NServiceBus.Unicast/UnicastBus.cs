@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using Common.Logging;
+using NServiceBus.MessageMutator;
 using NServiceBus.Messages;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;

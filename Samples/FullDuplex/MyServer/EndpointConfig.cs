@@ -11,7 +11,6 @@ namespace MyServer
         public void Init()
         {
             Configure.Instance
-                .XmlSerializer()
                 .RijndaelEncryptionService();
         }
     }

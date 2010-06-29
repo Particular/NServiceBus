@@ -9,7 +9,6 @@ namespace MyClient
         public void Init()
         {
             Configure.Instance
-                .XmlSerializer()
                 .RijndaelEncryptionService()
                 .UnicastBus().DoNotAutoSubscribe();
         }
