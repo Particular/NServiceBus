@@ -724,10 +724,6 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-                var mods = Builder.BuildAll<IMessageModule>();
-                if (mods != null)
-                    modules.AddRange(mods);
-
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
 
@@ -1071,6 +1067,11 @@ namespace NServiceBus.Unicast
 
             if (UnitOfWorkManager != null)
                 UnitOfWorkManager.Begin();
+
+            modules = new List<IMessageModule>();
+            var mods = Builder.BuildAll<IMessageModule>();
+            if (mods != null)
+                modules.AddRange(mods);
 
             foreach (var module in modules)
             {
@@ -1625,9 +1626,10 @@ namespace NServiceBus.Unicast
         protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
 
         /// <summary>
-        /// The list of message modules.
+        /// Thread-static list of message modules, needs to be initialized for every transport message
         /// </summary>
-        protected readonly List<IMessageModule> modules = new List<IMessageModule>();
+        [ThreadStatic]
+        static List<IMessageModule> modules;
 
         /// <summary>
         /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
