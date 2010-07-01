@@ -194,7 +194,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,messagemutator,encryption,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,faults,unitofwork,unicast,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
+						in="utils,ObjectBuilder,messageInterfaces,messagemutator,encryption,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,faults,unitofwork,unicast,headers,impl\unicast\queuing,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
