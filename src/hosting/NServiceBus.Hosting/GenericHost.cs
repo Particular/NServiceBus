@@ -16,18 +16,12 @@ namespace NServiceBus.Hosting
     public class GenericHost
     {
         /// <summary>
-        /// Event raised when configuration is complete
-        /// </summary>
-        public static event EventHandler ConfigurationComplete;
-
-        /// <summary>
         /// Does startup work.
         /// </summary>
         public void Start()
         {
             try
             {
-
                 if (specifier is IWantCustomLogging)
                     (specifier as IWantCustomLogging).Init();
                 else
@@ -87,11 +81,8 @@ namespace NServiceBus.Hosting
 
                 if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
                     Configure.Instance.XmlSerializer();
-
-                if (ConfigurationComplete != null)
-                    ConfigurationComplete(this, null);
-
-                var bus = Configure.Instance.Builder.Build<IStartableBus>();
+                
+                var bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();
 

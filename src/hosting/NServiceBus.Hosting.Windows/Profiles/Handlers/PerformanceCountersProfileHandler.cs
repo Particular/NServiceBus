@@ -25,16 +25,17 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
                 throw new InvalidOperationException("NServiceBus performance counters not set up correctly. Running this process with the flag NServiceBus.InstallPerformanceCounters once should rectify this problem.", e);
             }
 
-            GenericHost.ConfigurationComplete += (o, e) =>
-                                                     {
-                                                         var msmqTransport = Configure.Instance.Builder.Build<MsmqTransport>();
-                                                         msmqTransport.TransportMessageReceived += (obj, args) =>
-                                                                                                       {
-                                                                                                           counter.RawValue =
-                                                                                                               Convert.ToInt32((DateTime.Now - args.Message.TimeSent).TotalSeconds);
-
-                                                                                                       };
-                                                     };
+            Configure.ConfigurationComplete += 
+                (o, e) =>
+                {
+                    var msmqTransport = Configure.Instance.Builder.Build<MsmqTransport>();
+                    msmqTransport.TransportMessageReceived += 
+                        (obj, args) =>
+                        {
+                            counter.RawValue =
+                                Convert.ToInt32((DateTime.Now - args.Message.TimeSent).TotalSeconds);
+                        };
+                };
         }
     }
 }
