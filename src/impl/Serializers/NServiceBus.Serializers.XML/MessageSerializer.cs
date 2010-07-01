@@ -172,7 +172,7 @@ namespace NServiceBus.Serializers.XML
 
                 if (args.Length == 2)
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
-                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead.");
 
                 if (!prop.CanWrite && !isKeyValuePair)
                     continue;
