@@ -23,6 +23,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Gets all the headers for the message.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> GetAllHeaders(this IMessage msg)
+        {
+            return GetAllHeadersAction(msg);
+        }
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg"></param>
@@ -30,16 +40,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static string GetHeader(this IMessage msg, string key)
         {
-            if (msg == CurrentMessageBeingHandled)
-                if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
-                    return Bus.CurrentMessageContext.Headers[key];
-                else
-                    return null;
-
-            if (Bus.OutgoingHeaders.ContainsKey(key))
-                return Bus.OutgoingHeaders[key];
-
-            return null;
+            return GetHeaderAction(msg, key);
         }
 
         /// <summary>
@@ -72,10 +73,7 @@ namespace NServiceBus
         /// <param name="value"></param>
         public static void SetHeader(this IMessage msg, string key, string value)
         {
-            if (msg == CurrentMessageBeingHandled)
-                Bus.CurrentMessageContext.Headers[key] = value;
-            else
-                Bus.OutgoingHeaders[key] = value;
+            SetHeaderAction(msg, key, value);
         }
 
         /// <summary>
@@ -110,8 +108,7 @@ namespace NServiceBus
             if (msg == CurrentMessageBeingHandled)
                 throw new InvalidOperationException("This method is not supported on the request message.");
 
-            if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
-                Bus.OutgoingHeaders[key] = Bus.CurrentMessageContext.Headers[key];
+            msg.SetHeader(key, CurrentMessageBeingHandled.GetHeader(key));
         }
 
         /// <summary>
@@ -128,6 +125,21 @@ namespace NServiceBus
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
         public static IMessage CurrentMessageBeingHandled { get; set; }
+
+        /// <summary>
+        /// The action used to set the header in the <see cref="SetHeader"/> method.
+        /// </summary>
+        public static Action<IMessage, string, string> SetHeaderAction { get; set;}
+
+        /// <summary>
+        /// The action used to get the header value in the <see cref="GetHeader"/> method.
+        /// </summary>
+        public static Func<IMessage, string, string> GetHeaderAction { get; set; }
+
+        /// <summary>
+        /// The action used to get all the headers for a message.
+        /// </summary>
+        public static Func<IMessage, IDictionary<string, string>> GetAllHeadersAction { get; set; }
     }
 
     /// <summary>
