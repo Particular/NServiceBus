@@ -1,4 +1,3 @@
-using NServiceBus.Messages;
 using System;
 
 namespace NServiceBus.Unicast
@@ -14,12 +13,32 @@ namespace NServiceBus.Unicast
         /// <param name="msg"></param>
         public MessageEventArgs(IMessage msg)
         {
-            this.Message = msg;
+            Message = msg;
         }
 
         /// <summary>
         /// The message.
         /// </summary>
         public IMessage Message { get; private set; }
+    }
+
+    /// <summary>
+    /// Data containing multiple messages for raising in events.
+    /// </summary>
+    public class MessagesEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Instantiate an event arg referencing multiple messages.
+        /// </summary>
+        /// <param name="messages"></param>
+        public MessagesEventArgs(IMessage[] messages)
+        {
+            Messages = messages;
+        }
+
+        /// <summary>
+        /// The messages that were sent.
+        /// </summary>
+        public IMessage[] Messages { get; private set; }
     }
 }

@@ -116,6 +116,11 @@ namespace NServiceBus.Unicast
         public event MessageReceivedDelegate MessageReceived;
 
         /// <summary>
+        /// Event raised when messages are sent.
+        /// </summary>
+        public event EventHandler<MessagesEventArgs> MessagesSent;
+
+        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Gets and sets an <see cref="ISubscriptionStorage"/> implementation to
         /// be used for subscription storage for the bus.
@@ -601,9 +606,8 @@ namespace NServiceBus.Unicast
 
             var result = new List<string>();
 
-            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
+            messages[0].SetHeader(EnclosedMessageTypes, SerializeEnclosedMessageTypes(messages));
             var toSend = GetTransportMessageFor(messages);
-            ((IBus)this).OutgoingHeaders[EnclosedMessageTypes] = null;
 
             toSend.CorrelationId = correlationId;
             toSend.MessageIntent = messageIntent;
@@ -639,6 +643,9 @@ namespace NServiceBus.Unicast
 
                 result.Add(toSend.Id);
             }
+
+            if (MessagesSent != null)
+                MessagesSent(this, new MessagesEventArgs(messages));
 
             return result;
         }
@@ -842,19 +849,11 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
 
-        [ThreadStatic]
-        private static IDictionary<string, string> _outgoingHeaders = new Dictionary<string, string>();
-
-        //private static IDictionary<string, string> OutgoingHeaders 
-
         IDictionary<string, string> IBus.OutgoingHeaders
         {
             get
             {
-                if (_outgoingHeaders == null)
-                    _outgoingHeaders = new Dictionary<string, string>();
-
-                return _outgoingHeaders;
+                return ExtensionMethods.CurrentMessageBeingHandled.GetAllHeaders();
             }
         }
 
@@ -929,9 +928,8 @@ namespace NServiceBus.Unicast
 
         private void HandleImpersonation(TransportMessage m)
         {
-            var header = m.Headers.Find(hi => hi.Key == WINDOWSIDENTITYNAME);
-            if (header != null)
-                Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(header.Value), new string[0]) : null;
+            if (m.Headers.ContainsKey(WINDOWSIDENTITYNAME))
+                Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(m.Headers[WINDOWSIDENTITYNAME]), new string[0]) : null;
         }
 
         private IMessage[] Extract(TransportMessage m)
@@ -1143,7 +1141,7 @@ namespace NServiceBus.Unicast
                 {
                     bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, new HeaderAdapter(msg.Headers)))
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.Headers))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
@@ -1168,7 +1166,7 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, new HeaderAdapter(msg.Headers)))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.Headers))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
@@ -1368,6 +1366,9 @@ namespace NServiceBus.Unicast
             var result = new TransportMessage();
             var ms = new MemoryStream();
 
+            result.Headers = new Dictionary<string, string>();
+            result.Headers.Add(WINDOWSIDENTITYNAME, Thread.CurrentPrincipal.Identity.Name);
+
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages);
 
             MessageSerializer.Serialize(messages.ToArray(), ms);
@@ -1375,9 +1376,6 @@ namespace NServiceBus.Unicast
 
             if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = Address;
-
-            result.Headers = HeaderAdapter.From(_outgoingHeaders);
-            result.Headers.Add(new HeaderInfo { Key = WINDOWSIDENTITYNAME, Value = Thread.CurrentPrincipal.Identity.Name });
 
             var timeToBeReceived = TimeSpan.MaxValue;
 

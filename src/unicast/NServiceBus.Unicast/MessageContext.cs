@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast
     public class MessageContext : IMessageContext
     {
         private TransportMessage transportMessage;
-        private HeaderAdapter headers;
 
         /// <summary>
         /// Initializes message context from the transport message.
@@ -19,12 +18,11 @@ namespace NServiceBus.Unicast
         public MessageContext(TransportMessage transportMessage)
         {
             this.transportMessage = transportMessage;
-            headers = new HeaderAdapter(transportMessage.Headers);
         }
 
         IDictionary<string, string> IMessageContext.Headers
         {
-            get { return headers; }
+            get { return transportMessage.Headers; }
         }
 
         string IMessageContext.Id

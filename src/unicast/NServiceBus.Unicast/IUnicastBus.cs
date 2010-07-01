@@ -37,5 +37,10 @@ namespace NServiceBus.Unicast
         /// Event raised when a client has been subscribed to a message type.
         /// </summary>
         event EventHandler<SubscriptionEventArgs> ClientSubscribed;
+
+        /// <summary>
+        /// Event raised when the bus sends multiple messages across the wire.
+        /// </summary>
+        event EventHandler<MessagesEventArgs> MessagesSent;
     }
 }
