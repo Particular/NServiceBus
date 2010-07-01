@@ -54,6 +54,11 @@ namespace NServiceBus
             return new WireEncryptedString { Value = s };
         }
 
+        /// <summary>
+        /// Method for making default XML serialization work properly for this type.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("EncryptedValue", EncryptedValue);
