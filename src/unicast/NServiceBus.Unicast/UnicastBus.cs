@@ -853,7 +853,7 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                return ExtensionMethods.CurrentMessageBeingHandled.GetAllHeaders();
+                return ExtensionMethods.GetStaticOutgoingHeadersAction();
             }
         }
 

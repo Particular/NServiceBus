@@ -23,16 +23,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets all the headers for the message.
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public static IDictionary<string, string> GetAllHeaders(this IMessage msg)
-        {
-            return GetAllHeadersAction(msg);
-        }
-
-        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg"></param>
@@ -139,7 +129,7 @@ namespace NServiceBus
         /// <summary>
         /// The action used to get all the headers for a message.
         /// </summary>
-        public static Func<IMessage, IDictionary<string, string>> GetAllHeadersAction { get; set; }
+        public static Func<IDictionary<string, string>> GetStaticOutgoingHeadersAction { get; set; }
     }
 
     /// <summary>

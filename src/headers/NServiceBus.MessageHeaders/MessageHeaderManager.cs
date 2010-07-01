@@ -15,31 +15,40 @@ namespace NServiceBus.MessageHeaders
         {
             ExtensionMethods.GetHeaderAction = (msg, key) => GetHeader(msg, key);
             ExtensionMethods.SetHeaderAction = (msg, key, val) => SetHeader(msg, key, val);
-            ExtensionMethods.GetAllHeadersAction = msg => GetAllHeaders(msg);
+            ExtensionMethods.GetStaticOutgoingHeadersAction = () => GetStaticOugoingHeaders();
 
             Transport.TransportMessageReceived +=
                 (s, arg) =>
                 {
-                    headers = arg.Message.Headers;
+                    headersOfMessageBeingProcessed = arg.Message.Headers;
+                    staticOutgoingHeaders = new Dictionary<string, string>();
                 };
 
             Bus.MessagesSent +=
                 (sender, args) =>
                 {
-                    // clear data for args
+                    if (args.Messages != null)
+                        foreach (var msg in args.Messages)
+                            messageHeaders.Remove(msg);
                 };
         }
 
         string GetHeader(IMessage message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                if (headers.ContainsKey(key))
-                    return headers[key];
+                if (headersOfMessageBeingProcessed.ContainsKey(key))
+                    return headersOfMessageBeingProcessed[key];
                 else
                     return null;
 
-            if (Bus.OutgoingHeaders.ContainsKey(key))
-                return Bus.OutgoingHeaders[key];
+            if (messageHeaders == null)
+                return null;
+
+            if (!messageHeaders.ContainsKey(message))
+                return null;
+
+            if (messageHeaders[message].ContainsKey(key))
+                return messageHeaders[message][key];
 
             return null;
         }
@@ -47,16 +56,30 @@ namespace NServiceBus.MessageHeaders
         void SetHeader(IMessage message, string key, string value)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                Bus.CurrentMessageContext.Headers[key] = value;
+                throw new InvalidOperationException("Cannot change headers on the message being processed.");
             else
-                Bus.OutgoingHeaders[key] = value;
+            {
+                if (messageHeaders == null)
+                    messageHeaders = new Dictionary<IMessage, IDictionary<string, string>>();
+
+                if (!messageHeaders.ContainsKey(message))
+                    messageHeaders.Add(message, new Dictionary<string, string>());
+
+                if (!messageHeaders[message].ContainsKey(key))
+                    messageHeaders[message].Add(key, value);
+                else
+                    messageHeaders[message][key] = value;
+            }
         }
 
-        IDictionary<string, string> GetAllHeaders(IMessage message)
+        IDictionary<string, string> GetStaticOugoingHeaders()
         {
-            return headers;
+            return staticOutgoingHeaders;
         }
 
-        [ThreadStatic] private static IDictionary<string, string> headers;
+        [ThreadStatic] private static IDictionary<string, string> headersOfMessageBeingProcessed;
+        [ThreadStatic] private static IDictionary<string, string> staticOutgoingHeaders;
+
+        [ThreadStatic] private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
     }
 }
