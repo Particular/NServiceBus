@@ -16,9 +16,8 @@ namespace NServiceBus.Gateway
         {
             var address = remoteUrl;
 
-            var header = msg.Headers.Find(h => h.Key == NServiceBus.Headers.HttpTo);
-            if (header != null)
-                address = header.Value;
+            if (msg.Headers.ContainsKey(NServiceBus.Headers.HttpTo))
+                address = msg.Headers[NServiceBus.Headers.HttpTo];
 
             var request = WebRequest.Create(address);
             request.Method = "POST";

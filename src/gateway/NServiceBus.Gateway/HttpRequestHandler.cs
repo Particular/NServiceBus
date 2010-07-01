@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using log4net;
@@ -86,15 +87,14 @@ namespace NServiceBus.Gateway
                     {
                         msg.MessageIntent = MessageIntentEnum.Send;
                         msg.Recoverable = true;
-                        msg.Headers = new System.Collections.Generic.List<HeaderInfo>();
+                        msg.Headers = new Dictionary<string, string>();
                     }
 
                     if (ctx.Request.Headers[Headers.FromKey] != null)
-                        msg.Headers.Add(new HeaderInfo { Key = NServiceBus.Headers.HttpFrom, Value = ctx.Request.Headers[Headers.FromKey] });
+                        msg.Headers.Add(NServiceBus.Headers.HttpFrom, ctx.Request.Headers[Headers.FromKey]);
 
-                    var header = msg.Headers.Find(hi => hi.Key == HeaderMapper.RouteTo);
-                    if (header != null)
-                        sender.Send(msg, header.Value);
+                    if (msg.Headers.ContainsKey(HeaderMapper.RouteTo))
+                        sender.Send(msg, msg.Headers[HeaderMapper.RouteTo]);
                     else
                         sender.Send(msg, queue);
                 }

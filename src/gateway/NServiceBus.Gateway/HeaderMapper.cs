@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NServiceBus.Unicast.Transport;
 using System.Collections.Specialized;
 
@@ -20,10 +22,10 @@ namespace NServiceBus.Gateway
             TimeSpan.TryParse(from[NServiceBus + TimeToBeReceived], out timeToBeReceived);
             to.TimeToBeReceived = timeToBeReceived;
 
-            to.Headers = new System.Collections.Generic.List<HeaderInfo>();
+            to.Headers = new Dictionary<string, string>();
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Header))
-                    to.Headers.Add(new HeaderInfo { Key = header.Replace(NServiceBus + Header, ""), Value = from[header] });
+                    to.Headers.Add(header.Replace(NServiceBus + Header, ""), from[header] );
         }
 
         public static void Map(TransportMessage from, NameValueCollection to)
@@ -37,11 +39,10 @@ namespace NServiceBus.Gateway
             to[NServiceBus + ReturnAddress] = from.ReturnAddress;
             to[NServiceBus + Header + ReturnAddress] = from.ReturnAddress;
 
-            var header = from.Headers.Find(hi => hi.Key == ReturnAddress);
-            if (header != null)
-                to[NServiceBus + Header + RouteTo] = header.Value;
+            if (from.Headers.ContainsKey(ReturnAddress))
+                to[NServiceBus + Header + RouteTo] = from.Headers[ReturnAddress];
 
-            from.Headers.ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
+            from.Headers.ToList().ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
         }
 
         private const string NServiceBus = "NServiceBus.";
