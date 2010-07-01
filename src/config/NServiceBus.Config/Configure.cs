@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
@@ -21,6 +22,11 @@ namespace NServiceBus
         {
             get { return instance; }
         }
+
+        /// <summary>
+        /// Event raised when configuration is complete
+        /// </summary>
+        public static event EventHandler ConfigurationComplete;
 
         /// <summary>
         /// Gets/sets the builder.
@@ -171,6 +177,15 @@ namespace NServiceBus
         /// <returns></returns>
         public IStartableBus CreateBus()
         {
+
+            TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+                .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singleton));
+
+            Builder.BuildAll<INeedInitialization>().ToList().ForEach(i => i.Init());
+
+            if (ConfigurationComplete != null)
+                ConfigurationComplete(null, null);
+
             return Builder.Build<IStartableBus>();
         }
 
