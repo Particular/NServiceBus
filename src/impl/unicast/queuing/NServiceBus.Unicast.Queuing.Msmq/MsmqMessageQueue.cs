@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Messaging;
 using System.Security.Principal;
 using System.Threading;
@@ -37,13 +38,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     toSend.TimeToBeReceived = message.TimeToBeReceived;
 
                 if (message.Headers == null)
-                    message.Headers = new List<HeaderInfo>();
+                    message.Headers = new Dictionary<string, string>();
 
-                message.Headers.Add(new HeaderInfo {Key = IDFORCORRELATION, Value = message.IdForCorrelation});
+                message.Headers.Add(IDFORCORRELATION, message.IdForCorrelation);
 
                 using (var stream = new MemoryStream())
                 {
-                    headerSerializer.Serialize(stream, message.Headers);
+                    headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo {Key = pair.Key, Value = pair.Value}).ToList());
                     toSend.Extension = stream.GetBuffer();
                 }
 
@@ -140,15 +141,15 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 result.Body = new byte[m.BodyStream.Length];
                 m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
+                result.Headers = new Dictionary<string, string>();
                 if (m.Extension.Length > 0)
                 {
                     var stream = new MemoryStream(m.Extension);
                     var o = headerSerializer.Deserialize(stream);
-                    result.Headers = o as List<HeaderInfo>;
-                }
-                else
-                {
-                    result.Headers = new List<HeaderInfo>();
+
+                    foreach(var pair in o as List<HeaderInfo>)
+                        if (pair.Key != null)
+                            result.Headers.Add(pair.Key, pair.Value);
                 }
 
                 result.IdForCorrelation = GetIdForCorrelation(result.Headers);
@@ -173,10 +174,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        private static string GetIdForCorrelation(List<HeaderInfo> list)
+        private static string GetIdForCorrelation(IDictionary<string, string> headers)
         {
-            var header = list.Find(hi => hi.Key == IDFORCORRELATION);
-            return header != null ? header.Value : null;
+            if (headers.ContainsKey(IDFORCORRELATION))
+                return headers[IDFORCORRELATION];
+
+            return null;
         }
 
         private static MessageQueueTransactionType GetTransactionTypeForReceive(bool transactional)
