@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Xml.Serialization;
 
 namespace NServiceBus.Unicast.Transport
 {
@@ -68,7 +66,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Gets/sets other applicative out-of-band information.
         /// </summary>
-        public List<HeaderInfo> Headers { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
 
 		/// <summary>
 		/// Gets/sets a byte array to the body content of the message
