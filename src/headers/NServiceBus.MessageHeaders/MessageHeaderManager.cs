@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using NServiceBus.Config;
+using NServiceBus.MessageMutator;
 using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.MessageHeaders
 {
-    class MessageHeaderManager : INeedInitialization
+    class MessageHeaderManager : INeedInitialization, IMapOutgoingTransportMessages
     {
         public IUnicastBus Bus { get; set; }
         public ITransport Transport { get; set; }
@@ -15,13 +16,12 @@ namespace NServiceBus.MessageHeaders
         {
             ExtensionMethods.GetHeaderAction = (msg, key) => GetHeader(msg, key);
             ExtensionMethods.SetHeaderAction = (msg, key, val) => SetHeader(msg, key, val);
-            ExtensionMethods.GetStaticOutgoingHeadersAction = () => GetStaticOugoingHeaders();
+            ExtensionMethods.GetStaticOutgoingHeadersAction = () => GetStaticOutgoingHeaders();
 
             Transport.TransportMessageReceived +=
                 (s, arg) =>
                 {
-                    headersOfMessageBeingProcessed = arg.Message.Headers;
-                    staticOutgoingHeaders = new Dictionary<string, string>();
+                    staticOutgoingHeaders.Clear();
                 };
 
             Bus.MessagesSent +=
@@ -33,11 +33,22 @@ namespace NServiceBus.MessageHeaders
                 };
         }
 
+        void IMapOutgoingTransportMessages.MapOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        {
+            foreach(var key in staticOutgoingHeaders.Keys)
+                transportMessage.Headers.Add(key, staticOutgoingHeaders[key]);
+
+            if (messageHeaders != null)
+                if (messageHeaders.ContainsKey(messages[0]))
+                    foreach(var key in messageHeaders[messages[0]].Keys)
+                        transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
+        }
+
         string GetHeader(IMessage message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                if (headersOfMessageBeingProcessed.ContainsKey(key))
-                    return headersOfMessageBeingProcessed[key];
+                if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
+                    return Bus.CurrentMessageContext.Headers[key];
                 else
                     return null;
 
@@ -72,13 +83,12 @@ namespace NServiceBus.MessageHeaders
             }
         }
 
-        IDictionary<string, string> GetStaticOugoingHeaders()
+        IDictionary<string, string> GetStaticOutgoingHeaders()
         {
             return staticOutgoingHeaders;
         }
 
-        [ThreadStatic] private static IDictionary<string, string> headersOfMessageBeingProcessed;
-        [ThreadStatic] private static IDictionary<string, string> staticOutgoingHeaders;
+        private static IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
 
         [ThreadStatic] private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
     }

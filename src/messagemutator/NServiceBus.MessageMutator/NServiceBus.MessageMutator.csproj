@@ -35,6 +35,10 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -42,6 +46,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="IMapTransportMessages.cs" />
     <Compile Include="IMessageMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

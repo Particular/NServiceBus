@@ -1369,10 +1369,13 @@ namespace NServiceBus.Unicast
             result.Headers = new Dictionary<string, string>();
             result.Headers.Add(WINDOWSIDENTITYNAME, Thread.CurrentPrincipal.Identity.Name);
 
-            var messages = ApplyOutgoingMessageMutatorsTo(rawMessages);
+            var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
-            MessageSerializer.Serialize(messages.ToArray(), ms);
+            MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
+
+            var mappers = Builder.BuildAll<IMapOutgoingTransportMessages>();
+            mappers.ToList().ForEach(m => m.MapOutgoing(messages, result));
 
             if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = Address;
@@ -1408,7 +1411,6 @@ namespace NServiceBus.Unicast
 
                 yield return mutatedMessage;
             }
-
         }
 
         private TimeSpan GetTimeToBeReceivedForMessageType(Type messageType)
