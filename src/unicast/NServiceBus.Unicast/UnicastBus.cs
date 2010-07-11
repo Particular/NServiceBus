@@ -881,8 +881,6 @@ namespace NServiceBus.Unicast
         {
             HandleImpersonation(m);
 
-            ((IBus)this).OutgoingHeaders.Clear();
-
             ForwardMessageIfNecessary(m);
 
             var messages = Extract(m);
@@ -1107,11 +1105,7 @@ namespace NServiceBus.Unicast
 
         private static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
         {
-            foreach (var header in msg.Headers)
-                if (header.Key == SubscriptionMessageType)
-                    return header.Value;
-
-            return null;
+            return (from header in msg.Headers where header.Key == SubscriptionMessageType select header.Value).FirstOrDefault();
         }
 
         /// <summary>
