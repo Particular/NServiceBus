@@ -63,9 +63,7 @@
     <Compile Include="Configuration\IConfigureLogging.cs" />
     <Compile Include="Profiles\IHandleProfile.cs" />
     <Compile Include="Profiles\IProfile.cs" />
-    <Compile Include="Configuration\ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="Configuration\IWant.cs" />
-    <Compile Include="Configuration\Order.cs" />
     <Compile Include="Profiles\ProfileManager.cs" />
     <Compile Include="Roles\IConfigureRole.cs" />
     <Compile Include="Configuration\IConfigureThisEndpoint.cs" />

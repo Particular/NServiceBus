@@ -1,4 +1,6 @@
 using System;
+using System.Configuration;
+using Common.Logging;
 using NServiceBus.Encryption;
 using NServiceBus.ObjectBuilder;
 using System.Collections;
@@ -96,27 +98,31 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// [Deprecated] Use LoadMessageHandlers instead.
-        /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public ConfigUnicastBus SetMessageHandlersFromAssembliesInOrder(params Assembly[] assemblies)
-        {
-            var types = new List<Type>();
-            foreach (Assembly a in assemblies)
-                types.AddRange(a.GetTypes());
-
-            return ConfigureMessageHandlersIn(types);
-        }
-
-        /// <summary>
         /// Loads all message handler assemblies in the runtime directory.
         /// </summary>
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
         {
-            return ConfigureMessageHandlersIn(TypesToScan);
+            var types = new List<Type>();
+
+            TypesToScan.Where(TypeSpecifiesMessageHandlerOrdering)
+                .ToList().ForEach(t =>
+                {
+                    Logger.DebugFormat("Going to ask for message handler ordering from {0}.", t);
+
+                    var order = new Order();
+                    ((ISpecifyMessageHandlerOrdering) Activator.CreateInstance(t)).SpecifyOrder(order);
+
+                    order.Types.ToList().ForEach(ht =>
+                                      {
+                                          if (types.Contains(ht))
+                                              throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
+
+                                          types.AddRange(order.Types);
+                                      });
+                });
+
+            return LoadMessageHandlers(types);
         }
 
         /// <summary>
@@ -157,12 +163,17 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<T>(First<T> order)
         {
+            return LoadMessageHandlers(order.Types);
+        }
+
+        private ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> orderedTypes)
+        {
             var types = new List<Type>(TypesToScan);
 
-            foreach (Type t in order.Types)
+            foreach (Type t in orderedTypes)
                 types.Remove(t);
 
-            types.InsertRange(0, order.Types);
+            types.InsertRange(0, orderedTypes);
 
             return ConfigureMessageHandlersIn(types);
         }
@@ -178,12 +189,11 @@ namespace NServiceBus.Unicast.Config
         {
             var handlers = new List<Type>();
 
-            foreach (Type t in types)
-                if (IsMessageHandler(t))
-                {
-                    Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
-                    handlers.Add(t);
-                }
+            foreach (Type t in types.Where(IsMessageHandler))
+            {
+                Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                handlers.Add(t);
+            }
 
             busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
 
@@ -251,6 +261,11 @@ namespace NServiceBus.Unicast.Config
             return false;
         }
 
+        private static bool TypeSpecifiesMessageHandlerOrdering(Type t)
+        {
+            return typeof (ISpecifyMessageHandlerOrdering).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface;
+        }
+
         /// <summary>
         /// Returns the message type handled by the given message handler type.
         /// </summary>
@@ -274,5 +289,7 @@ namespace NServiceBus.Unicast.Config
 
             return null;
         }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (UnicastBus));
     }
 }

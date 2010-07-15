@@ -38,6 +38,10 @@
     <DocumentationFile>bin\Release\NServiceBus.Unicast.Config.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -68,7 +72,6 @@
     </Compile>
     <Compile Include="ConfigUnicastBus.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
-    <Compile Include="FirstThen.cs" />
     <Compile Include="MessageEndpointMapping.cs" />
     <Compile Include="MessageEndpointMappingCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -41,31 +41,21 @@ namespace NServiceBus.Hosting.Roles
             foreach (var role in availableRoles)
             {
                 var roleType = role.Key;
-                if (roleType.IsAssignableFrom(specifier.GetType()))
-                {
-                    if (config != null)
-                        throw new InvalidOperationException("Endpoints can only have one role");
+                if (!roleType.IsAssignableFrom(specifier.GetType())) continue;
 
-                    //apply role
-                    var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
-
-
-                    config = roleConfigurer.ConfigureRole(specifier);
-
-                    Logger.Info("Role " + roleType + " configured");
-                }
-            }
-
-            if (specifier is ISpecifyMessageHandlerOrdering)
-            {
-                if (config == null)
-                    throw new ConfigurationErrorsException("You must implement a role in order to use ISpecifyMessageHandlerOrdering. If you are doing your own bus configuration, specify the order in .UnicastBus().LoadMessageHandlers(order);");
-
-                (specifier as ISpecifyMessageHandlerOrdering).SpecifyOrder(new Order(config));
-            }
-            else
                 if (config != null)
-                    config.LoadMessageHandlers();
+                    throw new InvalidOperationException("Endpoints can only have one role");
+
+                //apply role
+                var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
+
+                config = roleConfigurer.ConfigureRole(specifier);
+
+                Logger.Info("Role " + roleType + " configured");
+            }
+
+            if (config != null)
+                config.LoadMessageHandlers();
         }
     }
 
