@@ -37,8 +37,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Obselete - use SpecifyFirst instead.
+        /// </summary>
+        /// <typeparam name="TFirst"></typeparam>
+        [Obsolete]
+        public void Specify<TFirst>()
+        {
+            SpecifyFirst<TFirst>();
+        }
+
+        /// <summary>
         /// Specifies an ordering of multiple types using the syntax:
-        /// First{H1}.Then{H2}().Then{H3}()... etc
+        /// First{H1}.Then{H2}().AndThen{H3}()... etc
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ordering"></param>
