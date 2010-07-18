@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,7 +64,6 @@
     <Compile Include="Autofac2ObjectBuilder.cs" />
     <Compile Include="Config\ConfigureAutofacBuilder.cs" />
     <Compile Include="Internal\ContainerExtensions.cs" />
-    <Compile Include="Internal\ContainerUpdater.cs" />
     <Compile Include="Internal\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />

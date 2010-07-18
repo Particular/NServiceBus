@@ -60,11 +60,11 @@ namespace NServiceBus.ObjectBuilder.Autofac2
 
             if (registration == null)
             {
-                var updater = new ContainerUpdater();
+                var builder = new ContainerBuilder();
                 Type[] services = component.GetAllServices().ToArray();
-                var registrationBuilder = updater.RegisterType(component).As(services).PropertiesAutowired();
+                var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
                 SetLifetimeScope(callModel, registrationBuilder);
-                updater.Update(this.Container);
+                builder.Update(this.Container);
             }
         }
 
@@ -109,9 +109,9 @@ namespace NServiceBus.ObjectBuilder.Autofac2
         ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            var updater = new ContainerUpdater();
-            updater.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
-            updater.Update(this.Container);
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
+            builder.Update(this.Container);
         }
 
         private IComponentRegistration GetComponentRegistration(Type concreteComponent)
