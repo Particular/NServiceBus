@@ -21,7 +21,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                 transaction.Complete();
             }
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
                 var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
 
@@ -30,14 +30,14 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         }
 
         [Test]
-        public void Duplicate_subcriptions_shouldnt_create_aditional_db_rows()
+        public void Duplicate_subcription_shouldnt_create_additional_db_rows()
         {
 
             storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
             storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
 
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
                 var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
                 Assert.AreEqual(subscriptions.Count, 1);

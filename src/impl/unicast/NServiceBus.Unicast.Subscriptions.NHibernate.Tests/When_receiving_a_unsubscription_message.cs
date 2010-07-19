@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
             }
 
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
                 var subscriptions = session.CreateCriteria(typeof(Subscription)).List<Subscription>();
                 Assert.AreEqual(subscriptions.Count, 0);

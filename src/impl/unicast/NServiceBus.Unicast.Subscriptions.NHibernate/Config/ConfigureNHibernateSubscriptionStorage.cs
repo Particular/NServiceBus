@@ -87,10 +87,10 @@ namespace NServiceBus
                     x =>
                     x.SetProperty(PROXY_FACTORY_KEY, typeof(ProxyFactoryFactory).AssemblyQualifiedName));
 
-            var sessionSource = new SessionSource(fluentConfiguration);
+            var sessionSource = new SubscriptionStorageSessionProvider(fluentConfiguration.BuildSessionFactory());
 
 
-            config.Configurer.RegisterSingleton<ISessionSource>(sessionSource);
+            config.Configurer.RegisterSingleton<ISubscriptionStorageSessionProvider>(sessionSource);
             config.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singlecall);
 
             return config;

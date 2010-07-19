@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using FluentNHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 
@@ -12,11 +12,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
     /// </summary>
     public class SubscriptionStorage : ISubscriptionStorage
     {
-        private readonly ISessionSource sessionSource;
+        private readonly ISubscriptionStorageSessionProvider subscriptionStorageSessionProvider;
 
-        public SubscriptionStorage(ISessionSource sessionSource)
+        public SubscriptionStorage(ISubscriptionStorageSessionProvider subscriptionStorageSessionProvider)
         {
-            this.sessionSource = sessionSource;
+            this.subscriptionStorageSessionProvider = subscriptionStorageSessionProvider;
         }
 
 
@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <param name="messageTypes"></param>
         void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             using(var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
@@ -58,7 +58,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
@@ -77,7 +77,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         {
             IEnumerable<string> result;
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = IsolationLevel.ReadCommitted}))
             {
                 result = session.CreateCriteria(typeof(Subscription))

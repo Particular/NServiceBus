@@ -2,15 +2,17 @@ using System.IO;
 using FluentNHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using NHibernate;
 using NHibernate.ByteCode.LinFu;
+using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
     public class InMemoryDBFixture
     {
-        protected ISessionSource sessionSource;
         protected ISubscriptionStorage storage;
+        protected ISubscriptionStorageSessionProvider subscriptionStorageSessionProvider;
 
         [SetUp]
         public void SetupContext()
@@ -21,13 +23,12 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             var fc = Fluently.Configure()
                 .Database(cfg)
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Subscription>());
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Subscription>())
+                .ExposeConfiguration(config => new SchemaExport(config).Create(true, true));
 
+           subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(fc.BuildSessionFactory());
 
-            sessionSource = new SessionSource(fc);
-
-            sessionSource.BuildSchema();
-            storage = new SubscriptionStorage(sessionSource);
+           storage = new SubscriptionStorage(subscriptionStorageSessionProvider);
         }
     }
 }

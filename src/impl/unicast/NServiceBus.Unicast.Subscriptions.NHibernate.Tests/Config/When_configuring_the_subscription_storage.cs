@@ -1,5 +1,4 @@
 using System;
-using FluentNHibernate;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
@@ -22,13 +21,13 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         }
 
         [Test]
-        public void The_session_source_should_be_registered_as_singleton()
+        public void The_session_provider_should_be_registered_as_singleton()
         {
 
-            var sessionSource = config.Builder.Build<ISessionSource>();
+            var sessionSource = config.Builder.Build<ISubscriptionStorageSessionProvider>();
 
 
-            sessionSource.ShouldBeTheSameAs(config.Builder.Build<ISessionSource>());
+            sessionSource.ShouldBeTheSameAs(config.Builder.Build<ISubscriptionStorageSessionProvider>());
 
         }
 
@@ -47,9 +46,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         [Test]
         public void Database_schema_should_be_updated_as_default()
         {
-            var sessionSource = config.Builder.Build<ISessionSource>();
+            var sessionSource = config.Builder.Build<ISubscriptionStorageSessionProvider>();
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = sessionSource.OpenSession())
             {
                 session.CreateCriteria(typeof(Subscription)).List<Subscription>();
             }
@@ -67,7 +66,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
                                                     .CustomConfigurationSource(configSource)
                                                     .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
-            configWithoutConfigSection.Builder.Build<ISessionSource>();
+            configWithoutConfigSection.Builder.Build<ISubscriptionStorageSessionProvider>();
 
         }
 
@@ -75,7 +74,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         public void NHibernate_proxy_factory_should_default_to_linfu()
         {
             //will fail if no proxy is set
-            config.Builder.Build<ISessionSource>();
+            config.Builder.Build<ISubscriptionStorageSessionProvider>();
         }
 
 

@@ -76,9 +76,11 @@
     <Compile Include="Config\NHibernateProperty.cs" />
     <Compile Include="Config\NHibernatePropertyCollection.cs" />
     <Compile Include="Config\SubscriptionMap.cs" />
+    <Compile Include="ISubscriptionStorageSessionProvider.cs" />
     <Compile Include="SubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Subscription.cs" />
+    <Compile Include="SubscriptionStorageSessionProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
