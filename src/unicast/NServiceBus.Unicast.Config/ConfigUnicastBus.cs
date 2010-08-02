@@ -86,18 +86,6 @@ namespace NServiceBus.Unicast.Config
         protected IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
-        /// Instructs the bus to run the processing of messages being handled
-        /// under the permissions of the sender of the message.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ConfigUnicastBus ImpersonateSender(bool value)
-        {
-            busConfig.ConfigureProperty(b => b.ImpersonateSender, value);
-            return this;
-        }
-
-        /// <summary>
         /// Loads all message handler assemblies in the runtime directory.
         /// </summary>
         /// <returns></returns>

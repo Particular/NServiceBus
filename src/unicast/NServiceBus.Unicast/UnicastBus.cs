@@ -167,16 +167,6 @@ namespace NServiceBus.Unicast
         public bool PropogateReturnAddressOnSend { get; set; }
 
         /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// Sets whether or not the bus should impersonate the sender
-        /// of a message it has received when re-sending the message.
-        /// What occurs is that the thread sets its current principal
-        /// to the value found in the header called <see cref="WINDOWSIDENTITYNAME" />
-        /// when that thread handles a message.
-        /// </summary>
-        public virtual bool ImpersonateSender { get; set; }
-
-        /// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the address to which the messages received on this bus
         /// will be sent when the method HandleCurrentMessageLater is called.
@@ -879,8 +869,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public void HandleMessage(TransportMessage m)
         {
-            HandleImpersonation(m);
-
             ForwardMessageIfNecessary(m);
 
             var messages = Extract(m);
@@ -922,12 +910,6 @@ namespace NServiceBus.Unicast
             });
 
             return mutatedMessage;
-        }
-
-        private void HandleImpersonation(TransportMessage m)
-        {
-            if (m.Headers.ContainsKey(WINDOWSIDENTITYNAME))
-                Thread.CurrentPrincipal = ImpersonateSender ? new GenericPrincipal(new GenericIdentity(m.Headers[WINDOWSIDENTITYNAME]), new string[0]) : null;
         }
 
         private IMessage[] Extract(TransportMessage m)
@@ -1361,7 +1343,6 @@ namespace NServiceBus.Unicast
             var ms = new MemoryStream();
 
             result.Headers = new Dictionary<string, string>();
-            result.Headers.Add(WINDOWSIDENTITYNAME, Thread.CurrentPrincipal.Identity.Name);
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
@@ -1613,7 +1594,6 @@ namespace NServiceBus.Unicast
 
         #region Fields
 
-        private const string WINDOWSIDENTITYNAME = "WinIdName";
         /// <summary>
         /// Gets/sets the subscription manager to use for the bus.
         /// </summary>
