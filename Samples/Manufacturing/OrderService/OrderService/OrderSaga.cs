@@ -61,7 +61,7 @@ namespace OrderService
             foreach (var ol in message.OrderLines)
                 Data.UpdateAuthorization(message.Success, ol.ProductId, ol.Quantity);
 
-            if (Data.IsAuthorized)
+            if (Data.IsAuthorized())
                 Complete();
         }
 

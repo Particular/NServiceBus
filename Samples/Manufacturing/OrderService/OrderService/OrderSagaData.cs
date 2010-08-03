@@ -43,16 +43,13 @@ namespace OrderService
                 OrderLines.Remove(toRemove);
         }
 
-        public virtual bool IsAuthorized
+        public virtual bool IsAuthorized()
         {
-            get
-            {
-                foreach(OrderLine line in OrderLines)
-                    if (line.Quantity != line.AuthorizedQuantity)
-                        return false;
+            foreach(OrderLine line in OrderLines)
+                if (line.Quantity != line.AuthorizedQuantity)
+                    return false;
 
-                return true;
-            }
+            return true;
         }
 
 
