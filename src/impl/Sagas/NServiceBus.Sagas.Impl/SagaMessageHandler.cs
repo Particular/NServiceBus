@@ -93,8 +93,12 @@ namespace NServiceBus.Sagas.Impl
 
             if (entitiesHandled.Count == 0)
             {
-                foreach(var handler in NServiceBus.Configure.Instance.Builder.BuildAll<IHandleSagaNotFound>())
+                logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", message.GetType().FullName, Bus.CurrentMessageContext.Id);
+                foreach (var handler in NServiceBus.Configure.Instance.Builder.BuildAll<IHandleSagaNotFound>())
+                {
+                    logger.DebugFormat("Invoking SagaNotFoundHandler: {0}", handler.GetType().FullName);
                     handler.Handle(message);
+                }
             }
         }
 
