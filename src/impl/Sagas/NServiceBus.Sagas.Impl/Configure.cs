@@ -59,6 +59,12 @@ namespace NServiceBus.Sagas.Impl
                     ConfigureFinder(t);
                     continue;
                 }
+
+                if (IsSagaNotFoundHandler(t))
+                {
+                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    continue;
+                }
             }
 
             CreateAdditionalFindersAsNecessary();
@@ -321,6 +327,11 @@ namespace NServiceBus.Sagas.Impl
         private static bool IsFinderType(Type t)
         {
             return IsCompatible(t, typeof(IFinder));
+        }
+
+        private static bool IsSagaNotFoundHandler(Type t)
+        {
+            return IsCompatible(t, typeof (IHandleSagaNotFound));
         }
 
         private static bool IsCompatible(Type t, Type source)

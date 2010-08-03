@@ -90,6 +90,12 @@ namespace NServiceBus.Sagas.Impl
 
                 entitiesHandled.Add(sagaEntity);
             }
+
+            if (entitiesHandled.Count == 0)
+            {
+                foreach(var handler in NServiceBus.Configure.Instance.Builder.BuildAll<IHandleSagaNotFound>())
+                    handler.Handle(message);
+            }
         }
 
         /// <summary>
