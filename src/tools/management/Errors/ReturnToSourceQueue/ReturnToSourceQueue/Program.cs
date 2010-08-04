@@ -34,25 +34,17 @@ namespace ReturnToSourceQueue
 
             c.InputQueue = inputQueue;
 
-            try
-            {
-                if (messageId == "all")
-                    c.ReturnAll();
-                else
-                    c.ReturnMessageToSourceQueue(messageId);
+            if (messageId == "all")
+                c.ReturnAll();
+            else
+                c.ReturnMessageToSourceQueue(messageId);
 
-                Console.WriteLine("Success.");
+            Console.WriteLine("Success.");
 
-                if (args == null || args.Length == 0)
-                {
-                    Console.WriteLine("Press 'Enter' to exit.");
-                    Console.ReadLine();
-                }
-            }
-            catch(Exception e)
+            if (args == null || args.Length == 0)
             {
-                Console.WriteLine("Could not return message to source queue.\nReason: " + e.Message);
-                Console.WriteLine(e.StackTrace);
+                Console.WriteLine("Press 'Enter' to exit.");
+                Console.ReadLine();
             }
         }
     }

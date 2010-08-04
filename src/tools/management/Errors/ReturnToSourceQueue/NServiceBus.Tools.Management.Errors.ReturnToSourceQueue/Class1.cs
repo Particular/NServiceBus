@@ -41,20 +41,29 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// <param name="messageId"></param>
         public void ReturnMessageToSourceQueue(string messageId)
         {
-            using (var scope = new TransactionScope())
+            try
             {
-                var m = queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
-
-                var failedQueue = MsmqTransport.GetFailedQueue(m);
-
-                m.Label = MsmqTransport.GetLabelWithoutFailedQueue(m);
-
-                using (var q = new MessageQueue(failedQueue))
+                using (var scope = new TransactionScope())
                 {
-                    q.Send(m, MessageQueueTransactionType.Automatic);
+                    var m = queue.ReceiveById(messageId, TimeSpan.FromSeconds(5), MessageQueueTransactionType.Automatic);
+
+                    var failedQueue = MsmqTransport.GetFailedQueue(m);
+
+                    m.Label = MsmqTransport.GetLabelWithoutFailedQueue(m);
+
+                    using (var q = new MessageQueue(failedQueue))
+                    {
+                        Console.WriteLine("Returning message with id " + messageId + " to queue " + failedQueue);
+                        q.Send(m, MessageQueueTransactionType.Automatic);
+                    }
+
+                    scope.Complete();
                 }
-                
-                scope.Complete();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Could not return message to source queue.\nReason: " + e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
     }
