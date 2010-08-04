@@ -585,7 +585,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
 	    protected void MoveToErrorQueue(Message m)
 	    {
             m.Label = m.Label +
-                      string.Format("<{0}>{1}</{0}><{2}>{3}<{2}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue), ORIGINALID, m.Id);
+                      string.Format("<{0}>{1}</{0}>", FAILEDQUEUE, MsmqUtilities.GetIndependentAddressForQueue(queue));
+
+            if (!m.Label.Contains(ORIGINALID))
+                m.Label = m.Label + string.Format("<{0}>{1}</{0}>", ORIGINALID, m.Id);
 
 	        if (errorQueue != null)
                 errorQueue.Send(m, MessageQueueTransactionType.Single);
@@ -620,6 +623,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
 
+		    UpdateMessageIdBasedOnResponseFromErrorQueue(result, m);
 		    FillIdForCorrelationAndWindowsIdentity(result, m);
 
             if (string.IsNullOrEmpty(result.IdForCorrelation))
@@ -639,7 +643,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		    return result;
         }
 
-        /// <summary>
+	    /// <summary>
         /// Returns the queue whose process failed processing the given message
         /// by accessing the label of the message.
         /// </summary>
@@ -698,6 +702,20 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 int winCount = m.Label.IndexOf(string.Format("</{0}>", WINDOWSIDENTITYNAME)) - winStartIndex;
 
                 result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
+            }
+        }
+
+        private static void UpdateMessageIdBasedOnResponseFromErrorQueue(TransportMessage result, Message m)
+        {
+            if (m.Label == null)
+                return;
+
+            if (m.Label.Contains(ORIGINALID))
+            {
+                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", ORIGINALID)) + ORIGINALID.Length + 2;
+                int idCount = m.Label.IndexOf(string.Format("</{0}>", ORIGINALID)) - idStartIndex;
+
+                result.Id = m.Label.Substring(idStartIndex, idCount);
             }
         }
 
