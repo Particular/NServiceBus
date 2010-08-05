@@ -9,28 +9,30 @@ namespace NServiceBus.MessageHeaders
 {
     class MessageHeaderManager : INeedInitialization, IMapOutgoingTransportMessages
     {
-        public IUnicastBus Bus { get; set; }
-        public ITransport Transport { get; set; }
-
         void INeedInitialization.Init()
         {
             ExtensionMethods.GetHeaderAction = (msg, key) => GetHeader(msg, key);
             ExtensionMethods.SetHeaderAction = (msg, key, val) => SetHeader(msg, key, val);
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => GetStaticOutgoingHeaders();
 
-            Transport.TransportMessageReceived +=
-                (s, arg) =>
-                {
-                    staticOutgoingHeaders.Clear();
-                };
+            Configure.ConfigurationComplete +=
+                (s, args) =>
+                    {
+                        Configure.Instance.Builder.Build<ITransport>().TransportMessageReceived +=
+                            (s1, a1) =>
+                            {
+                                staticOutgoingHeaders.Clear();
+                            };
 
-            Bus.MessagesSent +=
-                (sender, args) =>
-                {
-                    if (args.Messages != null)
-                        foreach (var msg in args.Messages)
-                            messageHeaders.Remove(msg);
-                };
+                        Bus = Configure.Instance.Builder.Build<IUnicastBus>();
+                        Bus.MessagesSent +=
+                            (s2, a2) =>
+                            {
+                                if (a2.Messages != null)
+                                    foreach (var msg in a2.Messages)
+                                        messageHeaders.Remove(msg);
+                            };
+                    };
         }
 
         void IMapOutgoingTransportMessages.MapOutgoing(IMessage[] messages, TransportMessage transportMessage)
@@ -91,5 +93,7 @@ namespace NServiceBus.MessageHeaders
         private static IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
 
         [ThreadStatic] private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
+
+        private IUnicastBus Bus { get; set; }
     }
 }
