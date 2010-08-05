@@ -40,7 +40,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (message.Headers == null)
                     message.Headers = new Dictionary<string, string>();
 
-                message.Headers.Add(IDFORCORRELATION, message.IdForCorrelation);
+                if (!message.Headers.ContainsKey(IDFORCORRELATION))
+                    message.Headers.Add(IDFORCORRELATION, message.IdForCorrelation);
 
                 using (var stream = new MemoryStream())
                 {
