@@ -179,9 +179,11 @@ namespace NServiceBus
         {
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singleton));
-
-            Builder.BuildAll<INeedInitialization>().ToList().ForEach(i => i.Init());
+                .ToList().ForEach(t =>
+                                      {
+                                          var ini = (INeedInitialization) Activator.CreateInstance(t);
+                                          ini.Init();
+                                      });
 
             if (ConfigurationComplete != null)
                 ConfigurationComplete(null, null);

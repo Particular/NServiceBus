@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Implementers will be called after NServiceBus.Configure.With completes and a container
-    /// has been set. Dependency injection is available for these types.
+    /// has been set. 
     /// </summary>
     public interface INeedInitialization
     {
