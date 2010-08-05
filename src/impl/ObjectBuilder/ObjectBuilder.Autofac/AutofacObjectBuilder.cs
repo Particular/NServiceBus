@@ -89,7 +89,8 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
             if (registration == null)
             {
-                return;
+                throw new InvalidOperationException(
+                    "Cannot configure properties for a type that hasn't been configured yet: " + component.FullName);
             }
 
             registration.Activating += (sender, e) => e.Instance.SetPropertyValue(property, value);
