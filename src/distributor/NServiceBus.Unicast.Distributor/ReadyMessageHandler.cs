@@ -1,5 +1,5 @@
 using log4net;
-using NServiceBus.Messages;
+using NServiceBus.Grid.Messages;
 
 namespace NServiceBus.Unicast.Distributor
 {

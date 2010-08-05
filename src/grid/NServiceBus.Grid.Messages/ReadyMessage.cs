@@ -1,13 +1,12 @@
-using System;
+﻿using System;
 
-namespace NServiceBus.Messages
+namespace NServiceBus.Grid.Messages
 {
-	/// <summary>
-	/// Defines a message indicating that a transport is ready to
-	/// receive a message.
-	/// </summary>
+    /// <summary>
+    /// Message sent to a distributor indicating that a node is ready to process another message.
+    /// </summary>
     [Serializable]
-    public class ReadyMessage : IMessage 
+    public class ReadyMessage : IMessage
     {
         /// <summary>
         /// Exposes whether or not previous ready messages from the same

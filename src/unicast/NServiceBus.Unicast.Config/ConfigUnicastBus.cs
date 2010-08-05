@@ -55,8 +55,6 @@ namespace NServiceBus.Unicast.Config
                 foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
                     assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
 
-                busConfig.ConfigureProperty(b => b.DistributorControlAddress, cfg.DistributorControlAddress);
-                busConfig.ConfigureProperty(b => b.DistributorDataAddress, cfg.DistributorDataAddress);
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }

@@ -27,14 +27,14 @@ namespace NServiceBus.Grid.MessageHandlers
             else
             {
                 GridInterceptingMessageHandler.Disabled = false;
-                this.UnicastBus.ContinueSendingReadyMessages();
+                this.ReadyManager.ContinueSendingReadyMessages();
             }
 
             this.Transport.ChangeNumberOfWorkerThreads(target);
 
             if (message.NumberOfWorkerThreads == 0)
             {
-                this.UnicastBus.StopSendingReadyMessages();
+                this.ReadyManager.StopSendingReadyMessages();
                 GridInterceptingMessageHandler.Disabled = true;
 
                 logger.Info("Disabling this endpoint.");
@@ -46,7 +46,7 @@ namespace NServiceBus.Grid.MessageHandlers
         /// <summary>
         /// Used to stop sending ready messages to the distributor if one is configured.
         /// </summary>
-        public IUnicastBus UnicastBus { get; set; }
+        public IManageReadyMessages ReadyManager { get; set; }
 
         /// <summary>
         /// This is kept separate from the bus because the distributor

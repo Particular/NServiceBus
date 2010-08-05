@@ -52,11 +52,11 @@ namespace NServiceBus.Distributor
             };
 
 
+            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfThreads);
 
-            Configure.Instance.Configurer
-                .ConfigureProperty<TransactionalTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
-            Configure.Instance.Configurer
-                .ConfigureProperty<UnicastBus>(t => t.Address, ConfigurationManager.AppSettings["ControlInputQueue"]);
+            Configure.Instance.Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(t => t.Address, ConfigurationManager.AppSettings["ControlInputQueue"]);
 
 
             Configure.Instance.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(

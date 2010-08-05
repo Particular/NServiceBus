@@ -6,7 +6,6 @@ using System.Security.Principal;
 using System.Threading;
 using Common.Logging;
 using NServiceBus.MessageMutator;
-using NServiceBus.Messages;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;
@@ -166,22 +165,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool PropogateReturnAddressOnSend { get; set; }
 
-        /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the address to which the messages received on this bus
-        /// will be sent when the method HandleCurrentMessageLater is called.
-        /// </summary>
-        public string DistributorDataAddress { get; set; }
-
-        /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the address of the distributor control queue.
-        /// </summary>
-        /// <remarks>
-        /// Notifies the given distributor
-        /// when a thread is now available to handle a new message.
-        /// </remarks>
-        public string DistributorControlAddress { get; set; }
 
         /// <summary>
         /// Should be used by administrator, not programmer.
@@ -262,30 +245,6 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region IUnicastBus Members
-
-        /// <summary>
-        /// Stops sending ready messages to the distributor, if one is configured.
-        /// </summary>
-        public void StopSendingReadyMessages()
-        {
-            canSendReadyMessages = false;
-        }
-
-        /// <summary>
-        /// Continues sending ready messages to the distributor, if one is configured.
-        /// </summary>
-        public void ContinueSendingReadyMessages()
-        {
-            canSendReadyMessages = true;
-        }
-
-        /// <summary>
-        /// Skips sending a ready message to the distributor once.
-        /// </summary>
-        public void SkipSendingReadyMessageOnce()
-        {
-            _skipSendingReadyMessageOnce = true;
-        }
 
         /// <summary>
         /// Event raised when no subscribers found for the published message.
@@ -474,10 +433,7 @@ namespace NServiceBus.Unicast
             if (_handleCurrentMessageLaterWasCalled)
                 return;
 
-            if (DistributorDataAddress != null)
-                MessageSender.Send(_messageBeingHandled, DistributorDataAddress);
-            else
-                MessageSender.Send(_messageBeingHandled, Address);
+            MessageSender.Send(_messageBeingHandled, Address);
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -506,20 +462,8 @@ namespace NServiceBus.Unicast
         public void SendLocal(params IMessage[] messages)
         {
             var m = GetTransportMessageFor(messages);
-
-            //if we're a worker, send to the distributor data bus
-            if (DistributorDataAddress != null)
-            {
-                m.ReturnAddress = GetReturnAddressFor(DistributorDataAddress);
-
-                MessageSender.Send(m, DistributorDataAddress);
-            }
-            else
-            {
-                m.ReturnAddress = GetReturnAddressFor(Address);
-
-                MessageSender.Send(m, Address);
-            }
+            
+            MessageSender.Send(m, Address);
         }
 
         ICallback IBus.Send<T>(Action<T> messageConstructor)
@@ -604,8 +548,6 @@ namespace NServiceBus.Unicast
 
             foreach (var destination in destinations)
             {
-                toSend.ReturnAddress = GetReturnAddressFor(destination);
-
                 try
                 {
                     MessageSender.Send(toSend, destination);
@@ -755,8 +697,6 @@ namespace NServiceBus.Unicast
 
                 InitializeSelf();
 
-                SendReadyMessage(true);
-
                 started = true;
             }
 
@@ -769,52 +709,9 @@ namespace NServiceBus.Unicast
         private void InitializeSelf()
         {
             var toSend = GetTransportMessageFor(new CompletionMessage());
-            toSend.ReturnAddress = Address;
             toSend.MessageIntent = MessageIntentEnum.Init;
 
             MessageSender.Send(toSend, Address);
-        }
-
-        /// <summary>
-        /// If this bus is configured to feed off of a distributor,
-        /// it will send a <see cref="ReadyMessage"/> to its control address.
-        /// </summary>
-        /// <param name="startup"></param>
-        private void SendReadyMessage(bool startup)
-        {
-            if (DistributorControlAddress == null)
-                return;
-
-            if (!canSendReadyMessages)
-                return;
-
-            IMessage[] messages;
-            if (startup)
-            {
-                messages = new IMessage[transport.NumberOfWorkerThreads];
-                for (var i = 0; i < transport.NumberOfWorkerThreads; i++)
-                {
-                    var rm = new ReadyMessage
-                                 {
-                                     ClearPreviousFromThisAddress = (i == 0)
-                                 };
-
-                    messages[i] = rm;
-                }
-            }
-            else
-            {
-                messages = new IMessage[1];
-                messages[0] = new ReadyMessage();
-            }
-
-
-            var toSend = GetTransportMessageFor(messages);
-            toSend.ReturnAddress = Address;
-
-            MessageSender.Send(toSend, DistributorControlAddress);
-
-            Log.Debug("Sending ReadyMessage to " + DistributorControlAddress);
         }
 
         /// <summary>
@@ -1166,11 +1063,6 @@ namespace NServiceBus.Unicast
 
         private void TransportFinishedMessageProcessing(object sender, EventArgs e)
         {
-            if (!_skipSendingReadyMessageOnce)
-                SendReadyMessage(false);
-
-            _skipSendingReadyMessageOnce = false;
-
             for (int i = modules.Count-1; i >= 0; i--)
             {
                 Log.Debug("Calling 'HandleEndMessage' on " + modules[i].GetType().FullName);
@@ -1339,13 +1231,15 @@ namespace NServiceBus.Unicast
         /// <returns>The envelope containing the messages.</returns>
         protected TransportMessage GetTransportMessageFor(params IMessage[] rawMessages)
         {
-            var result = new TransportMessage();
-            var ms = new MemoryStream();
-
-            result.Headers = new Dictionary<string, string>();
+            var result = new TransportMessage
+                             {
+                                 Headers = new Dictionary<string, string>(), 
+                                 ReturnAddress = Address
+                             };
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
+            var ms = new MemoryStream();
             MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
 
@@ -1415,23 +1309,6 @@ namespace NServiceBus.Unicast
             timeToBeReceivedPerMessageTypeLocker.EnterWriteLock();
             timeToBeReceivedPerMessageType[messageType] = result;
             timeToBeReceivedPerMessageTypeLocker.ExitWriteLock();
-
-            return result;
-        }
-
-        private string GetReturnAddressFor(string destination)
-        {
-            var result = Address;
-
-            // if we're a worker
-            if (DistributorDataAddress != null)
-            {
-                result = DistributorDataAddress;
-
-                //if we're sending a message to the control bus, then use our own address
-                if (destination == DistributorControlAddress)
-                    result = Address;
-            }
 
             return result;
         }
@@ -1627,17 +1504,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         [ThreadStatic]
         static TransportMessage _messageBeingHandled;
-
-        /// <summary>
-        /// Accessed by multiple threads.
-        /// </summary>
-        private volatile bool canSendReadyMessages = true;
-
-        /// <summary>
-        /// ThreadStatic
-        /// </summary>
-        [ThreadStatic]
-        private static bool _skipSendingReadyMessageOnce;
 
         private volatile bool started;
         private volatile bool starting;
