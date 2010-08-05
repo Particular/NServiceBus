@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading;
 using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
@@ -32,7 +32,7 @@ namespace NServiceBus.Gateway
             sender = new MsmqMessageQueue();
             sender.Init(inputQueue);
 
-            transport = new MsmqTransport
+            transport = new TransactionalTransport
             {
                 MessageQueue = sender,
                 IsTransactional = true,
@@ -71,7 +71,7 @@ namespace NServiceBus.Gateway
         }
 
         private static HttpListener listener;
-        private static MsmqTransport transport;
+        private static ITransport transport;
         private static MsmqMessageQueue sender;
         private static bool requireMD5FromClient = true;
         private static string outputQueue;

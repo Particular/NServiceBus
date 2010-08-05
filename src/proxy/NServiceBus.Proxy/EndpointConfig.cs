@@ -3,7 +3,7 @@ using log4net;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Subscriptions.Msmq;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Proxy
 {
@@ -18,7 +18,7 @@ namespace NServiceBus.Proxy
 
             var externalQueue = new MsmqMessageQueue();
             externalQueue.Init(ConfigurationManager.AppSettings["ExternalQueue"]);
-            var externalTransport = new MsmqTransport
+            var externalTransport = new TransactionalTransport
               {
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
@@ -28,7 +28,7 @@ namespace NServiceBus.Proxy
 
             var internalQueue = new MsmqMessageQueue();
             internalQueue.Init(ConfigurationManager.AppSettings["InternalQueue"]);
-            var internalTransport = new MsmqTransport
+            var internalTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,

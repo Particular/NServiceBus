@@ -40,6 +40,10 @@ namespace NServiceBus.Unicast.Config
 
             RegisterEncryptionMutator();
 
+            var c = GetConfigSection<MsmqTransportConfig>();
+            if (c != null)
+                busConfig.ConfigureProperty(t => t.Address, c.InputQueue);
+
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)

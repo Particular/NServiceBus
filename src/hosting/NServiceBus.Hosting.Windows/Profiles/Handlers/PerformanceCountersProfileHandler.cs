@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using NServiceBus.Hosting.Profiles;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -28,8 +28,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             Configure.ConfigurationComplete += 
                 (o, e) =>
                 {
-                    var msmqTransport = Configure.Instance.Builder.Build<MsmqTransport>();
-                    msmqTransport.TransportMessageReceived += 
+                    var transport = Configure.Instance.Builder.Build<ITransport>();
+                    transport.TransportMessageReceived += 
                         (obj, args) =>
                         {
                             counter.RawValue =

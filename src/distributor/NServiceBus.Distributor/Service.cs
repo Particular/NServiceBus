@@ -5,13 +5,13 @@ using NServiceBus.Unicast;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Unicast.Transport.Msmq;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Distributor
 {
     public class Service : IConfigureThisEndpoint, IWantCustomInitialization 
     {
-        public static MsmqTransport DataTransport { get; private set; }
+        public static TransactionalTransport DataTransport { get; private set; }
         public static IMessageQueue MessageSender { get; private set; }
 
         public void Init()
@@ -44,7 +44,7 @@ namespace NServiceBus.Distributor
             MessageSender = new MsmqMessageQueue();
             MessageSender.Init(ConfigurationManager.AppSettings["DataInputQueue"]);
 
-            DataTransport = new MsmqTransport
+            DataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 IsTransactional = true,
@@ -54,7 +54,7 @@ namespace NServiceBus.Distributor
 
 
             Configure.Instance.Configurer
-                .ConfigureProperty<MsmqTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
+                .ConfigureProperty<TransactionalTransport>(t => t.NumberOfWorkerThreads, numberOfThreads);
             Configure.Instance.Configurer
                 .ConfigureProperty<UnicastBus>(t => t.Address, ConfigurationManager.AppSettings["ControlInputQueue"]);
 

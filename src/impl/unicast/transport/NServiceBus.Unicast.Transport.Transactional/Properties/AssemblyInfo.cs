@@ -19,5 +19,5 @@
 #endregion
 
 using System.Reflection;
-[assembly: AssemblyTitle("NServiceBus Concrete Unicast Transport MSMQ Implementation")]
-[assembly: AssemblyDescription("Implementation of the Unicast Transport abstraction using MSMQ and the Distributed Transaction Coordinator")]
+[assembly: AssemblyTitle("NServiceBus Transactional Transport Implementation")]
+[assembly: AssemblyDescription("Implementation of the Unicast Transport abstraction using the Distributed Transaction Coordinator")]

@@ -1,24 +1,16 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Transactions;
 using Common.Logging;
 using NServiceBus.Faults;
-using System.Diagnostics;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Utils;
 
-namespace NServiceBus.Unicast.Transport.Msmq
+namespace NServiceBus.Unicast.Transport
 {
-	/// <summary>
-	/// An MSMQ implementation of <see cref="ITransport"/> for use with
-	/// NServiceBus.
-	/// </summary>
-	/// <remarks>
-	/// A transport is used by NServiceBus as a high level abstraction from the 
-	/// underlying messaging service being used to transfer messages.
-	/// </remarks>
-    public class MsmqTransport : ITransport
+    public class TransactionalTransport : ITransport
     {
         #region config info
 
@@ -54,12 +46,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
         public IsolationLevel IsolationLevel { get; set; }
-
-        /// <summary>
-        /// Property indicating that queues will not be created on startup
-        /// if they do not already exist.
-        /// </summary>
-        public bool DoNotCreateQueues { get; set; }
 
         /// <summary>
         /// Sets the object which will be used for sending and receiving messages.
@@ -154,13 +140,20 @@ namespace NServiceBus.Unicast.Transport.Msmq
             }
         }
 
-	    /// <summary>
-		/// Starts the transport.
-		/// </summary>
-        public void Start()
+        void ITransport.Start()
         {
+            LimitWorkerThreadsToOne();
+
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
+        }
+
+        [Conditional("COMMUNITY")]
+        private void LimitWorkerThreadsToOne()
+        {
+            numberOfWorkerThreads = 1;
+
+            Logger.Info("You are running a community edition of the software which only supports one thread.");
         }
 
         #endregion
@@ -446,7 +439,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
 	    [ThreadStatic] private static volatile string _messageId;
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqTransport));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (TransactionalTransport));
 
         #endregion
 

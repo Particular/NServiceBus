@@ -1,6 +1,4 @@
-﻿using NServiceBus.Unicast.Transport.Msmq.Config;
-using NServiceBus.Unicast.Queuing.Msmq.Config;
-using NServiceBus.Unicast.Queuing.Azure.Config;
+﻿using NServiceBus.Config;
 
 namespace NServiceBus
 {
@@ -10,30 +8,15 @@ namespace NServiceBus
     public static class ConfigureMsmqTransport
     {
         /// <summary>
-        /// Returns MsmqTransport specific configuration settings.
+        /// If queues configured do not exist, will cause them not to be created on startup.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static ConfigMsmqTransport MsmqTransport(this Configure config)
+        public static Configure DoNotCreateQueues(this Configure config)
         {
-            config.MsmqMessageQueue();
+            MsmqTransportConfig.DoNotCreateQueues = true;
 
-            var cfg = new ConfigMsmqTransport();
-            cfg.Configure(config);
-
-            return cfg;
+            return config;
         }
-
-
-        public static ConfigMsmqTransport AzureQueuesTransport(this Configure config)
-        {
-            config.AzureMessageQueue();
-
-            var cfg = new ConfigMsmqTransport();
-            cfg.Configure(config);
-
-            return cfg;
-        }
-
     }
 }

@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace NServiceBus.Unicast.Transport.Msmq
+namespace NServiceBus.Unicast.Transport
 {
     /// <summary>
     /// An exception thrown when applicative code requests abort the

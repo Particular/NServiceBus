@@ -73,5 +73,10 @@ namespace NServiceBus.Config
                 this["MaxRetries"] = value;
             }
         }
+
+        /// <summary>
+        /// Indicates that queues should not be created.
+        /// </summary>
+        public static bool DoNotCreateQueues { get; set; }
     }
 }
