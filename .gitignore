@@ -2,6 +2,7 @@ build
 binaries
 obj
 bin
+.nu
 _ReSharper.*
 _UpgradeReport.*
 *.csproj.user
