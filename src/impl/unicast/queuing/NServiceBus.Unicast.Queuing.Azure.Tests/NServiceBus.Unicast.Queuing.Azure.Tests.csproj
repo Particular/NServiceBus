@@ -34,15 +34,15 @@
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
+      <HintPath>..\..\..\..\..\lib\Azure\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+      <HintPath>..\..\..\..\..\lib\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+      <HintPath>..\..\..\..\..\lib\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
     </Reference>
     <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -74,7 +74,7 @@
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.5.0.1337, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\external-bin\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\..\..\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

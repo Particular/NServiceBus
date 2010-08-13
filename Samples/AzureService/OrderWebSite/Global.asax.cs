@@ -8,6 +8,7 @@ using MyMessages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Integration.Azure;
+using Order = MyMessages.Order;
 
 namespace OrderWebSite
 {

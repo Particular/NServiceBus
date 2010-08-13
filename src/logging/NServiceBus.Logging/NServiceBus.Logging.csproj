@@ -35,17 +35,17 @@
   <ItemGroup>
     <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Common.Logging.Log4Net, Version=1.2.0.2, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\Common.Logging.Log4Net.dll</HintPath>
+      <HintPath>..\..\..\lib\Common.Logging.Log4Net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\external-bin\log4net.dll</HintPath>
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Config, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">

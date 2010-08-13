@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>..\..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

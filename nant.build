@@ -4,7 +4,7 @@
 	<property name="trunk.dir" value="."/>
 	<property name="company.name" value="NServiceBus"/>
 	<property name="bin.dir" value="bin" />
-	<property name="lib.dir" value="external-bin" />
+	<property name="lib.dir" value="lib" />
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="2.1.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>

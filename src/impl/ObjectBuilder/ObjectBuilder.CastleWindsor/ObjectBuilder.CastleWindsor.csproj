@@ -37,22 +37,22 @@
   <ItemGroup>
     <Reference Include="Castle.Core, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.Core.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Castle.MicroKernel, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.MicroKernel.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.MicroKernel.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Castle.Windsor, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.Windsor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\log4net.dll</HintPath>
+      <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">

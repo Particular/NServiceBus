@@ -38,12 +38,12 @@
   <ItemGroup>
     <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\external-bin\Common.Logging.dll</HintPath>
+      <HintPath>..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Interop.MSMQ, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\external-bin\Interop.MSMQ.dll</HintPath>
+      <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

@@ -35,31 +35,31 @@
   <ItemGroup>
     <Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Autofac.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.Core.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="Castle.MicroKernel, Version=2.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.MicroKernel.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.MicroKernel.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\log4net.dll</HintPath>
+      <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ObjectBuilder2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Microsoft.Practices.Unity.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -75,15 +75,15 @@
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Spring.Core, Version=1.2.0.20313, Culture=neutral, PublicKeyToken=65e474d141e25e07, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\Spring.Core.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Spring.Core.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap, Version=2.5.4.0, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\external-bin\StructureMap.dll</HintPath>
+      <HintPath>..\..\..\..\lib\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
