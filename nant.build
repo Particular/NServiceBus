@@ -25,7 +25,7 @@
 	<property name="architecture" value="x86" dynamic="true" />
 	<property name="build.dir.absolutepath" value="${path::get-full-path(build.base)}" />
 	<property name="include.dependencies" value="true" dynamic="true" />
-	<property name="run_azure_test" value="false" dynamic="true" />
+	<property name="include_azure" value="false" dynamic="true" />
 	<property name="servicehosting.version" value="" dynamic="true" />
 	<property name="project.config" value="release" />
 	<property name="targetframework" value="net-3.5" dynamic="true" />
@@ -297,7 +297,7 @@
 			<in>
 				<items>
 					<include name="${core.build.dir}\*Tests.dll" />
-					<exclude if="${servicehosting.version == '' or run_azure_test == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
+					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>
 			<do>
@@ -400,7 +400,7 @@
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
-		<if test="${servicehosting.version != ''}">
+		<if test="${servicehosting.version != '' and include_azure == 'true'}">
 			<exec	program="${msbuild}" 
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\AzureService" />
