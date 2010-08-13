@@ -107,9 +107,9 @@ namespace NServiceBus.Unicast.Config
                                       {
                                           if (types.Contains(ht))
                                               throw new ConfigurationErrorsException(string.Format("The order in which the type {0} should be invoked was already specified by a previous implementor of ISpecifyMessageHandlerOrdering. Check the debug logs to see which other specifiers have been invoked.", ht));
-
-                                          types.AddRange(order.Types);
                                       });
+
+                    types.AddRange(order.Types);
                 });
 
             return LoadMessageHandlers(types);
