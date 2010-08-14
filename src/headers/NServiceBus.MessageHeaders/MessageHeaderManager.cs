@@ -22,8 +22,8 @@ namespace NServiceBus.MessageHeaders
         public string GetHeader(IMessage message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                if (Bus.CurrentMessageContext.Headers.ContainsKey(key))
-                    return Bus.CurrentMessageContext.Headers[key];
+                if (bus.CurrentMessageContext.Headers.ContainsKey(key))
+                    return bus.CurrentMessageContext.Headers[key];
                 else
                     return null;
 
@@ -77,19 +77,7 @@ namespace NServiceBus.MessageHeaders
             }
         }
         private IUnicastBus bus;
-
-        public ITransport Transport
-        {
-            get { return transport; }
-            set
-            {
-                transport = value;
-                transport.TransportMessageReceived +=
-                            (s1, a1) => staticOutgoingHeaders.Clear();
-            }
-        }
-        private ITransport transport;
-
+        
         private static IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
 
         [ThreadStatic] private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
