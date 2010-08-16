@@ -14,7 +14,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +35,10 @@
     <DocumentationFile>bin\Release\NServiceBus.ObjectBuilder.Spring.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Common.Logging.1.2\Common.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
