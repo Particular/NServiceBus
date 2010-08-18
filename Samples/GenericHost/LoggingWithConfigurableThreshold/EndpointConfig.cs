@@ -5,7 +5,7 @@ using NServiceBus;
 
 namespace LoggingWithConfigurableThreshold
 {
-    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomLogging, IWantToRunAtStartup
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomLogging, IWantToRunAtStartup
     {
         public void Init()
         {
