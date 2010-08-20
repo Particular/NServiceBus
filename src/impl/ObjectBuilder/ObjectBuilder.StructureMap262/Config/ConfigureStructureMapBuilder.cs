@@ -14,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure StructureMapBuilder262(this Configure config)
+        public static Configure StructureMapBuilder(this Configure config)
         {
             ConfigureCommon.With(config, new StructureMapObjectBuilder());
 
@@ -27,7 +27,7 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="container"></param>
         /// <returns></returns>
-        public static Configure StructureMapBuilder262(this Configure config, IContainer container)
+        public static Configure StructureMapBuilder(this Configure config, IContainer container)
         {
             ConfigureCommon.With(config, new StructureMapObjectBuilder(container));
 
