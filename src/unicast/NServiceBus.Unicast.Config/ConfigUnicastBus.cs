@@ -131,12 +131,7 @@ namespace NServiceBus.Unicast.Config
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
-                    var types = new List<Type>(TypesToScan);
-
-                    types.Remove(args[0]);
-                    types.Insert(0, args[0]);
-
-                    return ConfigureMessageHandlersIn(types);
+                    return LoadMessageHandlers(new[] {args[0]});
                 }
             }
 
@@ -158,6 +153,7 @@ namespace NServiceBus.Unicast.Config
 
         private ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> orderedTypes)
         {
+            LoadMessageHandlersCalled = true;
             var types = new List<Type>(TypesToScan);
 
             foreach (Type t in orderedTypes)
@@ -281,5 +277,8 @@ namespace NServiceBus.Unicast.Config
         }
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof (UnicastBus));
+
+        internal bool LoadMessageHandlersCalled { get; private set; }
+
     }
 }

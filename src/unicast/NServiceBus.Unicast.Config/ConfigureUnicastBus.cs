@@ -1,4 +1,5 @@
-﻿using NServiceBus.Unicast.Config;
+﻿using NServiceBus.Config;
+using NServiceBus.Unicast.Config;
 
 namespace NServiceBus
 {
@@ -14,10 +15,21 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
-            var cfg = new ConfigUnicastBus();
-            cfg.Configure(config);
+            Instance = new ConfigUnicastBus();
+            Instance.Configure(config);
 
-            return cfg;
-        } 
+            return Instance;
+        }
+
+        internal static ConfigUnicastBus Instance { get; private set; }
+    }
+
+    class EnsureLoadMessageHandlersWasCalled : INeedInitialization
+    {
+        void INeedInitialization.Init()
+        {
+            if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
+                ConfigureUnicastBus.Instance.LoadMessageHandlers();
+        }
     }
 }
