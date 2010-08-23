@@ -32,7 +32,12 @@
 	<property name="msbuild" value="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" dynamic="true" />
 	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
 	<property name="ilmerge.targetframework" value="" dynamic="true" />
+	<property name="nunit.targetframework" value="" dynamic="true" />
 	
+	<if test="${targetframework == 'net-4.0'}">
+		<property name="nunit.targetframework" value="/framework=4.0"/>
+	</if>
+
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
 		<description>
@@ -284,11 +289,6 @@
 	</target>
 
 	<target name="test">
-		<property name="nunit.targetframework" value="" dynamic="true" />
-		<if test="${targetframework == 'net-4.0'}">
-			<property name="nunit.targetframework" value="/framework=4.0"/>
-		</if>
-
 		<mkdir dir="${build.base}\test-reports" />
 
 		<!-- run the core tests-->
@@ -322,7 +322,11 @@
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\testing" />
-
+		
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\testing\">
+			<arg line="NServiceBus.Testing.Tests.dll" />
+			<arg value="${nunit.targetframework}" />
+		</exec>
 		<mkdir 	dir="${output.dir}\testing" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt ${ilmerge.targetframework}"
