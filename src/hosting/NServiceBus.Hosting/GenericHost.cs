@@ -79,9 +79,6 @@ namespace NServiceBus.Hosting
 
                 profileManager.ActivateProfileHandlers();
 
-                if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
-                    Configure.Instance.XmlSerializer();
-                
                 var bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();

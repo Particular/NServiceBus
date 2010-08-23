@@ -1,5 +1,7 @@
-﻿using NServiceBus.ObjectBuilder;
+﻿using NServiceBus.Config;
+using NServiceBus.ObjectBuilder;
 using System.Linq;
+using NServiceBus.Serialization;
 
 namespace NServiceBus
 {
@@ -39,6 +41,14 @@ namespace NServiceBus
 
             return config;
         }
+    }
 
+    class SetXmlSerializerAsDefault : INeedInitialization
+    {
+        void INeedInitialization.Init()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
+                Configure.Instance.XmlSerializer();
+        }
     }
 }
