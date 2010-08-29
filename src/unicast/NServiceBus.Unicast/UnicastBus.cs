@@ -463,6 +463,8 @@ namespace NServiceBus.Unicast
         {
             var m = GetTransportMessageFor(messages);
             
+            m.MessageIntent = MessageIntentEnum.Send;
+
             MessageSender.Send(m, Address);
         }
 
