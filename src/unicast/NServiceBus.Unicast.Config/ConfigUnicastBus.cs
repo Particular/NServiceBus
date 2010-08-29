@@ -1,10 +1,8 @@
 using System;
 using System.Configuration;
 using Common.Logging;
-using NServiceBus.Encryption;
 using NServiceBus.ObjectBuilder;
 using System.Collections;
-using System.Reflection;
 using NServiceBus.Config;
 using System.Collections.Generic;
 using NServiceBus.Saga;
@@ -38,16 +36,23 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-            RegisterEncryptionMutator();
-
-            var c = GetConfigSection<MsmqTransportConfig>();
-            if (c != null)
-                busConfig.ConfigureProperty(t => t.Address, c.InputQueue);
-
             var cfg = GetConfigSection<UnicastBusConfig>();
 
             if (cfg != null)
             {
+                if (cfg.LocalAddress != null)
+                    busConfig.ConfigureProperty(t => t.Address, cfg.LocalAddress);
+                else
+                {
+                    var c = GetConfigSection<MsmqTransportConfig>();
+                    if (c != null)
+                    {
+                        busConfig.ConfigureProperty(t => t.Address, c.InputQueue);
+                        if (c.InputQueue != null)
+                            Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
+                    }
+                }
+
                 TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList().ForEach(
                         t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty                   
                     );
@@ -58,11 +63,6 @@ namespace NServiceBus.Unicast.Config
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
-        }
-
-        void RegisterEncryptionMutator()
-        {
-            Configurer.ConfigureComponent<EncryptionMessageMutator>(ComponentCallModelEnum.Singlecall);
         }
 
         private void RegisterMessageModules()
