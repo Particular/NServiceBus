@@ -1,4 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using NServiceBus.Config;
+using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast;
@@ -16,18 +19,19 @@ namespace NServiceBus.Distributor
 
         public void Init()
         {
-            var configure = Configure.With()
-                .DefaultBuilder()
-                .MsmqTransport()
-                    .IsTransactional(true)
-                .UnicastBus()
-                    .ImpersonateSender(true);
-
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
 
             var nameSpace = ConfigurationManager.AppSettings["NameSpace"];
             var serialization = ConfigurationManager.AppSettings["Serialization"];
+
+            var configure = Configure.With()
+                .DefaultBuilder()
+                .CustomConfigurationSource(new Custom { ErrorQueue = errorQueue })
+                .MsmqTransport()
+                    .IsTransactional(true)
+                .UnicastBus()
+                    .ImpersonateSender(true);
 
             switch (serialization)
             {
@@ -67,6 +71,20 @@ namespace NServiceBus.Distributor
 
             configure.LoadMessageHandlers(First<GridInterceptingMessageHandler>
                                               .Then<ReadyMessageHandler>());
+        }
+    }
+
+    public class Custom : IConfigurationSource
+    {
+        public string ErrorQueue { get; set; }
+        public string InputQueue { get; set; }
+
+        public T GetConfiguration<T>() where T : class, new()
+        {
+            if (typeof(T) == typeof(MsmqTransportConfig))
+                return new MsmqTransportConfig { ErrorQueue = ErrorQueue, InputQueue = InputQueue } as T;
+
+            return null;
         }
     }
 }
