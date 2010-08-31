@@ -112,6 +112,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return false;
 
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+                {
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
+                    Thread.Sleep(10000); //long enough for someone to notice
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
+
                 throw;
             }
         }
@@ -166,7 +173,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent().Name));
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
                     Thread.Sleep(10000); //long enough for someone to notice
                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                 }
