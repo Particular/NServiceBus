@@ -222,9 +222,19 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (PurgeOnStartup)
                     queue.Purge();
 
+                LimitWorkerThreadsToOne();
+
                 for (int i = 0; i < numberOfWorkerThreads; i++)
                     AddWorkerThread().Start();
             }
+        }
+
+        [Conditional("COMMUNITY")]
+        private void LimitWorkerThreadsToOne()
+        {
+            numberOfWorkerThreads = 1;
+
+            Logger.Info("You are running a community edition of the software which only supports one thread.");
         }
 
         private void CheckConfiguration()
