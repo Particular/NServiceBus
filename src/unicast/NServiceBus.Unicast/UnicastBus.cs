@@ -516,10 +516,7 @@ namespace NServiceBus.Unicast
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
 
             if (messages == null || messages.Length == 0)
-            {
-                Log.Warn("No messages have been passed to send - not sending anything.");
-                return null;
-            }
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
 
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
@@ -772,28 +769,33 @@ namespace NServiceBus.Unicast
 
             var messages = Extract(m);
 
+            if (messages == null || messages.Length == 0)
+            {
+                Log.Warn("Received an empty message - ignoring.");
+                return;
+            }
+
             HandleCorellatedMessage(m, messages);
 
-            if (messages != null)
-                foreach (var originalMessage in messages)
+            foreach (var originalMessage in messages)
+            {
+                var messageToHandle = ApplyIncomingMessageMutatorsTo(originalMessage);
+
+                ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
+
+                var canDispatch = true;
+                foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
                 {
-                    var messageToHandle = ApplyIncomingMessageMutatorsTo(originalMessage);
+                    if (condition(messageToHandle)) continue;
 
-                    ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
-
-                    var canDispatch = true;
-                    foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
-                    {
-                        if (condition(messageToHandle)) continue;
-
-                        Log.Debug(string.Format("Condition {0} failed for message {1}", condition, messageToHandle.GetType().Name));
-                        canDispatch = false;
-                        break;
-                    }
-
-                    if (canDispatch)
-                        DispatchMessageToHandlersBasedOnType(messageToHandle, messageToHandle.GetType());
+                    Log.Debug(string.Format("Condition {0} failed for message {1}", condition, messageToHandle.GetType().Name));
+                    canDispatch = false;
+                    break;
                 }
+
+                if (canDispatch)
+                    DispatchMessageToHandlersBasedOnType(messageToHandle, messageToHandle.GetType());
+            }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
