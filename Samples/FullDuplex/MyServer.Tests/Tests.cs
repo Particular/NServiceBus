@@ -20,9 +20,9 @@ namespace MyServer.Tests
 
             Test.Handler<RequestDataMessageHandler>()
                 .SetIncomingHeader("Test", "abc")
-                .ExpectReply<DataResponseMessage>(m => m.DataId == dataId && m.String == str && m.SecretAnswer == secret)
+                .ExpectReply<DataResponseMessage>(m => m.DataId == dataId && m.String == str)
                 .AssertOutgoingHeader("Test", "abc")
-                .OnMessage<RequestDataMessage>(m => { m.DataId = dataId; m.String = str; m.SecretQuestion = secret; });
+                .OnMessage<RequestDataMessage>(m => { m.DataId = dataId; m.String = str; });
         }
     }
 }

@@ -22,13 +22,12 @@ namespace MyClient
 
                 Bus.OutgoingHeaders["Test"] = g.ToString("N");
 
-                Stopwatch watch = new Stopwatch();
+                var watch = new Stopwatch();
                 watch.Start();
                 Bus.Send<RequestDataMessage>(m =>
                                                  {
                                                      m.DataId = g;
                                                      m.String = "<node>it's my \"node\" & i like it<node>";
-                                                     m.SecretQuestion = "What's your favorite color?";
                                                  })
                     .Register<int>(i => 
                         {

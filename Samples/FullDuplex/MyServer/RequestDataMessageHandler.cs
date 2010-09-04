@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using log4net;
 using MyMessages;
 using NServiceBus;
 
@@ -10,17 +12,16 @@ namespace MyServer
 
         public void Handle(RequestDataMessage message)
         {
-            Console.WriteLine("=========================================================================="); 
-            Console.WriteLine("Received request {0}.", message.DataId);
-            Console.WriteLine("String received: {0}.", message.String);
-            Console.WriteLine("Secret Question received: {0}.", message.SecretQuestion.Value);
-            Console.WriteLine("Header 'Test' = {0}.", message.GetHeader("Test"));
+            Logger.Info("==========================================================================");
+            Logger.InfoFormat("Received request {0}.", message.DataId);
+            Logger.InfoFormat("String received: {0}.", message.String);
+            Logger.InfoFormat("Header 'Test' = {0}.", message.GetHeader("Test"));
+            Logger.InfoFormat(Thread.CurrentPrincipal != null ? Thread.CurrentPrincipal.Identity.Name : string.Empty);
 
             var response = Bus.CreateInstance<DataResponseMessage>(m => 
             { 
                 m.DataId = message.DataId;
                 m.String = message.String;
-                m.SecretAnswer = message.SecretQuestion;
             });
 
             response.CopyHeaderFromRequest("Test");
@@ -29,5 +30,7 @@ namespace MyServer
 
             Bus.Reply(response); //Try experimenting with sending multiple responses
         }
+
+        public static ILog Logger = LogManager.GetLogger("MyServer");
     }
 }

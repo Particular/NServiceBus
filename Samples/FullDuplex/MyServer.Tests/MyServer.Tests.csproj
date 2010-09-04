@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MyServer.Tests</RootNamespace>
     <AssemblyName>MyServer.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,13 +46,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
-      
     </Reference>
     <Reference Include="System.Xml.Linq">
-      
     </Reference>
     <Reference Include="System.Data.DataSetExtensions">
-      
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -69,6 +67,9 @@
       <Project>{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}</Project>
       <Name>MyServer</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
