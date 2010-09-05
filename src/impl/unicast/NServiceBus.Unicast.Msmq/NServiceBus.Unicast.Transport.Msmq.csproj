@@ -35,6 +35,15 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\NServiceBus.Unicast.Transport.Msmq.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Community|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;COMMUNITY</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NServiceBus.Unicast.Transport.Msmq.XML</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
