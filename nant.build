@@ -36,6 +36,12 @@
 	<if test="${targetframework == 'net-4.0'}">
 		<property name="nunit.targetframework" value="/framework=4.0"/>
 	</if>
+	<property name="edition" value="" dynamic="true" />
+	<property name="editions.community" value="COMMUNITY" dynamic="true" />
+	
+	<if test="${edition == editions.community}">
+	    <echo message="Edition set to the communition edition"/>
+	</if>
 	
 
   <target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
@@ -197,9 +203,15 @@
 					in="utils,ObjectBuilder,messageInterfaces,encryption,impl\messageInterfaces,config,logging,unicast,impl\unicast\NServiceBus.Unicast.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\encryption,impl\Serializers,impl\ObjectBuilder.Common,impl\Sagas,grid,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,integration"
 					delim=","
 					property="pathToBuild">
-      <exec 	program="${msbuild}"
-					commandline="/p:Configuration=${project.config} ${msbuild.targetframework} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
-					workingdir="${solution.dir}\${pathToBuild}" />
+		<property name="project.config_to_build" value="${project.config}" dynamic="true" />
+		<if test="${pathToBuild == 'impl\unicast\NServiceBus.Unicast.Msmq' and edition == editions.community}">
+			<echo message="Using the Community target for the msmqtransport"/>
+			<property name="project.config_to_build" value="Community"/>
+		</if>
+					
+		<exec 	program="${msbuild}"
+				commandline="/p:Configuration=${project.config_to_build} ${msbuild.targetframework} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\"
+				workingdir="${solution.dir}\${pathToBuild}" />
     </foreach>
     <!-- Create list of all "core" assemblies -->
     <property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.Objectbuilder.dll" dynamic="true" />
@@ -565,7 +577,7 @@
     </copy>
 
     <!-- Prepare Tools -->
-    <copy todir="${release.dir}\processes">
+    <copy todir="${release.dir}\processes" unless="${edition == editions.community}">
       <fileset basedir="${build.base}">
         <include name="timeout\**" />
         <include name="proxy\**" />
