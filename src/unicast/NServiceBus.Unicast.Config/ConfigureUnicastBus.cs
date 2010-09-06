@@ -28,8 +28,9 @@ namespace NServiceBus
     {
         void INeedInitialization.Init()
         {
-            if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
-                ConfigureUnicastBus.Instance.LoadMessageHandlers();
+            if (ConfigureUnicastBus.Instance != null)
+                if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
+                    ConfigureUnicastBus.Instance.LoadMessageHandlers();
         }
     }
 }
