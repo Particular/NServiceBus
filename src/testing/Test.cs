@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NServiceBus.Saga;
+using NServiceBus.Serialization;
 using Rhino.Mocks;
 
 namespace NServiceBus.Testing
@@ -32,19 +33,9 @@ namespace NServiceBus.Testing
 
         private static void InitializeInternal()
         {
-            var mapper = new MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-            _messageTypes = new List<Type>();
-
-            foreach (var t in Configure.TypesToScan)
-                if (typeof(IMessage).IsAssignableFrom(t))
-                    if (!_messageTypes.Contains(t))
-                        _messageTypes.Add(t);
-
-            mapper.Initialize(_messageTypes.ToArray());
-
-            _messageCreator = mapper;
-
-            ExtensionMethods.MessageCreator = _messageCreator;
+            Configure.Instance
+                .DefaultBuilder()
+                .XmlSerializer();
         }
 
         /// <summary>
@@ -85,16 +76,26 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
-            if (_messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-
             var mocks = new MockRepository();
             var bus = mocks.DynamicMock<IBus>();
+            var starter = mocks.DynamicMock<IStartableBus>();
+
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IBus), bus);
 
             saga.Bus = bus;
             ExtensionMethods.Bus = bus;
 
-            return new Saga<T>(saga, mocks, bus, _messageCreator, _messageTypes);
+            Configure.Instance.CreateBus();
+
+            Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
+            _messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
+            if (_messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+
+            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+
+            return new Saga<T>(saga, mocks, bus, _messageCreator, messageTypes);
         }
 
         /// <summary>
@@ -117,9 +118,6 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Handler<T> Handler<T>(T handler)
         {
-            if (_messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-
             bool isHandler = false;
             foreach(var i in handler.GetType().GetInterfaces())
             {
@@ -134,6 +132,10 @@ namespace NServiceBus.Testing
 
             var mocks = new MockRepository();
             var bus = mocks.DynamicMock<IBus>();
+            var starter = mocks.DynamicMock<IStartableBus>();
+
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IBus), bus);
 
             var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
             if (prop != null)
@@ -141,7 +143,16 @@ namespace NServiceBus.Testing
 
             ExtensionMethods.Bus = bus;
 
-            return new Handler<T>(handler, mocks, bus, _messageCreator, _messageTypes);
+            Configure.Instance.CreateBus();
+
+            Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
+            _messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
+            if (_messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+
+            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+
+            return new Handler<T>(handler, mocks, bus, _messageCreator, messageTypes);
         }
 
         /// <summary>
@@ -170,7 +181,5 @@ namespace NServiceBus.Testing
         /// Returns the message creator.
         /// </summary>
         private static IMessageCreator _messageCreator;
-
-        private static List<Type> _messageTypes;
     }
 }

@@ -8,7 +8,7 @@ namespace NServiceBus.Testing.Tests
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            Test.Initialize();
+            Test.Initialize(typeof(IMessage).Assembly, typeof(TestHandlerFixture).Assembly);
         }
 
         [Test]
@@ -54,8 +54,6 @@ namespace NServiceBus.Testing.Tests
 			Assert.IsTrue(handler.IsHandled);
 		}
 
-        public interface TestMessage : IMessage {}
-
         public class EmptyHandler : IHandleMessages<TestMessage>
         {
             public void Handle(TestMessage message) {}
@@ -100,4 +98,6 @@ namespace NServiceBus.Testing.Tests
 		}
 
     }
+
+    public interface TestMessage : IMessage { }
 }
