@@ -552,6 +552,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
             catch (ObjectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                Thread.Sleep(10000); //long enough for someone to notice
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+
                 return false;
             }
             catch (Exception e)
@@ -574,11 +577,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     return null;
 
                 Logger.Error("Problem in receiving message from queue: " + Enum.GetName(typeof(MessageQueueErrorCode), mqe.MessageQueueErrorCode), mqe);
-                return null;
-            }
-            catch (ObjectDisposedException)
-            {
-                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
                 return null;
             }
             catch(Exception e)
