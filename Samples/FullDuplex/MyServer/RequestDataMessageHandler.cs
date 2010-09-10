@@ -12,14 +12,12 @@ namespace MyServer
         {
             Console.WriteLine("Received request {0}.", message.DataId);
             Console.WriteLine("String received: {0}.", message.String);
-            Console.WriteLine("Secret Question received: {0}.", message.SecretQuestion.Value);
             Console.WriteLine("Header 'Test' = {0}.", message.GetHeader("Test"));
 
             var response = Bus.CreateInstance<DataResponseMessage>(m => 
             { 
                 m.DataId = message.DataId;
                 m.String = message.String;
-                m.SecretAnswer = message.SecretQuestion;
             });
 
             response.CopyHeaderFromRequest("Test");

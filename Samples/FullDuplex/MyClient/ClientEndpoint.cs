@@ -1,7 +1,6 @@
 using System;
 using NServiceBus;
 using MyMessages;
-using NServiceBus.Host;
 
 namespace MyClient
 {
@@ -15,7 +14,7 @@ namespace MyClient
 
             while (Console.ReadLine() != null)
             {
-                Guid g = Guid.NewGuid();
+                var g = Guid.NewGuid();
 
                 Console.WriteLine("Requesting to get data by id: {0}", g.ToString("N"));
 
@@ -25,7 +24,6 @@ namespace MyClient
                                                  {
                                                      m.DataId = g;
                                                      m.String = "<node>it's my \"node\" & i like it<node>";
-                                                     m.SecretQuestion = "What's your favorite color?";
                                                  })
                     .Register(i => Console.Out.WriteLine(
                                        "Response with header 'Test' = {0}, 1 = {1}, 2 = {2}.",
