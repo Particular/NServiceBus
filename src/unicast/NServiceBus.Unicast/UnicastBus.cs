@@ -553,6 +553,9 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException(
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
 
+            if (messages == null || messages.Length == 0)
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
+
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
                 var result = new Callback(id);
@@ -991,6 +994,12 @@ namespace NServiceBus.Unicast
                     if (ClientSubscribed != null)
                         ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberAddress = msg.ReturnAddress });
 
+                return;
+            }
+
+            if (msg.Body[0] == null)
+            {
+                Log.Warn("Received an empty message - ignoring. Message came from: " + msg.ReturnAddress);
                 return;
             }
 
