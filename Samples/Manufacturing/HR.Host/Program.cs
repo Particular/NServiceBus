@@ -1,6 +1,5 @@
 using System;
 using log4net;
-using log4net.Config;
 using NServiceBus;
 
 namespace HR.Host
@@ -32,9 +31,5 @@ namespace HR.Host
 
             Console.Read();
         }
-    }
-
-    internal class HelloJob
-    {
     }
 }

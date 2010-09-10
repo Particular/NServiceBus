@@ -16,11 +16,11 @@ namespace Server.Handlers
         {
             if (message.OrderId % 2 == 0)
             {
-                this.bus.Return((int) ErrorCodes.Fail);
+                bus.Return((int) ErrorCodes.Fail);
             }
             else
             {
-                this.bus.Return((int) ErrorCodes.None);
+                bus.Return((int) ErrorCodes.None);
             }
         }
     }
