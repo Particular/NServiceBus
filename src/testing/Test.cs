@@ -113,8 +113,9 @@ namespace NServiceBus.Testing
             {
                 var args = i.GetGenericArguments();
                 if (args.Length == 1)
-                    if (typeof(IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i))
-                        isHandler = true;
+                    if (typeof(IMessage).IsAssignableFrom(args[0]))
+                        if (typeof(IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i))
+                            isHandler = true;
             }
 
             if (!isHandler)
