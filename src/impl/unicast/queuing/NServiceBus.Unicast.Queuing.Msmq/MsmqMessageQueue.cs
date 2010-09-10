@@ -121,6 +121,14 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 throw;
             }
+            catch(ObjectDisposedException)
+            {
+                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                Thread.Sleep(10000); //long enough for someone to notice
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+
+                throw;
+            }
         }
 
         public TransportMessage Receive(bool transactional)
