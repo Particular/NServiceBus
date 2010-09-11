@@ -6,7 +6,7 @@
 	<property name="bin.dir" value="bin" />
 	<property name="lib.dir" value="lib" />
 	<property name="build.base" value="build"/>
-	<property name="project.version" value="2.1.0" />
+	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
 	<property name="release.dir" value="${trunk.dir}\release"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
