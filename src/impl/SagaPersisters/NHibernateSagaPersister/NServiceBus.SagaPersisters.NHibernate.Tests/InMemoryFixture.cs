@@ -9,7 +9,7 @@ using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
-    public class MessageModuleFixture
+    public class InMemoryFixture
     {
         protected IManageUnitsOfWork UnitOfWork;
         protected SagaPersister SagaPersister;

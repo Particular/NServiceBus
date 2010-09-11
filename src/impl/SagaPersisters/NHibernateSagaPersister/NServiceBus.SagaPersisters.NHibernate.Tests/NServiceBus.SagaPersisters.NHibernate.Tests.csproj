@@ -101,7 +101,7 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="MessageModuleFixture.cs" />
+    <Compile Include="InMemoryFixture.cs" />
     <Compile Include="MySaga.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_automapping_sagas.cs" />
@@ -109,6 +109,7 @@
     <Compile Include="When_configuring_the_saga_persister_from_appconfig.cs" />
     <Compile Include="When_configuring_the_saga_persister_to_use_sqlite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="When_persisting_a_saga_with_a_unique_property.cs" />
     <Compile Include="When_persisting_sagas_on_non_transactional_endpoints.cs" />
     <Compile Include="When_persisting_sagas_on_transactional_endpoints.cs" />
   </ItemGroup>

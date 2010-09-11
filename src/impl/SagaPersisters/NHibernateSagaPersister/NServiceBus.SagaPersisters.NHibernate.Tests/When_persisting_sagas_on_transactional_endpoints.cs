@@ -1,13 +1,13 @@
 using System;
 using System.Transactions;
 using NBehave.Spec.NUnit;
+using NServiceBus.Saga;
 using NUnit.Framework;
-using Rhino.Mocks;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     [TestFixture]
-    public class When_persisting_sagas_on_transactional_endpoints:MessageModuleFixture
+    public class When_persisting_sagas_on_transactional_endpoints:InMemoryFixture
     {
         [Test]
         public void Ambient_transaction_should_commit_saga()
@@ -57,4 +57,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
     }
+
+   
 }

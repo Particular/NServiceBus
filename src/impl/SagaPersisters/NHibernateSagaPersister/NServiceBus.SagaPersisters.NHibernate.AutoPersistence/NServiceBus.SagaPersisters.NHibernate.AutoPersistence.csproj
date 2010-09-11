@@ -52,10 +52,12 @@
     <Compile Include="..\..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Conventions\UniqueConvention.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Conventions\CollectionsShouldCascadeConvention.cs" />
     <Compile Include="Conventions\IdShouldBeAssignedConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UniqueAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,14 +1,6 @@
-﻿using System;
-using FluentNHibernate.Cfg.Db;
-using NHibernate;
-using NHibernate.Connection;
-using NHibernate.Dialect;
-using NHibernate.Impl;
-using NServiceBus.Config.ConfigurationSource;
+﻿using NHibernate;
 using NUnit.Framework;
 using NBehave.Spec.NUnit;
-using Rhino.Mocks;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {

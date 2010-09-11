@@ -6,6 +6,7 @@ using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;
 using NHibernate.Persister.Entity;
+using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NUnit.Framework;
 
@@ -80,7 +81,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             sessionFactory.ShouldContainPersisterFor<PolymorpicProperty>();
         }
-
     }
 
     public static class SessionFactoryExtensions
