@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Transactions;
+using System.Transactions.Configuration;
 using NServiceBus.Unicast.Transport.Transactional.Config;
 
 namespace NServiceBus
@@ -65,8 +67,33 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure TransactionTimeout(this Configure config, TimeSpan transactionTimeout)
         {
+            var maxTimeout = GetMaxTimeout();
+
+            if(transactionTimeout > maxTimeout)
+                throw new ConfigurationErrorsException("Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
+
             Bootstrapper.TransactionTimeout = transactionTimeout;
+         
             return config;
+        }
+
+        static TimeSpan GetMaxTimeout()
+        {
+            //default is 10 always 10 minutes
+            var maxTimeout = TimeSpan.FromMinutes(10);
+
+            var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
+                .GetSectionGroup("system.transactions");
+
+            if (systemTransactionsGroup != null)
+            {
+                var machineSettings = systemTransactionsGroup.Sections.Get("machineSettings") as MachineSettingsSection;
+               
+                if (machineSettings != null)
+                    maxTimeout = machineSettings.MaxTimeout;
+            }
+
+            return maxTimeout;
         }
     }
 }
