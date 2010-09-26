@@ -1,4 +1,3 @@
-using System;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Config;
@@ -8,7 +7,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Config
 {
     public static class ConfigureAzureMessageQueue
     {
-        public static void AzureMessageQueue(this Configure config)
+        public static Configure AzureMessageQueue(this Configure config)
         {
             CloudQueueClient queueClient;
 
@@ -27,6 +26,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.Config
             config.Configurer.RegisterSingleton<CloudQueueClient>(queueClient);
        
             config.Configurer.ConfigureComponent<AzureMessageQueue>(ComponentCallModelEnum.Singleton);
+            
+            return config;
         }
     }
 }

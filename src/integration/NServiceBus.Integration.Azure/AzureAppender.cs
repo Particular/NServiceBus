@@ -12,7 +12,7 @@ namespace NServiceBus.Integration.Azure
             ScheduledTransferPeriod = TimeSpan.FromMinutes(1);
             Layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
 
-            ConnectionStringKey = "DiagnosticsStorage.ConnectionString";
+            ConnectionStringKey = "Diagnostics.ConnectionString";
         }
 
         public TimeSpan ScheduledTransferPeriod { get; set; }
@@ -38,12 +38,19 @@ namespace NServiceBus.Integration.Azure
             var dmc = DiagnosticMonitor.GetDefaultInitialConfiguration();
 
             dmc.Logs.ScheduledTransferPeriod = ScheduledTransferPeriod;
+            dmc.Directories.ScheduledTransferPeriod = ScheduledTransferPeriod;
+            dmc.WindowsEventLog.ScheduledTransferPeriod = ScheduledTransferPeriod;
 
             //set threshold to verbose, what gets logged is controled by the log4net threshold anyway
             dmc.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+
+            dmc.WindowsEventLog.DataSources.Add("Application!*");
+            dmc.WindowsEventLog.DataSources.Add("System!*");
 
             DiagnosticMonitor.Start(ConnectionStringKey, dmc);
         }
 
     }
 }
+
+           

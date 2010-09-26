@@ -1246,7 +1246,7 @@ namespace NServiceBus.Unicast
             var ms = new MemoryStream();
             MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
-
+            
             var mappers = Builder.BuildAll<IMapOutgoingTransportMessages>();
             mappers.ToList().ForEach(m => m.MapOutgoing(messages, result));
 

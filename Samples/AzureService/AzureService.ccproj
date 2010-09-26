@@ -57,15 +57,18 @@
   </PropertyGroup>
   <Import Project="$(CloudExtensionsDir)Microsoft.CloudService.targets" />
 
-<PropertyGroup>
+
+
+  <!--PropertyGroup>
     <BuildDependsOn>
         $(BuildDependsOn);
-       <!-- UpdateEntryPoint;-->
+       UpdateEntryPoint;
     </BuildDependsOn>
 </PropertyGroup>
-<Target Name="UpdateEntryPoint" >
- <Message Text="Hello from MyCustomTarget"/>
- <WriteLinesToFile File="$(ServiceOutputDirectory)\roles\OrderService\__entrypoint.txt" Lines="NServiceBus.Host.Azure.dll" Overwrite="true" />
-</Target>
+
+  <Target Name="UpdateEntryPoint" >
+    <WriteLinesToFile File="$(ServiceOutputDirectory)\roles\OrderService\__entrypoint.txt" Lines="NServiceBus.Hosting.Azure.dll" Overwrite="true" />
+  </Target-->
+  
 
 </Project>

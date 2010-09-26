@@ -44,6 +44,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MessageHeaders">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.MessageHeaders.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>

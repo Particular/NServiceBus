@@ -7,11 +7,24 @@
     </InputEndpoints>
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString"/>
+      <Setting name="NServiceBus.Profile"/>
+      <Setting name="Diagnostics.ConnectionString" />
+      <Setting name="Data.ConnectionString" />
+      <Setting name="Diagnostics.LogLevel" />      
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString"/>
+      <Setting name="NServiceBus.Profile"/>
+      <Setting name="Diagnostics.ConnectionString" />
+      <Setting name="Data.ConnectionString" />
+      <Setting name="Diagnostics.LogLevel" />
+
+      <Setting name="UnicastBusConfig.LocalAddress"/>
+      <Setting name="MsmqTransportConfig.ErrorQueue"/>
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads"/>
+      <Setting name="MsmqTransportConfig.MaxRetries"/>
     </ConfigurationSettings>
    
   </WorkerRole>

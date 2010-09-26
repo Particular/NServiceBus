@@ -8,7 +8,7 @@ using MyMessages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Integration.Azure;
-using Order = MyMessages.Order;
+using NServiceBus.Unicast.Queuing.Azure.Config;
 
 namespace OrderWebSite
 {
@@ -16,14 +16,14 @@ namespace OrderWebSite
     {
 
         public static IBus Bus;
-        public static IList<Order> Orders;
+        public static IList<MyMessages.Order> Orders;
 
         protected void Application_Start(object sender, EventArgs e)
         {
             ConfigureNServiceBus();
 
 
-            Orders = new List<Order>();
+            Orders = new List<MyMessages.Order>();
             //request all orders to "warmup" the cache
             Bus.Send(new LoadOrdersMessage());
         }
@@ -38,12 +38,12 @@ namespace OrderWebSite
                               Threshold = Level.Debug
                           })
                 .AzureConfigurationSource()
+                .AzureMessageQueue()
                 .XmlSerializer()
                 .UnicastBus()
-                .LoadMessageHandlers()
-                .AzureQueuesTransport()
+                .LoadMessageHandlers()                
                 .IsTransactional(true)
-                .PurgeOnStartup(true)
+              //  .PurgeOnStartup(true)
                 .CreateBus()
                 .Start();
         }

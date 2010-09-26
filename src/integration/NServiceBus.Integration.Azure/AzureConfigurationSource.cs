@@ -42,8 +42,9 @@ namespace NServiceBus.Integration.Azure
 
         private static Configuration GetConfigurationHandler()
         {
+
             if (HttpContext.Current == null)
-                return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                return ConfigurationManager.OpenExeConfiguration( ConfigurationUserLevel.None );
 
             return WebConfigurationManager.OpenWebConfiguration("/");
         }

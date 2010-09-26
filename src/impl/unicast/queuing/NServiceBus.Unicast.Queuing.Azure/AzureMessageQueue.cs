@@ -5,7 +5,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.Queuing.Azure
@@ -38,6 +37,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(string inputqueue)
         {
             queue = client.GetQueueReference(inputqueue);
+            queue.CreateIfNotExist();
 
             if (PurgeOnStartup)
                 queue.Clear();
