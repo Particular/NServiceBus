@@ -16,6 +16,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
     {
         private readonly IContainer container;
         private readonly IDictionary<Type, ConfiguredInstance> configuredInstances = new Dictionary<Type, ConfiguredInstance>();
+        private bool disposed;
 
         public StructureMapObjectBuilder()
         {
@@ -25,6 +26,33 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         public StructureMapObjectBuilder(IContainer container)
         {
             this.container = container;
+        }
+
+        /// <summary>
+        /// Disposes the container and all resources instantiated by the container.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing || disposed)
+                return;
+
+            disposed = true;
+            container.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns a child instance of the container to facilitate deterministic disposal
+        /// of all resources built by the child container.
+        /// </summary>
+        /// <returns></returns>
+        public Common.IContainer BuildChildContainer()
+        {
+            return new StructureMapObjectBuilder(container.GetNestedContainer());
         }
 
         object Common.IContainer.Build(Type typeToBuild)

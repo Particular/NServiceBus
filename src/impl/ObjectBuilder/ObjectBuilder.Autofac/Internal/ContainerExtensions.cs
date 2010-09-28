@@ -15,7 +15,7 @@ namespace NServiceBus.ObjectBuilder.Autofac.Internal
         ///<param name="container"></param>
         ///<param name="componentType"></param>
         ///<returns></returns>
-        public static IEnumerable<object> ResolveAll(this IContainer container, Type componentType)
+        public static IEnumerable<object> ResolveAll(this IComponentContext container, Type componentType)
         {
             return container.Resolve(typeof(IEnumerable<>).MakeGenericType(componentType)) as IEnumerable<object>;
         }

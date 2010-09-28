@@ -98,6 +98,19 @@ namespace NServiceBus.ObjectBuilder.Common
 
         #region IBuilder Members
 
+        IBuilder IBuilder.CreateChildBuilder()
+        {
+            return new CommonObjectBuilder
+            {
+                Container = Container.BuildChildContainer()
+            };
+        }
+
+        void IDisposable.Dispose()
+        {
+            Container.Dispose();
+        }
+
         T IBuilder.Build<T>()
         {
             return (T)Container.Build(typeof(T));

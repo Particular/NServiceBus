@@ -58,9 +58,6 @@
     <Compile Include="..\..\ObjectBuilder\ObjectBuilder.Autofac\Internal\ContainerExtensions.cs">
       <Link>Internal\ContainerExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\ObjectBuilder\ObjectBuilder.Autofac\Internal\ContainerUpdater.cs">
-      <Link>Internal\ContainerUpdater.cs</Link>
-    </Compile>
     <Compile Include="..\..\ObjectBuilder\ObjectBuilder.Autofac\Internal\ObjectExtensions.cs">
       <Link>Internal\ObjectExtensions.cs</Link>
     </Compile>

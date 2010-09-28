@@ -32,6 +32,23 @@ namespace NServiceBus.ObjectBuilder.Spring
             context = container;
         }
 
+        /// <summary>
+        /// No resources to dispose.
+        /// </summary>
+        public void Dispose()
+        {
+            // no-op
+        }
+
+        /// <summary>
+        /// Returns the current instance.
+        /// </summary>
+        /// <returns></returns>
+        public IContainer BuildChildContainer()
+        {
+            return this; // no-op
+        }
+
         object IContainer.Build(Type typeToBuild)
         {
             Init();

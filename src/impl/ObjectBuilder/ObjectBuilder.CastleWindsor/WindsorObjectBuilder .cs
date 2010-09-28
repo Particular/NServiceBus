@@ -20,6 +20,8 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// </summary>
         public IWindsorContainer Container { get; set; }
 
+        private bool disposed;
+
         /// <summary>
         /// Instantites the class with a new WindsorContainer.
         /// </summary>
@@ -34,6 +36,33 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             Container = container;
+        }
+
+        /// <summary>
+        /// Disposes the container and all resources instantiated by the container.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing || disposed)
+                return;
+
+            disposed = true;
+            Container.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns a child instance of the container to facilitate deterministic disposal
+        /// of all resources built by the child container.
+        /// </summary>
+        /// <returns></returns>
+        public IContainer BuildChildContainer()
+        {
+            return new WindsorObjectBuilder(Container.GetChildContainer("child"));
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)

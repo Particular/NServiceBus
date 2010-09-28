@@ -15,6 +15,8 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         private readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
 
+        private bool disposed;
+
         /// <summary>
         /// Instantites the class with a new UnityContainer.
         /// </summary>
@@ -35,6 +37,33 @@ namespace NServiceBus.ObjectBuilder.Unity
             {
                 this.container.AddNewExtension<FullAutowireContainerExtension>();
             }
+        }
+
+        /// <summary>
+        /// Disposes the container and all resources instantiated by the container.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing || disposed)
+                return;
+
+            disposed = true;
+            container.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns a child instance of the container to facilitate deterministic disposal
+        /// of all resources built by the child container.
+        /// </summary>
+        /// <returns></returns>
+        public IContainer BuildChildContainer()
+        {
+            return new UnityObjectBuilder(container.CreateChildContainer());
         }
 
         public object Build(Type typeToBuild)

@@ -6,7 +6,7 @@ namespace NServiceBus.ObjectBuilder.Common
     /// <summary>
     /// Abstraction of a container.
     /// </summary>
-    public interface IContainer
+    public interface IContainer : IDisposable
     {
         /// <summary>
         /// Returns an instantiation of the given type.
@@ -14,6 +14,13 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="typeToBuild"></param>
         /// <returns></returns>
         object Build(Type typeToBuild);
+
+        /// <summary>
+        /// Returns a child instance of the container to facilitate deterministic disposal
+        /// of all resources built by the child container.
+        /// </summary>
+        /// <returns></returns>
+        IContainer BuildChildContainer();
 
         /// <summary>
         /// Returns a list of objects instantiated because their type is compatible

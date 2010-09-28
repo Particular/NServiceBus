@@ -758,12 +758,13 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Handles a received message.
         /// </summary>
+        /// <param name="builder">The builder used to construct the objects necessary to handle the message.</param>
         /// <param name="m">The received message.</param>
         /// <remarks>
         /// run by multiple threads so must be thread safe
         /// public for testing
         /// </remarks>
-        public void HandleMessage(TransportMessage m)
+        public void HandleMessage(IBuilder builder, TransportMessage m)
         {
             ForwardMessageIfNecessary(m);
 
@@ -779,7 +780,7 @@ namespace NServiceBus.Unicast
 
             foreach (var originalMessage in messages)
             {
-                var messageToHandle = ApplyIncomingMessageMutatorsTo(originalMessage);
+                var messageToHandle = ApplyIncomingMessageMutatorsTo(builder, originalMessage);
 
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
@@ -794,15 +795,16 @@ namespace NServiceBus.Unicast
                 }
 
                 if (canDispatch)
-                    DispatchMessageToHandlersBasedOnType(messageToHandle, messageToHandle.GetType());
+                    DispatchMessageToHandlersBasedOnType(
+                        builder, messageToHandle, messageToHandle.GetType());
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
-        IMessage ApplyIncomingMessageMutatorsTo(IMessage originalMessage)
+        static IMessage ApplyIncomingMessageMutatorsTo(IBuilder builder, IMessage originalMessage)
         {
-            var mutators = Builder.BuildAll<IMutateIncomingMessages>();
+            var mutators = builder.BuildAll<IMutateIncomingMessages>();
 
             var mutatedMessage = originalMessage;
             mutators.ToList().ForEach(m =>
@@ -830,6 +832,7 @@ namespace NServiceBus.Unicast
         /// Finds the message handlers associated with the message type and dispatches
         /// the message to the found handlers.
         /// </summary>
+        /// <param name="builder">The builder used to construct the handlers.</param>
         /// <param name="toHandle">The message to dispatch to the handlers.</param>
         /// <param name="messageType">The message type by which to locate the correct handlers.</param>
         /// <returns></returns>
@@ -838,7 +841,7 @@ namespace NServiceBus.Unicast
         /// this prevents the message from being further dispatched.
         /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
         /// </remarks>
-        private void DispatchMessageToHandlersBasedOnType(IMessage toHandle, Type messageType)
+        private void DispatchMessageToHandlersBasedOnType(IBuilder builder, IMessage toHandle, Type messageType)
         {
             foreach (var messageHandlerType in GetHandlerTypes(messageType))
             {
@@ -846,7 +849,7 @@ namespace NServiceBus.Unicast
                 {
                     Log.Debug("Activating: " + messageHandlerType.Name);
 
-                    Builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
+                    builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
 
                     Log.Debug(messageHandlerType.Name + " Done.");
 
@@ -939,7 +942,11 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            var msg = e.Message;
+            using (var child = this.Builder.CreateChildBuilder())
+                this.HandleTransportMessage(child, e.Message);
+        }
+        private void HandleTransportMessage(IBuilder builder, TransportMessage msg)
+        {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReturnAddress);
 
             _messageBeingHandled = msg;
@@ -948,7 +955,7 @@ namespace NServiceBus.Unicast
                 UnitOfWorkManager.Begin();
 
             modules = new List<IMessageModule>();
-            var mods = Builder.BuildAll<IMessageModule>();
+            var mods = builder.BuildAll<IMessageModule>();
             if (mods != null)
                 modules.AddRange(mods);
 
@@ -981,7 +988,7 @@ namespace NServiceBus.Unicast
                 MessageReceived(msg);
 
             if (!disableMessageHandling)
-                HandleMessage(msg);
+                HandleMessage(builder, msg);
 
             Log.Debug("Finished handling message.");
         }

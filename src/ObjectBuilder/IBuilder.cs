@@ -8,7 +8,7 @@ namespace NServiceBus.ObjectBuilder
     /// and property values are set.
     /// An abstraction on top of dependency injection frameworks.
     /// </summary>
-    public interface IBuilder
+    public interface IBuilder : IDisposable
     {
         /// <summary>
         /// Creates an instance of the given type, injecting it with all defined dependencies.
@@ -16,6 +16,13 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="typeToBuild"></param>
         /// <returns></returns>
         object Build(Type typeToBuild);
+
+        /// <summary>
+        /// Creates an instance of a child builder which is used to facilitate deterministic
+        /// disposal of all resources created by the child builder.
+        /// </summary>
+        /// <returns></returns>
+        IBuilder CreateChildBuilder();
 
         /// <summary>
         /// Creates an instance of the given type, injecting it with all defined dependencies.

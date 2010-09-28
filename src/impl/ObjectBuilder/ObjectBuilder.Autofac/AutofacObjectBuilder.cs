@@ -16,22 +16,51 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// <summary>
         /// The container itself.
         /// </summary>
-        private readonly IContainer container;
+        private readonly ILifetimeScope container;
+
+        private bool disposed;
 
         ///<summary>
-        /// Instantiates the class saving the given container.
+        /// Instantiates the class utilizing the given container.
         ///</summary>
         ///<param name="container"></param>
-        public AutofacObjectBuilder(IContainer container)
+        public AutofacObjectBuilder(ILifetimeScope container)
         {
             this.container = container;
         }
 
         ///<summary>
-        /// Instantites the class with a new Autofac container.
+        /// Instantites the class with an empty Autofac container.
         ///</summary>
         public AutofacObjectBuilder() : this(new ContainerBuilder().Build())
         {
+        }
+
+        /// <summary>
+        /// Disposes the container and all resources instantiated by the container.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing || disposed)
+                return;
+
+            disposed = true;
+            container.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns a child instance of the container to facilitate deterministic disposal
+        /// of all resources built by the child container.
+        /// </summary>
+        /// <returns></returns>
+        public Common.IContainer BuildChildContainer()
+        {
+            return new AutofacObjectBuilder(container.BeginLifetimeScope());
         }
         
         ///<summary>
@@ -69,11 +98,13 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
             if (registration == null)
             {
-                var updater = new ContainerUpdater();
+                var builder = new ContainerBuilder();
                 Type[] services = component.GetAllServices().ToArray();
-                var registrationBuilder = updater.RegisterType(component).As(services).PropertiesAutowired();
+                var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
+                
                 SetLifetimeScope(callModel, registrationBuilder);
-                updater.Update(this.container);
+                
+                builder.Update(this.container.ComponentRegistry);
             }
         }
 
@@ -103,9 +134,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            var updater = new ContainerUpdater();
-            updater.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
-            updater.Update(this.container);
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
+            builder.Update(this.container.ComponentRegistry);
         }
 
         public bool HasComponent(Type componentType)
