@@ -461,6 +461,9 @@ namespace NServiceBus.Unicast
         /// <param name="messages">The messages to send.</param>
         public void SendLocal(params IMessage[] messages)
         {
+            if(string.IsNullOrEmpty(Address))
+                throw new InvalidOperationException("Can't sent local without a input queue configured");
+
             var m = GetTransportMessageFor(messages);
             
             m.MessageIntent = MessageIntentEnum.Send;
@@ -654,8 +657,8 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
-                if (MessageSerializer == null)
-                    throw new InvalidOperationException("No message serializer has been configured.");
+
+                ValidateConfiguration();
 
                 if (startupAction != null)
                     startupAction();
@@ -665,31 +668,12 @@ namespace NServiceBus.Unicast
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
 
-                if (!string.IsNullOrEmpty(Address))
+                if (!IsSendOnlyEndpoint())
                     transport.Start();
 
                 if (autoSubscribe)
                 {
-                    foreach (var messageType in GetMessageTypesHandledOnThisEndpoint())
-                    {
-                        var destination = GetDestinationForMessageType(messageType);
-                        if (string.IsNullOrEmpty(destination))
-                            continue;
-
-                        var arr = destination.Split('@');
-
-                        var queue = arr[0];
-                        var machine = Environment.MachineName;
-
-                        if (arr.Length == 2)
-                            if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
-                                machine = arr[1];
-
-                        destination = queue + "@" + machine;
-
-                        if (destination.ToLower() != Address.ToLower())
-                            Subscribe(messageType);
-                    }
+                    PerformAutoSubcribe();
                 }
 
                 InitializeSelf();
@@ -703,13 +687,56 @@ namespace NServiceBus.Unicast
             return this;
         }
 
+        void PerformAutoSubcribe()
+        {
+            foreach (var messageType in GetMessageTypesHandledOnThisEndpoint())
+            {
+                var destination = GetDestinationForMessageType(messageType);
+                if (string.IsNullOrEmpty(destination))
+                    continue;
+
+                var arr = destination.Split('@');
+
+                var queue = arr[0];
+                var machine = Environment.MachineName;
+
+                if (arr.Length == 2)
+                    if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
+                        machine = arr[1];
+
+                destination = queue + "@" + machine;
+
+                if (destination.ToLower() != Address.ToLower())
+                    Subscribe(messageType);
+            }
+        }
+
+        void ValidateConfiguration()
+        {
+            if (MessageSerializer == null)
+                throw new InvalidOperationException("No message serializer has been configured.");
+
+            if(IsSendOnlyEndpoint() && HasLoadedMessageHandlers())
+                throw new InvalidOperationException("Send only endpoints can't contain message handlers.");
+        }
+
+        bool HasLoadedMessageHandlers()
+        {
+            return messageHandlerTypes != null && messageHandlerTypes.Any();
+        }
+
         private void InitializeSelf()
         {
+            if (IsSendOnlyEndpoint())
+                return;//send only endpoint
+
             var toSend = GetTransportMessageFor(new CompletionMessage());
             toSend.MessageIntent = MessageIntentEnum.Init;
 
             MessageSender.Send(toSend, Address);
         }
+
+       
 
         /// <summary>
         /// Tells the transport to dispose.
@@ -1129,6 +1156,10 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
+        bool IsSendOnlyEndpoint()
+        {
+            return string.IsNullOrEmpty(Address);
+        }
 
         /// <summary>
         /// Sets up known types needed for XML serialization as well as
