@@ -716,13 +716,13 @@ namespace NServiceBus.Unicast
             if (MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
 
-            if(IsSendOnlyEndpoint() && HasLoadedMessageHandlers())
+            if(IsSendOnlyEndpoint() && UserDefinedMessageHandlersLoaded())
                 throw new InvalidOperationException("Send only endpoints can't contain message handlers.");
         }
 
-        bool HasLoadedMessageHandlers()
+        bool UserDefinedMessageHandlersLoaded()
         {
-            return messageHandlerTypes != null && messageHandlerTypes.Any();
+            return messageHandlerTypes != null && messageHandlerTypes.Any(x=>!x.Namespace.StartsWith("NServiceBus"));
         }
 
         private void InitializeSelf()

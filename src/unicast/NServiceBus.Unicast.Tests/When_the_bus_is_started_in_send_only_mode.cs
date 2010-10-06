@@ -1,8 +1,10 @@
 ﻿using System;
+using NServiceBus;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 using Rhino.Mocks;
+using SomeUserNamespace;
 
 namespace NServiceBus.Unicast.Tests
 {
@@ -21,7 +23,7 @@ namespace NServiceBus.Unicast.Tests
                       {
                           Transport = transport,
                           MessageSerializer = MockRepository.GenerateStub<IMessageSerializer>()
-                          
+
                       };
         }
 
@@ -34,29 +36,54 @@ namespace NServiceBus.Unicast.Tests
         }
 
         [Test]
-        public void An_exception_should_be_thrown_if_messagehandlers_are_found()
+        public void An_exception_should_be_thrown_if_userdefined_messagehandlers_are_found()
         {
-            bus.MessageHandlerTypes = new[] {typeof(TestMessageHandler)};
+            bus.MessageHandlerTypes = new[] { typeof(SomeBuiltInHandler), typeof(TestMessageHandler) };
 
             Assert.Throws<InvalidOperationException>(StartBus);
         }
 
-        private void StartBus()
+        [Test]
+        public void Builtin_messagehandlers_should_be_allowed()
         {
-            ((IStartableBus)bus).Start(); 
-            
+            bus.MessageHandlerTypes = new[] { typeof(SomeBuiltInHandler) };
+
+            Assert.DoesNotThrow(StartBus);
         }
 
-        public class TestMessageHandler:IHandleMessages<TestMessage>
+
+
+        private void StartBus()
         {
-            public void Handle(TestMessage message)
-            {
-                throw new NotImplementedException();
-            }
+            ((IStartableBus)bus).Start();
+
         }
-        public class TestMessage : IMessage
+
+    }
+
+    public class SomeBuiltInHandler:IHandleMessages<SomeBuiltinMessage>
+    {
+        public void Handle(SomeBuiltinMessage message)
         {
+            throw new NotImplementedException();
         }
     }
 
+    public class SomeBuiltinMessage : IMessage
+    {
+    }
+}
+
+namespace SomeUserNamespace
+{
+    public class TestMessageHandler : IHandleMessages<TestMessage>
+    {
+        public void Handle(TestMessage message)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class TestMessage : IMessage
+    {
+    }
 }
