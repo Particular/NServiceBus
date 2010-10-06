@@ -1,6 +1,3 @@
-using System;
-using System.Reflection;
-using NBehave.Spec.NUnit;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
 using NUnit.Framework;
@@ -23,7 +20,7 @@ namespace NServiceBus.Hosting.Tests
         {
             roleManager.ConfigureBusForEndpoint(new ConfigurationWithTestRole());
 
-            TestRoleConfigurer.ConfigureCalled.ShouldBeTrue();
+            Assert.True(TestRoleConfigurer.ConfigureCalled);
         }
 
         [Test]
@@ -31,8 +28,7 @@ namespace NServiceBus.Hosting.Tests
         {
             roleManager.ConfigureBusForEndpoint(new ConfigurationWithInheritedRole());
 
-            TestRoleConfigurer.ConfigureCalled.ShouldBeTrue();
-            
+            Assert.True(TestRoleConfigurer.ConfigureCalled);
         }
     }
 
