@@ -9,7 +9,7 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.Queuing.Azure
 {
-    public class AzureMessageQueue : IMessageQueue
+    public class AzureMessageQueue : IReceiveMessages,ISendMessages
     {
         private CloudQueue queue;
         private readonly CloudQueueClient client;

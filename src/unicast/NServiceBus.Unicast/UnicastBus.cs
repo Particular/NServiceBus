@@ -95,7 +95,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Message queue used to send messages.
         /// </summary>
-        public IMessageQueue MessageSender { get; set; }
+        public ISendMessages MessageSender { get; set; }
 
         /// <summary>
         /// Object used to manage units of work.
@@ -664,8 +664,6 @@ namespace NServiceBus.Unicast
 
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
-
-                MessageSender.Init(Address);
 
                 if (!string.IsNullOrEmpty(Address))
                     transport.Start();

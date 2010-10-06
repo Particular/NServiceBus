@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Distributor
         /// <summary>
         /// Object used to send messages.
         /// </summary>
-        public IMessageQueue MessageSender { get; set; }
+        public ISendMessages MessageSender { get; set; }
 
         /// <summary>
         /// Sets the <see cref="IWorkerAvailabilityManager"/> implementation that will be

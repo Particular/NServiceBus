@@ -8,7 +8,7 @@ using NServiceBus.Faults;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Utils;
 
-namespace NServiceBus.Unicast.Transport
+namespace NServiceBus.Unicast.Transport.Transactional
 {
     public class TransactionalTransport : ITransport
     {
@@ -50,7 +50,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Sets the object which will be used for sending and receiving messages.
         /// </summary>
-        public IMessageQueue MessageQueue { get; set; }
+        public IReceiveMessages MessageQueue { get; set; }
 
         /// <summary>
         /// Manages failed message processing.

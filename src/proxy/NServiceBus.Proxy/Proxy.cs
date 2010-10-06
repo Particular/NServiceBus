@@ -35,9 +35,9 @@ namespace NServiceBus.Proxy
             }
         }
 
-        public IMessageQueue InternalQueue { get; set; }
+        public ISendMessages InternalMessageSender { get; set; }
 
-        public IMessageQueue ExternalQueue { get; set; }
+        public ISendMessages ExternalMessageSender { get; set; }
 
         public IProxyDataStorage Storage { private get; set; }
 
@@ -88,7 +88,7 @@ namespace NServiceBus.Proxy
                 Logger.Debug("Received notification from " + remoteServer + ".");
 
                 foreach(var s in subs)
-                    InternalQueue.Send(e.Message, s);
+                    InternalMessageSender.Send(e.Message, s);
             }
             else
             {
@@ -104,7 +104,7 @@ namespace NServiceBus.Proxy
 
                 Logger.Debug("Received response from " + remoteServer + ".");
 
-                InternalQueue.Send(e.Message, data.ClientAddress);
+                InternalMessageSender.Send(e.Message, data.ClientAddress);
             }
         }
 
@@ -113,7 +113,7 @@ namespace NServiceBus.Proxy
             if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers, null))
             {
                 e.Message.ReturnAddress = ExternalAddress;
-                ExternalQueue.Send(e.Message, remoteServer);
+                ExternalMessageSender.Send(e.Message, remoteServer);
 
                 Logger.Debug("Received subscription message.");
                 return;
@@ -136,7 +136,7 @@ namespace NServiceBus.Proxy
             e.Message.IdForCorrelation = data.Id;
             e.Message.ReturnAddress = ExternalAddress;
 
-            ExternalQueue.Send(e.Message, remoteServer);
+            ExternalMessageSender.Send(e.Message, remoteServer);
 
             return;
         }

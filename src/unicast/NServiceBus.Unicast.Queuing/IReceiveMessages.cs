@@ -2,22 +2,15 @@
 namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
-    /// Abstraction of a message queue
+    /// Abstraction of a the capability to receive messages
     /// </summary>
-    public interface IMessageQueue
+    public interface IReceiveMessages
     {
         /// <summary>
         /// Initializes the message queue.
         /// </summary>
         /// <param name="inputqueue"></param>
         void Init(string inputqueue);
-
-        /// <summary>
-        /// Sends the given message to the destination.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="destination"></param>
-        void Send(TransportMessage message, string destination);
 
         /// <summary>
         /// Returns true if there's a message in the queue passed in the Init method.

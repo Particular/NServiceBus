@@ -20,7 +20,7 @@ namespace NServiceBus.Gateway
             this.inputQueue = inputQueue;
         }
 
-        public void Handle(HttpListenerContext ctx, IMessageQueue sender, string queue)
+        public void Handle(HttpListenerContext ctx, ISendMessages sender, string queue)
         {
             try
             {

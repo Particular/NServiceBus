@@ -3,7 +3,7 @@ using log4net;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Subscriptions.Msmq;
-using NServiceBus.Unicast.Transport;
+using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Proxy
 {
@@ -13,27 +13,30 @@ namespace NServiceBus.Proxy
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var maxRetries = int.Parse(ConfigurationManager.AppSettings["MaxRetries"]);
-            var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
+            //var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
             var remoteServer = ConfigurationManager.AppSettings["RemoteServer"];
 
-            var externalQueue = new MsmqMessageQueue();
-            externalQueue.Init(ConfigurationManager.AppSettings["ExternalQueue"]);
+            var externalMessageReceiver = new MsmqMessageReceiver();
+
+            externalMessageReceiver.Init(ConfigurationManager.AppSettings["ExternalQueue"]);
+            
             var externalTransport = new TransactionalTransport
               {
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
                   IsTransactional = true,
-                  MessageQueue = externalQueue
+                  MessageQueue = externalMessageReceiver
               };
 
-            var internalQueue = new MsmqMessageQueue();
-            internalQueue.Init(ConfigurationManager.AppSettings["InternalQueue"]);
+            var internalMessageReceiver = new MsmqMessageReceiver();
+            internalMessageReceiver.Init(ConfigurationManager.AppSettings["InternalQueue"]);
+            
             var internalTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
                 IsTransactional = true,
-                MessageQueue = internalQueue
+                MessageQueue = internalMessageReceiver
             };
 
             var configure = Configure.With().DefaultBuilder();
@@ -50,9 +53,9 @@ namespace NServiceBus.Proxy
 
             var proxy = configure.Builder.Build<Proxy>();
             proxy.ExternalTransport = externalTransport;
-            proxy.ExternalQueue = externalQueue;
+            proxy.ExternalMessageSender = new MsmqMessageSender();
             proxy.InternalTransport = internalTransport;
-            proxy.InternalQueue = internalQueue;
+            proxy.InternalMessageSender = new MsmqMessageSender();
 
             proxy.ExternalAddress = ConfigurationManager.AppSettings["ExternalQueue"];
 

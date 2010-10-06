@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Grid.MessageHandlers;
@@ -8,14 +7,14 @@ using NServiceBus.Unicast;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Unicast.Transport;
+using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Distributor
 {
     public class Service : IConfigureThisEndpoint, IWantCustomInitialization 
     {
         public static TransactionalTransport DataTransport { get; private set; }
-        public static IMessageQueue MessageSender { get; private set; }
+        public static IReceiveMessages DataMessageReceiver { get; private set; }
 
         public void Init()
         {
@@ -45,14 +44,14 @@ namespace NServiceBus.Distributor
                     throw new ConfigurationErrorsException("Serialization can only be either 'xml', or 'binary'.");
             }
 
-            MessageSender = new MsmqMessageQueue();
-            MessageSender.Init(ConfigurationManager.AppSettings["DataInputQueue"]);
+            DataMessageReceiver = new MsmqMessageReceiver();
+            DataMessageReceiver.Init(ConfigurationManager.AppSettings["DataInputQueue"]);
 
             DataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 IsTransactional = true,
-                MessageQueue = MessageSender
+                MessageQueue = DataMessageReceiver
             };
 
 

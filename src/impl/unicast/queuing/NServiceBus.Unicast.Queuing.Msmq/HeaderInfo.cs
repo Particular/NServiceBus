@@ -18,5 +18,4 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         public string Value { get; set; }
     }
-
 }

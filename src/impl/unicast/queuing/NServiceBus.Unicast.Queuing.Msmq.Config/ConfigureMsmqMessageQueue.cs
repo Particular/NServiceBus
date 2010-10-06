@@ -12,7 +12,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MsmqTransport(this Configure config)
         {
-            config.Configurer.ConfigureComponent<MsmqMessageQueue>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<MsmqMessageSender>(ComponentCallModelEnum.Singleton);
 
             return config;
         }
@@ -28,7 +29,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<MsmqMessageQueue>(t => t.PurgeOnStartup, value);
+            Configure.Instance.Configurer.ConfigureProperty<MsmqMessageReceiver>(t => t.PurgeOnStartup, value);
 
             return config;
         }

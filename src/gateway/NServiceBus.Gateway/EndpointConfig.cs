@@ -1,8 +1,10 @@
 ﻿using System.Configuration;
 using System.Net;
 using System.Threading;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport;
+using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Gateway
 {
@@ -29,12 +31,14 @@ namespace NServiceBus.Gateway
 
             ThreadPool.SetMaxThreads(numberOfWorkerThreads, numberOfWorkerThreads);
 
-            sender = new MsmqMessageQueue();
-            sender.Init(inputQueue);
+
+            messageSender = new MsmqMessageSender();
+            messageReceiver = new MsmqMessageReceiver();
+            messageReceiver.Init(inputQueue);
 
             transport = new TransactionalTransport
             {
-                MessageQueue = sender,
+                MessageQueue = messageReceiver,
                 IsTransactional = true,
                 NumberOfWorkerThreads = numberOfWorkerThreads
             };
@@ -44,7 +48,7 @@ namespace NServiceBus.Gateway
                 new MsmqHandler(listenUrl).Handle(e.Message, remoteUrl);
 
                 if (!string.IsNullOrEmpty(audit))
-                    sender.Send(e.Message, audit);
+                    messageSender.Send(e.Message, audit);
             };
 
             listener = new HttpListener();
@@ -60,7 +64,7 @@ namespace NServiceBus.Gateway
             {
                 HttpListenerContext context = listener.GetContext();
                 ThreadPool.QueueUserWorkItem(
-                    o => new HttpRequestHandler(requireMD5FromClient, inputQueue).Handle(o as HttpListenerContext, sender, outputQueue),
+                    o => new HttpRequestHandler(requireMD5FromClient, inputQueue).Handle(o as HttpListenerContext, messageSender, outputQueue),
                     context);
             }
         }
@@ -72,7 +76,8 @@ namespace NServiceBus.Gateway
 
         private static HttpListener listener;
         private static ITransport transport;
-        private static MsmqMessageQueue sender;
+        private static ISendMessages messageSender;
+        private static IReceiveMessages messageReceiver;
         private static bool requireMD5FromClient = true;
         private static string outputQueue;
         private static string inputQueue;

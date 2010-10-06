@@ -54,8 +54,9 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="IMessageQueue.cs" />
+    <Compile Include="ISendMessages.cs" />
+    <Compile Include="QueueNotFoundException.cs" />
+    <Compile Include="IReceiveMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
