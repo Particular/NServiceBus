@@ -2,14 +2,13 @@
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using NServiceBus.Unicast.Transport;
 using Common.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Ftp
 {
-    public class FtpMessageQueue : IMessageQueue
+    public class FtpMessageQueue : ISendMessages,IReceiveMessages
     {
         #region Config Parameters
 
