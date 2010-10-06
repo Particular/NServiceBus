@@ -10,7 +10,9 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Starts the transport.
 		/// </summary>
-        void Start();
+        /// <param name="inputqueue">
+		/// The adress of a local queue that should be used as input channel for this transport
+        void Start(string inputqueue);
 
         /// <summary>
         /// Gets the number of worker threads currently running in the transport.

@@ -669,7 +669,10 @@ namespace NServiceBus.Unicast
                     SubscriptionStorage.Init();
 
                 if (!IsSendOnlyEndpoint())
-                    transport.Start();
+                {
+                    transport.Start(Address);
+                }
+                
 
                 if (autoSubscribe)
                 {

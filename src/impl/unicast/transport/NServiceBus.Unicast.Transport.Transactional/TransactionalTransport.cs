@@ -140,8 +140,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        void ITransport.Start()
+        void ITransport.Start(string inputqueue)
         {
+            MessageQueue.Init(inputqueue);
+            
             LimitWorkerThreadsToOne();
 
             for (int i = 0; i < numberOfWorkerThreads; i++)

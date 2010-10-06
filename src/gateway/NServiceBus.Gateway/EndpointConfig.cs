@@ -33,12 +33,10 @@ namespace NServiceBus.Gateway
 
 
             messageSender = new MsmqMessageSender();
-            messageReceiver = new MsmqMessageReceiver();
-            messageReceiver.Init(inputQueue);
 
             transport = new TransactionalTransport
             {
-                MessageQueue = messageReceiver,
+                MessageQueue = new MsmqMessageReceiver(),
                 IsTransactional = true,
                 NumberOfWorkerThreads = numberOfWorkerThreads
             };
@@ -57,7 +55,7 @@ namespace NServiceBus.Gateway
 
         public void Run()
         {
-            transport.Start();
+            transport.Start(inputQueue);
             listener.Start();
 
             while (!stopRequested)
@@ -77,7 +75,6 @@ namespace NServiceBus.Gateway
         private static HttpListener listener;
         private static ITransport transport;
         private static ISendMessages messageSender;
-        private static IReceiveMessages messageReceiver;
         private static bool requireMD5FromClient = true;
         private static string outputQueue;
         private static string inputQueue;

@@ -1,6 +1,4 @@
-﻿using NServiceBus.Unicast.Queuing.Msmq;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor
 {
     class EndpointRunner : IWantToRunAtStartup
     {
@@ -8,8 +6,6 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            Distributor.MessageBusTransport = Service.DataTransport;
-            Distributor.MessageSender = new MsmqMessageSender();
             Distributor.Start();
         }
 

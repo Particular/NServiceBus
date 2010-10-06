@@ -28,15 +28,12 @@ namespace NServiceBus.Proxy
                   MessageQueue = externalMessageReceiver
               };
 
-            var internalMessageReceiver = new MsmqMessageReceiver();
-            internalMessageReceiver.Init(ConfigurationManager.AppSettings["InternalQueue"]);
-            
             var internalTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
                 IsTransactional = true,
-                MessageQueue = internalMessageReceiver
+                MessageQueue = new MsmqMessageReceiver()
             };
 
             var configure = Configure.With().DefaultBuilder();
@@ -57,6 +54,7 @@ namespace NServiceBus.Proxy
             proxy.InternalTransport = internalTransport;
             proxy.InternalMessageSender = new MsmqMessageSender();
 
+            proxy.InternalAddress = ConfigurationManager.AppSettings["InternalQueue"];
             proxy.ExternalAddress = ConfigurationManager.AppSettings["ExternalQueue"];
 
             proxy.Start();

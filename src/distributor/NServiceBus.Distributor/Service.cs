@@ -11,11 +11,8 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Distributor
 {
-    public class Service : IConfigureThisEndpoint, IWantCustomInitialization 
+    public class Service : IConfigureThisEndpoint, IWantCustomInitialization
     {
-        public static TransactionalTransport DataTransport { get; private set; }
-        public static IReceiveMessages DataMessageReceiver { get; private set; }
-
         public void Init()
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
@@ -44,16 +41,8 @@ namespace NServiceBus.Distributor
                     throw new ConfigurationErrorsException("Serialization can only be either 'xml', or 'binary'.");
             }
 
-            DataMessageReceiver = new MsmqMessageReceiver();
-            DataMessageReceiver.Init(ConfigurationManager.AppSettings["DataInputQueue"]);
 
-            DataTransport = new TransactionalTransport
-            {
-                NumberOfWorkerThreads = numberOfThreads,
-                IsTransactional = true,
-                MessageQueue = DataMessageReceiver
-            };
-
+            ConfigureDistributor(numberOfThreads);
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfThreads);
@@ -65,11 +54,28 @@ namespace NServiceBus.Distributor
             Configure.Instance.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                 ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(x => x.StorageQueue, ConfigurationManager.AppSettings["StorageQueue"]);
-
-            Configure.Instance.Configurer.ConfigureComponent<Unicast.Distributor.Distributor>(ComponentCallModelEnum.Singleton);
-
+           
             configure.LoadMessageHandlers(First<GridInterceptingMessageHandler>
                                               .Then<ReadyMessageHandler>());
+        }
+
+        void ConfigureDistributor(int numberOfThreads)
+        {
+            var dataTransport = new TransactionalTransport
+                                    {
+                                        NumberOfWorkerThreads = numberOfThreads,
+                                        IsTransactional = true,
+                                        MessageQueue = new MsmqMessageReceiver()
+                                    };
+
+            var distributor = new Unicast.Distributor.Distributor
+                                  {
+                                      MessageBusTransport = dataTransport,
+                                      MessageSender = new MsmqMessageSender(),
+                                      DataTransportInputQueue = ConfigurationManager.AppSettings["DataInputQueue"]
+                                  };
+
+            Configure.Instance.Configurer.RegisterSingleton<Unicast.Distributor.Distributor>(distributor);
         }
     }
 

@@ -21,6 +21,12 @@ namespace NServiceBus.Unicast.Distributor
         public IStartableBus ControlBus { get; set; }
 
         /// <summary>
+        /// Sets the address of the datainput queue for this distributor
+        /// </summary>
+        public string DataTransportInputQueue { get; set; }
+
+
+        /// <summary>
         /// Sets the transport that will be used
         /// to access the bus containing messages to distribute.
         /// </summary>
@@ -61,7 +67,7 @@ namespace NServiceBus.Unicast.Distributor
                     };
 
             MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
-            MessageBusTransport.Start();
+            MessageBusTransport.Start(DataTransportInputQueue);
 
             WorkerManager.Start();
         }

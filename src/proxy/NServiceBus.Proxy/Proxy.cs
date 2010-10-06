@@ -63,13 +63,15 @@ namespace NServiceBus.Proxy
 
         public string ExternalAddress { get; set; }
 
+        public string InternalAddress { get; set; }
+
         #endregion
 
 
         public void Start()
         {
-            internalTransport.Start();
-            externalTransport.Start();
+            internalTransport.Start(InternalAddress);
+            externalTransport.Start(ExternalAddress);
         }
 
         void ExternalTransportTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
