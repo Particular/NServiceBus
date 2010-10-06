@@ -1,6 +1,5 @@
 ﻿using NHibernate;
 using NUnit.Framework;
-using NBehave.Spec.NUnit;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
@@ -24,7 +23,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var persister = config.Builder.Build<SagaPersister>();
 
-            persister.ShouldNotBeTheSameAs(config.Builder.Build<SagaPersister>());
+            Assert.AreNotEqual(persister,config.Builder.Build<SagaPersister>());
         }
 
         [Test]
@@ -32,8 +31,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var sessionFactory = config.Builder.Build<ISessionFactory>();
 
-            sessionFactory.ShouldNotBeNull();
-            sessionFactory.ShouldBeTheSameAs(config.Builder.Build<ISessionFactory>());
+            Assert.NotNull(sessionFactory);
+            Assert.AreEqual(sessionFactory,config.Builder.Build<ISessionFactory>());
 
         }
 

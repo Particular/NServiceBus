@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
 using FluentNHibernate.Cfg.Db;
-using NBehave.Spec.NUnit;
 using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;
 using NHibernate.Persister.Entity;
-using NServiceBus.Saga;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NUnit.Framework;
 
@@ -36,7 +34,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Id_generator_should_be_set_to_assigned()
         {
-            persisterForTestSaga.IdentifierGenerator.ShouldBeInstanceOfType(typeof(Assigned));
+            Assert.AreEqual(persisterForTestSaga.IdentifierGenerator.GetType(),typeof(Assigned));
         }
 
         [Test]
@@ -48,8 +46,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Related_entities_should_also_be_mapped()
         {
-            sessionFactory.GetEntityPersisterFor<OrderLine>()
-                .IdentifierGenerator.ShouldBeInstanceOfType(typeof(GuidCombGenerator));
+            Assert.AreEqual(sessionFactory.GetEntityPersisterFor<OrderLine>()
+                .IdentifierGenerator.GetType(),typeof(GuidCombGenerator));
         }
 
         [Test]
@@ -69,8 +67,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Users_can_override_automappings_by_embedding_hbm_files()
         {
-            sessionFactory.GetEntityPersisterFor<TestSagaWithHbmlXmlOverride>()
-                .IdentifierGenerator.ShouldBeInstanceOfType(typeof(IdentityGenerator));
+            Assert.AreEqual(sessionFactory.GetEntityPersisterFor<TestSagaWithHbmlXmlOverride>()
+                .IdentifierGenerator.GetType(),typeof(IdentityGenerator));
         }
 
 
@@ -91,7 +89,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
         public static void ShouldContainPersisterFor<T>(this SessionFactoryImpl sessionFactory)
         {
-            sessionFactory.GetEntityPersisterFor<T>().ShouldNotBeNull();
+            Assert.NotNull(sessionFactory.GetEntityPersisterFor<T>());
         }
     }
 
@@ -99,9 +97,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     {
         public static void ShouldContainMappingsFor<T>(this IEntityPersister persister)
         {
-            persister.EntityMetamodel.Properties
-                            .Any(x => x.Type.ReturnedClass == typeof(T))
-                            .ShouldBeTrue();
+            Assert.True(persister.EntityMetamodel.Properties
+                            .Any(x => x.Type.ReturnedClass == typeof(T)));
 
         }
     }

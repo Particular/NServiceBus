@@ -1,4 +1,3 @@
-using NBehave.Spec.NUnit;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -24,7 +23,7 @@ namespace NServiceBus.Integration.Azure.Tests
         {   
             azureSettings.Stub(x => x.GetSetting("TestConfigSection.StringSetting")).Return("test");
 
-            configSource.GetConfiguration<TestConfigSection>().StringSetting.ShouldEqual("test");
+            Assert.AreEqual(configSource.GetConfiguration<TestConfigSection>().StringSetting,"test");
         }
 
         [Test]
@@ -32,13 +31,13 @@ namespace NServiceBus.Integration.Azure.Tests
         {
             azureSettings.Stub(x => x.GetSetting("SectionNotPresentInConfig.SomeSetting")).Return("test");
 
-            configSource.GetConfiguration<SectionNotPresentInConfig>().SomeSetting.ShouldEqual("test");
+            Assert.AreEqual(configSource.GetConfiguration<SectionNotPresentInConfig>().SomeSetting,"test");
         }
 
         [Test]
         public void No_section_should_be_returned_if_both_azure_and_app_confis_are_empty()
         {
-            configSource.GetConfiguration<SectionNotPresentInConfig>().ShouldBeNull();
+            Assert.Null(configSource.GetConfiguration<SectionNotPresentInConfig>());
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace NServiceBus.Integration.Azure.Tests
         {
             azureSettings.Stub(x => x.GetSetting("TestConfigSection.IntSetting")).Return("23");
 
-            configSource.GetConfiguration<TestConfigSection>().IntSetting.ShouldEqual(23);
+            Assert.AreEqual(configSource.GetConfiguration<TestConfigSection>().IntSetting,23);
         }
     }
 } 

@@ -1,4 +1,3 @@
-using NBehave.Spec.NUnit;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
@@ -18,8 +17,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue.Init(QueueName);
 
-
-            queue.Receive(false).ShouldBeNull();
+            Assert.Null(queue.Receive(false));
         }
     }
 } 

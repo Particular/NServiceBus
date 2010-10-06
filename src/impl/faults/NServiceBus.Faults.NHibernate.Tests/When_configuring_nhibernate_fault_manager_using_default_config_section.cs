@@ -1,8 +1,3 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using NBehave.Spec.NUnit;
-using NHibernate;
 using NHibernate.Dialect;
 using NHibernate.Engine;
 using NUnit.Framework;
@@ -27,7 +22,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          var persister = config.Builder.Build<FaultManager>();
 
-         persister.ShouldBeTheSameAs(config.Builder.Build<FaultManager>());
+         Assert.AreEqual(persister,config.Builder.Build<FaultManager>());
       }
 
       [Test]
@@ -35,8 +30,8 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          var sessionFactory = config.Builder.Build<FaultManagerSessionFactory>();
 
-         sessionFactory.ShouldNotBeNull();
-         sessionFactory.ShouldBeTheSameAs(config.Builder.Build<FaultManagerSessionFactory>());
+         Assert.NotNull(sessionFactory);
+         Assert.AreEqual(sessionFactory,config.Builder.Build<FaultManagerSessionFactory>());
 
       }
 
@@ -45,7 +40,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          var sessionFactory = config.Builder.Build<FaultManagerSessionFactory>();
 
-         ((ISessionFactoryImplementor)sessionFactory.Value).Settings.Dialect.ShouldBeInstanceOfType(typeof(SQLiteDialect));
+         Assert.AreEqual(((ISessionFactoryImplementor)sessionFactory.Value).Settings.Dialect.GetType(),typeof(SQLiteDialect));
       }
    }
 }

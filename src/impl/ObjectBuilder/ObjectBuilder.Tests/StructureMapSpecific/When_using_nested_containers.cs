@@ -3,7 +3,6 @@ using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NUnit.Framework;
 using StructureMap;
-using NBehave.Spec.NUnit;
 
 namespace ObjectBuilder.Tests.StructureMapSpecific
 {
@@ -22,7 +21,7 @@ namespace ObjectBuilder.Tests.StructureMapSpecific
             using (var nestedContainer = container.GetNestedContainer())
                 nestedContainer.GetInstance<ISingletonComponent>();
 
-            SingletonComponent.DisposeCalled.ShouldBeFalse();
+            Assert.False(SingletonComponent.DisposeCalled);
 
         }
     }

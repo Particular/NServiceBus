@@ -1,5 +1,4 @@
 using System;
-using NBehave.Spec.NUnit;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NUnit.Framework;
@@ -13,20 +12,20 @@ namespace ObjectBuilder.Tests
         public void Existing_components_should_return_true()
         {
             VerifyForAllBuilders(builder =>
-                                 builder.HasComponent(typeof(ExistingComponent)).ShouldBeTrue());
+                                 Assert.True(builder.HasComponent(typeof(ExistingComponent))));
         }
         [Test]
         public void Non_existing_components_should_return_false()
         {
             VerifyForAllBuilders(builder =>
-                                 builder.HasComponent(typeof(NonExistingComponent)).ShouldBeFalse());
+                                 Assert.False(builder.HasComponent(typeof(NonExistingComponent))));
         }
 
         [Test]
         public void Builders_should_not_determine_existence_by_building_components()
         {
             VerifyForAllBuilders(builder =>
-                                 builder.HasComponent(typeof(ExistingComponentWithUnsatisfiedDep)).ShouldBeTrue());
+                                 Assert.True(builder.HasComponent(typeof(ExistingComponentWithUnsatisfiedDep))));
         }
 
         protected override Action<IContainer> InitializeBuilder()

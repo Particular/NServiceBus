@@ -1,6 +1,4 @@
 using System;
-using System.Reflection;
-using NBehave.Spec.NUnit;
 using NUnit.Framework;
 
 namespace NServiceBus.Config.UnitTests
@@ -20,7 +18,7 @@ namespace NServiceBus.Config.UnitTests
         {
             var configSection = Configure.GetConfigSection<TestConfigurationSection>();
 
-            configSection.TestSetting.ShouldEqual("test");
+            Assert.AreEqual(configSection.TestSetting,"test");
         }
 
         [Test]

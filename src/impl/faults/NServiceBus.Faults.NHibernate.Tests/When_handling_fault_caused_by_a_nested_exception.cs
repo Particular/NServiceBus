@@ -1,7 +1,4 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
@@ -13,19 +10,19 @@ namespace NServiceBus.Faults.NHibernate.Tests
       [Test]
       public void Stack_trace_information_should_be_combined_from_all_the_exceptions()
       {
-         Exception e = CreateNestedException();
-         FailureInfo info = new FailureInfo(new TransportMessage(), e, true);
+         var e = CreateNestedException();
+         var info = new FailureInfo(new TransportMessage(), e, true);
 
-         info.StackTraces.ShouldStartWith(e.StackTrace);
-         info.StackTraces.ShouldEndWith(e.InnerException.StackTrace);
+         Assert.That(info.StackTraces,Is.StringStarting(e.StackTrace));
+         Assert.That(info.StackTraces,Is.StringEnding(e.InnerException.StackTrace));
       }
 
       [Test]
       public void Topmost_messages_should_belong_to_the_outermost_exception()
       {
-         FailureInfo info = new FailureInfo(new TransportMessage(), CreateNestedException(), true);
+         var info = new FailureInfo(new TransportMessage(), CreateNestedException(), true);
 
-         info.TopmostExceptionMessage.ShouldEqual("Outer");
+         Assert.AreEqual(info.TopmostExceptionMessage,"Outer");
       }
 
       private static Exception CreateNestedException()

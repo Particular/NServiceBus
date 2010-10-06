@@ -1,7 +1,5 @@
 using System;
 using System.Transactions;
-using NBehave.Spec.NUnit;
-using NServiceBus.Saga;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
@@ -26,7 +24,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             }
             using (var session = SessionFactory.OpenSession())
             {
-                session.CreateCriteria(typeof(TestSaga)).List<TestSaga>().Count.ShouldEqual(1);
+                Assert.AreEqual(session.CreateCriteria(typeof(TestSaga)).List<TestSaga>().Count,1);
             }
  
         }
@@ -51,7 +49,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
        
             using (var session = SessionFactory.OpenSession())
             {
-                session.CreateCriteria(typeof(TestSaga)).List<TestSaga>().Count.ShouldEqual(0);
+                Assert.AreEqual(session.CreateCriteria(typeof(TestSaga)).List<TestSaga>().Count,0);
             }
 
         }

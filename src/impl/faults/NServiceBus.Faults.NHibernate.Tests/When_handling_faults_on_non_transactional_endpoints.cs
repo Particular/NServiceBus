@@ -1,5 +1,4 @@
 using System;
-using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
@@ -15,7 +14,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
 
          using (var session = SessionFactory.OpenSession())
          {
-            session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count.ShouldEqual(1);
+            Assert.AreEqual(session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count,1);
          }
       }
    }

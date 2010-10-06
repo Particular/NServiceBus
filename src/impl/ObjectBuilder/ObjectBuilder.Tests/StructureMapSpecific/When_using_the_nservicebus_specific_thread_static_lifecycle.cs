@@ -1,8 +1,6 @@
-using System;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NUnit.Framework;
 using StructureMap;
-using NBehave.Spec.NUnit;
 
 namespace ObjectBuilder.Tests.StructureMapSpecific
 {
@@ -19,11 +17,11 @@ namespace ObjectBuilder.Tests.StructureMapSpecific
 
             var objectCachedAsThreadStatic = container.GetInstance<SomeClass>();
 
-            objectCachedAsThreadStatic.ShouldBeTheSameAs(container.GetInstance<SomeClass>());
+            Assert.AreEqual(objectCachedAsThreadStatic,container.GetInstance<SomeClass>());
 
             lifecycle.HandleEndMessage();
 
-            objectCachedAsThreadStatic.ShouldNotBeTheSameAs(container.GetInstance<SomeClass>());
+            Assert.AreNotEqual(objectCachedAsThreadStatic,container.GetInstance<SomeClass>());
 
         }
     }

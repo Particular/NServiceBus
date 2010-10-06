@@ -1,4 +1,3 @@
-using NBehave.Spec.NUnit;
 using NUnit.Framework;
 
 namespace NServiceBus.Faults.NHibernate.Tests
@@ -21,7 +20,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          var persister = config.Builder.Build<FaultManager>();
 
-         persister.ShouldBeTheSameAs(config.Builder.Build<FaultManager>());
+         Assert.AreEqual(persister,config.Builder.Build<FaultManager>());
       }
 
       [Test]
@@ -29,8 +28,8 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          var sessionFactory = config.Builder.Build<FaultManagerSessionFactory>();
 
-         sessionFactory.ShouldNotBeNull();
-         sessionFactory.ShouldBeTheSameAs(config.Builder.Build<FaultManagerSessionFactory>());
+         Assert.NotNull(sessionFactory);
+         Assert.AreEqual(sessionFactory,config.Builder.Build<FaultManagerSessionFactory>());
 
       }      
    }

@@ -1,7 +1,5 @@
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
-using NBehave.Spec.NUnit;
-using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
@@ -20,7 +18,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             {
                 queue.Send(new TransportMessage(), destinationQueueName);
             }
-            destinationQueue.GetMessage().ShouldBeNull();
+            Assert.Null(destinationQueue.GetMessage());
         }
 
         private CloudQueue GetDestinationQueue()
@@ -40,7 +38,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue.Send(new TransportMessage(), destinationQueueName);
 
-            destinationQueue.GetMessage().ShouldNotBeNull();
+            Assert.NotNull(destinationQueue.GetMessage());
         }
 
         [Test]
@@ -51,7 +49,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue.Send(message, destinationQueueName);
 
-            message.Id.ShouldNotBeNull();
+            Assert.NotNull(message.Id);
         }
         [Test]
         public void A_QueueNotFoundException_should_be_thrown_if_the_desitnation_queue_does_not_exists()

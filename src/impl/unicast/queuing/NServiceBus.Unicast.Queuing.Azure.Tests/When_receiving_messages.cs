@@ -5,10 +5,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
-using NBehave.Spec.NUnit;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
@@ -18,9 +16,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         [Test]
         public void Has_messages_should_indicate_if_messages_exists_int_the_queue()
         {
-            queue.HasMessage().ShouldBeFalse();
+            Assert.False(queue.HasMessage());
+
+
             AddTestMessage();
-            queue.HasMessage().ShouldBeTrue();
+
+            Assert.True(queue.HasMessage());
 
         }
 
@@ -36,9 +37,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             onstart.BeginInvoke(null, null);
 
-            queue.Receive(false)
-                .ShouldNotBeNull();
-
+            Assert.NotNull(queue.Receive(false));
         }
         [Test]
         public void Should_throw_if_non_nservicebus_messages_are_received()
@@ -53,9 +52,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             AddTestMessage();
             queue.MessageInvisibleTime = 1;
 
-            queue.Receive(true).ShouldNotBeNull();
+            Assert.NotNull(queue.Receive(true));
             Thread.Sleep(1000);
-            queue.Receive(true).ShouldBeNull();
+            Assert.Null(queue.Receive(true));
         }
 
         [Test]
@@ -66,14 +65,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             queue.MessageInvisibleTime = 1;
             using (var scope = new TransactionScope())
             {
-                queue.Receive(true).ShouldNotBeNull();
-
+                Assert.NotNull(queue.Receive(true));
+          
                 scope.Complete();
             }
 
             Thread.Sleep(1000);
 
-            queue.Receive(false).ShouldBeNull();
+            Assert.Null(queue.Receive(false));
         }
 
         [Test]
@@ -84,16 +83,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             queue.MessageInvisibleTime = 2;
             using (new TransactionScope())
             {
-                queue.Receive(true).ShouldNotBeNull();
+                Assert.NotNull(queue.Receive(true));
 
                 //rollback
             }
 
-            queue.Receive(false).ShouldBeNull();
+            Assert.Null(queue.Receive(false));
 
             Thread.Sleep(1000);
 
-            queue.Receive(false).ShouldNotBeNull();
+            Assert.NotNull(queue.Receive(false));
         }
 
         [Test]
@@ -107,7 +106,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             Thread.Sleep(1000);
 
-            queue.Receive(false).ShouldBeNull();
+            Assert.Null(queue.Receive(false));
         }
 
         [Test]
@@ -117,7 +116,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             var message = queue.Receive(false);
 
-            message.Body.ShouldBeNull();
+            Assert.Null(message.Body);
         }
 
         [Test]
@@ -146,16 +145,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                 var result = queue.Receive(false);
 
                 var resultMessage = formatter.Deserialize(new MemoryStream(result.Body)) as TestMessage;
-                resultMessage.TestProperty.ShouldEqual("Test");
+                Assert.AreEqual(resultMessage.TestProperty,"Test");
 
 
-                result.MessageIntent.ShouldEqual(original.MessageIntent);
-                result.CorrelationId.ShouldEqual(original.CorrelationId);
-                result.Id.ShouldNotBeNull();
-                result.Recoverable.ShouldEqual(original.Recoverable);
-                result.ReturnAddress.ShouldEqual(original.ReturnAddress);
-                result.TimeSent.ShouldEqual(original.TimeSent);
-                result.TimeToBeReceived.ShouldEqual(original.TimeToBeReceived);
+                Assert.AreEqual( result.MessageIntent,original.MessageIntent);
+                Assert.AreEqual(result.CorrelationId,original.CorrelationId);
+                Assert.NotNull(result.Id);
+                Assert.AreEqual(result.Recoverable,original.Recoverable);
+                Assert.AreEqual(result.ReturnAddress,original.ReturnAddress);
+                Assert.AreEqual(result.TimeSent,original.TimeSent);
+                Assert.AreEqual(result.TimeToBeReceived,original.TimeToBeReceived);
 
             }
         }

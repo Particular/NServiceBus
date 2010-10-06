@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
-using NBehave.Spec.NUnit;
 using Rhino.Mocks;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
@@ -26,8 +25,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
             var sessionSource = config.Builder.Build<ISubscriptionStorageSessionProvider>();
 
+            Assert.That(sessionSource, Is.EqualTo(config.Builder.Build<ISubscriptionStorageSessionProvider>()));
 
-            sessionSource.ShouldBeTheSameAs(config.Builder.Build<ISubscriptionStorageSessionProvider>());
+           // sessionSource.ShouldBeTheSameAs(config.Builder.Build<ISubscriptionStorageSessionProvider>());
 
         }
 
@@ -38,8 +38,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
             var subscriptionStorage = config.Builder.Build<SubscriptionStorage>();
 
+            Assert.That(subscriptionStorage, Is.Not.EqualTo(config.Builder.Build<SubscriptionStorage>()));
 
-            subscriptionStorage.ShouldNotBeTheSameAs(config.Builder.Build<SubscriptionStorage>());
+            //subscriptionStorage.ShouldNotBeTheSameAs(config.Builder.Build<SubscriptionStorage>());
 
         }
 

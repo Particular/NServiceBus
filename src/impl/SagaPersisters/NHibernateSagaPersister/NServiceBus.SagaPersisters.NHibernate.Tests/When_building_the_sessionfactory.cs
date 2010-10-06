@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-
 using FluentNHibernate.Cfg.Db;
-using NBehave.Spec.NUnit;
 using NHibernate.ByteCode.LinFu;
 using NHibernate.Impl;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
@@ -42,8 +40,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             var sessionFactory = builder.Build(testProperties, false) as SessionFactoryImpl;
 
-            sessionFactory.GetEntityPersister(typeof(RelatedClass).FullName)
-                .ShouldNotBeNull();
+            Assert.NotNull(sessionFactory.GetEntityPersister(typeof(RelatedClass).FullName));
         }
 
         [Test]

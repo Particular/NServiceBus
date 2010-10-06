@@ -1,5 +1,4 @@
 using System.Linq;
-using NBehave.Spec.NUnit;
 using NServiceBus.ObjectBuilder;
 using NUnit.Framework;
 
@@ -16,7 +15,7 @@ namespace ObjectBuilder.Tests
                                          builder.Configure(typeof(DuplicateClass), ComponentCallModelEnum.Singlecall);
                                          builder.Configure(typeof(DuplicateClass), ComponentCallModelEnum.Singlecall);
 
-                                         builder.BuildAll(typeof(DuplicateClass)).Count().ShouldEqual(1);
+                                         Assert.AreEqual(builder.BuildAll(typeof(DuplicateClass)).Count(),1);
                                      });
         }
 
@@ -33,9 +32,9 @@ namespace ObjectBuilder.Tests
 
                 var component = (DuplicateClass)builder.Build(typeof(DuplicateClass));
 
-                component.SomeProperty.ShouldBeTrue();
+                Assert.True(component.SomeProperty);
 
-                component.AnotherProperty.ShouldBeTrue();
+                Assert.True(component.AnotherProperty);
             });
             
         }
@@ -53,9 +52,9 @@ namespace ObjectBuilder.Tests
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
 
-                component.EnumDependency.ShouldEqual(SomeEnum.X);
-                component.SimpleDependency.ShouldEqual(1);
-                component.StringDependency.ShouldEqual("Test");
+                Assert.AreEqual(component.EnumDependency,SomeEnum.X);
+                Assert.AreEqual(component.SimpleDependency,1);
+                Assert.AreEqual(component.StringDependency,"Test");
             });
 
         }

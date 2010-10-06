@@ -39,10 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Common.Logging.Log4Net.dll</HintPath>
     </Reference>
-    <Reference Include="NBehave.Spec.NUnit, Version=0.4.0.132, Culture=neutral, PublicKeyToken=d421feca0f4a05f6, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tools\NBehave\NBehave.Spec.NUnit.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\nunit.framework.dll</HintPath>

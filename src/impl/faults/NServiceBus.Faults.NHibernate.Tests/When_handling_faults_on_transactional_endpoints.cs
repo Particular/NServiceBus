@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Transactions;
-using NBehave.Spec.NUnit;
 using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
@@ -21,7 +18,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
          }
          using (var session = SessionFactory.OpenSession())
          {
-            session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count.ShouldEqual(1);
+            Assert.AreEqual(session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count,1);
          }
       }
 
@@ -35,7 +32,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
 
          using (var session = SessionFactory.OpenSession())
          {
-            session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count.ShouldEqual(0);
+            Assert.AreEqual(session.CreateCriteria(typeof(FailureInfo)).List<FailureInfo>().Count,0);
          }
 
       }

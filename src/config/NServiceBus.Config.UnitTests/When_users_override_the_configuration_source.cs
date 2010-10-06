@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
-using NBehave.Spec.NUnit;
 
 namespace NServiceBus.Config.UnitTests
 {
@@ -23,8 +22,7 @@ namespace NServiceBus.Config.UnitTests
         {
             var section = Configure.GetConfigSection<TestConfigurationSection>();
 
-
-            section.TestSetting.ShouldEqual("TestValue");
+            Assert.AreEqual(section.TestSetting,"TestValue");
         }
 
     }

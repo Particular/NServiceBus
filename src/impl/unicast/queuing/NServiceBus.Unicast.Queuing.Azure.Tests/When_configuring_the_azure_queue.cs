@@ -1,5 +1,4 @@
 using Microsoft.WindowsAzure.StorageClient;
-using NBehave.Spec.NUnit;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Unicast.Queuing.Azure.Config;
 using NUnit.Framework;
@@ -12,27 +11,26 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         [Test]
         public void The_storage_should_default_to_dev_settings_if_no_config_section_is_found()
         {
-
             Configure.With()
                 .DefaultBuilder()
                 .CustomConfigurationSource(new NullSource())
                 .AzureMessageQueue();
 
-            Configure.Instance.Builder.Build<CloudQueueClient>().Credentials.AccountName.ShouldEqual("devstoreaccount1");
+            Assert.AreEqual(Configure.Instance.Builder.Build<CloudQueueClient>().Credentials.AccountName,"devstoreaccount1");
+
         }
 
 
         [Test]
         public void Storage_setting_should_be_read_from_configuration_source()
         {
-
             Configure.With()
                 .DefaultBuilder()
                 .AzureMessageQueue();
 
             var storage = Configure.Instance.Builder.Build<CloudQueueClient>();
 
-            storage.Credentials.AccountName.ShouldEqual("myaccount");
+            Assert.AreEqual(storage.Credentials.AccountName,"myaccount");
         }
 
         [Test]
@@ -42,8 +40,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
              .DefaultBuilder()
              .AzureMessageQueue();
 
-            Configure.Instance.Builder.Build<AzureMessageQueue>()
-                .ShouldBeTheSameAs(Configure.Instance.Builder.Build<AzureMessageQueue>());
+            Assert.AreEqual(Configure.Instance.Builder.Build<AzureMessageQueue>(),Configure.Instance.Builder.Build<AzureMessageQueue>());
         }
     }
 
