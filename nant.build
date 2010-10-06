@@ -28,7 +28,7 @@
 	<property name="include_azure" value="false" dynamic="true" />
 	<property name="servicehosting.version" value="" dynamic="true" />
 	<property name="project.config" value="release" />
-	<property name="targetframework" value="net-3.5" dynamic="true" />
+	<property name="targetframework" value="net-4.0" dynamic="true" />
 	<property name="msbuild" value="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" dynamic="true" />
 	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
 	<property name="ilmerge.targetframework" value="" dynamic="true" />
