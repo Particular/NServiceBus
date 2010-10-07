@@ -5,7 +5,7 @@ namespace NServiceBus.Config
     public class MessageForwardingInCaseOfFaultConfig : ConfigurationSection
     {
         /// <summary>
-        /// The encryption key.
+        /// The queue to which errors will be forwarded.
         /// </summary>
         [ConfigurationProperty("ErrorQueue", IsRequired = true)]
         public string ErrorQueue

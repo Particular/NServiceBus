@@ -29,11 +29,16 @@ namespace NServiceBus
                 if (msmq == null)
                     throw new ConfigurationErrorsException("Could not find backup configuration section 'MsmqTransportConfig' in order to locate the error queue.");
 
+                
                 errorQueue = msmq.ErrorQueue;
             }
             else
                 errorQueue = section.ErrorQueue;
 
+			if(string.IsNullOrEmpty(errorQueue))
+				throw new ConfigurationErrorsException("Faults forwarding requires a error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
+             
+				
             config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singlecall)
                 .ConfigureProperty(fm => fm.ErrorQueue, errorQueue);
 

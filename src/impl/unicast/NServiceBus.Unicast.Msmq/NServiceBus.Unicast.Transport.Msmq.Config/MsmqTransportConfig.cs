@@ -11,7 +11,7 @@ namespace NServiceBus.Config
         /// The queue to receive messages from in the format
         /// "queue@machine".
         /// </summary>
-        [ConfigurationProperty("InputQueue", IsRequired = true)]
+        [ConfigurationProperty("InputQueue", IsRequired = false)]
         public string InputQueue
         {
             get
@@ -28,7 +28,7 @@ namespace NServiceBus.Config
         /// The queue to which to forward messages that could not be processed
         /// in the format "queue@machine".
         /// </summary>
-        [ConfigurationProperty("ErrorQueue", IsRequired = true)]
+        [ConfigurationProperty("ErrorQueue", IsRequired = false)]
         public string ErrorQueue
         {
             get
