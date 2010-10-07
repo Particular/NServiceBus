@@ -3,6 +3,7 @@ using NServiceBus.Config;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.ObjectBuilder;
 using Common.Logging;
+using NServiceBus.Utils;
 
 namespace NServiceBus
 {
@@ -38,7 +39,9 @@ namespace NServiceBus
 			if(string.IsNullOrEmpty(errorQueue))
 				throw new ConfigurationErrorsException("Faults forwarding requires a error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
              
-				
+            //TODO: this should probably be moved to a new IManageFaults.Start|Init method instead. Check with Udi
+            MsmqUtilities.CreateQueueIfNecessary(errorQueue);
+	
             config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singlecall)
                 .ConfigureProperty(fm => fm.ErrorQueue, errorQueue);
 

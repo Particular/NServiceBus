@@ -14,7 +14,7 @@ namespace NServiceBus.Faults.Forwarder
 
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            NServiceBus.Configure.Instance.Builder.Build<IBus>()
+            Configure.Instance.Builder.Build<IBus>()
                 .Send(ErrorQueue, new SerializationFailedMessage
                 {
                     ExceptionInfo = e.GetInfo(),
@@ -29,7 +29,7 @@ namespace NServiceBus.Faults.Forwarder
                 e = ExceptionSanitizer.Sanitize(e);
             }
 
-            NServiceBus.Configure.Instance.Builder.Build<IBus>()
+            Configure.Instance.Builder.Build<IBus>()
                 .Send(ErrorQueue, new ProcessingFailedMessage
                 {
                     ExceptionInfo = e.GetInfo(),

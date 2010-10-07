@@ -75,6 +75,9 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Msmq.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
