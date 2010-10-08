@@ -47,7 +47,7 @@
       <HintPath>..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\lib\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\lib\Rhino.Mocks\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
