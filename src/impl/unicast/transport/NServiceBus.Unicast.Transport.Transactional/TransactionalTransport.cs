@@ -215,7 +215,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 if (IsTransactional)
                 {
-                    IncrementFailuresForMessage(_messageId, e);
+                    var originalException = e;
+
+                    if (e is TransportMessageHandlingFailedException)
+                        originalException = ((TransportMessageHandlingFailedException) e).OriginalException;
+
+                    IncrementFailuresForMessage(_messageId, originalException);
                 }
 
                 OnFailedMessageProcessing();
@@ -250,17 +255,21 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 StartedMessageProcessing(this, null);
 
             //care about failures here
-            var exceptionNotThrown = OnTransportMessageReceived(m);
+            var exceptionFromMessageHandling = OnTransportMessageReceived(m);
+            
             //and here
-            var otherExNotThrown = OnFinishedMessageProcessing();
+            var exceptionFromMessageModules = OnFinishedMessageProcessing();
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
-                throw new ApplicationException("Exception occured while processing message.");
+            if (exceptionFromMessageHandling != null) //cause rollback
+                throw exceptionFromMessageHandling;
+
+            if (exceptionFromMessageModules != null) //cause rollback
+                throw exceptionFromMessageModules;
         }
 
         private bool HandledMaxRetries(TransportMessage message)
@@ -371,7 +380,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             _needToAbort = true;
         }
 
-        private bool OnFinishedMessageProcessing()
+        private Exception OnFinishedMessageProcessing()
         {
             try
             {
@@ -381,13 +390,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
             catch (Exception e)
             {
                 Logger.Error("Failed raising 'finished message processing' event.", e);
-                return false;
+                return e;
             }
 
-            return true;
+            return null;
         }
 
-        private bool OnTransportMessageReceived(TransportMessage msg)
+        private Exception OnTransportMessageReceived(TransportMessage msg)
         {
             try
             {
@@ -397,10 +406,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
             catch (Exception e)
             {
                 Logger.Warn("Failed raising 'transport message received' event for message with ID=" + msg.Id, e);
-                return false;
+
+                return e;
             }
 
-            return true;
+            return null;
         }
 
         private bool OnFailedMessageProcessing()

@@ -889,9 +889,10 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception e)
                 {
-                    Log.Error(messageHandlerType.Name + " Failed handling message.", GetInnermostException(e));
+                    var innerEx = GetInnermostException(e);
+                    Log.Error(messageHandlerType.Name + " Failed handling message.", GetInnermostException(innerEx));
 
-                    throw;
+                    throw new TransportMessageHandlingFailedException(innerEx);
                 }
             }
         }
