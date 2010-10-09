@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Messaging;
 using System.Security.Principal;
@@ -49,6 +50,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 myQueue.Purge();
         }
 
+        [DebuggerNonUserCode]
         public bool HasMessage()
         {
             try
