@@ -1,8 +1,8 @@
 using System;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NUnit.Framework;
-using StructureMap;
 
 namespace ObjectBuilder.Tests.StructureMapSpecific
 {
@@ -12,17 +12,37 @@ namespace ObjectBuilder.Tests.StructureMapSpecific
         [Test]
         public void Singleton_components_should_have_their_interfaces_registered_to_avoid_beeing_disposed()
         {
-            var container = new Container();
-
-            NServiceBus.ObjectBuilder.Common.IContainer builder = new StructureMapObjectBuilder(container);
+            IContainer builder = new StructureMapObjectBuilder();
 
             builder.Configure(typeof(SingletonComponent), ComponentCallModelEnum.Singleton);
 
-            using (var nestedContainer = container.GetNestedContainer())
-                nestedContainer.GetInstance<ISingletonComponent>();
+            using (var nestedContainer = builder.BuildChildContainer())
+                nestedContainer.Build(typeof(ISingletonComponent));
 
             Assert.False(SingletonComponent.DisposeCalled);
 
+        }
+
+        [Test]
+        public void Single_call_components_should_be_disposed_when_the_child_container_is_disposed()
+        {
+            IContainer builder = new StructureMapObjectBuilder();
+
+            builder.Configure(typeof(SinglecallComponent), ComponentCallModelEnum.Singlecall);
+
+            using (var nestedContainer = builder.BuildChildContainer())
+                nestedContainer.Build(typeof(SinglecallComponent));
+
+            Assert.True(SinglecallComponent.DisposeCalled);
+        }
+    }
+    public class SinglecallComponent : IDisposable
+    {
+        public static bool DisposeCalled;
+
+        public void Dispose()
+        {
+            DisposeCalled = true;
         }
     }
 
@@ -36,7 +56,8 @@ namespace ObjectBuilder.Tests.StructureMapSpecific
         }
     }
 
-    public interface ISingletonComponent 
+    public interface ISingletonComponent
     {
     }
+
 }

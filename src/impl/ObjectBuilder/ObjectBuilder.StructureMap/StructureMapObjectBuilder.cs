@@ -141,7 +141,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         {
             switch (callModel)
             {
-                case ComponentCallModelEnum.Singlecall: return new UniquePerRequestLifecycle();
+                case ComponentCallModelEnum.Singlecall: return null;//null means the default lifecycle which is transient
                 case ComponentCallModelEnum.Singleton: return new SingletonLifecycle();
             }
 
