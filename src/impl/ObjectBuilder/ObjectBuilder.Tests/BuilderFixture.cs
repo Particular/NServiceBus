@@ -53,7 +53,7 @@ namespace ObjectBuilder.Tests
                                      new AutofacObjectBuilder(),
                                      new WindsorObjectBuilder(),
                                      new UnityObjectBuilder(),
-                                     //new SpringObjectBuilder() TODO: Can't test spring until we get a version that is compiled against CL2.0
+                                     new SpringObjectBuilder()
                                  };
 
             var inilialize = InitializeBuilder();
