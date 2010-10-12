@@ -1,5 +1,6 @@
 using FluentNHibernate.Conventions;
 using FluentNHibernate.Conventions.Instances;
+using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
 
 namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions
 {

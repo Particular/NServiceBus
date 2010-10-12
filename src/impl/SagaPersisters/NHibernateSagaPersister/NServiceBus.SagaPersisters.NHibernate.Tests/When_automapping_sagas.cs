@@ -78,7 +78,30 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             persisterForTestSaga.ShouldContainMappingsFor<PolymorpicPropertyBase>();
 
             sessionFactory.ShouldContainPersisterFor<PolymorpicProperty>();
+
         }
+
+        [Test]
+        public void Users_can_override_tablenames_by_using_an_attribute()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            Assert.AreEqual(persister.TableName,"MyTestTable");
+        }
+
+        [Test]
+        public void Users_can_override_tablenames_by_using_an_attribute_which_does_not_derive()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(DerivedFromTestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            Assert.AreEqual(persister.TableName,"DerivedFromTestSagaWithTableNameAttribute");
+        }
+
+        [Test]
+        public void Users_can_override_derived_tablenames_by_using_an_attribute()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(AlsoDerivedFromTestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            Assert.AreEqual(persister.TableName,"MyDerivedTestTable");
+        }
+
     }
 
     public static class SessionFactoryExtensions
@@ -92,7 +115,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.NotNull(sessionFactory.GetEntityPersisterFor<T>());
         }
     }
-
+      
     public static class EntityPersisterExtensions
     {
         public static void ShouldContainMappingsFor<T>(this IEntityPersister persister)
