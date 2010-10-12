@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using NServiceBus.Saga;
+using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
-    public class TestSaga:ISagaEntity
+    public class TestSaga : ISagaEntity
     {
-        public virtual Guid Id{ get; set;}
+        public virtual Guid Id { get; set; }
 
         public virtual string Originator { get; set; }
 
@@ -51,15 +52,33 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual TestSaga ParentSaga { get; set; }
     }
 
-   public class TestSagaWithHbmlXmlOverride:ISagaEntity
-   {
-       public virtual Guid Id { get; set; }
+    public class TestSagaWithHbmlXmlOverride : ISagaEntity
+    {
+        public virtual Guid Id { get; set; }
 
-       public virtual string Originator { get; set; }
+        public virtual string Originator { get; set; }
 
-       public virtual string OriginalMessageId { get; set; }
+        public virtual string OriginalMessageId { get; set; }
 
-       public virtual string SomeProperty { get; set; }
-   }
-     
+        public virtual string SomeProperty { get; set; }
+    }
+
+    [TableName("MyTestTable")]
+    public class TestSagaWithTableNameAttribute : ISagaEntity
+    {
+        public virtual Guid Id { get; set; }
+
+        public virtual string Originator { get; set; }
+
+        public virtual string OriginalMessageId { get; set; }
+
+        public virtual string SomeProperty { get; set; }
+    }
+
+    public class DerivedFromTestSagaWithTableNameAttribute : TestSagaWithTableNameAttribute
+    { }
+
+    [TableName("MyDerivedTestTable")]
+    public class AlsoDerivedFromTestSagaWithTableNameAttribute : TestSagaWithTableNameAttribute
+    { }
 }

@@ -81,9 +81,28 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithHbmlXmlOverride).FullName);
             persister.IdentifierGenerator.ShouldBeInstanceOfType(typeof(IdentityGenerator));
 
-            
+
         }
 
+        [Test]
+        public void Users_can_override_tablenames_by_using_an_attribute()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            persister.TableName.ShouldEqual("MyTestTable");
+        }
 
+        [Test]
+        public void Users_can_override_tablenames_by_using_an_attribute_which_does_not_derive()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(DerivedFromTestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            persister.TableName.ShouldEqual("DerivedFromTestSagaWithTableNameAttribute");
+        }
+
+        [Test]
+        public void Users_can_override_derived_tablenames_by_using_an_attribute()
+        {
+            var persister = sessionFactory.GetEntityPersister(typeof(AlsoDerivedFromTestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+            persister.TableName.ShouldEqual("MyDerivedTestTable");
+        }
     }
 }
