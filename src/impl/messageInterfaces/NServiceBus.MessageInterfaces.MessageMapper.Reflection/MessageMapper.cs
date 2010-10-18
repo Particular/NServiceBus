@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Linq;
+using Common.Logging;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
@@ -72,10 +73,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (t.IsInterface)
             {
-                Type mapped = CreateTypeFrom(t, moduleBuilder);
-                interfaceToConcreteTypeMapping[t] = mapped;
-                concreteToInterfaceTypeMapping[mapped] = t;
-                typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
+                GenerateImplementationFor(t, moduleBuilder);
             }
             else
                 typeToConstructor[t] = t.GetConstructor(Type.EmptyTypes);
@@ -87,6 +85,19 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             foreach (PropertyInfo prop in t.GetProperties())
                 InitType(prop.PropertyType, moduleBuilder);
+        }
+
+        void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
+        {
+            if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
+            {
+                Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
+                return;
+            }
+            var mapped = CreateTypeFrom(interfaceType, moduleBuilder);
+            interfaceToConcreteTypeMapping[interfaceType] = mapped;
+            concreteToInterfaceTypeMapping[mapped] = interfaceType;
+            typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
         }
 
         private static string GetTypeName(Type t)
@@ -291,5 +302,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         private static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
         private static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
         private static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
+        private static ILog Logger = LogManager.GetLogger("MessageMapper");
+ 
     }
 }
