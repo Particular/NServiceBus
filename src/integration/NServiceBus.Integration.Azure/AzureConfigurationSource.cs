@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Configuration;
+using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config.ConfigurationSource;
 
 namespace NServiceBus.Integration.Azure
@@ -32,7 +33,7 @@ namespace NServiceBus.Integration.Azure
                 {
                     if (section == null)
                         section = new T();
-                    
+
                     property.SetValue(section, Convert.ChangeType(setting, property.PropertyType), null);
                 }
             }
@@ -42,12 +43,14 @@ namespace NServiceBus.Integration.Azure
 
         private static Configuration GetConfigurationHandler()
         {
+            if (IsWebsite()) return WebConfigurationManager.OpenWebConfiguration("/");
 
-            if (HttpContext.Current == null)
-                return ConfigurationManager.OpenExeConfiguration( ConfigurationUserLevel.None );
-
-            return WebConfigurationManager.OpenWebConfiguration("/");
+            return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         }
 
+        private static bool IsWebsite()
+        {
+            return RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.InstanceEndpoints.ContainsKey("HttpIn") : HttpContext.Current != null;
+        }
     }
 }
