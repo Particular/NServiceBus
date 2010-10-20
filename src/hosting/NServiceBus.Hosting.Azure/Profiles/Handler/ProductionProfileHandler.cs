@@ -13,8 +13,7 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 
             if (Config is AsA_Publisher)
             {
-                const bool createSchema = true;
-                Configure.Instance.NHibernateAzureSubcriptionStorage(createSchema);
+                Configure.Instance.AzureSubcriptionStorage();
             }
         }
 
