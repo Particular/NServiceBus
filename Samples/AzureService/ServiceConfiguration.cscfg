@@ -5,9 +5,15 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
-      <Setting name="Data.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Diagnostics.LogLevel" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
+
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue" />
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
+      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
   </Role>
   <Role name="OrderService">
@@ -15,12 +21,19 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=http;AccountName={your account name};AccountKey={your account key}"/>-->
+      
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
-      <Setting name="Data.ConnectionString" value="UseDevelopmentStorage=true" />
+      
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      
       <Setting name="Diagnostics.LogLevel" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
-      <Setting name="MsmqTransportConfig.ErrorQueue" value="error" />
+      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
+
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>

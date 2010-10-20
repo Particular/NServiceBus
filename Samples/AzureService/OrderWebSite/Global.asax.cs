@@ -1,51 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Web;
 using log4net;
-using log4net.Core;
-using MyMessages;
-using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Integration.Azure;
-using NServiceBus.Unicast.Queuing.Azure.Config;
 
 namespace OrderWebSite
 {
     public class Global : HttpApplication
     {
 
-        public static IBus Bus;
-        public static IList<MyMessages.Order> Orders;
-
         protected void Application_Start(object sender, EventArgs e)
         {
-            ConfigureNServiceBus();
-
-
-            Orders = new List<MyMessages.Order>();
-            //request all orders to "warmup" the cache
-            Bus.Send(new LoadOrdersMessage());
-        }
-
-        private void ConfigureNServiceBus()
-        {
-            Bus = Configure.WithWeb()
-                .DefaultBuilder()
-                .Log4Net(new AzureAppender
-                          {
-                              ConnectionStringKey = "AzureQueueConfig.ConnectionString",
-                              Threshold = Level.Debug
-                          })
-                .AzureConfigurationSource()
-                .AzureMessageQueue()
-                .XmlSerializer()
-                .UnicastBus()
-                .LoadMessageHandlers()                
-                .IsTransactional(true)
-              //  .PurgeOnStartup(true)
-                .CreateBus()
-                .Start();
+           
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)

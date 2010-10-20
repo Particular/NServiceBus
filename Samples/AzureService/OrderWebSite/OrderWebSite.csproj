@@ -87,6 +87,7 @@
     <Compile Include="MessageHandlers\LoadOrdersResponseMessageHandler.cs" />
     <Compile Include="MessageHandlers\OrderUpdatedEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">

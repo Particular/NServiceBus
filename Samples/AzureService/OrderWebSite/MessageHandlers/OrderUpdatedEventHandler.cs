@@ -9,12 +9,12 @@ namespace OrderWebSite.MessageHandlers
         {
             var order = message.UpdatedOrder;
 
-            lock (Global.Orders)
+            lock (WebRole.Orders)
             {
-                if (Global.Orders.Contains(order))
-                    Global.Orders.Remove(order);
+                if (WebRole.Orders.Contains(order))
+                    WebRole.Orders.Remove(order);
 
-                Global.Orders.Add(order);
+                WebRole.Orders.Add(order);
             }
         }
     }
