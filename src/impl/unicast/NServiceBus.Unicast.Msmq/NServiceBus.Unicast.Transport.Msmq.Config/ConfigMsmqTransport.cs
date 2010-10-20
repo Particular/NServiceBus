@@ -32,6 +32,8 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
                 transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
                 transportConfig.ConfigureProperty(t => t.ErrorQueue, cfg.ErrorQueue);
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
+                transportConfig.ConfigureProperty(t => t.UseDeadLetterQueue, cfg.UseDeadLetterQueue);
+                transportConfig.ConfigureProperty(t => t.UseJournalQueue, cfg.UseJournalQueue); 
             }
         }
 

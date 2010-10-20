@@ -109,6 +109,16 @@ namespace NServiceBus.Unicast.Transport.Msmq
         /// </summary>
         public IMessageSerializer MessageSerializer { get; set; }
 
+        ///<summary>
+        /// If true, then message-delivery failure should result in a copy of the message being sent to a dead-letter queue
+        ///</summary>
+        public bool UseDeadLetterQueue { get; set; }
+
+        ///<summary>
+        /// If true, require that a copy of a message be kept in the originating computer's machine journal after the message has been successfully transmitted (from the originating computer to the next server)
+        ///</summary>
+        public bool UseJournalQueue { get; set; }
+
         #endregion
 
         #region ITransport Members
@@ -211,7 +221,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             CheckConfiguration();
             CreateQueuesIfNecessary();
 
-            if (ErrorQueue != null)
+            if (!string.IsNullOrEmpty(ErrorQueue))
                 errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(ErrorQueue));
 
             if (!string.IsNullOrEmpty(InputQueue))
@@ -296,6 +306,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
                     toSend.CorrelationId = m.CorrelationId;
 
                 toSend.Recoverable = m.Recoverable;
+                toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+                toSend.UseJournalQueue = UseJournalQueue;
+
 
                 if (!string.IsNullOrEmpty(m.ReturnAddress))
                     toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(m.ReturnAddress));
