@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Messaging;
@@ -26,6 +27,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     toSend.CorrelationId = message.CorrelationId;
 
                 toSend.Recoverable = message.Recoverable;
+                toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+                toSend.UseJournalQueue = UseJournalQueue; 
 
                 if (!string.IsNullOrEmpty(message.ReturnAddress))
                     toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(message.ReturnAddress));
@@ -64,6 +67,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
 
         }
+
+        /// <summary>
+        /// Determines if journaling should be activated
+        /// </summary>
+        public bool UseJournalQueue { get; set; }
+
+        /// <summary>
+        /// Determines if the dead letter queue should be used
+        /// </summary>
+        public bool UseDeadLetterQueue { get; set; }
 
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {

@@ -1,4 +1,5 @@
-﻿using NServiceBus.ObjectBuilder;
+﻿using NServiceBus.Config;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus
@@ -15,6 +16,15 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<MsmqMessageReceiver>(ComponentCallModelEnum.Singleton);
             config.Configurer.ConfigureComponent<MsmqMessageSender>(ComponentCallModelEnum.Singleton);
 
+
+            var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
+
+            if (cfg != null)
+            {
+                config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, cfg.UseJournalQueue);
+                config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, cfg.UseJournalQueue);
+            }
+
             return config;
         }
 
@@ -29,7 +39,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<MsmqMessageReceiver>(t => t.PurgeOnStartup, value);
+            config.Configurer.ConfigureProperty<MsmqMessageReceiver>(t => t.PurgeOnStartup, value);
 
             return config;
         }
