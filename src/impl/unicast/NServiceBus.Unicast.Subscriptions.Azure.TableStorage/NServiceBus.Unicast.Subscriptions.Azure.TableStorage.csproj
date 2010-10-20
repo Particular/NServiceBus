@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.Unicast.Subscriptions.Azure.TableStorage</RootNamespace>
     <AssemblyName>NServiceBus.Unicast.Subscriptions.Azure.TableStorage</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -100,9 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureNHibernateAzureSubscriptionStorage.cs" />
-    <Compile Include="Config\NHibernateAzureSubscriptionStorageConfig.cs" />
-    <Compile Include="Config\NHibernateProperty.cs" />
-    <Compile Include="Config\NHibernatePropertyCollection.cs" />
+    <Compile Include="Config\AzureSubscriptionStorageConfig.cs" />
     <Compile Include="Config\SubscriptionMap.cs" />
     <Compile Include="SubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

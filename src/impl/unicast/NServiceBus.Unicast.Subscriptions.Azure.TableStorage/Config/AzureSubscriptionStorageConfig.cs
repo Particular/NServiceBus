@@ -1,19 +1,19 @@
 using System.Configuration;
 
-namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage.Config
+namespace NServiceBus.Config
 {
-    public class NHibernateAzureSubscriptionStorageConfig : ConfigurationSection
+    public class AzureSubscriptionStorageConfig : ConfigurationSection
     {
-        [ConfigurationProperty("NHibernateProperties", IsRequired = false)]
-        public NHibernatePropertyCollection NHibernateProperties
+        [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = "UseDevelopmentStorage=true")]
+        public string ConnectionString
         {
             get
             {
-                return this["NHibernateProperties"] as NHibernatePropertyCollection;
+                return this["ConnectionString"] as string;
             }
             set
             {
-                this["NHibernateProperties"] = value;
+                this["ConnectionString"] = value;
             }
         }
 
