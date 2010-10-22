@@ -1,6 +1,5 @@
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Config.ConfigurationSource;
-using NServiceBus.Unicast.Queuing.Azure.Config;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests

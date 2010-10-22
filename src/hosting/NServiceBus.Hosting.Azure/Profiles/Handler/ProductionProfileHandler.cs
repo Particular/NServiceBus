@@ -6,8 +6,8 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            //Configure.Instance
-            //    .NHibernateSagaPersister();
+            Configure.Instance
+                .AzureSagaPersister().NHibernateUnitOfWork();
 
             //Configure.Instance.MessageForwardingInCaseOfFault();
 

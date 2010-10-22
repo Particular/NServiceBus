@@ -13,8 +13,17 @@ namespace NServiceBus.Unicast.Queuing.Azure
     {
         private CloudQueue queue;
         private readonly CloudQueueClient client;
+        private int timeToDelayNextPeek;
 
-        public int SecondsToWaitForMessage{ get; set;}
+        /// <summary>
+        /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
+        /// </summary>
+        public int PeekInterval{ get; set; }
+
+        /// <summary>
+        /// Sets the maximum amount of time, in milliseconds, that the queue will wait before checking for a new message
+        /// </summary>
+        public int MaximumWaitTimeWhenIdle { get; set; }
    
         /// <summary>
         /// Sets whether or not the transport should purge the input
@@ -30,8 +39,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public AzureMessageQueue(CloudQueueClient client)
         {
             this.client = client;
-            MessageInvisibleTime = 30;
-            SecondsToWaitForMessage = 1;
+            MessageInvisibleTime = 30000;
+            PeekInterval = 1000;
+            MaximumWaitTimeWhenIdle = 60000;
         }
 
         public void Init(string inputqueue)
@@ -50,7 +60,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
 
-
             message.Id = Guid.NewGuid().ToString();
 
             var rawMessage = SerializeMessage(message);
@@ -59,13 +68,29 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 sendQueue.AddMessage(rawMessage);
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
-
-            
         }
 
         public bool HasMessage()
         {
-            return queue.PeekMessage() != null;
+            var hasMessage = queue.PeekMessage() != null;
+
+            DelayNextPeekWhenThereIsNoMessage(hasMessage);
+            
+            return hasMessage;
+        }
+
+        private void DelayNextPeekWhenThereIsNoMessage(bool hasMessage)
+        {
+            if (hasMessage)
+            {
+                timeToDelayNextPeek = 0;
+            }
+            else
+            {
+                if (timeToDelayNextPeek < MaximumWaitTimeWhenIdle) timeToDelayNextPeek += PeekInterval;
+
+                Thread.Sleep(timeToDelayNextPeek);
+            }
         }
 
         public TransportMessage Receive(bool transactional)
@@ -80,7 +105,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private CloudQueueMessage GetMessage(bool transactional)
         {
-            var receivedMessage = PollForMessage();
+            var receivedMessage = queue.GetMessage(TimeSpan.FromMilliseconds(MessageInvisibleTime));
 
             if (receivedMessage != null)
             {
@@ -91,20 +116,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
 
             return receivedMessage;
-        }
-
-        private CloudQueueMessage PollForMessage()
-        {
-            CloudQueueMessage message;
-            var maxTime = DateTime.Now.AddSeconds(SecondsToWaitForMessage);
-
-
-            while ((message = queue.GetMessage(TimeSpan.FromSeconds(MessageInvisibleTime))) == null && DateTime.Now < maxTime)
-            {
-                Thread.Sleep(500);
-            }
-
-            return message;
         }
 
         private static CloudQueueMessage SerializeMessage(TransportMessage originalMessage)

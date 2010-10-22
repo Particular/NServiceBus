@@ -1,7 +1,6 @@
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Queuing.Azure.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
 {
@@ -19,10 +18,9 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             return Configure.Instance
                 .DefaultBuilder()                
-                //.Sagas() // todo
-                 .AzureConfigurationSource()
-                 .AzureMessageQueue()                   
-                .IsTransactional(true)
+                .AzureConfigurationSource()
+                .AzureMessageQueue().IsTransactional(true)
+                .Sagas()
                // .PurgeOnStartup(false) // todo
                 .UnicastBus()
                 .ImpersonateSender(true);

@@ -22,8 +22,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
         protected virtual bool PurgeOnStartup { get{ return false;} }
 
-        protected virtual int SecondsToWaitForMessage { get { return 1; } }
-
         [SetUp]
         public void Setup()
         {
@@ -37,7 +35,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue = new AzureMessageQueue(client)
                         {
-                            SecondsToWaitForMessage = SecondsToWaitForMessage,
                             PurgeOnStartup = PurgeOnStartup
                         };
 
