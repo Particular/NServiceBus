@@ -1,6 +1,5 @@
 using NServiceBus;
 using NServiceBus.Config;
-using NServiceBus.Unicast.Queuing.Azure.Config;
 using StructureMap;
 
 namespace Barista

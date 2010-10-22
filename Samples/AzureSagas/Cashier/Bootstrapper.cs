@@ -2,7 +2,6 @@ using log4net.Core;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Integration.Azure;
-using NServiceBus.Unicast.Queuing.Azure.Config;
 using StructureMap;
 
 namespace Cashier
@@ -25,23 +24,6 @@ namespace Cashier
 
         private static void BootstrapNServiceBus()
         {
-            //Configure.With()
-            //    .StructureMapBuilder(ObjectFactory.Container)
-            //    .MsmqSubscriptionStorage()
-            //    .XmlSerializer()
-            //    // For sagas
-            //    .Sagas()
-            //    .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration()
-            //    // End
-            //    .MsmqTransport()
-            //        .IsTransactional(true)
-            //        .PurgeOnStartup(false)
-            //    .UnicastBus()
-            //        .ImpersonateSender(false)
-            //        .LoadMessageHandlers()
-            //    .CreateBus()
-            //    .Start();
-
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)

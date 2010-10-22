@@ -79,7 +79,9 @@
     <EmbeddedResource Include="StarbucksBarista.resx">
       <DependentUpon>StarbucksBarista.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <Compile Include="ViewData\DeliverOrderView.cs" />
     <Compile Include="ViewData\OrderIsDoneView.cs" />
     <Compile Include="ViewData\PrepareOrderView.cs" />
