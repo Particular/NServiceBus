@@ -193,6 +193,19 @@ namespace NServiceBus.Testing
             delegates.Add(d);
         }
 
+        public void ExpectForwardCurrentMessageTo(string destination)
+        {
+            string dest = string.Empty;
+
+            Delegate del = new HandleMessageDelegate(
+                () => Expect.Call(() => bus.ForwardCurrentMessageTo(dest))
+                        .IgnoreArguments()
+                        .Callback((string d) => d == destination)
+                );
+
+            delegates.Add(del);
+        }
+
         /// <summary>
         /// Check that the object tells the bus to handle the current message later
         /// </summary>

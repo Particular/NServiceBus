@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using NServiceBus.Saga;
 using NServiceBus.Serialization;
+using NServiceBus.Unicast;
 using Rhino.Mocks;
 
 namespace NServiceBus.Testing
@@ -35,7 +36,8 @@ namespace NServiceBus.Testing
         {
             Configure.Instance
                 .DefaultBuilder()
-                .XmlSerializer();
+                .XmlSerializer()
+                .InMemoryFaultManagement();
         }
 
         /// <summary>
@@ -77,21 +79,9 @@ namespace NServiceBus.Testing
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
             var mocks = new MockRepository();
-            var bus = mocks.DynamicMock<IBus>();
-            var starter = mocks.DynamicMock<IStartableBus>();
-
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IBus), bus);
+            var bus = MockTheBus(mocks);
 
             saga.Bus = bus;
-            ExtensionMethods.Bus = bus;
-
-            Configure.Instance.CreateBus();
-
-            Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
-            _messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
-            if (_messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
 
@@ -132,16 +122,27 @@ namespace NServiceBus.Testing
                 throw new ArgumentException("The handler object given does not implement IMessageHandler<T> where T : IMessage.", "handler");
 
             var mocks = new MockRepository();
-            var bus = mocks.DynamicMock<IBus>();
-            var starter = mocks.DynamicMock<IStartableBus>();
-
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IBus), bus);
+            var bus = MockTheBus(mocks);
 
             var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
             if (prop != null)
                 prop.SetValue(handler, bus, null);
 
+            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+
+            return new Handler<T>(handler, mocks, bus, _messageCreator, messageTypes);
+        }
+
+        private static IUnicastBus MockTheBus(MockRepository mocks)
+        {
+            var bus = mocks.DynamicMock<IUnicastBus>();
+            var starter = mocks.DynamicMock<IStartableBus>();
+
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
+            Configure.Instance.Configurer.RegisterSingleton(typeof(IUnicastBus), bus);
+
+            bus.Replay(); // to neutralize any event subscriptions by rest of NSB
+            
             ExtensionMethods.Bus = bus;
 
             Configure.Instance.CreateBus();
@@ -151,9 +152,9 @@ namespace NServiceBus.Testing
             if (_messageCreator == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+            bus.BackToRecord(); // to get ready for testing
 
-            return new Handler<T>(handler, mocks, bus, _messageCreator, messageTypes);
+            return bus;
         }
 
         /// <summary>

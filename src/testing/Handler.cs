@@ -72,18 +72,18 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Asserts that the given value is stored under the given key in the outgoing headers.
+        /// Asserts that the given value is stored under the given key in the outgoing headers of the given message.
         /// </summary>
+        /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Handler<T> AssertOutgoingHeader(string key, string value)
+        public Handler<T> AssertOutgoingHeader(IMessage msg, string key, string value)
         {
             assertions.Add(() =>
                                {
-                                   string v;
-                                   outgoingHeaders.TryGetValue(key, out v);
-
+                                   var v = ExtensionMethods.GetHeaderAction(msg, key);
+                                   
                                    if (v != value)
                                        throw new Exception("Outgoing header value for key '" + key + "' was '" + v +
                                                            "' instead of '" + value + "'.");
@@ -175,6 +175,17 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the handler tells the bus to forward the current message to the given destination.
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectForwardCurrentMessageTo(string destination)
+        {
+            helper.ExpectForwardCurrentMessageTo(destination);
+            return this;
+        }
+
+        /// <summary>
         /// Check that the handler tells the bus to handle the current message later.
         /// </summary>
         /// <returns></returns>
@@ -204,6 +215,10 @@ namespace NServiceBus.Testing
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
 
             var msg = messageCreator.CreateInstance(initializeMessage);
+
+            foreach(KeyValuePair<string, string> kvp in incomingHeaders)
+                ExtensionMethods.SetHeaderAction(msg, kvp.Key, kvp.Value);
+
             ExtensionMethods.CurrentMessageBeingHandled = msg;
 
 			MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
