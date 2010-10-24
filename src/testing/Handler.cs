@@ -16,7 +16,6 @@ namespace NServiceBus.Testing
         private readonly T handler;
         private readonly IMessageCreator messageCreator;
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
-        private readonly IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
         private readonly List<Action> assertions = new List<Action>();
 
         /// <summary>
@@ -32,9 +31,6 @@ namespace NServiceBus.Testing
             this.handler = handler;
             this.messageCreator = messageCreator;
             helper = new Helper(mocks, bus, messageCreator, types);
-
-            var headers = bus.OutgoingHeaders;
-            LastCall.Repeat.Any().Return(outgoingHeaders);
         }
 
         /// <summary>
@@ -47,14 +43,6 @@ namespace NServiceBus.Testing
             actionToSetUpExternalDependencies(handler);
 
             return this;
-        }
-
-        /// <summary>
-        /// Get the headers set by the saga when it sends a message.
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { return outgoingHeaders; }
         }
 
         /// <summary>
@@ -72,23 +60,14 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Asserts that the given value is stored under the given key in the outgoing headers of the given message.
+        /// Obselete
         /// </summary>
-        /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Handler<T> AssertOutgoingHeader(IMessage msg, string key, string value)
+        [Obsolete]
+        public Handler<T> AssertOutgoingHeader(string key, string value)
         {
-            assertions.Add(() =>
-                               {
-                                   var v = ExtensionMethods.GetHeaderAction(msg, key);
-                                   
-                                   if (v != value)
-                                       throw new Exception("Outgoing header value for key '" + key + "' was '" + v +
-                                                           "' instead of '" + value + "'.");
-                               });
-
             return this;
         }
 
@@ -238,6 +217,5 @@ namespace NServiceBus.Testing
 			                .TargetMethods
 			                .FirstOrDefault();
 		}
-
     }
 }
