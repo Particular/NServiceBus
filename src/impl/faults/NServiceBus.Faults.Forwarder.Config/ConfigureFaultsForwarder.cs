@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using NServiceBus.Config;
+using NServiceBus.Faults;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.ObjectBuilder;
 using Common.Logging;
@@ -49,5 +51,14 @@ namespace NServiceBus
         }
 
         private static ILog Logger = LogManager.GetLogger("MessageForwardingInCaseOfFault");
+    }
+
+    class Bootstrapper : INeedInitialization
+    {
+        public void Init()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+                Configure.Instance.MessageForwardingInCaseOfFault();
+        }
     }
 }
