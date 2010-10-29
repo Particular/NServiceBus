@@ -3,11 +3,11 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
-      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
-      <Setting name="Diagnostics.LogLevel" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Diagnostics.Level" value="Error" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
 
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
 
@@ -19,15 +19,15 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=http;AccountName={your account name};AccountKey={your account key}"/>-->
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       
-      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       
-      <Setting name="Diagnostics.LogLevel" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://ipv4.fiddler" />
+      <Setting name="Diagnostics.Level" value="Error" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
       

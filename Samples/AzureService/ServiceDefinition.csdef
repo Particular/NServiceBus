@@ -10,7 +10,7 @@
       <Setting name="NServiceBus.Profile"/>
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
-      <Setting name="Diagnostics.LogLevel" />
+      <Setting name="Diagnostics.Level" />
 
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue"/>
       <Setting name="MsmqTransportConfig.InputQueue"/>
@@ -25,7 +25,7 @@
       <Setting name="NServiceBus.Profile"/>
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
-      <Setting name="Diagnostics.LogLevel" />
+      <Setting name="Diagnostics.Level" />
 
       <Setting name="UnicastBusConfig.LocalAddress"/>
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue"/>
