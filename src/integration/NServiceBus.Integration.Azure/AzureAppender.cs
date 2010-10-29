@@ -1,55 +1,152 @@
 using System;
+using System.Linq;
 using log4net.Appender;
 using log4net.Core;
+using log4net.Repository.Hierarchy;
 using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Integration.Azure
 {
-    public class AzureAppender : AppenderSkeleton
+    public sealed class AzureAppender : AppenderSkeleton
     {
+        private const string ConnectionStringKey = "Diagnostics.ConnectionString";
+        private const string LevelKey = "Diagnostics.Level";
+        private const string LayoutKey = "Diagnostics.Layout";
+        private const string ScheduledTransferPeriodKey = "Diagnostics.ScheduledTransferPeriod";
+        private const string EventLogsKey = "Diagnostics.EventLogs";
+
         public AzureAppender()
         {
-            ScheduledTransferPeriod = TimeSpan.FromMinutes(1);
-            Layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-
-            ConnectionStringKey = "Diagnostics.ConnectionString";
+            ScheduledTransferPeriod = GetScheduledTransferPeriod();
+            Layout = new log4net.Layout.PatternLayout(GetLayout());
+            Level = GetLevel();
         }
 
-        public TimeSpan ScheduledTransferPeriod { get; set; }
-        public string ConnectionStringKey { get; set; }
+        public int ScheduledTransferPeriod { get; set; }
+
+        public string Level { get; set; }
+
+        protected override void Append(LoggingEvent loggingEvent)
+        {
+            var logString = RenderLoggingEvent(loggingEvent);
+
+            System.Diagnostics.Trace.WriteLine(logString);
+        }
 
         public override void ActivateOptions()
         {
             base.ActivateOptions();
+            ConfigureLogLevel();
             ConfigureAzureDiagnostics();
         }
 
-
-        protected override void Append(LoggingEvent loggingEvent)
+        private void ConfigureLogLevel()
         {
+            var level = EnsureLevelForAllFutureLoggers();
 
-            var logString = RenderLoggingEvent(loggingEvent);
+            EnsureLevelForAllExistingLoggers(level);
+        }
 
-            System.Diagnostics.Trace.WriteLine(logString);
+        private static void EnsureLevelForAllExistingLoggers(Level level)
+        {
+            var repositories = log4net.LogManager.GetAllRepositories();
+            foreach (var repository in repositories.Cast<Hierarchy>())
+            {
+                repository.Threshold = level;
+                foreach (var logger in repository.GetCurrentLoggers().Cast<Logger>())
+                {
+                    logger.Level = level;
+                }
+            }
+        }
+
+        private Level EnsureLevelForAllFutureLoggers()
+        {
+            var rootRepository = (Hierarchy)log4net.LogManager.GetRepository();
+            var level = rootRepository.LevelMap[Level];
+            rootRepository.Threshold = level;
+            rootRepository.Root.Level = level;
+            return level;
         }
 
         private void ConfigureAzureDiagnostics()
         {
             var dmc = DiagnosticMonitor.GetDefaultInitialConfiguration();
 
-            dmc.Logs.ScheduledTransferPeriod = ScheduledTransferPeriod;
-            dmc.Directories.ScheduledTransferPeriod = ScheduledTransferPeriod;
-            dmc.WindowsEventLog.ScheduledTransferPeriod = ScheduledTransferPeriod;
-
-            //set threshold to verbose, what gets logged is controled by the log4net threshold anyway
+            //set threshold to verbose, what gets logged is controled by the log4net level
             dmc.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
 
-            dmc.WindowsEventLog.DataSources.Add("Application!*");
-            dmc.WindowsEventLog.DataSources.Add("System!*");
+            ScheduleTransfer(dmc);
+
+            ConfigureWindowsEventLogsToBeTransferred(dmc);
 
             DiagnosticMonitor.Start(ConnectionStringKey, dmc);
         }
 
+        private void ScheduleTransfer(DiagnosticMonitorConfiguration dmc)
+        {
+            var transferPeriod = TimeSpan.FromMinutes(ScheduledTransferPeriod);
+            dmc.Logs.ScheduledTransferPeriod = transferPeriod;
+            dmc.WindowsEventLog.ScheduledTransferPeriod = transferPeriod;
+        }
+
+        private static void ConfigureWindowsEventLogsToBeTransferred(DiagnosticMonitorConfiguration dmc)
+        {
+            var eventLogs = GetEventLogs().Split(';');
+            foreach (var log in eventLogs)
+            {
+                dmc.WindowsEventLog.DataSources.Add(log);
+            }
+        }
+
+        private static string GetLevel()
+        {
+            try
+            {
+                return RoleEnvironment.GetConfigurationSettingValue(LevelKey);
+            }
+            catch (Exception)
+            {
+                return "Error";
+            }
+        }
+
+        private static string GetLayout()
+        {
+            try
+            {
+                return RoleEnvironment.GetConfigurationSettingValue(LayoutKey);
+            }
+            catch (Exception)
+            {
+                return "%d [%t] %-5p %c [%x] <%X{auth}> - %m%n";
+            }
+        }
+
+        private static int GetScheduledTransferPeriod()
+        {
+            try
+            {
+                return int.Parse(RoleEnvironment.GetConfigurationSettingValue(ScheduledTransferPeriodKey));
+            }
+            catch (Exception)
+            {
+                return 5;
+            }
+        }
+
+        private static string GetEventLogs()
+        {
+            try
+            {
+                return RoleEnvironment.GetConfigurationSettingValue(EventLogsKey);
+            }
+            catch (Exception)
+            {
+                return "Application!*;System!*";
+            }
+        }
     }
 }
 
