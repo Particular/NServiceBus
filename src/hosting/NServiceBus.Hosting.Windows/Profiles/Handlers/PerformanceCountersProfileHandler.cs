@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Unicast.Transport;
 
@@ -14,8 +15,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         {
             var categoryName = "NServiceBus";
             var counterName = "Critical Time";
-            PerformanceCounter counter = null;
-
+            
             try
             {
                 counter = new PerformanceCounter(categoryName, counterName, Program.EndpointId, false);
@@ -27,15 +27,32 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
             Configure.ConfigurationComplete += 
                 (o, e) =>
-                {
-                    var transport = Configure.Instance.Builder.Build<ITransport>();
-                    transport.TransportMessageReceived += 
-                        (obj, args) =>
-                        {
-                            counter.RawValue =
-                                Convert.ToInt32((DateTime.Now - args.Message.TimeSent).TotalSeconds);
-                        };
-                };
+                    {
+                        var transport = Configure.Instance.Builder.Build<ITransport>();
+                        transport.TransportMessageReceived += HandleTransportMessageReceived;
+                    };
+
+            timer = new Timer(ClearPerfCounter, null, 0, 2000);
         }
+
+        private void ClearPerfCounter(object state)
+        {
+            var delta = DateTime.Now - timeOfLastCounter;
+
+            if (delta > maxDelta)
+                counter.RawValue = 0;
+        }
+
+        private void HandleTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        {
+            counter.RawValue = Convert.ToInt32((DateTime.Now - e.Message.TimeSent).TotalSeconds);
+
+            timeOfLastCounter = DateTime.Now;
+        }
+
+        PerformanceCounter counter;
+        Timer timer;
+        private DateTime timeOfLastCounter;
+        private readonly TimeSpan maxDelta = TimeSpan.FromSeconds(2);
     }
 }
