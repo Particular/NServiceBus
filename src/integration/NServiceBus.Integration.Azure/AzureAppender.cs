@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
@@ -36,38 +35,17 @@ namespace NServiceBus.Integration.Azure
 
         public override void ActivateOptions()
         {
+            ConfigureThreshold();
+
             base.ActivateOptions();
-            ConfigureLogLevel();
+
             ConfigureAzureDiagnostics();
         }
 
-        private void ConfigureLogLevel()
-        {
-            var level = EnsureLevelForAllFutureLoggers();
-
-            EnsureLevelForAllExistingLoggers(level);
-        }
-
-        private static void EnsureLevelForAllExistingLoggers(Level level)
-        {
-            var repositories = log4net.LogManager.GetAllRepositories();
-            foreach (var repository in repositories.Cast<Hierarchy>())
-            {
-                repository.Threshold = level;
-                foreach (var logger in repository.GetCurrentLoggers().Cast<Logger>())
-                {
-                    logger.Level = level;
-                }
-            }
-        }
-
-        private Level EnsureLevelForAllFutureLoggers()
+        private void ConfigureThreshold()
         {
             var rootRepository = (Hierarchy)log4net.LogManager.GetRepository();
-            var level = rootRepository.LevelMap[Level];
-            rootRepository.Threshold = level;
-            rootRepository.Root.Level = level;
-            return level;
+            Threshold = rootRepository.LevelMap[Level];
         }
 
         private void ConfigureAzureDiagnostics()
