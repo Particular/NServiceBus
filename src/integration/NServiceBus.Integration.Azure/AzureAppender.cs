@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
@@ -50,6 +51,9 @@ namespace NServiceBus.Integration.Azure
 
         private void ConfigureAzureDiagnostics()
         {
+            var traceListener = new DiagnosticMonitorTraceListener();
+            Trace.Listeners.Add(traceListener);
+
             var dmc = DiagnosticMonitor.GetDefaultInitialConfiguration();
 
             //set threshold to verbose, what gets logged is controled by the log4net level
