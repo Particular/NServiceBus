@@ -9,7 +9,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     /// <summary>
     /// Handles the PerformanceCounters profile.
     /// </summary>
-    public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>
+    public class PerformanceCountersProfileHandler : IHandleProfile<PerformanceCounters>, IDisposable
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -48,6 +48,11 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             counter.RawValue = Convert.ToInt32((DateTime.Now - e.Message.TimeSent).TotalSeconds);
 
             timeOfLastCounter = DateTime.Now;
+        }
+
+        public void Dispose()
+        {
+            timer.Dispose();
         }
 
         PerformanceCounter counter;
