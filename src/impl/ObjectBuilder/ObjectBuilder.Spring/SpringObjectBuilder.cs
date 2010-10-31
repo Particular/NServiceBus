@@ -40,13 +40,9 @@ namespace NServiceBus.ObjectBuilder.Spring
             // no-op
         }
 
-        /// <summary>
-        /// Returns the current instance.
-        /// </summary>
-        /// <returns></returns>
-        public IContainer BuildChildContainer()
+        IContainer IContainer.BuildChildContainer()
         {
-            return this; // no-op
+            return new SpringObjectBuilder(new GenericApplicationContext(context));
         }
 
         object IContainer.Build(Type typeToBuild)
