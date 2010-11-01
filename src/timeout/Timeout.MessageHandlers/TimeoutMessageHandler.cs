@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using NServiceBus;
 using NServiceBus.Saga;
 using System.Collections.Generic;
@@ -43,8 +45,34 @@ namespace Timeout.MessageHandlers
             if (message.HasNotExpired())
                 Bus.HandleCurrentMessageLater();
             else
-                Bus.Send(Bus.CurrentMessageContext.ReturnAddress, message);
+                Bus.Send(Bus.CurrentMessageContext.ReturnAddress, CloneMessage(message));
         }
+
+        private IMessage CloneMessage(IMessage source)
+        {
+            var clone = (IMessage)FullClone(source);
+            this.AppendCurrentHeadersToClone(clone);
+            return clone;
+        }
+
+        private static object FullClone(object value)
+        {
+            using (var stream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(stream, value);
+                stream.Position = 0;
+                return formatter.Deserialize(stream);
+            }
+        }
+
+        private void AppendCurrentHeadersToClone(IMessage target)
+        {
+            foreach (var sourceKey in this.Bus.CurrentMessageContext.Headers.Keys)
+                target.CopyHeaderFromRequest(sourceKey);
+        }
+
+
 
         /// <summary>
         /// There are cases when the notification about clearing sagas
