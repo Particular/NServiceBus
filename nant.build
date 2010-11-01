@@ -5,6 +5,7 @@
 	<property name="company.name" value="NServiceBus"/>
 	<property name="bin.dir" value="bin" />
 	<property name="lib.dir" value="lib" />
+	<property name="tools.dir" value="tools" />
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
@@ -445,10 +446,10 @@
 				<include name="*.*" />
 			</fileset>
 		</copy>
-		<copy todir="${binaries.dir}">
-			<fileset basedir="${lib.dir}">
-				<include name="log4net.dll" />
-				<include name="nunit.framework.dll" />
+		<copy todir="${binaries.dir}" flatten="true">
+			<fileset basedir=".">
+				<include name="${lib.dir}\log4net.dll" />
+				<include name="${tools.dir}\nunit\nunit.framework.dll" />
 			</fileset>
 		</copy>
 		<copy todir="${binaries.dir}">
