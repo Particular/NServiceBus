@@ -311,9 +311,7 @@
 		
 		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${core.build.dir}">
 			<arg line="${nservicebus.testassemblies}" />
-			<arg value="/xml:..\test-reports\UnitTests.xml" />
 			<arg value="${nunit.targetframework}" />
-
 		</exec>
 	</target>
 
