@@ -1,0 +1,59 @@
+<Configuration>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/d:MessageHandlers/f:LoadOrdersResponseMessageHandler.cs" caret="239" fromTop="7" />
+      <File id="3871CC9B-235F-4E60-98F7-FEF04DB1201B/f:LoadOrdersMessage.cs" caret="0" fromTop="0" />
+      <File id="3871CC9B-235F-4E60-98F7-FEF04DB1201B/f:LoadOrdersResponseMessage.cs" caret="0" fromTop="0" />
+      <File id="3871CC9B-235F-4E60-98F7-FEF04DB1201B/f:OrderUpdatedEvent.cs" caret="0" fromTop="0" />
+      <File id="84ACA710-E5B3-4A46-B87A-7C12FB2527A8/f:OrderList.cs" caret="0" fromTop="0" />
+      <File id="ADCFC6B6-8BF7-4D56-B6A4-F6D221111666/f:ServiceConfiguration.cscfg" caret="601" fromTop="10" />
+      <File id="84ACA710-E5B3-4A46-B87A-7C12FB2527A8/d:MessageHandlers/f:LoadOrdersMessageHandlers.cs" caret="169" fromTop="6" />
+      <File id="84ACA710-E5B3-4A46-B87A-7C12FB2527A8/d:MessageHandlers/f:OrderMessageHandler.cs" caret="284" fromTop="10" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="808" fromTop="22" />
+      <File id="ADCFC6B6-8BF7-4D56-B6A4-F6D221111666/f:ServiceDefinition.csdef" caret="0" fromTop="0" />
+      <File id="84ACA710-E5B3-4A46-B87A-7C12FB2527A8/f:App.config" caret="162" fromTop="3" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Web.config" caret="343" fromTop="7" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="2314" fromTop="21" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="3129" fromTop="26" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="330" fromTop="5" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="820" fromTop="18" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="498" fromTop="4" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="1110" fromTop="3" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="1707" fromTop="20" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="1794" fromTop="24" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="2185" fromTop="6" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="2477" fromTop="21" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="3262" fromTop="31" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="613" fromTop="3" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="613" fromTop="11" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="820" fromTop="21" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="1025" fromTop="27" />
+      <File id="ADCFC6B6-8BF7-4D56-B6A4-F6D221111666/f:ServiceConfiguration.cscfg" caret="956" fromTop="6" />
+      <File id="F3798C2C-41DC-407C-9EBE-3F10C1CA9A76/f:Global.asax.cs" caret="1246" fromTop="11" />
+      <File id="ADCFC6B6-8BF7-4D56-B6A4-F6D221111666/f:ServiceConfiguration.cscfg" caret="956" fromTop="16" />
+    </RecentEdits>
+  </RecentFiles>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerMSTest>
+    <UseTestRunConfigFromMetadataFile>False</UseTestRunConfigFromMetadataFile>
+  </UnitTestRunnerMSTest>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="Qualified:NServiceBus.Configure">
+      <Item value="SpringBuilder" priority="0" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>
