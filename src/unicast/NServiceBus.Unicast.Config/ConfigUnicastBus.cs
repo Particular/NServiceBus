@@ -36,33 +36,36 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-            var cfg = GetConfigSection<UnicastBusConfig>();
+            var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
+            string address = "";
 
-            if (cfg != null)
+            if (unicastBusConfig != null)
             {
-                if (cfg.LocalAddress != null)
-                    busConfig.ConfigureProperty(t => t.Address, cfg.LocalAddress);
-                else
-                {
-                    var c = GetConfigSection<MsmqTransportConfig>();
-                    if (c != null)
-                    {
-                        busConfig.ConfigureProperty(t => t.Address, c.InputQueue);
-                        if (c.InputQueue != null)
-                            Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
-                    }
-                }
+                address = unicastBusConfig.LocalAddress;
 
-                TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList().ForEach(
-                        t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty                   
-                    );
-
-                foreach (MessageEndpointMapping mapping in cfg.MessageEndpointMappings)
+                foreach (MessageEndpointMapping mapping in unicastBusConfig.MessageEndpointMappings)
                     assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
 
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastBusConfig.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
+
+            if (string.IsNullOrEmpty(address))
+            {
+                var msmqTransportConfig = GetConfigSection<MsmqTransportConfig>();
+                
+                if (msmqTransportConfig != null && msmqTransportConfig.InputQueue != null)
+                {       
+                    Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
+                    address = msmqTransportConfig.InputQueue;
+                }
+            }
+
+            busConfig.ConfigureProperty(t => t.Address, address);
+
+            TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList().ForEach(
+                    t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty
+                );
         }
 
         private void RegisterMessageModules()
@@ -75,7 +78,7 @@ namespace NServiceBus.Unicast.Config
         private void ConfigureSubscriptionAuthorization()
         {
             Type authType =
-                TypesToScan.Where(t => typeof (IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).
+                TypesToScan.Where(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).
                     FirstOrDefault();
 
             if (authType != null)
@@ -101,7 +104,7 @@ namespace NServiceBus.Unicast.Config
                     Logger.DebugFormat("Going to ask for message handler ordering from {0}.", t);
 
                     var order = new Order();
-                    ((ISpecifyMessageHandlerOrdering) Activator.CreateInstance(t)).SpecifyOrder(order);
+                    ((ISpecifyMessageHandlerOrdering)Activator.CreateInstance(t)).SpecifyOrder(order);
 
                     order.Types.ToList().ForEach(ht =>
                                       {
@@ -131,7 +134,7 @@ namespace NServiceBus.Unicast.Config
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
                 {
-                    return LoadMessageHandlers(new[] {args[0]});
+                    return LoadMessageHandlers(new[] { args[0] });
                 }
             }
 
@@ -205,7 +208,7 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public ConfigUnicastBus ForwardReceivedMessagesTo(string  value)
+        public ConfigUnicastBus ForwardReceivedMessagesTo(string value)
         {
             busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
             return this;
@@ -249,7 +252,7 @@ namespace NServiceBus.Unicast.Config
 
         private static bool TypeSpecifiesMessageHandlerOrdering(Type t)
         {
-            return typeof (ISpecifyMessageHandlerOrdering).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface;
+            return typeof(ISpecifyMessageHandlerOrdering).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface;
         }
 
         /// <summary>
@@ -276,7 +279,7 @@ namespace NServiceBus.Unicast.Config
             return null;
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (UnicastBus));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
 
         internal bool LoadMessageHandlersCalled { get; private set; }
 
