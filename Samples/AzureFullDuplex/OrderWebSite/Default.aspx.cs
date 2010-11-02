@@ -9,8 +9,6 @@ namespace OrderWebSite
 {
     public partial class _Default : System.Web.UI.Page, IHandleMessages<SubmitOrderResponse>
     {
-        private ManualResetEvent wait = new ManualResetEvent(true);
-
         protected void Page_PreRender(object sender, EventArgs e)
         {
             lock (WebRole.Orders)

@@ -23,13 +23,13 @@ public class WebRole : RoleEntryPoint
     private void ConfigureNServiceBus()
     {
         Bus = Configure.WithWeb()
-            .DefaultBuilder()
-            .Log4Net(new AzureAppender())
-            .AzureConfigurationSource()
-            .AzureMessageQueue()
+            .DefaultBuilder() // sets up the ioc container
+            .Log4Net(new AzureAppender()) // logging
+            .AzureConfigurationSource() // configures service configuration file support
+            .AzureMessageQueue() // use azure storage queues 
                 .XmlSerializer()
             .UnicastBus()
-                .LoadMessageHandlers()
+                .LoadMessageHandlers() // automatically register known message handlers
                 .IsTransactional(true)
             .CreateBus()
             .Start();

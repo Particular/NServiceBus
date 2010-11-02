@@ -23,7 +23,7 @@ namespace OrderService.MessageHandlers
                                 Status = OrderStatus.Pending
                             };
 
-           // Thread.Sleep(4000); //simulate processing
+            // Thread.Sleep(4000); //simulate processing
             
             var response = bus.CreateInstance<SubmitOrderResponse>(x=>x.Order = order);
             bus.Reply(response);
