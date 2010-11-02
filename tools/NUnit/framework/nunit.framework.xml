@@ -4761,6 +4761,14 @@
             <param name="actual">The value to be tested</param>
             <returns>True if no exception is thrown, otherwise false</returns>
         </member>
+        <member name="M:NUnit.Framework.Constraints.ThrowsNothingConstraint.Matches(NUnit.Framework.Constraints.ActualValueDelegate)">
+            <summary>
+            Converts an ActualValueDelegate to a TestDelegate
+            before calling the primary overload.
+            </summary>
+            <param name="del"></param>
+            <returns></returns>
+        </member>
         <member name="M:NUnit.Framework.Constraints.ThrowsNothingConstraint.WriteDescriptionTo(NUnit.Framework.Constraints.MessageWriter)">
             <summary>
             Write the constraint description to a MessageWriter
