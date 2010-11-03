@@ -82,6 +82,8 @@ namespace NServiceBus.Serializers.XML
         /// <param name="t"></param>
         public void InitType(Type t)
         {
+            logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
+
             if (t.IsSimpleType())
                 return;
 
@@ -136,6 +138,8 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var p in props)
             {
+                logger.Debug("Handling property: " + p.Name);
+
                 propertyInfoToLateBoundProperty[p] = DelegateFactory.Create(p);
 
                 if (!isKeyValuePair)
@@ -146,6 +150,8 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var f in fields)
             {
+                logger.Debug("Handling field: " + f.Name);
+
                 fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
 
                 if (!isKeyValuePair)
@@ -168,17 +174,17 @@ namespace NServiceBus.Serializers.XML
             foreach (var prop in t.GetProperties())
             {
                 if (typeof(IList) == prop.PropertyType)
-                    throw new NotSupportedException("IList is not a supported property type for serialization.Type: " + t.FullName + " Property: " + prop.Name);
+                    throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
 
                 var args = prop.PropertyType.GetGenericArguments();
 
                 if (args.Length == 1)
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
-                        throw new NotSupportedException("IList<T> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
                 
                 if (args.Length == 2)
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
-                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name);
 
                 if (!prop.CanWrite && !isKeyValuePair)
                     continue;
