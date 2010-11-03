@@ -29,12 +29,12 @@ namespace NServiceBus.Unicast.Queuing.Ftp
             return (_locQueue.Count > 0);
         }
 
-        public void Init(string inputqueue)
+        public void Init(string inputqueue, bool transactional)
         {
             this.SetupReceiveService();
         }
 
-        public TransportMessage Receive(bool transactional)
+        public TransportMessage Receive()
         {
             lock (_locker)
             {

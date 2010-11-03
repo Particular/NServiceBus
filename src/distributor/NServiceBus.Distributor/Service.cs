@@ -65,7 +65,7 @@ namespace NServiceBus.Distributor
                                     {
                                         NumberOfWorkerThreads = numberOfThreads,
                                         IsTransactional = true,
-                                        MessageQueue = new MsmqMessageReceiver()
+                                        MessageReceiver = new MsmqMessageReceiver()
                                     };
 
             var distributor = new Unicast.Distributor.Distributor

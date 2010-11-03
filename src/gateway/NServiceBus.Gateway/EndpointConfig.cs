@@ -36,7 +36,7 @@ namespace NServiceBus.Gateway
 
             transport = new TransactionalTransport
             {
-                MessageQueue = new MsmqMessageReceiver(),
+                MessageReceiver = new MsmqMessageReceiver(),
                 IsTransactional = true,
                 NumberOfWorkerThreads = numberOfWorkerThreads
             };

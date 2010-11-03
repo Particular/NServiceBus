@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Tests
 
             //var transport = new TransactionalTransport
             //                    {
-            //                        MessageQueue = messageSender,
+            //                        MessageReceiver = messageSender,
             //                        FailureManager = failureManager,
             //                        IsTransactional = true,
             //                        NumberOfWorkerThreads = 1,

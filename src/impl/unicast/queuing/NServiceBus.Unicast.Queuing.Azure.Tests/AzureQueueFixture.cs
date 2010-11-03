@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                             PurgeOnStartup = PurgeOnStartup
                         };
 
-            queue.Init(QueueName);
+            queue.Init(QueueName,true);
         }
 
         protected void AddTestMessage()

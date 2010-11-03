@@ -48,9 +48,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         public IsolationLevel IsolationLevel { get; set; }
 
         /// <summary>
-        /// Sets the object which will be used for sending and receiving messages.
+        /// Sets the object which will be used for receiving messages.
         /// </summary>
-        public IReceiveMessages MessageQueue { get; set; }
+        public IReceiveMessages MessageReceiver { get; set; }
 
         /// <summary>
         /// Manages failed message processing.
@@ -142,7 +142,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void ITransport.Start(string inputqueue)
         {
-            MessageQueue.Init(inputqueue);
+            MessageReceiver.Init(inputqueue,IsTransactional);
             
             LimitWorkerThreadsToOne();
 
@@ -339,16 +339,16 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             try
             {
-                return MessageQueue.HasMessage();
+                return MessageReceiver.HasMessage();
             }
             catch (ObjectDisposedException)
             {
-                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                Logger.Fatal("Message receiver has been disposed. Cannot continue operation. Please restart this process.");
                 return false;
             }
             catch (Exception e)
             {
-                Logger.Error("Error in peeking a message from queue.", e);
+                Logger.Error("Error in peeking a message from receiver.", e);
                 return false;
             }
         }
@@ -358,16 +358,16 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             try
             {
-                return MessageQueue.Receive(IsTransactional);
+                return MessageReceiver.Receive();
             }
             catch (ObjectDisposedException)
             {
-                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
+                Logger.Fatal("Message receiver has been disposed. Cannot continue operation. Please restart this process.");
                 return null;
             }
             catch(Exception e)
             {
-                Logger.Error("Error in receiving message from queue.", e);
+                Logger.Error("Error in receiving messages.", e);
                 return null;
             }
         }

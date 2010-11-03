@@ -15,9 +15,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue.PurgeOnStartup = true;
 
-            queue.Init(QueueName);
+            queue.Init(QueueName,false);
 
-            Assert.Null(queue.Receive(false));
+            Assert.Null(queue.Receive());
         }
     }
 } 

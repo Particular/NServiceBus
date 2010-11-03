@@ -13,19 +13,14 @@ namespace NServiceBus.Proxy
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var maxRetries = int.Parse(ConfigurationManager.AppSettings["MaxRetries"]);
-            //var errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
             var remoteServer = ConfigurationManager.AppSettings["RemoteServer"];
 
-            var externalMessageReceiver = new MsmqMessageReceiver();
-
-            externalMessageReceiver.Init(ConfigurationManager.AppSettings["ExternalQueue"]);
-            
             var externalTransport = new TransactionalTransport
               {
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
                   IsTransactional = true,
-                  MessageQueue = externalMessageReceiver
+                  MessageReceiver = new MsmqMessageReceiver()
               };
 
             var internalTransport = new TransactionalTransport
@@ -33,7 +28,7 @@ namespace NServiceBus.Proxy
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
                 IsTransactional = true,
-                MessageQueue = new MsmqMessageReceiver()
+                MessageReceiver = new MsmqMessageReceiver()
             };
 
             var configure = Configure.With().DefaultBuilder();

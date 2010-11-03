@@ -44,9 +44,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
             MaximumWaitTimeWhenIdle = 60000;
         }
 
-        public void Init(string inputqueue)
+        public void Init(string address, bool transactional)
         {
-            queue = client.GetQueueReference(inputqueue);
+            useTransactions = transactional;
+            queue = client.GetQueueReference(address);
             queue.CreateIfNotExist();
 
             if (PurgeOnStartup)
@@ -93,9 +94,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
         }
 
-        public TransportMessage Receive(bool transactional)
+        public TransportMessage Receive()
         {
-            var rawMessage = GetMessage(transactional);
+            var rawMessage = GetMessage();
 
             if (rawMessage == null)
                 return null;
@@ -103,13 +104,13 @@ namespace NServiceBus.Unicast.Queuing.Azure
             return DeserializeMessage(rawMessage);
         }
 
-        private CloudQueueMessage GetMessage(bool transactional)
+        private CloudQueueMessage GetMessage()
         {
             var receivedMessage = queue.GetMessage(TimeSpan.FromMilliseconds(MessageInvisibleTime));
 
             if (receivedMessage != null)
             {
-                if (!transactional || Transaction.Current == null)
+                if (!useTransactions || Transaction.Current == null)
                     queue.DeleteMessage(receivedMessage);
                 else
                     Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, receivedMessage),EnlistmentOptions.None);
@@ -147,5 +148,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             client.GetQueueReference(queueName).CreateIfNotExist();
         }
+
+        private bool useTransactions;
     }
 }

@@ -14,32 +14,24 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 {
     public class MsmqMessageReceiver : IReceiveMessages
     {
-        public void Init(string queue)
+        public void Init(string address, bool transactional)
         {
-            if (string.IsNullOrEmpty(queue))
+            useTransactions = transactional;
+
+            if (string.IsNullOrEmpty(address))
                 throw new ArgumentException("Input queue must be specified");
 
-            var machine = MsmqUtilities.GetMachineNameFromLogicalName(queue);
+            var machine = MsmqUtilities.GetMachineNameFromLogicalName(address);
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
 
-            MsmqUtilities.CreateQueueIfNecessary(queue);
+            MsmqUtilities.CreateQueueIfNecessary(address);
 
-            myQueue = new MessageQueue(MsmqUtilities.GetFullPath(queue));
+            myQueue = new MessageQueue(MsmqUtilities.GetFullPath(address));
 
-            bool transactional;
-            try
-            {
-                transactional = myQueue.Transactional;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(string.Format("There is a problem with the input queue given: {0}. See the enclosed exception for details.", queue), ex);
-            }
-
-            if (!transactional)
-                throw new ArgumentException("Queue must be transactional (" + queue + ").");
+            if (useTransactions && !QueueIsTransactional())
+                throw new ArgumentException("Queue must be transactional (" + address + ").");
 
             var mpf = new MessagePropertyFilter();
             mpf.SetAll();
@@ -50,6 +42,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 myQueue.Purge();
         }
 
+      
         [DebuggerNonUserCode]
         public bool HasMessage()
         {
@@ -67,7 +60,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 {
                     Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
                     Thread.Sleep(10000); //long enough for someone to notice
-                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                    Process.GetCurrentProcess().Kill();
                 }
 
                 throw;
@@ -76,17 +69,17 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
                 Thread.Sleep(10000); //long enough for someone to notice
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                Process.GetCurrentProcess().Kill();
 
                 throw;
             }
         }
 
-        public TransportMessage Receive(bool transactional)
+        public TransportMessage Receive()
         {
             try
             {
-                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive(transactional));
+                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive());
                 if (m == null)
                     return null;
 
@@ -134,12 +127,25 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 {
                     Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
                     Thread.Sleep(10000); //long enough for someone to notice
-                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                    Process.GetCurrentProcess().Kill();
                 }
 
                 throw;
             }
         }
+
+        bool QueueIsTransactional()
+        {
+            try
+            {
+                return myQueue.Transactional;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(string.Format("There is a problem with the input queue given: {0}. See the enclosed exception for details.", myQueue.QueueName), ex);
+            }
+        }
+
 
         private static string GetIdForCorrelation(IDictionary<string, string> headers)
         {
@@ -149,9 +155,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return null;
         }
 
-        private static MessageQueueTransactionType GetTransactionTypeForReceive(bool transactional)
+        private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
-            return transactional ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
+            return useTransactions ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
         }
 
 
@@ -172,6 +178,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private MessageQueue myQueue;
 
         private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+
+        private bool useTransactions;
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqMessageReceiver));
     }

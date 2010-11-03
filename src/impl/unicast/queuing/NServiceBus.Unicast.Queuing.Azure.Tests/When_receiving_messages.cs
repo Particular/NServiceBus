@@ -26,35 +26,22 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         }
 
         [Test]
-        public void The_queue_should_poll_for_messages()
-        {
-            //setup a message insertion in 0.5 seconds
-            Action onstart = () =>
-            {
-                Thread.Sleep(100);
-                AddTestMessage();
-            };
-
-            onstart.BeginInvoke(null, null);
-
-            Assert.NotNull(queue.Receive(false));
-        }
-        [Test]
         public void Should_throw_if_non_nservicebus_messages_are_received()
         {
             nativeQueue.AddMessage(new CloudQueueMessage("whatever"));
 
-            Assert.Throws<SerializationException>(() => queue.Receive(false));
+            Assert.Throws<SerializationException>(() => queue.Receive());
         }
+
         [Test]
         public void Should_default_to_non_transactionable_if_no_ambient_transaction_exists()
         {
             AddTestMessage();
             queue.MessageInvisibleTime = 1;
 
-            Assert.NotNull(queue.Receive(true));
+            Assert.NotNull(queue.Receive());
             Thread.Sleep(1000);
-            Assert.Null(queue.Receive(true));
+            Assert.Null(queue.Receive());
         }
 
         [Test]
@@ -65,14 +52,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             queue.MessageInvisibleTime = 1;
             using (var scope = new TransactionScope())
             {
-                Assert.NotNull(queue.Receive(true));
+                Assert.NotNull(queue.Receive());
           
                 scope.Complete();
             }
 
             Thread.Sleep(1000);
 
-            Assert.Null(queue.Receive(false));
+            Assert.Null(queue.Receive());
         }
 
         [Test]
@@ -83,16 +70,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             queue.MessageInvisibleTime = 2;
             using (new TransactionScope())
             {
-                Assert.NotNull(queue.Receive(true));
+                Assert.NotNull(queue.Receive());
 
                 //rollback
             }
-
-            Assert.Null(queue.Receive(false));
-
             Thread.Sleep(1000);
-
-            Assert.NotNull(queue.Receive(false));
+            
+            Assert.NotNull(queue.Receive());
         }
 
         [Test]
@@ -102,11 +86,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             queue.MessageInvisibleTime = 1;
 
-            queue.Receive(false);
+            queue.Receive();
 
             Thread.Sleep(1000);
 
-            Assert.Null(queue.Receive(false));
+            Assert.Null(queue.Receive());
         }
 
         [Test]
@@ -114,7 +98,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             AddTestMessage();
 
-            var message = queue.Receive(false);
+            var message = queue.Receive();
 
             Assert.Null(message.Body);
         }
@@ -142,7 +126,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                                    };
                 AddTestMessage(original);
 
-                var result = queue.Receive(false);
+                var result = queue.Receive();
 
                 var resultMessage = formatter.Deserialize(new MemoryStream(result.Body)) as TestMessage;
                 Assert.AreEqual(resultMessage.TestProperty,"Test");

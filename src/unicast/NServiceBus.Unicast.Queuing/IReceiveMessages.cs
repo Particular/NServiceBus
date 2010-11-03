@@ -7,21 +7,22 @@ namespace NServiceBus.Unicast.Queuing
     public interface IReceiveMessages
     {
         /// <summary>
-        /// Initializes the message queue.
+        /// Initializes the message receiver.
         /// </summary>
-        /// <param name="inputqueue"></param>
-        void Init(string inputqueue);
+        /// <param name="address">The address of the message source</param>
+        /// <param name="transactional">Indicates if the receiver should be transactional</param>
+        void Init(string address, bool transactional);
 
         /// <summary>
-        /// Returns true if there's a message in the queue passed in the Init method.
+        /// Returns true if there's a message ready to be received at the address passed in the Init method.
         /// </summary>
         /// <returns></returns>
         bool HasMessage();
 
         /// <summary>
-        /// Tries to receive a message from the queue passed in Init, flowing transactions as requested.
+        /// Tries to receive a message from the address passed in Init.
         /// </summary>
-        /// <param name="transactional"></param>
-        TransportMessage Receive(bool transactional);
+        /// <returns>The first transport message available. If no message is present null will be returned</returns>
+        TransportMessage Receive();
     }
 }
