@@ -15,6 +15,7 @@ namespace NServiceBus.Serializers.XML.Test
         IM1[] MoreNames { get; set; }
         MyDic Lookup { get; set; }
         Dictionary<string, List<Foo>> Foos { get; set; }
+        byte[] BlobData { get; set; }
     }
 
     public class Foo
