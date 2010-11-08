@@ -28,8 +28,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <param name="messageTypes"></param>
         public void Subscribe(string client, IList<string> messageTypes)
         {
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = sessionSource.CreateSession())
-            using(var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
                 {
@@ -41,9 +41,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
                     if (session.Get<Subscription>(subscription) == null)
                         session.Save(subscription);
-
                 }
-
 
                 transaction.Complete();
             }
@@ -56,9 +54,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <param name="messageTypes"></param>
         public void Unsubscribe(string client, IList<string> messageTypes)
         {
-
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = sessionSource.CreateSession())
-            using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
                     session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", client, messageType));
@@ -77,6 +74,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
             var mt = new string[messageTypes.Count];
             messageTypes.CopyTo(mt, 0);
 
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = sessionSource.CreateSession())
             {
                 return session.CreateCriteria(typeof(Subscription))
