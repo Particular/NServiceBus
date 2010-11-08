@@ -133,13 +133,13 @@
 	</target>
 
 	<target name="commonassemblyinfo" depends="init">
-		<property name="assembly.version" value="${project.version}.0000" />
+		<property name="assembly.version" value="${project.version}.0" />
 		
 		<if test="${property::exists('build.number')}">
 			<property name="file.version" value="${project.version}.${build.number}"/>
 		</if>
 
-		<echo message="MARKING THIS BUILD AS VERSION ${assembly.version}" />
+		<echo message="##teamcity[buildNumber '${file.version}']" />
 		<delete file="${solution.dir}/CommonAssemblyInfo.cs" failonerror="false"/>
 		<asminfo output="${solution.dir}/CommonAssemblyInfo.cs" language="CSharp">
 			<imports>
