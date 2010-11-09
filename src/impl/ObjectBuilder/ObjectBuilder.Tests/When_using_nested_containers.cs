@@ -28,16 +28,16 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
-        public void Single_call_components_should_be_disposed_when_the_child_container_is_disposed()
+        public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
         {
             VerifyForAllBuilders(builder =>
             {
-                builder.Configure(typeof(SinglecallComponent), ComponentCallModelEnum.Singlecall);
+                builder.Configure(typeof(InstancePerUoWComponent), ComponentCallModelEnum.None);
 
                 using (var nestedContainer = builder.BuildChildContainer())
-                    nestedContainer.Build(typeof(SinglecallComponent));
+                    nestedContainer.Build(typeof(InstancePerUoWComponent));
 
-                Assert.True(SinglecallComponent.DisposeCalled);
+                Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
             typeof(UnityObjectBuilder));
@@ -45,24 +45,23 @@ namespace ObjectBuilder.Tests
         }
 
 
-        [Test,Ignore("Hmm, this is only vorking for StructureMap, I thought the general idea of childcontainers would be to make all singlecall components singleton for the lifetime of the container??")]
+        [Test]
         public void Single_call_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
             VerifyForAllBuilders(builder =>
             {
-                builder.Configure(typeof(SinglecallComponent), ComponentCallModelEnum.Singlecall);
+                builder.Configure(typeof(InstancePerUoWComponent), ComponentCallModelEnum.None);
 
-                var singleCallComponentInMainContainer = builder.Build(typeof (SinglecallComponent));
                 var nestedContainer = builder.BuildChildContainer();
 
-                Assert.AreEqual(nestedContainer.Build(typeof(SinglecallComponent)),nestedContainer.Build(typeof(SinglecallComponent)));
+                Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
              typeof(SpringObjectBuilder),
             typeof(UnityObjectBuilder));
 
         }
     }
-    public class SinglecallComponent : IDisposable
+    public class InstancePerUoWComponent : IDisposable
     {
         public static bool DisposeCalled;
 
