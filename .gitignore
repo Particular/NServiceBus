@@ -16,3 +16,4 @@ _UpgradeReport.*
 TestResult.xml
 results
 CommonAssemblyInfo.cs
+lib/sqlite/System.Data.SQLite.dll
