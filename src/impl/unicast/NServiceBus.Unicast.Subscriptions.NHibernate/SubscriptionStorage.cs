@@ -29,8 +29,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <param name="messageTypes"></param>
         void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
-            using(var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
                 {
@@ -58,8 +58,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
 
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
-            using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
                     session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", client, messageType));
@@ -77,8 +77,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         {
             IEnumerable<string> result;
 
-            using (var session = subscriptionStorageSessionProvider.OpenSession())
             using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = IsolationLevel.ReadCommitted}))
+            using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
                 result = session.CreateCriteria(typeof(Subscription))
                                     .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
