@@ -68,13 +68,6 @@ namespace NServiceBus.ObjectBuilder.Spring
                 yield return de.Entry.Value;
         }
 
-        void IContainer.ReleaseInstance(object instance)
-        {
-            var d = instance as IDisposable;
-            if (d != null)
-                d.Dispose();
-        }
-
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
         {
             typeHandleLookup[concreteComponent] = callModel;

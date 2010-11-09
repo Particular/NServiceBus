@@ -140,14 +140,7 @@ namespace NServiceBus.ObjectBuilder.Common
             {
                 var o = Container.Build(typeToBuild);
                 action(o);
-
-                Container.ReleaseInstance(o);
             }
-        }
-
-        void IBuilder.ReleaseInstance(object instance)
-        {
-            Container.ReleaseInstance(instance);
         }
 
         #endregion

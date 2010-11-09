@@ -52,12 +52,5 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="typeToBuild"></param>
         /// <param name="action"></param>
         void BuildAndDispatch(Type typeToBuild, Action<object> action);
-
-        /// <summary>
-        /// Tell the container that the application code will not be using the given instance
-        /// anymore so it can be disposed and any resources it uses can be released.
-        /// </summary>
-        /// <param name="instance"></param>
-        void ReleaseInstance(object instance);
     }
 }

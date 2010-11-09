@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Resource;
 using Castle.MicroKernel.Releasers;
+using Castle.Windsor.Configuration;
+using Castle.Windsor.Configuration.Interpreters;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -18,7 +21,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <summary>
         /// The container itself.
         /// </summary>
-        public IWindsorContainer Container { get; set; }
+        private IWindsorContainer container { get; set; }
 
         private bool disposed;
 
@@ -35,7 +38,10 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <param name="container"></param>
         public WindsorObjectBuilder(IWindsorContainer container)
         {
-            Container = container;
+            if(container == null)
+                throw new ArgumentNullException("container","The object builder must be initialized with a valid windsor container");
+
+            this.container = container;
         }
 
         /// <summary>
@@ -51,7 +57,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
 
             disposed = true;
-            Container.Dispose();
+            container.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -62,7 +68,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <returns></returns>
         public IContainer BuildChildContainer()
         {
-            return new WindsorObjectBuilder(Container.GetChildContainer("child"));
+            return new WindsorObjectBuilder(new WindsorContainer{Parent = container});
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
@@ -75,7 +81,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 var reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
                 reg.LifeStyle.Is(lifestyle);
                         
-                Container.Kernel.Register(reg);
+                container.Kernel.Register(reg);
             }
         }
 
@@ -90,30 +96,22 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            Container.Kernel.AddComponentInstance(Guid.NewGuid().ToString(), lookupType, instance);
+            container.Kernel.AddComponentInstance(Guid.NewGuid().ToString(), lookupType, instance);
         }
 
         object IContainer.Build(Type typeToBuild)
         {       
-            return Container.Resolve(typeToBuild);  
+            return container.Resolve(typeToBuild);  
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
-            foreach (var component in Container.ResolveAll(typeToBuild))
-            {
-                yield return component;
-            }
-        }
-
-        void IContainer.ReleaseInstance(object instance)
-        {
-            Container.Release(instance);
+            return container.ResolveAll(typeToBuild).Cast<object>();
         }
 
         bool IContainer.HasComponent(Type componentType)
         {
-            return Container.Kernel.HasComponent(componentType);
+            return container.Kernel.HasComponent(componentType);
         }
 
         private static LifestyleType GetLifestyleTypeFrom(ComponentCallModelEnum callModel)
@@ -142,9 +140,18 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         private IHandler GetHandlerForType(Type concreteComponent)
         {
-            return Container.Kernel.GetAssignableHandlers(typeof(object))
+            return container.Kernel.GetAssignableHandlers(typeof(object))
                 .Where(h => h.ComponentModel.Implementation == concreteComponent)
                 .FirstOrDefault();
+        }
+    }
+
+    internal class NoOpInterpreter:AbstractInterpreter
+
+    {
+        public override void ProcessResource(IResource resource, IConfigurationStore store)
+        {
+            
         }
     }
 }

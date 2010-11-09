@@ -27,8 +27,6 @@ namespace NServiceBus.ObjectBuilder.Common
 
             var o = Container.Build(typeToBuild);
             action(o);
-
-            Container.ReleaseInstance(o);
         }
     }
 }

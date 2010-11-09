@@ -68,11 +68,6 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
-        void Common.IContainer.ReleaseInstance(object instance)
-        {
-            //no-op since structuremap doesn't have a release feature 
-        }
-
         void Common.IContainer.ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)
