@@ -466,7 +466,7 @@
 		<!-- Prepare Containers -->
 		<mkdir dir="${binaries.dir}\containers\autofac" />
 		<copy todir="${binaries.dir}\containers\autofac">
-			<fileset basedir="${lib.dir}">
+			<fileset basedir="${lib.dir}\containers\autofac">
 				<include name="Autofac*.*" />
 			</fileset>
 		</copy>
@@ -478,7 +478,7 @@
 
 		<mkdir dir="${binaries.dir}\containers\castle" />
 		<copy todir="${binaries.dir}\containers\castle">
-			<fileset basedir="${lib.dir}">
+			<fileset basedir="${lib.dir}\containers\castle">
 				<include name="Castle*.*" />
 			</fileset>
 		</copy>
@@ -490,7 +490,7 @@
 
 		<mkdir dir="${binaries.dir}\containers\structuremap" />
 		<copy todir="${binaries.dir}\containers\structuremap">
-			<fileset basedir="${lib.dir}\structuremap">
+			<fileset basedir="${lib.dir}\containers\structuremap">
 				<include name="StructureMap*.*" />
 			</fileset>
 		</copy>
@@ -512,7 +512,7 @@
 
 		<mkdir dir="${binaries.dir}\containers\unity" />
 		<copy todir="${binaries.dir}\containers\unity">
-			<fileset basedir="${lib.dir}">
+			<fileset basedir="${lib.dir}\containers\unity">
 				<include name="Microsoft.Practices.ObjectBuilder2.dll" />
 				<include name="Microsoft.Practices.Unity.dll" />
 			</fileset>

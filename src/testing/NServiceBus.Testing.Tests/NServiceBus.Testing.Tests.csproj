@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>..\..\..\lib\Autofac.dll</HintPath>
+      <HintPath>..\..\..\lib\containers\autofac\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
