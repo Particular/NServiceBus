@@ -15,8 +15,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure BinarySerializer(this Configure config)
         {
-            config.Configurer.ConfigureComponent<Serializers.Binary.SimpleMessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent(typeof(Serializers.Binary.MessageSerializer), ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<Serializers.Binary.SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent(typeof(Serializers.Binary.MessageSerializer), DependencyLifecycle.SingleInstance);
 
             return config;
         }

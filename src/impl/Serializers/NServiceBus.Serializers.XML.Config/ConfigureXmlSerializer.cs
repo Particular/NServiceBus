@@ -19,8 +19,8 @@ namespace NServiceBus
         {
             var messageTypes = Configure.TypesToScan.Where(t => typeof (IMessage).IsAssignableFrom(t)).ToList();
 
-            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(ComponentCallModelEnum.Singleton)
+            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(ms => ms.MessageTypes, messageTypes);
 
             return config;

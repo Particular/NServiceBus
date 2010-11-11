@@ -7,7 +7,7 @@ namespace NServiceBus.Encryption
     {
         public void Init()
         {
-            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<EncryptionMessageMutator>(ComponentCallModelEnum.Singlecall);
+            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<EncryptionMessageMutator>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

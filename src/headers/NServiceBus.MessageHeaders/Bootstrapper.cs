@@ -7,7 +7,7 @@ namespace NServiceBus.MessageHeaders
     {
         void INeedInitialization.Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<MessageHeaderManager>(ComponentCallModelEnum.Singleton);
+            Configure.Instance.Configurer.ConfigureComponent<MessageHeaderManager>(DependencyLifecycle.SingleInstance);
 
             Configure.ConfigurationComplete +=
                 (s, args) =>

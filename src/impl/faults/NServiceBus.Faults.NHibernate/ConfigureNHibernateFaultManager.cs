@@ -39,7 +39,7 @@ namespace NServiceBus
          config.Configurer.RegisterSingleton<FaultManagerSessionFactory>(
             CreateSessionFactory(new Configuration().Configure(), autoUpdateSchema));
 
-         config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singleton);            
+         config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);            
          return config;
       }
 
@@ -71,7 +71,7 @@ namespace NServiceBus
          }
          config.Configurer.RegisterSingleton<FaultManagerSessionFactory>(
             CreateSessionFactory(new MultiConfiguration().ConfigureFromNamedSection(hibernateSectionName), autoUpdateSchema));
-         config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singleton);
+         config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);
          return config;
       }
 
@@ -89,7 +89,7 @@ namespace NServiceBus
 
          config.Configurer.RegisterSingleton<FaultManagerSessionFactory>(
             CreateSessionFactory(configuration, true));
-         config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singleton);
+         config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);
          return config;
       }
       

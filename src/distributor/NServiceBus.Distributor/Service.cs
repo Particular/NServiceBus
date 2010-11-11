@@ -44,15 +44,15 @@ namespace NServiceBus.Distributor
 
             ConfigureDistributor(numberOfThreads);
 
-            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(ComponentCallModelEnum.Singleton)
+            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfThreads);
 
-            Configure.Instance.Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton)
+            Configure.Instance.Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.Address, ConfigurationManager.AppSettings["ControlInputQueue"]);
 
 
             Configure.Instance.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
-                ComponentCallModelEnum.Singleton)
+                DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.StorageQueue, ConfigurationManager.AppSettings["StorageQueue"]);
            
             configure.LoadMessageHandlers(First<GridInterceptingMessageHandler>

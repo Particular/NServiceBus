@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         public void Init()
         {
             var transportConfig = Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(
-                ComponentCallModelEnum.Singleton);
+                DependencyLifecycle.SingleInstance);
 
             transportConfig.ConfigureProperty(t => t.IsTransactional, IsTransactional);
             transportConfig.ConfigureProperty(t => t.IsolationLevel, IsolationLevel);

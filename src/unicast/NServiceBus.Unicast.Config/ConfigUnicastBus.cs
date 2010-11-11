@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Config
             Builder = config.Builder;
             Configurer = config.Configurer;
 
-            busConfig = Configurer.ConfigureComponent<UnicastBus>(ComponentCallModelEnum.Singleton);
+            busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance);
 
             ConfigureSubscriptionAuthorization();
 
@@ -71,7 +71,7 @@ namespace NServiceBus.Unicast.Config
         private void RegisterMessageModules()
         {
             TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
-                type => Configurer.ConfigureComponent(type, ComponentCallModelEnum.Singlecall)
+                type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)
                 );
         }
 
@@ -82,7 +82,7 @@ namespace NServiceBus.Unicast.Config
                     FirstOrDefault();
 
             if (authType != null)
-                Configurer.ConfigureComponent(authType, ComponentCallModelEnum.Singleton);
+                Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace NServiceBus.Unicast.Config
 
             foreach (Type t in types.Where(IsMessageHandler))
             {
-                Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 handlers.Add(t);
             }
 

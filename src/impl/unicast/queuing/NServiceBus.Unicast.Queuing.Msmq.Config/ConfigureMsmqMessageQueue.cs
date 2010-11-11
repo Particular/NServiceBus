@@ -13,8 +13,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MsmqTransport(this Configure config)
         {
-            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(ComponentCallModelEnum.Singleton);
-            config.Configurer.ConfigureComponent<MsmqMessageSender>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.SingleInstance);
 
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();

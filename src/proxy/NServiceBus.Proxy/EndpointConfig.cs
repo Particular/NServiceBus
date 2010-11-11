@@ -33,13 +33,13 @@ namespace NServiceBus.Proxy
 
             var configure = Configure.With().DefaultBuilder();
 
-            configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton)
+            configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.Queue, "NServiceBus_Proxy_Subscriptions");
 
-            configure.Configurer.ConfigureComponent<MsmqProxyDataStorage>(ComponentCallModelEnum.Singleton)
+            configure.Configurer.ConfigureComponent<MsmqProxyDataStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.StorageQueue, "NServiceBus_Proxy_Storage");
 
-            configure.Configurer.ConfigureComponent<Proxy>(ComponentCallModelEnum.Singleton)
+            configure.Configurer.ConfigureComponent<Proxy>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.RemoteServer, remoteServer);
             Logger.Info("Proxy configured for remoteserver: " +  remoteServer);
 

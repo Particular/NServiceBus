@@ -28,7 +28,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             {
                 if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
                     Configure.Instance.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(
-                        ComponentCallModelEnum.Singleton)
+                        DependencyLifecycle.SingleInstance)
                         .ConfigureProperty(s => s.Queue, Program.EndpointId + "_subscriptions");
                 else
                     Configure.Instance.MsmqSubscriptionStorage();

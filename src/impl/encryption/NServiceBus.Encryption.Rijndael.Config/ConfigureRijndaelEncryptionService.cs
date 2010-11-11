@@ -23,7 +23,7 @@ namespace NServiceBus
             if (section == null)
                 Logger.Warn("Could not find configuration section for Rijndael Encryption Service.");
 
-            var encryptConfig = config.Configurer.ConfigureComponent<EncryptionService>(ComponentCallModelEnum.Singleton);
+            var encryptConfig = config.Configurer.ConfigureComponent<EncryptionService>(DependencyLifecycle.SingleInstance);
 
             if (section != null)
                 encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes(section.Key));

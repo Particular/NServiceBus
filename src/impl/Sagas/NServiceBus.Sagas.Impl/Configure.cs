@@ -31,7 +31,7 @@ namespace NServiceBus.Sagas.Impl
         {
             _builderStatic = builder;
 
-            configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(ComponentCallModelEnum.Singleton);
+            configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
 
             return new Configure { configurer = configurer };
         }
@@ -47,7 +47,7 @@ namespace NServiceBus.Sagas.Impl
             {
                 if (IsSagaType(t))
                 {
-                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     ConfigureSaga(t);
                     SagasWereFound = true;
                     continue;
@@ -55,14 +55,14 @@ namespace NServiceBus.Sagas.Impl
 
                 if (IsFinderType(t))
                 {
-                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     ConfigureFinder(t);
                     continue;
                 }
 
                 if (IsSagaNotFoundHandler(t))
                 {
-                    configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall);
+                    configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                     continue;
                 }
             }
@@ -103,11 +103,11 @@ namespace NServiceBus.Sagas.Impl
                 Type sagaEntityType = SagaTypeToSagaEntityTypeLookup[sagaType];
 
                 Type finder = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
-                configurer.ConfigureComponent(finder, ComponentCallModelEnum.Singlecall);
+                configurer.ConfigureComponent(finder, DependencyLifecycle.InstancePerCall);
                 ConfigureFinder(finder);
 
                 Type nullFinder = typeof (NullSagaFinder<>).MakeGenericType(sagaEntityType);
-                configurer.ConfigureComponent(nullFinder, ComponentCallModelEnum.Singlecall);
+                configurer.ConfigureComponent(nullFinder, DependencyLifecycle.InstancePerCall);
                 ConfigureFinder(nullFinder);
 
                 //TODO: Refactor the above.
@@ -118,7 +118,7 @@ namespace NServiceBus.Sagas.Impl
         {
             Type finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
             
-            configurer.ConfigureComponent(finderType, ComponentCallModelEnum.Singlecall)
+            configurer.ConfigureComponent(finderType, DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty("SagaProperty", sagaProperty)
                 .ConfigureProperty("MessageProperty", messageProperty);
 

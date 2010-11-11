@@ -72,7 +72,7 @@ namespace NServiceBus
             }
 
             config.Configurer.RegisterSingleton<ISessionSource>(sessionSource);
-            config.Configurer.ConfigureComponent<SubscriptionStorage>(ComponentCallModelEnum.Singlecall);
+            config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
 
             return config;
 

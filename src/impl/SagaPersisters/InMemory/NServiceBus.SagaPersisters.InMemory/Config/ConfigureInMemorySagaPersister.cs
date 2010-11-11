@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure InMemorySagaPersister(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemorySagaPersister>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<InMemorySagaPersister>(DependencyLifecycle.SingleInstance);
 
             return config;
         }

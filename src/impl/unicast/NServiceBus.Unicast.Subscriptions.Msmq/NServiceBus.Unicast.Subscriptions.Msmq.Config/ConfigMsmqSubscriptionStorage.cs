@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 
             string q = (cfg != null ? cfg.Queue : "NServiceBus_Subscriptions");
 
-            var storageConfig = Configurer.ConfigureComponent<MsmqSubscriptionStorage>(ComponentCallModelEnum.Singleton);
+            var storageConfig = Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance);
             storageConfig.ConfigureProperty(s => s.Queue, q);
         }
 

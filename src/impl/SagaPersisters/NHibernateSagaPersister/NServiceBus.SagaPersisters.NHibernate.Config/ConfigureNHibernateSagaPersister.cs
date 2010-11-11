@@ -83,7 +83,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
 
             config.Configurer.RegisterSingleton<ISessionFactory>(sessionFactory);
-            config.Configurer.ConfigureComponent<SagaPersister>(ComponentCallModelEnum.Singlecall);
+            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }

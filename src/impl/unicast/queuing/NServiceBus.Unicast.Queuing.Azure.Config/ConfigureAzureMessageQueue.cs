@@ -26,7 +26,7 @@ namespace NServiceBus
 
             config.Configurer.RegisterSingleton<CloudQueueClient>(queueClient);
        
-            config.Configurer.ConfigureComponent<AzureMessageQueue>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<AzureMessageQueue>(DependencyLifecycle.SingleInstance);
 
             if (configSection != null)
             {

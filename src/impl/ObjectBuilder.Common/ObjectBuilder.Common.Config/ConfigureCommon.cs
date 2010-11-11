@@ -19,7 +19,7 @@
             config.Builder = b;
             config.Configurer = b;
 
-            var cfg = config.Configurer.ConfigureComponent<CommonObjectBuilder>(ComponentCallModelEnum.Singleton)
+            var cfg = config.Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
 
             SyncConfig.MarkConfigured();

@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure InMemorySubscriptionStorage(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
             return config;
         }
     }

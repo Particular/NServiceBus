@@ -44,7 +44,7 @@ namespace NServiceBus
             //TODO: this should probably be moved to a new IManageFaults.Start|Init method instead. Check with Udi
             MsmqUtilities.CreateQueueIfNecessary(errorQueue);
 	
-            config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singlecall)
+            config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(fm => fm.ErrorQueue, errorQueue);
 
             return config;

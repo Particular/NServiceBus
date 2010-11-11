@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure InMemoryFaultManagement(this Configure config)
         {
-            config.Configurer.ConfigureComponent<FaultManager>(ComponentCallModelEnum.Singleton);
+            config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);
 
             return config;
         }

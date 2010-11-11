@@ -13,7 +13,7 @@ namespace NServiceBus.Grid.MessageHandlers
     {
         void INeedInitialization.Init()
         {
-            var readyConfig = Configure.Instance.Configurer.ConfigureComponent<ReadyManager>(ComponentCallModelEnum.Singleton);
+            var readyConfig = Configure.Instance.Configurer.ConfigureComponent<ReadyManager>(DependencyLifecycle.SingleInstance);
 
             var cfg = Configure.GetConfigSection<UnicastBusConfig>();
             if (cfg != null)
