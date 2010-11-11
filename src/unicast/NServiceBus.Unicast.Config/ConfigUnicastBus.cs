@@ -29,50 +29,23 @@ namespace NServiceBus.Unicast.Config
         {
             Builder = config.Builder;
             Configurer = config.Configurer;
-
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance);
 
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
 
-            var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
-            string address = "";
+            RegisterLocalMessages();
 
-            if (unicastBusConfig != null)
-            {
-                address = unicastBusConfig.LocalAddress;
-
-                foreach (MessageEndpointMapping mapping in unicastBusConfig.MessageEndpointMappings)
-                    assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
-
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastBusConfig.ForwardReceivedMessagesTo);
-                busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
-            }
-
-            if (string.IsNullOrEmpty(address))
-            {
-                var msmqTransportConfig = GetConfigSection<MsmqTransportConfig>();
-                
-                if (msmqTransportConfig != null && msmqTransportConfig.InputQueue != null)
-                {       
-                    Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
-                    address = msmqTransportConfig.InputQueue;
-                }
-            }
-
-            busConfig.ConfigureProperty(t => t.Address, address);
-
-            TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList().ForEach(
-                    t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty
-                );
+            RegisterMessageOwnersAndBusAddress();
         }
 
         private void RegisterMessageModules()
         {
-            TypesToScan.Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface).ToList().ForEach(
-                type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)
-                );
+            TypesToScan
+                .Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface)
+                .ToList()
+                .ForEach(type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
         private void ConfigureSubscriptionAuthorization()
@@ -83,6 +56,52 @@ namespace NServiceBus.Unicast.Config
 
             if (authType != null)
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
+        }
+
+        private void RegisterLocalMessages()
+        {
+            TypesToScan
+                .Where(t => typeof(IMessage).IsAssignableFrom(t))
+                .ToList()
+                .ForEach(t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty);
+        }
+
+        private void RegisterMessageOwnersAndBusAddress()
+        {
+            var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
+            this.ConfigureBusProperties(unicastBusConfig);
+            this.ConfigureLocalAddress(unicastBusConfig);
+        }
+
+        private void ConfigureBusProperties(UnicastBusConfig unicastConfig)
+        {
+            if (unicastConfig == null)
+                return;
+
+            foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
+                assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
+
+            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
+            busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
+        }
+
+        private void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
+        {
+            var address = GetLocalAddress(unicastConfig);
+            busConfig.ConfigureProperty(t => t.Address, address);
+        }
+
+        private static string GetLocalAddress(UnicastBusConfig unicastConfig)
+        {
+            if (!string.IsNullOrEmpty(unicastConfig.LocalAddress))
+                return unicastConfig.LocalAddress;
+
+            var transportConfig = GetConfigSection<MsmqTransportConfig>();
+            if (transportConfig == null || transportConfig.InputQueue == null)
+                return null;
+
+            Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
+            return transportConfig.InputQueue;
         }
 
         /// <summary>
