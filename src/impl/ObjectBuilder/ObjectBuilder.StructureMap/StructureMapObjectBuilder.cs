@@ -90,7 +90,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             }
         }
 
-        void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
+        void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             lock (configuredInstances)
             {
@@ -98,7 +98,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                     return;
             }
 
-            var lifecycle = GetLifecycleFrom(callModel);
+            var lifecycle = GetLifecycleFrom(dependencyLifecycle);
 
             ConfiguredInstance configuredInstance = null;
 
@@ -132,19 +132,19 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
 
-        private static ILifecycle GetLifecycleFrom(ComponentCallModelEnum callModel)
+        private static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)
         {
-            switch (callModel)
+            switch (dependencyLifecycle)
             {
-                case ComponentCallModelEnum.Singlecall:
+                case DependencyLifecycle.InstancePerCall:
                     return new UniquePerRequestLifecycle();
-                case ComponentCallModelEnum.Singleton: 
+                case DependencyLifecycle.SingleInstance: 
                     return new SingletonLifecycle();
-                case ComponentCallModelEnum.None:
+                case DependencyLifecycle.InstancePerUnitOfWork:
                     return null;//null means the default lifecycle which is transient
             }
 
-            throw new ArgumentException("Unhandled call model:" + callModel);
+            throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }
 
         private static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)

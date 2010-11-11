@@ -49,17 +49,36 @@ namespace NServiceBus.ObjectBuilder.Common
         }
 
         #region IConfigureComponents Members
-
-        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
-            Container.Configure(concreteComponent, callModel);
+            Container.Configure(concreteComponent, instanceLifecycle);
 
             return new ComponentConfig(concreteComponent, Container);
         }
 
+        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(DependencyLifecycle instanceLifecycle)
+        {
+            Container.Configure(typeof(T), instanceLifecycle);
+
+            return new ComponentConfig<T>(Container);
+        }
+
+
+        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            var lifecycle = MapToDependencyLifecycle(callModel);
+
+            Container.Configure(concreteComponent, lifecycle);
+
+            return new ComponentConfig(concreteComponent, Container);
+        }
+
+
         IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(ComponentCallModelEnum callModel)
         {
-            Container.Configure(typeof(T), callModel);
+            var lifecycle = MapToDependencyLifecycle(callModel);
+            
+            Container.Configure(typeof(T), lifecycle);
 
             return new ComponentConfig<T>(Container);
         }
@@ -144,6 +163,22 @@ namespace NServiceBus.ObjectBuilder.Common
         }
 
         #endregion
+
+        static DependencyLifecycle MapToDependencyLifecycle(ComponentCallModelEnum callModel)
+        {
+            switch (callModel)
+            {
+                case ComponentCallModelEnum.Singleton:
+                    return DependencyLifecycle.SingleInstance;
+                case ComponentCallModelEnum.Singlecall:
+                    return DependencyLifecycle.InstancePerCall;
+                case ComponentCallModelEnum.None:
+                    return DependencyLifecycle.InstancePerUnitOfWork;
+            }
+
+            throw new ArgumentException("Unhandled component call model: " + callModel);
+        }
+
 
         private static SynchronizedInvoker sync;
         private IContainer container;

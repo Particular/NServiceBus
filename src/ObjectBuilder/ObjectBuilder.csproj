@@ -62,6 +62,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ComponentCallModelEnum.cs" />
+    <Compile Include="DependencyLifecycle.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="IComponentConfig.cs" />
     <Compile Include="IConfigureComponents.cs" />

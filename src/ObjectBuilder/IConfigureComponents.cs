@@ -16,16 +16,36 @@ namespace NServiceBus.ObjectBuilder
         /// Configures the given type. Can be used to configure all kinds of properties.
         /// </summary>
         /// <param name="concreteComponent"></param>
-        /// <param name="callModel">Defines whether the type should have singleton or single call sematnics.</param>
+        /// <param name="dependencyLifecycle">Defines lifecyle sematnics for the given type.</param>
         /// <returns></returns>
-        IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
+        IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="dependencyLifecycle">Defines lifecyle sematnics for the given type.</param>
+        /// <returns></returns>
+        IComponentConfig<T> ConfigureComponent<T>(DependencyLifecycle dependencyLifecycle);
+
+        /// <summary>
+        /// Configures the given type. Can be used to configure all kinds of properties. This method is deprecated use the signature
+        /// that contains the DependecyLifecyle enum instead
+        /// </summary>
+        /// <param name="concreteComponent"></param>
+        /// <param name="callModel">Defines whether the type should have singleton or single call sematnics.</param>
+        /// <returns></returns>
+        [Obsolete]
+        IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
+
+        /// <summary>
+        /// Configures the given type, allowing to fluently configure properties. This method is deprecated use the signature
+        /// that contains the DependecyLifecyle enum instead
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="callModel"></param>
         /// <returns></returns>
+        [Obsolete]
         IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel);
 
         /// <summary>

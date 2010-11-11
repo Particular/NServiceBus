@@ -86,7 +86,7 @@ namespace NServiceBus.ObjectBuilder.Unity
             }
         }
 
-        public void Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        public void Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             ConfigureComponentAdapter config =
                container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
@@ -101,11 +101,11 @@ namespace NServiceBus.ObjectBuilder.Unity
                 {
                     if (typesWithDefaultInstances.Contains(t))
                     {
-                        container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(callModel));
+                        container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle));
                     }
                     else
                     {
-                        container.RegisterType(t, concreteComponent, GetLifetimeManager(callModel));
+                        container.RegisterType(t, concreteComponent, GetLifetimeManager(dependencyLifecycle));
                         typesWithDefaultInstances.Add(t);
                     }
                 }
@@ -148,18 +148,18 @@ namespace NServiceBus.ObjectBuilder.Unity
             return result.Distinct();
         }
 
-        private static LifetimeManager GetLifetimeManager(ComponentCallModelEnum callModel)
+        private static LifetimeManager GetLifetimeManager(DependencyLifecycle dependencyLifecycle)
         {
-            switch (callModel)
+            switch (dependencyLifecycle)
             {
-                case ComponentCallModelEnum.Singlecall:
+                case DependencyLifecycle.InstancePerCall:
                     return new TransientLifetimeManager();
-                case ComponentCallModelEnum.Singleton:
+                case DependencyLifecycle.SingleInstance:
                     return new ContainerControlledLifetimeManager();
-                default:
+                case DependencyLifecycle.InstancePerUnitOfWork:
                     return new TransientLifetimeManager();
             }
-
+            throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }
     }
 }

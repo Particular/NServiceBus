@@ -32,8 +32,8 @@ namespace ObjectBuilder.Tests
         {
             return (c) =>
                        {
-                           c.Configure(typeof (ExistingComponent), ComponentCallModelEnum.Singlecall);
-                           c.Configure(typeof (ExistingComponentWithUnsatisfiedDep), ComponentCallModelEnum.Singlecall);
+                           c.Configure(typeof (ExistingComponent), DependencyLifecycle.InstancePerCall);
+                           c.Configure(typeof (ExistingComponentWithUnsatisfiedDep), DependencyLifecycle.InstancePerCall);
                        };
         }
         public class NonExistingComponent

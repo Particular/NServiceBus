@@ -9,30 +9,13 @@ namespace ObjectBuilder.Tests
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
     {
-        [Test]
-        public void Singleton_components_should_have_their_interfaces_registered_to_avoid_beeing_disposed()
-        {
-            VerifyForAllBuilders(builder =>
-            {
-                builder.Configure(typeof(SingletonComponent), ComponentCallModelEnum.Singleton);
-
-                using (var nestedContainer = builder.BuildChildContainer())
-                    nestedContainer.Build(typeof(ISingletonComponent));
-
-                Assert.False(SingletonComponent.DisposeCalled);
-            },
-            typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
-
-
-        }
-
+       
         [Test]
         public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
         {
             VerifyForAllBuilders(builder =>
             {
-                builder.Configure(typeof(InstancePerUoWComponent), ComponentCallModelEnum.None);
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
                 using (var nestedContainer = builder.BuildChildContainer())
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
@@ -50,7 +33,7 @@ namespace ObjectBuilder.Tests
         {
             VerifyForAllBuilders(builder =>
             {
-                builder.Configure(typeof(InstancePerUoWComponent), ComponentCallModelEnum.None);
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
                 var nestedContainer = builder.BuildChildContainer();
 

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Resource;
-using Castle.MicroKernel.Releasers;
-using Castle.Windsor.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
@@ -71,12 +69,12 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return new WindsorObjectBuilder(new WindsorContainer{Parent = container});
         }
 
-        void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             var handler = GetHandlerForType(concreteComponent);
             if (handler == null)
             {
-                var lifestyle = GetLifestyleTypeFrom(callModel);
+                var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
 
                 var reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
                 reg.LifeStyle.Is(lifestyle);
@@ -114,15 +112,19 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return container.Kernel.HasComponent(componentType);
         }
 
-        private static LifestyleType GetLifestyleTypeFrom(ComponentCallModelEnum callModel)
+        private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
         {
-            switch (callModel)
+            switch (dependencyLifecycle)
             {
-                case ComponentCallModelEnum.Singlecall: return LifestyleType.Transient;
-                case ComponentCallModelEnum.Singleton: return LifestyleType.Singleton;
+                case DependencyLifecycle.InstancePerCall: 
+                    return LifestyleType.Transient;
+                case DependencyLifecycle.SingleInstance: 
+                    return LifestyleType.Singleton;
+                case DependencyLifecycle.InstancePerUnitOfWork:
+                    return LifestyleType.Undefined;
             }
 
-            return LifestyleType.Undefined;
+            throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }
 
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)

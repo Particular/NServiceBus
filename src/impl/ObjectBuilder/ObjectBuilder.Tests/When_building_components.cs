@@ -38,8 +38,8 @@ namespace ObjectBuilder.Tests
         {
             return (config) =>
                        {
-                           config.Configure(typeof(SingletonComponent),ComponentCallModelEnum.Singleton);
-                           config.Configure(typeof(SinglecallComponent), ComponentCallModelEnum.Singlecall);
+                           config.Configure(typeof(SingletonComponent),DependencyLifecycle.SingleInstance);
+                           config.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
                        };
         }
 

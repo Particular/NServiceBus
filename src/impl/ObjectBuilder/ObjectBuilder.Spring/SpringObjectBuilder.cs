@@ -68,9 +68,9 @@ namespace NServiceBus.ObjectBuilder.Spring
                 yield return de.Entry.Value;
         }
 
-        void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
+        void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
-            typeHandleLookup[concreteComponent] = callModel;
+            typeHandleLookup[concreteComponent] = dependencyLifecycle;
 
             lock (componentProperties)
                 if (!componentProperties.ContainsKey(concreteComponent))
@@ -125,7 +125,7 @@ namespace NServiceBus.ObjectBuilder.Spring
                 {
                     ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
                         .SetAutowireMode(AutoWiringMode.AutoDetect)
-                        .SetSingleton(typeHandleLookup[t] == ComponentCallModelEnum.Singleton);
+                        .SetSingleton(typeHandleLookup[t] == DependencyLifecycle.SingleInstance);
 
                     componentProperties[t].Configure(builder);
 
@@ -137,7 +137,7 @@ namespace NServiceBus.ObjectBuilder.Spring
             initialized = true;
         }
 
-        private readonly Dictionary<Type, ComponentCallModelEnum> typeHandleLookup = new Dictionary<Type, ComponentCallModelEnum>();
+        private readonly Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
         private readonly Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
         private bool initialized;
         private DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();

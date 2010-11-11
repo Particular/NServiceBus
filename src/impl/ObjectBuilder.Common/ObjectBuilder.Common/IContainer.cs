@@ -33,9 +33,9 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <summary>
         /// Configures the call model of the given component type.
         /// </summary>
-        /// <param name="component"></param>
-        /// <param name="callModel"></param>
-        void Configure(Type component, ComponentCallModelEnum callModel);
+        /// <param name="component">Type to be configured</param>
+        /// <param name="dependencyLifecycle">The desired lifecycle for this type</param>
+        void Configure(Type component, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
         /// Sets the value to be configured for the given property of the 

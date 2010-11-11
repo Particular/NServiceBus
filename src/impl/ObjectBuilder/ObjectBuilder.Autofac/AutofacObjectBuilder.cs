@@ -32,7 +32,8 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Instantites the class with an empty Autofac container.
         ///</summary>
-        public AutofacObjectBuilder() : this(new ContainerBuilder().Build())
+        public AutofacObjectBuilder()
+            : this(new ContainerBuilder().Build())
         {
         }
 
@@ -62,7 +63,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
             return new AutofacObjectBuilder(container.BeginLifetimeScope());
         }
-        
+
         ///<summary>
         /// Build an instance of a given type using Autofac.
         ///</summary>
@@ -83,7 +84,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.ResolveAll(typeToBuild);
         }
 
-        void Common.IContainer.Configure(Type component, ComponentCallModelEnum callModel)
+        void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             IComponentRegistration registration = this.GetComponentRegistration(component);
 
@@ -92,9 +93,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 var builder = new ContainerBuilder();
                 Type[] services = component.GetAllServices().ToArray();
                 var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
-                
-                SetLifetimeScope(callModel, registrationBuilder);
-                
+
+                SetLifetimeScope(dependencyLifecycle, registrationBuilder);
+
                 builder.Update(this.container.ComponentRegistry);
             }
         }
@@ -135,19 +136,21 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.IsRegistered(componentType);
         }
 
-        private static void SetLifetimeScope(ComponentCallModelEnum callModel, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> registrationBuilder)
+        private static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> registrationBuilder)
         {
-            switch (callModel)
+            switch (dependencyLifecycle)
             {
-                case ComponentCallModelEnum.Singlecall:
+                case DependencyLifecycle.InstancePerCall:
                     registrationBuilder.InstancePerDependency();
                     break;
-                case ComponentCallModelEnum.Singleton:
+                case DependencyLifecycle.SingleInstance:
                     registrationBuilder.SingleInstance();
                     break;
-                default:
+                case DependencyLifecycle.InstancePerUnitOfWork:
                     registrationBuilder.InstancePerLifetimeScope();
                     break;
+                default:
+                    throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
             }
         }
 
