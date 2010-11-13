@@ -20,15 +20,5 @@ namespace NServiceBus.Config.UnitTests
 
             Assert.AreEqual(configSection.TestSetting,"test");
         }
-
-        [Test]
-        public void Getting_sections_that_not_inherits_from_configsection_should_fail()
-        {
-            Assert.Throws<ArgumentException>(() => Configure.GetConfigSection<IllegalSection>());
-        }
-    }
-
-    public class IllegalSection
-    {
     }
 }

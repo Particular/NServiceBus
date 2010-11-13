@@ -62,7 +62,24 @@ namespace NServiceBus
         /// Gets/sets the object used to configure components.
         /// This object should eventually reference the same container as the Builder.
         /// </summary>
-        public IConfigureComponents Configurer { get; set; }
+        public IConfigureComponents Configurer
+        {
+            get { return configurer; }
+            set 
+            { 
+                configurer = value;
+                ContainerHasBeenSet(); 
+            }
+        }
+
+        private IConfigureComponents configurer;
+
+        private void ContainerHasBeenSet()
+        {
+            TypesToScan
+                .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
+                .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+        }
 
         /// <summary>
         /// Protected constructor to enable creation only via the With method.
@@ -203,6 +220,14 @@ namespace NServiceBus
         /// <returns></returns>
         public static T GetConfigSection<T>() where T : class,new()
         {
+            if (instance.configurer != null)
+                if (instance.configurer.HasComponent<IProvideConfiguration<T>>())
+                {
+                    var configSource = instance.Builder.Build<IProvideConfiguration<T>>();
+                    if (configSource != null)
+                        return configSource.GetConfiguration();
+                }
+
             return ConfigurationSource.GetConfiguration<T>();
         }
 
@@ -247,6 +272,18 @@ namespace NServiceBus
             }
             
             return result;
+        }
+
+        private static bool IsGenericConfigSource(Type t)
+        {
+            if (!t.IsGenericType)
+                return false;
+
+            var args = t.GetGenericArguments();
+            if (args.Length != 1)
+                return false;
+
+            return typeof (IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
         private static Configure instance;
