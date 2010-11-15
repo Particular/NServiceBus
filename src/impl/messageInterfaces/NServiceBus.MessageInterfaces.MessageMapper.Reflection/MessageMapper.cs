@@ -199,15 +199,24 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        private IEnumerable<PropertyInfo> GetAllProperties(Type t)
+        private static IEnumerable<PropertyInfo> GetAllProperties(Type t)
         {
-            var result = new List<PropertyInfo>(t.GetProperties());
-            foreach (var interfaceType in t.GetInterfaces())
-                foreach (var prop in GetAllProperties(interfaceType))
-                    if (!result.Contains(prop))
-                        result.Add(prop);
+            var props = new List<PropertyInfo>(t.GetProperties());
+            foreach (Type interfaceType in t.GetInterfaces())
+                props.AddRange(GetAllProperties(interfaceType));
 
-            return result;
+            var names = new List<string>(props.Count);
+            var dups = new List<PropertyInfo>(props.Count);
+            foreach (var p in props)
+                if (names.Contains(p.Name))
+                    dups.Add(p);
+                else
+                    names.Add(p.Name);
+
+            foreach (var d in dups)
+                props.Remove(d);
+
+            return props;
         }
 
         /// <summary>
