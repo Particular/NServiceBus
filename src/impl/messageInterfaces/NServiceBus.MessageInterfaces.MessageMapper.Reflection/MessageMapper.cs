@@ -91,9 +91,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                Logger.Warn(string.Format("Interface {0} contains methods and can there for not be mapped. Be aware that non mapped interface can't be used to send messages.",interfaceType.Name));
+                Logger.Warn(string.Format("Interface {0} contains methods and therefore cannot be mapped. Be aware that non mapped interfaces can't be used to send messages.", interfaceType.Name));
                 return;
             }
+
             var mapped = CreateTypeFrom(interfaceType, moduleBuilder);
             interfaceToConcreteTypeMapping[interfaceType] = mapped;
             concreteToInterfaceTypeMapping[mapped] = interfaceType;
@@ -199,13 +200,24 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        private IEnumerable<PropertyInfo> GetAllProperties(Type t)
+        private static IEnumerable<PropertyInfo> GetAllProperties(Type t)
         {
-            List<PropertyInfo> result = new List<PropertyInfo>(t.GetProperties());
+            var props = new List<PropertyInfo>(t.GetProperties());
             foreach (Type interfaceType in t.GetInterfaces())
-                result.AddRange(GetAllProperties(interfaceType));
+                props.AddRange(GetAllProperties(interfaceType));
 
-            return result;
+            var names = new List<string>(props.Count);
+            var dups = new List<PropertyInfo>(props.Count);
+            foreach(var p in props)
+                if (names.Contains(p.Name))
+                    dups.Add(p);
+                else
+                    names.Add(p.Name);
+
+            foreach (var d in dups)
+                props.Remove(d);
+
+            return props;
         }
 
         /// <summary>
