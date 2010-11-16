@@ -572,7 +572,7 @@ namespace NServiceBus.Unicast
                                             toSend.Id,
                                             destination,
                                             messages[0],
-                                            string.Join(", ", ((IBus)this).OutgoingHeaders.Select(h => h.Key + ":" + h.Value).ToArray())
+                                            string.Join(", ", toSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
                         ));
 
                 result.Add(toSend.Id);
@@ -994,6 +994,11 @@ namespace NServiceBus.Unicast
                 module.HandleBeginMessage(); //don't need to call others if one fails
             }
 
+            var transportMutators = builder.BuildAll<IMutateIncomingTransportMessages>();
+            if (transportMutators != null)
+                foreach(var mutator in transportMutators)
+                    mutator.MutateIncoming(msg);
+
             if (IsInitializationMessage(msg))
             {
                 Log.Info(Address + " initialized.");
@@ -1287,9 +1292,13 @@ namespace NServiceBus.Unicast
             MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
             
-            var mappers = Builder.BuildAll<IMapOutgoingTransportMessages>();
-            mappers.ToList().ForEach(m => m.MapOutgoing(messages, result));
-
+            var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
+            if (mutators != null)
+                foreach (var mutator in mutators)
+                {
+                    Log.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
+                    mutator.MutateOutgoing(messages, result);
+                }
             if (PropogateReturnAddressOnSend)
                 result.ReturnAddress = Address;
 

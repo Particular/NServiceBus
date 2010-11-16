@@ -6,9 +6,9 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.MessageHeaders
 {
-    public class MessageHeaderManager : IMapOutgoingTransportMessages
+    public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {
-        void IMapOutgoingTransportMessages.MapOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
             foreach(var key in staticOutgoingHeaders.Keys)
                 transportMessage.Headers.Add(key, staticOutgoingHeaders[key]);

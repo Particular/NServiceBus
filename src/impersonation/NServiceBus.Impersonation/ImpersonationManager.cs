@@ -1,10 +1,7 @@
-﻿using System;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using System.Threading;
 using NServiceBus.Config;
-using NServiceBus.Impersonation;
 using NServiceBus.MessageMutator;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport;
 
@@ -13,7 +10,7 @@ namespace NServiceBus.Impersonation
     /// <summary>
     /// Manages all aspects of impersonation
     /// </summary>
-    public class ImpersonationManager : INeedInitialization, IMapOutgoingTransportMessages
+    public class ImpersonationManager : INeedInitialization, IMutateOutgoingTransportMessages
     {
         void INeedInitialization.Init()
         {
@@ -31,7 +28,7 @@ namespace NServiceBus.Impersonation
                 Thread.CurrentPrincipal = ConfigureImpersonation.Impersonate ? new GenericPrincipal(new GenericIdentity(e.Message.Headers[WINDOWSIDENTITYNAME]), new string[0]) : null;
         }
 
-        void IMapOutgoingTransportMessages.MapOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
             transportMessage.Headers.Add(WINDOWSIDENTITYNAME, Thread.CurrentPrincipal.Identity.Name);
         }

@@ -9,7 +9,7 @@ namespace NServiceBus.Grid.MessageHandlers
     /// <summary>
     /// Bootstraps the behavior needed for a client to communicate with a distributor
     /// </summary>
-    public class Bootstrapper : INeedInitialization, IMapOutgoingTransportMessages
+    public class Bootstrapper : INeedInitialization, IMutateOutgoingTransportMessages
     {
         void INeedInitialization.Init()
         {
@@ -26,7 +26,7 @@ namespace NServiceBus.Grid.MessageHandlers
                 (o, e) => Configure.Instance.Builder.Build<ReadyManager>().SendReadyMessage(true);
         }
 
-        void IMapOutgoingTransportMessages.MapOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
             if (messages[0] is ReadyMessage)
                 return;

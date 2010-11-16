@@ -2,12 +2,12 @@
 namespace NServiceBus.MessageMutator
 {
     /// <summary>
-    /// Use this interface to hook into the seralization pipeline
+    /// Use this interface to change logical messages before any other code sees them.
     /// </summary>
     public interface IMessageMutator : IMutateOutgoingMessages, IMutateIncomingMessages{}
 
     /// <summary>
-    /// Mutaor for incoming messages
+    /// Mutates incoming messages
     /// </summary>
     public interface IMutateIncomingMessages
     {
