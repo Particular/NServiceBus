@@ -93,8 +93,9 @@ namespace NServiceBus.Unicast.Config
 
         private static string GetLocalAddress(UnicastBusConfig unicastConfig)
         {
-            if (!string.IsNullOrEmpty(unicastConfig.LocalAddress))
-                return unicastConfig.LocalAddress;
+            if (unicastConfig != null)
+                if (!string.IsNullOrEmpty(unicastConfig.LocalAddress))
+                    return unicastConfig.LocalAddress;
 
             var transportConfig = GetConfigSection<MsmqTransportConfig>();
             if (transportConfig == null || transportConfig.InputQueue == null)
