@@ -1218,7 +1218,23 @@ namespace NServiceBus.Unicast
         private void ForwardMessageIfNecessary(TransportMessage m)
         {
             if (ForwardReceivedMessagesTo != null)
-                MessageSender.Send(m, ForwardReceivedMessagesTo);
+            {
+                var toSend = new TransportMessage
+                                 {
+                                     Body = m.Body,
+                                     CorrelationId = m.CorrelationId,
+                                     Headers = m.Headers,
+                                     Id = m.Id,
+                                     IdForCorrelation = m.IdForCorrelation,
+                                     MessageIntent = m.MessageIntent,
+                                     Recoverable = m.Recoverable,
+                                     ReturnAddress = Address,
+                                     TimeSent = m.TimeSent,
+                                     TimeToBeReceived = m.TimeToBeReceived
+                                 };
+
+                MessageSender.Send(toSend, ForwardReceivedMessagesTo);
+            }
         }
 
         /// <summary>
