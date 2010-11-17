@@ -20,6 +20,9 @@ namespace NServiceBus.Grid.MessageHandlers
             {
                 readyConfig.ConfigureProperty(r => r.DistributorControlAddress, cfg.DistributorControlAddress);
                 DistributorDataAddress = cfg.DistributorDataAddress;
+
+                if (DistributorDataAddress != null)
+                    Configure.Instance.Configurer.ConfigureComponent<Bootstrapper>(DependencyLifecycle.SingleInstance);
             }
 
             Configure.ConfigurationComplete +=
@@ -32,7 +35,8 @@ namespace NServiceBus.Grid.MessageHandlers
                 return;
 
             //when not talking to the distributor, pretend that our address is that of the distributor
-            transportMessage.ReturnAddress = DistributorDataAddress;
+            if (DistributorDataAddress != null)
+                transportMessage.ReturnAddress = DistributorDataAddress;
         }
 
         private string DistributorDataAddress { get; set; }

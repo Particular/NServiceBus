@@ -1,7 +1,9 @@
 ﻿using System.Security.Principal;
 using System.Threading;
 using NServiceBus.Config;
+using NServiceBus.Impersonation;
 using NServiceBus.MessageMutator;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport;
 
@@ -14,6 +16,8 @@ namespace NServiceBus.Impersonation
     {
         void INeedInitialization.Init()
         {
+            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<ImpersonationManager>(DependencyLifecycle.SingleInstance);
+
             Configure.ConfigurationComplete +=
                 (o, a) =>
                     {
@@ -22,18 +26,19 @@ namespace NServiceBus.Impersonation
                     };
         }
 
-        void Transport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        static void Transport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (e.Message.Headers.ContainsKey(WINDOWSIDENTITYNAME))
-                Thread.CurrentPrincipal = ConfigureImpersonation.Impersonate ? new GenericPrincipal(new GenericIdentity(e.Message.Headers[WINDOWSIDENTITYNAME]), new string[0]) : null;
+            if (ConfigureImpersonation.Impersonate)
+                if (e.Message.Headers.ContainsKey(WindowsIdentityName))
+                    Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(e.Message.Headers[WindowsIdentityName]), new string[0]);
         }
 
         void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers.Add(WINDOWSIDENTITYNAME, Thread.CurrentPrincipal.Identity.Name);
+            transportMessage.Headers.Add(WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
         }
 
-        private const string WINDOWSIDENTITYNAME = "WinIdName";
+        private const string WindowsIdentityName = "WinIdName";
     }
 }
 
