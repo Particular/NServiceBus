@@ -88,7 +88,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void Users_can_override_tablenames_by_using_an_attribute()
         {
             var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
-            persister.TableName.ShouldEqual("MyTestTable");
+            // NHibernate uses underscores as a schema seperator for SQLite
+            persister.TableName.ShouldEqual("MyTestSchema_MyTestTable");
         }
 
         [Test]
