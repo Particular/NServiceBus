@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace NServiceBus.MessageInterfaces.Tests
@@ -27,6 +29,21 @@ namespace NServiceBus.MessageInterfaces.Tests
 
             Assert.Null(mapper.GetMappedTypeFor(typeof(InterfaceWithMethods)));
         }
+        
+        [Test]
+        public void Attributes_on_properties_should_be_mapped()
+        {
+            mapper.Initialize(new[]{typeof(InterfaceWithPropertiesAndAttributes)});
+            Assert.IsTrue(PropertyContainsAttribute("SomeProperty",typeof(SomeAttribute),mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
+            
+            // Doesn't affect properties without attributes
+            Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
+        }
+
+        private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
+        {
+            return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
+        }
     }
 
     public interface InterfaceWithProperties
@@ -38,5 +55,18 @@ namespace NServiceBus.MessageInterfaces.Tests
     {
         string SomeProperty { get; set; }
         void MethodOnInterface();
+    }
+
+    public interface InterfaceWithPropertiesAndAttributes
+    {
+        [SomeAttribute]
+        string SomeProperty { get; set; }
+        
+        string SomeOtherProperty { get; set; }
+    }
+
+    public class SomeAttribute : Attribute
+    {
+        
     }
 }
