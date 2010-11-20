@@ -75,7 +75,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual string SomeProperty { get; set; }
     }
 
-    [TableName("MyTestTable")]
+    [TableName("MyTestTable", Schema = "MyTestSchema" )]
     public class TestSagaWithTableNameAttribute : ISagaEntity
     {
         public virtual Guid Id { get; set; }

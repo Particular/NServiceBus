@@ -85,7 +85,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void Users_can_override_tablenames_by_using_an_attribute()
         {
             var persister = sessionFactory.GetEntityPersister(typeof(TestSagaWithTableNameAttribute).FullName).ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
-            Assert.AreEqual(persister.TableName,"MyTestTable");
+            Assert.AreEqual(persister.TableName,"MyTestSchema_MyTestTable");
         }
 
         [Test]
