@@ -61,7 +61,7 @@ namespace NServiceBus.Host.Internal
                 if (Configure.Instance == null)
                     throw new ConfigurationErrorsException("Bus configuration has not been performed. Please call 'NServiceBus.Configure.With()' or one of its overloads.");
                 if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
-                    throw new ConfigurationErrorsException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().SpringBuilder()'.");
+                    throw new ConfigurationErrorsException("Container has not been configured for the bus. You may have forgotten to call 'NServiceBus.Configure.With().DefaultBuilder()'.");
 
                 RoleManager.ConfigureBusForEndpoint(specifier);
 

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using log4net.Appender;
 using log4net.Core;
-using System.Globalization;
 using System.Reflection;
 
 namespace NServiceBus
@@ -47,22 +45,21 @@ namespace NServiceBus
 
             if (appender.Layout == null)
                 appender.Layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
-            if (appender.Threshold == null)
+
+            var cfg = Configure.GetConfigSection<Config.Logging>();
+            if (cfg != null)
             {
-                var cfg = ConfigurationManager.GetSection(typeof(Config.Logging).Name) as Config.Logging;
-                if (cfg != null)
-                {
-                    foreach(var f in typeof(Level).GetFields(BindingFlags.Public | BindingFlags.Static))
-                        if (string.Compare(cfg.Threshold, f.Name, true) == 0)
-                        {
-                            var val = f.GetValue(null);
-                            appender.Threshold = val as Level;
-                            break;
-                        }
-                }
-                else
-                    appender.Threshold = Level.Warn;
+                foreach(var f in typeof(Level).GetFields(BindingFlags.Public | BindingFlags.Static))
+                    if (string.Compare(cfg.Threshold, f.Name, true) == 0)
+                    {
+                        var val = f.GetValue(null);
+                        appender.Threshold = val as Level;
+                        break;
+                    }
             }
+
+            if (appender.Threshold == null)
+                appender.Threshold = Level.Debug;
 
             appender.ActivateOptions();
 
@@ -83,6 +80,7 @@ namespace NServiceBus
 
         /// <summary>
         /// Configure NServiceBus to use Log4Net and specify your own configuration.
+        /// Use 'log4net.Config.XmlConfigurator.Configure' as the parameter to get the configuration from the app.config.
         /// </summary>
         public static void Log4Net(Action config)
         {

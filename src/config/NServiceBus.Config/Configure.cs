@@ -14,6 +14,11 @@ namespace NServiceBus
     /// </summary>
     public class Configure
     {
+        static Configure()
+        {
+            ConfigurationSource = new DefaultConfigurationSource();
+        }
+
         /// <summary>
         /// Provides static access to the configuration object.
         /// </summary>
@@ -29,17 +34,9 @@ namespace NServiceBus
         public IBuilder Builder { get; set; }
 
         /// <summary>
-        /// Provides access to the configuration source.
+        /// Gets/sets the configuration source to be used by NServiceBus.
         /// </summary>
-        protected IConfigurationSource ConfigSource { get; set; }
-
-        /// <summary>
-        /// Gets the current configuration source
-        /// </summary>
-        public static IConfigurationSource ConfigurationSource
-        {
-            get { return instance.ConfigSource; }
-        }
+        public static IConfigurationSource ConfigurationSource { get; set; }
 
         /// <summary>
         /// Sets the current configuration source
@@ -48,7 +45,7 @@ namespace NServiceBus
         /// <returns></returns>
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
-            ConfigSource = configurationSource;
+            ConfigurationSource = configurationSource;
             return this;
         }
 
@@ -145,8 +142,6 @@ namespace NServiceBus
         {
             if (instance == null)
                 instance = new Configure();
-
-            instance.ConfigSource = new DefaultConfigurationSource();
 
             TypesToScan = typesToScan;
 

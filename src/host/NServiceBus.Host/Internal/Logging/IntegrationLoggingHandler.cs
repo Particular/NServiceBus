@@ -10,7 +10,14 @@ namespace NServiceBus.Host.Internal.Logging
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            NServiceBus.SetLoggingLibrary.Log4Net<ConsoleAppender>(null, ca => ca.Threshold = Level.Info);
+            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null,
+                a =>
+                {
+                    LiteLoggingHandler.PrepareColors(a);
+
+                    a.Threshold = Level.Info;
+                }
+            );
         }
     }
 }
