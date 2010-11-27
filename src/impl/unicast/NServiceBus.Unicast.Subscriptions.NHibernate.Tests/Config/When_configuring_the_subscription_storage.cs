@@ -15,13 +15,13 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         public void SetUp()
         {
             config = Configure.With()
-          .SpringBuilder()
+          .DefaultBuilder()
+          .CustomConfigurationSource(new DefaultConfigurationSource())
           .DBSubcriptionStorage();
 
         }
 
         [Test]
-        [Ignore]
         public void The_session_source_should_be_registered_as_singleton()
         {
 
@@ -34,7 +34,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
         
         [Test]
-        [Ignore]
         public void The_storage_should_be_registered_as_singlecall()
         {
 
@@ -46,7 +45,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         }
 
         [Test]
-        [Ignore]
         public void Database_schema_should_be_updated_as_default()
         {
             var sessionSource = config.Builder.Build<ISessionSource>();
@@ -60,13 +58,12 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 
 
         [Test]
-        [Ignore]
         public void Persister_can_be_configured_to_use_sqlite_if_no_config_section_is_found()
         {
             var configSource = MockRepository.GenerateStub<IConfigurationSource>();
 
             var configWithoutConfigSection = Configure.With()
-                                                    .SpringBuilder()
+                                                    .DefaultBuilder()
                                                     .CustomConfigurationSource(configSource)
                                                     .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
@@ -75,7 +72,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         }
        
         [Test]
-        [Ignore]
         public void NHibernate_proxy_factory_should_default_to_linfu()
         {
             //will fail if no proxy is set
