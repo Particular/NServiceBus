@@ -153,6 +153,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                     propertyType,
                     null);
 
+                foreach (var customAttribute in prop.GetCustomAttributes(true))
+                {
+                    AddCustomAttributeToProperty(customAttribute, propBuilder);
+                }
+
                 MethodBuilder getMethodBuilder = typeBuilder.DefineMethod(
                     "get_" + prop.Name,
                     MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.VtableLayoutMask,
@@ -192,6 +197,20 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             typeBuilder.AddInterfaceImplementation(t);
 
             return typeBuilder.CreateType();
+        }
+
+        /// <summary>
+        /// Given a custom attribute and property builder, adds an instance of custom attribute
+        /// to the property builder
+        /// </summary>
+        /// <param name="customAttribute"></param>
+        /// <param name="propBuilder"></param>
+        private void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
+        {
+            var classConstructorInfo = customAttribute.GetType().GetConstructor(new Type[] { });
+            var customAttributeBuilder = new CustomAttributeBuilder(classConstructorInfo,
+                                                                            new object[] { });
+            propBuilder.SetCustomAttribute(customAttributeBuilder);
         }
 
         /// <summary>

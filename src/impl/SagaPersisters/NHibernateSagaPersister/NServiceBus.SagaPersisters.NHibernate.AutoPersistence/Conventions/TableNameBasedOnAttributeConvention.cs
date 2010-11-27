@@ -17,15 +17,23 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Conventions
 
         public void Apply(IClassInstance instance)
         {
-            instance.Table(GetAttribute(instance.EntityType).TableName);
+            var attribute = GetAttribute(instance.EntityType);
+            if (attribute == null) return;
+            instance.Table(attribute.TableName);
+            if (!String.IsNullOrEmpty(attribute.Schema))
+            {
+                instance.Schema(attribute.Schema);
+            }
         }
 
         public void Apply(IJoinedSubclassInstance instance)
         {
             var attribute = GetAttribute(instance.EntityType);
-            if (attribute != null)
+            if (attribute == null) return;
+            instance.Table(attribute.TableName);
+            if (!String.IsNullOrEmpty(attribute.Schema))
             {
-                instance.Table(attribute.TableName);
+                instance.Schema(attribute.Schema);
             }
         }
 
