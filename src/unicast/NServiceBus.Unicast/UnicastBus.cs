@@ -514,12 +514,12 @@ namespace NServiceBus.Unicast
                         return null;
             }
 
+            if (messages == null || messages.Length == 0)
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
+
             if (destination == null)
                 throw new InvalidOperationException(
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
-
-            if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
 
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
