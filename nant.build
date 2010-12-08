@@ -43,7 +43,11 @@
 	    <echo message="Edition set to the communition edition"/>
 	</if>
 	
-
+	<property name="samples.dir" value="${trunk.dir}\samples" dynamic="true" />
+	<if test="${targetframework == 'net-4.0'}">
+		<property name="samples.dir" value="${samples.dir}-net40"/>
+	</if>
+	
   <target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
     <description>
       This will detect whether the current Operating System is running as a 32-bit or 64-bit Operating System regardless of whether this is a 32-bit or 64-bit process.
@@ -410,20 +414,20 @@
   </target>
 
   <target name="compile_samples" depends="prepare_binaries">
-    <foreach 	item="String"
+	<foreach 	item="String"
 					in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration"
 					delim=","
 					property="pathToBuild">
-      <echo message="${pathToBuild}" />
-      <exec program="${msbuild}" commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
-					workingdir="${trunk.dir}\samples\${pathToBuild}" />
-    </foreach>
+		<echo message="${pathToBuild}" />
+		<exec program="${msbuild}" commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
+					workingdir="${samples.dir}\${pathToBuild}" />
+	</foreach>
 
  	<!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 -->
 	<if test="${targetframework != 'net-4.0'}">
-			<exec	program="${msbuild}" 
-					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
-					workingdir="${trunk.dir}\samples\WebServiceBridge" />
+		<exec	program="${msbuild}" 
+			commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
+			workingdir="${samples.dir}\WebServiceBridge" />
 	</if>
   </target>
 
@@ -598,7 +602,7 @@
     <copy todir="${release.dir}">
       <fileset basedir="${trunk.dir}">
         <include name="RunMeFirst.bat" />
-        <include name="samples\**" />
+        <include name="${samples.dir}/**" />
         <exclude name="**/obj/**" />
         <exclude name="**/bin/**" />
         <exclude name="**/_ReSharper*/**" />

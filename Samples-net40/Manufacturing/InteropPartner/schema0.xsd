@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.net/OrderService.Messages" xmlns="http://tempuri.net/OrderService.Messages" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:import namespace="http://microsoft.com/wsdl/types/" />
+<xs:element name="OrderStatusChangedMessage" nillable="true" type="OrderStatusChangedMessage" />
+<xs:complexType name="OrderStatusChangedMessage">
+<xs:sequence>
+<xs:element minOccurs="0" maxOccurs="1" name="PurchaseOrderNumber" type="xs:string" />
+<xs:element minOccurs="1" maxOccurs="1" name="PartnerId" xmlns:q1="http://microsoft.com/wsdl/types/" type="q1:guid" />
+<xs:element minOccurs="1" maxOccurs="1" name="Status" type="OrderStatusEnum" />
+<xs:element minOccurs="0" maxOccurs="1" name="OrderLines" type="ArrayOfOrderLine" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="OrderMessage" nillable="true" type="OrderMessage" />
+<xs:complexType name="OrderMessage">
+<xs:sequence>
+<xs:element minOccurs="1" maxOccurs="1" name="Done" type="xs:boolean" />
+<xs:element minOccurs="1" maxOccurs="1" name="ProvideBy" type="xs:dateTime" />
+<xs:element minOccurs="0" maxOccurs="1" name="OrderLines" type="ArrayOfOrderLine" />
+<xs:element minOccurs="0" maxOccurs="1" name="PurchaseOrderNumber" type="xs:string" />
+<xs:element minOccurs="1" maxOccurs="1" name="PartnerId" xmlns:q1="http://microsoft.com/wsdl/types/" type="q1:guid" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="ArrayOfOrderLine" nillable="true" type="ArrayOfOrderLine" />
+<xs:complexType name="ArrayOfOrderLine">
+<xs:sequence>
+<xs:element minOccurs="0" maxOccurs="unbounded" name="OrderLine" nillable="true" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="OrderLine" nillable="true" type="OrderLine" />
+<xs:complexType name="OrderLine">
+<xs:sequence>
+<xs:element minOccurs="1" maxOccurs="1" name="ProductId" xmlns:q1="http://microsoft.com/wsdl/types/" type="q1:guid" />
+<xs:element minOccurs="1" maxOccurs="1" name="Quantity" type="xs:float" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="CancelOrderMessage" nillable="true" type="CancelOrderMessage" />
+<xs:complexType name="CancelOrderMessage">
+<xs:sequence>
+<xs:element minOccurs="0" maxOccurs="1" name="PurchaseOrderNumber" type="xs:string" />
+<xs:element minOccurs="1" maxOccurs="1" name="PartnerId" xmlns:q1="http://microsoft.com/wsdl/types/" type="q1:guid" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="OrderStatusEnum" type="OrderStatusEnum" />
+<xs:simpleType name="OrderStatusEnum">
+<xs:restriction base="xs:string">
+<xs:enumeration value="Tentative" />
+<xs:enumeration value="Recieved" />
+<xs:enumeration value="Authorized" />
+<xs:enumeration value="Rejected" />
+<xs:enumeration value="Accepted" />
+</xs:restriction>
+</xs:simpleType>
+</xs:schema>
