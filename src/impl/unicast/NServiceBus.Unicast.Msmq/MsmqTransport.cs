@@ -446,7 +446,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 if (HandledMaxRetries(m.Id))
                 {
                     Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
+                    
                     MoveToErrorQueue(m);
+                    OnFinishedMessageProcessing();
+
                     return;
                 }                    
             }
