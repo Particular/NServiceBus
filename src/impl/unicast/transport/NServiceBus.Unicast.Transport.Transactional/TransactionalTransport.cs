@@ -246,6 +246,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 if (HandledMaxRetries(m))
                 {
                     Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
+
+                    OnFinishedMessageProcessing();
+
                     return;
                 }
             }
