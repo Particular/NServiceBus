@@ -35,11 +35,7 @@ namespace NServiceBus.Host
 
                 string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-                if (!File.Exists(endpointConfigurationFile))
-                {
-                    throw new InvalidOperationException("No configuration file found at: " + endpointConfigurationFile);
-                }
-
+              
                 var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
                 EndpointId = GetEndpointId(endpointConfiguration);
