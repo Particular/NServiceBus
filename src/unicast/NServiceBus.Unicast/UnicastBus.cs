@@ -371,6 +371,7 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType, Predicate<IMessage> condition)
         {
             AssertBusIsStarted();
+            AssertHasLocalAddress();
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
@@ -698,6 +699,8 @@ namespace NServiceBus.Unicast
                 if (string.IsNullOrEmpty(destination))
                     continue;
 
+                AssertHasLocalAddress();
+
                 var arr = destination.Split('@');
 
                 var queue = arr[0];
@@ -712,6 +715,12 @@ namespace NServiceBus.Unicast
                 if (destination.ToLower() != Address.ToLower())
                     Subscribe(messageType);
             }
+        }
+
+        private void AssertHasLocalAddress()
+        {
+            if (Address == null)
+                throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
         }
 
         void ValidateConfiguration()
