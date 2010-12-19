@@ -702,6 +702,9 @@ namespace NServiceBus.Unicast
                         if (string.IsNullOrEmpty(destination))
                             continue;
 
+                        if (transport.Address == null)
+                            throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please include the MsmqTransportConfig section and specify an InputQueue.");
+
                         var arr = destination.Split('@');
 
                         var queue = arr[0];
