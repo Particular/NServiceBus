@@ -335,7 +335,7 @@ namespace NServiceBus.Serializers.XML
 
         private object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
-            if (t.IsSimpleType())
+            if (t.IsSimpleType() || t == typeof(Uri))
                 return GetPropertyValue(t, node);
 
             if (t == typeof(WireEncryptedString))
@@ -477,6 +477,9 @@ namespace NServiceBus.Serializers.XML
 
                 if (type == typeof(byte[]))
                     return Convert.FromBase64String(n.ChildNodes[0].InnerText);
+
+                if (type == typeof(Uri))
+                    return new Uri(n.ChildNodes[0].InnerText);
             }
 
             //Handle dictionaries
@@ -653,6 +656,12 @@ namespace NServiceBus.Serializers.XML
                 var encryptedValue = EncryptionService.Encrypt((value as WireEncryptedString).Value);
                 WriteObject(name, typeof(EncryptedValue), encryptedValue, builder);
 
+                return;
+            }
+
+            if (value is Uri)
+            {
+                builder.AppendFormat("<{0}>{1}</{0}>\n", name, value);
                 return;
             }
 

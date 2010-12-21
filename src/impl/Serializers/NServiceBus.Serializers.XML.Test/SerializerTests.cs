@@ -77,6 +77,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Address = Guid.NewGuid().ToString();
             o.Int = 7;
             o.Name = "udi";
+            o.Uri = new Uri("http://www.UdiDahan.com/");
             o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
             o.Some = SomeEnum.B;
             o.Start = DateTime.Now;
