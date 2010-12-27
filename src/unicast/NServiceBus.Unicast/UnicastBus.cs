@@ -371,6 +371,7 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType, Predicate<IMessage> condition)
         {
             AssertBusIsStarted();
+            AssertHasLocalAddress();
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
@@ -514,12 +515,12 @@ namespace NServiceBus.Unicast
                         return null;
             }
 
+            if (messages == null || messages.Length == 0)
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
+
             if (destination == null)
                 throw new InvalidOperationException(
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
-
-            if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
 
             foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
             {
@@ -698,6 +699,8 @@ namespace NServiceBus.Unicast
                 if (string.IsNullOrEmpty(destination))
                     continue;
 
+                AssertHasLocalAddress();
+
                 var arr = destination.Split('@');
 
                 var queue = arr[0];
@@ -712,6 +715,12 @@ namespace NServiceBus.Unicast
                 if (destination.ToLower() != Address.ToLower())
                     Subscribe(messageType);
             }
+        }
+
+        private void AssertHasLocalAddress()
+        {
+            if (Address == null)
+                throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
         }
 
         void ValidateConfiguration()

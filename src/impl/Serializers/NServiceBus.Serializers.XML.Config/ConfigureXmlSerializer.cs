@@ -19,9 +19,14 @@ namespace NServiceBus
         {
             var messageTypes = Configure.TypesToScan.Where(t => typeof (IMessage).IsAssignableFrom(t)).ToList();
 
-            config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(ms => ms.MessageTypes, messageTypes);
+            if (config.Configurer == null)
+                SetXmlSerializerAsDefault.UseXmlSerializer = true;
+            else
+            {
+                config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(ms => ms.MessageTypes, messageTypes);
+            }
 
             return config;
         }
@@ -45,9 +50,11 @@ namespace NServiceBus
 
     class SetXmlSerializerAsDefault : INeedInitialization
     {
+        internal static bool UseXmlSerializer;
+
         void INeedInitialization.Init()
         {
-            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>())
+            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>() || UseXmlSerializer)
                 Configure.Instance.XmlSerializer();
         }
     }

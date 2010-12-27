@@ -1,4 +1,5 @@
 ﻿using NServiceBus.ObjectBuilder;
+using NServiceBus.Config;
 
 namespace NServiceBus
 {
@@ -15,10 +16,25 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure BinarySerializer(this Configure config)
         {
-            config.Configurer.ConfigureComponent<Serializers.Binary.SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent(typeof(Serializers.Binary.MessageSerializer), DependencyLifecycle.SingleInstance);
+            if (config.Configurer == null)
+                SetBinarySerializerAsDefault.UseBinarySerializer = true;
+            else
+            {
+                config.Configurer.ConfigureComponent<Serializers.Binary.SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent(typeof(Serializers.Binary.MessageSerializer), DependencyLifecycle.SingleInstance);
+            }
 
             return config;
+        }
+    }
+
+    class SetBinarySerializerAsDefault : INeedInitialization
+    {
+        internal static bool UseBinarySerializer;
+        void INeedInitialization.Init()
+        {
+            if (UseBinarySerializer)
+                Configure.Instance.BinarySerializer();
         }
     }
 }
