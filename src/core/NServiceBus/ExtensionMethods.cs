@@ -146,5 +146,16 @@ namespace NServiceBus
         /// Header for specifying to which Http endpoint the message should be delivered.
         /// </summary>
         public const string HttpTo = "NServiceBus.To";
+
+        /// <summary>
+        /// Header for specifying to which queue behind the http gateway should the message be delivered.
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string RouteTo = "NServiceBus.Header.RouteTo";
+
+        /// <summary>
+        /// Prefix included on the wire when sending applicative headers.
+        /// </summary>
+        public const string HeaderName = "Header";
     }
 }

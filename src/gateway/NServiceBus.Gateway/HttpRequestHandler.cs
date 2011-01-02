@@ -33,10 +33,10 @@ namespace NServiceBus.Gateway
                     return;
                 }
 
-                string hash = ctx.Request.Headers[Headers.ContentMd5Key];
+                string hash = ctx.Request.Headers[HttpHeaders.ContentMd5Key];
                 if (hash == null)
                 {
-                    CloseResponseAndWarn(ctx, "Required header '" + Headers.ContentMd5Key + "' missing.", 400);
+                    CloseResponseAndWarn(ctx, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.", 400);
                     return;
                 }
 
@@ -81,11 +81,12 @@ namespace NServiceBus.Gateway
                     msg.Headers = new Dictionary<string, string>();
                 }
 
-                if (ctx.Request.Headers[Headers.FromKey] != null)
-                    msg.Headers.Add(NServiceBus.Headers.HttpFrom, ctx.Request.Headers[Headers.FromKey]);
+                if (ctx.Request.Headers[HttpHeaders.FromKey] != null)
+                    msg.Headers.Add(NServiceBus.Headers.HttpFrom, ctx.Request.Headers[HttpHeaders.FromKey]);
 
-                if (msg.Headers.ContainsKey(HeaderMapper.RouteTo))
-                    messageSender.Send(msg, msg.Headers[HeaderMapper.RouteTo]);
+                string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
+                if (msg.Headers.ContainsKey(routeTo))
+                    messageSender.Send(msg, msg.Headers[routeTo]);
                 else
                     messageSender.Send(msg, destinationQueue);
 
@@ -97,7 +98,7 @@ namespace NServiceBus.Gateway
 
         private void HandleSubmit(HttpListenerContext ctx, CallInfo callInfo)
         {
-            string hash = ctx.Request.Headers[Headers.ContentMd5Key];
+            string hash = ctx.Request.Headers[HttpHeaders.ContentMd5Key];
 
             byte[] buffer = GetBuffer(ctx);
             string myHash = Hasher.Hash(buffer);
@@ -178,7 +179,7 @@ namespace NServiceBus.Gateway
             return new CallInfo
                        {
                            ClientId = ctx.Request.Headers[HeaderMapper.NServiceBus + HeaderMapper.Id],
-                           MD5 = ctx.Request.Headers[Headers.ContentMd5Key],
+                           MD5 = ctx.Request.Headers[HttpHeaders.ContentMd5Key],
                            Type = type
                        };
         }

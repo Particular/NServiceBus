@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast
 
         string IMessageContext.Id
         {
-            get { return transportMessage.IdForCorrelation; }
+            get { return string.IsNullOrEmpty(transportMessage.IdForCorrelation) ? transportMessage.Id : transportMessage.IdForCorrelation; }
         }
 
         string IMessageContext.ReturnAddress

@@ -30,9 +30,9 @@ namespace NServiceBus.Gateway
             HeaderMapper.Map(msg, headers);
 
             string hash = Hasher.Hash(buffer);
-            headers[Headers.ContentMd5Key] = hash;
+            headers[HttpHeaders.ContentMd5Key] = hash;
             headers["NServiceBus.Gateway"] = "true";
-            headers[Headers.FromKey] = from;
+            headers[HttpHeaders.FromKey] = from;
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof (CallType), CallType.Submit);
 
             request.Headers = headers;
