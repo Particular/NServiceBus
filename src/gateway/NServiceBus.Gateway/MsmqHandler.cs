@@ -15,6 +15,7 @@ namespace NServiceBus.Gateway
         public void Handle(TransportMessage msg, string remoteUrl)
         {
             var address = remoteUrl;
+            var headers = new WebHeaderCollection();
 
             if (msg.Headers.ContainsKey(NServiceBus.Headers.HttpTo))
                 address = msg.Headers[NServiceBus.Headers.HttpTo];
@@ -26,13 +27,15 @@ namespace NServiceBus.Gateway
 
             request.ContentType = "application/x-www-form-urlencoded";
 
-            HeaderMapper.Map(msg, request.Headers);
+            HeaderMapper.Map(msg, headers);
 
             string hash = Hasher.Hash(buffer);
-            request.Headers[Headers.ContentMd5Key] = hash;
-            request.Headers["NServiceBus.Gateway"] = "true";
-            request.Headers[Headers.FromKey] = from;
+            headers[Headers.ContentMd5Key] = hash;
+            headers["NServiceBus.Gateway"] = "true";
+            headers[Headers.FromKey] = from;
+            headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof (CallType), CallType.Submit);
 
+            request.Headers = headers;
             request.ContentLength = buffer.Length;
 
             var stream = request.GetRequestStream();
@@ -40,24 +43,41 @@ namespace NServiceBus.Gateway
 
             Logger.Debug("Sending message to: " + address);
 
-            var response = request.GetResponse();
-
-            Logger.Debug("Got HTTP Response, going to check MD5.");
-
-            var md5 = response.Headers[Headers.ContentMd5Key];
+            var response = request.GetResponse() as HttpWebResponse;
+            var statusCode = (int)response.StatusCode;
             response.Close();
 
-            if (md5 == null)
-            {
-                Logger.Error("Integration Error: Response did not contain necessary header " + Headers.ContentMd5Key + ". Can't be sure that data arrived intact at target " + address);
-                return;
-            }
+            Logger.Debug("Got HTTP response with status code " + statusCode);
 
-            if (md5 == hash)
-                Logger.Debug("Message transferred successfully.");
+
+            if (statusCode == 200)
+            {
+                Logger.Debug("Message transferred successfully. Going to acknowledge.");
+
+                var ack = WebRequest.Create(address);
+                ack.Method = "POST";
+                ack.ContentType = "application/x-www-form-urlencoded";
+                ack.Headers = headers;
+                ack.Headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), CallType.Ack);
+                ack.ContentLength = 0;
+                
+                Logger.Debug("Sending ack to: " + address);
+
+                var ackResponse = ack.GetResponse() as HttpWebResponse;
+                var ackCode = (int)ackResponse.StatusCode;
+                response.Close();
+
+                Logger.Debug("Got HTTP response with status code " + ackCode);
+
+                if (ackCode != 200)
+                {
+                    Logger.Info("Ack not transferred successfully. Trying again...");
+                    throw new Exception("Retrying");
+                }
+            }
             else
             {
-                Logger.Info(Headers.ContentMd5Key + " header received from client not the same as that sent. Message not transferred successfully. Trying again...");
+                Logger.Info("Message not transferred successfully. Trying again...");
                 throw new Exception("Retrying");
             }
         }

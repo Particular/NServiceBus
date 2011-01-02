@@ -45,8 +45,9 @@ namespace NServiceBus.Gateway
             from.Headers.ToList().ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
         }
 
-        private const string NServiceBus = "NServiceBus.";
-        private const string Id = "Id";
+        public const string NServiceBus = "NServiceBus.";
+        public const string Id = "Id";
+        public const string CallType = "CallType";
         private const string IdForCorrelation = "IdForCorrelation";
         private const string CorrelationId = "CorrelationId";
         private const string Recoverable = "Recoverable";

@@ -321,16 +321,18 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
 	    private void IncrementFailuresForMessage(string messageId, Exception e)
 	    {
-	        failuresPerMessageLocker.EnterWriteLock();
 	        try
 	        {
-	            if (!failuresPerMessage.ContainsKey(messageId))
+                failuresPerMessageLocker.EnterWriteLock();
+                
+                if (!failuresPerMessage.ContainsKey(messageId))
 	                failuresPerMessage[messageId] = 1;
 	            else
 	                failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
 
                 exceptionsForMessages[messageId] = e;
 	        }
+            catch{} //intentionally swallow exceptions here
 	        finally
 	        {
 	            failuresPerMessageLocker.ExitWriteLock();
