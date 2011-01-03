@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -18,10 +19,10 @@ namespace NServiceBus.Gateway
 
         public void TestPersistence()
         {
+            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
             var p = new Persistence
                         {
-                            ConnectionString =
-                                @"Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"
+                            ConnectionString = connectionString
                         };
 
             var clientId = Guid.NewGuid().ToString();

@@ -18,14 +18,14 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('#go').click(function () {
-
+            
             //var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/MyMessages\"><RequestDataMessage><DataId>0685e460-c71b-48c3-a326-d396d0fb94a6</DataId><String>&lt;node&gt;it&apos;s my &quot;node&quot; &amp; i like it a lot&lt;node&gt;</String></RequestDataMessage></Messages>";
-            var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/NServiceBus.Unicast.Transport\"><CompletionMessage><ErrorCode>0</ErrorCode></CompletionMessage></Messages>";
+            var params = $('#messageToSend').val();
             var md5 = b64_md5(params) + "==";
             var clientId = Math.uuid();
 
             $.ajax({
-                url: 'http://localhost:8090/Gateway/',
+                url: $('#gatewayaddress').val(),
                 beforeSend: function (http, settings) {
                     http.setRequestHeader("Content-MD5", md5);
                     http.setRequestHeader("NServiceBus.CallType", "Submit");
@@ -37,7 +37,7 @@
                 type: 'POST',
                 success: function (data) {
                     $.ajax({
-                        url: 'http://localhost:8090/Gateway/',
+                        url: $('#gatewayaddress').val(),
                         beforeSend: function (http, settings) {
                             http.setRequestHeader("Content-MD5", md5);
                             http.setRequestHeader("NServiceBus.CallType", "Ack");
@@ -60,51 +60,17 @@
                 }
             }); //ajax
 
-//            var http = new XMLHttpRequest();
-
-//            http.open("POST", "http://localhost:8090/Gateway/");
-
-//            http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-//            http.setRequestHeader("Content-length", params.length);
-//            http.setRequestHeader("Content-MD5", md5);
-//            http.setRequestHeader("NServiceBus.CallType", "Submit");
-//            http.setRequestHeader("NServiceBus.Id", clientId);
-//            http.setRequestHeader("Connection", "Keep-Alive");
-
-//            http.onreadystatechange = function () {//Call a function when the state changes.
-//                if (http.readyState == 4) {
-//                    if (http.status == 200) {
-
-//                        http.open("POST", "http://localhost:8090/Gateway/");
-
-//                        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-//                        http.setRequestHeader("Content-length", 0);
-//                        http.setRequestHeader("Content-MD5", md5);
-//                        http.setRequestHeader("NServiceBus.CallType", "Ack");
-//                        http.setRequestHeader("NServiceBus.Id", clientId);
-//                        http.setRequestHeader("Connection", "close");
-
-//                        http.onreadystatechange = function () {//Call a function when the state changes.
-//                            if (http.readyState == 4) {
-//                                if (http.status == 200) {
-//                                    alert("ack successful");
-//                                }
-//                                else
-//                                    alert(http.status);
-
-//                            }
-//                        }
-
-//                        http.send(params);
-//                    }
-//                }
-//            }
-
-//            http.send(params);
-
         });
     });
 	</script>
+
+    <h1>Test on IE as involves Cross Origin Resource Sharing</h1>
+
+    <p>Enter Gateway address:</p>
+    <input type="text" id="gatewayaddress" />
+
+    <p>Enter message to send:</p>
+    <input type="text" id="messageToSend" maxlength="4000" size="100" />
 
     <input type="button" id="go" name="go" value="Submit" />
     

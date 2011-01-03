@@ -19,7 +19,8 @@ namespace NServiceBus.Gateway
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
             string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
-
+            
+            connectionString = ConfigurationManager.AppSettings["ConnectionString"];
             inputQueue = ConfigurationManager.AppSettings["InputQueue"];
             outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
 
@@ -59,7 +60,7 @@ namespace NServiceBus.Gateway
             {
                 HttpListenerContext context = listener.GetContext();
                 ThreadPool.QueueUserWorkItem(
-                    o => new HttpRequestHandler(inputQueue, messageSender, outputQueue).Handle(o as HttpListenerContext),
+                    o => new HttpRequestHandler(inputQueue, messageSender, outputQueue, connectionString).Handle(o as HttpListenerContext),
                     context);
             }
         }
@@ -74,6 +75,7 @@ namespace NServiceBus.Gateway
         private static ISendMessages messageSender;
         private static string outputQueue;
         private static string inputQueue;
+        private static string connectionString;
 
         private volatile bool stopRequested;
     }

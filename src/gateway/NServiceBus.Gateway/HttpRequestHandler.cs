@@ -16,12 +16,14 @@ namespace NServiceBus.Gateway
         private readonly string inputQueue;
         private ISendMessages messageSender;
         private string destinationQueue;
+        private string connString;
 
-        public HttpRequestHandler(string inputQueue, ISendMessages sender, string queue)
+        public HttpRequestHandler(string inputQueue, ISendMessages sender, string queue, string connectionString)
         {
             this.inputQueue = inputQueue;
             messageSender = sender;
             destinationQueue = queue;
+            connString = connectionString;
         }
 
         public void Handle(HttpListenerContext ctx)
@@ -66,11 +68,7 @@ namespace NServiceBus.Gateway
 
             using (var scope = new TransactionScope())
             {
-                var p = new Persistence
-                {
-                    ConnectionString =
-                        @"Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"
-                };
+                var p = new Persistence { ConnectionString = connString };
 
                 byte[] outMessage;
                 NameValueCollection outHeaders;
@@ -125,11 +123,7 @@ namespace NServiceBus.Gateway
 
             using (var scope = new TransactionScope())
             {
-                var p = new Persistence
-                            {
-                                ConnectionString =
-                                    @"Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"
-                            };
+                var p = new Persistence { ConnectionString = connString };
                 
                 p.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, ctx.Request.Headers);
 
@@ -146,7 +140,7 @@ namespace NServiceBus.Gateway
             ctx.Response.StatusCode = 200;
             ctx.Response.StatusDescription = "OK";
 
-            ctx.Response.Close(Encoding.ASCII.GetBytes("<html><body>" + ctx.Response.StatusDescription + "</body></html>"), false);
+            ctx.Response.Close(Encoding.ASCII.GetBytes(ctx.Response.StatusDescription), false);
         }
 
         private byte[] GetBuffer(HttpListenerContext ctx)
@@ -208,7 +202,7 @@ namespace NServiceBus.Gateway
                 ctx.Response.StatusCode = statusCode;
                 ctx.Response.StatusDescription = warning;
 
-                ctx.Response.Close(Encoding.ASCII.GetBytes("<html><body>" + warning + "</body></html>"), false);
+                ctx.Response.Close(Encoding.ASCII.GetBytes(warning), false);
             }
             catch (Exception e)
             {
