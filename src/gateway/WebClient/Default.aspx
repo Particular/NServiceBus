@@ -22,7 +22,7 @@
             //var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/MyMessages\"><RequestDataMessage><DataId>0685e460-c71b-48c3-a326-d396d0fb94a6</DataId><String>&lt;node&gt;it&apos;s my &quot;node&quot; &amp; i like it a lot&lt;node&gt;</String></RequestDataMessage></Messages>";
             var params = $('#messageToSend').val();
             var md5 = b64_md5(params) + "==";
-            var clientId = Math.uuid();
+            var clientId = Math.uuid() + "\\123456";
 
             $.ajax({
                 url: $('#gatewayaddress').val(),
@@ -30,6 +30,7 @@
                     http.setRequestHeader("Content-MD5", md5);
                     http.setRequestHeader("NServiceBus.CallType", "Submit");
                     http.setRequestHeader("NServiceBus.Id", clientId);
+                    http.setRequestHeader("NServiceBus.TimeToBeReceived", "00:10:00");
                 },
                 contentType: 'text/xml',
                 data: params,
@@ -70,8 +71,9 @@
     <input type="text" id="gatewayaddress" />
 
     <p>Enter message to send:</p>
-    <input type="text" id="messageToSend" maxlength="4000" size="100" />
+    <textarea id="messageToSend" cols="100"  rows="10" >
 
+    </textarea>
     <input type="button" id="go" name="go" value="Submit" />
     
 </body>

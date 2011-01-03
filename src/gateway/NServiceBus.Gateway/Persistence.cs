@@ -161,19 +161,17 @@ namespace NServiceBus.Gateway
                     statusParam.Value = 0;
                     cmd.Parameters.Add(statusParam);
 
-                    var reader = cmd.ExecuteReader();
-                    if (!reader.Read())
-                        return;
+                    using (var reader = cmd.ExecuteReader())
+                    if (reader.Read())
+                    {
+                        message = (byte[]) reader.GetValue(0);
 
-                    message = (byte[]) reader.GetValue(0);
-
-                    var serHeaders = (byte[]) reader.GetValue(1);
-                    var stream = new MemoryStream(serHeaders);
-                    var o = serializer.Deserialize(stream);
-                    stream.Close();
-                    headers = o as NameValueCollection;
-
-                    reader.Close();
+                        var serHeaders = (byte[]) reader.GetValue(1);
+                        var stream = new MemoryStream(serHeaders);
+                        var o = serializer.Deserialize(stream);
+                        stream.Close();
+                        headers = o as NameValueCollection;
+                    }
 
                     tx.Commit();
                 }

@@ -30,7 +30,7 @@ namespace NServiceBus.Gateway
             ThreadPool.SetMaxThreads(numberOfWorkerThreads, numberOfWorkerThreads);
 
 
-            messageSender = new MsmqMessageSender();
+            messageSender = new MsmqMessageSender {UseDeadLetterQueue = true, UseJournalQueue = true};
 
             transport = new TransactionalTransport
             {

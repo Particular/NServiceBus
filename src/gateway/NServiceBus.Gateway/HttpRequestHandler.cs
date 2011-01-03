@@ -66,7 +66,7 @@ namespace NServiceBus.Gateway
 
             var msg = new TransportMessage { ReturnAddress = inputQueue };
 
-            using (var scope = new TransactionScope())
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
             {
                 var p = new Persistence { ConnectionString = connString };
 
@@ -78,7 +78,11 @@ namespace NServiceBus.Gateway
                 if (outHeaders != null && outMessage != null)
                 {
                     msg.Body = outMessage;
+                    
                     HeaderMapper.Map(outHeaders, msg);
+                    if (msg.TimeToBeReceived < TimeSpan.FromSeconds(1))
+                        msg.TimeToBeReceived = TimeSpan.FromSeconds(1);
+
                     msg.Recoverable = true;
 
                     if (String.IsNullOrEmpty(msg.IdForCorrelation))
@@ -98,7 +102,9 @@ namespace NServiceBus.Gateway
                         destination = destinationQueue;
 
                     Logger.Info("Sending message to " + destination);
+
                     messageSender.Send(msg, destination);
+                    
                 }
 
                 scope.Complete();
@@ -121,7 +127,7 @@ namespace NServiceBus.Gateway
                 return;
             }
 
-            using (var scope = new TransactionScope())
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
             {
                 var p = new Persistence { ConnectionString = connString };
                 
