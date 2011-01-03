@@ -24,24 +24,83 @@
             var md5 = b64_md5(params) + "==";
             var clientId = Math.uuid();
 
-            var http = new XMLHttpRequest();
-
-            http.open("POST", "http://localhost:8090/Gateway/");
-
-            http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            http.setRequestHeader("Content-length", params.length);
-            http.setRequestHeader("Content-MD5", md5);
-            http.setRequestHeader("NServiceBus.CallType", "Submit");
-            http.setRequestHeader("NServiceBus.Id", clientId);
-            http.setRequestHeader("Connection", "close");
-
-            http.onreadystatechange = function () {//Call a function when the state changes.
-                if (http.readyState == 4) {
-                    alert(http.responseText);
+            $.ajax({
+                url: 'http://localhost:8090/Gateway/',
+                beforeSend: function (http, settings) {
+                    http.setRequestHeader("Content-MD5", md5);
+                    http.setRequestHeader("NServiceBus.CallType", "Submit");
+                    http.setRequestHeader("NServiceBus.Id", clientId);
+                },
+                contentType: 'text/xml',
+                data: params,
+                processData: false,
+                type: 'POST',
+                success: function (data) {
+                    $.ajax({
+                        url: 'http://localhost:8090/Gateway/',
+                        beforeSend: function (http, settings) {
+                            http.setRequestHeader("Content-MD5", md5);
+                            http.setRequestHeader("NServiceBus.CallType", "Ack");
+                            http.setRequestHeader("NServiceBus.Id", clientId);
+                        },
+                        contentType: 'text/xml',
+                        data: '',
+                        processData: false,
+                        type: 'POST',
+                        success: function (data) {
+                            alert("Success");
+                        },
+                        error: function (http, status, error) {
+                            alert("Failed ack: " + status);
+                        }
+                    }); //ajax
+                },
+                error: function (http, status, error) {
+                    alert("Failed submit: " + status);
                 }
-            }
+            }); //ajax
 
-            http.send(params);
+//            var http = new XMLHttpRequest();
+
+//            http.open("POST", "http://localhost:8090/Gateway/");
+
+//            http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//            http.setRequestHeader("Content-length", params.length);
+//            http.setRequestHeader("Content-MD5", md5);
+//            http.setRequestHeader("NServiceBus.CallType", "Submit");
+//            http.setRequestHeader("NServiceBus.Id", clientId);
+//            http.setRequestHeader("Connection", "Keep-Alive");
+
+//            http.onreadystatechange = function () {//Call a function when the state changes.
+//                if (http.readyState == 4) {
+//                    if (http.status == 200) {
+
+//                        http.open("POST", "http://localhost:8090/Gateway/");
+
+//                        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//                        http.setRequestHeader("Content-length", 0);
+//                        http.setRequestHeader("Content-MD5", md5);
+//                        http.setRequestHeader("NServiceBus.CallType", "Ack");
+//                        http.setRequestHeader("NServiceBus.Id", clientId);
+//                        http.setRequestHeader("Connection", "close");
+
+//                        http.onreadystatechange = function () {//Call a function when the state changes.
+//                            if (http.readyState == 4) {
+//                                if (http.status == 200) {
+//                                    alert("ack successful");
+//                                }
+//                                else
+//                                    alert(http.status);
+
+//                            }
+//                        }
+
+//                        http.send(params);
+//                    }
+//                }
+//            }
+
+//            http.send(params);
 
         });
     });

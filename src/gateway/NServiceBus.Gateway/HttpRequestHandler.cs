@@ -60,9 +60,11 @@ namespace NServiceBus.Gateway
 
         private void HandleAck(HttpListenerContext ctx, CallInfo callInfo)
         {
+            Logger.Debug("Received message ack for id: " + callInfo.ClientId);
+
             var msg = new TransportMessage { ReturnAddress = inputQueue };
 
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            using (var scope = new TransactionScope())
             {
                 var p = new Persistence
                 {
@@ -91,10 +93,14 @@ namespace NServiceBus.Gateway
                         msg.Headers.Add(Headers.HttpFrom, ctx.Request.Headers[HttpHeaders.FromKey]);
 
                     string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
+                    string destination;
                     if (msg.Headers.ContainsKey(routeTo))
-                        messageSender.Send(msg, msg.Headers[routeTo]);
+                        destination = msg.Headers[routeTo];
                     else
-                        messageSender.Send(msg, destinationQueue);
+                        destination = destinationQueue;
+
+                    Logger.Info("Sending message to " + destination);
+                    messageSender.Send(msg, destination);
                 }
 
                 scope.Complete();
@@ -105,6 +111,7 @@ namespace NServiceBus.Gateway
 
         private void HandleSubmit(HttpListenerContext ctx, CallInfo callInfo)
         {
+            Logger.Debug("Received message submission for id: " + callInfo.ClientId);
             string hash = ctx.Request.Headers[HttpHeaders.ContentMd5Key];
 
             byte[] buffer = GetBuffer(ctx);
@@ -116,7 +123,7 @@ namespace NServiceBus.Gateway
                 return;
             }
 
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            using (var scope = new TransactionScope())
             {
                 var p = new Persistence
                             {
