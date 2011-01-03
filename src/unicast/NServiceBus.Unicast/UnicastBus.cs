@@ -416,7 +416,7 @@ namespace NServiceBus.Unicast
 
         void IBus.Reply(params IMessage[] messages)
         {
-            SendMessage(_messageBeingHandled.ReturnAddress, String.IsNullOrEmpty(_messageBeingHandled.IdForCorrelation) ? _messageBeingHandled.Id : _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
+            SendMessage(_messageBeingHandled.ReturnAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
         void IBus.Reply<T>(Action<T> messageConstructor)
