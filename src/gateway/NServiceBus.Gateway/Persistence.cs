@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Specialized;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Transactions;
-using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace NServiceBus.Gateway
 {
@@ -11,7 +12,7 @@ namespace NServiceBus.Gateway
     {
         public void Loop()
         {
-            for(int i=0; i < 10000; i++)
+            for(int i=0; i < 100; i++)
                 TestPersistence();
         }
 
@@ -26,17 +27,30 @@ namespace NServiceBus.Gateway
             var clientId = Guid.NewGuid().ToString();
             var md5 = new byte[16] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6};
             var msg = new byte[] {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+            var headers = new NameValueCollection();
+            headers.Add("hello", "world");
 
             var sw = new Stopwatch();
             sw.Start();
-                p.InsertMessage(DateTime.UtcNow, clientId, md5, msg, "headers");
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            {
+                p.InsertMessage(DateTime.UtcNow, clientId, md5, msg, headers);
+                scope.Complete();
+            }
             sw.Stop();
             Trace.WriteLine("insert:" + sw.ElapsedTicks);
-            
+
+            NameValueCollection outHeaders;
+            byte[] outMessage;
             sw.Restart();
-                var message = p.AckMessage(clientId, md5);
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            {
+                p.AckMessage(clientId, md5, out outMessage, out outHeaders);
+                scope.Complete();
+            }
             sw.Stop();
             Trace.WriteLine("ack:" + sw.ElapsedTicks);
+            
 
             sw.Restart();
             var deleted = p.DeleteDeliveredMessages(DateTime.UtcNow - TimeSpan.FromSeconds(2));
@@ -52,13 +66,17 @@ namespace NServiceBus.Gateway
     {
         public string ConnectionString { get; set; }
 
-        public bool InsertMessage(DateTime dateTime, string clientId, byte[] md5, byte[] message, string headers)
+        public bool InsertMessage(DateTime dateTime, string clientId, byte[] md5, byte[] message, NameValueCollection headers)
         {
             int results;
 
             if (md5.Length != 16)
                 throw new ArgumentException("md5 must be 16 bytes.");
 
+            var stream = new MemoryStream();
+            serializer.Serialize(stream, headers);
+            
+            using (stream)
             using (var cn = new SqlConnection(ConnectionString))
             {
                 cn.Open();
@@ -88,7 +106,7 @@ namespace NServiceBus.Gateway
 
                 var headersParam = cmd.CreateParameter();
                 headersParam.ParameterName = "@Headers";
-                headersParam.Value = message;
+                headersParam.Value = stream.GetBuffer();
                 cmd.Parameters.Add(headersParam);
 
                 results = cmd.ExecuteNonQuery();
@@ -97,19 +115,20 @@ namespace NServiceBus.Gateway
             return results > 0;
         }
 
-        public byte[] AckMessage(string clientId, byte[] md5)
+        public void AckMessage(string clientId, byte[] md5, out byte[] message, out NameValueCollection headers)
         {
-            byte[] message;
-
             if (md5.Length != 16)
                 throw new ArgumentException("md5 must be 16 bytes.");
-            
+
+            message = null;
+            headers = null;
+
             using (var cn = new SqlConnection(ConnectionString))
             {
                 cn.Open();
 
                 var cmd = cn.CreateCommand();
-                cmd.CommandText = "UPDATE Messages SET Status=1 WHERE (Status=0) AND (ClientId=@ClientId) AND (MD5=@MD5); SELECT Message FROM Messages WHERE (ClientId = @ClientId) AND (MD5 = @MD5) AND (@@ROWCOUNT = 1)";
+                cmd.CommandText = "UPDATE Messages SET Status=1 WHERE (Status=0) AND (ClientId=@ClientId) AND (MD5=@MD5); SELECT Message, Headers FROM Messages WHERE (ClientId = @ClientId) AND (MD5 = @MD5) AND (@@ROWCOUNT = 1)";
 
                 var clientIdParam = cmd.CreateParameter();
                 clientIdParam.ParameterName = "@ClientId";
@@ -126,10 +145,20 @@ namespace NServiceBus.Gateway
                 statusParam.Value = 0;
                 cmd.Parameters.Add(statusParam);
 
-                message = (byte[])cmd.ExecuteScalar();
-            }
+                var reader = cmd.ExecuteReader();
+                if (!reader.Read())
+                    return;
+                
+                message = (byte[]) reader.GetValue(0);
 
-            return message;
+                var serHeaders = (byte[])reader.GetValue(1);
+                var stream = new MemoryStream(serHeaders);
+                var o = serializer.Deserialize(stream);
+                stream.Close();
+                headers = o as NameValueCollection;
+
+                reader.Close();
+            }
         }
 
         public int DeleteDeliveredMessages(DateTime until)
@@ -153,5 +182,7 @@ namespace NServiceBus.Gateway
 
             return result;
         }
+
+        private BinaryFormatter serializer = new BinaryFormatter();
     }
 }

@@ -27,6 +27,9 @@ namespace NServiceBus.Gateway
 
             request.ContentType = "application/x-www-form-urlencoded";
 
+            if (!String.IsNullOrEmpty(msg.IdForCorrelation))
+                msg.IdForCorrelation = msg.Id;
+
             HeaderMapper.Map(msg, headers);
 
             string hash = Hasher.Hash(buffer);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Net;
 using System.Text;
 using System.Transactions;
@@ -69,26 +70,32 @@ namespace NServiceBus.Gateway
                         @"Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"
                 };
 
-                msg.Body = p.AckMessage(callInfo.ClientId, Convert.FromBase64String(callInfo.MD5));
+                byte[] outMessage;
+                NameValueCollection outHeaders;
+                
+                p.AckMessage(callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), out outMessage, out outHeaders);
 
-                //check to see if this is a gateway from another site
-                if (ctx.Request.Headers["NServiceBus.Gateway"] != null)
-                    HeaderMapper.Map(ctx.Request.Headers, msg);
-                else
+                if (outHeaders != null && outMessage != null)
                 {
-                    msg.MessageIntent = MessageIntentEnum.Send;
+                    msg.Body = outMessage;
+                    HeaderMapper.Map(outHeaders, msg);
                     msg.Recoverable = true;
-                    msg.Headers = new Dictionary<string, string>();
+
+                    if (String.IsNullOrEmpty(msg.IdForCorrelation))
+                        msg.IdForCorrelation = msg.Id;
+
+                    if (msg.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
+                        msg.MessageIntent = MessageIntentEnum.Send;
+
+                    if (ctx.Request.Headers[HttpHeaders.FromKey] != null)
+                        msg.Headers.Add(Headers.HttpFrom, ctx.Request.Headers[HttpHeaders.FromKey]);
+
+                    string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
+                    if (msg.Headers.ContainsKey(routeTo))
+                        messageSender.Send(msg, msg.Headers[routeTo]);
+                    else
+                        messageSender.Send(msg, destinationQueue);
                 }
-
-                if (ctx.Request.Headers[HttpHeaders.FromKey] != null)
-                    msg.Headers.Add(NServiceBus.Headers.HttpFrom, ctx.Request.Headers[HttpHeaders.FromKey]);
-
-                string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
-                if (msg.Headers.ContainsKey(routeTo))
-                    messageSender.Send(msg, msg.Headers[routeTo]);
-                else
-                    messageSender.Send(msg, destinationQueue);
 
                 scope.Complete();
             }
@@ -116,7 +123,8 @@ namespace NServiceBus.Gateway
                                 ConnectionString =
                                     @"Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"
                             };
-                p.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, "headers");
+                
+                p.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, ctx.Request.Headers);
 
                 scope.Complete();
             }

@@ -64,11 +64,7 @@ namespace NServiceBus.Unicast
             }
 
             var context = SynchronizationContext.Current;
-            if (context != null)
-            {
-                (this as ICallback).Register(callback, context);
-                return;
-            }
+            (this as ICallback).Register(callback, context);
         }
 
         void ICallback.Register<T>(Action<T> callback, object synchronizer)
