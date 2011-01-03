@@ -167,14 +167,15 @@ namespace NServiceBus.Gateway
 
         private CallInfo GetCallInfo(HttpListenerContext ctx)
         {
-            CallType type;
             var callTypeHeader = HeaderMapper.NServiceBus + HeaderMapper.CallType;
             string callType = ctx.Request.Headers[callTypeHeader];
-            if (!Enum.TryParse(callType, out type))
+            if (!Enum.IsDefined(typeof(CallType), callType))
             {
                 CloseResponseAndWarn(ctx, "Required header '" + callTypeHeader + "' missing.", 400);
                 return null;
             }
+
+            var type = (CallType)Enum.Parse(typeof(CallType), callType);
 
             var clientIdHeader = HeaderMapper.NServiceBus + HeaderMapper.Id;
             var clientId = ctx.Request.Headers[clientIdHeader];
