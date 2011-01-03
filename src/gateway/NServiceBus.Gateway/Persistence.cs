@@ -37,22 +37,24 @@ namespace NServiceBus.Gateway
                 p.InsertMessage(DateTime.UtcNow, clientId, md5, msg, headers);
                 scope.Complete();
             }
-            sw.Stop();
+            
             Trace.WriteLine("insert:" + sw.ElapsedTicks);
+            sw.Reset();
 
             NameValueCollection outHeaders;
             byte[] outMessage;
-            sw.Restart();
+            
+            
+            sw.Start();
             using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
                 p.AckMessage(clientId, md5, out outMessage, out outHeaders);
                 scope.Complete();
             }
-            sw.Stop();
             Trace.WriteLine("ack:" + sw.ElapsedTicks);
+            sw.Reset();
             
-
-            sw.Restart();
+            sw.Start();
             var deleted = p.DeleteDeliveredMessages(DateTime.UtcNow - TimeSpan.FromSeconds(2));
             sw.Stop();
             Trace.WriteLine("delete:" + sw.ElapsedTicks);
