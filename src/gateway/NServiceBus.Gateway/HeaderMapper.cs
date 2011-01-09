@@ -24,8 +24,8 @@ namespace NServiceBus.Gateway
 
             to.Headers = new Dictionary<string, string>();
             foreach (string header in from.Keys)
-                if (header.Contains(NServiceBus + Header))
-                    to.Headers.Add(header.Replace(NServiceBus + Header, ""), from[header] );
+                if (header.Contains(NServiceBus + Headers.HeaderName))
+                    to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
         }
 
         public static void Map(TransportMessage from, NameValueCollection to)
@@ -37,28 +37,27 @@ namespace NServiceBus.Gateway
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
 
             to[NServiceBus + ReturnAddress] = from.ReturnAddress;
-            to[NServiceBus + Header + ReturnAddress] = from.ReturnAddress;
+            to[NServiceBus + Headers.HeaderName + "." + ReturnAddress] = from.ReturnAddress;
 
             if (from.Headers.ContainsKey(ReturnAddress))
-                to[NServiceBus + Header + RouteTo] = from.Headers[ReturnAddress];
+                to[Headers.RouteTo] = from.Headers[ReturnAddress];
 
-            from.Headers.ToList().ForEach(info => to[NServiceBus + Header + info.Key] = info.Value);
+            from.Headers.ToList().ForEach(info => to[NServiceBus + Headers.HeaderName + "." + info.Key] = info.Value);
         }
 
-        private const string NServiceBus = "NServiceBus.";
-        private const string Id = "Id";
+        public const string NServiceBus = "NServiceBus.";
+        public const string Id = "Id";
+        public const string CallType = "CallType";
         private const string IdForCorrelation = "IdForCorrelation";
         private const string CorrelationId = "CorrelationId";
         private const string Recoverable = "Recoverable";
         private const string ReturnAddress = "ReturnAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
         private const string WindowsIdentityName = "WindowsIdentityName";
-        private const string Header = "Header.";
-
-        public const string RouteTo = "RouteTo";
+        
     }
 
-    public static class Headers
+    public static class HttpHeaders
     {
         public const string ContentMd5Key = "Content-MD5";
         public const string FromKey = "From";

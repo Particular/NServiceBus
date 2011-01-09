@@ -1,6 +1,17 @@
-NServiceBus is a non-trivial framework that takes time to understand.
+=======================
+= Source Code License =
+=======================
 
-The best way to get up and running is from the Samples. Run them, change them a bit, look at what references what. If you want to do your own thing, copy one of the samples (like FullDuplex), and change from there.
+By accessing NServiceBus code here, you are agreeing to the following licensing terms.
+If you do not agree to these terms, do not access the NServiceBus code.
+
+Your license to the NServiceBus code (the Software) is governed by the Apache V2 license as described here: http://www.apache.org/licenses/LICENSE-2.0 and subject to the following additional restrictions:
+
+You shall not:
+1. use the Software for Production Use on more than one machine.
+2. use the Software for Production use on a machine with more than 4 CPU cores.
+
+Where Production Use means distributing the Software in such a way as to make it accessible to a third party.
 
 
 ============

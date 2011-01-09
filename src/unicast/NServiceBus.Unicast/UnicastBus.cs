@@ -465,10 +465,10 @@ namespace NServiceBus.Unicast
             if(string.IsNullOrEmpty(Address))
                 throw new InvalidOperationException("Can't sent local without a input queue configured");
 
-            var m = GetTransportMessageFor(messages);
-            
-            m.MessageIntent = MessageIntentEnum.Send;
+            var m = new TransportMessage {MessageIntent = MessageIntentEnum.Send};
 
+            MapTransportMessageFor(messages, m);
+            
             MessageSender.Send(m, Address);
         }
 
@@ -544,10 +544,9 @@ namespace NServiceBus.Unicast
             var result = new List<string>();
 
             messages[0].SetHeader(EnclosedMessageTypes, SerializeEnclosedMessageTypes(messages));
-            var toSend = GetTransportMessageFor(messages);
+            var toSend = new TransportMessage {CorrelationId = correlationId, MessageIntent = messageIntent};
 
-            toSend.CorrelationId = correlationId;
-            toSend.MessageIntent = messageIntent;
+            MapTransportMessageFor(messages, toSend);
 
             foreach (var destination in destinations)
             {
@@ -742,8 +741,9 @@ namespace NServiceBus.Unicast
             if (IsSendOnlyEndpoint())
                 return;//send only endpoint
 
-            var toSend = GetTransportMessageFor(new CompletionMessage());
-            toSend.MessageIntent = MessageIntentEnum.Init;
+            var toSend = new TransportMessage {MessageIntent = MessageIntentEnum.Init};
+
+            MapTransportMessageFor(new IMessage[] { new CompletionMessage() }, toSend);
 
             MessageSender.Send(toSend, Address);
         }
@@ -817,6 +817,9 @@ namespace NServiceBus.Unicast
 
             foreach (var originalMessage in messages)
             {
+                //message mutators may need to assume that this has been set (eg. for the purposes of headers).
+                ExtensionMethods.CurrentMessageBeingHandled = originalMessage;
+
                 var messageToHandle = ApplyIncomingMessageMutatorsTo(builder, originalMessage);
 
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
@@ -1303,13 +1306,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="rawMessages">The messages to wrap.</param>
         /// <returns>The envelope containing the messages.</returns>
-        protected TransportMessage GetTransportMessageFor(params IMessage[] rawMessages)
+        protected TransportMessage MapTransportMessageFor(IMessage[] rawMessages, TransportMessage result)
         {
-            var result = new TransportMessage
-                             {
-                                 Headers = new Dictionary<string, string>(), 
-                                 ReturnAddress = Address
-                             };
+            result.Headers = new Dictionary<string, string>();
+            result.ReturnAddress = Address;
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 

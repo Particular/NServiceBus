@@ -12,27 +12,25 @@ namespace NServiceBus.Gateway
     {
         public void Init()
         {
-            NServiceBus.Configure.With().DefaultBuilder();
+            NServiceBus.Configure.With().Log4Net().DefaultBuilder().UnicastBus();
 
             string errorQueue = ConfigurationManager.AppSettings["ErrorQueue"];
             string audit = ConfigurationManager.AppSettings["ForwardReceivedMessageTo"];
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
-            string req = ConfigurationManager.AppSettings["RequireMD5FromClient"];
             string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
-
+            
+            connectionString = ConfigurationManager.AppSettings["ConnectionString"];
             inputQueue = ConfigurationManager.AppSettings["InputQueue"];
             outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
 
             int numberOfWorkerThreads = 10;
             int.TryParse(n, out numberOfWorkerThreads);
 
-            bool.TryParse(req, out requireMD5FromClient);
-
             ThreadPool.SetMaxThreads(numberOfWorkerThreads, numberOfWorkerThreads);
 
 
-            messageSender = new MsmqMessageSender();
+            messageSender = new MsmqMessageSender {UseDeadLetterQueue = true, UseJournalQueue = true};
 
             transport = new TransactionalTransport
             {
@@ -62,7 +60,7 @@ namespace NServiceBus.Gateway
             {
                 HttpListenerContext context = listener.GetContext();
                 ThreadPool.QueueUserWorkItem(
-                    o => new HttpRequestHandler(requireMD5FromClient, inputQueue).Handle(o as HttpListenerContext, messageSender, outputQueue),
+                    o => new HttpRequestHandler(inputQueue, messageSender, outputQueue, connectionString).Handle(o as HttpListenerContext),
                     context);
             }
         }
@@ -75,9 +73,9 @@ namespace NServiceBus.Gateway
         private static HttpListener listener;
         private static ITransport transport;
         private static ISendMessages messageSender;
-        private static bool requireMD5FromClient = true;
         private static string outputQueue;
         private static string inputQueue;
+        private static string connectionString;
 
         private volatile bool stopRequested;
     }
