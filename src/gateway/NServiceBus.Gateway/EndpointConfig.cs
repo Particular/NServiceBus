@@ -39,9 +39,15 @@ namespace NServiceBus.Gateway
                 NumberOfWorkerThreads = numberOfWorkerThreads
             };
 
+            notifier = new MessageNotifier();
+
+            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(messageSender);
+            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<ITransport>(transport);
+            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<INotifyAboutMessages>(notifier);
+
             transport.TransportMessageReceived += (s, e) =>
             {
-                new MsmqHandler(listenUrl).Handle(e.Message, remoteUrl);
+                new MsmqHandler(notifier, listenUrl).Handle(e.Message, remoteUrl);
 
                 if (!string.IsNullOrEmpty(audit))
                     messageSender.Send(e.Message, audit);
@@ -60,7 +66,7 @@ namespace NServiceBus.Gateway
             {
                 HttpListenerContext context = listener.GetContext();
                 ThreadPool.QueueUserWorkItem(
-                    o => new HttpRequestHandler(inputQueue, messageSender, outputQueue, connectionString).Handle(o as HttpListenerContext),
+                    o => new HttpRequestHandler(messageSender, notifier, inputQueue, outputQueue, connectionString).Handle(o as HttpListenerContext),
                     context);
             }
         }
@@ -73,6 +79,7 @@ namespace NServiceBus.Gateway
         private static HttpListener listener;
         private static ITransport transport;
         private static ISendMessages messageSender;
+        private static IMessageNotifier notifier;
         private static string outputQueue;
         private static string inputQueue;
         private static string connectionString;

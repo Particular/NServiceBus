@@ -74,6 +74,7 @@
     <Compile Include="Hasher.cs" />
     <Compile Include="HeaderMapper.cs" />
     <Compile Include="HttpRequestHandler.cs" />
+    <Compile Include="INotifyAboutMessages.cs" />
     <Compile Include="MsmqHandler.cs" />
     <Compile Include="Persistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
