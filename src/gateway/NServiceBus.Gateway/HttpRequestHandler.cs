@@ -8,14 +8,16 @@ using System.Text;
 
 namespace NServiceBus.Gateway
 {
-    public class HttpRequestHandler
+    internal class HttpRequestHandler
     {
         private const int maximumBytesToRead = 100000;
         private bool requireMD5FromClient = true;
+        private readonly IMessageNotifier notifier;
 
-        public HttpRequestHandler(bool requireMD5)
+        public HttpRequestHandler(bool requireMD5, IMessageNotifier notifier)
         {
             requireMD5FromClient = requireMD5;
+            this.notifier = notifier;
         }
 
         public void Handle(HttpListenerContext ctx, MsmqTransport transport, string queue)
@@ -96,6 +98,8 @@ namespace NServiceBus.Gateway
                         transport.Send(msg, header.Value);
                     else
                         transport.Send(msg, queue);
+
+                    notifier.RaiseMessageProcessed(TransportTypeEnum.FromHttpToMsmq, msg);
                 }
 
                 if (hash != null)

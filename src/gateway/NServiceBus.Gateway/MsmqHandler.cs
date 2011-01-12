@@ -5,13 +5,17 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
-    public class MsmqHandler
+    internal class MsmqHandler
     {
         private readonly string from;
-        public MsmqHandler(string listenUrl)
+        private readonly IMessageNotifier notifier;
+
+        public MsmqHandler(string listenUrl, IMessageNotifier notifier)
         {
             from = listenUrl;
+            this.notifier = notifier;
         }
+
         public void Handle(TransportMessage msg)
         {
             var header = msg.Headers.Find(h => h.Key == NServiceBus.Headers.HttpTo);
@@ -60,7 +64,10 @@ namespace NServiceBus.Gateway
             }
 
             if (md5 == hash)
+            {
                 Logger.Debug("Message transferred successfully.");
+                notifier.RaiseMessageProcessed(TransportTypeEnum.FromMsmqToHttp, msg);
+            }
             else
             {
                 Logger.Info(Headers.ContentMd5Key + " header received from client not the same as that sent. Message not transferred successfully. Trying again...");

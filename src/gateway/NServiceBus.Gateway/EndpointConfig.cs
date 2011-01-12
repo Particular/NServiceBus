@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Net;
 using System.Threading;
+using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Msmq;
 
 namespace NServiceBus.Gateway
@@ -36,9 +37,14 @@ namespace NServiceBus.Gateway
                                     NumberOfWorkerThreads = numberOfWorkerThreads
                                 };
 
+            notifier = new MessageNotifier();
+
+            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<ITransport>(transport);
+            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<INotifyAboutMessages>(notifier);
+
             transport.TransportMessageReceived += (s, e) => 
                 {
-                    new MsmqHandler(listenUrl).Handle(e.Message);
+                    new MsmqHandler(listenUrl, notifier).Handle(e.Message);
 
                     if (!string.IsNullOrEmpty(audit))
                         transport.Send(e.Message, audit);
@@ -57,7 +63,7 @@ namespace NServiceBus.Gateway
             {
                 HttpListenerContext context = listener.GetContext();
                 ThreadPool.QueueUserWorkItem(
-                    o => new HttpRequestHandler(requireMD5FromClient).Handle(o as HttpListenerContext, transport, outputQueue),
+                    o => new HttpRequestHandler(requireMD5FromClient, notifier).Handle(o as HttpListenerContext, transport, outputQueue),
                     context);
             }
         }
@@ -69,6 +75,7 @@ namespace NServiceBus.Gateway
 
         private static HttpListener listener;
         private static MsmqTransport transport;
+        private static MessageNotifier notifier;
         private static bool requireMD5FromClient = true;
         private static string outputQueue;
 
