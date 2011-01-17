@@ -15,6 +15,7 @@ _UpgradeReport.*
 *.user
 TestResult.xml
 results
+nuget
 CommonAssemblyInfo.cs
 lib/sqlite/System.Data.SQLite.dll
 *.orig
