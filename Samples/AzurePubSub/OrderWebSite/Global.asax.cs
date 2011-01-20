@@ -1,16 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web;
 using log4net;
+using MyMessages;
+using NServiceBus;
+using NServiceBus.Config;
+using NServiceBus.Integration.Azure;
 
 namespace OrderWebSite
 {
     public class Global : HttpApplication
     {
+		public static IBus Bus;
+		public static IList<MyMessages.Order> Orders;
+    	private static IStartableBus _configure;
 
-        protected void Application_Start(object sender, EventArgs e)
+		private static readonly Lazy<IBus> StartBus = new Lazy<IBus>(ConfigureNServiceBus);
+		
+		private static IBus ConfigureNServiceBus()
+		{
+			var bus = _configure
+				.Start();
+
+			bus.Send(new LoadOrdersMessage());
+
+			return bus;
+		}
+
+    	protected void Application_Start(object sender, EventArgs e)
         {
-           
-        }
+			Orders = new List<MyMessages.Order>();
+
+    		_configure = Configure.WithWeb()
+    			.DefaultBuilder()
+    			.Log4Net(new AzureAppender())
+    			.AzureConfigurationSource()
+    			.AzureMessageQueue()
+    			.XmlSerializer()
+    			.UnicastBus()
+    			.LoadMessageHandlers()
+    			.IsTransactional(true)
+				.CreateBus()
+				;
+		}
+
+		protected void Application_BeginRequest(object sender, EventArgs e)
+		{
+			Bus = StartBus.Value;
+		}
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {

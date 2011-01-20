@@ -7,8 +7,8 @@ namespace OrderWebSite.MessageHandlers
     {
         public void Handle(LoadOrdersResponseMessage message)
         {
-            lock (WebRole.Orders)
-                WebRole.Orders = message.Orders;
+            lock (Global.Orders)
+				Global.Orders = message.Orders;
         }
     }
 }

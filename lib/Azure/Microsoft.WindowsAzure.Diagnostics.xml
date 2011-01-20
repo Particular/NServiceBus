@@ -4,6 +4,81 @@
         <name>Microsoft.WindowsAzure.Diagnostics</name>
     </assembly>
     <members>
+        <member name="T:Microsoft.WindowsAzure.Internal.Common.SDKConstants">
+            <summary>
+            Provides access to common SDK constants.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RootKeyPathRegPath">
+            <summary>
+            Path to the SDK installation registry key.
+            </summary> 
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.InstallPathKeyName">
+            <summary>
+            Name of the registry value that contains the SDK installation path.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.FullVersionKeyName">
+            <summary>
+            Name of the registry value that contains the SDK version string.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.PackageCertPathKeyName">
+            <summary>
+            Name of the registry value that contains the path to the packaging certificate.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.BannerVersion">
+            <summary>
+            The version to display in the command line tools banners.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.AzureInfrastructureGuid">
+            <summary>
+            The GUID of the ETW log to use for Azure infrastructure logging.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.WAHOSTEnablePartialTrust">
+            <summary>
+            Environment variable read by hosts to enable partial trust.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IISConfiguratorCleanServerOnStartup">
+            <summary>
+            Boolean environment variable that causes IISConfigurator to delete existing sites.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IISConfiguratorSetupUrlRewrite">
+            <summary>
+            Boolean environment variable that causes IISConfigurator to configure URL rewrite.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IsSimulationEnvironmentPrivateSettingName">
+            <summary>
+            The name of the private configuration setting use to determine if code is running under
+            the devfabric or not.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleHostDebuggerPrivateSettingName">
+            <summary>
+            Path to a debugger to launch the role host process under.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.StartupTaskDebuggerPrivateSettingName">
+            <summary>
+            Path to a debugger to launch startup tasks under. 
+            </summary>
+            <remarks>
+            Not fully implemented.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Internal.Common.SDKConstants.PrivateSettingsForDebuggingAndSimulation">
+            <summary>
+            Gets all private setting that should be injected into the serivce model to support
+            simulation and debugging.
+            </summary>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions">
             <summary>
             Provides extension methods to the <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> class.
@@ -27,6 +102,95 @@
             <param name="roleName">The name of the role in the specified deployment.</param>
             <param name="roleInstanceId">The role instance ID.</param>
             <returns>A <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.RoleInstanceDiagnosticManager"/> object.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.ConfigChannelClient">
+            <summary>
+            Allows sending configuration requests to a ConfigChannelServer.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.ConfigChannelClient.pipeName">
+            <summary>
+            Stores the name of the pipe.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelClient.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.ConfigChannelClient"/> class.
+            </summary>
+            <param name="pipeName">Name of the pipe.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelClient.SendConfigurationRequest(Microsoft.WindowsAzure.Diagnostics.ConfigRequest,System.TimeSpan)">
+            <summary>
+            Sends the configuration request.
+            </summary>
+            <param name="request">The config request.</param>
+            <param name="timeout">The timeout.</param>
+            <returns><c>true</c> if the config was sent; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer">
+            <summary>
+            Starts a named pipe server that listens for configuration change events.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.pipeName">
+            <summary>
+            Stores the name of the pipe.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.serverPipe">
+            <summary>
+            Stores the server pipe.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer"/> class.
+            </summary>
+            <param name="pipeName">Name of the pipe.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.Start">
+            <summary>
+            Starts a named pipe server.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.Stop">
+            <summary>
+            Stops the server.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.OnConfigurationRequest(Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs)">
+            <summary>
+            Raises the <see cref="E:ConfigurationRequest"/> event.
+            </summary>
+            <param name="args">The <see cref="T:Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.ConnectionCallback(System.IAsyncResult)">
+            <summary>
+            Handles client connections.
+            </summary>
+            <param name="result">The async result.</param>
+        </member>
+        <member name="E:Microsoft.WindowsAzure.Diagnostics.ConfigChannelServer.ConfigurationRequest">
+            <summary>
+            Raised when a new configuration is sent.
+            </summary>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs">
+            <summary>
+            Stores the data required for the ConfigurationRequest event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs.#ctor(Microsoft.WindowsAzure.Diagnostics.ConfigRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs"/> class.
+            </summary>
+            <param name="request">The request.</param>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.ConfigurationRequestEventArgs.Request">
+            <summary>
+            Gets the config request.
+            </summary>
+            <value>The config request.</value>
         </member>
         <member name="M:Microsoft.WindowsAzure.Diagnostics.Workaround.UsePathStyleAddressing(System.Uri)">
             <summary>
@@ -457,6 +621,9 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.TableDeclarationType.schema">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.TableDeclarationType.partitionKeyLoadSpreadIndexMax">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.TableType.MetaData">
             <remarks/>
         </member>
@@ -479,6 +646,9 @@
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XTableSettingType.FromXTableMapping">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XTableSettingType.name">
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XTableSettingType.schema">
@@ -512,6 +682,150 @@
             <remarks/>
         </member>
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.PriorityType.High">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EmbeddedMdsConfigType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EmbeddedMdsConfigType.Any">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EmbeddedMdsConfigType.name">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerColumnType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerColumnType.Items">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerColumnType.ItemsElementName">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerColumnType.name">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerColumnType.type">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.ItemsChoiceType">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ItemsChoiceType.Range">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ItemsChoiceType.Value">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtint32">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtint64">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtbool">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtfloat64">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtutc">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.MdsMonTypeType.mtwstr">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerEventType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerEventType.Column">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerEventType.id">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerEventType.count">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerEventType.level">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerType.Event">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerType.duration">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EventLoggerType.format">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EventFormatType">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EventFormatType.XML">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.AllowedValue">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.RequiredValue">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.type">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.mode">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.intervalMillisecs">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.anomalyTableAssignment">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.baselineTableAssignment">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.ActiveProcesses">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.InstalledDrivers">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.UserLogons">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.UserAccounts">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.FirewallSettings">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.InterfacePolicies">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode.Query">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode.CompareBaseline">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode.DetectChanges">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.FileListenerWatchItemType">
@@ -709,6 +1023,24 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ResourceUsageType.cpuPercentUsageSpecified">
             <remarks/>
         </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType.MAHeartBeatIdentity">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType.commandDataSite">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType.checkIntervalInSeconds">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType.heartBeatQueryName">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ManagementType.statusReportQueryName">
+            <remarks/>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimType">
             <remarks/>
         </member>
@@ -734,6 +1066,12 @@
             <remarks/>
         </member>
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimKindType.Table">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimKindType.File">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimKindType.Directory">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimRightType">
@@ -785,6 +1123,18 @@
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreBlobDataSiteType.containerName">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreBlobDataSiteType.compressionType">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.CompressionType">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.CompressionType.none">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.CompressionType.gzip">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreTableDataSiteType">
@@ -865,6 +1215,9 @@
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.DestinationTableType">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.DestinationTableType.Table">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.DestinationTableType.name">
             <remarks/>
         </member>
@@ -898,6 +1251,9 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.startTimeSpecified">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.startTimeDeltaInSeconds">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.endTime">
             <remarks/>
         </member>
@@ -916,10 +1272,16 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.queryDelay">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.taskPercentDelayRange">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.timestampPolicy">
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.retryTimeout">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.ScheduledTaskType.overwriteDestTable">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.MonTimestampPolicyType">
@@ -991,6 +1353,9 @@
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.Management">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.ResourceUsage">
             <remarks/>
         </member>
@@ -1003,7 +1368,13 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.Listeners">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.MdsConfigurations">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.version">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.MonitoringAgentConfig.timestamp">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.FakeConfigType">
