@@ -50,8 +50,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
             queue = client.GetQueueReference(address);
             queue.CreateIfNotExist();
 
-			//if (PurgeOnStartup)
-			//    queue.Clear();
+			if (PurgeOnStartup)
+				queue.Clear();
         }
 
         public void Send(TransportMessage message, string destination)
