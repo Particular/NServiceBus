@@ -10,17 +10,19 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
-    public class HttpRequestHandler
+    internal class HttpRequestHandler
     {
         private const int maximumBytesToRead = 100000;
         private readonly string inputQueue;
         private ISendMessages messageSender;
+        private IMessageNotifier notifier;
         private string destinationQueue;
         private string connString;
 
-        public HttpRequestHandler(string inputQueue, ISendMessages sender, string queue, string connectionString)
+        public HttpRequestHandler(ISendMessages sender, IMessageNotifier notifier, string inputQueue, string queue, string connectionString)
         {
             this.inputQueue = inputQueue;
+            this.notifier = notifier;
             messageSender = sender;
             destinationQueue = queue;
             connString = connectionString;
@@ -111,6 +113,8 @@ namespace NServiceBus.Gateway
             }
 
             ReportSuccess(ctx);
+
+            notifier.RaiseMessageProcessed(TransportTypeEnum.FromHttpToMsmq, msg);
         }
 
         private void HandleSubmit(HttpListenerContext ctx, CallInfo callInfo)

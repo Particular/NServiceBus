@@ -40,6 +40,13 @@ namespace NServiceBus.MessageInterfaces.Tests
             Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
         }
 
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Invalid_attributes_should_fail()
+        {
+            mapper.Initialize(new[] { typeof(InterfaceWithInvalidAttribute) });
+        }
+
         private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
@@ -65,8 +72,22 @@ namespace NServiceBus.MessageInterfaces.Tests
         string SomeOtherProperty { get; set; }
     }
 
+    public interface InterfaceWithInvalidAttribute
+    {
+        [InvalidAttribute("Blah")]
+        string SomeProperty { get; set; }
+    }
+
     public class SomeAttribute : Attribute
     {
         
+    }
+
+    public class InvalidAttribute : Attribute
+    {
+        public InvalidAttribute(string requiredArg)
+        {
+            
+        }
     }
 }

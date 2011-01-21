@@ -46,7 +46,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="IMapTransportMessages.cs" />
+    <Compile Include="IMutateTransportMessages.cs" />
     <Compile Include="IMessageMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

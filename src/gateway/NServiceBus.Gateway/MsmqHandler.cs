@@ -5,11 +5,14 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
-    public class MsmqHandler
+    internal class MsmqHandler
     {
         private readonly string from;
-        public MsmqHandler(string listenUrl)
+        private readonly IMessageNotifier notifier;
+
+        public MsmqHandler(IMessageNotifier notifier, string listenUrl)
         {
+            this.notifier = notifier;
             from = listenUrl;
         }
         public void Handle(TransportMessage msg, string remoteUrl)
@@ -77,6 +80,8 @@ namespace NServiceBus.Gateway
                     Logger.Info("Ack not transferred successfully. Trying again...");
                     throw new Exception("Retrying");
                 }
+
+                notifier.RaiseMessageProcessed(TransportTypeEnum.FromMsmqToHttp, msg);
             }
             else
             {

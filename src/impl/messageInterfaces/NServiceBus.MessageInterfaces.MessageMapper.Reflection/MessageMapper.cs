@@ -207,6 +207,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         private void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
         {
             var classConstructorInfo = customAttribute.GetType().GetConstructor(new Type[] { });
+            if (classConstructorInfo == null)
+                throw new ArgumentException("NServiceBus does not support attributes without a default constructor. Attribute: " + customAttribute.GetType().Name);
+
             var customAttributeBuilder = new CustomAttributeBuilder(classConstructorInfo,
                                                                             new object[] { });
             propBuilder.SetCustomAttribute(customAttributeBuilder);

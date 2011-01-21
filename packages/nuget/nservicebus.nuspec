@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<package> 
+  <metadata> 
+    <id>nservicebus</id> 
+    <version>2.5.0.1446</version> 
+    <authors>Udi Dahan, Andreas Ohlund, Matt Burton, Jonathan Oliver et al</authors>
+    <description>The most popular open-source service bus for .net</description> 
+    <language>en-US</language>
+    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
+    <projectUrl>http://nservicebus.com/</projectUrl>
+	<requireLicenseAcceptance>true</requireLicenseAcceptance>
+	<tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+  </metadata> 
+</package>
