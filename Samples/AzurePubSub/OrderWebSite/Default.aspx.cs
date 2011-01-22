@@ -14,8 +14,8 @@ namespace OrderWebSite
 
         private void Refresh()
         {
-            lock (WebRole.Orders)
-                OrderList.DataSource = new List<Order>(WebRole.Orders);
+            lock (Global.Orders)
+                OrderList.DataSource = new List<Order>(Global.Orders);
 
 
             OrderList.DataBind();
@@ -31,14 +31,14 @@ namespace OrderWebSite
 
                             };
 
-            WebRole.Bus.Send(new OrderMessage
+            Global.Bus.Send(new OrderMessage
                                 {
                                     Id = order.Id, 
                                     Quantity = order.Quantity
                                 });
 
-            lock (WebRole.Orders)
-                WebRole.Orders.Add(order);
+            lock (Global.Orders)
+                Global.Orders.Add(order);
 
             Refresh();
         }
