@@ -76,9 +76,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
             IList<string> list;
 
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
-            using (var session = sessionSource.CreateSession())
-            using (var nhtransaction = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (var session = sessionSource.SessionFactory.OpenStatelessSession())
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
             {
                 list = session.CreateCriteria(typeof(Subscription))
                   .Add(Restrictions.In("MessageType", mt))
@@ -86,8 +86,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                   .SetResultTransformer(new DistinctRootEntityResultTransformer())
                   .List<string>();
 
-              nhtransaction.Commit();
-              transaction.Complete();
+              tx.Commit();
             }
 
             return list;
