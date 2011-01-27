@@ -95,7 +95,11 @@ namespace NServiceBus.Hosting.Azure
 
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            return AssemblyScanner.GetScannableAssemblies().SelectMany(assembly => assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)));
+        	return AssemblyScanner.GetScannableAssemblies().SelectMany(
+        		assembly => assembly.GetTypes().Where(
+        			t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
+        			     && t != typeof(IConfigureThisEndpoint)
+        			     && !t.IsAbstract));
         }
 
         private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
