@@ -189,10 +189,13 @@ namespace NServiceBus.Hosting.Windows
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
             foreach (var assembly in AssemblyScanner.GetScannableAssemblies())
-                foreach (Type type in assembly.GetTypes().Where(t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) && t != typeof(IConfigureThisEndpoint)))
-                {
-                    yield return type;
-                }
+				foreach (Type type in assembly.GetTypes().Where(
+						t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) 
+						&& t != typeof(IConfigureThisEndpoint)
+						&& !t.IsAbstract))
+				{
+					yield return type;
+				}
         }
 
         private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
