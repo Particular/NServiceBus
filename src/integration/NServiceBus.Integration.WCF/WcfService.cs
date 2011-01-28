@@ -14,7 +14,7 @@ namespace NServiceBus
     {
         protected WcfService()
         {
-            bus = Configure.Instance.Builder.Build<IBus>();            
+            bus = Configure.Instance.Builder.Build<IBus>();   
         }
 
         static WcfService()
@@ -27,7 +27,7 @@ namespace NServiceBus
         {
             var result = new ServiceAsyncResult(state);
 
-            return bus.Send(request).Register(r => ProxyCallback(callback, result, r), state);
+            return bus.SendLocal(request).Register(r => ProxyCallback(callback, result, r), state);
         }
 
         TResponse IWcfService<TRequest, TResponse>.EndProcess(IAsyncResult asyncResult)

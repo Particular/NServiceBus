@@ -41,7 +41,7 @@ namespace NServiceBus
         [WebMethod]
         public IAsyncResult BeginProcess(TRequest request, AsyncCallback cb, object state)
         {
-            return bus.Send(request).Register(cb, state);
+            return bus.SendLocal(request).Register(cb, state);
         }
 
         /// <summary>

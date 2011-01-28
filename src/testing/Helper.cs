@@ -267,7 +267,7 @@ namespace NServiceBus.Testing
             IMessage[] messages = null;
 
             Expect.Call(() => bus.SendLocal(messages))
-                .IgnoreArguments()
+                .IgnoreArguments().Return(null)
                 .Callback(callback);
         }
 
@@ -382,7 +382,7 @@ namespace NServiceBus.Testing
                     );
 
                     bus.SendLocal(act);
-                    LastCall.Repeat.Any().IgnoreArguments().WhenCalled(mi =>
+                    LastCall.Repeat.Any().IgnoreArguments().Return(null).WhenCalled(mi =>
                     {
                         var action = mi.Arguments[0] as Action<TMessage>;
                         bus.SendLocal(messageCreator.CreateInstance(action));

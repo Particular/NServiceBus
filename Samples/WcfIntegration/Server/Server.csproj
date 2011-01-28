@@ -45,7 +45,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
-      
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -55,7 +54,9 @@
     <Compile Include="WebServices\CancelOrderService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">

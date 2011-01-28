@@ -451,25 +451,14 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         private static bool _handleCurrentMessageLaterWasCalled;
 
-        void IBus.SendLocal<T>(Action<T> messageConstructor)
+        ICallback IBus.SendLocal<T>(Action<T> messageConstructor)
         {
-            SendLocal(CreateInstance(messageConstructor));
+            return ((IBus)this).SendLocal(CreateInstance(messageConstructor));
         }
 
-        /// <summary>
-        /// Sends the list of messages back to the current bus.
-        /// </summary>
-        /// <param name="messages">The messages to send.</param>
-        public void SendLocal(params IMessage[] messages)
+        ICallback IBus.SendLocal(params IMessage[] messages)
         {
-            if(string.IsNullOrEmpty(Address))
-                throw new InvalidOperationException("Can't sent local without a input queue configured");
-
-            var m = new TransportMessage {MessageIntent = MessageIntentEnum.Send};
-
-            MapTransportMessageFor(messages, m);
-            
-            MessageSender.Send(m, Address);
+            return ((IBus) this).Send(Address, messages);
         }
 
         ICallback IBus.Send<T>(Action<T> messageConstructor)
@@ -494,14 +483,14 @@ namespace NServiceBus.Unicast
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
 
-        void IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        ICallback IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        void IBus.Send(string destination, string correlationId, params IMessage[] messages)
+        ICallback IBus.Send(string destination, string correlationId, params IMessage[] messages)
         {
-            SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
+            return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
         }
 
 
@@ -1303,8 +1292,10 @@ namespace NServiceBus.Unicast
 
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
+        /// Invokes message mutators.
         /// </summary>
         /// <param name="rawMessages">The messages to wrap.</param>
+        /// /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
         protected TransportMessage MapTransportMessageFor(IMessage[] rawMessages, TransportMessage result)
         {

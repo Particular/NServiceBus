@@ -59,7 +59,7 @@ namespace NServiceBus
 		/// <summary>
 		/// Unsubscribes from receiving published messages of the specified type.
 		/// </summary>
-		/// <param name="messageType"></param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
 		void Unsubscribe(Type messageType);
 
         /// <summary>
@@ -72,14 +72,14 @@ namespace NServiceBus
         /// Sends the list of messages back to the current bus.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
-        void SendLocal(params IMessage[] messages);
+        ICallback SendLocal(params IMessage[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and sends it back to the current bus.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        void SendLocal<T>(Action<T> messageConstructor) where T : IMessage;
+        ICallback SendLocal<T>(Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
 		/// Sends the list of provided messages.
@@ -126,7 +126,7 @@ namespace NServiceBus
         /// <param name="destination"></param>
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
-        void Send(string destination, string correlationId, params IMessage[] messages);
+        ICallback Send(string destination, string correlationId, params IMessage[] messages);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
@@ -137,7 +137,7 @@ namespace NServiceBus
         /// <param name="destination"></param>
         /// <param name="correlationId"></param>
         /// <param name="messageConstructor"></param>
-        void Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
 		/// Sends all messages to the endpoint which sent the message currently being handled on this thread.
