@@ -151,6 +151,11 @@
             </summary>
             <returns>A read-only dictionary that maps local paths to page blob URIs.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDrive.CheckOperationAllowed">
+            <summary>
+            Ensure operation is allowed in this context.
+            </summary>
+        </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudDrive.Credentials">
             <summary>
             Gets the credentials for the storage account where this drive's data is stored.
