@@ -658,7 +658,7 @@ namespace NServiceBus.Serializers.XML
                     return;
 
                 var args = type.GetGenericArguments();
-                if (args.Length == 1)
+				if (args.Length == 1 && args[0].IsValueType)
                 {
                     var nullableType = typeof (Nullable<>).MakeGenericType(args);
                     if (type == nullableType)

@@ -1,1 +1,1 @@
-.\tools\nant\nant
+.\tools\nant\nant %1
