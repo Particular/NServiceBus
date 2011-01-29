@@ -200,7 +200,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -299,6 +299,7 @@
 				<items>
 					<include name="${core.build.dir}\*Tests.dll" />
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
+					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>
@@ -396,7 +397,7 @@
 
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint"
+						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus"
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
