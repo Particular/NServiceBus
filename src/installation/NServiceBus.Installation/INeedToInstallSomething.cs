@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Installation
+﻿using System.Security.Principal;
+
+namespace NServiceBus.Installation
 {
     /// <summary>
     /// Interface invoked by the infrastructure when going to install an endpoint.
@@ -8,9 +10,10 @@
     public interface INeedToInstallSomething
     {
         /// <summary>
-        /// Performs the installation.
+        /// Performs the installation providing permission for the given user.
         /// </summary>
-        void Install();
+        /// <param name="identity">The user for whom permissions will be given.</param>
+        void Install(WindowsIdentity identity);
     }
 
     /// <summary>
