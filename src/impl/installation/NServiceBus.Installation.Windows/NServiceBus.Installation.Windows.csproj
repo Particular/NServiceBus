@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E05C9496-8C83-403B-81EE-722FE9673EC4}</ProjectGuid>
+    <ProjectGuid>{96D09A75-E2EE-4442-B130-9AF87536E96C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Installation</RootNamespace>
-    <AssemblyName>NServiceBus.Installation</AssemblyName>
+    <RootNamespace>NServiceBus.Installation.Windows</RootNamespace>
+    <AssemblyName>NServiceBus.Installation.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -32,12 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Config">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -45,14 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="IEnvironment.cs" />
-    <Compile Include="INeedToInstallInfrastructure.cs" />
-    <Compile Include="INeedToInstallSomething.cs" />
-    <Compile Include="Install.cs" />
+    <Compile Include="DtcInstaller.cs" />
+    <Compile Include="MsmqInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Windows.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
