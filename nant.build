@@ -200,7 +200,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
