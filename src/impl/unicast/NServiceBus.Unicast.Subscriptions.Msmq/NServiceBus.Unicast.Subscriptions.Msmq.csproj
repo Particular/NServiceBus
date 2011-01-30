@@ -14,7 +14,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -64,24 +63,21 @@
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.ObjectBuilder.dll</HintPath>
+    <Reference Include="NServiceBus.ObjectBuilder">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Subscriptions, Version=1.9.0.38057, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Subscriptions.dll</HintPath>
+    <Reference Include="NServiceBus.Unicast.Subscriptions">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport, Version=1.9.0.38023, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Unicast.Transport.dll</HintPath>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Utils, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\NServiceBus.Utils.dll</HintPath>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

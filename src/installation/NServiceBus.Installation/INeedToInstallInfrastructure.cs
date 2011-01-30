@@ -20,7 +20,7 @@ namespace NServiceBus.Installation
     /// Interface invoked by the infrastructure when going to install an endpoint for a specific environment.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface INeedToInstallInfrastructure<T> where T : IEnvironment
+    public interface INeedToInstallInfrastructure<T> : INeedToInstallInfrastructure where T : IEnvironment
     {
         
     }
