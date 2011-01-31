@@ -23,5 +23,15 @@ namespace NServiceBus.DataBus.Tests
             storage.Add(key,data);
         	return key;
         }
+
+		public void Start()
+		{
+			//no-op
+		}
+
+		public void Dispose()
+		{
+			//no-op
+		}
     }
 }

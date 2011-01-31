@@ -2,11 +2,13 @@
 {
 	using System;
 	using System.IO;
+	using Common.Logging;
 	using DataBus;
 
 	public class FileShareDataBus : IDataBus
 	{
 		readonly string basePath;
+		private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
 
 		public FileShareDataBus(string basePath)
 		{
@@ -41,6 +43,13 @@
 			return key;
 		}
 
+		public void Start()
+		{
+			logger.Info("File share data bus started. Location: " + basePath);
+
+			//TODO: Implement a clean up thread
+		}
+
 		string GenerateKey(TimeSpan timeToBeReceived)
 		{
 			if (timeToBeReceived > MaxMessageTimeToLive)
@@ -54,5 +63,9 @@
 			return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_hh"), Guid.NewGuid().ToString());
 		}
 
+		public void Dispose()
+		{
+			logger.Info("File share data bus started. Location: " + basePath);
+		}
 	}
 }

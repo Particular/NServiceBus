@@ -7,7 +7,7 @@ namespace NServiceBus.DataBus
 	/// <summary>
     /// The main interface for interactions with the databus
     /// </summary>
-    public interface IDataBus
+    public interface IDataBus:IDisposable
     {
         /// <summary>
         /// Gets a data item from the bus
@@ -22,5 +22,10 @@ namespace NServiceBus.DataBus
 		/// <param name="stream">A create containing the data to be sent on the databus</param>
 		/// <param name="timeToBeReceived">The time to be received specified on the message type. TimeSpan.MaxValue is the default</param>
 		string Put(Stream stream, TimeSpan timeToBeReceived);
+
+		/// <summary>
+		/// Called when the bus starts up to allow the data bus to active background tasks
+		/// </summary>
+		void Start();
     }
 }
