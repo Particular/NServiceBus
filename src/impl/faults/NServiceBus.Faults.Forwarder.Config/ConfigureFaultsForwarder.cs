@@ -21,8 +21,6 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MessageForwardingInCaseOfFault(this Configure config)
         {
-            string errorQueue;
-
             var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
             if (section == null)
             {
@@ -33,22 +31,24 @@ namespace NServiceBus
                     throw new ConfigurationErrorsException("Could not find backup configuration section 'MsmqTransportConfig' in order to locate the error queue.");
 
                 
-                errorQueue = msmq.ErrorQueue;
+                ErrorQueue = msmq.ErrorQueue;
             }
             else
-                errorQueue = section.ErrorQueue;
+                ErrorQueue = section.ErrorQueue;
 
-			if(string.IsNullOrEmpty(errorQueue))
+			if(string.IsNullOrEmpty(ErrorQueue))
 				throw new ConfigurationErrorsException("Faults forwarding requires a error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
              
-            //TODO: this should probably be moved to a new IManageFaults.Start|Init method instead. Check with Udi
-            MsmqUtilities.CreateQueueIfNecessary(errorQueue);
-	
             config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(fm => fm.ErrorQueue, errorQueue);
+                .ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
 
             return config;
         }
+
+        /// <summary>
+        /// The queue to which to forward errors.
+        /// </summary>
+        public static string ErrorQueue { get; set; }
 
         private static ILog Logger = LogManager.GetLogger("MessageForwardingInCaseOfFault");
     }

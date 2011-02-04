@@ -70,6 +70,7 @@ namespace NServiceBus.Proxy
 
         public void Start()
         {
+            Storage.Init();
             internalTransport.Start(InternalAddress);
             externalTransport.Start(ExternalAddress);
         }

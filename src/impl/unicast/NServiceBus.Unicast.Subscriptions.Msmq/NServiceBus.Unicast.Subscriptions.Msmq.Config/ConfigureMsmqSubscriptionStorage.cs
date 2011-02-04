@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.Unicast.Subscriptions.Msmq.Config;
+﻿using Common.Logging;
+using NServiceBus.Config;
+using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Subscriptions.Msmq;
 
 namespace NServiceBus
 {
@@ -19,12 +18,26 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static ConfigMsmqSubscriptionStorage MsmqSubscriptionStorage(this Configure config)
+        public static Configure MsmqSubscriptionStorage(this Configure config)
         {
-            ConfigMsmqSubscriptionStorage cfg = new ConfigMsmqSubscriptionStorage();
-            cfg.Configure(config);
+            var cfg = Configure.GetConfigSection<MsmqSubscriptionStorageConfig>();
 
-            return cfg;
+            if (cfg == null)
+                Logger.Warn("Could not find configuration section for Msmq Subscription Storage.");
+
+            Queue = (cfg != null ? cfg.Queue : "NServiceBus_Subscriptions");
+
+            var storageConfig = config.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance);
+            storageConfig.ConfigureProperty(s => s.Queue, Queue);
+
+            return config;
         }
+
+        /// <summary>
+        /// Queue used to store subscriptions.
+        /// </summary>
+        public static string Queue { get; set; }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionStorage));
     }
 }

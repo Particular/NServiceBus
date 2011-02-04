@@ -20,7 +20,8 @@ namespace NServiceBus.Utils
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
         ///<param name="queueName"></param>
-        public static void CreateQueueIfNecessary(string queueName)
+        ///<param name="account">The account to be given permissions to the queue</param>
+        public static void CreateQueueIfNecessary(string queueName, string account)
         {
             if (string.IsNullOrEmpty(queueName))
                 return;
@@ -39,12 +40,16 @@ namespace NServiceBus.Utils
             try
             {
                 if (MessageQueue.Exists(q))
+                {
+                    Logger.Debug("Queue exists, going to set permissions.");
+                    SetPermissionsForQueue(q, account);
                     return;
+                }
 
                 Logger.Warn("Queue " + q + " does not exist.");
                 Logger.Debug("Going to create queue: " + q);
 
-                CreateQueue(q);
+                CreateQueue(q, account);
             }
             catch (Exception ex)
             {
@@ -56,15 +61,32 @@ namespace NServiceBus.Utils
         /// Create named message queue
         ///</summary>
         ///<param name="queueName"></param>
-        public static void CreateQueue(string queueName)
+        ///<param name="account">The account to be given permissions to the queue</param>
+        public static void CreateQueue(string queueName, string account)
         {
             var createdQueue = MessageQueue.Create(queueName, true);
 
-            createdQueue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
-            createdQueue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            createdQueue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-
+            SetPermissionsForQueue(queueName, account);
+            
             Logger.Debug("Queue created: " + queueName);
+        }
+
+        /// <summary>
+        /// Sets default permissions for queue.
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="account"></param>
+        public static void SetPermissionsForQueue(string queue, string account)
+        {
+            var q = new MessageQueue(queue);
+
+            q.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+            q.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            q.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+
+            q.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            q.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
+            q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);            
         }
 
         /// <summary>

@@ -65,6 +65,14 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Installation.Windows">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
@@ -97,6 +105,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigureFaultsForwarder.cs" />
+    <Compile Include="Installer.cs" />
     <Compile Include="MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

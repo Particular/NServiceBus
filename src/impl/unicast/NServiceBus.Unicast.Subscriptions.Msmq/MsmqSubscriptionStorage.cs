@@ -35,6 +35,30 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         void ISubscriptionStorage.Init()
         {
+            string path = MsmqUtilities.GetFullPath(Queue);
+
+            q = new MessageQueue(path);
+
+            bool transactional;
+            try
+            {
+                transactional = q.Transactional;
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
+            }
+
+            if (!transactional)
+                throw new ArgumentException("Queue must be transactional (" + Queue + ").");
+
+            var mpf = new MessagePropertyFilter();
+            mpf.SetAll();
+
+            q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
+
+            q.MessageReadPropertyFilter = mpf;
+
             foreach (var m in q.GetAllMessages())
             {
                 var subscriber = m.Label;
@@ -168,38 +192,8 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// </summary>
         public string Queue
         {
-            get { return queue; }
-            set
-            {
-                queue = value;
-                MsmqUtilities.CreateQueueIfNecessary(value);
-
-                string path = MsmqUtilities.GetFullPath(value);
-
-                q = new MessageQueue(path);
-
-                bool transactional;
-                try
-                {
-                    transactional = q.Transactional;
-                }
-                catch(Exception ex)
-                {
-                    throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", value), ex);
-                }
-
-                if (!transactional)
-                    throw new ArgumentException("Queue must be transactional (" + value + ").");
-
-                var mpf = new MessagePropertyFilter();
-                mpf.SetAll();
-
-                q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
-
-                q.MessageReadPropertyFilter = mpf;
-            }
+            get; set;
         }
-        private string queue;
 
         #endregion
 

@@ -20,24 +20,8 @@ namespace MsmqWorkerAvailabilityManager
 		/// <remarks>The queue provided must be transactional.</remarks>
         public string StorageQueue
         {
-            get { return s; }
-            set 
-            {
-                s = value;
-
-                MsmqUtilities.CreateQueueIfNecessary(value);
-
-                var path = MsmqUtilities.GetFullPath(value);
-
-                var q = new MessageQueue(path);
-
-                if (!q.Transactional)
-                    throw new Exception("Queue must be transactional.");
-
-                storageQueue = q;
-            }
+            get; set;
         }
-        private string s;
 
 	    /// <summary>
 		/// Removes all entries from the worker availability queue
@@ -90,11 +74,9 @@ namespace MsmqWorkerAvailabilityManager
 	    {
             var path = MsmqUtilities.GetFullPath(StorageQueue);
 
-            MsmqUtilities.CreateQueueIfNecessary(StorageQueue);
+            storageQueue = new MessageQueue(path);
 
-            var q = new MessageQueue(path);
-
-            if (!q.Transactional)
+            if (!storageQueue.Transactional)
                 throw new Exception("Queue must be transactional.");
 	    }
 

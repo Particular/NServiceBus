@@ -7,12 +7,19 @@ namespace NServiceBus
     public static class ConfigureMsmqMessageQueue
     {
         /// <summary>
+        /// Indicates that MsmqMessageQueue has been selected.
+        /// </summary>
+        public static bool Selected { get; set; }
+
+        /// <summary>
         /// Use MSMQ for your queuing infrastructure.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
         public static Configure MsmqTransport(this Configure config)
         {
+            Selected = true;
+
             config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.SingleInstance);
 
