@@ -39,6 +39,8 @@ namespace NServiceBus
         /// </summary>
         public IBuilder Builder { get; set; }
 
+        private bool initialized { get; set; }
+
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
         /// </summary>
@@ -189,6 +191,18 @@ namespace NServiceBus
         /// <returns></returns>
         public IStartableBus CreateBus()
         {
+            Initialize();
+
+            return Builder.Build<IStartableBus>();
+        }
+
+        /// <summary>
+        /// Finalizes the configuration by invoking all initializers.
+        /// </summary>
+        public void Initialize()
+        {
+            if (initialized)
+                return;
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
@@ -197,10 +211,10 @@ namespace NServiceBus
                                           ini.Init();
                                       });
 
+            initialized = true;
+
             if (ConfigurationComplete != null)
                 ConfigurationComplete(null, null);
-
-            return Builder.Build<IStartableBus>();
         }
 
         /// <summary>

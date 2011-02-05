@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Principal;
+using NServiceBus.Installation;
+using NServiceBus.ObjectBuilder;
 
-namespace NServiceBus.Installation
+namespace NServiceBus
 {
     /// <summary>
     /// Contains extension methods to the Configure class.
@@ -39,12 +42,16 @@ namespace NServiceBus.Installation
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
 
+            Configure.TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t))
+                .ToList().ForEach(t => config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
             return new Installer<T>(new WindowsIdentity(userToken));
         }
     }
 
     /// <summary>
     /// Resolves objects who implement INeedToInstall and invokes them for the given environment.
+    /// Assumes that implementors have already been registered in the container.
     /// </summary>
     /// <typeparam name="T">The environment for which the installers should be invoked.</typeparam>
     public class Installer<T> where T : IEnvironment
@@ -61,6 +68,8 @@ namespace NServiceBus.Installation
         /// </summary>
         public void Install()
         {
+            NServiceBus.Configure.Instance.Initialize();
+
             GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
                 .ForEach(t => ((INeedToInstallInfrastructure)Configure.Instance.Builder.Build(t)).Install(winIdentity));
 
