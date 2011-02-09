@@ -112,6 +112,10 @@
       <Project>{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}</Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ObjectBuilder.Ninject\ObjectBuilder.Ninject.csproj">
+      <Project>{C35AE1C7-C785-4629-A73D-977E0325D8B0}</Project>
+      <Name>ObjectBuilder.Ninject</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
       <Project>{734D30CF-4376-488A-A6B4-1033FED93660}</Project>
       <Name>ObjectBuilder.Spring</Name>

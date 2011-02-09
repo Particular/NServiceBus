@@ -33,8 +33,5 @@ namespace NServiceBus
 
             return config;
         }
-
-        
-
     }
 }

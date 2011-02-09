@@ -6,6 +6,8 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.Ninject;
+
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
     {
@@ -23,7 +25,8 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
+            typeof(UnityObjectBuilder),
+            typeof(NinjectObjectBuilder));
 
         }
 
@@ -40,7 +43,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
              typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
+            typeof(UnityObjectBuilder),
+            typeof(NinjectObjectBuilder));
 
         }
     }
