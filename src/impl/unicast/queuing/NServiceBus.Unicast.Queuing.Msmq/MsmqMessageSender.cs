@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 toSend.UseJournalQueue = UseJournalQueue; 
 
                 if (!string.IsNullOrEmpty(message.ReturnAddress))
-                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(message.ReturnAddress));
+                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReturnAddress, destination));
 
                 if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = message.TimeToBeReceived;
