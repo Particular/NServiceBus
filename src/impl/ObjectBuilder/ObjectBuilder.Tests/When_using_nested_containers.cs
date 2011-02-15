@@ -32,7 +32,7 @@ namespace ObjectBuilder.Tests
 
 
         [Test]
-        public void Single_call_components_in_the_parent_container_should_be_singletons_in_the_child_container()
+        public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
             VerifyForAllBuilders(builder =>
             {
@@ -42,10 +42,9 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
-             typeof(SpringObjectBuilder),
+            typeof(SpringObjectBuilder),
             typeof(UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
-
         }
     }
     public class InstancePerUoWComponent : IDisposable
