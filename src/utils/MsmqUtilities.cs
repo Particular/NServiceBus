@@ -1,6 +1,7 @@
 using System;
 using System.Messaging;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Principal;
 using Common.Logging;
 
@@ -107,6 +108,46 @@ namespace NServiceBus.Utils
         }
 
         /// <summary>
+        /// Gets the name of the return address from the provided value.
+        /// If the target includes a machine name, uses the local machine name in the returned value
+        /// otherwise uses the local IP address in the returned value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static string GetReturnAddress(string value, string target)
+        {
+            var machine = GetMachineNameFromLogicalName(target);
+
+            IPAddress ipAddress;
+
+            //see if the target is an IP address, if so, get our own local ip address
+            if (IPAddress.TryParse(machine, out ipAddress))
+            {
+                string myIp = null;
+
+                var networkInterfaces = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
+                foreach(var ni in networkInterfaces)
+                    if (ni.OperationalStatus == OperationalStatus.Up && ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    {
+                        var ipProps = ni.GetIPProperties();
+                        if (ipProps.UnicastAddresses.Count > 0)
+                        {
+                            myIp = ipProps.UnicastAddresses[1].Address.ToString();
+                            break;
+                        }
+                    }
+
+                if (myIp == null)
+                    myIp = "127.0.0.1";
+
+                return PREFIX_TCP + myIp + PRIVATE + GetQueueNameFromLogicalName(value);
+            }
+
+            return PREFIX + GetFullPathWithoutPrefix(value);
+        }
+
+        /// <summary>
         /// Returns the full path without Format or direct os
         /// from a '@' separated path.
         /// </summary>
@@ -184,9 +225,11 @@ namespace NServiceBus.Utils
 
             int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
-            {
                 return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
-            }
+
+            int tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
+            if (tcpPrefixIndex >= 0)
+                return queueName + '@' + arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length);
 
             try
             {
@@ -197,9 +240,7 @@ namespace NServiceBus.Utils
             }
             catch
             {
-                throw new Exception(string.Concat("MessageQueueException: '",
-                DIRECTPREFIX, "' is missing. ",
-                "FormatName='", q.FormatName, "'"));
+                throw new Exception("Could not translate format name to independent name: " + q.FormatName);
             }
         }
 
