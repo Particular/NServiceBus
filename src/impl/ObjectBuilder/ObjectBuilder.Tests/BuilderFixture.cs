@@ -13,6 +13,8 @@ using IContainer=NServiceBus.ObjectBuilder.Common.IContainer;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.Ninject;
+
     public class BuilderFixture
     {
         protected virtual Action<IContainer> InitializeBuilder()
@@ -40,7 +42,7 @@ namespace ObjectBuilder.Tests
                     failed = true;
                 }
             }
-            Assert.False(failed,"One or more of the builers failed");
+            Assert.False(failed,"One or more of the builders failed");
          }
 
         [SetUp]
@@ -53,7 +55,8 @@ namespace ObjectBuilder.Tests
                                      new AutofacObjectBuilder(),
                                      new WindsorObjectBuilder(),
                                      new UnityObjectBuilder(),
-                                     new SpringObjectBuilder()
+                                     new SpringObjectBuilder(),
+                                     new NinjectObjectBuilder()
                                  };
 
             var inilialize = InitializeBuilder();

@@ -6,6 +6,8 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.Ninject;
+
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
     {
@@ -23,13 +25,14 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
+            typeof(UnityObjectBuilder),
+            typeof(NinjectObjectBuilder));
 
         }
 
 
         [Test]
-        public void Single_call_components_in_the_parent_container_should_be_singletons_in_the_child_container()
+        public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
             VerifyForAllBuilders(builder =>
             {
@@ -39,9 +42,9 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
-             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
-
+            typeof(SpringObjectBuilder),
+            typeof(UnityObjectBuilder),
+            typeof(NinjectObjectBuilder));
         }
     }
     public class InstancePerUoWComponent : IDisposable
