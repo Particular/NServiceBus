@@ -22,8 +22,6 @@ namespace ObjectBuilder.Tests
                Assert.AreNotEqual(builder.Build(typeof(SinglecallComponent)),builder.Build(typeof(SinglecallComponent))));
         }
 
-
-
         [Test]
         public void Reguesting_an_unregistered_component_should_throw()
         {
@@ -33,7 +31,6 @@ namespace ObjectBuilder.Tests
                 Throws.Exception));
         }
 
-       
         protected override Action<IContainer> InitializeBuilder()
         {
             return (config) =>
@@ -53,7 +50,4 @@ namespace ObjectBuilder.Tests
         {
         }
     }
-
-   
-
 }

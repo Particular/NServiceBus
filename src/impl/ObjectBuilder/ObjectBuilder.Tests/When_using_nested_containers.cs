@@ -30,7 +30,6 @@ namespace ObjectBuilder.Tests
 
         }
 
-
         [Test]
         public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
@@ -70,5 +69,4 @@ namespace ObjectBuilder.Tests
     public interface ISingletonComponent
     {
     }
-
 }

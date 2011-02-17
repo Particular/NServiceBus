@@ -14,7 +14,6 @@ using NServiceBus.ObjectBuilder.Ninject.Internal;
 
 namespace NServiceBus.ObjectBuilder.Ninject
 {
-
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
     /// </summary>

@@ -71,11 +71,7 @@ namespace ObjectBuilder.Tests
 
 
         }
-
-
     }
-
-    
 
     public class DuplicateClass
     {

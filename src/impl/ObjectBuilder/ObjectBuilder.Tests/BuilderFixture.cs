@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.CastleWindsor;
+using NServiceBus.ObjectBuilder.Ninject;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NServiceBus.ObjectBuilder.Unity;
@@ -13,8 +14,6 @@ using IContainer=NServiceBus.ObjectBuilder.Common.IContainer;
 
 namespace ObjectBuilder.Tests
 {
-    using NServiceBus.ObjectBuilder.Ninject;
-
     public class BuilderFixture
     {
         protected virtual Action<IContainer> InitializeBuilder()
