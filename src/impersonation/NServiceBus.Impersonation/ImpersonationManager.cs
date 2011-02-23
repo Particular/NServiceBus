@@ -35,6 +35,9 @@ namespace NServiceBus.Impersonation
 
         void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
+			if (transportMessage.Headers.ContainsKey(WindowsIdentityName))
+				transportMessage.Headers.Remove(WindowsIdentityName);
+
             transportMessage.Headers.Add(WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
         }
 
