@@ -57,7 +57,7 @@ namespace NServiceBus
         private AllAssemblies()
         {
             if (HttpContext.Current != null)
-                directory = AppDomain.CurrentDomain.DynamicDirectory;
+				directory = HttpRuntime.BinDirectory;
             else
                 directory = AppDomain.CurrentDomain.BaseDirectory;
         }
