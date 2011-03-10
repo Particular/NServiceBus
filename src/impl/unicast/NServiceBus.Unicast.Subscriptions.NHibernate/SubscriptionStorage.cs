@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 using FluentNHibernate;
 using NHibernate.Criterion;
@@ -71,25 +72,13 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <returns></returns>
         public IList<string> GetSubscribersForMessage(IList<string> messageTypes)
         {
-            var mt = new string[messageTypes.Count];
-            messageTypes.CopyTo(mt, 0);
-
-            IList<string> list;
-
             using (new TransactionScope(TransactionScopeOption.Suppress))
-            using (var session = sessionSource.SessionFactory.OpenStatelessSession())
-            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
-            {
-                list = session.CreateCriteria(typeof(Subscription))
-                  .Add(Restrictions.In("MessageType", mt))
-                  .SetProjection(Projections.Property("SubscriberEndpoint"))
-                  .SetResultTransformer(new DistinctRootEntityResultTransformer())
-                  .List<string>();
-
-              tx.Commit();
-            }
-
-            return list;
+            using (var session = sessionSource.CreateSession())
+                return session.CreateCriteria(typeof(Subscription))
+                    .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
+                    .SetProjection(Projections.Property("SubscriberEndpoint"))
+                    .SetResultTransformer(new DistinctRootEntityResultTransformer())
+                    .List<string>();
         }
 
         public void Init()
