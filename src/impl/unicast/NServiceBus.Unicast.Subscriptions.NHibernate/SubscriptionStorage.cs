@@ -74,15 +74,22 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
             var mt = new string[messageTypes.Count];
             messageTypes.CopyTo(mt, 0);
 
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
-            using (var session = sessionSource.CreateSession())
+            IList<string> list;
+
+            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (var session = sessionSource.SessionFactory.OpenStatelessSession())
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
             {
-                return session.CreateCriteria(typeof(Subscription))
-                                    .Add(Restrictions.In("MessageType", mt))
-                                    .SetProjection(Projections.Property("SubscriberEndpoint"))
-                                    .SetResultTransformer(new DistinctRootEntityResultTransformer())
-                                    .List<string>();
+                list = session.CreateCriteria(typeof(Subscription))
+                  .Add(Restrictions.In("MessageType", mt))
+                  .SetProjection(Projections.Property("SubscriberEndpoint"))
+                  .SetResultTransformer(new DistinctRootEntityResultTransformer())
+                  .List<string>();
+
+              tx.Commit();
             }
+
+            return list;
         }
 
         public void Init()
