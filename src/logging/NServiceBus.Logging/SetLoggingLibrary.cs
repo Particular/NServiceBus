@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using log4net.Appender;
 using log4net.Core;
-using System.Globalization;
 using System.Reflection;
 
 namespace NServiceBus
@@ -27,9 +25,9 @@ namespace NServiceBus
         /// If you don't specify a threshold, will default to Level.Debug.
         /// If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
         /// </summary>
-        public static Configure Log4Net<Appender>(this Configure config, Action<Appender> initializeAppender) where Appender : AppenderSkeleton, new()
+        public static Configure Log4Net<TAppender>(this Configure config, Action<TAppender> initializeAppender) where TAppender : new()
         {
-            var appender = new Appender();
+            var appender = new TAppender();
             initializeAppender(appender);
 
             return config.Log4Net(appender);
@@ -41,8 +39,12 @@ namespace NServiceBus
         /// If you don't specify a threshold, will default to Level.Debug.
         /// If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
         /// </summary>
-        public static Configure Log4Net(this Configure config, AppenderSkeleton appender)
+        public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
+            var appender = appenderSkeleton as AppenderSkeleton;
+            if (appender == null)
+                throw new ArgumentException("The object provided must inherit from log4net.Appender.AppenderSkeleton.");
+
             Log4Net();
 
             if (appender.Layout == null)
