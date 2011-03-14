@@ -34,7 +34,7 @@ namespace NServiceBus.Saga
         /// <param name="saga"></param>
         /// <param name="state"></param>
 	    public TimeoutMessage(TimeSpan expireIn, ISagaEntity saga, object state) :
-	        this(DateTime.Now + expireIn, saga, state)
+	        this(DateTime.UtcNow + expireIn, saga, state)
 	    {
 	        
 	    }
@@ -86,7 +86,7 @@ namespace NServiceBus.Saga
 		/// <returns>true if the message has expired, otherwise false.</returns>
         public bool HasNotExpired()
         {
-            return DateTime.Now < expires;
+            return DateTime.UtcNow < expires;
         }
     }
 }
