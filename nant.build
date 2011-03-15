@@ -270,6 +270,7 @@
 				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
 	</target>
@@ -541,6 +542,18 @@
 		<copy todir="${binaries.dir}\containers\unity">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+			</fileset>
+		</copy>
+		
+		<mkdir dir="${binaries.dir}\containers\ninject" />
+		<copy todir="${binaries.dir}\containers\ninject">
+			<fileset basedir="${lib.dir}\containers\ninject">
+				<include name="**\Ninject*.dll" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\ninject">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
 
