@@ -13,11 +13,8 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///</summary>
     internal class AutofacObjectBuilder : Common.IContainer
     {
-        /// <summary>
-        /// The container itself.
-        /// </summary>
+        private const string RootContainer = "root";
         private readonly ILifetimeScope container;
-
         private bool disposed;
 
         ///<summary>
@@ -26,14 +23,17 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<param name="container"></param>
         public AutofacObjectBuilder(ILifetimeScope container)
         {
-            this.container = container;
+            this.container = container ?? new ContainerBuilder().Build();
+
+            if ((string)this.container.Tag != RootContainer)
+                throw new ArgumentException("The container provided must be the root-most container.", "container");
         }
 
         ///<summary>
         /// Instantites the class with an empty Autofac container.
         ///</summary>
         public AutofacObjectBuilder()
-            : this(new ContainerBuilder().Build())
+            : this(null)
         {
         }
 
@@ -86,18 +86,18 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
-            IComponentRegistration registration = this.GetComponentRegistration(component);
+            var registration = this.GetComponentRegistration(component);
 
-            if (registration == null)
-            {
-                var builder = new ContainerBuilder();
-                Type[] services = component.GetAllServices().ToArray();
-                var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
+            if (registration != null)
+                return;
 
-                SetLifetimeScope(dependencyLifecycle, registrationBuilder);
+            var builder = new ContainerBuilder();
+            var services = component.GetAllServices().ToArray();
+            var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
 
-                builder.Update(this.container.ComponentRegistry);
-            }
+            SetLifetimeScope(dependencyLifecycle, registrationBuilder);
+
+            builder.Update(this.container.ComponentRegistry);
         }
 
         ///<summary>
@@ -160,5 +160,3 @@ namespace NServiceBus.ObjectBuilder.Autofac
         }
     }
 }
-
-
