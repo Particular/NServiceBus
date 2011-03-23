@@ -13,7 +13,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///</summary>
     internal class AutofacObjectBuilder : Common.IContainer
     {
-        private const string RootContainer = "root";
         private readonly ILifetimeScope container;
         private bool disposed;
 
@@ -24,9 +23,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public AutofacObjectBuilder(ILifetimeScope container)
         {
             this.container = container ?? new ContainerBuilder().Build();
-
-            if ((string)this.container.Tag != RootContainer)
-                throw new ArgumentException("The container provided must be the root-most container.", "container");
         }
 
         ///<summary>
