@@ -58,15 +58,23 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Messaging" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="Endpoint.cs" />
+    <Compile Include="IManageTimeouts.cs" />
+    <Compile Include="IPersistTimeouts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeoutData.cs" />
+    <Compile Include="TimeoutManager.cs" />
     <Compile Include="TimeoutMessageHandler.cs" />
+    <Compile Include="TimeoutPersister.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
