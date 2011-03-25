@@ -95,7 +95,7 @@ namespace NServiceBus.Saga
         /// <param name="withState"></param>
         protected virtual void RequestTimeout(DateTime at, object withState)
         {
-            RequestTimeout(at - DateTime.Now, withState);
+            RequestTimeout(at - DateTime.UtcNow, withState);
         }
 
         /// <summary>

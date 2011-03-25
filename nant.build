@@ -95,7 +95,7 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_hosts"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_hosts,compile_hosts32"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -270,6 +270,7 @@
 				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
 	</target>
@@ -286,6 +287,26 @@
 		<mkdir 	dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt ${ilmerge.targetframework}"
+					workingdir="." />
+	</target>
+
+	<target name="compile_hosts32">
+		<property name="hosting.build.dir32" value="${build.base}\hosting32" />
+
+		<!-- Cleanup remnants of previous host compilation -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting32\ ${msbuild.targetframework} /t:Clean"
+					workingdir="${solution.dir}\hosting" />
+					
+		<!-- Compile all hosts for 32-bit execution -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:PlatformTarget=x86 /p:OutDir=${build.dir.absolutepath}\hosting32\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\hosting" />
+
+		<!-- Merge the windowshost and it's dependecies -->
+		<mkdir 	dir="${output.dir}\host" />
+		<exec 	program="${lib.dir}\ilmerge.exe"
+					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host32.exe ${hosting.build.dir32}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir32}\NServiceBus.Hosting.dll ${hosting.build.dir32}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir32}\Magnum.dll ${hosting.build.dir32}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost32.txt ${ilmerge.targetframework}"
 					workingdir="." />
 	</target>
 
@@ -521,6 +542,18 @@
 		<copy todir="${binaries.dir}\containers\unity">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
+			</fileset>
+		</copy>
+		
+		<mkdir dir="${binaries.dir}\containers\ninject" />
+		<copy todir="${binaries.dir}\containers\ninject">
+			<fileset basedir="${lib.dir}\containers\ninject">
+				<include name="**\Ninject*.dll" />
+			</fileset>
+		</copy>
+		<copy todir="${binaries.dir}\containers\ninject">
+			<fileset basedir="${container.build.dir}">
+				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
 

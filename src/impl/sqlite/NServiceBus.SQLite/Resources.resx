@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConfigurationErrorsException" xml:space="preserve">
+    <value>The version of SQLite being loaded was compiled against version 2.0.50727 while the current CLR version is 4.0 (or above).  In order to load the assembly, please add the following line to your configuration file.  If you are running NServiceBus.Host,  you will need to add this to a file called NServiceBus.Host.exe.config: &lt;startup useLegacyV2RuntimeActivationPolicy="true" /&gt;</value>
+  </data>
+  <data name="MixedModeAssembly" xml:space="preserve">
+    <value>Mixed mode assembly</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="SQLite32" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\System.Data.Sqlite-net40-x86.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>Resources\System.Data.SQLite-x86.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="SQLite64" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\System.Data.Sqlite-net40-x64.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>Resources\System.Data.SQLite-x64.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

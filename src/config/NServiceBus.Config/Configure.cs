@@ -108,7 +108,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure WithWeb()
         {
-            return With(AppDomain.CurrentDomain.DynamicDirectory);
+            return With(HttpRuntime.BinDirectory);
         }
 
         /// <summary>
