@@ -21,8 +21,10 @@ namespace Timeout.Tests
             timeout = TimeSpan.FromSeconds(1);
             interval = TimeSpan.FromSeconds(2);
 
-            manager = new TimeoutManager();
-            manager.Init(interval);
+            var mgr = new TimeoutManager();
+            mgr.Init(interval);
+
+            manager = mgr;
 
             manager.SagaTimedOut += (o, e) =>
             {

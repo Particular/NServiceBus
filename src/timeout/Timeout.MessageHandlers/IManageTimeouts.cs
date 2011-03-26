@@ -9,14 +9,6 @@ namespace Timeout.MessageHandlers
     public interface IManageTimeouts
     {
         /// <summary>
-        /// Defines the interval longer than which <see cref="PopTimeout"/> will not
-        /// wait for a timeout, instead sleeping for the given interval.
-        /// If this method is not called, implementors will default to 1 second.
-        /// </summary>
-        /// <param name="interval"></param>
-        void Init(TimeSpan interval);
-
-        /// <summary>
         /// When <see cref="PopTimeout"/> is called, this event is raised for 
         /// every saga ID passed in to <see cref="PushTimeout"/> for a single time slot.
         /// </summary>

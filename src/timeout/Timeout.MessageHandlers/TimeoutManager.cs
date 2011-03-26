@@ -12,11 +12,10 @@ namespace Timeout.MessageHandlers
     {
         public event EventHandler<TimeoutData> SagaTimedOut;
 
-        void IManageTimeouts.Init(TimeSpan interval)
+        public void Init(TimeSpan interval)
         {
             duration = interval;
         }
-
         void IManageTimeouts.PushTimeout(TimeoutData timeout)
         {
             lock (data)
@@ -25,7 +24,11 @@ namespace Timeout.MessageHandlers
                     data[timeout.Time] = new List<TimeoutData>();
 
                 data[timeout.Time].Add(timeout);
-                sagaLookup[timeout.SagaId] = timeout.Time;
+
+                if (!sagaLookup.ContainsKey(timeout.SagaId))
+                    sagaLookup[timeout.SagaId] = new List<DateTime>();
+
+                sagaLookup[timeout.SagaId].Add(timeout.Time);
             }
         }
 
@@ -67,19 +70,19 @@ namespace Timeout.MessageHandlers
                 if (!sagaLookup.ContainsKey(sagaId))
                     return;
 
-                var time = sagaLookup[sagaId];
+                var times = sagaLookup[sagaId];
 
                 sagaLookup.Remove(sagaId);
-                
-                if (!data.ContainsKey(time))
-                    return;
 
-                foreach (var td in data[time].ToArray())
-                    if (td.SagaId == sagaId)
-                        data[time].Remove(td);
+                foreach (var time in times)
+                {
+                    foreach (var td in data[time].ToArray())
+                        if (td.SagaId == sagaId)
+                            data[time].Remove(td);
 
-                if (data[time].Count == 0)
-                    data.Remove(time);
+                    if (data[time].Count == 0)
+                        data.Remove(time);
+                }
             }
         }
 
@@ -90,8 +93,8 @@ namespace Timeout.MessageHandlers
         }
 
         private readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
-        private readonly Dictionary<Guid, DateTime> sagaLookup = new Dictionary<Guid, DateTime>();
+        private readonly Dictionary<Guid, List<DateTime>> sagaLookup = new Dictionary<Guid, List<DateTime>>();
 
-        private TimeSpan duration = TimeSpan.FromSeconds(1); 
+        private TimeSpan duration = TimeSpan.FromMilliseconds(100);
     }
 }
