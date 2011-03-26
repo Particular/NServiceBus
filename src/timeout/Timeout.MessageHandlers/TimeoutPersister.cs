@@ -37,7 +37,12 @@ namespace Timeout.MessageHandlers
                        if (td == null) //get rid of message
                            storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Single);
                        else //put into lookup
-                           sagaToMessageIdLookup[td.SagaId] = m.Id;
+                       {
+                           if (!sagaToMessageIdLookup.ContainsKey(td.SagaId))
+                               sagaToMessageIdLookup[td.SagaId] = new List<string>();
+
+                           sagaToMessageIdLookup[td.SagaId].Add(m.Id);
+                       }
                    });
         }
 
@@ -57,7 +62,12 @@ namespace Timeout.MessageHandlers
             storageQueue.Send(msg, MessageQueueTransactionType.Automatic);
 
             lock (sagaToMessageIdLookup)
-                sagaToMessageIdLookup[timeout.SagaId] = msg.Id;
+            {
+                if (!sagaToMessageIdLookup.ContainsKey(timeout.SagaId))
+                    sagaToMessageIdLookup[timeout.SagaId] = new List<string>();
+
+                sagaToMessageIdLookup[timeout.SagaId].Add(msg.Id);
+            }
         }
 
         void IPersistTimeouts.Remove(Guid sagaId)
@@ -65,14 +75,16 @@ namespace Timeout.MessageHandlers
             lock (sagaToMessageIdLookup)
                 if (sagaToMessageIdLookup.ContainsKey(sagaId))
                 {
-                    var msgId = sagaToMessageIdLookup[sagaId];
+                    var ids = sagaToMessageIdLookup[sagaId];
 
-                    storageQueue.ReceiveById(msgId, MessageQueueTransactionType.Automatic); 
+                    foreach(var msgId in ids)
+                        storageQueue.ReceiveById(msgId, MessageQueueTransactionType.Automatic); 
+
                     sagaToMessageIdLookup.Remove(sagaId);
                 }
         }
 
         private MessageQueue storageQueue;
-        private readonly Dictionary<Guid, string> sagaToMessageIdLookup = new Dictionary<Guid, string>();
+        private readonly Dictionary<Guid, List<string>> sagaToMessageIdLookup = new Dictionary<Guid, List<string>>();
     }
 }
