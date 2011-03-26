@@ -1,5 +1,10 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.Security.Principal;
 using NServiceBus;
+using NServiceBus.Installation;
+using NServiceBus.ObjectBuilder;
+using NServiceBus.Utils;
 using Configure = NServiceBus.Configure;
 
 namespace Timeout.MessageHandlers
@@ -31,6 +36,14 @@ namespace Timeout.MessageHandlers
             configure.Configurer.ConfigureComponent<TimeoutManager>(ComponentCallModelEnum.Singleton);
             configure.Configurer.ConfigureComponent<TimeoutPersister>(ComponentCallModelEnum.Singleton)
                 .ConfigureProperty(tp => tp.Queue, "timeout.storage");
+        }
+    }
+
+    public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
+    {
+        public void Install(WindowsIdentity identity)
+        {
+            MsmqUtilities.CreateQueueIfNecessary("timeout.storage", identity.Name);
         }
     }
 }

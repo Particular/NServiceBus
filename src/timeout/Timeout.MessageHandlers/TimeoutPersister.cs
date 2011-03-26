@@ -17,8 +17,6 @@ namespace Timeout.MessageHandlers
 
         private void Init(string queue)
         {
-            MsmqUtilities.CreateQueueIfNecessary(queue);
-
             var path = MsmqUtilities.GetFullPath(queue);
 
             var mq = new MessageQueue(path);
