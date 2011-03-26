@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using NServiceBus;
+using Configure = NServiceBus.Configure;
 
 namespace Timeout.MessageHandlers
 {
@@ -26,30 +27,10 @@ namespace Timeout.MessageHandlers
                 default:
                     throw new ConfigurationErrorsException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
             }
-        }
-    }
 
-    /// <summary>
-    /// Configures performance behavior of the timeout manager
-    /// </summary>
-    public class PerformanceConfig : IWantCustomInitialization
-    {
-        void IWantCustomInitialization.Init()
-        {
-            string maxSagaIdsToStore = ConfigurationManager.AppSettings["MaxSagasIdsToStore"];
-            string millisToSleepBetweenMessages = ConfigurationManager.AppSettings["MillisToSleepBetweenMessages"];
-            
-            int sagas = 1000;
-            if (!string.IsNullOrEmpty(maxSagaIdsToStore))
-                int.TryParse(maxSagaIdsToStore, out sagas);
-
-            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MaxSagaIdsToStore, sagas);
-
-            int millis = 10;
-            if (!string.IsNullOrEmpty(millisToSleepBetweenMessages))
-                int.TryParse(millisToSleepBetweenMessages, out millis);
-
-            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MillisToSleepBetweenMessages, millis);
+            configure.Configurer.ConfigureComponent<TimeoutManager>(ComponentCallModelEnum.Singleton);
+            configure.Configurer.ConfigureComponent<TimeoutPersister>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(tp => tp.Queue, "timeout.storage");
         }
     }
 }
