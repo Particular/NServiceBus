@@ -6026,7 +6026,7 @@
             Returns a result segment containing a collection of table names in the storage account.
             </summary>
             <param name="maxResults">A non-negative integer value that indicates the maximum number of results to be returned at a time, up to the 
-            per-operation limit of 1000. If this value is zero, the maximum possible number of results will be returned, up to 1000.</param>         
+            per-operation limit of 5000. If this value is zero, the maximum possible number of results will be returned, up to 5000.</param>         
             <param name="continuationToken">A continuation token returned by a previous listing operation.</param> 
             <returns>A result segment containing table names.</returns>
         </member>
@@ -6036,7 +6036,7 @@
             </summary>
             <param name="prefix">The table name prefix.</param>
             <param name="maxResults">A non-negative integer value that indicates the maximum number of results to be returned at a time, up to the 
-            per-operation limit of 1000. If this value is zero, the maximum possible number of results will be returned, up to 1000.</param>         
+            per-operation limit of 5000. If this value is zero, the maximum possible number of results will be returned, up to 5000.</param>         
             <param name="continuationToken">A continuation token returned by a previous listing operation.</param> 
             <returns>A result segment containing table names.</returns>
         </member>
@@ -6066,7 +6066,7 @@
             </summary>
             <param name="prefix">The table name prefix.</param>
             <param name="maxResults">A non-negative integer value that indicates the maximum number of results to be returned at a time, up to the 
-            per-operation limit of 1000. If this value is zero, the maximum possible number of results will be returned, up to 1000.</param>         
+            per-operation limit of 5000. If this value is zero, the maximum possible number of results will be returned, up to 5000.</param>         
             <param name="continuationToken">A continuation token returned by a previous listing operation.</param> 
             <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
             <param name="state">A user-defined object that will be passed to the callback delegate.</param>

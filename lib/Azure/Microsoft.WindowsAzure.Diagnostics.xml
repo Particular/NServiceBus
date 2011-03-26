@@ -73,6 +73,41 @@
             Not fully implemented.
             </remarks>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleTypeEnvironmentVariable">
+            <summary>
+            The name of the environment variable that contains the role type.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleTypeWorkerRole">
+            <summary>
+            The role type value indicating a worker role.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleTypeHWCWebRole">
+            <summary>
+            The role type value indicating a web role hosted in HWC.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleTypeIISWebRole">
+            <summary>
+            The role type value indicating a web role hosted in IIS.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveKeyPathRegPath">
+            <summary>
+            Registry key path to cloud drive devpath.
+            </summary> 
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathKeyName">
+            <summary>
+            Name of the registry value that contains path for the devpath.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathEnvVar">
+            <summary>
+            Name of the registry value that contains path for the devpath.
+            </summary>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Internal.Common.SDKConstants.PrivateSettingsForDebuggingAndSimulation">
             <summary>
             Gets all private setting that should be injected into the serivce model to support

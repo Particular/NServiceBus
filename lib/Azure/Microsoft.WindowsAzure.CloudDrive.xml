@@ -189,6 +189,11 @@
             The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0).
             </exception>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDriveException.GetHResult">
+            <summary>
+            Returns the exception code for this exception
+            </summary>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Common.AppendPathToUri(System.Uri,System.String)">
             <summary>
             Appends a path to a Uri correctly using "/" as separator
@@ -235,6 +240,19 @@
             Setting this flag calls <code>chkdsk /F</code> on the mounted drive.
             To avoid any potential data-loss it is recommed a snapshot of the drive is taken first before
             attempting to fix file system errors.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.DriveMountOptions.UseSharedAccessCredentials">
+            <summary>
+            Use Shared Access Credentials to authenticate with the Azure Blob Service.
+            </summary>
+            <remarks>
+            By default, Azure Drives will use the Account Shared Key to authenticate with the 
+            Azure Blob Service. It requires the secret key to be cached outside the calling
+            process. This may be a security concern for some applications and the risk can be 
+            mitigated by setting this flag. However if this flag is set and the calling 
+            process is terminated, then the drive will auto-unmount when the Shared Access
+            Credentials expire. 
             </remarks>
         </member>
     </members>

@@ -7,16 +7,16 @@ using NServiceBus.Saga;
 
 namespace Cashier
 {
-    public class CashierMessageHandler : Saga<CashierSagaData>,
-                                         IAmStartedByMessages<NewOrderMessage>,
-                                         IHandleMessages<PaymentMessage>
+    public class CashierSaga : Saga<CashierSagaData>,
+                                IAmStartedByMessages<NewOrderMessage>,
+                                IHandleMessages<PaymentMessage>
     {
         private readonly IStarbucksCashierView _view;
 
-        public CashierMessageHandler()
+        public CashierSaga()
         {}
 
-        public CashierMessageHandler(IStarbucksCashierView view)
+        public CashierSaga(IStarbucksCashierView view)
         {
             _view = view;
         }

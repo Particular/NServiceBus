@@ -11,15 +11,15 @@ namespace OrderWebSite
     {
         protected void Page_PreRender(object sender, EventArgs e)
         {
-            lock (WebRole.Orders)
-                OrderList.DataSource = new List<Order>(WebRole.Orders);
+            lock (Global.Orders)
+                OrderList.DataSource = new List<Order>(Global.Orders);
 
             OrderList.DataBind();
         }
 
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
-            WebRole.Bus
+            Global.Bus
                 .Send(new SubmitOrderRequest
                 {
                     Id = Guid.NewGuid(),
@@ -29,8 +29,8 @@ namespace OrderWebSite
 
         public void Handle(SubmitOrderResponse message)
         {
-            lock (WebRole.Orders)
-                WebRole.Orders.Add(message.Order);
+            lock (Global.Orders)
+                Global.Orders.Add(message.Order);
         }
     }
 }
