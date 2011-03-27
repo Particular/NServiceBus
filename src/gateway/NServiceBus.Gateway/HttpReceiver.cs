@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
@@ -10,22 +9,22 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
-    internal class HttpRequestHandler
+    public class HttpReceiver
     {
-        private const int maximumBytesToRead = 100000;
-        private readonly string inputQueue;
-        private ISendMessages messageSender;
-        private IMessageNotifier notifier;
-        private string destinationQueue;
-        private string connString;
+        const int maximumBytesToRead = 100000;
+        readonly string returnAddress;
+        readonly ISendMessages messageSender;
+        readonly IMessageNotifier notifier;
+        readonly string destinationAddress;
+        readonly IPersistMessages persister;
 
-        public HttpRequestHandler(ISendMessages sender, IMessageNotifier notifier, string inputQueue, string queue, string connectionString)
+        public HttpReceiver(ISendMessages messageSender, IMessageNotifier notifier, string returnAddress, string destinationAddress, IPersistMessages persister)
         {
-            this.inputQueue = inputQueue;
+            this.returnAddress = returnAddress;
             this.notifier = notifier;
-            messageSender = sender;
-            destinationQueue = queue;
-            connString = connectionString;
+            this.messageSender = messageSender;
+            this.destinationAddress = destinationAddress;
+            this.persister = persister;
         }
 
         public void Handle(HttpListenerContext ctx)
@@ -66,16 +65,14 @@ namespace NServiceBus.Gateway
         {
             Logger.Debug("Received message ack for id: " + callInfo.ClientId);
 
-            var msg = new TransportMessage { ReturnAddress = inputQueue };
+            var msg = new TransportMessage { ReturnAddress = returnAddress };
 
             using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
             {
-                var p = new Persistence { ConnectionString = connString };
-
                 byte[] outMessage;
                 NameValueCollection outHeaders;
                 
-                p.AckMessage(callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), out outMessage, out outHeaders);
+                persister.AckMessage(callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), out outMessage, out outHeaders);
 
                 if (outHeaders != null && outMessage != null)
                 {
@@ -101,7 +98,7 @@ namespace NServiceBus.Gateway
                     if (msg.Headers.ContainsKey(routeTo))
                         destination = msg.Headers[routeTo];
                     else
-                        destination = destinationQueue;
+                        destination = destinationAddress;
 
                     Logger.Info("Sending message to " + destination);
 
@@ -133,9 +130,7 @@ namespace NServiceBus.Gateway
 
             using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
             {
-                var p = new Persistence { ConnectionString = connString };
-                
-                p.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, ctx.Request.Headers);
+                persister.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, ctx.Request.Headers);
 
                 scope.Complete();
             }

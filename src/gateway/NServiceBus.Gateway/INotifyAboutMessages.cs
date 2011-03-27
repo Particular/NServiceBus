@@ -16,7 +16,7 @@ namespace NServiceBus.Gateway
 
     public enum TransportTypeEnum { FromHttpToMsmq, FromMsmqToHttp }
 
-    internal interface IMessageNotifier : INotifyAboutMessages
+    public interface IMessageNotifier : INotifyAboutMessages
     {
         void RaiseMessageProcessed(TransportTypeEnum transportType, TransportMessage message);
     }

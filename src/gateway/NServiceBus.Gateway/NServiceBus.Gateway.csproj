@@ -44,13 +44,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Hosting.Windows, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.Windows.exe</HintPath>
+    <Reference Include="NServiceBus.Host">
+      <HintPath>..\..\..\build\output\host\NServiceBus.Host.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -71,11 +66,14 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="GatewayConfig.cs" />
+    <Compile Include="GatewayService.cs" />
     <Compile Include="Hasher.cs" />
     <Compile Include="HeaderMapper.cs" />
-    <Compile Include="HttpRequestHandler.cs" />
+    <Compile Include="HttpReceiver.cs" />
+    <Compile Include="IPersistMessages.cs" />
     <Compile Include="INotifyAboutMessages.cs" />
-    <Compile Include="MsmqHandler.cs" />
+    <Compile Include="HttpSender.cs" />
     <Compile Include="Persistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CallInfo.cs" />
@@ -86,11 +84,8 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+  </PropertyGroup>
 </Project>

@@ -5,17 +5,17 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Gateway
 {
-    internal class MsmqHandler
+    public class HttpSender
     {
         private readonly string from;
         private readonly IMessageNotifier notifier;
 
-        public MsmqHandler(IMessageNotifier notifier, string listenUrl)
+        public HttpSender(IMessageNotifier notifier, string listenUrl)
         {
             this.notifier = notifier;
             from = listenUrl;
         }
-        public void Handle(TransportMessage msg, string remoteUrl)
+        public void Send(TransportMessage msg, string remoteUrl)
         {
             var address = remoteUrl;
             var headers = new WebHeaderCollection();
