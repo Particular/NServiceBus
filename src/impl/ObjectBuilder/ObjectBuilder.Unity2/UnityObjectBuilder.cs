@@ -15,6 +15,8 @@ namespace NServiceBus.ObjectBuilder.Unity2
 
         private readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
 
+        private readonly UnityObjectBuilder parent;
+
         private bool disposed;
 
         /// <summary>
@@ -37,6 +39,12 @@ namespace NServiceBus.ObjectBuilder.Unity2
             {
                 this.container.AddNewExtension<FullAutowireContainerExtension>();
             }
+        }
+        
+        private UnityObjectBuilder(UnityObjectBuilder parent)
+            : this(parent.container.CreateChildContainer())
+        {
+            this.parent = parent;
         }
 
         /// <summary>
@@ -63,20 +71,26 @@ namespace NServiceBus.ObjectBuilder.Unity2
         /// <returns></returns>
         public IContainer BuildChildContainer()
         {
-            return new UnityObjectBuilder(container.CreateChildContainer());
+            return new UnityObjectBuilder(this);
         }
 
         public object Build(Type typeToBuild)
         {
-            if (!typesWithDefaultInstances.Contains(typeToBuild))
+            if (!IsRegistred(typeToBuild))
                 throw new ArgumentException(typeToBuild + " is not registered in the container");
 
             return container.Resolve(typeToBuild);
         }
 
+        private bool IsRegistred(Type typeToBuild)
+        {
+           return typesWithDefaultInstances.Contains(typeToBuild) || 
+               (parent != null && parent.IsRegistred(typeToBuild));
+        }
+
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            if (typesWithDefaultInstances.Contains(typeToBuild))
+            if (IsRegistred(typeToBuild))
             {
                 yield return container.Resolve(typeToBuild);
                 foreach (var component in container.ResolveAll(typeToBuild))
@@ -96,6 +110,8 @@ namespace NServiceBus.ObjectBuilder.Unity2
                 IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
                 config = new ConfigureComponentAdapter(container, concreteComponent);
                 container.RegisterInstance(Guid.NewGuid().ToString(), config);
+
+                container.RegisterType(concreteComponent, concreteComponent, GetLifetimeManager(dependencyLifecycle));
 
                 foreach (Type t in interfaces)
                 {

@@ -25,7 +25,6 @@ namespace ObjectBuilder.Tests
             },
             typeof(SpringObjectBuilder),
             typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
-            typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
 
         }
@@ -43,7 +42,7 @@ namespace ObjectBuilder.Tests
             },
             typeof(SpringObjectBuilder),
             typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
-            typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
+            //typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
         }
     }

@@ -63,6 +63,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\containers\unity\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\containers\unity\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -119,10 +123,6 @@
     <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
       <Project>{C05E5B87-EB74-4A3F-B4FC-AFDD28570850}</Project>
       <Name>ObjectBuilder.StructureMap</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectBuilder.Unity2\ObjectBuilder.Unity2.csproj">
-      <Project>{BD8C3F01-0C4E-4D8E-B9C7-62F0E1329E17}</Project>
-      <Name>ObjectBuilder.Unity2</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Unity\ObjectBuilder.Unity.csproj">
       <Project>{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C}</Project>
