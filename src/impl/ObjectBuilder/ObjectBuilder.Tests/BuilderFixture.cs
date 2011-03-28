@@ -55,7 +55,8 @@ namespace ObjectBuilder.Tests
                                      new WindsorObjectBuilder(),
                                      new UnityObjectBuilder(),
                                      new SpringObjectBuilder(),
-                                     new NinjectObjectBuilder()
+                                     new NinjectObjectBuilder(),
+                                     new NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder()
                                  };
 
             var inilialize = InitializeBuilder();
