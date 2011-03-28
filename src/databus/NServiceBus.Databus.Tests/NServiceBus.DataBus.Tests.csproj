@@ -58,6 +58,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MessageHeaders">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageHeaders.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageInterfaces">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
@@ -74,12 +77,6 @@
     <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Serializers.Binary">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.Binary.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Serializers.XML">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.XML.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
@@ -92,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InMemoryDataBus.cs" />
-    <Compile Include="IntegrationTests.cs" />
+    <Compile Include="on_the_bus.cs" />
     <Compile Include="When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_nservicebus_is_initalizing.cs" />

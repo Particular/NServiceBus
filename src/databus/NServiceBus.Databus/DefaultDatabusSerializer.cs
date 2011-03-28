@@ -3,7 +3,7 @@
 	using System.IO;
 	using System.Runtime.Serialization.Formatters.Binary;
 
-	public class DefaultDatabusSerializer : IDatabusSeralizer
+	public class DefaultDataBusSerializer : IDataBusSerializer
 	{
 		private static readonly BinaryFormatter formatter = new BinaryFormatter();
       

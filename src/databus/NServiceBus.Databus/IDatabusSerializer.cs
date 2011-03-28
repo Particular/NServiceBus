@@ -5,7 +5,7 @@
 	/// <summary>
 	/// Interface used for serializing and deserializing of databus properties.
 	/// </summary>
-	public interface IDatabusSeralizer
+	public interface IDataBusSerializer
 	{
 		/// <summary>
 		/// Serializes the property into the given stream.
