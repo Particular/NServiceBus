@@ -51,9 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="on_its_input_queue.cs" />
+    <Compile Include="over_a_http_channel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Idempotency\Persistenstester.cs" />
+    <Compile Include="When_a_message_is_forwarded.cs" />
     <Compile Include="When_the_gateway_receives_a_message.cs" />
+    <Compile Include="When_the_gateway_receives_a_message_with_a_databus_property.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Gateway\NServiceBus.Gateway.csproj">

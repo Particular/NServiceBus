@@ -92,6 +92,9 @@ namespace NServiceBus.Gateway
         public void Start()
         {
             listener.Prefixes.Add(ListenUrl);
+
+            ThreadPool.SetMaxThreads(NumberOfWorkerThreads, NumberOfWorkerThreads);
+
             listener.Start();
 
             new Thread(StartHttpServer).Start();
@@ -131,6 +134,8 @@ namespace NServiceBus.Gateway
         public string ReturnAddress { get; set; }
 
         public IDataBus DataBus { get; set; }
+
+        public int NumberOfWorkerThreads { get; set; }
 
         public event EventHandler<MessageForwardingArgs> MessageReceived;
 

@@ -26,7 +26,7 @@
             httpChannel = new HttpChannel(messagePersister)
                               {
                                   ListenUrl = "http://localhost:8092/Gateway/",
-                                  ReturnAddress = "Gateway.Tests"
+                                  ReturnAddress = "Gateway.Tests.Input"
                               };
 
             httpChannel.MessageReceived += httpChannel_MessageReceived;
@@ -68,17 +68,6 @@
             messageReceived = new ManualResetEvent(false);
 
             bus.Send("gateway", messageToSend);
-
-            //var receiver = new HttpReceiver(testSender, "", "", idempotencyEnforcer);
-
-            ////handle first send
-            //receiver.Handle(listener.GetContext());
-
-            ////handle transmission databus property
-            ////receiver.Handle(listener.GetContext());
-
-            ////handle ack
-            //receiver.Handle(listener.GetContext());
         }
 
 

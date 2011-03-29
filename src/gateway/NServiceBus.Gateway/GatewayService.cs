@@ -5,9 +5,9 @@
 
     public class GatewayService : IWantToRunAtStartup
     {
-        public string DestinationAddress { get; set; }
+        public string DefaultDestinationAddress { get; set; }
 
-        public GatewayService(MsmqInputDispatcher inputDispatcher,IChannel channel,ISendMessages messageSender)
+        public GatewayService(MsmqInputDispatcher inputDispatcher, IChannel channel, ISendMessages messageSender)
         {
             this.inputDispatcher = inputDispatcher;
             this.channel = channel;
@@ -15,11 +15,11 @@
         }
 
         public void Run()
-        { 
+        {
             inputDispatcher.Start();
 
             //todo start all the channels (when we support multiple channels)
-            channel.MessageReceived+=MessageReceivedOnChannel;
+            channel.MessageReceived += MessageReceivedOnChannel;
             channel.Start();
         }
 
@@ -28,18 +28,14 @@
             var messageToSend = e.Message;
 
             string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
-            string destination;
+            var destination = DefaultDestinationAddress;
+           
             if (messageToSend.Headers.ContainsKey(routeTo))
                 destination = messageToSend.Headers[routeTo];
-            else
-                destination = DestinationAddress;
-
+           
             Logger.Info("Sending message to " + destination);
 
             messageSender.Send(messageToSend, destination);
-
-            //todo
-            messageSender.Send(e.Message,"destination");
         }
 
         public void Stop()
@@ -53,6 +49,6 @@
         readonly IChannel channel;
         readonly ISendMessages messageSender;
         readonly MsmqInputDispatcher inputDispatcher;
-        
+
     }
 }

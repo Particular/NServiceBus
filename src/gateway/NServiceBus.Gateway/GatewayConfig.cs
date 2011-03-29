@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Gateway
 {
+    using System;
     using System.Configuration;
     using System.Net;
     using System.Threading;
+    using Hosting.Profiles;
     using ObjectBuilder;
     using Persistence;
     using Unicast.Queuing;
@@ -20,8 +22,7 @@
             string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
             var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
             var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-         
+
 
 
             int numberOfWorkerThreads;
@@ -29,7 +30,6 @@
             if (!int.TryParse(n, out numberOfWorkerThreads))
                 numberOfWorkerThreads = 10;
 
-            ThreadPool.SetMaxThreads(numberOfWorkerThreads, numberOfWorkerThreads);
 
             //todo, use the one from the main bus
             var messageSender = new MsmqMessageSender { UseDeadLetterQueue = true, UseJournalQueue = true };
@@ -42,21 +42,41 @@
             Configure.Instance.Configurer.RegisterSingleton<IMessageNotifier>(notifier);
 
             Configure.Instance.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
-               .ConfigureProperty(p => p.DestinationAddress, outputQueue);
-          
-            Configure.Instance.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ConnectionString, connectionString);
+               .ConfigureProperty(p => p.DefaultDestinationAddress, outputQueue);
+
 
             Configure.Instance.Configurer.ConfigureComponent<HttpChannel>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ListenUrl, listenUrl)
-                .ConfigureProperty(p => p.ReturnAddress, inputQueue);
-      
+                .ConfigureProperty(p => p.ReturnAddress, inputQueue)
+                .ConfigureProperty(p => p.NumberOfWorkerThreads, numberOfWorkerThreads);
+
             Configure.Instance.Configurer.ConfigureComponent<MsmqInputDispatcher>(DependencyLifecycle.SingleInstance)
-             .ConfigureProperty(p => p.NumberOfWorkerThreads, numberOfWorkerThreads)
              .ConfigureProperty(p => p.InputQueue, inputQueue)
              .ConfigureProperty(p => p.RemoteAddress, remoteUrl);
         }
 
 
     }
+
+    internal class LiteProfileHandler : IHandleProfile<Lite>
+    {
+        public void ProfileActivated()
+        {
+            Configure.Instance.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
+        }
+    }
+
+    //todo
+    //internal class IntegrationProfileHandler : IHandleProfile<Integration>
+    //{
+    //    public void ProfileActivated()
+    //    {
+    //        var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+
+    //        Configure.Instance.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.InstancePerCall)
+    //         .ConfigureProperty(p => p.ConnectionString, connectionString);
+
+    //    }
+    //}
+
 }

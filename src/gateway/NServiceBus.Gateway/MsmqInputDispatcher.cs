@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Gateway
 {
-    using System;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
@@ -10,8 +9,6 @@
         public string RemoteAddress { get; set; }
 
         public string InputQueue { get; set; }
-
-        public int NumberOfWorkerThreads { get; set; }
 
         public MsmqInputDispatcher(IChannel channel, IMessageNotifier notifier)
         {
