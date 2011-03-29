@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Spring;
-using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
@@ -25,7 +24,7 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
+            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
 
         }
@@ -42,7 +41,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
+            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
+            //typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
         }
     }
