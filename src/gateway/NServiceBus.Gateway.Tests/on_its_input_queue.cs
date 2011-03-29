@@ -1,42 +1,37 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
-    using MessageInterfaces.MessageMapper.Reflection;
+    using System.Threading;
     using NUnit.Framework;
+    using Persistence;
     using Rhino.Mocks;
-    using Serializers.XML;
     using Unicast.Queuing;
-    using Unicast.Queuing.Msmq;
     using Unicast.Transport;
 
     public class on_its_input_queue
     {
-
-        protected ISendMessages msmqSender;
-        protected HttpListener listener;
         protected ISendMessages testSender;
-        protected IPersistMessages idempotencyEnforcer;
-        protected IMessageNotifier notifier;
+        protected IPersistMessages messagePersister;
 
+        protected IChannel httpChannel;
         IBus bus;
 
         [SetUp]
         public void SetUp()
         {
-            msmqSender = new MsmqMessageSender();
             testSender = MockRepository.GenerateStub<ISendMessages>();
-            notifier = MockRepository.GenerateStub<IMessageNotifier>();
 
-            idempotencyEnforcer = MockRepository.GenerateStub<IPersistMessages>();
+            messagePersister = new InMemoryPersistence();
 
 
-            listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:8092/Gateway/");
+            httpChannel = new HttpChannel(messagePersister)
+                              {
+                                  ListenUrl = "http://localhost:8092/Gateway/",
+                                  ReturnAddress = "Gateway.Tests"
+                              };
 
-            listener.Start();
+            httpChannel.MessageReceived += httpChannel_MessageReceived;
+
+            httpChannel.Start();
 
 
             bus = Configure.With()
@@ -50,29 +45,47 @@
                 .Start();
         }
 
+        void httpChannel_MessageReceived(object sender, MessageForwardingArgs e)
+        {
+            transportMessage = e.Message;
+
+            messageReceived.Set();
+        }
+
+        TransportMessage transportMessage;
+        ManualResetEvent messageReceived;
+
+        protected object GetResultingMessage()
+        {
+            messageReceived.WaitOne();
+            return transportMessage;
+        }
+
 
         protected void SendMessageToGatewayQueue(IMessage messageToSend)
         {
-            bus.Send("gateway",messageToSend);
+            transportMessage = null;
+            messageReceived = new ManualResetEvent(false);
 
-            var context = listener.GetContext();
+            bus.Send("gateway", messageToSend);
 
-            var handler = new HttpReceiver(testSender, notifier, "", "", idempotencyEnforcer);
+            //var receiver = new HttpReceiver(testSender, "", "", idempotencyEnforcer);
 
-            //handle first send
-            handler.Handle(context);
+            ////handle first send
+            //receiver.Handle(listener.GetContext());
 
+            ////handle transmission databus property
+            ////receiver.Handle(listener.GetContext());
 
-            //handle ack
-            context = listener.GetContext();
-            handler.Handle(context);
+            ////handle ack
+            //receiver.Handle(listener.GetContext());
         }
 
 
         [TearDown]
         public void TearDown()
         {
-            listener.Stop();
+            httpChannel.Stop();
         }
     }
 }

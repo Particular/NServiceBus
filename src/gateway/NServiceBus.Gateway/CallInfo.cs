@@ -10,6 +10,7 @@
     public enum CallType
     {
         Submit,
-        Ack
+        Ack,
+        DatabusProperty
     }
 }

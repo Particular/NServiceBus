@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Data.SqlClient;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-
-namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Persistence
 {
-    public class Persistence:IPersistMessages
+    using System;
+    using System.Collections.Specialized;
+    using System.Data.SqlClient;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
+
+    public class SqlPersistence:IPersistMessages
     {
         public string ConnectionString { get; set; }
 

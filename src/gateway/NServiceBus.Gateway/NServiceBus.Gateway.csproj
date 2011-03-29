@@ -70,11 +70,13 @@
     <Compile Include="GatewayService.cs" />
     <Compile Include="Hasher.cs" />
     <Compile Include="HeaderMapper.cs" />
-    <Compile Include="HttpReceiver.cs" />
+    <Compile Include="IChannel.cs" />
     <Compile Include="IPersistMessages.cs" />
     <Compile Include="INotifyAboutMessages.cs" />
-    <Compile Include="HttpSender.cs" />
-    <Compile Include="Persistence.cs" />
+    <Compile Include="HttpChannel.cs" />
+    <Compile Include="MsmqInputDispatcher.cs" />
+    <Compile Include="Persistence\InMemoryPersistence.cs" />
+    <Compile Include="Persistence\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CallInfo.cs" />
   </ItemGroup>

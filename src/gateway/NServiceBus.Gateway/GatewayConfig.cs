@@ -3,10 +3,10 @@
     using System.Configuration;
     using System.Net;
     using System.Threading;
+    using ObjectBuilder;
+    using Persistence;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
 
     public class GatewayConfig : IWantCustomInitialization
     {
@@ -18,6 +18,10 @@
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
             string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
+            var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
+            var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
+            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+         
 
 
             int numberOfWorkerThreads;
@@ -27,37 +31,32 @@
 
             ThreadPool.SetMaxThreads(numberOfWorkerThreads, numberOfWorkerThreads);
 
-
+            //todo, use the one from the main bus
             var messageSender = new MsmqMessageSender { UseDeadLetterQueue = true, UseJournalQueue = true };
 
-            var transport = new TransactionalTransport
-                                {
-                                    MessageReceiver = new MsmqMessageReceiver(),
-                                    IsTransactional = true,
-                                    NumberOfWorkerThreads = numberOfWorkerThreads
-                                };
 
             var notifier = new MessageNotifier();
 
             Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(messageSender);
-            Configure.Instance.Configurer.RegisterSingleton<ITransport>(transport);
             Configure.Instance.Configurer.RegisterSingleton<INotifyAboutMessages>(notifier);
             Configure.Instance.Configurer.RegisterSingleton<IMessageNotifier>(notifier);
 
-            transport.TransportMessageReceived += (s, e) =>
-                {
-                    new HttpSender(notifier, listenUrl).Send(e.Message, remoteUrl);
+            Configure.Instance.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
+               .ConfigureProperty(p => p.DestinationAddress, outputQueue);
+          
+            Configure.Instance.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.ConnectionString, connectionString);
 
-
-                    //todo get audit settings from the audit settings of the host (possibly allowing to override in config)
-                    if (!string.IsNullOrEmpty(audit))
-                        messageSender.Send(e.Message, audit);
-                };
-
-            var listener = new HttpListener();
-            listener.Prefixes.Add(listenUrl);
-
-            Configure.Instance.Configurer.RegisterSingleton<HttpListener>(listener);
+            Configure.Instance.Configurer.ConfigureComponent<HttpChannel>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.ListenUrl, listenUrl)
+                .ConfigureProperty(p => p.ReturnAddress, inputQueue);
+      
+            Configure.Instance.Configurer.ConfigureComponent<MsmqInputDispatcher>(DependencyLifecycle.SingleInstance)
+             .ConfigureProperty(p => p.NumberOfWorkerThreads, numberOfWorkerThreads)
+             .ConfigureProperty(p => p.InputQueue, inputQueue)
+             .ConfigureProperty(p => p.RemoteAddress, remoteUrl);
         }
+
+
     }
 }

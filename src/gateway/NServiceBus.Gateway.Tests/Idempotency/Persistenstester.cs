@@ -5,6 +5,7 @@
     using System.Configuration;
     using System.Diagnostics;
     using System.Transactions;
+    using Persistence;
 
     public class Persistenstester
     {
@@ -17,7 +18,7 @@
         public void TestPersistence()
         {
             var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-            var p = new Persistence
+            var p = new SqlPersistence
                         {
                             ConnectionString = connectionString
                         };

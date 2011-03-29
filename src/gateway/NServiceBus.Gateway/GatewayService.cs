@@ -1,54 +1,58 @@
 ﻿namespace NServiceBus.Gateway
 {
-    using System.Configuration;
-    using System.Net;
-    using System.Threading;
+    using log4net;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     public class GatewayService : IWantToRunAtStartup
     {
-        public GatewayService(ITransport transport, ISendMessages messageSender, IMessageNotifier notifier, HttpListener listener)
+        public string DestinationAddress { get; set; }
+
+        public GatewayService(MsmqInputDispatcher inputDispatcher,IChannel channel,ISendMessages messageSender)
         {
-            this.transport = transport;
-            this.listener = listener;
-            this.notifier = notifier;
+            this.inputDispatcher = inputDispatcher;
+            this.channel = channel;
             this.messageSender = messageSender;
         }
 
         public void Run()
+        { 
+            inputDispatcher.Start();
+
+            //todo start all the channels (when we support multiple channels)
+            channel.MessageReceived+=MessageReceivedOnChannel;
+            channel.Start();
+        }
+
+        void MessageReceivedOnChannel(object sender, MessageForwardingArgs e)
         {
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-            var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
-            var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
+            var messageToSend = e.Message;
 
-            transport.Start(inputQueue);
-            listener.Start();
+            string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
+            string destination;
+            if (messageToSend.Headers.ContainsKey(routeTo))
+                destination = messageToSend.Headers[routeTo];
+            else
+                destination = DestinationAddress;
 
-            while (!stopRequested)
-            {
-                ThreadPool.QueueUserWorkItem(
-                    o => new HttpReceiver(messageSender, 
-                                                notifier, 
-                                                inputQueue, 
-                                                outputQueue, 
-                                                new Persistence { ConnectionString = connectionString }).Handle(o as HttpListenerContext),
-                    listener.GetContext());
-            }
+            Logger.Info("Sending message to " + destination);
+
+            messageSender.Send(messageToSend, destination);
+
+            //todo
+            messageSender.Send(e.Message,"destination");
         }
 
         public void Stop()
         {
-            stopRequested = true;
+            channel.Stop();
         }
-        
-        volatile bool stopRequested;
 
-        readonly ITransport transport;
+
+
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        readonly IChannel channel;
         readonly ISendMessages messageSender;
-        readonly IMessageNotifier notifier;
-        readonly HttpListener listener;
-
-
+        readonly MsmqInputDispatcher inputDispatcher;
+        
     }
 }

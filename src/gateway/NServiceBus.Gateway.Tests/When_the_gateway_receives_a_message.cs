@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using NUnit.Framework;
-    using Rhino.Mocks;
-    using Unicast.Transport;
 
     [TestFixture]
     public class When_the_gateway_receives_a_message:on_its_input_queue
@@ -16,10 +14,10 @@
                                               SomeProperty = "test"
                                           });
 
-            notifier.AssertWasCalled(x => x.RaiseMessageProcessed(Arg<TransportTypeEnum>.Is.Equal(TransportTypeEnum.FromHttpToMsmq),
-                                                                  Arg<TransportMessage>.Is.NotNull));
 
+            Assert.NotNull(GetResultingMessage());
         }
+
     }
 
 
@@ -34,11 +32,12 @@
                                               LargeString = new DataBusProperty<string>("a laaaarge string")
                                           });
 
-            notifier.AssertWasCalled(x => x.RaiseMessageProcessed(Arg<TransportTypeEnum>.Is.Equal(TransportTypeEnum.FromHttpToMsmq),
-                                                                  Arg<TransportMessage>.Is.NotNull));
-
+            Assert.NotNull(GetResultingMessage());
         }
     }
+
+ 
+
     public class RegularMessage : IMessage
     {
         public string SomeProperty{ get; set; }

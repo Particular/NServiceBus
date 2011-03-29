@@ -6,6 +6,8 @@ using System.Collections.Specialized;
 
 namespace NServiceBus.Gateway
 {
+    using System.Web;
+
     public class HeaderMapper
     {
         public static void Map(NameValueCollection from, TransportMessage to)
@@ -25,7 +27,7 @@ namespace NServiceBus.Gateway
             to.Headers = new Dictionary<string, string>();
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Headers.HeaderName))
-                    to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
+                   to.Headers.Add(HttpUtility.UrlDecode(header).Replace(NServiceBus + Headers.HeaderName + ".", ""), HttpUtility.UrlDecode(from[header]));
         }
 
         public static void Map(TransportMessage from, NameValueCollection to)
@@ -42,7 +44,7 @@ namespace NServiceBus.Gateway
             if (from.Headers.ContainsKey(ReturnAddress))
                 to[Headers.RouteTo] = from.Headers[ReturnAddress];
 
-            from.Headers.ToList().ForEach(info => to[NServiceBus + Headers.HeaderName + "." + info.Key] = info.Value);
+            from.Headers.ToList().ForEach(info => to[HttpUtility.UrlEncode(NServiceBus + Headers.HeaderName + "." + info.Key)] = HttpUtility.UrlEncode(info.Value));
         }
 
         public const string NServiceBus = "NServiceBus.";
