@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Resource;
-using Castle.Windsor.Configuration.Interpreters;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -49,6 +47,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         {
             Dispose(true);
         }
+
+		/// <summary>
+		/// Releases unmanaged and - optionally - managed resources
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing || disposed)
@@ -94,7 +97,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            container.Kernel.AddComponentInstance(Guid.NewGuid().ToString(), lookupType, instance);
+        	container.Kernel.Register(Component.For(lookupType).Named(Guid.NewGuid().ToString()).Instance(instance));
         }
 
         object IContainer.Build(Type typeToBuild)
@@ -121,7 +124,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 case DependencyLifecycle.SingleInstance: 
                     return LifestyleType.Singleton;
                 case DependencyLifecycle.InstancePerUnitOfWork:
-                    return LifestyleType.Undefined;
+                    return LifestyleType.Transient;
             }
 
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
@@ -145,15 +148,6 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return container.Kernel.GetAssignableHandlers(typeof(object))
                 .Where(h => h.ComponentModel.Implementation == concreteComponent)
                 .FirstOrDefault();
-        }
-    }
-
-    internal class NoOpInterpreter:AbstractInterpreter
-
-    {
-        public override void ProcessResource(IResource resource, IConfigurationStore store)
-        {
-            
         }
     }
 }

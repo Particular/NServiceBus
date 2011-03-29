@@ -42,7 +42,7 @@ namespace ObjectBuilder.Tests
             },
             typeof(SpringObjectBuilder),
             typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
-            //typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
+            typeof(NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder),
             typeof(NinjectObjectBuilder));
         }
     }
