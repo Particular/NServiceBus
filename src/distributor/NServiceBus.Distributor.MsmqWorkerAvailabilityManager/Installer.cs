@@ -2,7 +2,7 @@
 using NServiceBus.Installation;
 using NServiceBus.Utils;
 
-namespace MsmqWorkerAvailabilityManager
+namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
     class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
     {

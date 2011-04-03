@@ -3,7 +3,7 @@ using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 using NServiceBus.Utils;
 
-namespace MsmqWorkerAvailabilityManager
+namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
 	/// <summary>
 	/// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used

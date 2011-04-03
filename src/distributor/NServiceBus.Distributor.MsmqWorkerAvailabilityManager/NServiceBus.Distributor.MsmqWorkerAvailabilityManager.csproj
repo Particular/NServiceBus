@@ -8,8 +8,8 @@
     <ProjectGuid>{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MsmqWorkerAvailabilityManager</RootNamespace>
-    <AssemblyName>MsmqWorkerAvailabilityManager</AssemblyName>
+    <RootNamespace>NServiceBus.Distributor.MsmqWorkerAvailabilityManager</RootNamespace>
+    <AssemblyName>NServiceBus.Distributor.MsmqWorkerAvailabilityManager</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -57,10 +57,29 @@
     <Reference Include="NServiceBus, Version=1.9.3.40920, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Config, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Installation.Windows">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -80,6 +99,7 @@
     <ProjectReference Include="..\NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj">
       <Project>{D142D372-C9FA-4505-A6EB-E919746F0FF1}</Project>
       <Name>NServiceBus.Unicast.Distributor</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

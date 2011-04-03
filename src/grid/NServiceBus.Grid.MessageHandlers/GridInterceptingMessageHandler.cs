@@ -20,12 +20,6 @@ namespace NServiceBus.Grid.MessageHandlers
         public IBus Bus { get; set; }
 
         /// <summary>
-        /// Used to prevent ready messages from being sent to the distributor
-        /// when grid messages are processed.
-        /// </summary>
-        public IManageReadyMessages ReadyManager { get; set; }
-
-        /// <summary>
         /// Used to abort handling messages when the endpoint has been disabled.
         /// </summary>
         public ITransport Transport { get; set; }
@@ -69,7 +63,6 @@ namespace NServiceBus.Grid.MessageHandlers
                 message is ChangeNumberOfWorkerThreadsMessage ||
                 message is GotNumberOfWorkerThreadsMessage)
             {
-                this.ReadyManager.SkipSendingReadyMessageOnce();
                 return;
             }
 
