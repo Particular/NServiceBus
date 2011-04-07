@@ -143,7 +143,19 @@ namespace NServiceBus.Testing
             return this;
         }
 
-        /// <summary>
+		/// <summary>
+		/// Check that the saga does not publish any messages of the given type complying with the given predicate.
+		/// </summary>
+		/// <typeparam name="TMessage"></typeparam>
+		/// <param name="check"></param>
+		/// <returns></returns>
+		public Handler<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+		{
+			helper.ExpectNotPublish(check);
+			return this;
+		}
+		
+		/// <summary>
         /// Check that the handler tells the bus to stop processing the current message.
         /// </summary>
         /// <returns></returns>
