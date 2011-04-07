@@ -1,8 +1,8 @@
-﻿using System;
-using NServiceBus.Unicast.Transport;
-
+﻿
 namespace NServiceBus.Faults.Forwarder
 {
+	using System;
+	using NServiceBus.Unicast.Transport;
     using Unicast.Queuing;
 
     /// <summary>
@@ -36,7 +36,12 @@ namespace NServiceBus.Faults.Forwarder
         private static void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
             message.Headers["ExceptionInfo.Reason"] = reason;
-            message.Headers["ExceptionInfo.HelpLink"] = e.HelpLink;
+			message.Headers["ExceptionInfo.ExceptionType"] = e.GetType().FullName;
+
+			if (e.InnerException != null)
+				message.Headers["ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+            
+			message.Headers["ExceptionInfo.HelpLink"] = e.HelpLink;
             message.Headers["ExceptionInfo.Message"] = e.Message;
             message.Headers["ExceptionInfo.Source"] = e.Source;
             message.Headers["ExceptionInfo.StackTrace"] = e.StackTrace;
