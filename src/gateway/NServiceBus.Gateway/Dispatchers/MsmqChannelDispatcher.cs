@@ -1,18 +1,20 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Dispatchers
 {
+    using Channels;
+    using Notifications;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
-    public class MsmqInputDispatcher
+    public class MsmqChannelDispatcher:IDispatchMessagesToChannels
     {
         public string RemoteAddress { get; set; }
 
         public string InputQueue { get; set; }
 
-        public MsmqInputDispatcher(IChannel channel, IMessageNotifier notifier)
+        public MsmqChannelDispatcher(IChannelSender channelSender, IMessageNotifier notifier)
         {
-            this.channel = channel;
+            this.channelSender = channelSender;
             this.notifier = notifier;
         }
 
@@ -22,6 +24,7 @@
 
             transport = new TransactionalTransport
                             {
+                                //todo grab the receiver from the main bus and clone
                                 MessageReceiver = new MsmqMessageReceiver(),
                                 IsTransactional = true,
                                 NumberOfWorkerThreads = templateTransport.NumberOfWorkerThreads == 0 ? 1 : templateTransport.NumberOfWorkerThreads,
@@ -34,7 +37,7 @@
             {
                 var address = GetRemoteAddress(RemoteAddress, e.Message);
 
-                channel.Send(e.Message, address);
+                channelSender.Send(e.Message, address);
 
                 notifier.RaiseMessageForwarded(ChannelType.Msmq, ChannelType.Http, e.Message);
 
@@ -56,7 +59,7 @@
             return address;
         }
 
-        readonly IChannel channel;
+        readonly IChannelSender channelSender;
         readonly IMessageNotifier notifier;
         ITransport transport;
 

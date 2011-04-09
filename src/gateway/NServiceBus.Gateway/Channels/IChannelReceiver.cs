@@ -1,15 +1,16 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Channels
 {
     using System;
-    using Unicast.Transport;
+    using Notifications;
 
-    public interface IChannel
+    public interface IChannelReceiver
     {
         ChannelType Type { get; }
-        void Send(TransportMessage msg, string remoteAddress);
-
+  
         event EventHandler<MessageForwardingArgs> MessageReceived;
+  
         void Start();
+  
         void Stop();
     }
 

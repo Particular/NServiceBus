@@ -1,6 +1,10 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using System.Threading;
+    using Channels;
+    using Channels.Http;
+    using Dispatchers;
+    using Notifications;
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
@@ -9,12 +13,12 @@
     {
         const string TEST_INPUT_QUEUE = "Gateway.Tests.Input";
 
-        protected IChannel httpChannel;
+        protected IChannelReceiver HttpChannelReceiver;
     
         [SetUp]
         public void SetUp()
         {
-            httpChannel = new HttpChannel(new InMemoryPersistence())
+            HttpChannelReceiver = new HttpChannelReceiver(new InMemoryPersistence())
                               {
                                   ListenUrl = "http://localhost:8092/notused",
                                   ReturnAddress = "Gateway.Tests.Input"
@@ -23,7 +27,7 @@
             bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .FileShareDataBus("./databus_receiver")
+                .FileShareDataBus("./databus_test_receiver")
                 .InMemoryFaultManagement()
                 .UnicastBus()
                 .MsmqTransport()
@@ -31,7 +35,7 @@
                 .Start();
 
             
-            dispatcher = new MsmqInputDispatcher(httpChannel, MockRepository.GenerateStub<IMessageNotifier>())
+            dispatcher = new MsmqChannelDispatcher(new HttpChannelSender(), MockRepository.GenerateStub<IMessageNotifier>())
                              {
                                  InputQueue = TEST_INPUT_QUEUE,
                                  RemoteAddress = "http://localhost:8090/Gateway/"
@@ -72,7 +76,7 @@
         static IMessageContext messageContext;
         static ManualResetEvent messageReceived;
         static IBus bus;
-        MsmqInputDispatcher dispatcher;
+        MsmqChannelDispatcher dispatcher;
 
     }
 }

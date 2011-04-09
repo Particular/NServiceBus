@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.Unicast.Transport;
-using System.Collections.Specialized;
-
-namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Channels.Http
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using NServiceBus.Unicast.Transport;
+    using System.Collections.Specialized;
     using System.Web;
 
     public class HeaderMapper

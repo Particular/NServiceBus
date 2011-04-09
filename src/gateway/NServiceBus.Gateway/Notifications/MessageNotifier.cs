@@ -1,24 +1,8 @@
-﻿using System;
-using NServiceBus.Unicast.Transport;
-
-namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Notifications
 {
-    public interface INotifyAboutMessages
-    {
-        event EventHandler<MessageForwardingArgs> MessageForwarded;
-    }
-
-    public class MessageForwardingArgs : EventArgs
-    {
-        public TransportMessage Message { get; set; }
-        public ChannelType FromChannel { get; set; }
-        public ChannelType ToChannel { get; set; }
-    }
-
-    public interface IMessageNotifier : INotifyAboutMessages
-    {
-        void RaiseMessageForwarded(ChannelType from,ChannelType to, TransportMessage message);
-    }
+    using System;
+    using Channels;
+    using NServiceBus.Unicast.Transport;
 
     internal class MessageNotifier : IMessageNotifier
     {

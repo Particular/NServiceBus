@@ -1,6 +1,9 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using System.Threading;
+    using Channels;
+    using Channels.Http;
+    using Notifications;
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
@@ -12,8 +15,10 @@
         protected ISendMessages testSender;
         protected IPersistMessages messagePersister;
 
-        protected IChannel httpChannel;
+        protected IChannelReceiver HttpChannelReceiver;
         IBus bus;
+
+        protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
 
         [SetUp]
         public void SetUp()
@@ -23,21 +28,21 @@
             messagePersister = new InMemoryPersistence();
 
 
-            httpChannel = new HttpChannel(messagePersister)
+            HttpChannelReceiver = new HttpChannelReceiver(messagePersister)
                               {
                                   ListenUrl = "http://localhost:8092/Gateway/",
                                   ReturnAddress = "Gateway.Tests.Input"
                               };
 
-            httpChannel.MessageReceived += httpChannel_MessageReceived;
+            HttpChannelReceiver.MessageReceived += httpChannel_MessageReceived;
 
-            httpChannel.Start();
+            HttpChannelReceiver.Start();
 
 
             bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .FileShareDataBus("./databus")
+                .FileShareDataBus(DATABUS_DIRECTORY)
                 .InMemoryFaultManagement()
                 .UnicastBus()
                 .MsmqTransport()
@@ -55,7 +60,7 @@
         TransportMessage transportMessage;
         ManualResetEvent messageReceived;
 
-        protected object GetResultingMessage()
+        protected TransportMessage GetResultingMessage()
         {
             messageReceived.WaitOne();
             return transportMessage;
@@ -74,7 +79,7 @@
         [TearDown]
         public void TearDown()
         {
-            httpChannel.Stop();
+            HttpChannelReceiver.Stop();
         }
     }
 }

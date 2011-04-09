@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Persistence
 {
     using System;
     using System.Collections.Specialized;

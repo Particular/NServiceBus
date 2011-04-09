@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Channels.Http
 {
     public class CallInfo
     {

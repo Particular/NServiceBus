@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text;
-using System.Security.Cryptography;
-
-namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Channels.Http
 {
+    using System;
+    using System.Security.Cryptography;
+
     public class Hasher
     {
         public const string HeaderKey = "NServiceBus.Header.Gateway.Hash";
