@@ -441,13 +441,15 @@ namespace NServiceBus.Serializers.XML
         {
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
+                var text = n.ChildNodes[0].InnerText;
+
                 var args = type.GetGenericArguments();
                 if (args.Length == 1)
                 {
                     var nullableType = typeof (Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        if (n.ChildNodes[0].InnerText.ToLower() == "null")
+                        if (text.ToLower() == "null")
                             return null;
 
                         return GetPropertyValue(args[0], n);
@@ -455,31 +457,69 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 if (type == typeof(string))
-                    return n.ChildNodes[0].InnerText;
+                    return text;
 
-                if (type.IsPrimitive || type == typeof(decimal))
-                    return Convert.ChangeType(n.ChildNodes[0].InnerText, type);
+                if (type == typeof(Boolean))
+                    return XmlConvert.ToBoolean(text);
 
-                if (type == typeof (Guid))
-                    return new Guid(n.ChildNodes[0].InnerText);
+                if (type == typeof(Byte))
+                    return XmlConvert.ToByte(text);
+
+                if (type == typeof(Char))
+                    return XmlConvert.ToChar(text);
 
                 if (type == typeof(DateTime))
-                    return XmlConvert.ToDateTime(n.ChildNodes[0].InnerText, XmlDateTimeSerializationMode.Utc);
-
-                if (type == typeof(TimeSpan))
-                    return XmlConvert.ToTimeSpan(n.ChildNodes[0].InnerText);
+                    return XmlConvert.ToDateTime(text, XmlDateTimeSerializationMode.RoundtripKind);
 
                 if (type == typeof(DateTimeOffset))
-                    return DateTimeOffset.Parse(n.ChildNodes[0].InnerText, null, DateTimeStyles.RoundtripKind);
+                    return XmlConvert.ToDateTimeOffset(text); 
+
+                if (type == typeof(decimal))
+                    return XmlConvert.ToDecimal(text);
+
+                if (type == typeof(double))
+                    return XmlConvert.ToDouble(text);
+
+                if (type == typeof(Guid))
+                    return XmlConvert.ToGuid(text);
+
+                if (type == typeof(Int16))
+                    return XmlConvert.ToInt16(text);
+
+                if (type == typeof(Int32))
+                    return XmlConvert.ToInt32(text);
+
+                if (type == typeof(Int64))
+                    return XmlConvert.ToInt64(text);
+
+                if (type == typeof(sbyte))
+                    return XmlConvert.ToSByte(text);
+
+                if (type == typeof(Single))
+                    return XmlConvert.ToSingle(text);
+
+                if (type == typeof(TimeSpan))
+                    return XmlConvert.ToTimeSpan(text);
+
+                if (type == typeof(UInt16))
+                    return XmlConvert.ToUInt16(text);
+
+                if (type == typeof(UInt32))
+                    return XmlConvert.ToUInt32(text);
+
+                if (type == typeof(UInt64))
+                    return XmlConvert.ToUInt64(text);
 
                 if (type.IsEnum)
-                    return Enum.Parse(type, n.ChildNodes[0].InnerText);
+                    return Enum.Parse(type, text);
 
                 if (type == typeof(byte[]))
-                    return Convert.FromBase64String(n.ChildNodes[0].InnerText);
+                    return Convert.FromBase64String(text);
 
                 if (type == typeof(Uri))
-                    return new Uri(n.ChildNodes[0].InnerText);
+                    return new Uri(text);
+
+                throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
             }
 
             //Handle dictionaries
@@ -761,23 +801,42 @@ namespace NServiceBus.Serializers.XML
 
         private static string FormatAsString(object value)
         {
-            if (value == null)
-                return string.Empty;
             if (value is bool)
-                return value.ToString().ToLower();
+                return XmlConvert.ToString((bool) value);
+            if (value is byte)
+                return XmlConvert.ToString((byte) value);
+            if (value is char)
+                return XmlConvert.ToString((char) value);
+            if (value is double)
+                return XmlConvert.ToString((double) value);
+            if (value is ulong)
+                return XmlConvert.ToString((ulong) value);
+            if (value is uint)
+                return XmlConvert.ToString((uint) value);
+            if (value is ushort)
+                return XmlConvert.ToString((ushort) value);
+            if (value is long)
+                return XmlConvert.ToString((long) value);
+            if (value is int)
+                return XmlConvert.ToString((int) value);
+            if (value is short)
+                return XmlConvert.ToString((short) value);
+            if (value is sbyte)
+                return XmlConvert.ToString((sbyte) value);
+            if (value is decimal)
+                return XmlConvert.ToString((decimal) value);
+            if (value is float)
+                return XmlConvert.ToString((float) value);
+            if (value is Guid)
+                return XmlConvert.ToString((Guid) value);
+            if (value is DateTime)
+                return XmlConvert.ToString((DateTime)value, XmlDateTimeSerializationMode.RoundtripKind);
+            if (value is DateTimeOffset)
+                return XmlConvert.ToString((DateTimeOffset)value);
+            if (value is TimeSpan)
+                return XmlConvert.ToString((TimeSpan) value);
             if (value is string)
                 return System.Security.SecurityElement.Escape(value as string);
-            if (value is DateTime)
-                return ((DateTime)value).ToString("yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture);
-            if (value is TimeSpan)
-            {
-                TimeSpan ts = (TimeSpan) value;
-                return string.Format("{0}P0Y0M{1}DT{2}H{3}M{4}.{5:000}S", (ts.TotalSeconds < 0 ? "-" : ""), Math.Abs(ts.Days), Math.Abs(ts.Hours), Math.Abs(ts.Minutes), Math.Abs(ts.Seconds), Math.Abs(ts.Milliseconds));
-            }
-            if (value is DateTimeOffset)
-                return ((DateTimeOffset)value).ToString("o", CultureInfo.InvariantCulture);
-            if (value is Guid)
-                return ((Guid) value).ToString();
 
             return value.ToString();
         }

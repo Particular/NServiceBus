@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serialization;
@@ -52,6 +54,34 @@ namespace NServiceBus.Serializers.XML.Test
                 Assert.AreEqual(message.GenericProperty.WhatEver,result.GenericProperty.WhatEver);
             }
                 
+        }
+
+        [Test]
+        public void Culture()
+        {
+            var mapper = new MessageMapper();
+            var serializer = new MessageSerializer();
+            serializer.MessageMapper = mapper;
+
+            serializer.MessageTypes = new List<Type>(new[] { typeof(MessageWithDouble)});
+
+            double val = 65.36;
+            var msg = new MessageWithDouble {Double = val};
+
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
+
+            var stream = new MemoryStream();
+            serializer.Serialize(new [] { msg }, stream);
+
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
+            stream.Position = 0;
+            var msgArray = serializer.Deserialize(stream);
+            var m = msgArray[0] as MessageWithDouble;
+
+            Assert.AreEqual(val, m.Double);
+
+            stream.Dispose();
         }
 
         [Test]
@@ -264,6 +294,11 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
+    }
+
+    public class MessageWithDouble:IMessage
+    {
+        public double Double { get; set; }
     }
 
     public class MessageWithGenericProperty:IMessage
