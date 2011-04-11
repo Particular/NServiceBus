@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.Gateway.Channels
 {
-    using Unicast.Transport;
+    using System.Collections.Specialized;
 
     public interface IChannelSender
     {
-        void Send(TransportMessage msg, string remoteAddress);
+        ChannelType Type { get; }
+  
+        void Send(string remoteAddress,NameValueCollection headers,byte[] body);
     }
 }

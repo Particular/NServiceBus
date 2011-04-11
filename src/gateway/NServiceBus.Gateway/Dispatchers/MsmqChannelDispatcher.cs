@@ -1,6 +1,9 @@
 ﻿namespace NServiceBus.Gateway.Dispatchers
 {
+    using System;
+    using System.Collections.Specialized;
     using Channels;
+    using Channels.Http;
     using Notifications;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
@@ -35,16 +38,27 @@
 
             transport.TransportMessageReceived += (s, e) =>
             {
-                var address = GetRemoteAddress(RemoteAddress, e.Message);
+                var transportMessage = e.Message;
 
-                channelSender.Send(e.Message, address);
+                var address = GetRemoteAddress(RemoteAddress, transportMessage);
 
-                notifier.RaiseMessageForwarded(ChannelType.Msmq, ChannelType.Http, e.Message);
+                //todo - why are we doing this?
+                if (!String.IsNullOrEmpty(transportMessage.IdForCorrelation))
+                    transportMessage.IdForCorrelation = transportMessage.Id;
+
+                var headers = new NameValueCollection();
+
+                HeaderMapper.Map(transportMessage, headers);
+
+                channelSender.Send(address,headers,transportMessage.Body);
+
+                notifier.RaiseMessageForwarded(ChannelType.Msmq, channelSender.Type, transportMessage);
 
                 //todo get audit settings from the audit settings of the host (possibly allowing to override in config)
                 //if (!string.IsNullOrEmpty(audit))
                 // messageSender.Send(e.Message, audit);
             };
+
             transport.Start(InputQueue);
         }
 

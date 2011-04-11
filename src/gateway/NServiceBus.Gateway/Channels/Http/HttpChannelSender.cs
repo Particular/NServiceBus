@@ -1,47 +1,77 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.Collections.Specialized;
     using System.Net;
+    using System.Web;
+    using DataBus;
     using log4net;
-    using Unicast.Transport;
 
-    public class HttpChannelSender:IChannelSender
+    public class HttpChannelSender : IChannelSender
     {
-        public void Send(TransportMessage msg, string remoteUrl)
+        public ChannelType Type { get { return ChannelType.Http; } }
+
+
+        public void Send(string remoteUrl,NameValueCollection headers,byte[] body)
         {
-            var headers = new WebHeaderCollection();
+            MakeHttpRequest(remoteUrl, CallType.Submit, headers, body);
 
-            if (!String.IsNullOrEmpty(msg.IdForCorrelation))
-                msg.IdForCorrelation = msg.Id;
+            TransmittDataBusProperties(remoteUrl, headers);
 
-            HeaderMapper.Map(msg, headers);
+            MakeHttpRequest(remoteUrl, CallType.Ack, headers, new byte[0]);
+        }
 
 
-            var buffer = msg.Body;
+        void TransmittDataBusProperties(string remoteUrl, NameValueCollection headers)
+        {
+            var headersToSend = new NameValueCollection {headers};
 
+
+            foreach (string headerKey in headers.Keys)
+            {
+                if (headerKey.Contains(DATABUS_PREFIX))
+                {
+                    if (DataBus == null)
+                        throw new InvalidOperationException("Can't send a message with a databus property without a databus configured");
+
+                    headersToSend[GatewayHeaders.DatabusKey] = headerKey;
+
+                    using (var stream = DataBus.Get(headers[headerKey]))
+                    {
+                        var buffer = new byte[stream.Length];
+                        stream.Read(buffer, 0, (int)stream.Length);
+
+                        MakeHttpRequest(remoteUrl, CallType.DatabusProperty, headersToSend, buffer);
+                    }
+                }
+
+            }
+
+        }
+
+        void MakeHttpRequest(string remoteUrl, CallType callType, NameValueCollection headers, byte[] buffer)
+        {
+            headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
+            headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(buffer);
+            headers["NServiceBus.Gateway"] = "true";
+
+            headers[HttpHeaders.FromKey] = ListenUrl;
+  
 
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
 
 
             request.ContentType = "application/x-www-form-urlencoded";
+            request.Headers = Encode(headers);
 
 
-            string hash = Hasher.Hash(buffer);
-            headers[HttpHeaders.ContentMd5Key] = hash;
-            headers["NServiceBus.Gateway"] = "true";
-
-            //todo the from key isn't used for anything, remove?
-            headers[HttpHeaders.FromKey] = ListenUrl;
-            headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), CallType.Submit);
-
-            request.Headers = headers;
             request.ContentLength = buffer.Length;
 
             var stream = request.GetRequestStream();
             stream.Write(buffer, 0, buffer.Length);
 
-            Logger.Debug("Sending message to: " + remoteUrl);
+            Logger.DebugFormat("Sending message - {0} to: {1}", callType, remoteUrl);
             int statusCode;
 
             using (var response = request.GetResponse() as HttpWebResponse)
@@ -52,38 +82,27 @@
 
             if (statusCode != 200)
             {
-                Logger.Info("Message not transferred successfully. Trying again...");
-                throw new Exception("Retrying");
-            }
-
-            Logger.Debug("Message transferred successfully. Going to acknowledge.");
-
-            var ack = WebRequest.Create(remoteUrl);
-            ack.Method = "POST";
-            ack.ContentType = "application/x-www-form-urlencoded";
-            ack.Headers = headers;
-            ack.Headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), CallType.Ack);
-            ack.ContentLength = 0;
-
-            Logger.Debug("Sending ack to: " + remoteUrl);
-
-            int ackCode;
-            using (var ackResponse = ack.GetResponse() as HttpWebResponse)
-                ackCode = (int)ackResponse.StatusCode;
-
-            Logger.Debug("Got HTTP response with status code " + ackCode);
-
-            if (ackCode != 200)
-            {
-                Logger.Info("Ack not transferred successfully. Trying again...");
+                Logger.Warn("Message not transferred successfully. Trying again...");
                 throw new Exception("Retrying");
             }
         }
 
+        static WebHeaderCollection Encode(NameValueCollection headers)
+        {
+            var webHeaders = new WebHeaderCollection();
+
+            foreach (string header in headers.Keys)
+                webHeaders.Add(HttpUtility.UrlEncode(header), HttpUtility.UrlEncode(headers[header]));
+
+            return webHeaders;
+        }
+
+        public IDataBus DataBus { get; set; }
+
         public string ListenUrl { get; set; }
 
+        const string DATABUS_PREFIX = "NServiceBus.DataBus.";
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-
     }
 }

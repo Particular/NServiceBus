@@ -6,13 +6,13 @@
 
     internal class MessageNotifier : IMessageNotifier
     {
-        public event EventHandler<MessageForwardingArgs> MessageForwarded;
+        public event EventHandler<MessageReceivedOnChannelArgs> MessageForwarded;
         
         
         void IMessageNotifier.RaiseMessageForwarded(ChannelType from, ChannelType to, TransportMessage message)
         {
             if (MessageForwarded != null)
-                MessageForwarded(this, new MessageForwardingArgs
+                MessageForwarded(this, new MessageReceivedOnChannelArgs
                                            {
                                                FromChannel = from,
                                                ToChannel = to, 

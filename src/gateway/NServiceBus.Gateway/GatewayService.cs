@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway
 {
+    using System;
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
@@ -8,9 +9,11 @@
     using Notifications;
     using Unicast.Queuing;
 
-    public class GatewayService
+    public class GatewayService:IDisposable
     {
         public string DefaultDestinationAddress { get; set; }
+
+        public string ReturnAddress { get; set; }
 
         public GatewayService(IDispatchMessagesToChannels channelDispatcher, ISendMessages messageSender)
         {
@@ -33,9 +36,11 @@
         }
 
         //todo abstract this behind a "output forwarder"
-        void MessageReceivedOnChannel(object sender, MessageForwardingArgs e)
+        void MessageReceivedOnChannel(object sender, MessageReceivedOnChannelArgs e)
         {
             var messageToSend = e.Message;
+
+            messageToSend.ReturnAddress = ReturnAddress;
 
             string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
             var destination = DefaultDestinationAddress;
@@ -48,7 +53,7 @@
             messageSender.Send(messageToSend, destination);
         }
 
-        public void Stop()
+        public void Dispose()
         {
             foreach (var channel in channels)
             {
@@ -56,12 +61,9 @@
             }
         }
 
-
-
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
         readonly ISendMessages messageSender;
         readonly IEnumerable<IChannelReceiver> channels;
         readonly IDispatchMessagesToChannels channelDispatcher;
-
     }
 }

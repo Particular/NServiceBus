@@ -5,8 +5,10 @@
 
     public interface IPersistMessages
     {
-        bool InsertMessage(DateTime dateTime, string clientId, byte[] md5, byte[] message, NameValueCollection headers);
+        bool InsertMessage(string clientId,DateTime timeReceived, byte[] message, NameValueCollection headers);
 
-        void AckMessage(string clientId, byte[] md5, out byte[] message, out NameValueCollection headers);
+        void AckMessage(string clientId, out byte[] message, out NameValueCollection headers);
+
+        void UpdateHeader(string clientId, string headerKey, string newValue);
     }
 }

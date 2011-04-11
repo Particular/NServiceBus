@@ -62,16 +62,18 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
     <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="GatewayHeaders.cs" />
     <Compile Include="GatewayService.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />
     <Compile Include="Channels\Http\HeaderMapper.cs" />
     <Compile Include="Channels\IChannelReceiver.cs" />
     <Compile Include="Notifications\IMessageNotifier.cs" />
-    <Compile Include="Notifications\MessageForwardingArgs.cs" />
+    <Compile Include="Notifications\MessageReceivedOnChannelArgs.cs" />
     <Compile Include="Notifications\MessageNotifier.cs" />
     <Compile Include="Persistence\IPersistMessages.cs" />
     <Compile Include="Notifications\INotifyAboutMessages.cs" />

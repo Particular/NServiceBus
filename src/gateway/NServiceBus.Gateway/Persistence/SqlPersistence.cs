@@ -10,12 +10,9 @@
     {
         public string ConnectionString { get; set; }
 
-        public bool InsertMessage(DateTime dateTime, string clientId, byte[] md5, byte[] message, NameValueCollection headers)
+        public bool InsertMessage(string clientId, DateTime timeReceived, byte[] message, NameValueCollection headers)
         {
             int results;
-
-            if (md5.Length != 16)
-                throw new ArgumentException("md5 must be 16 bytes.");
 
             var stream = new MemoryStream();
             serializer.Serialize(stream, headers);
@@ -29,22 +26,17 @@
 
                     var cmd = cn.CreateCommand();
                     cmd.CommandText =
-                        "IF NOT EXISTS (SELECT Status FROM Messages WHERE (ClientId = @ClientId) AND (MD5 = @MD5)) INSERT INTO Messages  (DateTime, ClientId, MD5, Status, Message, Headers) VALUES (@DateTime, @ClientId, @MD5, 0, @Message, @Headers)";
+                        "IF NOT EXISTS (SELECT Status FROM Messages WHERE (ClientId = @ClientId)) INSERT INTO Messages  (DateTime, ClientId, Status, Message, Headers) VALUES (@DateTime, @ClientId, 0, @Message, @Headers)";
 
                     var datetimeIdParam = cmd.CreateParameter();
                     datetimeIdParam.ParameterName = "@DateTime";
-                    datetimeIdParam.Value = dateTime;
+                    datetimeIdParam.Value = timeReceived;
                     cmd.Parameters.Add(datetimeIdParam);
 
                     var clientIdParam = cmd.CreateParameter();
                     clientIdParam.ParameterName = "@ClientId";
                     clientIdParam.Value = clientId;
                     cmd.Parameters.Add(clientIdParam);
-
-                    var md5Param = cmd.CreateParameter();
-                    md5Param.ParameterName = "@MD5";
-                    md5Param.Value = md5;
-                    cmd.Parameters.Add(md5Param);
 
                     var messageParam = cmd.CreateParameter();
                     messageParam.ParameterName = "@Message";
@@ -65,11 +57,8 @@
             return results > 0;
         }
 
-        public void AckMessage(string clientId, byte[] md5, out byte[] message, out NameValueCollection headers)
+        public void AckMessage(string clientId, out byte[] message, out NameValueCollection headers)
         {
-            if (md5.Length != 16)
-                throw new ArgumentException("md5 must be 16 bytes.");
-
             message = null;
             headers = null;
 
@@ -80,17 +69,12 @@
                 {
                     var cmd = cn.CreateCommand();
                     cmd.CommandText =
-                        "UPDATE Messages SET Status=1 WHERE (Status=0) AND (ClientId=@ClientId) AND (MD5=@MD5); SELECT Message, Headers FROM Messages WHERE (ClientId = @ClientId) AND (MD5 = @MD5) AND (@@ROWCOUNT = 1)";
+                        "UPDATE Messages SET Status=1 WHERE (Status=0) AND (ClientId=@ClientId); SELECT Message, Headers FROM Messages WHERE (ClientId = @ClientId) AND (@@ROWCOUNT = 1)";
 
                     var clientIdParam = cmd.CreateParameter();
                     clientIdParam.ParameterName = "@ClientId";
                     clientIdParam.Value = clientId;
                     cmd.Parameters.Add(clientIdParam);
-
-                    var md5Param = cmd.CreateParameter();
-                    md5Param.ParameterName = "@MD5";
-                    md5Param.Value = md5;
-                    cmd.Parameters.Add(md5Param);
 
                     var statusParam = cmd.CreateParameter();
                     statusParam.ParameterName = "@Status";
@@ -112,6 +96,12 @@
                     tx.Commit();
                 }
             }
+        }
+
+        public void UpdateHeader(string clientId, string headerKey, string newValue)
+        {
+            //todo
+            throw new NotImplementedException();
         }
 
         public int DeleteDeliveredMessages(DateTime until)

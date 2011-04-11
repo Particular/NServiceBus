@@ -2,9 +2,9 @@
 {
     using System;
     using Channels;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
-    public class MessageForwardingArgs : EventArgs
+    public class MessageReceivedOnChannelArgs : EventArgs
     {
         public TransportMessage Message { get; set; }
         public ChannelType FromChannel { get; set; }

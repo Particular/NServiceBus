@@ -24,7 +24,6 @@
                         };
 
             var clientId = Guid.NewGuid().ToString();
-            var md5 = new byte[16] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6};
             var msg = new byte[] {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
             var headers = new NameValueCollection();
             headers.Add("hello", "world");
@@ -33,7 +32,7 @@
             sw.Start();
             using (var scope = new TransactionScope())
             {
-                p.InsertMessage(DateTime.UtcNow, clientId, md5, msg, headers);
+                p.InsertMessage(clientId,DateTime.UtcNow, msg, headers);
                 scope.Complete();
             }
             
@@ -47,7 +46,7 @@
             sw.Start();
             using (var scope = new TransactionScope())
             {
-                p.AckMessage(clientId, md5, out outMessage, out outHeaders);
+                p.AckMessage(clientId, out outMessage, out outHeaders);
                 scope.Complete();
             }
             Trace.WriteLine("ack:" + sw.ElapsedTicks);

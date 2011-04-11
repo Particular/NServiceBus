@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.IO;
+    using System.Web;
     using log4net;
     using System.Net;
     using Notifications;
@@ -14,13 +16,24 @@
 
     public class HttpChannelReceiver:IChannelReceiver
     {
-        public ChannelType Type
+        public HttpChannelReceiver(IPersistMessages persister)
         {
-            get { return ChannelType.Http; }
+            this.persister = persister;
+
+            listener = new HttpListener();
         }
+        
+        public ChannelType Type { get { return ChannelType.Http; } }
+
+        public string ListenUrl { get; set; }
+
+        public IDataBus DataBus { get; set; }
+
+        public int NumberOfWorkerThreads { get; set; }
+
+        public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
        
-
         public void Start()
         {
             listener.Prefixes.Add(ListenUrl);
@@ -29,11 +42,127 @@
 
             listener.Start();
 
-            new Thread(StartHttpServer).Start();
-
+            new Thread(HttpServer).Start();
         }
 
-        void StartHttpServer()
+
+        public void Stop()
+        {
+            listener.Stop();
+        }
+
+        public void Handle(HttpListenerContext ctx)
+        {
+            try
+            {
+                var callInfo = GetCallInfo(ctx);
+
+                Logger.DebugFormat("Received message of type {0} for client id: {1}",callInfo.Type, callInfo.ClientId);
+
+     
+                //todo this is a msmq specific validation and should be moved into the msmq forwarder?
+                if (callInfo.Type == CallType.Submit && ctx.Request.ContentLength64 > 4 * 1024 * 1024)
+                    throw new HttpChannelException(413, "Cannot accept messages larger than 4MB.");
+
+               
+                switch(callInfo.Type)
+                {
+                    case CallType.Submit: HandleSubmit(callInfo); break;
+                    case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
+                    case CallType.Ack: HandleAck(callInfo); break;
+                }
+
+                ReportSuccess(ctx);
+            }
+            catch (HttpChannelException ex)
+            {
+                CloseResponseAndWarn(ctx, ex.Message, ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unexpected error", ex);
+                CloseResponseAndWarn(ctx, "Unexpected server error", 502);
+            }
+
+            Logger.Info("Http request processing complete.");
+        }
+
+        void HandleSubmit(CallInfo callInfo)
+        {
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
+            {
+                persister.InsertMessage(callInfo.ClientId,DateTime.UtcNow, callInfo.Buffer, callInfo.Headers);
+
+                scope.Complete();
+            }
+        }
+        
+        void HandleDatabusProperty(CallInfo callInfo)
+        {
+            if(DataBus == null)
+                throw new InvalidOperationException("Databus transmission received without a databus configured");
+
+            //todo
+            TimeSpan timeToBeReceived = TimeSpan.FromDays(1);
+
+            string newDatabusKey;
+
+            using(var stream = new MemoryStream(callInfo.Buffer))
+                newDatabusKey = DataBus.Put(stream,timeToBeReceived);
+     
+            
+           
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
+            {
+                persister.UpdateHeader(callInfo.ClientId, callInfo.Headers[GatewayHeaders.DatabusKey], newDatabusKey);
+
+                scope.Complete();
+            }
+        }
+
+        void HandleAck(CallInfo callInfo)
+        {
+            var msg = new TransportMessage();
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
+            {
+                byte[] outMessage;
+                NameValueCollection outHeaders;
+                
+                persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders);
+
+                if (outHeaders != null && outMessage != null)
+                {
+                    msg.Body = outMessage;
+                    
+                    HeaderMapper.Map(outHeaders, msg);
+                    if (msg.TimeToBeReceived < TimeSpan.FromSeconds(1))
+                        msg.TimeToBeReceived = TimeSpan.FromSeconds(1);
+
+                    msg.Recoverable = true;
+
+                    if (String.IsNullOrEmpty(msg.IdForCorrelation))
+                        msg.IdForCorrelation = msg.Id;
+
+                    if (msg.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
+                        msg.MessageIntent = MessageIntentEnum.Send;
+
+
+                    //todo this header is used by the httpheadermanager and need to be abstracted to support other channels
+                    if (callInfo.Headers[HttpHeaders.FromKey] != null)
+                        msg.Headers.Add(Headers.HttpFrom, callInfo.Headers[HttpHeaders.FromKey]);
+
+                    
+                    MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
+                }
+
+                scope.Complete();
+            }
+        }
+
+
+
+
+        void HttpServer()
         {
             while (true)
             {
@@ -55,143 +184,7 @@
             hasStopped.Set();
         }
 
-        public void Stop()
-        {
-           listener.Stop();
-        }
-
-        readonly ManualResetEvent hasStopped = new ManualResetEvent(false);
-        public string ListenUrl { get; set; }
-
-        public string ReturnAddress { get; set; }
-
-        public IDataBus DataBus { get; set; }
-
-        public int NumberOfWorkerThreads { get; set; }
-
-        public event EventHandler<MessageForwardingArgs> MessageReceived;
-
-        public HttpChannelReceiver(IPersistMessages persister)
-        {
-            this.persister = persister;
-
-            listener = new HttpListener();
-        }
-
-        public void Handle(HttpListenerContext ctx)
-        {
-            try
-            {
-                var callInfo = GetCallInfo(ctx);
-                
-                if (callInfo.Type == CallType.Submit && ctx.Request.ContentLength64 > 4 * 1024 * 1024)
-                {
-                    CloseResponseAndWarn(ctx, "Cannot accept messages larger than 4MB.", 413);
-                    return;
-                }
-
-                string hash = ctx.Request.Headers[HttpHeaders.ContentMd5Key];
-                if (hash == null)
-                {
-                    CloseResponseAndWarn(ctx, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.", 400);
-                    return;
-                }
-
-                switch(callInfo.Type)
-                {
-                    case CallType.Submit: HandleSubmit(ctx, callInfo); break;
-                    case CallType.DatabusProperty: HandleDatabusProperty(ctx, callInfo); break;
-                    case CallType.Ack: HandleAck(ctx, callInfo); break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Unexpected error", ex);
-                CloseResponseAndWarn(ctx, "Unexpected server error", 502);
-            }
-
-            Logger.Info("Http request processing complete.");
-        }
-
-        void HandleDatabusProperty(HttpListenerContext ctx, CallInfo callInfo)
-        {
-            Logger.Debug("Received databus property, id: " + callInfo.ClientId);
-
-            if(DataBus == null)
-                throw new InvalidOperationException("Databus transmission received without a databus configured");
-
-
-        }
-
-        private void HandleAck(HttpListenerContext ctx, CallInfo callInfo)
-        {
-            Logger.Debug("Received message ack for id: " + callInfo.ClientId);
-
-            var msg = new TransportMessage { ReturnAddress = ReturnAddress };
-
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
-            {
-                byte[] outMessage;
-                NameValueCollection outHeaders;
-                
-                persister.AckMessage(callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), out outMessage, out outHeaders);
-
-                if (outHeaders != null && outMessage != null)
-                {
-                    msg.Body = outMessage;
-                    
-                    HeaderMapper.Map(outHeaders, msg);
-                    if (msg.TimeToBeReceived < TimeSpan.FromSeconds(1))
-                        msg.TimeToBeReceived = TimeSpan.FromSeconds(1);
-
-                    msg.Recoverable = true;
-
-                    if (String.IsNullOrEmpty(msg.IdForCorrelation))
-                        msg.IdForCorrelation = msg.Id;
-
-                    if (msg.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
-                        msg.MessageIntent = MessageIntentEnum.Send;
-
-
-                    //todo the from key isn't used for anything, remove?
-                    if (ctx.Request.Headers[HttpHeaders.FromKey] != null)
-                        msg.Headers.Add(Headers.HttpFrom, ctx.Request.Headers[HttpHeaders.FromKey]);
-
-                    
-                    MessageReceived(this, new MessageForwardingArgs { Message = msg });
-                }
-
-                scope.Complete();
-            }
-
-            ReportSuccess(ctx);
-        }
-
-        private void HandleSubmit(HttpListenerContext ctx, CallInfo callInfo)
-        {
-            Logger.Debug("Received message submission for id: " + callInfo.ClientId);
-            string hash = ctx.Request.Headers[HttpHeaders.ContentMd5Key];
-
-            byte[] buffer = GetBuffer(ctx);
-            string myHash = Hasher.Hash(buffer);
-
-            if (myHash != hash)
-            {
-                CloseResponseAndWarn(ctx, "MD5 hash received does not match hash calculated on server. Consider resubmitting.", 412);
-                return;
-            }
-
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
-            {
-                persister.InsertMessage(DateTime.UtcNow, callInfo.ClientId, Convert.FromBase64String(callInfo.MD5), buffer, ctx.Request.Headers);
-
-                scope.Complete();
-            }
-
-            ReportSuccess(ctx);
-        }
-
-        private void ReportSuccess(HttpListenerContext ctx)
+        void ReportSuccess(HttpListenerContext ctx)
         {
             Logger.Debug("Sending HTTP 200 response.");
 
@@ -201,7 +194,7 @@
             ctx.Response.Close(Encoding.ASCII.GetBytes(ctx.Response.StatusDescription), false);
         }
 
-        private byte[] GetBuffer(HttpListenerContext ctx)
+        byte[] GetBuffer(HttpListenerContext ctx)
         {
             var length = (int)ctx.Request.ContentLength64;
             var buffer = new byte[length];
@@ -224,35 +217,52 @@
             return buffer;
         }
 
-        private CallInfo GetCallInfo(HttpListenerContext ctx)
+        CallInfo GetCallInfo(HttpListenerContext ctx)
         {
-            var callTypeHeader = HeaderMapper.NServiceBus + HeaderMapper.CallType;
-            string callType = ctx.Request.Headers[callTypeHeader];
+            var headers = GetHeaders(ctx);
+
+
+            string callType = headers[CallTypeHeader];
             if (!Enum.IsDefined(typeof(CallType), callType))
-            {
-                CloseResponseAndWarn(ctx, "Required header '" + callTypeHeader + "' missing.", 400);
-                return null;
-            }
+                throw new HttpChannelException(400, "Required header '" + CallTypeHeader + "' missing.");
 
             var type = (CallType)Enum.Parse(typeof(CallType), callType);
 
-            var clientIdHeader = HeaderMapper.NServiceBus + HeaderMapper.Id;
-            var clientId = ctx.Request.Headers[clientIdHeader];
+            var clientId = headers[ClientIdHeader];
             if (clientId == null)
-            {
-                CloseResponseAndWarn(ctx, "Required header '" + clientIdHeader + "' missing.", 400);
-                return null;
-            }
+                throw new HttpChannelException(400, "Required header '" + ClientIdHeader + "' missing.");
 
+            var md5 = headers[HttpHeaders.ContentMd5Key];
+
+            if (md5== null)
+                throw new HttpChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
+
+            byte[] buffer = GetBuffer(ctx);
+
+            if (buffer.Length > 0 && Hasher.Hash(buffer) != md5)
+                throw new HttpChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
+
+              
             return new CallInfo
                        {
-                           ClientId = ctx.Request.Headers[HeaderMapper.NServiceBus + HeaderMapper.Id],
-                           MD5 = ctx.Request.Headers[HttpHeaders.ContentMd5Key],
-                           Type = type
+                           ClientId = clientId,
+                           Type = type,
+                           Headers = headers,
+                           Buffer = buffer
                        };
         }
 
-        private static void CloseResponseAndWarn(HttpListenerContext ctx, string warning, int statusCode)
+        static NameValueCollection GetHeaders(HttpListenerContext ctx)
+        {
+            var headers = new NameValueCollection();
+
+            foreach (string header in ctx.Request.Headers.Keys)
+                headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(ctx.Request.Headers[header]));
+
+            return headers;
+        }
+
+        static void CloseResponseAndWarn(HttpListenerContext ctx, string warning, int statusCode)
         {
             try
             {
@@ -268,10 +278,19 @@
             }
         }
 
+        readonly ManualResetEvent hasStopped = new ManualResetEvent(false);
+      
+        const string CallTypeHeader = HeaderMapper.NServiceBus + HeaderMapper.CallType;
+        
+        const string ClientIdHeader = HeaderMapper.NServiceBus + HeaderMapper.Id;
+        
         readonly HttpListener listener;
+        
         const int maximumBytesToRead = 100000;
+        
         readonly IPersistMessages persister;
+        
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-
+       
     }
 }

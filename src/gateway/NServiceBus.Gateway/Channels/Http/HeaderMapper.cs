@@ -3,9 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
     using System.Collections.Specialized;
-    using System.Web;
 
     public class HeaderMapper
     {
@@ -26,7 +25,7 @@
             to.Headers = new Dictionary<string, string>();
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Headers.HeaderName))
-                   to.Headers.Add(HttpUtility.UrlDecode(header).Replace(NServiceBus + Headers.HeaderName + ".", ""), HttpUtility.UrlDecode(from[header]));
+                    to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
         }
 
         public static void Map(TransportMessage from, NameValueCollection to)
@@ -43,7 +42,8 @@
             if (from.Headers.ContainsKey(ReturnAddress))
                 to[Headers.RouteTo] = from.Headers[ReturnAddress];
 
-            from.Headers.ToList().ForEach(info => to[HttpUtility.UrlEncode(NServiceBus + Headers.HeaderName + "." + info.Key)] = HttpUtility.UrlEncode(info.Value));
+            from.Headers.ToList()
+                .ForEach(header =>to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
         }
 
         public const string NServiceBus = "NServiceBus.";
@@ -55,7 +55,7 @@
         private const string ReturnAddress = "ReturnAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
         private const string WindowsIdentityName = "WindowsIdentityName";
-        
+
     }
 
     public static class HttpHeaders

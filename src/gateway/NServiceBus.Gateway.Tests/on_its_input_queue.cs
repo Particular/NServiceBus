@@ -3,6 +3,8 @@
     using System.Threading;
     using Channels;
     using Channels.Http;
+    using DataBus;
+    using DataBus.FileShare;
     using Notifications;
     using NUnit.Framework;
     using Persistence;
@@ -19,6 +21,8 @@
         IBus bus;
 
         protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
+        protected const string DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT = "../../../databus.storage";
+        protected IDataBus dataBusForTheReceivingSide;
 
         [SetUp]
         public void SetUp()
@@ -26,12 +30,12 @@
             testSender = MockRepository.GenerateStub<ISendMessages>();
 
             messagePersister = new InMemoryPersistence();
-
+            dataBusForTheReceivingSide = new FileShareDataBus(DATABUS_DIRECTORY);
 
             HttpChannelReceiver = new HttpChannelReceiver(messagePersister)
-                              {
-                                  ListenUrl = "http://localhost:8092/Gateway/",
-                                  ReturnAddress = "Gateway.Tests.Input"
+                                      {
+                                          ListenUrl = "http://localhost:8092/Gateway/",
+                                          DataBus = dataBusForTheReceivingSide
                               };
 
             HttpChannelReceiver.MessageReceived += httpChannel_MessageReceived;
@@ -42,7 +46,7 @@
             bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .FileShareDataBus(DATABUS_DIRECTORY)
+                .FileShareDataBus(DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT)
                 .InMemoryFaultManagement()
                 .UnicastBus()
                 .MsmqTransport()
@@ -50,7 +54,7 @@
                 .Start();
         }
 
-        void httpChannel_MessageReceived(object sender, MessageForwardingArgs e)
+        void httpChannel_MessageReceived(object sender, MessageReceivedOnChannelArgs e)
         {
             transportMessage = e.Message;
 

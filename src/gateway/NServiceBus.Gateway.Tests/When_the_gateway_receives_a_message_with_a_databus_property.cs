@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
-    using DataBus;
-    using DataBus.FileShare;
     using NUnit.Framework;
 
     [TestFixture]
@@ -30,9 +28,6 @@
             Assert.NotNull(dataBusKey);
 
             //make sure that they key exist in our databus
-            var dataBusForTheReceivingSide = new FileShareDataBus("../../../databus.storage");
-            
-            
             Assert.NotNull(dataBusForTheReceivingSide.Get(dataBusKey));
         }
     }

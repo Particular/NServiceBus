@@ -44,13 +44,13 @@
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.ReturnAddress, inputQueue)
                .ConfigureProperty(p => p.DefaultDestinationAddress, outputQueue);
 
             config.Configurer.ConfigureComponent<MsmqChannelDispatcher>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ListenUrl, listenUrl)
-                .ConfigureProperty(p => p.ReturnAddress, inputQueue)
                 .ConfigureProperty(p => p.NumberOfWorkerThreads, numberOfWorkerThreads);
 
             config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall)
@@ -66,11 +66,6 @@
                 {
                     Configure.Instance.Builder.Build<IStartableBus>()
                         .Started += (sender, eventargs) => Configure.Instance.Builder.Build<GatewayService>().Start();
-
-                    //todo add a stopped event
-                    //Configure.Instance.Builder.Build<IStartableBus>()
-                    //  .Stopped += (sender, eventargs) => Configure.Instance.Builder.Build<GatewayService>().Stop();
-
                 };
 
             return config;

@@ -4,6 +4,6 @@
 
     public interface INotifyAboutMessages
     {
-        event EventHandler<MessageForwardingArgs> MessageForwarded;
+        event EventHandler<MessageReceivedOnChannelArgs> MessageForwarded;
     }
 }

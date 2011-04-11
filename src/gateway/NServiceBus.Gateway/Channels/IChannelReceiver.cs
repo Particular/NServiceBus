@@ -7,7 +7,7 @@
     {
         ChannelType Type { get; }
   
-        event EventHandler<MessageForwardingArgs> MessageReceived;
+        event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
   
         void Start();
   

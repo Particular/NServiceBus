@@ -21,7 +21,6 @@
             HttpChannelReceiver = new HttpChannelReceiver(new InMemoryPersistence())
                               {
                                   ListenUrl = "http://localhost:8092/notused",
-                                  ReturnAddress = "Gateway.Tests.Input"
                               };
 
             bus = Configure.With()
