@@ -9,6 +9,7 @@ namespace Subscriber2
             NServiceBus.Configure.With()
                 .CastleWindsorBuilder() // just to show we can mix and match containers
                 .XmlSerializer()
+                .Distributor()
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
         }

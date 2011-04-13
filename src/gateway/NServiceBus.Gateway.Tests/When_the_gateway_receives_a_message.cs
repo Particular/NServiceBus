@@ -25,9 +25,4 @@
     {
         public string SomeProperty{ get; set; }
     }
-
-    public class MessageWithADataBusProperty : IMessage
-    {
-        public DataBusProperty<string> LargeString { get; set; }
-    }
 }

@@ -1,6 +1,11 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using System.Threading;
+    using Channels;
+    using Channels.Http;
+    using DataBus;
+    using DataBus.FileShare;
+    using Notifications;
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
@@ -12,8 +17,12 @@
         protected ISendMessages testSender;
         protected IPersistMessages messagePersister;
 
-        protected IChannel httpChannel;
+        protected IChannelReceiver HttpChannelReceiver;
         IBus bus;
+
+        protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
+        protected const string DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT = "../../../databus.storage";
+        protected IDataBus dataBusForTheReceivingSide;
 
         [SetUp]
         public void SetUp()
@@ -21,23 +30,23 @@
             testSender = MockRepository.GenerateStub<ISendMessages>();
 
             messagePersister = new InMemoryPersistence();
+            dataBusForTheReceivingSide = new FileShareDataBus(DATABUS_DIRECTORY);
 
-
-            httpChannel = new HttpChannel(messagePersister)
-                              {
-                                  ListenUrl = "http://localhost:8092/Gateway/",
-                                  ReturnAddress = "Gateway.Tests.Input"
+            HttpChannelReceiver = new HttpChannelReceiver(messagePersister)
+                                      {
+                                          ListenUrl = "http://localhost:8092/Gateway/",
+                                          DataBus = dataBusForTheReceivingSide
                               };
 
-            httpChannel.MessageReceived += httpChannel_MessageReceived;
+            HttpChannelReceiver.MessageReceived += httpChannel_MessageReceived;
 
-            httpChannel.Start();
+            HttpChannelReceiver.Start();
 
 
             bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .FileShareDataBus("./databus")
+                .FileShareDataBus(DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT)
                 .InMemoryFaultManagement()
                 .UnicastBus()
                 .MsmqTransport()
@@ -45,7 +54,7 @@
                 .Start();
         }
 
-        void httpChannel_MessageReceived(object sender, MessageForwardingArgs e)
+        void httpChannel_MessageReceived(object sender, MessageReceivedOnChannelArgs e)
         {
             transportMessage = e.Message;
 
@@ -55,7 +64,7 @@
         TransportMessage transportMessage;
         ManualResetEvent messageReceived;
 
-        protected object GetResultingMessage()
+        protected TransportMessage GetResultingMessage()
         {
             messageReceived.WaitOne();
             return transportMessage;
@@ -74,7 +83,7 @@
         [TearDown]
         public void TearDown()
         {
-            httpChannel.Stop();
+            HttpChannelReceiver.Stop();
         }
     }
 }
