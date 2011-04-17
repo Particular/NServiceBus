@@ -7,6 +7,8 @@
     using Notifications;
     using Persistence;
     using ObjectBuilder;
+    using Sites;
+    using Sites.Registries;
 
     public static class GatewayConfig
     {
@@ -28,7 +30,7 @@
             //todo add a custom config section for this
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
-            string remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
+           
             var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
             var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
 
@@ -40,6 +42,9 @@
                 numberOfWorkerThreads = 10;
 
 
+            if(!config.Configurer.HasComponent<ISiteRegistry>())
+                config.Configurer.ConfigureComponent<LegacySiteRegistry>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
+
   
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
@@ -47,7 +52,7 @@
                 .ConfigureProperty(p => p.ReturnAddress, inputQueue)
                .ConfigureProperty(p => p.DefaultDestinationAddress, outputQueue);
 
-            config.Configurer.ConfigureComponent<MsmqChannelDispatcher>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ListenUrl, listenUrl)
@@ -55,12 +60,11 @@
 
             config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ListenUrl, listenUrl);
-           
 
-            config.Configurer.ConfigureComponent<MsmqChannelDispatcher>(DependencyLifecycle.SingleInstance)
-             .ConfigureProperty(p => p.InputQueue, inputQueue)
-             .ConfigureProperty(p => p.RemoteAddress, remoteUrl);
 
+            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.InputQueue, inputQueue);
+             
             Configure.ConfigurationComplete +=
                 (o, a) =>
                 {

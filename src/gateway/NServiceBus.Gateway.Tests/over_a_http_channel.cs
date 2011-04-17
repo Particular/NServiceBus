@@ -8,12 +8,17 @@
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
+    using Sites;
+    using Unicast.Queuing.Msmq;
+    using Unicast.Transport;
 
     public class over_a_http_channel:IHandleMessages<IMessage>
     {
         const string TEST_INPUT_QUEUE = "Gateway.Tests.Input";
 
         protected IChannelReceiver HttpChannelReceiver;
+
+        
     
         [SetUp]
         public void SetUp()
@@ -33,11 +38,18 @@
                 .CreateBus()
                 .Start();
 
-            
-            dispatcher = new MsmqChannelDispatcher(new HttpChannelSender(), MockRepository.GenerateStub<IMessageNotifier>())
+            var siteRegistry = MockRepository.GenerateStub<ISiteRegistry>();
+
+            siteRegistry.Stub(x => x.GetDestinationSitesFor(Arg<TransportMessage>.Is.Anything)).Return(new[]{new Site
+                                                                                                         {
+                                                                                                             Address = "http://localhost:8090/Gateway/",
+                                                                                                             ChannelType = ChannelType.Http,
+                                                                                                             Key = "Not used"
+                                                                                                         }});
+
+            dispatcher = new TransactionalChannelDispatcher(new HttpChannelSender(), MockRepository.GenerateStub<IMessageNotifier>(), new MsmqMessageSender(), siteRegistry)
                              {
-                                 InputQueue = TEST_INPUT_QUEUE,
-                                 RemoteAddress = "http://localhost:8090/Gateway/"
+                                 InputQueue = TEST_INPUT_QUEUE
                              };
           
             
@@ -75,7 +87,7 @@
         static IMessageContext messageContext;
         static ManualResetEvent messageReceived;
         static IBus bus;
-        MsmqChannelDispatcher dispatcher;
+        TransactionalChannelDispatcher dispatcher;
 
     }
 }

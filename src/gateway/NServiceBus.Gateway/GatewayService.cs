@@ -20,7 +20,6 @@
             this.channelDispatcher = channelDispatcher;
             channels = Configure.Instance.Builder.BuildAll<IChannelReceiver>();
       
-            //todo abstract this behind another interface
             this.messageSender = messageSender;
         }
 

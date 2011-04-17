@@ -53,7 +53,7 @@
         {
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
             headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(buffer);
-            headers["NServiceBus.Gateway"] = "true";
+            headers["NServiceBus.Gateway"] = "true"; //todo: what are this header used for?
 
             headers[HttpHeaders.FromKey] = ListenUrl;
   
@@ -74,6 +74,7 @@
             Logger.DebugFormat("Sending message - {0} to: {1}", callType, remoteUrl);
             int statusCode;
 
+            //todo make the receiver send the md5 back so that we can double check that the transmission went ok
             using (var response = request.GetResponse() as HttpWebResponse)
                 statusCode = (int)response.StatusCode;
 

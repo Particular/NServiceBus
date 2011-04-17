@@ -65,8 +65,12 @@
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
+    <Compile Include="Sites\Registries\AppConfigSiteRegistry.cs" />
     <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="Sites\ISiteRegistry.cs" />
+    <Compile Include="Sites\Registries\LegacySiteRegistry.cs" />
+    <Compile Include="Sites\Site.cs" />
     <Compile Include="GatewayHeaders.cs" />
     <Compile Include="GatewayService.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />
@@ -78,7 +82,7 @@
     <Compile Include="Persistence\IPersistMessages.cs" />
     <Compile Include="Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="Dispatchers\MsmqChannelDispatcher.cs" />
+    <Compile Include="Dispatchers\TransactionalChannelDispatcher.cs" />
     <Compile Include="Persistence\InMemoryPersistence.cs" />
     <Compile Include="Persistence\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -30,6 +30,10 @@
 
         public static void Map(TransportMessage from, NameValueCollection to)
         {
+            //todo - why are we doing this?
+            if (!String.IsNullOrEmpty(from.IdForCorrelation))
+                from.IdForCorrelation = from.Id;
+
             to[NServiceBus + Id] = from.Id;
             to[NServiceBus + IdForCorrelation] = from.IdForCorrelation;
             to[NServiceBus + CorrelationId] = from.CorrelationId;
