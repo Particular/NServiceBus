@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Dispatchers
 {
-    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Linq;
-    using Channels;
     using Channels.Http;
     using Notifications;
     using Routing;
@@ -14,9 +12,8 @@
 
     public class TransactionalChannelDispatcher : IDispatchMessagesToChannels
     {
-        public string InputQueue { get; set; }
-
-        public TransactionalChannelDispatcher(IChannelFactory channelFactory,
+   
+       public TransactionalChannelDispatcher(IChannelFactory channelFactory,
                                                 IMessageNotifier notifier,
                                                 ISendMessages messageSender,
                                                 IRouteMessages routeMessages)
@@ -27,8 +24,10 @@
             this.messageSender = messageSender;
         }
 
-        public void Start()
+        public void Start(string inputAddress)
         {
+            localAddress = inputAddress;
+
             var templateTransport = Configure.Instance.Builder.Build<TransactionalTransport>();
 
             transport = new TransactionalTransport
@@ -43,7 +42,7 @@
 
             transport.TransportMessageReceived += OnTransportMessageReceived;
 
-            transport.Start(InputQueue);
+            transport.Start(inputAddress);
         }
 
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
@@ -70,7 +69,7 @@
             //todo - do we need to clone? check with Jonathan O
             messageToDispatch.Headers[Headers.DestinationSites] = destinationSite.Key;
 
-            messageSender.Send(messageToDispatch, InputQueue);
+            messageSender.Send(messageToDispatch, localAddress);
         }
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)
@@ -95,6 +94,7 @@
         readonly ISendMessages messageSender;
         ITransport transport;
         readonly IRouteMessages routeMessages;
+        string localAddress;
 
     }
 }

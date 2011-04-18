@@ -8,12 +8,13 @@
     using log4net;
     using Notifications;
     using Unicast.Queuing;
+    using Unicast.Transport;
 
     public class GatewayService:IDisposable
     {
         public string DefaultDestinationAddress { get; set; }
 
-        public string ReturnAddress { get; set; }
+        public string InputAddress { get; set; }
 
         public GatewayService(IDispatchMessagesToChannels channelDispatcher, ISendMessages messageSender)
         {
@@ -25,7 +26,7 @@
 
         public void Start()
         {
-            channelDispatcher.Start();
+            channelDispatcher.Start(InputAddress);
 
             foreach (var channel in channels)
             {
@@ -39,17 +40,23 @@
         {
             var messageToSend = e.Message;
 
-            messageToSend.ReturnAddress = ReturnAddress;
+            messageToSend.ReturnAddress = InputAddress;
 
+            string destination = GetDestination(messageToSend);
+
+            Logger.Info("Sending message to " + destination);
+
+            messageSender.Send(messageToSend, destination);
+        }
+
+        string GetDestination(TransportMessage messageToSend)
+        {
             string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
             var destination = DefaultDestinationAddress;
            
             if (messageToSend.Headers.ContainsKey(routeTo))
                 destination = messageToSend.Headers[routeTo];
-           
-            Logger.Info("Sending message to " + destination);
-
-            messageSender.Send(messageToSend, destination);
+            return destination;
         }
 
         public void Dispose()

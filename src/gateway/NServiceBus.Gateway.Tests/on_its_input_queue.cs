@@ -22,6 +22,7 @@
 
         protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
         protected const string DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT = "../../../databus.storage";
+        const string GATEWAY_INPUT_QUEUE = "MasterEndpoint.Gateway";
         protected IDataBus dataBusForTheReceivingSide;
 
         [SetUp]
@@ -76,7 +77,7 @@
             transportMessage = null;
             messageReceived = new ManualResetEvent(false);
 
-            bus.Send("gateway", messageToSend);
+            bus.Send(GATEWAY_INPUT_QUEUE, messageToSend);
         }
 
 

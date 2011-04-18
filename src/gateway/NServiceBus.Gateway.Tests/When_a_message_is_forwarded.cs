@@ -21,8 +21,8 @@
             SendHttpMessageToGateway(new RegularMessage());
 
             var resultingMessageContext = GetResultingMessageContext();
-           
-            Assert.True(resultingMessageContext.ReturnAddress.StartsWith("gateway@"));
+
+            Assert.True(resultingMessageContext.ReturnAddress.ToLower().StartsWith("masterendpoint.gateway"));
         }
     }
 }

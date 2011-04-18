@@ -2,6 +2,6 @@
 {
     public interface IDispatchMessagesToChannels
     {
-        void Start();
+        void Start(string inputAddress);
     }
 }

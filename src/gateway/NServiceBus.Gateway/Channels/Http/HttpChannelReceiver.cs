@@ -22,9 +22,10 @@
 
             listener = new HttpListener();
         }
-        
-        public string ListenUrl { get; set; }
 
+
+        public string ListenUrl { get; set; }
+       
         public IDataBus DataBus { get; set; }
 
         public int NumberOfWorkerThreads { get; set; }

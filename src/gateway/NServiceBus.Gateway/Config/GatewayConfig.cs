@@ -31,8 +31,9 @@
             //todo add a custom config section for this
             string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
             string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
-           
-            var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
+
+            var endpointName = "MasterEndpoint"; //todo - get the configured name
+            //var inputQueue = en
             var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
 
 
@@ -51,7 +52,7 @@
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.ReturnAddress, inputQueue)
+                .ConfigureProperty(p => p.InputAddress, endpointName + ".gateway")
                .ConfigureProperty(p => p.DefaultDestinationAddress, outputQueue);
 
             config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.InstancePerCall);
@@ -64,8 +65,7 @@
                 .ConfigureProperty(p => p.ListenUrl, listenUrl);
 
 
-            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.InputQueue, inputQueue);
+            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.SingleInstance);
              
             Configure.ConfigurationComplete +=
                 (o, a) =>

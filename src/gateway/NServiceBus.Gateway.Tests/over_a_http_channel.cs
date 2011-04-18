@@ -51,13 +51,12 @@
                                                                                                              Key = "Not used"
                                                                                                          }});
 
-            dispatcher = new TransactionalChannelDispatcher(channelFactory, MockRepository.GenerateStub<IMessageNotifier>(), new MsmqMessageSender(), siteRegistry)
-                             {
-                                 InputQueue = TEST_INPUT_QUEUE
-                             };
-          
+            dispatcher = new TransactionalChannelDispatcher(channelFactory,
+                                                            MockRepository.GenerateStub<IMessageNotifier>(),
+                                                            new MsmqMessageSender(), 
+                                                            siteRegistry);
             
-            dispatcher.Start();
+            dispatcher.Start(TEST_INPUT_QUEUE);
         }
   
         protected IMessage GetResultingMessage()
