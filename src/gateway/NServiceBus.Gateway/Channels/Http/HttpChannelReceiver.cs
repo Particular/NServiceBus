@@ -23,8 +23,6 @@
             listener = new HttpListener();
         }
         
-        public ChannelType Type { get { return ChannelType.Http; } }
-
         public string ListenUrl { get; set; }
 
         public IDataBus DataBus { get; set; }

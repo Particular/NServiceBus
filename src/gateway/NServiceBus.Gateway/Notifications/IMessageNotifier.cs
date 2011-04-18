@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Gateway.Notifications
 {
-    using Channels;
-    using NServiceBus.Unicast.Transport;
+    using System;
+    using Unicast.Transport;
 
     public interface IMessageNotifier : INotifyAboutMessages
     {
-        void RaiseMessageForwarded(ChannelType from,ChannelType to, TransportMessage message);
+        void RaiseMessageForwarded(Type fromChannel,Type toChannel, TransportMessage message);
     }
 }

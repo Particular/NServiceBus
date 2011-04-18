@@ -4,8 +4,6 @@
 
     public interface IChannelSender
     {
-        ChannelType Type { get; }
-  
         void Send(string remoteAddress,NameValueCollection headers,byte[] body);
     }
 }

@@ -68,7 +68,7 @@
         void CloneAndSendLocal(TransportMessage messageToDispatch, Site destinationSite)
         {
             //todo - do we need to clone? check with Jonathan O
-            messageToDispatch.Headers[DestinationSites] = destinationSite.Key;
+            messageToDispatch.Headers[Headers.DestinationSites] = destinationSite.Key;
 
             messageSender.Send(messageToDispatch, InputQueue);
         }
@@ -83,8 +83,7 @@
 
             channelSender.Send(targetSite.Address, headers, transportMessage.Body);
 
-            //todo remove channel type
-            notifier.RaiseMessageForwarded(ChannelType.Msmq, channelSender.Type, transportMessage);
+            notifier.RaiseMessageForwarded(typeof(MsmqMessageReceiver), channelSender.GetType(), transportMessage);
 
             //todo get audit settings from the audit settings of the host (possibly allowing to override in config)
             //if (!string.IsNullOrEmpty(audit))
@@ -96,9 +95,6 @@
         readonly ISendMessages messageSender;
         ITransport transport;
         readonly IRouteMessages routeMessages;
-
-        //todo - move to the headers project
-        const string DestinationSites = "NServiceBus.DestinationSites";
 
     }
 }

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     public class AppConfigMessageRouter:IRouteMessages
     {
@@ -15,7 +15,7 @@
     
         //if (messageToDispatched.Headers.ContainsKey(DestinationSites))
         //    {
-        //        var siteKeys = messageToDispatched.Headers[DestinationSites].Split(',');
+        //        var siteKeys = messageToDispatched.Headers[Headers.DestinationSites].Split(',');
                 
         //        foreach (var siteKey in siteKeys)               
         //            yield return siteRegistry.GetByKey(siteKey);
