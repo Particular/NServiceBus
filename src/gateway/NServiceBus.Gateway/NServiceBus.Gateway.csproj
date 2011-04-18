@@ -65,6 +65,7 @@
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
+    <Compile Include="Dispatchers\IChannelFactory.cs" />
     <Compile Include="Routing\Routers\AppConfigMessageRouter.cs" />
     <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
     <Compile Include="Config\GatewayConfig.cs" />

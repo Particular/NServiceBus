@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using System;
     using System.Threading;
     using Channels;
     using Channels.Http;
@@ -39,6 +40,9 @@
                 .Start();
 
             var siteRegistry = MockRepository.GenerateStub<IRouteMessages>();
+            var channelFactory = MockRepository.GenerateStub<IChannelFactory>();
+
+            channelFactory.Stub(x => x.CreateChannelSender(Arg<Type>.Is.Anything)).Return(new HttpChannelSender());
 
             siteRegistry.Stub(x => x.GetDestinationSitesFor(Arg<TransportMessage>.Is.Anything)).Return(new[]{new Site
                                                                                                          {
@@ -47,7 +51,7 @@
                                                                                                              Key = "Not used"
                                                                                                          }});
 
-            dispatcher = new TransactionalChannelDispatcher(new HttpChannelSender(), MockRepository.GenerateStub<IMessageNotifier>(), new MsmqMessageSender(), siteRegistry)
+            dispatcher = new TransactionalChannelDispatcher(channelFactory, MockRepository.GenerateStub<IMessageNotifier>(), new MsmqMessageSender(), siteRegistry)
                              {
                                  InputQueue = TEST_INPUT_QUEUE
                              };

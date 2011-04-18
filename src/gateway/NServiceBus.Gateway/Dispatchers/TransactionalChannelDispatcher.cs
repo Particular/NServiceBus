@@ -16,13 +16,13 @@
     {
         public string InputQueue { get; set; }
 
-        public TransactionalChannelDispatcher(IChannelSender channelSender,
+        public TransactionalChannelDispatcher(IChannelFactory channelFactory,
                                                 IMessageNotifier notifier,
                                                 ISendMessages messageSender,
                                                 IRouteMessages routeMessages)
         {
             this.routeMessages = routeMessages;
-            this.channelSender = channelSender;
+            this.channelFactory = channelFactory;
             this.notifier = notifier;
             this.messageSender = messageSender;
         }
@@ -79,9 +79,11 @@
 
             HeaderMapper.Map(transportMessage, headers);
 
-            //todo get the sender from a factory
+            var channelSender = channelFactory.CreateChannelSender(targetSite.ChannelType);
+
             channelSender.Send(targetSite.Address, headers, transportMessage.Body);
 
+            //todo remove channel type
             notifier.RaiseMessageForwarded(ChannelType.Msmq, channelSender.Type, transportMessage);
 
             //todo get audit settings from the audit settings of the host (possibly allowing to override in config)
@@ -89,7 +91,7 @@
             // messageSender.Send(e.Message, audit);
         }
 
-        readonly IChannelSender channelSender;
+        readonly IChannelFactory channelFactory;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;

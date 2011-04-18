@@ -47,6 +47,7 @@
                 config.Configurer.ConfigureComponent<LegacyMessageRouter>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
 
   
+            config.Configurer.ConfigureComponent<DefaultChannelFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
