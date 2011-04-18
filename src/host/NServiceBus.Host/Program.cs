@@ -39,6 +39,8 @@ namespace NServiceBus.Host
                 var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
                 EndpointId = GetEndpointId(endpointConfiguration);
+                if (arguments.ServiceName != null)
+                    EndpointId = arguments.ServiceName.Value;
 
                 AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
