@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Gateway.Sites.Registries
+﻿namespace NServiceBus.Gateway.Routing.Routers
 {
     using System;
     using System.Collections.Generic;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
-    public class AppConfigSiteRegistry:ISiteRegistry
+    public class AppConfigMessageRouter:IRouteMessages
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {

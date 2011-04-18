@@ -1,15 +1,15 @@
-﻿namespace NServiceBus.Gateway.Sites.Registries
+﻿namespace NServiceBus.Gateway.Routing.Routers
 {
     using System.Collections.Generic;
     using System.Configuration;
-    using Channels;
+    using Channels.Http;
     using Unicast.Transport;
 
-    public class LegacySiteRegistry:ISiteRegistry
+    public class LegacyMessageRouter:IRouteMessages
     {
         readonly string remoteUrl;
 
-        public LegacySiteRegistry()
+        public LegacyMessageRouter()
         {
             remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
         }
@@ -21,7 +21,7 @@
             return new []{new Site
             {
                 Address = address,
-                ChannelType = ChannelType.Http, //todo - hard channeltypes won't fly if we should allow users to add their own channels
+                ChannelType = typeof(HttpChannelSender),
                 Key = address
             }};
         }

@@ -7,8 +7,8 @@
     using Notifications;
     using Persistence;
     using ObjectBuilder;
-    using Sites;
-    using Sites.Registries;
+    using Routing;
+    using Routing.Routers;
 
     public static class GatewayConfig
     {
@@ -21,6 +21,7 @@
 
         public static Configure Gateway(this Configure config)
         {
+            //todo - use DefaultPersistence == raven
             config.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.SingleInstance);
             return SetupGateway(config);
         }
@@ -42,8 +43,8 @@
                 numberOfWorkerThreads = 10;
 
 
-            if(!config.Configurer.HasComponent<ISiteRegistry>())
-                config.Configurer.ConfigureComponent<LegacySiteRegistry>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
+            if(!config.Configurer.HasComponent<IRouteMessages>())
+                config.Configurer.ConfigureComponent<LegacyMessageRouter>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
 
   
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);

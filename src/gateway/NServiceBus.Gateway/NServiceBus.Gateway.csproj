@@ -65,12 +65,12 @@
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
-    <Compile Include="Sites\Registries\AppConfigSiteRegistry.cs" />
+    <Compile Include="Routing\Routers\AppConfigMessageRouter.cs" />
     <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
-    <Compile Include="Sites\ISiteRegistry.cs" />
-    <Compile Include="Sites\Registries\LegacySiteRegistry.cs" />
-    <Compile Include="Sites\Site.cs" />
+    <Compile Include="Routing\IRouteMessages.cs" />
+    <Compile Include="Routing\Routers\LegacyMessageRouter.cs" />
+    <Compile Include="Routing\Site.cs" />
     <Compile Include="GatewayHeaders.cs" />
     <Compile Include="GatewayService.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />

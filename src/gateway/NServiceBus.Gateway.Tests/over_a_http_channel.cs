@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
-    using Sites;
+    using Routing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
 
@@ -38,12 +38,12 @@
                 .CreateBus()
                 .Start();
 
-            var siteRegistry = MockRepository.GenerateStub<ISiteRegistry>();
+            var siteRegistry = MockRepository.GenerateStub<IRouteMessages>();
 
             siteRegistry.Stub(x => x.GetDestinationSitesFor(Arg<TransportMessage>.Is.Anything)).Return(new[]{new Site
                                                                                                          {
                                                                                                              Address = "http://localhost:8090/Gateway/",
-                                                                                                             ChannelType = ChannelType.Http,
+                                                                                                             ChannelType = typeof(HttpChannelSender),
                                                                                                              Key = "Not used"
                                                                                                          }});
 

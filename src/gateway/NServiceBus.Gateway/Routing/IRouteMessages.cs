@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Gateway.Sites
+﻿namespace NServiceBus.Gateway.Routing
 {
     using System.Collections.Generic;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
-    public interface ISiteRegistry
+    public interface IRouteMessages
 
     {
         IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch);

@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Gateway.Sites
+﻿namespace NServiceBus.Gateway.Routing
 {
-    using Channels;
-
+    using System;
+  
     public class Site
     {
-        public ChannelType ChannelType { get; set; }
+        public Type ChannelType { get; set; }
 
         public string Address { get; set; }
 

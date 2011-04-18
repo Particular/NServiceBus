@@ -6,7 +6,7 @@
     using Channels;
     using Channels.Http;
     using Notifications;
-    using Sites;
+    using Routing;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
@@ -19,9 +19,9 @@
         public TransactionalChannelDispatcher(IChannelSender channelSender,
                                                 IMessageNotifier notifier,
                                                 ISendMessages messageSender,
-                                                ISiteRegistry siteRegistry)
+                                                IRouteMessages routeMessages)
         {
-            this.siteRegistry = siteRegistry;
+            this.routeMessages = routeMessages;
             this.channelSender = channelSender;
             this.notifier = notifier;
             this.messageSender = messageSender;
@@ -50,7 +50,7 @@
         {
             var messageToDispatch = e.Message;
 
-            var destinationSites = siteRegistry.GetDestinationSitesFor(messageToDispatch);
+            var destinationSites = routeMessages.GetDestinationSitesFor(messageToDispatch);
 
 
             //if there is more than 1 destination we break it up into multiple messages
@@ -93,7 +93,7 @@
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;
-        readonly ISiteRegistry siteRegistry;
+        readonly IRouteMessages routeMessages;
 
         //todo - move to the headers project
         const string DestinationSites = "NServiceBus.DestinationSites";
