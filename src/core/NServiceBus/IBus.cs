@@ -140,6 +140,15 @@ namespace NServiceBus
         ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
+        /// Sends the messages to all sites with matching site keys registered with the gateway.
+        /// The gateway is assumed to be located at the master node. 
+        /// </summary>
+        /// <param name="siteKeys"></param>
+        /// <param name="messages"></param>
+        /// <returns></returns>
+        ICallback SendToSites(IEnumerable<string> siteKeys, params IMessage[] messages);
+
+        /// <summary>
 		/// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
