@@ -4,7 +4,8 @@
     using System.Collections.Generic;
     using Unicast.Transport;
 
-    public class AppConfigMessageRouter:IRouteMessages
+    //todo
+    public class AppConfigMessageRouter : IRouteMessages
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
@@ -12,18 +13,18 @@
         }
     }
 
-    
-        //if (messageToDispatched.Headers.ContainsKey(DestinationSites))
-        //    {
-        //        var siteKeys = messageToDispatched.Headers[Headers.DestinationSites].Split(',');
-                
-        //        foreach (var siteKey in siteKeys)               
-        //            yield return siteRegistry.GetByKey(siteKey);
-        //    }
-        //    else
-        //        yield return siteRegistry.DefaultSite();
-        ////if (!configuredSites.ContainsKey(siteKey))
-        //  throw new InvalidOperationException("Destination site with key " + siteKey + " not found");
-        //IDictionary<string, Site> configuredSites;
-        
+
+    //if (messageToDispatched.Headers.ContainsKey(DestinationSites))
+    //    {
+    //        var siteKeys = messageToDispatched.Headers[Headers.DestinationSites].Split(',');
+
+    //        foreach (var siteKey in siteKeys)               
+    //            yield return siteRegistry.GetByKey(siteKey);
+    //    }
+    //    else
+    //        yield return siteRegistry.DefaultSite();
+    ////if (!configuredSites.ContainsKey(siteKey))
+    //  throw new InvalidOperationException("Destination site with key " + siteKey + " not found");
+    //IDictionary<string, Site> configuredSites;
+
 }

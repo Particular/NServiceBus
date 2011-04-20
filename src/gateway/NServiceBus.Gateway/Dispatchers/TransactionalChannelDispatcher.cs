@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Dispatchers
 {
+    using System;
     using System.Collections.Specialized;
     using System.Linq;
     using Channels.Http;
@@ -51,7 +52,6 @@
 
             var destinationSites = routeMessages.GetDestinationSitesFor(messageToDispatch);
 
-
             //if there is more than 1 destination we break it up into multiple messages
             if (destinationSites.Count() > 1)
             {
@@ -61,7 +61,13 @@
                 return;
             }
 
-            SendToSite(messageToDispatch, destinationSites.First());
+            var destination = destinationSites.FirstOrDefault();
+            
+            if (destination == null)
+                throw new InvalidOperationException("No destination found for message");
+             
+         
+            SendToSite(messageToDispatch, destination);
         }
 
         void CloneAndSendLocal(TransportMessage messageToDispatch, Site destinationSite)
