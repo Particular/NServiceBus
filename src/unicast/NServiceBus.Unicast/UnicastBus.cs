@@ -509,7 +509,7 @@ namespace NServiceBus.Unicast
             
             var gatewayAddress = MasterNodeManager.GetMasterNode() + ".Gateway";
 
-            messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys));
+            messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
 
             return SendMessage(gatewayAddress, null, MessageIntentEnum.Send, messages);
         }
