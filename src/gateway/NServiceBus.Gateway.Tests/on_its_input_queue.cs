@@ -23,6 +23,7 @@
         protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
         protected const string DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT = "../../../databus.storage";
         const string GATEWAY_INPUT_QUEUE = "MasterEndpoint.Gateway";
+        const string LISTEN_URL = "http://localhost:8092/Gateway/";
         protected IDataBus dataBusForTheReceivingSide;
 
         [SetUp]
@@ -35,7 +36,7 @@
 
             HttpChannelReceiver = new HttpChannelReceiver(messagePersister)
                                       {
-                                          ListenUrl = "http://localhost:8092/Gateway/",
+                                          ListenUrl = LISTEN_URL,
                                           DataBus = dataBusForTheReceivingSide
                               };
 
@@ -77,7 +78,9 @@
             transportMessage = null;
             messageReceived = new ManualResetEvent(false);
 
-            bus.Send(GATEWAY_INPUT_QUEUE, messageToSend);
+
+            //todo the master node manager that reads from config doesn't throw when no config section is found?
+            bus.SendToSites(new[] { LISTEN_URL }, messageToSend);
         }
 
 
