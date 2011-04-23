@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
+using log4net;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Host.Internal
@@ -21,13 +22,13 @@ namespace NServiceBus.Host.Internal
         /// </summary>
         /// <param name="assembliesToScan"></param>
         /// <param name="specifier"></param>
-        /// <param name="profileArgs"></param>
-        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] profileArgs)
+        /// <param name="args"></param>
+        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args)
         {
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
 
-            activeProfiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => profileArgs.Any(pa => t.FullName.ToLower() == pa.ToLower())));
+            activeProfiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower())));
 
             if (activeProfiles.Count() == 0)
                 activeProfiles = DefaultProfile;
@@ -88,6 +89,9 @@ namespace NServiceBus.Host.Internal
         /// <returns></returns>
         public void ActivateProfileHandlers()
         {
+            foreach (var p in activeProfiles)
+                Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
+
             var handlers = new List<Type>();
 
             foreach (var assembly in assembliesToScan)
@@ -101,7 +105,10 @@ namespace NServiceBus.Host.Internal
 
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
+            {
                 profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
+                Logger.Debug("Activating profile handler: " + h.AssemblyQualifiedName);
+            }
 
             profileHandlers.Where(ph => ph is IWantTheEndpointConfig).ToList().ForEach(
                 ph => (ph as IWantTheEndpointConfig).Config = specifier);
@@ -121,5 +128,6 @@ namespace NServiceBus.Host.Internal
         }
 
         private static readonly IEnumerable<Type> DefaultProfile = new[] { typeof(Lite) };
+        private static ILog Logger = LogManager.GetLogger("NServiceBus.Host");
     }
 }
