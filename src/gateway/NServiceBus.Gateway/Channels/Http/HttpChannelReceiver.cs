@@ -24,26 +24,22 @@
         }
 
 
-        public string ListenUrl { get; set; }
-       
         public IDataBus DataBus { get; set; }
-
-        public int NumberOfWorkerThreads { get; set; }
 
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
        
-        public void Start()
+        public void Start(string address, int numWorkerThreads)
         {
-            listener.Prefixes.Add(ListenUrl);
+            listener.Prefixes.Add(address);
 
-            ThreadPool.SetMaxThreads(NumberOfWorkerThreads, NumberOfWorkerThreads);
+            //todo
+            ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
 
             listener.Start();
 
             new Thread(HttpServer).Start();
         }
-
 
         public void Stop()
         {
@@ -59,7 +55,7 @@
                 Logger.DebugFormat("Received message of type {0} for client id: {1}",callInfo.Type, callInfo.ClientId);
 
      
-                //todo this is a msmq specific validation and should be moved into the msmq forwarder?
+                //todo this is a msmq specific validation and should be moved into the channel dispatcher?
                 if (callInfo.Type == CallType.Submit && ctx.Request.ContentLength64 > 4 * 1024 * 1024)
                     throw new HttpChannelException(413, "Cannot accept messages larger than 4MB.");
 
@@ -101,7 +97,7 @@
             if(DataBus == null)
                 throw new InvalidOperationException("Databus transmission received without a databus configured");
 
-            //todo
+            //todo - get this from the message headers
             TimeSpan timeToBeReceived = TimeSpan.FromDays(1);
 
             string newDatabusKey;

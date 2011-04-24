@@ -5,11 +5,13 @@
     using Channels;
     using Channels.Http;
     using Dispatchers;
+    using Faults;
     using Notifications;
     using NUnit.Framework;
     using Persistence;
     using Rhino.Mocks;
     using Routing;
+    using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
 
@@ -17,17 +19,15 @@
     {
         const string TEST_INPUT_QUEUE = "Gateway.Tests.Input";
 
-        protected IChannelReceiver HttpChannelReceiver;
+        protected IChannelReceiver httpChannelReceiver;
+        protected ISendMessages messageSender;
 
         
     
         [SetUp]
         public void SetUp()
         {
-            HttpChannelReceiver = new HttpChannelReceiver(new InMemoryPersistence())
-                              {
-                                  ListenUrl = "http://localhost:8092/notused",
-                              };
+            httpChannelReceiver = new HttpChannelReceiver(new InMemoryPersistence());
 
             bus = Configure.With()
                 .DefaultBuilder()
@@ -39,7 +39,7 @@
                 .CreateBus()
                 .Start();
 
-            var siteRegistry = MockRepository.GenerateStub<IRouteMessages>();
+            var siteRegistry = MockRepository.GenerateStub<IRouteMessagesToSites>();
             var channelFactory = MockRepository.GenerateStub<IChannelFactory>();
 
             channelFactory.Stub(x => x.CreateChannelSender(Arg<Type>.Is.Anything)).Return(new HttpChannelSender());
@@ -51,10 +51,13 @@
                                                                                                              Key = "Not used"
                                                                                                          }});
 
+            messageSender = MockRepository.GenerateStub<ISendMessages>();
+
             dispatcher = new TransactionalChannelDispatcher(channelFactory,
                                                             MockRepository.GenerateStub<IMessageNotifier>(),
-                                                            new MsmqMessageSender(), 
-                                                            siteRegistry);
+                                                            messageSender, 
+                                                            siteRegistry,
+                                                            new FakeDistpatcherSettings());
             
             dispatcher.Start(TEST_INPUT_QUEUE);
         }
@@ -75,7 +78,6 @@
         {
             messageReceived = new ManualResetEvent(false);
 
-            m.SetHeader(Headers.RouteTo, "Gateway.Tests");
             bus.Send(TEST_INPUT_QUEUE, m);
         }
 
@@ -92,5 +94,36 @@
         static IBus bus;
         TransactionalChannelDispatcher dispatcher;
 
+    }
+
+    public class FakeDistpatcherSettings : IMasterNodeSettings
+    {
+        public IReceiveMessages Receiver
+        {
+            get
+            {
+                return new MsmqMessageReceiver();
+            }
+        }
+
+        public int NumberOfWorkerThreads
+        {
+            get { return 1; }
+        }
+
+        public int MaxRetries
+        {
+            get { return 1; }
+        }
+
+        public IManageMessageFailures FailureManager
+        {
+            get { return null; }
+        }
+
+        public string AddressOfAuditStore
+        {
+            get { return null; }
+        }
     }
 }

@@ -5,7 +5,7 @@
     using Channels.Http;
     using Unicast.Transport;
 
-    public class LegacyMessageRouter:IRouteMessages
+    public class LegacyMessageRouter:IRouteMessagesToSites
     {
         readonly string remoteUrl;
 

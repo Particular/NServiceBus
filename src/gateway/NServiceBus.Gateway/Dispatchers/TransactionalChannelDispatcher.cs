@@ -13,13 +13,15 @@
 
     public class TransactionalChannelDispatcher : IDispatchMessagesToChannels
     {
-   
-       public TransactionalChannelDispatcher(IChannelFactory channelFactory,
-                                                IMessageNotifier notifier,
-                                                ISendMessages messageSender,
-                                                IRouteMessages routeMessages)
+
+        public TransactionalChannelDispatcher(IChannelFactory channelFactory,
+                                                 IMessageNotifier notifier,
+                                                 ISendMessages messageSender,
+                                                 IRouteMessagesToSites routeMessages,
+                                                 IMasterNodeSettings settings)
         {
             this.routeMessages = routeMessages;
+            this.settings = settings;
             this.channelFactory = channelFactory;
             this.notifier = notifier;
             this.messageSender = messageSender;
@@ -28,17 +30,15 @@
         public void Start(string inputAddress)
         {
             localAddress = inputAddress;
-
-            var templateTransport = Configure.Instance.Builder.Build<TransactionalTransport>();
+            addressOfAuditStore = settings.AddressOfAuditStore;
 
             transport = new TransactionalTransport
                             {
-                                //todo grab the receiver from the main bus and clone
-                                MessageReceiver = new MsmqMessageReceiver(),
+                                MessageReceiver = settings.Receiver,
                                 IsTransactional = true,
-                                NumberOfWorkerThreads = templateTransport.NumberOfWorkerThreads == 0 ? 1 : templateTransport.NumberOfWorkerThreads,
-                                MaxRetries = templateTransport.MaxRetries,
-                                FailureManager = templateTransport.FailureManager
+                                NumberOfWorkerThreads = settings.NumberOfWorkerThreads,
+                                MaxRetries = settings.MaxRetries,
+                                FailureManager = settings.FailureManager
                             };
 
             transport.TransportMessageReceived += OnTransportMessageReceived;
@@ -62,11 +62,11 @@
             }
 
             var destination = destinationSites.FirstOrDefault();
-            
+
             if (destination == null)
                 throw new InvalidOperationException("No destination found for message");
-             
-         
+
+
             SendToSite(messageToDispatch, destination);
         }
 
@@ -90,16 +90,17 @@
 
             notifier.RaiseMessageForwarded(typeof(MsmqMessageReceiver), channelSender.GetType(), transportMessage);
 
-            //todo get audit settings from the audit settings of the host (possibly allowing to override in config)
-            //if (!string.IsNullOrEmpty(audit))
-            // messageSender.Send(e.Message, audit);
+            if (!string.IsNullOrEmpty(addressOfAuditStore))
+                messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
+        string addressOfAuditStore;
         readonly IChannelFactory channelFactory;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;
-        readonly IRouteMessages routeMessages;
+        readonly IRouteMessagesToSites routeMessages;
+        readonly IMasterNodeSettings settings;
         string localAddress;
 
     }

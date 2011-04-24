@@ -5,7 +5,7 @@
     using Channels.Http;
     using Unicast.Transport;
 
-    public class KeyPrefixConventionMessageRouter : IRouteMessages
+    public class KeyPrefixConventionMessageRouter : IRouteMessagesToSites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {

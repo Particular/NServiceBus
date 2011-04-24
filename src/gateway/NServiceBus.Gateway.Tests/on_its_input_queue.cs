@@ -17,12 +17,10 @@
         protected ISendMessages testSender;
         protected IPersistMessages messagePersister;
 
-        protected IChannelReceiver HttpChannelReceiver;
+        protected IChannelReceiver httpChannelReceiver;
         IBus bus;
-
         protected const string DATABUS_DIRECTORY = "./databus_test_gateway";
         protected const string DATABUS_DIRECTORY_FOR_THE_TEST_ENDPOINT = "../../../databus.storage";
-        const string GATEWAY_INPUT_QUEUE = "MasterEndpoint.Gateway";
         const string LISTEN_URL = "http://localhost:8092/Gateway/";
         protected IDataBus dataBusForTheReceivingSide;
 
@@ -34,17 +32,17 @@
             messagePersister = new InMemoryPersistence();
             dataBusForTheReceivingSide = new FileShareDataBus(DATABUS_DIRECTORY);
 
-            HttpChannelReceiver = new HttpChannelReceiver(messagePersister)
+            httpChannelReceiver = new HttpChannelReceiver(messagePersister)
+
                                       {
-                                          ListenUrl = LISTEN_URL,
                                           DataBus = dataBusForTheReceivingSide
                               };
 
-            HttpChannelReceiver.MessageReceived += httpChannel_MessageReceived;
+            httpChannelReceiver.MessageReceived += httpChannel_MessageReceived;
 
-            HttpChannelReceiver.Start();
+            httpChannelReceiver.Start(LISTEN_URL,1);
 
-
+            //todo - this needs to be refactored when the gateway is merged into the nsb.core
             bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
@@ -80,6 +78,7 @@
 
 
             //todo the master node manager that reads from config doesn't throw when no config section is found?
+            //todo the bus isn't handling the servername correctly, disuss this with Udi
             bus.SendToSites(new[] { LISTEN_URL }, messageToSend);
         }
 
@@ -87,7 +86,7 @@
         [TearDown]
         public void TearDown()
         {
-            HttpChannelReceiver.Stop();
+            httpChannelReceiver.Stop();
         }
     }
 }

@@ -9,7 +9,6 @@
 
     public class HttpChannelSender : IChannelSender
     {
-        
         public void Send(string remoteUrl,NameValueCollection headers,byte[] body)
         {
             MakeHttpRequest(remoteUrl, CallType.Submit, headers, body);

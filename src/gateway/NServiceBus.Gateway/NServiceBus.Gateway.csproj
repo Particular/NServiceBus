@@ -62,14 +62,21 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Channels\Channel.cs" />
+    <Compile Include="Config\Channels\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
+    <Compile Include="Channels\Http\HttpHeaders.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
+    <Compile Include="Config\MasterNodeSettings.cs" />
+    <Compile Include="Config\MasterNodeBootstrapper.cs" />
     <Compile Include="Dispatchers\IChannelFactory.cs" />
+    <Compile Include="Dispatchers\IMasterNodeSettings.cs" />
+    <Compile Include="Channels\IManageChannels.cs" />
     <Compile Include="Routing\Routers\AppConfigMessageRouter.cs" />
     <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
-    <Compile Include="Routing\IRouteMessages.cs" />
+    <Compile Include="Routing\IRouteMessagesToSites.cs" />
     <Compile Include="Routing\Routers\KeyPrefixConventionMessageRouter.cs" />
     <Compile Include="Routing\Routers\LegacyMessageRouter.cs" />
     <Compile Include="Routing\Site.cs" />
@@ -90,8 +97,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Channels\Http\CallInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Forwarders\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

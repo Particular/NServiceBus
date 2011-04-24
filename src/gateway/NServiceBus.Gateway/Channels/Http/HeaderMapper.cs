@@ -58,13 +58,7 @@
         private const string Recoverable = "Recoverable";
         private const string ReturnAddress = "ReturnAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
-        private const string WindowsIdentityName = "WindowsIdentityName";
+        private const string WindowsIdentityName = "WindowsIdentityName"; //todo - remove?
 
-    }
-
-    public static class HttpHeaders
-    {
-        public const string ContentMd5Key = "Content-MD5";
-        public const string FromKey = "From";
     }
 }
