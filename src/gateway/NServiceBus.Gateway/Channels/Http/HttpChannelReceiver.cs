@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Web;
+    using HeaderManagement;
     using log4net;
     using System.Net;
     using Notifications;
@@ -132,10 +133,7 @@
 
                     HeaderMapper.Map(outHeaders, msg);         
 
-                    //todo this header is used by the httpheadermanager and need to be abstracted to support other channels
-                    if (callInfo.Headers[HttpHeaders.FromKey] != null)
-                        msg.Headers.Add(Headers.HttpFrom, callInfo.Headers[HttpHeaders.FromKey]);
-    
+                  
                     MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
                 }
 

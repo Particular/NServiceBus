@@ -50,6 +50,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeaderManagement\When_receiving_a_message_from_another_site.cs" />
     <Compile Include="on_its_input_queue.cs" />
     <Compile Include="over_a_http_channel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

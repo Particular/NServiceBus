@@ -28,7 +28,6 @@
 
         string GetRemoteAddress(TransportMessage msg)
         {
-            //todo - add a eqivalent header that is channel agnostic?
             if (msg.Headers.ContainsKey(Headers.HttpTo))
                 return msg.Headers[Headers.HttpTo];
 

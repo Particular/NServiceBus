@@ -73,6 +73,9 @@
     <Compile Include="Dispatchers\IChannelFactory.cs" />
     <Compile Include="Dispatchers\IMasterNodeSettings.cs" />
     <Compile Include="Channels\IManageChannels.cs" />
+    <Compile Include="HeaderManagement\Bootstrapper.cs" />
+    <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
+    <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
     <Compile Include="Routing\Sites\AppConfigMessageRouter.cs" />
@@ -82,7 +85,7 @@
     <Compile Include="Routing\Sites\KeyPrefixConventionMessageRouter.cs" />
     <Compile Include="Routing\Sites\LegacySiteRouter.cs" />
     <Compile Include="Routing\Site.cs" />
-    <Compile Include="GatewayHeaders.cs" />
+    <Compile Include="HeaderManagement\GatewayHeaders.cs" />
     <Compile Include="GatewayService.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />
     <Compile Include="Channels\Http\HeaderMapper.cs" />

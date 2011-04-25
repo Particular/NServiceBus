@@ -5,15 +5,13 @@
     using System.Net;
     using System.Web;
     using DataBus;
+    using HeaderManagement;
     using log4net;
 
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl,string localAddress,NameValueCollection headers,byte[] body)
+        public void Send(string remoteUrl,NameValueCollection headers,byte[] body)
         {
-            headers["NServiceBus.Gateway"] = "true"; //todo: what are this header used for?
-            headers[HttpHeaders.FromKey] = localAddress;
-            
             MakeHttpRequest(remoteUrl, CallType.Submit, headers, body);
 
             TransmittDataBusProperties(remoteUrl, headers);
