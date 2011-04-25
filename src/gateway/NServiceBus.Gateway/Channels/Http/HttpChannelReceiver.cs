@@ -33,7 +33,6 @@
         {
             listener.Prefixes.Add(address);
 
-            //todo
             ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
 
             listener.Start();
@@ -117,7 +116,6 @@
 
         void HandleAck(CallInfo callInfo)
         {
-            var msg = new TransportMessage();
             using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
             {
                 byte[] outMessage;
@@ -127,26 +125,17 @@
 
                 if (outHeaders != null && outMessage != null)
                 {
-                    msg.Body = outMessage;
-                    
-                    HeaderMapper.Map(outHeaders, msg);
-                    if (msg.TimeToBeReceived < TimeSpan.FromSeconds(1))
-                        msg.TimeToBeReceived = TimeSpan.FromSeconds(1);
+                    var msg = new TransportMessage
+                                  {
+                                      Body = outMessage
+                                  };
 
-                    msg.Recoverable = true;
-
-                    if (String.IsNullOrEmpty(msg.IdForCorrelation))
-                        msg.IdForCorrelation = msg.Id;
-
-                    if (msg.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
-                        msg.MessageIntent = MessageIntentEnum.Send;
-
+                    HeaderMapper.Map(outHeaders, msg);         
 
                     //todo this header is used by the httpheadermanager and need to be abstracted to support other channels
                     if (callInfo.Headers[HttpHeaders.FromKey] != null)
                         msg.Headers.Add(Headers.HttpFrom, callInfo.Headers[HttpHeaders.FromKey]);
-
-                    
+    
                     MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
                 }
 

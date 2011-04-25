@@ -14,13 +14,26 @@
             to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
             to.CorrelationId = from[NServiceBus + CorrelationId];
 
+            //todo - check with Udi why we're doing this? ( headermanager?)
+            if (String.IsNullOrEmpty(to.IdForCorrelation))
+                to.IdForCorrelation = to.Id;
+
+            to.Recoverable = true;
+
             bool recoverable;
-            bool.TryParse(from[NServiceBus + Recoverable], out recoverable);
-            to.Recoverable = recoverable;
+            if(bool.TryParse(from[NServiceBus + Recoverable], out recoverable))
+                to.Recoverable = recoverable;
 
             TimeSpan timeToBeReceived;
             TimeSpan.TryParse(from[NServiceBus + TimeToBeReceived], out timeToBeReceived);
             to.TimeToBeReceived = timeToBeReceived;
+
+            if (to.TimeToBeReceived < TimeSpan.FromSeconds(1))
+                to.TimeToBeReceived = TimeSpan.FromSeconds(1);
+
+            if (to.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
+                to.MessageIntent = MessageIntentEnum.Send;
+
 
             to.Headers = new Dictionary<string, string>();
             foreach (string header in from.Keys)
