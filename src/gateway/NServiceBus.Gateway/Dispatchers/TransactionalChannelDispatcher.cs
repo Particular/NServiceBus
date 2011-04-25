@@ -86,9 +86,11 @@
 
             var channelSender = channelFactory.CreateChannelSender(targetSite.ChannelType);
 
-            channelSender.Send(targetSite.Address, headers, transportMessage.Body);
 
-            notifier.RaiseMessageForwarded(typeof(MsmqMessageReceiver), channelSender.GetType(), transportMessage);
+            //todo - Check with Udi what the HttpFrom header is supposed to be used for?
+            channelSender.Send(targetSite.Address, "todo",headers, transportMessage.Body);
+
+            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), channelSender.GetType(), transportMessage);
 
             if (!string.IsNullOrEmpty(addressOfAuditStore))
                 messageSender.Send(transportMessage, addressOfAuditStore);

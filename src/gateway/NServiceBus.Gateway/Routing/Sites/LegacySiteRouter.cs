@@ -1,15 +1,15 @@
-﻿namespace NServiceBus.Gateway.Routing.Routers
+﻿namespace NServiceBus.Gateway.Routing.Sites
 {
     using System.Collections.Generic;
     using System.Configuration;
     using Channels.Http;
     using Unicast.Transport;
 
-    public class LegacyMessageRouter:IRouteMessagesToSites
+    public class LegacySiteRouter:IRouteMessagesToSites
     {
         readonly string remoteUrl;
 
-        public LegacyMessageRouter()
+        public LegacySiteRouter()
         {
             remoteUrl = ConfigurationManager.AppSettings["RemoteUrl"];
         }

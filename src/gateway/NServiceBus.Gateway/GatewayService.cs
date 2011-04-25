@@ -1,33 +1,32 @@
 ﻿namespace NServiceBus.Gateway
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using Channels;
-    using Channels.Http;
     using Dispatchers;
     using log4net;
     using Notifications;
     using ObjectBuilder;
+    using Routing;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     public class GatewayService : IDisposable
     {
-        public string DefaultDestinationAddress { get; set; }
-
         public string GatewayInputAddress { get; set; }
 
-        public GatewayService(IDispatchMessagesToChannels channelDispatcher,
-                                ISendMessages messageSender,
+        public GatewayService(  IDispatchMessagesToChannels channelDispatcher,
                                 IManageChannels channelManager,
-                                IBuilder builder)
+                                IRouteMessagesToEndpoints endpointRouter,
+                                IBuilder builder, 
+                                ISendMessages messageSender)
+
         {
             this.channelDispatcher = channelDispatcher;
-
             this.messageSender = messageSender;
             this.channelManager = channelManager;
+            this.endpointRouter = endpointRouter;
             this.builder = builder;
+     
             channelReceivers = new List<IChannelReceiver>();
         }
 
@@ -35,54 +34,62 @@
         {
             channelDispatcher.Start(GatewayInputAddress);
 
+            Logger.InfoFormat("Gateway started listening on inputs on - {0}" , GatewayInputAddress);
+
             foreach (var channel in channelManager.GetActiveChannels())
             {
 
                 var channelReceiver = (IChannelReceiver)builder.Build(channel.Receiver);
 
-                channelReceiver.MessageReceived += MessageReceivedOnChannel;
+                channelReceiver.MessageReceived +=  MessageReceivedOnChannel;
                 channelReceiver.Start(channel.ReceiveAddress, channel.NumWorkerThreads);
-
                 channelReceivers.Add(channelReceiver);
+
+                Logger.InfoFormat("Receive channel {0} started. Adress: {1}", channel.Receiver,channel.ReceiveAddress);
             }
         }
 
-        //todo abstract this behind a "output forwarder"
-        void MessageReceivedOnChannel(object sender, MessageReceivedOnChannelArgs e)
+        public void Dispose()
+        {
+            Logger.InfoFormat("Gateway is shutting down");
+            
+            foreach (var channelReceiver in channelReceivers)
+            {
+                Logger.InfoFormat("Stopping channel receiver - {0}",channelReceiver.GetType());
+
+                channelReceiver.Stop(); //todo - use dispose instead
+
+                channelReceiver.MessageReceived -= MessageReceivedOnChannel;
+            }
+
+            channelReceivers.Clear();
+
+            Logger.InfoFormat("Gateway shutdown complete");
+
+        }
+
+        public void MessageReceivedOnChannel(object sender, MessageReceivedOnChannelArgs e)
         {
             var messageToSend = e.Message;
 
             messageToSend.ReturnAddress = GatewayInputAddress;
 
-            string destination = GetDestination(messageToSend);
+            //todo - should we support multiple destinations? pub/sub?
+            var destination = endpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
 
             messageSender.Send(messageToSend, destination);
         }
 
-        string GetDestination(TransportMessage messageToSend)
-        {
-            //todo - figure out why we use a funny name for this header
-            string routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
-            var destination = DefaultDestinationAddress;
-
-            if (messageToSend.Headers.ContainsKey(routeTo))
-                destination = messageToSend.Headers[routeTo];
-            return destination;
-        }
-
-        public void Dispose()
-        {
-            foreach (var channel in channelReceivers)
-                channel.Stop(); //todo - use dispose instead
-        }
-
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        
         readonly ISendMessages messageSender;
         readonly IManageChannels channelManager;
+        readonly IRouteMessagesToEndpoints endpointRouter;
         readonly IBuilder builder;
         readonly ICollection<IChannelReceiver> channelReceivers;
         readonly IDispatchMessagesToChannels channelDispatcher;
+
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

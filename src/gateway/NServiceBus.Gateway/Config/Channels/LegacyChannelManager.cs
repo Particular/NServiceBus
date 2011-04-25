@@ -3,7 +3,7 @@ namespace NServiceBus.Gateway.Config.Channels
     using System.Collections.Generic;
     using System.Configuration;
     using Gateway.Channels;
-    using NServiceBus.Gateway.Channels.Http;
+    using Gateway.Channels.Http;
 
     public class LegacyChannelManager : IManageChannels
     {

@@ -100,7 +100,6 @@
 
         public void UpdateHeader(string clientId, string headerKey, string newValue)
         {
-            //todo
             throw new NotImplementedException();
         }
 

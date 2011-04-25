@@ -4,6 +4,6 @@
 
     public interface IChannelSender
     {
-        void Send(string remoteAddress,NameValueCollection headers,byte[] body);
+        void Send(string remoteAddress,string localAddress,NameValueCollection headers,byte[] body);
     }
 }

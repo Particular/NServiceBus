@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Unicast.Transport;
 
-    //todo - implement this
     public class AppConfigMessageRouter : IRouteMessagesToSites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)

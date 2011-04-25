@@ -58,7 +58,5 @@
         private const string Recoverable = "Recoverable";
         private const string ReturnAddress = "ReturnAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
-        private const string WindowsIdentityName = "WindowsIdentityName"; //todo - remove?
-
     }
 }
