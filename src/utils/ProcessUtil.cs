@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceProcess;
 using Common.Logging;
+using System.ComponentModel;
 
 namespace NServiceBus.Utils
 {
@@ -26,14 +27,42 @@ namespace NServiceBus.Utils
 
             Logger.Debug(controller.ServiceName + " status is NOT " + Enum.GetName(typeof(ServiceControllerStatus), status) + ". Changing status...");
 
-            changeStatus();
+            try
+            {
+                changeStatus();
+            }
+            catch (Win32Exception exception)
+            {
+                ThrowUnableToChangeStatus(controller.ServiceName, status, exception);
+            }
+            catch (InvalidOperationException exception)
+            {
+                ThrowUnableToChangeStatus(controller.ServiceName, status, exception);
+            }
 
             var timeout = TimeSpan.FromSeconds(3);
             controller.WaitForStatus(status, timeout);
             if (controller.Status == status)
                 Logger.Debug(controller.ServiceName + " status changed successfully.");
             else
-                throw new InvalidOperationException("Unable to change " + controller.ServiceName + " status to " + Enum.GetName(typeof(ServiceControllerStatus), status));
+                ThrowUnableToChangeStatus(controller.ServiceName, status);
+        }
+
+        private static void ThrowUnableToChangeStatus(string serviceName, ServiceControllerStatus status)
+        {
+            ThrowUnableToChangeStatus(serviceName, status, null);
+        }
+
+        private static void ThrowUnableToChangeStatus(string serviceName, ServiceControllerStatus status, Exception exception)
+        {
+            string message = "Unable to change " + serviceName + " status to " + Enum.GetName(typeof(ServiceControllerStatus), status);
+
+            if (exception == null)
+            {
+                throw new InvalidOperationException(message);
+            }
+
+            throw new InvalidOperationException(message, exception);
         }
 
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Utils");
