@@ -70,7 +70,6 @@
     <Compile Include="Channels\IChannelSender.cs" />
     <Compile Include="Config\MasterNodeSettings.cs" />
     <Compile Include="Config\MasterNodeBootstrapper.cs" />
-    <Compile Include="Dispatchers\IChannelFactory.cs" />
     <Compile Include="Dispatchers\IMasterNodeSettings.cs" />
     <Compile Include="Channels\IManageChannels.cs" />
     <Compile Include="HeaderManagement\Bootstrapper.cs" />

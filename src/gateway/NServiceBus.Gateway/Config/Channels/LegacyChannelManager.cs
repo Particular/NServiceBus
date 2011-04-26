@@ -1,7 +1,9 @@
 namespace NServiceBus.Gateway.Config.Channels
 {
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
     using Gateway.Channels;
     using Gateway.Channels.Http;
 
@@ -24,6 +26,11 @@ namespace NServiceBus.Gateway.Config.Channels
                            ReceiveAddress = listenUrl,
                            Receiver = typeof(HttpChannelReceiver)
                        };
+        }
+
+        public Channel GetDefaultChannel()
+        {
+            return GetActiveChannels().First();
         }
     }
 }

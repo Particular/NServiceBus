@@ -8,6 +8,7 @@
     using Faults;
     using Notifications;
     using NUnit.Framework;
+    using ObjectBuilder;
     using Persistence;
     using Rhino.Mocks;
     using Routing;
@@ -40,9 +41,11 @@
                 .Start();
 
             var siteRegistry = MockRepository.GenerateStub<IRouteMessagesToSites>();
-            var channelFactory = MockRepository.GenerateStub<IChannelFactory>();
+            var builder = MockRepository.GenerateStub<IBuilder>();
+            var channelManager = MockRepository.GenerateStub<IManageChannels>();
 
-            channelFactory.Stub(x => x.CreateChannelSender(Arg<Type>.Is.Anything)).Return(new HttpChannelSender());
+            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
+            builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { siteRegistry });
 
             siteRegistry.Stub(x => x.GetDestinationSitesFor(Arg<TransportMessage>.Is.Anything)).Return(new[]{new Site
                                                                                                          {
@@ -50,13 +53,17 @@
                                                                                                              ChannelType = typeof(HttpChannelSender),
                                                                                                              Key = "Not used"
                                                                                                          }});
+            channelManager.Stub(x => x.GetDefaultChannel()).Return(new Channel
+                                                                       {
+                                                                           ReceiveAddress = "http://localhost:8092/Gateway/"
+                                                                       });
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
 
-            dispatcher = new TransactionalChannelDispatcher(channelFactory,
+            dispatcher = new TransactionalChannelDispatcher(builder,
+                                                            channelManager,
                                                             MockRepository.GenerateStub<IMessageNotifier>(),
-                                                            messageSender, 
-                                                            siteRegistry,
+                                                            messageSender,
                                                             new FakeDistpatcherSettings());
             
             dispatcher.Start(TEST_INPUT_QUEUE);

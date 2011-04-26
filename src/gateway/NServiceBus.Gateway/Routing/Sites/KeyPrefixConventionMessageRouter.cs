@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Gateway.Routing.Routers
+﻿namespace NServiceBus.Gateway.Routing.Sites
 {
     using System;
     using System.Collections.Generic;

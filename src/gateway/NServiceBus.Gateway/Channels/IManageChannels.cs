@@ -5,5 +5,6 @@
     public interface IManageChannels
     {
         IEnumerable<Channel> GetActiveChannels();
+        Channel GetDefaultChannel();
     }
 }

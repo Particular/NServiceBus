@@ -77,8 +77,8 @@
             messageReceived = new ManualResetEvent(false);
 
 
-            //todo the master node manager that reads from config doesn't throw when no config section is found?
-            //todo the bus isn't handling the servername correctly, disuss this with Udi
+            //todo the master node manager that reads from config doesn't throw when no config section is found? - should be an exception
+            //todo the bus isn't handling the servername correctly, disuss this with Udi - MasterNode == servername
             bus.SendToSites(new[] { LISTEN_URL }, messageToSend);
         }
 

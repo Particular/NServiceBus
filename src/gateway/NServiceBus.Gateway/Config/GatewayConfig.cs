@@ -3,6 +3,7 @@
     using Channels;
     using Dispatchers;
     using Gateway;
+    using Gateway.Channels;
     using Gateway.Channels.Http;
     using Notifications;
     using Persistence;
@@ -10,6 +11,7 @@
     using Routing;
     using Routing.Endpoints;
     using Routing.Routers;
+    using Routing.Sites;
 
     public static class GatewayConfig
     {
@@ -29,17 +31,15 @@
 
         private static Configure SetupGateway(this Configure config)
         {   
-            //todo - get the configured name
+            //todo - get the configured name - use service locator to get the interface, make sure to do it on config complete
             var endpointName = "MasterEndpoint"; 
             
           
-            if(!config.Configurer.HasComponent<IRouteMessagesToSites>())
-                config.Configurer.ConfigureComponent<KeyPrefixConventionMessageRouter>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
+            config.Configurer.ConfigureComponent<KeyPrefixConventionMessageRouter>(DependencyLifecycle.SingleInstance); 
 
             config.Configurer.ConfigureComponent<MasterNodeSettings>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<DefaultChannelFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)

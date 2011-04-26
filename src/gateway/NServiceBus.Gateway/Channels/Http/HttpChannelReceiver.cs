@@ -55,7 +55,7 @@
                 Logger.DebugFormat("Received message of type {0} for client id: {1}",callInfo.Type, callInfo.ClientId);
 
      
-                //todo this is a msmq specific validation and should be moved into the channel dispatcher?
+                //todo this is a msmq specific validation and should be moved to the layer above that is sending the message onto the main transport
                 if (callInfo.Type == CallType.Submit && ctx.Request.ContentLength64 > 4 * 1024 * 1024)
                     throw new HttpChannelException(413, "Cannot accept messages larger than 4MB.");
 

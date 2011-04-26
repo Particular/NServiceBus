@@ -14,7 +14,6 @@
             to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
             to.CorrelationId = from[NServiceBus + CorrelationId];
 
-            //todo - check with Udi why we're doing this? ( headermanager?)
             if (String.IsNullOrEmpty(to.IdForCorrelation))
                 to.IdForCorrelation = to.Id;
 

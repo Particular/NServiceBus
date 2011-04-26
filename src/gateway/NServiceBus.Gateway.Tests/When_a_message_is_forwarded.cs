@@ -27,6 +27,16 @@
             Assert.True(resultingMessageContext.ReturnAddress.ToLower().StartsWith("masterendpoint.gateway"));
         }
 
+        [Test]
+        public void Should_use_the_address_of_the_default_as_the_originating_site()
+        {
+            SendHttpMessageToGateway(new RegularMessage());
+
+            var resultingMessage = GetResultingMessageContext();
+
+            Assert.AreEqual(resultingMessage.Headers[Headers.OriginatingSite], "http://localhost:8092/Gateway/");
+        }
+
 
 
         [Test,Ignore()]

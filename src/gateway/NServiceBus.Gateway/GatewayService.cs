@@ -73,7 +73,7 @@
             var messageToSend = e.Message;
 
             messageToSend.ReturnAddress = GatewayInputAddress;
-
+            
             //todo - should we support multiple destinations? pub/sub?
             var destination = endpointRouter.GetDestinationFor(messageToSend);
 

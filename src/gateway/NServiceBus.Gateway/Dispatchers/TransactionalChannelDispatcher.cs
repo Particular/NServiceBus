@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.Gateway.Dispatchers
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Linq;
+    using Channels;
     using Channels.Http;
     using Notifications;
+    using ObjectBuilder;
     using Routing;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -13,15 +16,15 @@
     public class TransactionalChannelDispatcher : IDispatchMessagesToChannels
     {
 
-        public TransactionalChannelDispatcher(IChannelFactory channelFactory,
+        public TransactionalChannelDispatcher(   IBuilder builder,
+                                                 IManageChannels channelManager,
                                                  IMessageNotifier notifier,
                                                  ISendMessages messageSender,
-                                                 IRouteMessagesToSites routeMessages,
                                                  IMasterNodeSettings settings)
         {
-            this.routeMessages = routeMessages;
             this.settings = settings;
-            this.channelFactory = channelFactory;
+            this.builder = builder;
+            this.channelManager = channelManager;
             this.notifier = notifier;
             this.messageSender = messageSender;
         }
@@ -49,7 +52,7 @@
         {
             var messageToDispatch = e.Message;
 
-            var destinationSites = routeMessages.GetDestinationSitesFor(messageToDispatch);
+            IEnumerable<Site> destinationSites = GetDestinationSitesFor(messageToDispatch);
 
             //if there is more than 1 destination we break it up into multiple messages
             if (destinationSites.Count() > 1)
@@ -69,6 +72,12 @@
             SendToSite(messageToDispatch, destination);
         }
 
+        IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
+        {
+            return builder.BuildAll<IRouteMessagesToSites>()
+                .SelectMany(r => r.GetDestinationSitesFor(messageToDispatch));
+        }
+
         void CloneAndSendLocal(TransportMessage messageToDispatch, Site destinationSite)
         {
             //todo - do we need to clone? check with Jonathan O
@@ -79,16 +88,15 @@
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
-            var headers = new NameValueCollection();
+            transportMessage.Headers[Headers.OriginatingSite] = GetCurrentSiteKey();
 
+            var headers = new NameValueCollection();
             HeaderMapper.Map(transportMessage, headers);
 
-            var channelSender = channelFactory.CreateChannelSender(targetSite.ChannelType);
-
-
-            headers[Headers.OriginatingSite] = "todo";//todo - discuss this with Udi
-         
-            channelSender.Send(targetSite.Address,headers, transportMessage.Body);
+            
+            var channelSender = GetChannelSenderFor(targetSite);
+            
+            channelSender.Send(targetSite.Address, headers, transportMessage.Body);
 
             notifier.RaiseMessageForwarded(settings.Receiver.GetType(), channelSender.GetType(), transportMessage);
 
@@ -96,12 +104,23 @@
                 messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
+        IChannelSender GetChannelSenderFor(Site targetSite)
+        {
+            return builder.Build(targetSite.ChannelType) as IChannelSender;
+        }
+
+        string GetCurrentSiteKey()
+        {
+            //return the address of the default channel and let the convention based router do it's magic
+            return channelManager.GetDefaultChannel().ReceiveAddress;
+        }
+
         string addressOfAuditStore;
-        readonly IChannelFactory channelFactory;
+        readonly IBuilder builder;
+        readonly IManageChannels channelManager;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;
-        readonly IRouteMessagesToSites routeMessages;
         readonly IMasterNodeSettings settings;
         string localAddress;
 
