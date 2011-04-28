@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.Gateway.Dispatchers
+﻿namespace NServiceBus.Gateway.Config
 {
-    using Faults;
-    using Unicast.Queuing;
+    using NServiceBus.Faults;
+    using NServiceBus.Unicast.Queuing;
 
     public interface IMasterNodeSettings
     {

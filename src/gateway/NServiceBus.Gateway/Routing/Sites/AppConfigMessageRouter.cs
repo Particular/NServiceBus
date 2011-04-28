@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Gateway.Routing.Routers
+﻿namespace NServiceBus.Gateway.Routing.Sites
 {
     using System;
     using System.Collections.Generic;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     public class AppConfigMessageRouter : IRouteMessagesToSites
     {

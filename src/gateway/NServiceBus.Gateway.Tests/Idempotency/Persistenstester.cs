@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Transactions;
     using Persistence;
+    using Persistence.Sql;
 
     public class Persistenstester
     {

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Web;
     using HeaderManagement;
@@ -128,11 +129,16 @@
                 {
                     var msg = new TransportMessage
                                   {
-                                      Body = outMessage
+                                      Body = outMessage,
+                                      Headers = new Dictionary<string, string>(),
+                                      MessageIntent = MessageIntentEnum.Send,
+                                      Recoverable = true
                                   };
 
-                    HeaderMapper.Map(outHeaders, msg);         
 
+                    if (outHeaders[GatewayHeaders.IsGatewayMessage] != null)
+                        HeaderMapper.Map(outHeaders, msg);
+                   
                   
                     MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
                 }

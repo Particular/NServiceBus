@@ -1,11 +1,14 @@
-﻿namespace NServiceBus.Gateway.Dispatchers
+﻿namespace NServiceBus.Gateway
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Linq;
+    using Config;
     using Channels;
     using Channels.Http;
+    using HeaderManagement;
+    using log4net;
     using Notifications;
     using ObjectBuilder;
     using Routing;
@@ -13,10 +16,10 @@
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
-    public class TransactionalChannelDispatcher : IDispatchMessagesToChannels
+    public class InputDispatcher:IDisposable
     {
 
-        public TransactionalChannelDispatcher(   IBuilder builder,
+        public InputDispatcher(   IBuilder builder,
                                                  IManageChannels channelManager,
                                                  IMessageNotifier notifier,
                                                  ISendMessages messageSender,
@@ -45,14 +48,21 @@
 
             transport.TransportMessageReceived += OnTransportMessageReceived;
 
-            transport.Start(inputAddress);
+            transport.Start(localAddress);
+
+            Logger.InfoFormat("Gateway started listening on inputs on - {0}", localAddress);
         }
 
+        public void Dispose()
+        {
+            transport.Dispose();
+            Logger.InfoFormat("Gateway stopped");
+        }
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             var messageToDispatch = e.Message;
 
-            IEnumerable<Site> destinationSites = GetDestinationSitesFor(messageToDispatch);
+            var destinationSites = GetDestinationSitesFor(messageToDispatch);
 
             //if there is more than 1 destination we break it up into multiple messages
             if (destinationSites.Count() > 1)
@@ -89,9 +99,12 @@
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetCurrentSiteKey();
-
+         
             var headers = new NameValueCollection();
+
             HeaderMapper.Map(transportMessage, headers);
+
+            headers[GatewayHeaders.IsGatewayMessage] = true.ToString();
 
             
             var channelSender = GetChannelSenderFor(targetSite);
@@ -124,5 +137,7 @@
         readonly IMasterNodeSettings settings;
         string localAddress;
 
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+       
     }
 }

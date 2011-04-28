@@ -16,7 +16,6 @@ namespace NServiceBus.Gateway.Routing.Endpoints
 
         public string GetDestinationFor(TransportMessage messageToSend)
         {
-            //todo - figure out why we use a funny name for this header
             var routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
           
             if (messageToSend.Headers.ContainsKey(routeTo))

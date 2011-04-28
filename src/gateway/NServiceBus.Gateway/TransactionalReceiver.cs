@@ -3,25 +3,20 @@
     using System;
     using System.Collections.Generic;
     using Channels;
-    using Dispatchers;
     using log4net;
     using Notifications;
     using ObjectBuilder;
     using Routing;
     using Unicast.Queuing;
 
-    public class GatewayService : IDisposable
+    public class TransactionalReceiver : IDisposable
     {
-        public string GatewayInputAddress { get; set; }
-
-        public GatewayService(  IDispatchMessagesToChannels channelDispatcher,
-                                IManageChannels channelManager,
+        public TransactionalReceiver(  IManageChannels channelManager,
                                 IRouteMessagesToEndpoints endpointRouter,
                                 IBuilder builder, 
                                 ISendMessages messageSender)
 
         {
-            this.channelDispatcher = channelDispatcher;
             this.messageSender = messageSender;
             this.channelManager = channelManager;
             this.endpointRouter = endpointRouter;
@@ -30,12 +25,11 @@
             channelReceivers = new List<IChannelReceiver>();
         }
 
-        public void Start()
+        public void Start(string localAddress)
         {
-            channelDispatcher.Start(GatewayInputAddress);
+            returnAddress = localAddress;
 
-            Logger.InfoFormat("Gateway started listening on inputs on - {0}" , GatewayInputAddress);
-
+            
             foreach (var channel in channelManager.GetActiveChannels())
             {
 
@@ -72,7 +66,7 @@
         {
             var messageToSend = e.Message;
 
-            messageToSend.ReturnAddress = GatewayInputAddress;
+            messageToSend.ReturnAddress = returnAddress;
             
             //todo - should we support multiple destinations? pub/sub?
             var destination = endpointRouter.GetDestinationFor(messageToSend);
@@ -88,8 +82,8 @@
         readonly IRouteMessagesToEndpoints endpointRouter;
         readonly IBuilder builder;
         readonly ICollection<IChannelReceiver> channelReceivers;
-        readonly IDispatchMessagesToChannels channelDispatcher;
-
+        string returnAddress;
+        
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

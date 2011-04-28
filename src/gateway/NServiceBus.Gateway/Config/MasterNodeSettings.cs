@@ -1,6 +1,5 @@
 namespace NServiceBus.Gateway.Config
 {
-    using Dispatchers;
     using Faults;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
