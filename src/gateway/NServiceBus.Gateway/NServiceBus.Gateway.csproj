@@ -92,7 +92,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Config\Channels\LegacyChannelManager.cs" />
+    <Compile Include="Channels\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\Http\HttpHeaders.cs" />

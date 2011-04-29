@@ -1,5 +1,8 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
     using NUnit.Framework;
 
     [TestFixture]
@@ -8,32 +11,34 @@
         [Test]
         public void Should_transmit_the_databus_payload_on_the_same_channel_as_the_message()
         {
-            //var testString = "A laaarge string";
+            var headers = new Dictionary<string, string>();
+            var dataBusKey = "NServiceBus.DataBus." + Guid.NewGuid();
 
-            //var message = new MessageWithADataBusProperty
-            //                  {
-            //                      LargeString = new DataBusProperty<string>(testString)
-            //                  };
-            //SendMessage(message);
 
-            //var propertyKey = message.LargeString.Key;
+            var timeToLive = TimeSpan.FromDays(1);
+            var expectedExpiryTime = DateTime.Now + timeToLive;
 
-            //var transportMessage = GetResultingMessage();
+            using (var stream = new MemoryStream(new byte[1]))
+                headers[dataBusKey] = databusForSiteA.Put(stream, timeToLive);
 
-            //string dataBusKey = null;
-            
-            //transportMessage.Headers.TryGetValue("NServiceBus.DataBus." + propertyKey, out dataBusKey);
+            SendMessage(HttpAddressForSiteB,headers);
 
-            ////make sure that we got the key
-            //Assert.NotNull(dataBusKey);
+           
+            var transportMessage = GetReceivedMessage();
 
-            ////make sure that they key exist in our databus
-            //Assert.NotNull(dataBusForTheReceivingSide.Get(dataBusKey));
+            string databusKeyForSiteB;
+
+            transportMessage.Headers.TryGetValue(dataBusKey, out databusKeyForSiteB);
+
+            //make sure that we got the key
+            Assert.NotNull(databusKeyForSiteB);
+
+            //make sure that they key exist in the DataBus for SiteB
+            Assert.NotNull(databusForSiteB.Get(databusKeyForSiteB));
+
+            //make sure that the time to live was transmitted properly
+            Assert.GreaterOrEqual(databusForSiteB.Peek(databusKeyForSiteB).ExpireAt,expectedExpiryTime);
+ 
         }
-    }
-
-    public class MessageWithADataBusProperty : IMessage
-    {
-        public DataBusProperty<string> LargeString { get; set; }
     }
 }

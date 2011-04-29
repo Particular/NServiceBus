@@ -45,20 +45,20 @@
 
         public void Dispose()
         {
-            Logger.InfoFormat("Gateway is shutting down");
+            Logger.InfoFormat("Receiver is shutting down");
             
             foreach (var channelReceiver in channelReceivers)
             {
                 Logger.InfoFormat("Stopping channel receiver - {0}",channelReceiver.GetType());
 
-                channelReceiver.Stop(); //todo - use dispose instead
-
                 channelReceiver.MessageReceived -= MessageReceivedOnChannel;
+
+                channelReceiver.Dispose();
             }
 
             channelReceivers.Clear();
 
-            Logger.InfoFormat("Gateway shutdown complete");
+            Logger.InfoFormat("Receiver shutdown complete");
 
         }
 

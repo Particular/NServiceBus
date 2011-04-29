@@ -1,11 +1,9 @@
-namespace NServiceBus.Gateway.Config.Channels
+namespace NServiceBus.Gateway.Channels
 {
-    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
-    using Gateway.Channels;
-    using Gateway.Channels.Http;
+    using Http;
 
     public class LegacyChannelManager : IManageChannels
     {

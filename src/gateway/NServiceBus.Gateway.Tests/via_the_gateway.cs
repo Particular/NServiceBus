@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
+    using DataBus;
     using Notifications;
     using NUnit.Framework;
     using ObjectBuilder;
@@ -23,8 +24,9 @@
         protected const string GatewayAddressForSiteB = "SiteBEndpoint.gateway@masternode_in_site_b";
         protected const string HttpAddressForSiteB = "http://localhost:8092/Gateway/";
 
-        InputDispatcher dispatcherInSiteA;
-        TransactionalReceiver receiverInSiteB;
+        protected InMemoryDataBus databusForSiteA;
+        protected InMemoryDataBus databusForSiteB;
+
 
         [TearDown]
         public void TearDown()
@@ -35,6 +37,9 @@
         [SetUp]
         public void SetUp()
         {
+            databusForSiteA = new InMemoryDataBus();
+            databusForSiteB = new InMemoryDataBus();
+
             inMemoryReceiver = new InMemoryReceiver();
          
             var builder = MockRepository.GenerateStub<IBuilder>();
@@ -54,8 +59,15 @@
 
 
 
-            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver(new InMemoryPersistence()));
-            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
+            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver(new InMemoryPersistence())
+                                                                               {
+                                                                                   DataBus = databusForSiteB
+                                                                               });
+            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender
+                                                                             {
+                                                                                 DataBus = databusForSiteA
+                                                                             });
+
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
             messageSender = new FakeMessageSender();
@@ -65,7 +77,7 @@
                                                                    channelManager,
                                                                    MockRepository.GenerateStub<IMessageNotifier>(),
                                                                    MockRepository.GenerateStub<ISendMessages>(),
-                                                                   new FakeDistpatcherSettings
+                                                                   new FakeDispatcherSettings
                                                                        {
                                                                            Receiver = inMemoryReceiver
                                                                        });
@@ -74,15 +86,19 @@
             receiverInSiteB.Start(GatewayAddressForSiteB);
         }
 
-
-
         protected void SendMessage(string destinationSites)
+        {
+            SendMessage(destinationSites, new Dictionary<string, string>());
+        }
+
+        protected void SendMessage(string destinationSites,Dictionary<string,string> headers)
         {
             var message = new TransportMessage
                               {
                                   Id =  Guid.NewGuid().ToString(),
-                                  Headers = new Dictionary<string, string>(),
-                                  Body = new byte[1]
+                                  Headers = headers,
+                                  Body = new byte[1],
+                                  TimeToBeReceived = TimeSpan.FromDays(1)
                               };
 
             message.Headers[Headers.DestinationSites] = destinationSites;
@@ -101,9 +117,10 @@
         }
 
 
- 
+
+        InputDispatcher dispatcherInSiteA;
+        TransactionalReceiver receiverInSiteB;
         InMemoryReceiver inMemoryReceiver;
         FakeMessageSender messageSender;
-     
     }
 }

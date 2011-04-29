@@ -42,7 +42,7 @@
             new Thread(HttpServer).Start();
         }
 
-        public void Stop()
+        public void Dispose()
         {
             listener.Stop();
         }
@@ -98,9 +98,11 @@
             if(DataBus == null)
                 throw new InvalidOperationException("Databus transmission received without a databus configured");
 
-            //todo - get this from the message headers
-            TimeSpan timeToBeReceived = TimeSpan.FromDays(1);
+            TimeSpan timeToBeReceived;
 
+            if (!TimeSpan.TryParse(callInfo.Headers["NServiceBus.TimeToBeReceived"], out timeToBeReceived))
+                timeToBeReceived = TimeSpan.FromHours(1);
+           
             string newDatabusKey;
 
             using(var stream = new MemoryStream(callInfo.Buffer))
@@ -279,6 +281,6 @@
         readonly IPersistMessages persister;
         
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-       
+
     }
 }

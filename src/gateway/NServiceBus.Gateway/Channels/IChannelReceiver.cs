@@ -3,13 +3,10 @@
     using System;
     using Notifications;
 
-    //todo - implement IDisposable to enable cleanup
-    public interface IChannelReceiver
+    public interface IChannelReceiver:IDisposable
     {
         event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
         void Start(string address, int numWorkerThreads);
-
-        void Stop();
     }
 }
