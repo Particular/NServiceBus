@@ -389,13 +389,6 @@
 		</copy>
 	</target>
 
-	<target name="compile_msmqutils">
-		<exec 	program="${msbuild}"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
-					workingdir="${solution.dir}\utils" />
-
-	</target>
-
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
 						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus"
@@ -419,7 +412,14 @@
 		</if>
 
 	</target>
+	
+	<target name="compile_msmqutils" depends="commonassemblyinfo">
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\utils" />
 
+	</target>
+	
 	<target name="BuildMsmqUtils" depends="compile_msmqutils">
 		<!-- copy the runner to the tools directory -->
 		<copy todir="tools\msmqutils">
