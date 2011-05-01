@@ -56,6 +56,26 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns the list of destination sites for this message
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static string GetDestinationSitesHeader(this IMessage msg)
+        {
+            return msg.GetHeader(Headers.DestinationSites);
+        }
+
+        /// <summary>
+        /// Returns the sitekey for the site for which this message originated, null if this message wasn't sent via the gateway
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static string GetOriginatingSiteHeader(this IMessage msg)
+        {
+            return msg.GetHeader(Headers.OriginatingSite);
+        }
+
+        /// <summary>
         /// Sets the value of the header for the given key.
         /// </summary>
         /// <param name="msg"></param>
@@ -66,6 +86,29 @@ namespace NServiceBus
             SetHeaderAction(msg, key, value);
         }
 
+		/// <summary>
+        /// Sets the list of sites to where this message should be routed
+        /// This method is reserved for the NServiceBus Gateway.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="value"></param>
+        public static void SetDestinationSitesHeader(this IMessage msg, string value)
+        {
+            msg.SetHeader(Headers.DestinationSites, value);
+        }
+
+
+        /// <summary>
+        /// Sets the originating site header
+        /// This method is reserved for the NServiceBus Gateway.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="value"></param>
+        public static void SetOriginatingSiteHeader(this IMessage msg, string value)
+        {
+            msg.SetHeader(Headers.OriginatingSite, value);
+        }
+		
         /// <summary>
         /// Sets the Http address from which this message was received.
         /// This method is reserved for the NServiceBus Gateway.
@@ -152,6 +195,19 @@ namespace NServiceBus
         /// This header is considered an applicative header.
         /// </summary>
         public const string RouteTo = "NServiceBus.Header.RouteTo";
+		
+		/// <summary>
+        /// Header for specifying to which sites the gateway should send the message. For multiple
+		//  sites a comma separated list can be used
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string DestinationSites = "NServiceBus.DestinationSites";
+
+        /// <summary>
+        /// Header for specifying the key for the site where this message originated. 
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string OriginatingSite = "NServiceBus.OriginatingSite";
 
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.

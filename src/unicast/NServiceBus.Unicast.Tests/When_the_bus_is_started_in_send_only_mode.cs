@@ -61,6 +61,7 @@ namespace NServiceBus.Unicast.Tests
 
     }
 
+
     public class SomeBuiltInHandler:IHandleMessages<SomeBuiltinMessage>
     {
         public void Handle(SomeBuiltinMessage message)

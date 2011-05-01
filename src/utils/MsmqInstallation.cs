@@ -24,11 +24,17 @@ namespace NServiceBus.Utils
 
             var controller = new ServiceController { ServiceName = "MSMQ", MachineName = "." };
 
-            ProcessUtil.ChangeServiceStatus(controller, ServiceControllerStatus.Running, controller.Start);
+            if (IsStopped(controller))
+            {
+                ProcessUtil.ChangeServiceStatus(controller, ServiceControllerStatus.Running, controller.Start);
+            }
         }
 
+        private static bool IsStopped(ServiceController controller)
+        {
+            return controller.Status == ServiceControllerStatus.Stopped || controller.Status == ServiceControllerStatus.StopPending;
+        }
 
-        
         private static bool IsMsmqInstalled()
         {
             var dll = LoadLibraryW("Mqrt.dll");

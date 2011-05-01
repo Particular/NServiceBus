@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.MessageHandlers", "Timeout.MessageHandlers\Timeout.MessageHandlers.csproj", "{7EA93511-0B01-4E6B-95C4-A3069A4A107A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timeout.Tests", "Timeout.Tests\Timeout.Tests.csproj", "{A8D1CE7F-876D-4F80-A535-820F3E4A57D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EA93511-0B01-4E6B-95C4-A3069A4A107A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8D1CE7F-876D-4F80-A535-820F3E4A57D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8D1CE7F-876D-4F80-A535-820F3E4A57D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8D1CE7F-876D-4F80-A535-820F3E4A57D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8D1CE7F-876D-4F80-A535-820F3E4A57D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

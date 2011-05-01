@@ -12,13 +12,7 @@ namespace NServiceBus.Unicast.Distributor
     /// </summary>
     public class Distributor
     {
-        private int millisToWaitIfCannotDispatchToWorker = 50;
-
-        /// <summary>
-        /// Sets the bus that will be used
-        /// for transporting control information.
-        /// </summary>
-        public IStartableBus ControlBus { get; set; }
+        private int millisToWaitIfCannotDispatchToWorker = 10;
 
         /// <summary>
         /// Sets the address of the datainput queue for this distributor

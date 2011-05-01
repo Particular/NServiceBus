@@ -52,7 +52,7 @@ namespace Partner
                         m.PurchaseOrderNumber = poId;
                         m.PartnerId = partnerId;
                         m.Done = done;
-                        m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(10);
+                        m.ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(10);
                         m.OrderLines = orderlines;
                     }).Register<int>(i => Console.WriteLine("OK"));
 
@@ -81,7 +81,7 @@ namespace Partner
                 Random r = new Random();
 
                 numberOfLines = 5 + r.Next(0, 5);
-                secondsToProvideBy = 5 + r.Next(0, 5);
+                secondsToProvideBy = 10 + r.Next(0, 10);
                 string purchaseOrderNumber = Guid.NewGuid().ToString();
 
                 for (int i = 0; i < numberOfLines; i++)
@@ -91,7 +91,7 @@ namespace Partner
                         m.PurchaseOrderNumber = purchaseOrderNumber;
                         m.PartnerId = partnerId;
                         m.Done = (i == numberOfLines - 1);
-                        m.ProvideBy = DateTime.Now + TimeSpan.FromSeconds(secondsToProvideBy);
+                        m.ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(secondsToProvideBy);
                         m.OrderLines = new List<OrderLine> {
                             bus.CreateInstance<OrderLine>(ol => { 
                                 ol.ProductId = Guid.NewGuid(); 
@@ -101,7 +101,7 @@ namespace Partner
                     });
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(10);
                 if (step)
                     Console.ReadLine();
             }

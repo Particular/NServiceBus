@@ -26,7 +26,7 @@ namespace NServiceBus.DataBus.Config
 			Configure.Instance.Configurer.ConfigureComponent<DataBusMessageMutator>(
 				DependencyLifecycle.InstancePerCall);
 
-			Configure.Instance.Configurer.ConfigureComponent<DefaultDatabusSerializer>(
+			Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
 				DependencyLifecycle.SingleInstance);
 
 			HookupDataBusStartMethod();

@@ -11,7 +11,8 @@ namespace NServiceBus.DataBus.Tests
         
         public Stream Get(string key)
         {
-            return new MemoryStream(storage[key]);
+            lock(storage)
+                return new MemoryStream(storage[key]);
         }
 
         public string Put(Stream stream, TimeSpan timeToBeReceived)
@@ -20,7 +21,9 @@ namespace NServiceBus.DataBus.Tests
 
             var data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);
-            storage.Add(key,data);
+            
+            lock(storage)
+                storage.Add(key,data);
         	return key;
         }
 

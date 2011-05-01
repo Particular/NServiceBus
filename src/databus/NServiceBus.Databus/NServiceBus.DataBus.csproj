@@ -62,7 +62,7 @@
     <Compile Include="DataBusMessageMutator.cs" />
     <Compile Include="DefaultDatabusSerializer.cs" />
     <Compile Include="IDataBus.cs" />
-    <Compile Include="IDatabusSeralizer.cs" />
+    <Compile Include="IDatabusSerializer.cs" />
     <Compile Include="MessageExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

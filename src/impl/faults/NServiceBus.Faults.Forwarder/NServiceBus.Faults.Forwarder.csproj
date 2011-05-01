@@ -72,6 +72,9 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
@@ -86,12 +89,9 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ExceptionInfo.cs" />
     <Compile Include="ExceptionSanitizer.cs" />
     <Compile Include="FaultManager.cs" />
-    <Compile Include="ProcessingFailedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerializationFailedMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

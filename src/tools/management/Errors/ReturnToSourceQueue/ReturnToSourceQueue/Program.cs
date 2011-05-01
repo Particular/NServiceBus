@@ -7,7 +7,7 @@ namespace ReturnToSourceQueue
     {
         static void Main(string[] args)
         {
-            ErrorManager c = new ErrorManager();
+            var errorManager = new ErrorManager();
 
             string inputQueue = null;
             string messageId = null;
@@ -32,14 +32,14 @@ namespace ReturnToSourceQueue
                 Console.WriteLine("Attempting to return message to source queue. Please stand by.");
             }
 
-            c.InputQueue = inputQueue;
+            errorManager.InputQueue = inputQueue;
 
             try
             {
                 if (messageId == "all")
-                    c.ReturnAll();
+                    errorManager.ReturnAll();
                 else
-                    c.ReturnMessageToSourceQueue(messageId);
+                    errorManager.ReturnMessageToSourceQueue(messageId);
 
                 Console.WriteLine("Success.");
 
