@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Common.Logging;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;
 using System.IO;
@@ -124,8 +125,9 @@ namespace NServiceBus
                         {
                             foreach (Type t in a.GetTypes()) types.Add(t);
                         }
-                        catch(ReflectionTypeLoadException)
+                        catch(ReflectionTypeLoadException e)
                         {
+                            Logger.Warn("Could not scan assembly: " + a.FullName, e);
                             return; //intentionally swallow exception
                         }
                     });
@@ -228,5 +230,6 @@ namespace NServiceBus
         }
 
         private static Configure instance;
+        private static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
     }
 }
