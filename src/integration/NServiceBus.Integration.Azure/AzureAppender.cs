@@ -3,18 +3,28 @@ using System.Diagnostics;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
+using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.WindowsAzure.Diagnostics.Management;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Integration.Azure
 {
     public sealed class AzureAppender : AppenderSkeleton
     {
-        private const string ConnectionStringKey = "Diagnostics.ConnectionString";
-        private const string LevelKey = "Diagnostics.Level";
-        private const string LayoutKey = "Diagnostics.Layout";
-        private const string ScheduledTransferPeriodKey = "Diagnostics.ScheduledTransferPeriod";
-        private const string EventLogsKey = "Diagnostics.EventLogs";
+        // new keys to integrate better with azure sdk 1.3 and up
+        private const string ConnectionStringKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
+        private const string LevelKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.Level";
+        private const string LayoutKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.Layout";
+        private const string ScheduledTransferPeriodKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ScheduledTransferPeriod";
+        private const string EventLogsKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.EventLogs";
+
+        // ols keys to remain backward compatible
+        private const string OldConnectionStringKey = "Diagnostics.ConnectionString";
+        private const string OldLevelKey = "Diagnostics.Level";
+        private const string OldLayoutKey = "Diagnostics.Layout";
+        private const string OldScheduledTransferPeriodKey = "Diagnostics.ScheduledTransferPeriod";
+        private const string OldEventLogsKey = "Diagnostics.EventLogs";
 
         public AzureAppender()
         {
@@ -31,7 +41,7 @@ namespace NServiceBus.Integration.Azure
         {
             var logString = RenderLoggingEvent(loggingEvent);
 
-            System.Diagnostics.Trace.WriteLine(logString);
+            Trace.WriteLine(logString);
         }
 
         public override void ActivateOptions()
@@ -51,20 +61,43 @@ namespace NServiceBus.Integration.Azure
 
         private void ConfigureAzureDiagnostics()
         {
-            var traceListener = new DiagnosticMonitorTraceListener();
-            Trace.Listeners.Add(traceListener);
+            Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
+            
+            var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());
 
-            var dmc = DiagnosticMonitor.GetDefaultInitialConfiguration();
+            var roleInstanceDiagnosticManager = cloudStorageAccount.CreateRoleInstanceDiagnosticManager(
+                                                    RoleEnvironment.DeploymentId,
+                                                    RoleEnvironment.CurrentRoleInstance.Role.Name,
+                                                    RoleEnvironment.CurrentRoleInstance.Id);
 
-            //set threshold to verbose, what gets logged is controled by the log4net level
-            dmc.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+            var configuration = roleInstanceDiagnosticManager.GetCurrentConfiguration();
 
-            ScheduleTransfer(dmc);
+            if (configuration == null) // to remain backward compatible with sdk 1.2
+            {
+                configuration = DiagnosticMonitor.GetDefaultInitialConfiguration();
+               
+                ConfigureDiagnostics(configuration);
 
-            ConfigureWindowsEventLogsToBeTransferred(dmc);
+                DiagnosticMonitor.Start(cloudStorageAccount, configuration);
+            }
+            else
+            {
+                ConfigureDiagnostics(configuration);
 
-            DiagnosticMonitor.Start(ConnectionStringKey, dmc);
+                roleInstanceDiagnosticManager.SetCurrentConfiguration(configuration);
+            }
         }
+
+        private void ConfigureDiagnostics(DiagnosticMonitorConfiguration configuration)
+        {
+            //set threshold to verbose, what gets logged is controled by the log4net level
+            configuration.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+
+            ScheduleTransfer(configuration);
+
+            ConfigureWindowsEventLogsToBeTransferred(configuration);
+        }
+
 
         private void ScheduleTransfer(DiagnosticMonitorConfiguration dmc)
         {
@@ -82,11 +115,40 @@ namespace NServiceBus.Integration.Azure
             }
         }
 
+        private static string GetConnectionString()
+        {
+            try
+            {
+                try
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(ConnectionStringKey);
+                }
+                catch (Exception)
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(OldConnectionStringKey);
+                }
+
+            }
+            catch (Exception)
+            {
+                return "UseDevelopmentStorage=true";
+            }
+        }
+
+
         private static string GetLevel()
         {
             try
             {
-                return RoleEnvironment.GetConfigurationSettingValue(LevelKey);
+                try
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(LevelKey);
+                }
+                catch (Exception)
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(OldLevelKey);
+                }
+                
             }
             catch (Exception)
             {
@@ -98,7 +160,14 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                return RoleEnvironment.GetConfigurationSettingValue(LayoutKey);
+                try
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(LayoutKey);
+                }
+                catch (Exception)
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(OldLayoutKey);
+                }
             }
             catch (Exception)
             {
@@ -110,7 +179,14 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                return int.Parse(RoleEnvironment.GetConfigurationSettingValue(ScheduledTransferPeriodKey));
+                try
+                {
+                    return int.Parse(RoleEnvironment.GetConfigurationSettingValue(ScheduledTransferPeriodKey));
+                }
+                catch (Exception)
+                {
+                    return int.Parse(RoleEnvironment.GetConfigurationSettingValue(OldScheduledTransferPeriodKey));
+                }
             }
             catch (Exception)
             {
@@ -122,7 +198,14 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                return RoleEnvironment.GetConfigurationSettingValue(EventLogsKey);
+                try
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(EventLogsKey);
+                }
+                catch (Exception)
+                {
+                    return RoleEnvironment.GetConfigurationSettingValue(OldEventLogsKey);
+                }
             }
             catch (Exception)
             {

@@ -17,8 +17,6 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             return Configure.Instance
-                .DefaultBuilder()                
-                .AzureConfigurationSource()
                 .AzureMessageQueue().IsTransactional(true)
                 .Sagas()
                // .PurgeOnStartup(false) // todo

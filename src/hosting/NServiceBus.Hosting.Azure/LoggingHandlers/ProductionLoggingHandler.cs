@@ -1,4 +1,5 @@
-﻿using NServiceBus.Integration.Azure;
+﻿using NServiceBus.Config;
+using NServiceBus.Integration.Azure;
 using log4net.Layout;
 using log4net.Core;
 using Microsoft.WindowsAzure.ServiceRuntime;
@@ -14,7 +15,15 @@ namespace NServiceBus.Hosting.Azure.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<AzureAppender>(null,
+            if (Configure.Instance == null)
+                Configure.With();
+
+            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+                Configure.Instance.DefaultBuilder();
+
+            Configure.Instance
+                .AzureConfigurationSource()
+                .Log4Net<AzureAppender>(
                 a =>
                 {
                     a.ScheduledTransferPeriod = 10;                    
