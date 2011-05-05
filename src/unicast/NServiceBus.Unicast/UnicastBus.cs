@@ -22,6 +22,8 @@ using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
+    using MasterNode;
+
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
@@ -97,6 +99,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public ISendMessages MessageSender { get; set; }
 
+        /// <summary>
+        /// Information regarding the current master node
+        /// </summary>
+        public IManageTheMasterNode MasterNodeManager { get; set; }
+
+        
         /// <summary>
         /// Object used to manage units of work.
         /// </summary>
@@ -414,6 +422,7 @@ namespace NServiceBus.Unicast
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
 
+        
         void IBus.Reply(params IMessage[] messages)
         {
             SendMessage(_messageBeingHandled.ReturnAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
@@ -491,6 +500,18 @@ namespace NServiceBus.Unicast
         ICallback IBus.Send(string destination, string correlationId, params IMessage[] messages)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
+        }
+
+        ICallback IBus.SendToSites(IEnumerable<string> siteKeys, params IMessage[] messages)
+        {
+            if (messages == null || messages.Length == 0)
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
+            
+            var gatewayAddress = MasterNodeManager.GetMasterNode() + ".Gateway";
+
+            messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
+
+            return SendMessage(gatewayAddress, null, MessageIntentEnum.Send, messages);
         }
 
 

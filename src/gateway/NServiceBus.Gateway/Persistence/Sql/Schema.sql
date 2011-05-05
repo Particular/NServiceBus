@@ -1,19 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-  <appSettings>
-    <add key="InputQueue" value="gateway"/>
-   
-    <add key="OutputQueue" value="myserverinputqueue"/>
-    <add key="ListenUrl" value="http://localhost:8090/Gateway/"/>
-
-    <add key="RemoteUrl" value="http://localhost:8092/Gateway/"/> 
-    <!--  Destination to which the gateway will sent messages over HTTP
-          unless the client specifies an HttpTo header in their message
-          in which case that will be the destination. -->
-
-    <add key="ConnectionString" value="Data Source=UDIDAHANMOBILE2\SQLEXPRESS;Initial Catalog=model;Integrated Security=True"/>
-    <!-- use the following script to create the table needed
-BEGIN TRANSACTION
+﻿BEGIN TRANSACTION
 SET QUOTED_IDENTIFIER ON
 SET ARITHABORT ON
 SET NUMERIC_ROUNDABORT OFF
@@ -55,7 +40,3 @@ CREATE NONCLUSTERED INDEX IX_Messages_Status ON dbo.Messages
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 COMMIT
-    -->
-  </appSettings>
-</configuration>
-

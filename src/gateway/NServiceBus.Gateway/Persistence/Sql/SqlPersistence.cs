@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Gateway.Persistence
+﻿namespace NServiceBus.Gateway.Persistence.Sql
 {
     using System;
     using System.Collections.Specialized;
@@ -100,7 +100,6 @@
 
         public void UpdateHeader(string clientId, string headerKey, string newValue)
         {
-            //todo
             throw new NotImplementedException();
         }
 

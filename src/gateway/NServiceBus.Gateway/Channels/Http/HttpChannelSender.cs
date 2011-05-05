@@ -5,13 +5,11 @@
     using System.Net;
     using System.Web;
     using DataBus;
+    using HeaderManagement;
     using log4net;
 
     public class HttpChannelSender : IChannelSender
     {
-        public ChannelType Type { get { return ChannelType.Http; } }
-
-
         public void Send(string remoteUrl,NameValueCollection headers,byte[] body)
         {
             MakeHttpRequest(remoteUrl, CallType.Submit, headers, body);
@@ -53,11 +51,8 @@
         {
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
             headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(buffer);
-            headers["NServiceBus.Gateway"] = "true"; //todo: what are this header used for?
-
-            headers[HttpHeaders.FromKey] = ListenUrl;
-  
-
+            
+      
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
 
@@ -99,8 +94,6 @@
         }
 
         public IDataBus DataBus { get; set; }
-
-        public string ListenUrl { get; set; }
 
         const string DATABUS_PREFIX = "NServiceBus.DataBus.";
 

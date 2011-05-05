@@ -3,20 +3,10 @@
     using System;
     using Notifications;
 
-    public interface IChannelReceiver
+    public interface IChannelReceiver:IDisposable
     {
-        ChannelType Type { get; }
-  
         event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
-  
-        void Start();
-  
-        void Stop();
-    }
 
-    public enum ChannelType
-    {
-        Http,
-        Msmq
+        void Start(string address, int numWorkerThreads);
     }
 }

@@ -1,15 +1,14 @@
 ﻿namespace NServiceBus.Gateway.Notifications
 {
     using System;
-    using Channels;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
-    internal class MessageNotifier : IMessageNotifier
+    public class MessageNotifier : IMessageNotifier
     {
         public event EventHandler<MessageReceivedOnChannelArgs> MessageForwarded;
         
         
-        void IMessageNotifier.RaiseMessageForwarded(ChannelType from, ChannelType to, TransportMessage message)
+        void IMessageNotifier.RaiseMessageForwarded(Type from, Type to, TransportMessage message)
         {
             if (MessageForwarded != null)
                 MessageForwarded(this, new MessageReceivedOnChannelArgs

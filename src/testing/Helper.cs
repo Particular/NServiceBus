@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Rhino.Mocks;
+using Rhino.Mocks.Exceptions;
 
 namespace NServiceBus.Testing
 {
@@ -180,7 +181,31 @@ namespace NServiceBus.Testing
             delegates.Add(d);
         }
 
-        /// <summary>
+		/// <summary>
+		/// Check that the object does not publish any messages of the given type complying with the given predicate.
+		/// </summary>
+		/// <typeparam name="TMessage"></typeparam>
+		/// <param name="check"></param>
+		/// <returns></returns>
+		public void ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+		{
+			Delegate d = new HandleMessageDelegate(
+				() => DoNotExpectCallToPublish(
+						  delegate(TMessage[] msgs)
+						  {
+							  foreach (TMessage msg in msgs)
+								  if (!check(msg))
+									  return false;
+
+							  return true;
+						  }
+						  )
+				);
+
+			delegates.Add(d);
+		}
+		
+		/// <summary>
         /// Check that the object tells the bus to not dispatch the current message to any other handlers.
         /// </summary>
         /// <returns></returns>
@@ -309,6 +334,18 @@ namespace NServiceBus.Testing
                 .IgnoreArguments()
                 .Callback(callback);
         }
+
+		private void DoNotExpectCallToPublish<T>(BusPublishDelegate<T> callback) where T : IMessage
+		{
+			T[] messages = null;
+
+			bus.Stub(b => bus.Publish(messages))
+				.IgnoreArguments()
+				.Callback(callback)
+				.Throw(
+					new ExpectationViolationException(string.Format("Did not expect a call to Publish<{0}> matching predicate {1}",
+					                                                typeof (T).FullName, callback)));
+		}
 
         private void ExpectCallToDoNotContinueDispatchingCurrentMessageToHandlers()
         {

@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Web;
+    using HeaderManagement;
     using log4net;
     using System.Net;
     using Notifications;
@@ -22,31 +24,25 @@
 
             listener = new HttpListener();
         }
-        
-        public ChannelType Type { get { return ChannelType.Http; } }
 
-        public string ListenUrl { get; set; }
 
         public IDataBus DataBus { get; set; }
-
-        public int NumberOfWorkerThreads { get; set; }
 
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
        
-        public void Start()
+        public void Start(string address, int numWorkerThreads)
         {
-            listener.Prefixes.Add(ListenUrl);
+            listener.Prefixes.Add(address);
 
-            ThreadPool.SetMaxThreads(NumberOfWorkerThreads, NumberOfWorkerThreads);
+            ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
 
             listener.Start();
 
             new Thread(HttpServer).Start();
         }
 
-
-        public void Stop()
+        public void Dispose()
         {
             listener.Stop();
         }
@@ -60,7 +56,7 @@
                 Logger.DebugFormat("Received message of type {0} for client id: {1}",callInfo.Type, callInfo.ClientId);
 
      
-                //todo this is a msmq specific validation and should be moved into the msmq forwarder?
+                //todo this is a msmq specific validation and should be moved to the layer above that is sending the message onto the main transport
                 if (callInfo.Type == CallType.Submit && ctx.Request.ContentLength64 > 4 * 1024 * 1024)
                     throw new HttpChannelException(413, "Cannot accept messages larger than 4MB.");
 
@@ -102,9 +98,11 @@
             if(DataBus == null)
                 throw new InvalidOperationException("Databus transmission received without a databus configured");
 
-            //todo
-            TimeSpan timeToBeReceived = TimeSpan.FromDays(1);
+            TimeSpan timeToBeReceived;
 
+            if (!TimeSpan.TryParse(callInfo.Headers["NServiceBus.TimeToBeReceived"], out timeToBeReceived))
+                timeToBeReceived = TimeSpan.FromHours(1);
+           
             string newDatabusKey;
 
             using(var stream = new MemoryStream(callInfo.Buffer))
@@ -122,7 +120,6 @@
 
         void HandleAck(CallInfo callInfo)
         {
-            var msg = new TransportMessage();
             using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30)}))
             {
                 byte[] outMessage;
@@ -132,26 +129,19 @@
 
                 if (outHeaders != null && outMessage != null)
                 {
-                    msg.Body = outMessage;
-                    
-                    HeaderMapper.Map(outHeaders, msg);
-                    if (msg.TimeToBeReceived < TimeSpan.FromSeconds(1))
-                        msg.TimeToBeReceived = TimeSpan.FromSeconds(1);
-
-                    msg.Recoverable = true;
-
-                    if (String.IsNullOrEmpty(msg.IdForCorrelation))
-                        msg.IdForCorrelation = msg.Id;
-
-                    if (msg.MessageIntent == MessageIntentEnum.Init) // wasn't set by client
-                        msg.MessageIntent = MessageIntentEnum.Send;
+                    var msg = new TransportMessage
+                                  {
+                                      Body = outMessage,
+                                      Headers = new Dictionary<string, string>(),
+                                      MessageIntent = MessageIntentEnum.Send,
+                                      Recoverable = true
+                                  };
 
 
-                    //todo this header is used by the httpheadermanager and need to be abstracted to support other channels
-                    if (callInfo.Headers[HttpHeaders.FromKey] != null)
-                        msg.Headers.Add(Headers.HttpFrom, callInfo.Headers[HttpHeaders.FromKey]);
-
-                    
+                    if (outHeaders[GatewayHeaders.IsGatewayMessage] != null)
+                        HeaderMapper.Map(outHeaders, msg);
+                   
+                  
                     MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
                 }
 
@@ -291,6 +281,6 @@
         readonly IPersistMessages persister;
         
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-       
+
     }
 }

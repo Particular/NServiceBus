@@ -200,7 +200,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor,gateway"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -283,7 +283,7 @@
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting\ ${msbuild.targetframework}"
 						workingdir="${solution.dir}\hosting" />
 
-		<!-- Merge the windowshost and it's dependecies -->
+		<!-- Merge the windowshost and it's dependencies -->
 		<mkdir 	dir="${output.dir}\host" />
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host.exe ${hosting.build.dir}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir}\NServiceBus.Hosting.dll ${hosting.build.dir}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir}\Magnum.dll ${hosting.build.dir}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost.txt ${ilmerge.targetframework}"
@@ -321,6 +321,7 @@
 					<include name="${core.build.dir}\*Tests.dll" />
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
 					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
+                                        <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>
@@ -387,27 +388,6 @@
 				<include name="XsdGenerator.exe" />
 			</fileset>
 		</copy>
-
-
-		<!-- Compile the gateway  -->
-		<property name="gateway.builddir" value="..\..\..\${build.base}\gateway" />
-
-		<exec 	program="${msbuild}"
-					commandline="${solution.dir}\gateway\gateway.sln 
-					/nologo 
-					/t:Clean
-					/t:Rebuild        
-					/p:OutDir=${gateway.builddir}\bin\        
-					/p:WebProjectOutputDir=${gateway.builddir}\;AspNetConfiguration=${project.config} ${msbuild.targetframework}"
-					workingdir="." />
-
-	</target>
-
-	<target name="compile_msmqutils">
-		<exec 	program="${msbuild}"
-					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
-					workingdir="${solution.dir}\utils" />
-
 	</target>
 
 	<target name="compile_samples" depends="prepare_binaries">
@@ -433,7 +413,14 @@
 		</if>
 
 	</target>
+	
+	<target name="compile_msmqutils" depends="commonassemblyinfo">
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\utils" />
 
+	</target>
+	
 	<target name="BuildMsmqUtils" depends="compile_msmqutils">
 		<!-- copy the runner to the tools directory -->
 		<copy todir="tools\msmqutils">

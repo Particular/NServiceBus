@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Unicast.Transport;
     using System.Collections.Specialized;
@@ -14,15 +13,20 @@
             to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
             to.CorrelationId = from[NServiceBus + CorrelationId];
 
+            if (String.IsNullOrEmpty(to.IdForCorrelation))
+                to.IdForCorrelation = to.Id;
+
             bool recoverable;
-            bool.TryParse(from[NServiceBus + Recoverable], out recoverable);
-            to.Recoverable = recoverable;
+            if(bool.TryParse(from[NServiceBus + Recoverable], out recoverable))
+                to.Recoverable = recoverable;
 
             TimeSpan timeToBeReceived;
             TimeSpan.TryParse(from[NServiceBus + TimeToBeReceived], out timeToBeReceived);
             to.TimeToBeReceived = timeToBeReceived;
 
-            to.Headers = new Dictionary<string, string>();
+            if (to.TimeToBeReceived < TimeSpan.FromSeconds(1))
+                to.TimeToBeReceived = TimeSpan.FromSeconds(1);
+
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Headers.HeaderName))
                     to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
@@ -30,7 +34,6 @@
 
         public static void Map(TransportMessage from, NameValueCollection to)
         {
-            //todo - why are we doing this?
             if (!String.IsNullOrEmpty(from.IdForCorrelation))
                 from.IdForCorrelation = from.Id;
 
@@ -58,13 +61,5 @@
         private const string Recoverable = "Recoverable";
         private const string ReturnAddress = "ReturnAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
-        private const string WindowsIdentityName = "WindowsIdentityName";
-
-    }
-
-    public static class HttpHeaders
-    {
-        public const string ContentMd5Key = "Content-MD5";
-        public const string FromKey = "From";
     }
 }

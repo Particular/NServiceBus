@@ -1,14 +1,14 @@
 ﻿namespace NServiceBus.Gateway.Config
 {
-    using System.Configuration;
-    using Dispatchers;
+    using Channels;
     using Gateway;
-    using Channels.Http;
+    using Gateway.Channels.Http;
     using Notifications;
     using Persistence;
     using ObjectBuilder;
-    using Sites;
-    using Sites.Registries;
+    using Persistence.Sql;
+    using Routing.Endpoints;
+    using Routing.Sites;
 
     public static class GatewayConfig
     {
@@ -21,55 +21,42 @@
 
         public static Configure Gateway(this Configure config)
         {
+            //todo - use DefaultPersistence == raven
             config.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.SingleInstance);
             return SetupGateway(config);
         }
 
         private static Configure SetupGateway(this Configure config)
         {   
-            //todo add a custom config section for this
-            string listenUrl = ConfigurationManager.AppSettings["ListenUrl"];
-            string n = ConfigurationManager.AppSettings["NumberOfWorkerThreads"];
-           
-            var inputQueue = ConfigurationManager.AppSettings["InputQueue"];
-            var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
+            //todo - get the configured name - use service locator to get the interface, make sure to do it on config complete
+            var endpointName = "MasterEndpoint"; 
+            
+          
+            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance); 
 
-
-
-            int numberOfWorkerThreads;
-
-            if (!int.TryParse(n, out numberOfWorkerThreads))
-                numberOfWorkerThreads = 10;
-
-
-            if(!config.Configurer.HasComponent<ISiteRegistry>())
-                config.Configurer.ConfigureComponent<LegacySiteRegistry>(DependencyLifecycle.SingleInstance); //todo - use the appconfig as default instead
-
-  
+            config.Configurer.ConfigureComponent<MasterNodeSettings>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
-            config.Configurer.ConfigureComponent<GatewayService>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.ReturnAddress, inputQueue)
-               .ConfigureProperty(p => p.DefaultDestinationAddress, outputQueue);
+            config.Configurer.ConfigureComponent<TransactionalReceiver>(DependencyLifecycle.SingleInstance);
+            
+            config.Configurer.ConfigureComponent<InputDispatcher>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
 
-            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.InstancePerCall);
-
-            config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ListenUrl, listenUrl)
-                .ConfigureProperty(p => p.NumberOfWorkerThreads, numberOfWorkerThreads);
-
-            config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ListenUrl, listenUrl);
-
-
-            config.Configurer.ConfigureComponent<TransactionalChannelDispatcher>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.InputQueue, inputQueue);
+            config.Configurer.ConfigureComponent<InputDispatcher>(DependencyLifecycle.SingleInstance);
              
             Configure.ConfigurationComplete +=
                 (o, a) =>
                 {
                     Configure.Instance.Builder.Build<IStartableBus>()
-                        .Started += (sender, eventargs) => Configure.Instance.Builder.Build<GatewayService>().Start();
+                        .Started += (sender, eventargs) =>
+                            {
+                                var localAddress = endpointName + ".gateway";//todo
+                                Configure.Instance.Builder.Build<TransactionalReceiver>().Start(localAddress);
+                                Configure.Instance.Builder.Build<InputDispatcher>().Start(localAddress);
+                            };
                 };
 
             return config;

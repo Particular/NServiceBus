@@ -62,11 +62,20 @@
 
         public int DeleteDeliveredMessages(DateTime until)
         {
-            return 0;//todo
+            lock(storage)
+            {
+                var toDelete = storage.Where(m => m.At < until);
+
+                toDelete.ToList()
+                    .ForEach(m=>storage.Remove(m));
+
+
+                return toDelete.Count();
+            }
         }
     }
 
-    internal class MessageInfo
+    public class MessageInfo
     {
         public string ClientId { get; set; }
 
