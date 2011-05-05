@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Configuration;
+using System.Web.Hosting;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config.ConfigurationSource;
 
@@ -50,7 +51,7 @@ namespace NServiceBus.Integration.Azure
 
         private static bool IsWebsite()
         {
-            return RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.InstanceEndpoints.ContainsKey("HttpIn") : HttpContext.Current != null;
+            return HostingEnvironment.IsHosted;
         }
     }
 }
