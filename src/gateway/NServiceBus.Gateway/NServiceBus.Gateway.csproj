@@ -40,7 +40,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config">
+    <Reference Include="NServiceBus.Config, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.DataBus">
@@ -103,6 +104,9 @@
     <Compile Include="HeaderManagement\Bootstrapper.cs" />
     <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
+    <Compile Include="IdempotentTransmitter.cs" />
+    <Compile Include="ITransmittMessages.cs" />
+    <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
     <Compile Include="Routing\Sites\AppConfigMessageRouter.cs" />
@@ -112,7 +116,7 @@
     <Compile Include="Routing\Sites\LegacySiteRouter.cs" />
     <Compile Include="Routing\Site.cs" />
     <Compile Include="HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="TransactionalReceiver.cs" />
+    <Compile Include="GatewayReceiver.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />
     <Compile Include="Channels\Http\HeaderMapper.cs" />
     <Compile Include="Channels\IChannelReceiver.cs" />
@@ -122,7 +126,7 @@
     <Compile Include="Persistence\IPersistMessages.cs" />
     <Compile Include="Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="InputDispatcher.cs" />
+    <Compile Include="GatewaySender.cs" />
     <Compile Include="Persistence\InMemoryPersistence.cs" />
     <Compile Include="Persistence\Sql\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

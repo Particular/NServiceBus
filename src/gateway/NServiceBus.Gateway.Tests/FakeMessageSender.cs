@@ -14,18 +14,28 @@
         public void Send(TransportMessage message, string destination)
         {
 
-            receivedMessage = message;
+            details = new SendDetails
+                          {
+                              Destination = destination,
+                              Message = message
+                          };
+
             messageReceived.Set();
         }
 
-        public TransportMessage GetResultingMessage()
+        public SendDetails GetResultingMessage()
         {
             messageReceived.WaitOne();
-            return receivedMessage;
+            return details;
         }
 
-        TransportMessage receivedMessage;
+        SendDetails details;
         readonly ManualResetEvent messageReceived;
 
+        public class SendDetails
+        {
+            public TransportMessage Message { get; set; }
+            public string Destination { get; set; }
+        }
     }
 }

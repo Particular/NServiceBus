@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using Channels;
     using Channels.Http;
     using DataBus;
@@ -21,6 +22,7 @@
         protected const string GatewayAddressForSiteA = "SiteAEndpoint.gateway@masternode_in_site_a";
         protected const string HttpAddressForSiteA = "http://localhost:8090/Gateway/";
 
+        protected const string EndpointAddressForSiteB = "SiteBEndpoint@masternode_in_site_b";
         protected const string GatewayAddressForSiteB = "SiteBEndpoint.gateway@masternode_in_site_b";
         protected const string HttpAddressForSiteB = "http://localhost:8092/Gateway/";
 
@@ -41,8 +43,9 @@
             databusForSiteB = new InMemoryDataBus();
 
             inMemoryReceiver = new InMemoryReceiver();
-         
+
             var builder = MockRepository.GenerateStub<IBuilder>();
+
             var channelManager = MockRepository.GenerateStub<IManageChannels>();
             channelManager.Stub(x => x.GetActiveChannels()).Return(new[] {new Channel
                                                                               {
@@ -58,22 +61,26 @@
                                                                        });
 
 
-
+            builder.Stub(x => x.Build<IdempotentTransmitter>()).Return(new IdempotentTransmitter(builder)
+                                                                             {
+                                                                                 DataBus = databusForSiteA
+                                                                             });
+           
             builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver(new InMemoryPersistence())
                                                                                {
                                                                                    DataBus = databusForSiteB
                                                                                });
-            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender
-                                                                             {
-                                                                                 DataBus = databusForSiteA
-                                                                             });
+            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
             messageSender = new FakeMessageSender();
-            receiverInSiteB = new TransactionalReceiver(channelManager,new LegacyEndpointRouter(),builder,messageSender);
+            receiverInSiteB = new GatewayReceiver(channelManager,new DefaultEndpointRouter
+                                                                     {
+                                                                         MainInputAddress = EndpointAddressForSiteB
+                                                                     },builder,messageSender);
            
-            dispatcherInSiteA = new InputDispatcher(builder,
+            dispatcherInSiteA = new GatewaySender(builder,
                                                                    channelManager,
                                                                    MockRepository.GenerateStub<IMessageNotifier>(),
                                                                    MockRepository.GenerateStub<ISendMessages>(),
@@ -111,15 +118,15 @@
             inMemoryReceiver.Add(message);
         }
 
-        protected TransportMessage GetReceivedMessage()
+        protected FakeMessageSender.SendDetails GetDetailsForReceivedMessage()
         {
             return messageSender.GetResultingMessage();
         }
 
 
 
-        InputDispatcher dispatcherInSiteA;
-        TransactionalReceiver receiverInSiteB;
+        GatewaySender dispatcherInSiteA;
+        GatewayReceiver receiverInSiteB;
         InMemoryReceiver inMemoryReceiver;
         FakeMessageSender messageSender;
     }

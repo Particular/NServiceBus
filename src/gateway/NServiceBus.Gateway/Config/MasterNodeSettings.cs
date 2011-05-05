@@ -1,6 +1,7 @@
 namespace NServiceBus.Gateway.Config
 {
     using Faults;
+    using Unicast;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport.Transactional;
@@ -8,18 +9,20 @@ namespace NServiceBus.Gateway.Config
     public class MasterNodeSettings:IMasterNodeSettings
     {
         readonly TransactionalTransport masterNodeTransport;
+        readonly UnicastBus unicastBus;
 
-        public MasterNodeSettings(TransactionalTransport masterNodeTransport)
+        public MasterNodeSettings(TransactionalTransport masterNodeTransport,UnicastBus unicastBus)
         {
             this.masterNodeTransport = masterNodeTransport;
+            this.unicastBus = unicastBus;
         }
 
         public IReceiveMessages Receiver
         {
             get
             {
-                //todo - make this configurable
-                return new MsmqMessageReceiver();
+                //todo - use the type + IBuilder to get a fresh instance. This requires the MsmqMessageReceiver to be configured as singlecall, check with Udi
+                return new MsmqMessageReceiver(); 
             }
         }
 
@@ -54,7 +57,7 @@ namespace NServiceBus.Gateway.Config
         {
             get
             {
-                return null; //todo - get this from the unicast bus
+                return unicastBus.ForwardReceivedMessagesTo;
             }
         }
     }

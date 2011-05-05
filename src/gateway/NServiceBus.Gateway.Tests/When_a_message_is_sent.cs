@@ -11,7 +11,7 @@
         {
             SendMessage(HttpAddressForSiteB);
 
-            var receivedMessage = GetReceivedMessage();
+            var receivedMessage = GetDetailsForReceivedMessage();
 
             Assert.NotNull(receivedMessage);
         }
@@ -21,7 +21,7 @@
         {
             SendMessage(HttpAddressForSiteB);
 
-            var receivedMessage = GetReceivedMessage();
+            var receivedMessage = GetDetailsForReceivedMessage().Message;
 
             Assert.AreEqual(receivedMessage.ReturnAddress,GatewayAddressForSiteB);
         }
@@ -33,28 +33,17 @@
         {
             SendMessage(HttpAddressForSiteB);
 
-            var receivedMessage = GetReceivedMessage();
+            var receivedMessage = GetDetailsForReceivedMessage().Message;
 
             Assert.AreEqual(receivedMessage.Headers[Headers.OriginatingSite], HttpAddressForSiteA);
         }
 
-
-
-        [Test,Ignore()]
-        public void Should_enable_the_destination_address_to_be_overriden_using_the_route_to_header()
+        [Test]
+        public void Should_route_the_message_to_the_receiving_gateways_main_input_queue()
         {
-           
-            //const string destinationAddress = "EndpointA@someserver";
+            SendMessage(HttpAddressForSiteB);
 
-            //message.SetHeader(Headers.RouteTo, destinationAddress);
-
-            //SendMessage(HttpAddressForSiteB,new[,]{newHeaders.RouteTo,destinationAddress});
-
-            //var receivedMessage = GetReceivedMessage();
-
-            //Assert.AreEqual(receivedMessage.ReturnAddress, destinationAddress);
-        
+            Assert.AreEqual(GetDetailsForReceivedMessage().Destination, EndpointAddressForSiteB);
         }
-
     }
 }

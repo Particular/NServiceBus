@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using HeaderManagement;
     using Unicast.Transport;
     using System.Collections.Specialized;
 
@@ -36,6 +37,8 @@
         {
             if (!String.IsNullOrEmpty(from.IdForCorrelation))
                 from.IdForCorrelation = from.Id;
+
+            to[GatewayHeaders.IsGatewayMessage] = true.ToString();
 
             to[NServiceBus + Id] = from.Id;
             to[NServiceBus + IdForCorrelation] = from.IdForCorrelation;

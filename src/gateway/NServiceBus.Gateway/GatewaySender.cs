@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
     using Config;
     using Channels;
-    using Channels.Http;
     using HeaderManagement;
     using log4net;
     using Notifications;
@@ -16,10 +14,10 @@
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
-    public class InputDispatcher:IDisposable
+    public class GatewaySender:IDisposable
     {
 
-        public InputDispatcher(   IBuilder builder,
+        public GatewaySender(   IBuilder builder,
                                                  IManageChannels channelManager,
                                                  IMessageNotifier notifier,
                                                  ISendMessages messageSender,
@@ -99,29 +97,19 @@
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetCurrentSiteKey();
-         
-            var headers = new NameValueCollection();
 
-            HeaderMapper.Map(transportMessage, headers);
 
-            headers[GatewayHeaders.IsGatewayMessage] = true.ToString();
+            //todo - derive this from the message and the channeltype
+            builder.Build<IdempotentTransmitter>()
+                .Send(targetSite,transportMessage);
 
-            
-            var channelSender = GetChannelSenderFor(targetSite);
-            
-            channelSender.Send(targetSite.Address, headers, transportMessage.Body);
-
-            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), channelSender.GetType(), transportMessage);
+            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), targetSite.ChannelType, transportMessage);
 
             if (!string.IsNullOrEmpty(addressOfAuditStore))
                 messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
-        IChannelSender GetChannelSenderFor(Site targetSite)
-        {
-            return builder.Build(targetSite.ChannelType) as IChannelSender;
-        }
-
+       
         string GetCurrentSiteKey()
         {
             //return the address of the default channel and let the convention based router do it's magic
@@ -138,6 +126,5 @@
         string localAddress;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-       
     }
 }

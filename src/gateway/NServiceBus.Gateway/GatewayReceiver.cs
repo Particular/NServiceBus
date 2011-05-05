@@ -9,9 +9,9 @@
     using Routing;
     using Unicast.Queuing;
 
-    public class TransactionalReceiver : IDisposable
+    public class GatewayReceiver : IDisposable
     {
-        public TransactionalReceiver(  IManageChannels channelManager,
+        public GatewayReceiver(  IManageChannels channelManager,
                                 IRouteMessagesToEndpoints endpointRouter,
                                 IBuilder builder, 
                                 ISendMessages messageSender)
@@ -49,7 +49,7 @@
             
             foreach (var channelReceiver in channelReceivers)
             {
-                Logger.InfoFormat("Stopping channel receiver - {0}",channelReceiver.GetType());
+                Logger.InfoFormat("Stopping channel - {0}",channelReceiver.GetType());
 
                 channelReceiver.MessageReceived -= MessageReceivedOnChannel;
 
@@ -68,7 +68,6 @@
 
             messageToSend.ReturnAddress = returnAddress;
             
-            //todo - should we support multiple destinations? pub/sub?
             var destination = endpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
