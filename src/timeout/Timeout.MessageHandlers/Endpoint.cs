@@ -1,5 +1,11 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.Security.Principal;
 using NServiceBus;
+using NServiceBus.Installation;
+using NServiceBus.ObjectBuilder;
+using NServiceBus.Utils;
+using Configure = NServiceBus.Configure;
 
 namespace Timeout.MessageHandlers
 {
@@ -26,30 +32,18 @@ namespace Timeout.MessageHandlers
                 default:
                     throw new ConfigurationErrorsException("Serialization can only be one of 'interfaces', 'xml', or 'binary'.");
             }
+
+            configure.Configurer.ConfigureComponent<TimeoutManager>(ComponentCallModelEnum.Singleton);
+            configure.Configurer.ConfigureComponent<TimeoutPersister>(ComponentCallModelEnum.Singleton)
+                .ConfigureProperty(tp => tp.Queue, "timeout.storage");
         }
     }
 
-    /// <summary>
-    /// Configures performance behavior of the timeout manager
-    /// </summary>
-    public class PerformanceConfig : IWantCustomInitialization
+    public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
     {
-        void IWantCustomInitialization.Init()
+        public void Install(WindowsIdentity identity)
         {
-            string maxSagaIdsToStore = ConfigurationManager.AppSettings["MaxSagasIdsToStore"];
-            string millisToSleepBetweenMessages = ConfigurationManager.AppSettings["MillisToSleepBetweenMessages"];
-            
-            int sagas = 1000;
-            if (!string.IsNullOrEmpty(maxSagaIdsToStore))
-                int.TryParse(maxSagaIdsToStore, out sagas);
-
-            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MaxSagaIdsToStore, sagas);
-
-            int millis = 10;
-            if (!string.IsNullOrEmpty(millisToSleepBetweenMessages))
-                int.TryParse(millisToSleepBetweenMessages, out millis);
-
-            NServiceBus.Configure.Instance.Configurer.ConfigureProperty<TimeoutMessageHandler>(h => h.MillisToSleepBetweenMessages, millis);
+            MsmqUtilities.CreateQueueIfNecessary("timeout.storage", identity.Name);
         }
     }
 }

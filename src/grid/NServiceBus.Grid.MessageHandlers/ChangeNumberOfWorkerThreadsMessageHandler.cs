@@ -1,7 +1,5 @@
 using Common.Logging;
-using NServiceBus;
 using NServiceBus.Grid.Messages;
-using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 
 
@@ -25,16 +23,12 @@ namespace NServiceBus.Grid.MessageHandlers
             if (target <= 0)
                 target = 1;
             else
-            {
                 GridInterceptingMessageHandler.Disabled = false;
-                this.ReadyManager.ContinueSendingReadyMessages();
-            }
 
             this.Transport.ChangeNumberOfWorkerThreads(target);
 
             if (message.NumberOfWorkerThreads == 0)
             {
-                this.ReadyManager.StopSendingReadyMessages();
                 GridInterceptingMessageHandler.Disabled = true;
 
                 logger.Info("Disabling this endpoint.");
@@ -42,11 +36,6 @@ namespace NServiceBus.Grid.MessageHandlers
             else 
                 logger.Info(string.Format("{0} worker threads now running.", target));
         }
-
-        /// <summary>
-        /// Used to stop sending ready messages to the distributor if one is configured.
-        /// </summary>
-        public IManageReadyMessages ReadyManager { get; set; }
 
         /// <summary>
         /// This is kept separate from the bus because the distributor

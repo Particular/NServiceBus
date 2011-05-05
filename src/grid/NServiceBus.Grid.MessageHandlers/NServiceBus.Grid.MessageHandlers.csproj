@@ -14,7 +14,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -98,9 +97,6 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Bootstrapper.cs" />
-    <Compile Include="IManageReadyMessages.cs" />
-    <Compile Include="ReadyManager.cs" />
     <Compile Include="ChangeNumberOfWorkerThreadsMessageHandler.cs" />
     <Compile Include="GetNumberOfWorkerThreadsMessageHandler.cs" />
     <Compile Include="GridInterceptingMessageHandler.cs" />

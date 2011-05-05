@@ -51,5 +51,4 @@ namespace ObjectBuilder.Tests
             }
         }
     }
-   
 }

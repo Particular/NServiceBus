@@ -7,8 +7,6 @@ using Ninject.Injection;
 
 namespace NServiceBus.ObjectBuilder.Ninject.Internal
 {
-
-
     /// <summary>
     /// Only injects properties on an instance if that instance has not 
     /// been previously activated.  This forces property injection to occur 

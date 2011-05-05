@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ninject;
@@ -14,7 +14,6 @@ using NServiceBus.ObjectBuilder.Ninject.Internal;
 
 namespace NServiceBus.ObjectBuilder.Ninject
 {
-
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
     /// </summary>

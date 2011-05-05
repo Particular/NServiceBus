@@ -27,6 +27,7 @@
             $.ajax({
                 url: $('#gatewayaddress').val(),
                 beforeSend: function (http, settings) {
+                //todo add the transmission id!
                     http.setRequestHeader("Content-MD5", md5);
                     http.setRequestHeader("NServiceBus.CallType", "Submit");
                     http.setRequestHeader("NServiceBus.Id", clientId);

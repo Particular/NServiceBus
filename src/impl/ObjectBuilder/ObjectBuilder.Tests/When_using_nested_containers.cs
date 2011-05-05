@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Spring;
-using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
@@ -25,11 +24,10 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
+            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
 
         }
-
 
         [Test]
         public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
@@ -43,7 +41,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
+            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
+            //typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
         }
     }
@@ -70,5 +69,4 @@ namespace ObjectBuilder.Tests
     public interface ISingletonComponent
     {
     }
-
 }

@@ -1,6 +1,5 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using NServiceBus.MessageMutator;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -8,31 +7,21 @@ namespace NServiceBus.DataBus.Tests
 {
 	using System;
 
-	[TestFixture]
-    public class When_applying_the_databus_message_mutator_to_outgoing_messages
+    [TestFixture]
+    public class When_applying_the_databus_message_mutator_to_outgoing_messages : on_the_bus
     {
-		IDataBus dataBus;
-		IMutateOutgoingMessages mutator;
-
-		[SetUp]
-		public void SetUp()
-		{
-			dataBus = MockRepository.GenerateMock<IDataBus>();
-
-			mutator = new DataBusMessageMutator(dataBus, new DefaultDatabusSerializer());
-		}
 
         [Test]
         public void Outgoing_databus_properties_should_be_dehydrated()
         {
-        
+
             var message = new MessageWithDataBusProperty
                               {
 								  DataBusProperty = new DataBusProperty<string>("test")
                               };
 
 		
-            mutator.MutateOutgoing(message);
+            outgoingMutator.MutateOutgoing(message);
 
             dataBus.AssertWasCalled(
                 x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.MaxValue)));
@@ -48,7 +37,7 @@ namespace NServiceBus.DataBus.Tests
 			};
 
 
-			mutator.MutateOutgoing(message);
+			outgoingMutator.MutateOutgoing(message);
 
 			dataBus.AssertWasCalled(
 				x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.FromMinutes(1))));
@@ -56,20 +45,11 @@ namespace NServiceBus.DataBus.Tests
 
 
     }
-	[TestFixture]
-	public class When_applying_the_databus_message_mutator_to_incoming_messages
+
+    [TestFixture]
+	public class When_applying_the_databus_message_mutator_to_incoming_messages:on_the_bus
 	{
-		IDataBus dataBus;
-		IMutateIncomingMessages mutator;
-
-		[SetUp]
-		public void SetUp()
-		{
-			dataBus = MockRepository.GenerateMock<IDataBus>();
-
-			mutator = new DataBusMessageMutator(dataBus, new DefaultDatabusSerializer());
-		}
-
+		
 
 		[Test]
 		public void Incoming_databus_properties_should_be_hydrated()
@@ -86,7 +66,7 @@ namespace NServiceBus.DataBus.Tests
 
 				dataBus.Stub(s => s.Get(message.DataBusProperty.Key)).Return(stream);
 
-				message = (MessageWithDataBusProperty)mutator.MutateIncoming(message);
+				message = (MessageWithDataBusProperty)incomingMutator.MutateIncoming(message);
 			}
 			Assert.AreEqual(message.DataBusProperty.Value, "test");
 		}

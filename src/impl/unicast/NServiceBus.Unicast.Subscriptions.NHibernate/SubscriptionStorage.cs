@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq;
 using System.Transactions;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -75,23 +76,14 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         /// <returns></returns>
         IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
-            IEnumerable<string> result;
-
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = IsolationLevel.ReadCommitted}))
-            using (var session = subscriptionStorageSessionProvider.OpenSession())
-            {
-                result = session.CreateCriteria(typeof(Subscription))
-                                    .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
-                                    .SetProjection(Projections.Property("SubscriberEndpoint"))
-                                    .SetResultTransformer(new DistinctRootEntityResultTransformer())
-                                    .List<string>();
-
-                transaction.Complete();
-            }
-
-            return result;
+            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using (var session = subscriptionStorageSessionProvider.OpenStatelessSession())
+                return session.CreateCriteria(typeof(Subscription))
+                    .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
+                    .SetProjection(Projections.Property("SubscriberEndpoint"))
+                    .SetResultTransformer(new DistinctRootEntityResultTransformer())
+                    .List<string>();
         }
-
         public void Init()
         {
             //No-op

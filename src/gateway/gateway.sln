@@ -20,9 +20,13 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebClient", "WebClient\", "
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "16191"
+		VWDPort = "49368"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway.Tests", "NServiceBus.Gateway.Tests\NServiceBus.Gateway.Tests.csproj", "{33632B71-0CAA-4245-A4E3-BA94B563D679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway.TestEndpoint", "NServiceBus.Gateway.TestEndpoint\NServiceBus.Gateway.TestEndpoint.csproj", "{24829185-B328-48C6-8C7D-90DD33B64BA6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +42,14 @@ Global
 		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24829185-B328-48C6-8C7D-90DD33B64BA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24829185-B328-48C6-8C7D-90DD33B64BA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24829185-B328-48C6-8C7D-90DD33B64BA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24829185-B328-48C6-8C7D-90DD33B64BA6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

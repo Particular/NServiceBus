@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Distributor", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Distributor", "NServiceBus.Unicast.Distributor\NServiceBus.Unicast.Distributor.csproj", "{D142D372-C9FA-4505-A6EB-E919746F0FF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsmqWorkerAvailabilityManager", "MsmqWorkerAvailabilityManager\MsmqWorkerAvailabilityManager.csproj", "{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Distributor.MsmqWorkerAvailabilityManager", "NServiceBus.Distributor.MsmqWorkerAvailabilityManager\NServiceBus.Distributor.MsmqWorkerAvailabilityManager.csproj", "{A60CA2C3-0B28-4D03-9F0B-19FE56D27689}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution

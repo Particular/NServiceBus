@@ -44,14 +44,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Hosting.Windows, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.Windows.exe</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -70,27 +62,34 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Hasher.cs" />
-    <Compile Include="HeaderMapper.cs" />
-    <Compile Include="HttpRequestHandler.cs" />
-    <Compile Include="INotifyAboutMessages.cs" />
-    <Compile Include="MsmqHandler.cs" />
-    <Compile Include="Persistence.cs" />
+    <Compile Include="Channels\Http\HttpChannelException.cs" />
+    <Compile Include="Channels\Http\HttpChannelSender.cs" />
+    <Compile Include="Channels\IChannelSender.cs" />
+    <Compile Include="Sites\Registries\AppConfigSiteRegistry.cs" />
+    <Compile Include="Dispatchers\IDispatchMessagesToChannels.cs" />
+    <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="Sites\ISiteRegistry.cs" />
+    <Compile Include="Sites\Registries\LegacySiteRegistry.cs" />
+    <Compile Include="Sites\Site.cs" />
+    <Compile Include="GatewayHeaders.cs" />
+    <Compile Include="GatewayService.cs" />
+    <Compile Include="Channels\Http\Hasher.cs" />
+    <Compile Include="Channels\Http\HeaderMapper.cs" />
+    <Compile Include="Channels\IChannelReceiver.cs" />
+    <Compile Include="Notifications\IMessageNotifier.cs" />
+    <Compile Include="Notifications\MessageReceivedOnChannelArgs.cs" />
+    <Compile Include="Notifications\MessageNotifier.cs" />
+    <Compile Include="Persistence\IPersistMessages.cs" />
+    <Compile Include="Notifications\INotifyAboutMessages.cs" />
+    <Compile Include="Channels\Http\HttpChannelReceiver.cs" />
+    <Compile Include="Dispatchers\TransactionalChannelDispatcher.cs" />
+    <Compile Include="Persistence\InMemoryPersistence.cs" />
+    <Compile Include="Persistence\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CallInfo.cs" />
+    <Compile Include="Channels\Http\CallInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <Folder Include="Forwarders\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
