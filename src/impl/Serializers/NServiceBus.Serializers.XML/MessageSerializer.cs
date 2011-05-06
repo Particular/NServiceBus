@@ -264,8 +264,10 @@ namespace NServiceBus.Serializers.XML
             {
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
-                    object m = Process(node, null);
+                    if (node.NodeType == XmlNodeType.Whitespace)
+                        continue;
 
+                    object m = Process(node, null);
                     result.Add(m as IMessage);
                 }
             }
@@ -701,7 +703,7 @@ namespace NServiceBus.Serializers.XML
                     return;
 
                 var args = type.GetGenericArguments();
-				if (args.Length == 1 && args[0].IsValueType)
+                if (args.Length == 1 && args[0].IsValueType)
                 {
                     var nullableType = typeof (Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
