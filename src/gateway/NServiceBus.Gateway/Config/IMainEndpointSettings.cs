@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Gateway.Config
 {
-    using NServiceBus.Faults;
-    using NServiceBus.Unicast.Queuing;
+    using Faults;
+    using Unicast.Queuing;
 
-    public interface IMasterNodeSettings
+    public interface IMainEndpointSettings
     {
         IReceiveMessages Receiver { get;}
         int NumberOfWorkerThreads { get;}

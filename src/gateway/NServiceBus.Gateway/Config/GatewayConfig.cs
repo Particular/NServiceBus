@@ -73,7 +73,7 @@
             config.Configurer.ConfigureComponent<IdempotentTransmitter>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
 
-            config.Configurer.ConfigureComponent<MasterNodeSettings>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
   
             config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);

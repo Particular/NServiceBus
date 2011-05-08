@@ -11,7 +11,7 @@
 
     public class GatewayReceiver : IDisposable
     {
-        public GatewayReceiver(  IManageChannels channelManager,
+        public GatewayReceiver(  IMangageReceiveChannels channelManager,
                                 IRouteMessagesToEndpoints endpointRouter,
                                 IBuilder builder, 
                                 ISendMessages messageSender)
@@ -77,7 +77,7 @@
 
         
         readonly ISendMessages messageSender;
-        readonly IManageChannels channelManager;
+        readonly IMangageReceiveChannels channelManager;
         readonly IRouteMessagesToEndpoints endpointRouter;
         readonly IBuilder builder;
         readonly ICollection<IChannelReceiver> channelReceivers;

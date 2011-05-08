@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IManageChannels
+    public interface IMangageReceiveChannels
     {
         IEnumerable<Channel> GetActiveChannels();
         Channel GetDefaultChannel();

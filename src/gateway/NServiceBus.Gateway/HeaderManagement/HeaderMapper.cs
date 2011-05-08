@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Gateway.Channels.Http
+﻿namespace NServiceBus.Gateway.HeaderManagement
 {
     using System;
     using System.Linq;
-    using HeaderManagement;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
     using System.Collections.Specialized;
 
     public class HeaderMapper

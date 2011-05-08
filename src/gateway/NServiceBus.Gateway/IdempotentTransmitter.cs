@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Specialized;
+    using System.IO;
     using Channels;
     using Channels.Http;
     using DataBus;
@@ -28,22 +29,23 @@
             
             var channelSender = GetChannelSenderFor(targetSite);
 
-            Transmit(channelSender,targetSite, CallType.Submit, headers, message.Body);
+            using(var messagePayload = new MemoryStream(message.Body))
+                Transmit(channelSender,targetSite, CallType.Submit, headers, messagePayload);
 
             TransmittDataBusProperties(channelSender,targetSite, headers);
 
-            Transmit(channelSender,targetSite, CallType.Ack, headers, new byte[0]);
+            Transmit(channelSender,targetSite, CallType.Ack, headers, new MemoryStream());
         }
 
          
-        void Transmit(IChannelSender channelSender, Site targetSite, CallType callType, NameValueCollection headers, byte[] buffer)
+        void Transmit(IChannelSender channelSender, Site targetSite, CallType callType, NameValueCollection headers, Stream data)
         {
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
-            headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(buffer);
+            headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(data);
 
             Logger.DebugFormat("Sending message - {0} to: {1}", callType, targetSite.Address);
             
-            channelSender.Send(targetSite.Address, headers, buffer);
+            channelSender.Send(targetSite.Address, headers, data);
         }
 
      
@@ -62,12 +64,7 @@
                     headersToSend[GatewayHeaders.DatabusKey] = headerKey;
 
                     using (var stream = DataBus.Get(headers[headerKey]))
-                    {
-                        var buffer = new byte[stream.Length];
-                        stream.Read(buffer, 0, (int)stream.Length);
-
-                        Transmit(channelSender,targetSite, CallType.DatabusProperty, headersToSend, buffer);
-                    }
+                        Transmit(channelSender,targetSite, CallType.DatabusProperty, headersToSend, stream);
                 }
 
             }

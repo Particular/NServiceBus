@@ -2,6 +2,7 @@ namespace NServiceBus.Gateway.Routing.Endpoints
 {
     using System.Configuration;
     using Channels.Http;
+    using HeaderManagement;
     using Unicast.Transport;
 
     public class LegacyEndpointRouter : IRouteMessagesToEndpoints

@@ -4,7 +4,7 @@
     using Faults;
     using Unicast.Queuing;
 
-    public class FakeDispatcherSettings : IMasterNodeSettings
+    public class FakeDispatcherSettings : IMainEndpointSettings
     {
         public IReceiveMessages Receiver{ get; set;}
         

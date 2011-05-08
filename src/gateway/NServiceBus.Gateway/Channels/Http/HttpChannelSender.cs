@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Specialized;
+    using System.IO;
     using System.Net;
     using System.Web;
     using log4net;
 
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl,NameValueCollection headers,byte[] buffer)
+        public void Send(string remoteUrl,NameValueCollection headers,Stream data)
         {
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
@@ -18,10 +19,11 @@
             request.Headers = Encode(headers);
 
 
-            request.ContentLength = buffer.Length;
-
+            request.ContentLength = data.Length;
             var stream = request.GetRequestStream();
-            stream.Write(buffer, 0, buffer.Length);
+
+            //todo - perhaps we should make the buffer size configurable?
+            data.CopyTo(stream);
 
             int statusCode;
 

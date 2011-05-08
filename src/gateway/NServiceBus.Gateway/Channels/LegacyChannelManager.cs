@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Channels
     using System.Linq;
     using Http;
 
-    public class LegacyChannelManager : IManageChannels
+    public class LegacyChannelManager : IMangageReceiveChannels
     {
         public IEnumerable<Channel> GetActiveChannels()
         {

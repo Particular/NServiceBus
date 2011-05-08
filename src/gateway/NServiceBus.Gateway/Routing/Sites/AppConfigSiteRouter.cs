@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
-    public class AppConfigMessageRouter : IRouteMessagesToSites
+    public class AppConfigSiteRouter : IRouteMessagesToSites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
