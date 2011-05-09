@@ -267,6 +267,9 @@ namespace NServiceBus.Serializers.XML
             {
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
+                    if (node.NodeType == XmlNodeType.Whitespace)
+                        continue;
+
                     object m = Process(node, null);
 
                     result.Add(m as IMessage);
