@@ -10,10 +10,12 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Persistence;
+    using Receiving;
     using Rhino.Mocks;
     using Routing;
     using Routing.Endpoints;
     using Routing.Sites;
+    using Sending;
     using Unicast.Queuing;
     using Unicast.Transport;
 
@@ -61,15 +63,18 @@
                                                                        });
 
 
-            builder.Stub(x => x.Build<IdempotentTransmitter>()).Return(new IdempotentTransmitter(builder)
+            builder.Stub(x => x.Build<IdempotentSender>()).Return(new IdempotentSender(builder)
                                                                              {
                                                                                  DataBus = databusForSiteA
                                                                              });
-           
-            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver(new InMemoryPersistence())
-                                                                               {
-                                                                                   DataBus = databusForSiteB
-                                                                               });
+
+            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentReceiver(builder, new InMemoryPersistence()
+                                                                                                               )
+            {
+                DataBus = databusForSiteB
+            });
+          
+            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver());
             builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });

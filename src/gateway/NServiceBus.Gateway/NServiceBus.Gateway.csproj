@@ -93,19 +93,21 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Channels\LegacyChannelManager.cs" />
+    <Compile Include="Receiving\IdempotentReceiver.cs" />
+    <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
+    <Compile Include="Receiving\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\Http\HttpHeaders.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
     <Compile Include="Config\MainEndpointSettings.cs" />
     <Compile Include="Config\IMainEndpointSettings.cs" />
-    <Compile Include="Channels\IMangageReceiveChannels.cs" />
+    <Compile Include="Receiving\IMangageReceiveChannels.cs" />
     <Compile Include="HeaderManagement\Bootstrapper.cs" />
     <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
-    <Compile Include="IdempotentTransmitter.cs" />
-    <Compile Include="ITransmittMessages.cs" />
+    <Compile Include="Sending\IdempotentSender.cs" />
+    <Compile Include="Sending\ISendMessagesToSites.cs" />
     <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
@@ -116,8 +118,8 @@
     <Compile Include="Routing\Sites\LegacySiteRouter.cs" />
     <Compile Include="Routing\Site.cs" />
     <Compile Include="HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="GatewayReceiver.cs" />
-    <Compile Include="Channels\Http\Hasher.cs" />
+    <Compile Include="Receiving\GatewayReceiver.cs" />
+    <Compile Include="Utils\Hasher.cs" />
     <Compile Include="HeaderManagement\HeaderMapper.cs" />
     <Compile Include="Channels\IChannelReceiver.cs" />
     <Compile Include="Notifications\IMessageNotifier.cs" />
@@ -126,11 +128,12 @@
     <Compile Include="Persistence\IPersistMessages.cs" />
     <Compile Include="Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="GatewaySender.cs" />
+    <Compile Include="Sending\GatewaySender.cs" />
     <Compile Include="Persistence\InMemoryPersistence.cs" />
     <Compile Include="Persistence\Sql\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Channels\Http\CallInfo.cs" />
+    <Compile Include="Sending\CallInfo.cs" />
+    <Compile Include="Utils\StreamExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Persistence\Sql\Schema.sql" />

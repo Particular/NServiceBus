@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Gateway.Channels
+﻿namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
+    using Channels;
 
     public interface IMangageReceiveChannels
     {

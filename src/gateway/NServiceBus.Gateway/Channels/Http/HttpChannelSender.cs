@@ -1,15 +1,17 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.IO;
     using System.Net;
     using System.Web;
     using log4net;
+    using Utils;
 
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl,NameValueCollection headers,Stream data)
+        public void Send(string remoteUrl,IDictionary<string,string> headers,Stream data)
         {
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
@@ -20,10 +22,10 @@
 
 
             request.ContentLength = data.Length;
+        
             var stream = request.GetRequestStream();
 
-            //todo - perhaps we should make the buffer size configurable?
-            data.CopyTo(stream);
+            data.CopyTo_net35(stream);
 
             int statusCode;
 
@@ -41,7 +43,7 @@
             }
         }
 
-        static WebHeaderCollection Encode(NameValueCollection headers)
+        static WebHeaderCollection Encode(IDictionary<string,string> headers)
         {
             var webHeaders = new WebHeaderCollection();
 

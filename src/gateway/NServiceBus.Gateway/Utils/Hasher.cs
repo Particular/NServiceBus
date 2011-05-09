@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Gateway.Channels.Http
+﻿namespace NServiceBus.Gateway.Utils
 {
     using System;
     using System.IO;
@@ -6,16 +6,6 @@
 
     public class Hasher
     {
-        public const string HeaderKey = "NServiceBus.Header.Gateway.Hash";
-
-        public static string Hash(byte[] buffer)
-        {
-            MD5 hasher = MD5.Create();
-            byte[] data = hasher.ComputeHash(buffer);
-
-            return Convert.ToBase64String(data);
-        }
-
         public static string Hash(Stream stream)
         {
             var position = stream.Position;

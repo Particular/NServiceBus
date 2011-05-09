@@ -1,18 +1,18 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Sending
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Config;
-    using Channels;
-    using HeaderManagement;
+    using NServiceBus.Gateway.Config;
+    using NServiceBus.Gateway.Channels;
     using log4net;
-    using Notifications;
-    using ObjectBuilder;
-    using Routing;
-    using Unicast.Queuing;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
+    using NServiceBus.Gateway.Notifications;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Gateway.Routing;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport;
+    using NServiceBus.Unicast.Transport.Transactional;
+    using Receiving;
 
     public class GatewaySender:IDisposable
     {
@@ -100,7 +100,7 @@
 
 
             //todo - derive this from the message and the channeltype
-            builder.Build<IdempotentTransmitter>()
+            builder.Build<IdempotentSender>()
                 .Send(targetSite,transportMessage);
 
             notifier.RaiseMessageForwarded(settings.Receiver.GetType(), targetSite.ChannelType, transportMessage);

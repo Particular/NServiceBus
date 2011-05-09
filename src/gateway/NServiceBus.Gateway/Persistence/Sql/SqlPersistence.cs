@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Persistence.Sql
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Data.SqlClient;
     using System.IO;
@@ -10,7 +11,7 @@
     {
         public string ConnectionString { get; set; }
 
-        public bool InsertMessage(string clientId, DateTime timeReceived, byte[] message, NameValueCollection headers)
+        public bool InsertMessage(string clientId, DateTime timeReceived, Stream message, IDictionary<string, string> headers)
         {
             int results;
 
@@ -57,7 +58,7 @@
             return results > 0;
         }
 
-        public void AckMessage(string clientId, out byte[] message, out NameValueCollection headers)
+        public void AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
         {
             message = null;
             headers = null;
@@ -90,7 +91,7 @@
                         var stream = new MemoryStream(serHeaders);
                         var o = serializer.Deserialize(stream);
                         stream.Close();
-                        headers = o as NameValueCollection;
+                        headers = o as IDictionary<string,string>;
                     }
 
                     tx.Commit();

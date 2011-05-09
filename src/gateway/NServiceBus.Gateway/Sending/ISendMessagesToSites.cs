@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Sending
 {
     using Routing;
     using Unicast.Transport;
 
-    public interface ITransmittMessages
+    public interface ISendMessagesToSites
     {
         void Send(Site targetSite, TransportMessage message);
     }

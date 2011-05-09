@@ -1,13 +1,13 @@
 ﻿namespace NServiceBus.Gateway.HeaderManagement
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Unicast.Transport;
-    using System.Collections.Specialized;
 
     public class HeaderMapper
     {
-        public static void Map(NameValueCollection from, TransportMessage to)
+        public static void Map(IDictionary<string,string> from, TransportMessage to)
         {
             to.Id = from[NServiceBus + Id];
             to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
@@ -32,7 +32,7 @@
                     to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
         }
 
-        public static void Map(TransportMessage from, NameValueCollection to)
+        public static void Map(TransportMessage from, IDictionary<string,string> to)
         {
             if (!String.IsNullOrEmpty(from.IdForCorrelation))
                 from.IdForCorrelation = from.Id;

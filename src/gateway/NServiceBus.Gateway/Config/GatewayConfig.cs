@@ -1,15 +1,15 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Gateway;
-    using Gateway.Channels;
     using Gateway.Channels.Http;
     using Gateway.Config;
     using Gateway.Notifications;
     using Gateway.Persistence;
     using Gateway.Persistence.Sql;
+    using Gateway.Receiving;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
+    using Gateway.Sending;
     using ObjectBuilder;
     using Unicast;
 
@@ -70,7 +70,7 @@
         {
             config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<IdempotentTransmitter>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
@@ -83,8 +83,9 @@
         {
             config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentReceiver>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

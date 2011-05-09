@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Sending
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.IO;
     using Channels;
@@ -11,19 +12,20 @@
     using ObjectBuilder;
     using Routing;
     using Unicast.Transport;
+    using Utils;
 
-    public class IdempotentTransmitter:ITransmittMessages
+    public class IdempotentSender:ISendMessagesToSites
     {
         readonly IBuilder builder;
 
-        public IdempotentTransmitter(IBuilder builder)
+        public IdempotentSender(IBuilder builder)
         {
             this.builder = builder;
         }
 
         public void Send(Site targetSite, TransportMessage message)
         {
-            var headers = new NameValueCollection();
+            var headers = new Dictionary<string,string>();
 
             HeaderMapper.Map(message, headers);
             
@@ -38,7 +40,7 @@
         }
 
          
-        void Transmit(IChannelSender channelSender, Site targetSite, CallType callType, NameValueCollection headers, Stream data)
+        void Transmit(IChannelSender channelSender, Site targetSite, CallType callType, IDictionary<string,string> headers, Stream data)
         {
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
             headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(data);
@@ -49,9 +51,9 @@
         }
 
      
-        void TransmittDataBusProperties(IChannelSender channelSender,Site targetSite, NameValueCollection headers)
+        void TransmittDataBusProperties(IChannelSender channelSender,Site targetSite, IDictionary<string,string> headers)
         {
-            var headersToSend = new NameValueCollection { headers };
+            var headersToSend = new Dictionary<string,string> (headers);
 
 
             foreach (string headerKey in headers.Keys)
