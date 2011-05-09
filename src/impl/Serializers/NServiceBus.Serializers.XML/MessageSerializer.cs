@@ -224,7 +224,7 @@ namespace NServiceBus.Serializers.XML
             messageBaseTypes = new List<Type>();
             var result = new List<IMessage>();
 
-            var doc = new XmlDocument();
+            var doc = new XmlDocument { PreserveWhitespace = true };
 
             doc.Load(XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}));
 
@@ -439,6 +439,9 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
+            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlWhitespace)
+                return n.ChildNodes[0].InnerText;
+
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
                 var text = n.ChildNodes[0].InnerText;
