@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using System;
     using System.Threading;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -25,7 +26,7 @@
 
         public SendDetails GetResultingMessage()
         {
-            messageReceived.WaitOne();
+            messageReceived.WaitOne(TimeSpan.FromSeconds(10));
             return details;
         }
 

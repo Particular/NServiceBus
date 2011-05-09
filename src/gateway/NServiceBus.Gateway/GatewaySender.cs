@@ -18,10 +18,10 @@
     {
 
         public GatewaySender(   IBuilder builder,
-                                                 IManageChannels channelManager,
+                                                 IMangageReceiveChannels channelManager,
                                                  IMessageNotifier notifier,
                                                  ISendMessages messageSender,
-                                                 IMasterNodeSettings settings)
+                                                 IMainEndpointSettings settings)
         {
             this.settings = settings;
             this.builder = builder;
@@ -118,11 +118,11 @@
 
         string addressOfAuditStore;
         readonly IBuilder builder;
-        readonly IManageChannels channelManager;
+        readonly IMangageReceiveChannels channelManager;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;
-        readonly IMasterNodeSettings settings;
+        readonly IMainEndpointSettings settings;
         string localAddress;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");

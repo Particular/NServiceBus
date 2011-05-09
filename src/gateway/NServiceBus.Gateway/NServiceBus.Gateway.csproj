@@ -98,9 +98,9 @@
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\Http\HttpHeaders.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
-    <Compile Include="Config\MasterNodeSettings.cs" />
-    <Compile Include="Config\IMasterNodeSettings.cs" />
-    <Compile Include="Channels\IManageChannels.cs" />
+    <Compile Include="Config\MainEndpointSettings.cs" />
+    <Compile Include="Config\IMainEndpointSettings.cs" />
+    <Compile Include="Channels\IMangageReceiveChannels.cs" />
     <Compile Include="HeaderManagement\Bootstrapper.cs" />
     <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
-    <Compile Include="Routing\Sites\AppConfigMessageRouter.cs" />
+    <Compile Include="Routing\Sites\AppConfigSiteRouter.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Routing\IRouteMessagesToSites.cs" />
     <Compile Include="Routing\Sites\KeyPrefixConventionSiteRouter.cs" />
@@ -118,7 +118,7 @@
     <Compile Include="HeaderManagement\GatewayHeaders.cs" />
     <Compile Include="GatewayReceiver.cs" />
     <Compile Include="Channels\Http\Hasher.cs" />
-    <Compile Include="Channels\Http\HeaderMapper.cs" />
+    <Compile Include="HeaderManagement\HeaderMapper.cs" />
     <Compile Include="Channels\IChannelReceiver.cs" />
     <Compile Include="Notifications\IMessageNotifier.cs" />
     <Compile Include="Notifications\MessageReceivedOnChannelArgs.cs" />

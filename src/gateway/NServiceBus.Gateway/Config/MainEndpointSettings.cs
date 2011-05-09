@@ -6,12 +6,12 @@ namespace NServiceBus.Gateway.Config
     using Unicast.Queuing.Msmq;
     using Unicast.Transport.Transactional;
 
-    public class MasterNodeSettings:IMasterNodeSettings
+    public class MainEndpointSettings:IMainEndpointSettings
     {
         readonly TransactionalTransport masterNodeTransport;
         readonly UnicastBus unicastBus;
 
-        public MasterNodeSettings(TransactionalTransport masterNodeTransport,UnicastBus unicastBus)
+        public MainEndpointSettings(TransactionalTransport masterNodeTransport,UnicastBus unicastBus)
         {
             this.masterNodeTransport = masterNodeTransport;
             this.unicastBus = unicastBus;

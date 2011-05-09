@@ -46,7 +46,7 @@
 
             var builder = MockRepository.GenerateStub<IBuilder>();
 
-            var channelManager = MockRepository.GenerateStub<IManageChannels>();
+            var channelManager = MockRepository.GenerateStub<IMangageReceiveChannels>();
             channelManager.Stub(x => x.GetActiveChannels()).Return(new[] {new Channel
                                                                               {
                                                                                   NumWorkerThreads = 1,
