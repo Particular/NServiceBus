@@ -12,6 +12,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
             if (Config is AsA_Publisher)
                 Configure.Instance.InMemorySubscriptionStorage();
+
+            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
         }
 
         public IConfigureThisEndpoint Config { get; set; }

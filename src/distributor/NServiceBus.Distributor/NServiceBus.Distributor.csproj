@@ -54,6 +54,10 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Grid.Messages.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>

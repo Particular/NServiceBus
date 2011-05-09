@@ -27,6 +27,8 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataQueue, inputQueue);
 
+            NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
+
             Configure.ConfigurationComplete +=
                 (o, e) =>
                     {

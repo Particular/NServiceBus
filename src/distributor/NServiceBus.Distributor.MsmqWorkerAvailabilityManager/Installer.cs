@@ -4,13 +4,28 @@ using NServiceBus.Utils;
 
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
-    class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
+    ///<summary>
+    /// Creates the queue to store worker availability information.
+    ///</summary>
+    public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
     {
+        /// <summary>
+        /// Implementation of INeedToInstallSomething.Install
+        /// </summary>
+        /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            var m = NServiceBus.Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
+            if (DistributorActivated)
+            {
+                var m = NServiceBus.Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
-            MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);
+                MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);
+            }
         }
+
+        /// <summary>
+        /// Indication that the distributor has been activated for this endpoint.
+        /// </summary>
+        public static bool DistributorActivated { get; set; }
     }
 }
