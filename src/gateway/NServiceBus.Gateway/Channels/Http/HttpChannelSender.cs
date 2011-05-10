@@ -23,9 +23,8 @@
 
             request.ContentLength = data.Length;
         
-            var stream = request.GetRequestStream();
-
-            data.CopyTo_net35(stream);
+            using(var stream = request.GetRequestStream())
+                data.CopyTo_net35(stream);
 
             int statusCode;
 

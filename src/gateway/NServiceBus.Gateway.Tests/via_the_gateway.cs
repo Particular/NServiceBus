@@ -109,7 +109,7 @@
                               {
                                   Id =  Guid.NewGuid().ToString(),
                                   Headers = headers,
-                                  Body = new byte[1],
+                                  Body = new byte[500],
                                   TimeToBeReceived = TimeSpan.FromDays(1)
                               };
 

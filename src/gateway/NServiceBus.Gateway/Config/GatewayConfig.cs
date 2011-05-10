@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using Config;
     using Gateway.Channels.Http;
     using Gateway.Config;
+    using Gateway.Installation;
     using Gateway.Notifications;
     using Gateway.Persistence;
     using Gateway.Persistence.Sql;
@@ -11,7 +13,6 @@
     using Gateway.Routing.Sites;
     using Gateway.Sending;
     using ObjectBuilder;
-    using Unicast;
 
     public static class GatewayConfig
     {
@@ -36,32 +37,31 @@
 
 
         static Configure SetupGateway(this Configure config)
-        {  
+        {
+            var gatewayInputAddress = GetMainInputAddress() + ".gateway"; //todo - should have the config enforce local addresses? Check with Udi
+
+            config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
+
             ConfigureReceiver(config);
             
             ConfigureSender(config);
 
-            ConfigureAddresses();
+            ConfigureStartup(gatewayInputAddress);
 
             return config;
         }
 
-        static void ConfigureAddresses()
+        static void ConfigureStartup(string gatewayInputAddress)
         {
             Configure.ConfigurationComplete +=
                 (o, a) =>
                     {
-                        var mainInputAddress = Configure.Instance.Builder.Build<UnicastBus>().Address;
-
-                        Configure.Instance.Configurer.ConfigureProperty<DefaultEndpointRouter>(x => x.MainInputAddress,
-                                                                                               mainInputAddress);
-
                         Configure.Instance.Builder.Build<IStartableBus>()
                             .Started += (sender, eventargs) =>
                                 {
-                                    var localAddress = mainInputAddress + ".gateway"; //todo - should have the config enforce local addresses? Check with Udi
-                                    Configure.Instance.Builder.Build<GatewayReceiver>().Start(localAddress);
-                                    Configure.Instance.Builder.Build<GatewaySender>().Start(localAddress);
+                                    Configure.Instance.Builder.Build<GatewayReceiver>().Start(gatewayInputAddress);
+                                    Configure.Instance.Builder.Build<GatewaySender>().Start(gatewayInputAddress);
                                 };
                     };
         }
@@ -86,6 +86,20 @@
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<IdempotentReceiver>(DependencyLifecycle.InstancePerCall);
+
+            config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
+                                               .ConfigureProperty(x => x.MainInputAddress,GetMainInputAddress());
+
+        }
+
+        private static string GetMainInputAddress()
+        {
+            var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
+          
+            var inputQueue = unicastBusConfig.LocalAddress;
+            if (inputQueue == null)
+                inputQueue = Configure.GetConfigSection<MsmqTransportConfig>().InputQueue;
+            return inputQueue;
         }
     }
 }
