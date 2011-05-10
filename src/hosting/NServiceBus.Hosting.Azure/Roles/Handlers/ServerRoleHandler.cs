@@ -21,7 +21,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 .Sagas()
                // .PurgeOnStartup(false) // todo
                 .UnicastBus()
-                .ImpersonateSender(true);
+                .ImpersonateSender(false);
         }
     }
 }
