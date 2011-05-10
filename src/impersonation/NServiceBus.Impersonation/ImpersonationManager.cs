@@ -52,6 +52,14 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureImpersonation
     {
+		/// <summary>
+        /// Impersonate by default, otherwise this configuration would not be backward compatible
+        /// </summary>
+		static ConfigureImpersonation()
+		{
+			Impersonate = true;
+		}
+		
         /// <summary>
         /// Instructs the bus to run the processing of messages being handled
         /// under the permissions of the sender of the message.
@@ -61,7 +69,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus ImpersonateSender(this ConfigUnicastBus config, bool value)
         {
-            Impersonate = true;
+            Impersonate = value;
 
             return config;
         }
