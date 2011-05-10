@@ -582,6 +582,9 @@ namespace NServiceBus.Serializers.XML
                     {
                         foreach (XmlNode xn in n.ChildNodes)
                         {
+                          if (xn.NodeType == XmlNodeType.Whitespace)
+                            continue;
+
                             object m = Process(xn, list);
 
                             list.Add(m);
