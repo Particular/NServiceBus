@@ -84,6 +84,7 @@
     <Compile Include="M2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Risk.cs" />
+    <Compile Include="SerializingArrayTests.cs" />
     <Compile Include="SomeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
