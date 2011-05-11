@@ -14,7 +14,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -90,6 +89,7 @@
     <Compile Include="M2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Risk.cs" />
+    <Compile Include="SerializingArrayTests.cs" />
     <Compile Include="SomeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
