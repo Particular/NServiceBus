@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using System;
     using System.Threading;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -14,18 +15,28 @@
         public void Send(TransportMessage message, string destination)
         {
 
-            receivedMessage = message;
+            details = new SendDetails
+                          {
+                              Destination = destination,
+                              Message = message
+                          };
+
             messageReceived.Set();
         }
 
-        public TransportMessage GetResultingMessage()
+        public SendDetails GetResultingMessage()
         {
-            messageReceived.WaitOne();
-            return receivedMessage;
+            messageReceived.WaitOne(TimeSpan.FromSeconds(10));
+            return details;
         }
 
-        TransportMessage receivedMessage;
+        SendDetails details;
         readonly ManualResetEvent messageReceived;
 
+        public class SendDetails
+        {
+            public TransportMessage Message { get; set; }
+            public string Destination { get; set; }
+        }
     }
 }

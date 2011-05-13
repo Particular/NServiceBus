@@ -1,17 +1,16 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
-    using Channels;
     using log4net;
     using Notifications;
     using ObjectBuilder;
     using Routing;
     using Unicast.Queuing;
 
-    public class TransactionalReceiver : IDisposable
+    public class GatewayReceiver : IDisposable
     {
-        public TransactionalReceiver(  IManageChannels channelManager,
+        public GatewayReceiver(  IMangageReceiveChannels channelManager,
                                 IRouteMessagesToEndpoints endpointRouter,
                                 IBuilder builder, 
                                 ISendMessages messageSender)
@@ -22,7 +21,7 @@
             this.endpointRouter = endpointRouter;
             this.builder = builder;
      
-            channelReceivers = new List<IChannelReceiver>();
+            activeReceivers = new List<IReceiveMessagesFromSites>();
         }
 
         public void Start(string localAddress)
@@ -33,11 +32,11 @@
             foreach (var channel in channelManager.GetActiveChannels())
             {
 
-                var channelReceiver = (IChannelReceiver)builder.Build(channel.Receiver);
+                var receiver = builder.Build<IReceiveMessagesFromSites>();
 
-                channelReceiver.MessageReceived +=  MessageReceivedOnChannel;
-                channelReceiver.Start(channel.ReceiveAddress, channel.NumWorkerThreads);
-                channelReceivers.Add(channelReceiver);
+                receiver.MessageReceived +=  MessageReceivedOnChannel;
+                receiver.Start(channel);
+                activeReceivers.Add(receiver);
 
                 Logger.InfoFormat("Receive channel {0} started. Adress: {1}", channel.Receiver,channel.ReceiveAddress);
             }
@@ -47,16 +46,16 @@
         {
             Logger.InfoFormat("Receiver is shutting down");
             
-            foreach (var channelReceiver in channelReceivers)
+            foreach (var channelReceiver in activeReceivers)
             {
-                Logger.InfoFormat("Stopping channel receiver - {0}",channelReceiver.GetType());
+                Logger.InfoFormat("Stopping channel - {0}",channelReceiver.GetType());
 
                 channelReceiver.MessageReceived -= MessageReceivedOnChannel;
 
                 channelReceiver.Dispose();
             }
 
-            channelReceivers.Clear();
+            activeReceivers.Clear();
 
             Logger.InfoFormat("Receiver shutdown complete");
 
@@ -68,7 +67,6 @@
 
             messageToSend.ReturnAddress = returnAddress;
             
-            //todo - should we support multiple destinations? pub/sub?
             var destination = endpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
@@ -78,10 +76,10 @@
 
         
         readonly ISendMessages messageSender;
-        readonly IManageChannels channelManager;
+        readonly IMangageReceiveChannels channelManager;
         readonly IRouteMessagesToEndpoints endpointRouter;
         readonly IBuilder builder;
-        readonly ICollection<IChannelReceiver> channelReceivers;
+        readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
         string returnAddress;
         
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");

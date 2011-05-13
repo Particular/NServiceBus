@@ -24,7 +24,7 @@
             SendMessage(HttpAddressForSiteB,headers);
 
            
-            var transportMessage = GetReceivedMessage();
+            var transportMessage = GetDetailsForReceivedMessage().Message;
 
             string databusKeyForSiteB;
 

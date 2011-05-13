@@ -1,67 +1,105 @@
-﻿namespace NServiceBus.Gateway.Config
+﻿namespace NServiceBus
 {
-    using Channels;
-    using Gateway;
+    using System;
+    using Config;
     using Gateway.Channels.Http;
-    using Notifications;
-    using Persistence;
+    using Gateway.Config;
+    using Gateway.Installation;
+    using Gateway.Notifications;
+    using Gateway.Persistence;
+    using Gateway.Persistence.Sql;
+    using Gateway.Receiving;
+    using Gateway.Routing.Endpoints;
+    using Gateway.Routing.Sites;
+    using Gateway.Sending;
     using ObjectBuilder;
-    using Persistence.Sql;
-    using Routing.Endpoints;
-    using Routing.Sites;
 
     public static class GatewayConfig
     {
-        public static Configure GatewayWithInMemoryPersistence(this Configure config)
-        {
-            config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
-
-            return SetupGateway(config);
-        }
-
+       
         public static Configure Gateway(this Configure config)
         {
             //todo - use DefaultPersistence == raven
-            config.Configurer.ConfigureComponent<SqlPersistence>(DependencyLifecycle.SingleInstance);
+            return Gateway(config,typeof(SqlPersistence));
+        }
+
+        public static Configure GatewayWithInMemoryPersistence(this Configure config)
+        {
+            return Gateway(config, typeof(InMemoryPersistence));
+        }
+
+        public static Configure Gateway(this Configure config,Type persistence)
+        {
+            config.Configurer.ConfigureComponent(persistence,DependencyLifecycle.SingleInstance);
+
             return SetupGateway(config);
         }
 
-        private static Configure SetupGateway(this Configure config)
-        {   
-            //todo - get the configured name - use service locator to get the interface, make sure to do it on config complete
-            var endpointName = "MasterEndpoint"; 
+
+        static Configure SetupGateway(this Configure config)
+        {
+            var gatewayInputAddress = GetMainInputAddress() + ".gateway"; //todo - should have the config enforce local addresses? Check with Udi
+
+            config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
+
+            ConfigureReceiver(config);
             
-          
-            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance); 
+            ConfigureSender(config);
 
-            config.Configurer.ConfigureComponent<MasterNodeSettings>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
-
-            config.Configurer.ConfigureComponent<TransactionalReceiver>(DependencyLifecycle.SingleInstance);
-            
-            config.Configurer.ConfigureComponent<InputDispatcher>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
-
-            config.Configurer.ConfigureComponent<InputDispatcher>(DependencyLifecycle.SingleInstance);
-             
-            Configure.ConfigurationComplete +=
-                (o, a) =>
-                {
-                    Configure.Instance.Builder.Build<IStartableBus>()
-                        .Started += (sender, eventargs) =>
-                            {
-                                var localAddress = endpointName + ".gateway";//todo
-                                Configure.Instance.Builder.Build<TransactionalReceiver>().Start(localAddress);
-                                Configure.Instance.Builder.Build<InputDispatcher>().Start(localAddress);
-                            };
-                };
+            ConfigureStartup(gatewayInputAddress);
 
             return config;
         }
 
+        static void ConfigureStartup(string gatewayInputAddress)
+        {
+            Configure.ConfigurationComplete +=
+                (o, a) =>
+                    {
+                        Configure.Instance.Builder.Build<IStartableBus>()
+                            .Started += (sender, eventargs) =>
+                                {
+                                    Configure.Instance.Builder.Build<GatewayReceiver>().Start(gatewayInputAddress);
+                                    Configure.Instance.Builder.Build<GatewaySender>().Start(gatewayInputAddress);
+                                };
+                    };
+        }
 
+        static void ConfigureSender(Configure config)
+        {
+            config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentSender>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
+
+            config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
+  
+            config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
+        }
+
+        static void ConfigureReceiver(Configure config)
+        {
+            config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentReceiver>(DependencyLifecycle.InstancePerCall);
+
+            config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
+                                               .ConfigureProperty(x => x.MainInputAddress,GetMainInputAddress());
+
+        }
+
+        private static string GetMainInputAddress()
+        {
+            var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
+          
+            var inputQueue = unicastBusConfig.LocalAddress;
+            if (inputQueue == null)
+                inputQueue = Configure.GetConfigSection<MsmqTransportConfig>().InputQueue;
+            return inputQueue;
+        }
     }
 }

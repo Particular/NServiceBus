@@ -221,7 +221,7 @@ namespace NServiceBus.Serializers.XML
             messageBaseTypes = new List<Type>();
             var result = new List<IMessage>();
 
-            var doc = new XmlDocument();
+            var doc = new XmlDocument { PreserveWhitespace = true };
 
             doc.Load(XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}));
 
@@ -264,8 +264,10 @@ namespace NServiceBus.Serializers.XML
             {
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
-                    object m = Process(node, null);
+                    if (node.NodeType == XmlNodeType.Whitespace)
+                        continue;
 
+                    object m = Process(node, null);
                     result.Add(m as IMessage);
                 }
             }
@@ -415,6 +417,9 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
+            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlWhitespace)
+                return n.ChildNodes[0].InnerText;
+
             if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
                 var text = n.ChildNodes[0].InnerText;
@@ -552,8 +557,10 @@ namespace NServiceBus.Serializers.XML
                     {
                         foreach (XmlNode xn in n.ChildNodes)
                         {
-                            object m = Process(xn, list);
+                            if (xn.NodeType == XmlNodeType.Whitespace)
+                                continue;
 
+                            object m = Process(xn, list);
                             list.Add(m);
                         }
 
@@ -698,7 +705,7 @@ namespace NServiceBus.Serializers.XML
                     return;
 
                 var args = type.GetGenericArguments();
-				if (args.Length == 1 && args[0].IsValueType)
+                if (args.Length == 1 && args[0].IsValueType)
                 {
                     var nullableType = typeof (Nullable<>).MakeGenericType(args);
                     if (type == nullableType)

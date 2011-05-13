@@ -3,33 +3,36 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.IO;
     using System.Linq;
 
     public class InMemoryPersistence : IPersistMessages
     {
         readonly IList<MessageInfo> storage = new List<MessageInfo>();
 
-        public bool InsertMessage(string clientId, DateTime timeReceived, byte[] message, NameValueCollection headers)
+        public bool InsertMessage(string clientId, DateTime timeReceived, Stream messageData, IDictionary<string, string> headers)
         {
             lock(storage)
             {
                 if (storage.Any(m => m.ClientId == clientId))
                     return false;
 
+                var messageInfo = new MessageInfo
+                            {
+                                ClientId = clientId,
+                                At = timeReceived,
+                                Message = new byte[messageData.Length],
+                                Headers = headers
+                            };
 
-                storage.Add(new MessageInfo
-                                {
-                                    ClientId = clientId,
-                                    At = timeReceived,
-                                    Message = message,
-                                    Headers = headers
-                                });
+                messageData.Read(messageInfo.Message, 0, messageInfo.Message.Length);
+                storage.Add(messageInfo);
             }
 
             return true;
         }
 
-        public void AckMessage(string clientId, out byte[] message, out NameValueCollection headers)
+        public void AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
         {
             message = null;
             headers = null;
@@ -83,7 +86,7 @@
 
         public byte[] Message { get; set; }
 
-        public NameValueCollection Headers { get; set; }
+        public  IDictionary<string,string> Headers { get; set; }
 
         public bool Acknowledged { get; set; }
     }

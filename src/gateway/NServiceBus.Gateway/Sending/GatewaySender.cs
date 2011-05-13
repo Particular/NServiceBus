@@ -1,29 +1,27 @@
-﻿namespace NServiceBus.Gateway
+﻿namespace NServiceBus.Gateway.Sending
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
-    using Config;
-    using Channels;
-    using Channels.Http;
-    using HeaderManagement;
+    using NServiceBus.Gateway.Config;
+    using NServiceBus.Gateway.Channels;
     using log4net;
-    using Notifications;
-    using ObjectBuilder;
-    using Routing;
-    using Unicast.Queuing;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
+    using NServiceBus.Gateway.Notifications;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Gateway.Routing;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport;
+    using NServiceBus.Unicast.Transport.Transactional;
+    using Receiving;
 
-    public class InputDispatcher:IDisposable
+    public class GatewaySender:IDisposable
     {
 
-        public InputDispatcher(   IBuilder builder,
-                                                 IManageChannels channelManager,
+        public GatewaySender(   IBuilder builder,
+                                                 IMangageReceiveChannels channelManager,
                                                  IMessageNotifier notifier,
                                                  ISendMessages messageSender,
-                                                 IMasterNodeSettings settings)
+                                                 IMainEndpointSettings settings)
         {
             this.settings = settings;
             this.builder = builder;
@@ -99,29 +97,19 @@
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetCurrentSiteKey();
-         
-            var headers = new NameValueCollection();
 
-            HeaderMapper.Map(transportMessage, headers);
 
-            headers[GatewayHeaders.IsGatewayMessage] = true.ToString();
+            //todo - derive this from the message and the channeltype
+            builder.Build<IdempotentSender>()
+                .Send(targetSite,transportMessage);
 
-            
-            var channelSender = GetChannelSenderFor(targetSite);
-            
-            channelSender.Send(targetSite.Address, headers, transportMessage.Body);
-
-            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), channelSender.GetType(), transportMessage);
+            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), targetSite.ChannelType, transportMessage);
 
             if (!string.IsNullOrEmpty(addressOfAuditStore))
                 messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
-        IChannelSender GetChannelSenderFor(Site targetSite)
-        {
-            return builder.Build(targetSite.ChannelType) as IChannelSender;
-        }
-
+       
         string GetCurrentSiteKey()
         {
             //return the address of the default channel and let the convention based router do it's magic
@@ -130,14 +118,13 @@
 
         string addressOfAuditStore;
         readonly IBuilder builder;
-        readonly IManageChannels channelManager;
+        readonly IMangageReceiveChannels channelManager;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
         ITransport transport;
-        readonly IMasterNodeSettings settings;
+        readonly IMainEndpointSettings settings;
         string localAddress;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
-       
     }
 }

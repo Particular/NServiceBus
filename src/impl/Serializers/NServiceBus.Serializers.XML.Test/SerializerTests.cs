@@ -303,7 +303,7 @@ namespace NServiceBus.Serializers.XML.Test
     public class MessageWithGenericProperty:IMessage
     {
         public GenericProperty<string> GenericProperty { get; set; }
-		public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
+        public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
 
     }
 

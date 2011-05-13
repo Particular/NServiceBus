@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Gateway.Channels
+﻿namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
+    using Channels;
 
-    public interface IManageChannels
+    public interface IMangageReceiveChannels
     {
         IEnumerable<Channel> GetActiveChannels();
         Channel GetDefaultChannel();

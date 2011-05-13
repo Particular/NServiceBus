@@ -40,7 +40,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config">
+    <Reference Include="NServiceBus.Config, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.DataBus">
@@ -48,6 +49,12 @@
     </Reference>
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Installation.Windows">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
@@ -61,6 +68,9 @@
     <Reference Include="NServiceBus.Unicast">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
@@ -70,8 +80,15 @@
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Msmq.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport.Transactional">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Utils, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -92,29 +109,35 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Channels\LegacyChannelManager.cs" />
+    <Compile Include="Installation\Installer.cs" />
+    <Compile Include="Receiving\IdempotentReceiver.cs" />
+    <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
+    <Compile Include="Receiving\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\Http\HttpHeaders.cs" />
     <Compile Include="Channels\IChannelSender.cs" />
-    <Compile Include="Config\MasterNodeSettings.cs" />
-    <Compile Include="Config\IMasterNodeSettings.cs" />
-    <Compile Include="Channels\IManageChannels.cs" />
+    <Compile Include="Config\MainEndpointSettings.cs" />
+    <Compile Include="Config\IMainEndpointSettings.cs" />
+    <Compile Include="Receiving\IMangageReceiveChannels.cs" />
     <Compile Include="HeaderManagement\Bootstrapper.cs" />
     <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
+    <Compile Include="Sending\IdempotentSender.cs" />
+    <Compile Include="Sending\ISendMessagesToSites.cs" />
+    <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
-    <Compile Include="Routing\Sites\AppConfigMessageRouter.cs" />
+    <Compile Include="Routing\Sites\AppConfigSiteRouter.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Routing\IRouteMessagesToSites.cs" />
     <Compile Include="Routing\Sites\KeyPrefixConventionSiteRouter.cs" />
     <Compile Include="Routing\Sites\LegacySiteRouter.cs" />
     <Compile Include="Routing\Site.cs" />
     <Compile Include="HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="TransactionalReceiver.cs" />
-    <Compile Include="Channels\Http\Hasher.cs" />
-    <Compile Include="Channels\Http\HeaderMapper.cs" />
+    <Compile Include="Receiving\GatewayReceiver.cs" />
+    <Compile Include="Utils\Hasher.cs" />
+    <Compile Include="HeaderManagement\HeaderMapper.cs" />
     <Compile Include="Channels\IChannelReceiver.cs" />
     <Compile Include="Notifications\IMessageNotifier.cs" />
     <Compile Include="Notifications\MessageReceivedOnChannelArgs.cs" />
@@ -122,11 +145,12 @@
     <Compile Include="Persistence\IPersistMessages.cs" />
     <Compile Include="Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Channels\Http\HttpChannelReceiver.cs" />
-    <Compile Include="InputDispatcher.cs" />
+    <Compile Include="Sending\GatewaySender.cs" />
     <Compile Include="Persistence\InMemoryPersistence.cs" />
     <Compile Include="Persistence\Sql\SqlPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Channels\Http\CallInfo.cs" />
+    <Compile Include="Sending\CallInfo.cs" />
+    <Compile Include="Utils\StreamExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Persistence\Sql\Schema.sql" />

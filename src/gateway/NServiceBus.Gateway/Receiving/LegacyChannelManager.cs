@@ -1,11 +1,12 @@
-namespace NServiceBus.Gateway.Channels
+namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
-    using Http;
+    using Channels;
+    using NServiceBus.Gateway.Channels.Http;
 
-    public class LegacyChannelManager : IManageChannels
+    public class LegacyChannelManager : IMangageReceiveChannels
     {
         public IEnumerable<Channel> GetActiveChannels()
         {

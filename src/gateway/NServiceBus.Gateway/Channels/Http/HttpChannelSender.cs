@@ -1,58 +1,18 @@
 ﻿namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.IO;
     using System.Net;
     using System.Web;
-    using DataBus;
-    using HeaderManagement;
     using log4net;
+    using Utils;
 
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl,NameValueCollection headers,byte[] body)
+        public void Send(string remoteUrl,IDictionary<string,string> headers,Stream data)
         {
-            MakeHttpRequest(remoteUrl, CallType.Submit, headers, body);
-
-            TransmittDataBusProperties(remoteUrl, headers);
-
-            MakeHttpRequest(remoteUrl, CallType.Ack, headers, new byte[0]);
-        }
-
-
-        void TransmittDataBusProperties(string remoteUrl, NameValueCollection headers)
-        {
-            var headersToSend = new NameValueCollection {headers};
-
-
-            foreach (string headerKey in headers.Keys)
-            {
-                if (headerKey.Contains(DATABUS_PREFIX))
-                {
-                    if (DataBus == null)
-                        throw new InvalidOperationException("Can't send a message with a databus property without a databus configured");
-
-                    headersToSend[GatewayHeaders.DatabusKey] = headerKey;
-
-                    using (var stream = DataBus.Get(headers[headerKey]))
-                    {
-                        var buffer = new byte[stream.Length];
-                        stream.Read(buffer, 0, (int)stream.Length);
-
-                        MakeHttpRequest(remoteUrl, CallType.DatabusProperty, headersToSend, buffer);
-                    }
-                }
-
-            }
-
-        }
-
-        void MakeHttpRequest(string remoteUrl, CallType callType, NameValueCollection headers, byte[] buffer)
-        {
-            headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
-            headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(buffer);
-            
-      
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
 
@@ -61,12 +21,11 @@
             request.Headers = Encode(headers);
 
 
-            request.ContentLength = buffer.Length;
+            request.ContentLength = data.Length;
+        
+            using(var stream = request.GetRequestStream())
+                data.CopyTo_net35(stream);
 
-            var stream = request.GetRequestStream();
-            stream.Write(buffer, 0, buffer.Length);
-
-            Logger.DebugFormat("Sending message - {0} to: {1}", callType, remoteUrl);
             int statusCode;
 
             //todo make the receiver send the md5 back so that we can double check that the transmission went ok
@@ -83,7 +42,7 @@
             }
         }
 
-        static WebHeaderCollection Encode(NameValueCollection headers)
+        static WebHeaderCollection Encode(IDictionary<string,string> headers)
         {
             var webHeaders = new WebHeaderCollection();
 
@@ -93,10 +52,7 @@
             return webHeaders;
         }
 
-        public IDataBus DataBus { get; set; }
-
-        const string DATABUS_PREFIX = "NServiceBus.DataBus.";
-
+       
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

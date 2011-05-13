@@ -24,7 +24,8 @@
         public void SetUp()
         {
             string masterNodeAddress = "MasterNode";
-            gatewayAddress = masterNodeAddress + ".Gateway";
+            string localAddress = "endpointA";
+            gatewayAddress = localAddress + ".gateway@" + masterNodeAddress;
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
@@ -40,7 +41,9 @@
                           MessageSerializer = MockRepository.GenerateStub<IMessageSerializer>(),
                           Builder = builder,
                           MasterNodeManager = masterNodeManager,
-                          MessageSender = messageSender
+                          MessageSender = messageSender,
+                          Address = localAddress,
+                          Transport = MockRepository.GenerateStub<ITransport>()
                       };
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
@@ -54,7 +57,7 @@
         {
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.DestinationSites] == "SiteA,SiteB"), Arg<string>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<string>.Is.Anything));
         }
 
         [Test]

@@ -506,8 +506,12 @@ namespace NServiceBus.Unicast
         {
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
-            
-            var gatewayAddress = MasterNodeManager.GetMasterNode() + ".Gateway";
+
+            var gatewayAddress = Address + ".gateway";
+            var masterNodeAddress = MasterNodeManager.GetMasterNode();
+
+            if (!string.IsNullOrEmpty(masterNodeAddress))
+                gatewayAddress += "@" + masterNodeAddress;
 
             messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
 
