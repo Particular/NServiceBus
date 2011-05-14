@@ -21,8 +21,14 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Commit(Enlistment enlistment)
         {
-
-            queue.DeleteMessage(receivedMessage);
+            try
+            {
+                queue.DeleteMessage(receivedMessage);
+            }
+            catch (StorageClientException ex)
+            {
+                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound ) throw;
+            }
 
             enlistment.Done();
         }

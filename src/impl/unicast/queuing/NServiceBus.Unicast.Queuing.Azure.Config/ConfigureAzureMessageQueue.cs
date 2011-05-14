@@ -93,5 +93,18 @@ namespace NServiceBus
 
             return config;
         }
+
+        /// <summary>
+        /// Controls how many messages should be read from the queue at once
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Configure BatchSize(this Configure config, int value)
+        {
+            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.BatchSize, value);
+
+            return config;
+        }
     }
 }

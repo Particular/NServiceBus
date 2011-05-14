@@ -68,5 +68,18 @@ namespace NServiceBus.Config
                 this["MessageInvisibleTime"] = value;
             }
         }
+
+        [ConfigurationProperty("BatchSize", IsRequired = false, DefaultValue = 10)]
+        public int BatchSize
+        {
+            get
+            {
+                return (int)this["BatchSize"];
+            }
+            set
+            {
+                this["BatchSize"] = value;
+            }
+        }
    }
 }

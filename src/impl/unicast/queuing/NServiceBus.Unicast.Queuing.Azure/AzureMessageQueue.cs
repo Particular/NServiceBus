@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -14,6 +15,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         private CloudQueue queue;
         private readonly CloudQueueClient client;
         private int timeToDelayNextPeek;
+        private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
@@ -36,12 +38,18 @@ namespace NServiceBus.Unicast.Queuing.Azure
         /// </summary>
         public int MessageInvisibleTime { get; set; }
 
+        /// <summary>
+        /// Controls the number of messages that will be read in bulk from the queue
+        /// </summary>
+        public int BatchSize { get; set; }
+
         public AzureMessageQueue(CloudQueueClient client)
         {
             this.client = client;
             MessageInvisibleTime = 30000;
             PeekInterval = 1000;
             MaximumWaitTimeWhenIdle = 60000;
+            BatchSize = 10;
         }
 
         public void Init(string address, bool transactional)
@@ -73,6 +81,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public bool HasMessage()
         {
+            if (messages.Count > 0) return true;
+
             var hasMessage = queue.PeekMessage() != null;
 
             DelayNextPeekWhenThereIsNoMessage(hasMessage);
@@ -106,17 +116,35 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private CloudQueueMessage GetMessage()
         {
-            var receivedMessage = queue.GetMessage(TimeSpan.FromMilliseconds(MessageInvisibleTime));
-
-            if (receivedMessage != null)
+            if (messages.Count == 0)
             {
-                if (!useTransactions || Transaction.Current == null)
-                    queue.DeleteMessage(receivedMessage);
-                else
-                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, receivedMessage),EnlistmentOptions.None);
+                var receivedMessages = queue.GetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize));
+
+                foreach(var receivedMessage in receivedMessages)
+                {
+                    if (!useTransactions || Transaction.Current == null)
+                        DeleteMessage(receivedMessage);
+                    else
+                        Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, receivedMessage),
+                                                            EnlistmentOptions.None);
+
+                    messages.Enqueue(receivedMessage);
+                }
             }
 
-            return receivedMessage;
+            return messages.Count != 0 ? messages.Dequeue() : null;
+        }
+
+        private void DeleteMessage(CloudQueueMessage message)
+        {
+            try
+            {
+                queue.DeleteMessage(message);
+            }
+            catch (StorageClientException ex)
+            {
+                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound ) throw;
+            }
         }
 
         private static CloudQueueMessage SerializeMessage(TransportMessage originalMessage)
