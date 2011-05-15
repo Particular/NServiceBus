@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ninject;
@@ -179,6 +179,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
+            this.propertyHeuristic.RegisteredTypes.Add(lookupType);
+			
             this.kernel.Bind(lookupType).ToConstant(instance);
         }
 
