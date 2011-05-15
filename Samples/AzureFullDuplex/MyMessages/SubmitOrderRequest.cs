@@ -3,6 +3,7 @@ using NServiceBus;
 
 namespace MyMessages
 {
+    [Serializable]
     public class SubmitOrderRequest :IMessage
     {
         public Guid Id { get; set; }

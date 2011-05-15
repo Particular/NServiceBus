@@ -1,9 +1,11 @@
+using System;
 using NServiceBus;
 
 namespace MyMessages
 {
-    public interface SubmitOrderResponse:IMessage
+    [Serializable]
+    public class SubmitOrderResponse : IMessage
     {
-        Order Order{ get; set; }
+        public Order Order{ get; set; }
     }
 }

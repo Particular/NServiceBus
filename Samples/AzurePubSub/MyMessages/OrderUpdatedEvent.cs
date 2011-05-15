@@ -1,9 +1,11 @@
+using System;
 using NServiceBus;
 
 namespace MyMessages
 {
-    public interface OrderUpdatedEvent:IMessage
+    [Serializable]
+    public class OrderUpdatedEvent:IMessage
     {
-        Order UpdatedOrder{ get; set; }
+        public Order UpdatedOrder{ get; set; }
     }
 }

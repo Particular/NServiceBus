@@ -155,6 +155,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 formatter.Serialize(stream, originalMessage);
                 return new CloudQueueMessage(stream.ToArray());
             }
+
+            
         }
 
         private static TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)

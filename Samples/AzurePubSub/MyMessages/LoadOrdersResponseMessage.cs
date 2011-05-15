@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using NServiceBus;
 
 namespace MyMessages
 {
+    [Serializable]
     public class LoadOrdersResponseMessage : IMessage
     {
         private List<Order> orders;

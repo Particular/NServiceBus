@@ -17,11 +17,11 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         {
             return Configure.Instance
                 .MsmqTransport()
+                .BinarySerializer()
                 .IsTransactional(false)
                 .PurgeOnStartup(true)
                 .UnicastBus()
                 .ImpersonateSender(false);
-            
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 
 namespace MyMessages
 {
+    [Serializable]
     public class Order
     {
         public Guid Id { get; set; }
