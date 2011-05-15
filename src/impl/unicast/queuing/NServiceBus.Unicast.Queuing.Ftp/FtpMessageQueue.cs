@@ -34,6 +34,11 @@ namespace NServiceBus.Unicast.Queuing.Ftp
             this.SetupReceiveService();
         }
 
+        public void Init(Address address, bool transactional)
+        {
+            SetupReceiveService();
+        }
+
         public TransportMessage Receive()
         {
             lock (_locker)
@@ -43,6 +48,11 @@ namespace NServiceBus.Unicast.Queuing.Ftp
         }
 
         public void Send(TransportMessage message, string destination)
+        {
+            Send(message, Address.Parse(destination));
+        }
+
+        public void Send(TransportMessage message, Address address)
         {
             Stream bitStream = null;
             IFormatter binFormatter = new BinaryFormatter();
@@ -69,11 +79,11 @@ namespace NServiceBus.Unicast.Queuing.Ftp
                 bitStream.Close();
                 bitStream = null;
 
-                this.TransmitFile(fName, destination, bits);                               
+                this.TransmitFile(fName, address.ToString(), bits);                               
             }
             catch (Exception ex)
             {
-                Logger.Debug("Exception In FtpQueue Send: " + ex.ToString());
+                Logger.Debug("Exception In FtpQueue Send: " + ex.ToString(), ex);
             }
             finally
             {

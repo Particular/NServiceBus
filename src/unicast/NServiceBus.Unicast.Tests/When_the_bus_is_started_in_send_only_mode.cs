@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast.Tests
         public void The_transport_should_not_be_started()
         {
             StartBus();
-            transport.AssertWasNotCalled(x => x.Start(Arg<string>.Is.Anything));
+            transport.AssertWasNotCalled(x => x.Start(Arg<Address>.Is.Anything));
         }
 
         [Test]

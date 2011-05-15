@@ -35,8 +35,7 @@
       <HintPath>..\..\..\..\..\lib\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\..\binaries\NServiceBus.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>

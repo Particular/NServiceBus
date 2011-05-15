@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config
 
             var bus = NServiceBus.Configure.Instance.Builder.Build<UnicastBus>();
 
-            MsmqUtilities.CreateQueueIfNecessary(bus.Address, identity.Name);
+            MsmqUtilities.CreateQueueIfNecessary(Address.Local.ToString(), identity.Name);
         }
     }
 }

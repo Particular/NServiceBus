@@ -27,6 +27,14 @@
             string localAddress = "endpointA";
             gatewayAddress = localAddress + ".gateway@" + masterNodeAddress;
 
+            try
+            {
+                Address.InitializeLocalAddress(localAddress);
+            }
+            catch // intentional
+            {
+            }
+
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
             var builder = MockRepository.GenerateStub<IBuilder>();
@@ -42,7 +50,6 @@
                           Builder = builder,
                           MasterNodeManager = masterNodeManager,
                           MessageSender = messageSender,
-                          Address = localAddress,
                           Transport = MockRepository.GenerateStub<ITransport>()
                       };
 

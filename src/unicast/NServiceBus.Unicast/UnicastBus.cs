@@ -67,11 +67,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// The address that the bus will listen to for messages.
-        /// </summary>
-        public string Address { get; set; }
-
-        /// <summary>
         /// A reference to the transport.
         /// </summary>
         protected ITransport transport;
@@ -323,7 +318,7 @@ namespace NServiceBus.Unicast
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
-            var subscribers = SubscriptionStorage.GetSubscribersForMessage(GetFullTypes(messages as IMessage[]));
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(GetFullTypes(messages as IMessage[]));
 
             if (subscribers.Count() == 0)
                 if (NoSubscribersForMessage != null)
@@ -383,7 +378,7 @@ namespace NServiceBus.Unicast
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
-            var destination = GetDestinationForMessageType(messageType);
+            var destination = GetAddressForMessageType(messageType);
 
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
@@ -410,7 +405,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
-            var destination = GetDestinationForMessageType(messageType);
+            var destination = GetAddressForMessageType(messageType);
 
             if (destination == null)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
@@ -425,7 +420,7 @@ namespace NServiceBus.Unicast
         
         void IBus.Reply(params IMessage[] messages)
         {
-            SendMessage(_messageBeingHandled.ReturnAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
+            SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
         void IBus.Reply<T>(Action<T> messageConstructor)
@@ -443,7 +438,7 @@ namespace NServiceBus.Unicast
             if (_handleCurrentMessageLaterWasCalled)
                 return;
 
-            MessageSender.Send(_messageBeingHandled, Address);
+            MessageSender.Send(_messageBeingHandled, Address.Local);
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -467,7 +462,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.SendLocal(params IMessage[] messages)
         {
-            return ((IBus) this).Send(Address, messages);
+            return ((IBus) this).Send(Address.Local, messages);
         }
 
         ICallback IBus.Send<T>(Action<T> messageConstructor)
@@ -477,7 +472,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.Send(params IMessage[] messages)
         {
-            var destination = GetDestinationForMessages(messages);
+            var destination = GetAddressForMessages(messages);
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
@@ -487,9 +482,19 @@ namespace NServiceBus.Unicast
             return SendMessage(destination, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
+        ICallback IBus.Send<T>(Address address, Action<T> messageConstructor)
+        {
+            return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+        }
+
         ICallback IBus.Send(string destination, params IMessage[] messages)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+        }
+
+        ICallback IBus.Send(Address address, params IMessage[] messages)
+        {
+            return SendMessage(address, null, MessageIntentEnum.Send, messages);
         }
 
         ICallback IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -497,9 +502,19 @@ namespace NServiceBus.Unicast
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
+        ICallback IBus.Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+        }
+
         ICallback IBus.Send(string destination, string correlationId, params IMessage[] messages)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
+        }
+
+        ICallback IBus.Send(Address address, string correlationId, params IMessage[] messages)
+        {
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
         }
 
         ICallback IBus.SendToSites(IEnumerable<string> siteKeys, params IMessage[] messages)
@@ -507,7 +522,7 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
-            var gatewayAddress = Address + ".gateway";
+            var gatewayAddress = Address.Local + ".gateway";
             var masterNodeAddress = MasterNodeManager.GetMasterNode();
 
             if (!string.IsNullOrEmpty(masterNodeAddress))
@@ -536,14 +551,20 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException(
                     string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
 
-            foreach (var id in SendMessage(new List<string> { destination }, correlationId, messageIntent, messages))
+            return SendMessage(Address.Parse(destination), correlationId, messageIntent, messages);
+        }
+
+        private ICallback SendMessage(Address address, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
+        {
+            // loop only happens once
+            foreach (var id in SendMessage(new List<Address> { address }, correlationId, messageIntent, messages))
             {
                 var result = new Callback(id);
                 result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
-                                         {
-                                             lock (messageIdToAsyncResultLookup)
-                                                 messageIdToAsyncResultLookup[args.MessageId] = args.Result;
-                                         };
+                {
+                    lock (messageIdToAsyncResultLookup)
+                        messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+                };
 
                 return result;
             }
@@ -551,7 +572,7 @@ namespace NServiceBus.Unicast
             return null;
         }
 
-        private ICollection<string> SendMessage(IEnumerable<string> destinations, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
+        private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params IMessage[] messages)
         {
             AssertBusIsStarted();
 
@@ -562,7 +583,7 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            foreach (var destination in destinations)
+            foreach (var destination in addresses)
             {
                 try
                 {
@@ -684,7 +705,7 @@ namespace NServiceBus.Unicast
 
                 if (!IsSendOnlyEndpoint())
                 {
-                    transport.Start(Address);
+                    transport.Start(Address.Local);
                 }
                 
 
@@ -708,31 +729,20 @@ namespace NServiceBus.Unicast
         {
             foreach (var messageType in GetMessageTypesHandledOnThisEndpoint())
             {
-                var destination = GetDestinationForMessageType(messageType);
-                if (string.IsNullOrEmpty(destination))
+                var address = GetAddressForMessageType(messageType);
+                if (address == null)
                     continue;
 
                 AssertHasLocalAddress();
 
-                var arr = destination.Split('@');
-
-                var queue = arr[0];
-                var machine = Environment.MachineName;
-
-                if (arr.Length == 2)
-                    if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
-                        machine = arr[1];
-
-                destination = queue + "@" + machine;
-
-                if (destination.ToLower() != Address.ToLower())
+                if (address != Address.Local)
                     Subscribe(messageType);
             }
         }
 
         private void AssertHasLocalAddress()
         {
-            if (Address == null)
+            if (Address.Local == null)
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
         }
 
@@ -759,7 +769,7 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(new IMessage[] { new CompletionMessage() }, toSend);
 
-            MessageSender.Send(toSend, Address);
+            MessageSender.Send(toSend, Address.Local);
         }
 
        
@@ -997,12 +1007,13 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            using (var child = this.Builder.CreateChildBuilder())
-                this.HandleTransportMessage(child, e.Message);
+            using (var child = Builder.CreateChildBuilder())
+                HandleTransportMessage(child, e.Message);
         }
+
         private void HandleTransportMessage(IBuilder builder, TransportMessage msg)
         {
-            Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReturnAddress);
+            Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             _messageBeingHandled = msg;
 
@@ -1027,7 +1038,7 @@ namespace NServiceBus.Unicast
 
             if (IsInitializationMessage(msg))
             {
-                Log.Info(Address + " initialized.");
+                Log.Info(Address.Local + " initialized.");
                 return;
             }
 
@@ -1037,7 +1048,7 @@ namespace NServiceBus.Unicast
 
                 if (msg.MessageIntent == MessageIntentEnum.Subscribe)
                     if (ClientSubscribed != null)
-                        ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberAddress = msg.ReturnAddress });
+                        ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberReturnAddress = msg.ReplyToAddress });
 
                 return;
             }
@@ -1072,7 +1083,7 @@ namespace NServiceBus.Unicast
 
             Action warn = () =>
                               {
-                                  var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", msg.ReturnAddress);
+                                  var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", msg.ReplyToAddress);
 
                                   Log.Warn(warning);
 
@@ -1085,16 +1096,16 @@ namespace NServiceBus.Unicast
                 {
                     bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReturnAddress, msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReplyToAddress, msg.Headers))
                         {
                             goAhead = false;
-                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
                         }
 
                     if (goAhead)
                     {
-                        Log.Info("Subscribing " + msg.ReturnAddress + " to message type " + messageType);
-                        subscriptionStorage.Subscribe(msg.ReturnAddress, new[] { messageType });
+                        Log.Info("Subscribing " + msg.ReplyToAddress + " to message type " + messageType);
+                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] { messageType });
                     }
 
                     return true;
@@ -1110,16 +1121,16 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReturnAddress, msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress, msg.Headers))
                         {
                             goAhead = false;
-                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReturnAddress, messageType));
+                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
                         }
 
                     if (goAhead)
                     {
-                        Log.Info("Unsubscribing " + msg.ReturnAddress + " from message type " + messageType);
-                        subscriptionStorage.Unsubscribe(msg.ReturnAddress, new[] { messageType });
+                        Log.Info("Unsubscribing " + msg.ReplyToAddress + " from message type " + messageType);
+                        subscriptionStorage.Unsubscribe(msg.ReplyToAddress, new[] { messageType });
                     }
 
                     return true;
@@ -1173,10 +1184,10 @@ namespace NServiceBus.Unicast
 
         private bool IsInitializationMessage(TransportMessage msg)
         {
-            if (msg.ReturnAddress == null)
+            if (msg.ReplyToAddress == null)
                 return false;
 
-            if (!msg.ReturnAddress.Contains(Address))
+            if (msg.ReplyToAddress != Address.Local)
                 return false;
 
             if (msg.CorrelationId != null)
@@ -1191,9 +1202,10 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
+
         bool IsSendOnlyEndpoint()
         {
-            return string.IsNullOrEmpty(Address);
+            return Address.Local == null;
         }
 
         /// <summary>
@@ -1214,7 +1226,7 @@ namespace NServiceBus.Unicast
                     var messageType = Type.GetType(key, false);
                     if (messageType != null)
                     {
-                        RegisterMessageType(messageType, de.Value as string, false);
+                        RegisterMessageType(messageType, Address.Parse(de.Value as string), false);
                         continue;
                     }
                 }
@@ -1227,7 +1239,7 @@ namespace NServiceBus.Unicast
                 {
                     var a = Assembly.Load(key);
                     foreach (var t in a.GetTypes())
-                        RegisterMessageType(t, de.Value.ToString(), true);
+                        RegisterMessageType(t, Address.Parse(de.Value.ToString()), true);
                 }
                 catch (Exception ex)
                 {
@@ -1254,7 +1266,7 @@ namespace NServiceBus.Unicast
                                      IdForCorrelation = m.IdForCorrelation,
                                      MessageIntent = m.MessageIntent,
                                      Recoverable = m.Recoverable,
-                                     ReturnAddress = Address,
+                                     ReplyToAddress = Address.Local,
                                      TimeSent = m.TimeSent,
                                      TimeToBeReceived = m.TimeToBeReceived
                                  };
@@ -1267,7 +1279,7 @@ namespace NServiceBus.Unicast
         /// Registers a message type to a destination.
         /// </summary>
         /// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
-        /// <param name="destination">The address of the destination the message type is registered to.</param>
+        /// <param name="address">The address of the destination the message type is registered to.</param>
         /// <param name="configuredByAssembly">
         /// Indicates whether or not this registration call is related to a type configured from an
         /// assembly.
@@ -1277,7 +1289,7 @@ namespace NServiceBus.Unicast
         /// and via its assembly to a different address, the configuredByAssembly
         /// parameter dictates that the specific message type data is to be used.
         /// </remarks>
-        public void RegisterMessageType(Type messageType, string destination, bool configuredByAssembly)
+        public void RegisterMessageType(Type messageType, Address address, bool configuredByAssembly)
         {
             if (typeof(IMessage) == messageType)
                 return;
@@ -1287,9 +1299,9 @@ namespace NServiceBus.Unicast
                 if (MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
                     return;
 
-                messageTypeToDestinationLookup[messageType] = destination;
+                messageTypeToDestinationLookup[messageType] = address;
 
-                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + destination + ".");
+                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
                 if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                     recoverableMessageTypes.Add(messageType);
@@ -1325,7 +1337,7 @@ namespace NServiceBus.Unicast
         protected TransportMessage MapTransportMessageFor(IMessage[] rawMessages, TransportMessage result)
         {
             result.Headers = new Dictionary<string, string>();
-            result.ReturnAddress = Address;
+            result.ReplyToAddress = Address.Local;
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
@@ -1340,8 +1352,9 @@ namespace NServiceBus.Unicast
                     Log.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
                     mutator.MutateOutgoing(messages, result);
                 }
+
             if (PropogateReturnAddressOnSend)
-                result.ReturnAddress = Address;
+                result.ReplyToAddress = Address.Local;
 
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -1509,16 +1522,16 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Uses the first message in the array to pass to <see cref="GetDestinationForMessageType"/>.
+        /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
         /// </summary>
         /// <param name="messages"></param>
         /// <returns></returns>
-        protected string GetDestinationForMessages(IMessage[] messages)
+        protected Address GetAddressForMessages(IMessage[] messages)
         {
             if (messages == null || messages.Length == 0)
                 return null;
 
-            return GetDestinationForMessageType(messages[0].GetType());
+            return GetAddressForMessageType(messages[0].GetType());
         }
 
         /// <summary>
@@ -1526,15 +1539,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        protected string GetDestinationForMessageType(Type messageType)
+        protected Address GetAddressForMessageType(Type messageType)
         {
-            string destination;
+            Address destination;
 
             lock (messageTypeToDestinationLookup)
                 messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
-
-            if (destination == string.Empty)
-                destination = null;
 
             if (destination == null)
             {
@@ -1545,7 +1555,7 @@ namespace NServiceBus.Unicast
                 {
                     var t = messageMapper.GetMappedTypeFor(messageType);
                     if (t != null && t != messageType)
-                        return GetDestinationForMessageType(t);
+                        return GetAddressForMessageType(t);
                 }
             }
 
@@ -1591,7 +1601,7 @@ namespace NServiceBus.Unicast
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
         /// </remarks>
-        private readonly IDictionary<Type, string> messageTypeToDestinationLookup = new Dictionary<Type, string>();
+        private readonly IDictionary<Type, Address> messageTypeToDestinationLookup = new Dictionary<Type, Address>();
 
         /// <remarks>
         /// ThreadStatic

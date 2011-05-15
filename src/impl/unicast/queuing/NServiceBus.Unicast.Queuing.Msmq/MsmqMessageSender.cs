@@ -12,11 +12,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 {
     public class MsmqMessageSender : ISendMessages
     {
-        public void Send(TransportMessage message, string destination)
+        void ISendMessages.Send(TransportMessage message, string destination)
         {
-            var address = MsmqUtilities.GetFullPath(destination);
+            ((ISendMessages)this).Send(message, Address.Parse(destination));
+        }
 
-            using (var q = new MessageQueue(address, QueueAccessMode.Send))
+        void ISendMessages.Send(TransportMessage message, Address address)
+        {
+            var queuePath = MsmqUtilities.GetFullPath(address.ToString());
+
+            using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
             {
                 var toSend = new Message();
 
@@ -28,10 +33,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 toSend.Recoverable = message.Recoverable;
                 toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                toSend.UseJournalQueue = UseJournalQueue; 
+                toSend.UseJournalQueue = UseJournalQueue;
 
-                if (!string.IsNullOrEmpty(message.ReturnAddress))
-                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReturnAddress, destination));
+                if (message.ReplyToAddress != null)
+                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
                 if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                     toSend.TimeToBeReceived = message.TimeToBeReceived;
@@ -60,15 +65,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 catch (MessageQueueException ex)
                 {
                     if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                        throw new QueueNotFoundException { Queue = destination };
+                        throw new QueueNotFoundException { Queue = address };
 
                     throw;
                 }
 
                 message.Id = toSend.Id;
             }
-
-
         }
 
         /// <summary>

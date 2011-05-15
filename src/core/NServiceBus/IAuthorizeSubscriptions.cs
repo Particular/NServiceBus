@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 
 namespace NServiceBus
@@ -19,7 +20,18 @@ namespace NServiceBus
         /// <param name="clientEndpoint"></param>
         /// <param name="headers"></param>
         /// <returns></returns>
+        [Obsolete("Use the overload which accepts Address instead.", true)]
         bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
+
+        /// <summary>
+        /// Return true if the client endpoint is to be allowed to subscribe to the given message type.
+        /// Implementors can access the impersonated user via <see cref="WindowsIdentity.GetCurrent()"/>
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <param name="clientAddress"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        bool AuthorizeSubscribe(string messageType, Address clientAddress, IDictionary<string, string> headers);
 
         /// <summary>
         /// Return true if the client endpoint is to be allowed to unsubscribe to the given message type.
@@ -28,7 +40,16 @@ namespace NServiceBus
         /// <param name="clientEndpoint"></param>
         /// <param name="headers"></param>
         /// <returns></returns>
+        [Obsolete("Use the overload which accepts Address instead.", true)]
         bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
 
+        /// <summary>
+        /// Return true if the client endpoint is to be allowed to unsubscribe to the given message type.
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <param name="clientAddress"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        bool AuthorizeUnsubscribe(string messageType, Address clientAddress, IDictionary<string, string> headers);
     }
 }

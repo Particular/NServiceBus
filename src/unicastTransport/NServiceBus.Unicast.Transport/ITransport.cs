@@ -12,7 +12,15 @@ namespace NServiceBus.Unicast.Transport
 		/// </summary>
         /// <param name="inputqueue">
 		/// The adress of a local queue that should be used as input channel for this transport
+        /// </param>
+        [Obsolete("Use the overload which accepts an 'Address' parameter.", true)]		
         void Start(string inputqueue);
+
+        /// <summary>
+        /// Starts the transport listening for messages on the given local address.
+        /// </summary>
+        /// <param name="localAddress"></param>
+	    void Start(Address localAddress);
 
         /// <summary>
         /// Gets the number of worker threads currently running in the transport.
