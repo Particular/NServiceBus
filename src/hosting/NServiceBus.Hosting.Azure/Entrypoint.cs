@@ -20,9 +20,15 @@ namespace NServiceBus.Hosting.Azure
         private const string ProfileSetting = "NServiceBus.Profile";
         private GenericHost genericHost;
         private readonly ManualResetEvent waitForStop = new ManualResetEvent(false);
+        private bool doNotReturnFromRun = true;
 
-        public RoleEntryPoint()
+        public RoleEntryPoint() : this(true)
         {
+        }
+
+        public RoleEntryPoint(bool doNotReturnFromRun)
+        {
+            this.doNotReturnFromRun = doNotReturnFromRun;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainAssemblyResolve;
         }
@@ -57,7 +63,7 @@ namespace NServiceBus.Hosting.Azure
         public override void Run()
         {
             genericHost.Start();
-            waitForStop.WaitOne();
+            if(doNotReturnFromRun) waitForStop.WaitOne();
         }
 
         public override void OnStop()
