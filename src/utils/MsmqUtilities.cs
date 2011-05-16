@@ -112,6 +112,11 @@ namespace NServiceBus.Utils
             return GetFullPath(Address.Parse(value));
         }
 
+        private static string getFullPath(string value)
+        {
+            return GetFullPath(Address.Parse(value));
+        }
+
         /// <summary>
         /// Turns a '@' separated value into a full path.
         /// Format is 'queue@machine', or 'queue@ipaddress'
@@ -188,7 +193,7 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         public static string GetFullPathWithoutPrefix(string value)
         {
-            return GetMachineNameFromLogicalName(value) + PRIVATE + GetQueueNameFromLogicalName(value);
+            return getMachineNameFromLogicalName(value) + PRIVATE + getQueueNameFromLogicalName(value);
         }
 
         /// <summary>
@@ -211,6 +216,11 @@ namespace NServiceBus.Utils
         [Obsolete("Use Address.Machine instead.", true)]
         public static string GetMachineNameFromLogicalName(string logicalName)
         {
+            return getMachineNameFromLogicalName(logicalName);
+        }
+
+        private static string getMachineNameFromLogicalName(string logicalName)
+        {
             string[] arr = logicalName.Split('@');
 
             string machine = Environment.MachineName;
@@ -229,6 +239,11 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         [Obsolete("Use Address.Queue instead.", true)]
         public static string GetQueueNameFromLogicalName(string logicalName)
+        {
+            return getQueueNameFromLogicalName(logicalName);
+        }
+
+        private static string getQueueNameFromLogicalName(string logicalName)
         {
             string[] arr = logicalName.Split('@');
 
@@ -296,7 +311,7 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         public static int GetNumberOfPendingMessages(string queueName)
         {
-            var q = new MessageQueue(GetFullPath(queueName));
+            var q = new MessageQueue(getFullPath(queueName));
 
             var qMgmt = new MSMQ.MSMQManagementClass();
             object machine = Environment.MachineName;

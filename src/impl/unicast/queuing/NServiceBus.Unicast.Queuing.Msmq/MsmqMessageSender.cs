@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         void ISendMessages.Send(TransportMessage message, Address address)
         {
-            var queuePath = MsmqUtilities.GetFullPath(address.ToString());
+            var queuePath = MsmqUtilities.GetFullPath(address);
 
             using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
             {

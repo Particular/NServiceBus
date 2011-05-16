@@ -32,6 +32,10 @@
     <DocumentationFile>bin\Release\NServiceBus.Unicast.Subscriptions.InMemory.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
@@ -56,6 +60,9 @@
     <Compile Include="Config\ConfigureMsmqSubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InMemorySubscriptionStorage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -26,12 +26,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (address == null)
                 throw new ArgumentException("Input queue must be specified");
 
-            var machine = MsmqUtilities.GetMachineNameFromLogicalName(address.ToString());
+            var machine = address.Machine;
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
 
-            myQueue = new MessageQueue(MsmqUtilities.GetFullPath(address.ToString()));
+            myQueue = new MessageQueue(MsmqUtilities.GetFullPath(address));
 
             if (useTransactions && !QueueIsTransactional())
                 throw new ArgumentException("Queue must be transactional (" + address + ").");

@@ -8,50 +8,51 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
     /// </summary>
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        /// <summary>
-        /// Adds the given subscription to the inmemory list
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
         void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
-            messageTypes.ToList().ForEach(m =>
-                                              {
-                                                  if (!storage.ContainsKey(m))
-                                                      storage[m] = new List<string>();
-
-                                                  if (!storage[m].Contains(client))
-                                                      storage[m].Add(client);
-                                              });
+            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
         }
 
-        /// <summary>
-        /// Removes the subscription
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
+        {
+            messageTypes.ToList().ForEach(m =>
+            {
+                if (!storage.ContainsKey(m))
+                    storage[m] = new List<Address>();
+
+                if (!storage[m].Contains(address))
+                    storage[m].Add(address);
+            });
+        }
+
         void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
-            messageTypes.ToList().ForEach(m =>
-                                              {
-                                                  if (storage.ContainsKey(m))
-                                                      storage[m].Remove(client);
-                                              });
+            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);
         }
 
-        /// <summary>
-        /// Lists all subscribers for the given message types
-        /// </summary>
-        /// <param name="messageTypes"></param>
-        /// <returns></returns>
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
+        {
+            messageTypes.ToList().ForEach(m =>
+            {
+                if (storage.ContainsKey(m))
+                    storage[m].Remove(address);
+            });
+        }
+
         IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
-            var result = new List<string>();
+            return ((ISubscriptionStorage) this).GetSubscriberAddressesForMessage(messageTypes)
+                .Select(a => a.ToString());
+        }
+
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        {
+            var result = new List<Address>();
             messageTypes.ToList().ForEach(m =>
-                                              {
-                                                  if (storage.ContainsKey(m))
-                                                      result.AddRange(storage[m]);
-                                              });
+            {
+                if (storage.ContainsKey(m))
+                    result.AddRange(storage[m]);
+            });
 
             return result;
         }
@@ -60,6 +61,6 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
         {
         }
 
-        private readonly Dictionary<string, List<string>> storage = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<Address>> storage = new Dictionary<string, List<Address>>();
     }
 }
