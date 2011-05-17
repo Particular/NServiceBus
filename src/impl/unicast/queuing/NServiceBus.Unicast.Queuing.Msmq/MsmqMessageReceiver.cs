@@ -96,7 +96,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     Recoverable = m.Recoverable,
                     TimeToBeReceived = m.TimeToBeReceived,
                     TimeSent = m.SentTime,
-                    ReplyToAddress = Address.Parse(MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue)),
+                    ReplyToAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
                     MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                 };
 

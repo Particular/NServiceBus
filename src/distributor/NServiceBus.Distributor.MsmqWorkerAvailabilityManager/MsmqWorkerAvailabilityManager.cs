@@ -18,7 +18,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// worker availability.
 		/// </summary>
 		/// <remarks>The queue provided must be transactional.</remarks>
-        public string StorageQueue
+        public Address StorageQueue
         {
             get; set;
         }
@@ -30,7 +30,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// <param name="address">
 		/// The address of the worker to remove from the availability list.
 		/// </param>
-        public void ClearAvailabilityForWorker(string address)
+        public void ClearAvailabilityForWorker(Address address)
         {
             lock (locker)
             {
@@ -47,7 +47,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// and returns its address.
 		/// </summary>
 		/// <returns>The address of the next available worker.</returns>
-        public string PopAvailableWorker()
+        public Address PopAvailableWorker()
         {
             lock (locker)
             {
@@ -86,7 +86,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// <param name="address">
 		/// The address of the worker that will accept the dispatched message.
 		/// </param>
-        public void WorkerAvailable(string address)
+        public void WorkerAvailable(Address address)
         {
             lock (locker)
             {

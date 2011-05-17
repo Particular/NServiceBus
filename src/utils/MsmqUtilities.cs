@@ -276,7 +276,7 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public static string GetIndependentAddressForQueue(MessageQueue q)
+        public static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
                 return null;
@@ -286,18 +286,18 @@ namespace NServiceBus.Utils
 
             int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
-                return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+                return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
 
             int tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
-                return queueName + '@' + arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length);
+                return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
 
             try
             {
                 // the pessimistic approach failed, try the optimistic approach
                 arr = q.QueueName.Split('\\');
                 queueName = arr[arr.Length - 1];
-                return queueName + '@' + q.MachineName;
+                return new Address(queueName, q.MachineName);
             }
             catch
             {

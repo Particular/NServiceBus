@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using NServiceBus.Config;
 using NServiceBus.Faults;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Serialization;
@@ -15,7 +14,7 @@ namespace NServiceBus.Distributor
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
-        public string ControlQueue { get; set; }
+        public Address ControlQueue { get; set; }
 
         public void Init()
         {
@@ -48,11 +47,11 @@ namespace NServiceBus.Distributor
                         var messages = serializer.Deserialize(new MemoryStream(ev.Message.Body));
                         foreach (var msg in messages)
                             if (msg is ReadyMessage)
-                                Handle(msg as ReadyMessage, ev.Message.ReturnAddress);
+                                Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
                     };
         }
 
-        private void Handle(ReadyMessage message, string returnAddress)
+        private void Handle(ReadyMessage message, Address returnAddress)
         {
  	        Configurer.Logger.Info("Server available: " + returnAddress);
 

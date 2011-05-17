@@ -52,7 +52,7 @@ namespace NServiceBus.Faults.NHibernate
          Not.LazyLoad();
          Id(x => x.Id).GeneratedBy.GuidComb();
          Map(x => x.IsSerializationFailure).Not.Nullable();
-         Map(x => x.ReplyToAddress).Length(1000).Not.Nullable();
+         Map(x => x.ReplyToAddress).CustomType("Serializable").Length(1000).Not.Nullable();
          Map(x => x.Message).CustomType("Serializable").Length(8001).Not.Nullable();
          Map(x => x.Exception).CustomType("Serializable").Length(8001).Not.Nullable();
          Map(x => x.TopmostExceptionMessage).Length(8001);

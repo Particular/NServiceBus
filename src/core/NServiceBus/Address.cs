@@ -56,6 +56,22 @@ namespace NServiceBus
             Machine = machineName.ToLower();
         }
 
+        /// <summary>
+        /// Creates a new Address whose Queue is derived from the Queue of the existing Address
+        /// together with the provided qualifier. For example: queue.qualifier@machine
+        /// </summary>
+        /// <param name="qualifier"></param>
+        /// <returns></returns>
+        public Address SubScope(string qualifier)
+        {
+            return new Address(Queue + "." + qualifier, Machine);
+        }
+
+        /// <summary>
+        /// Checks equality with another Address
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             var address = obj as Address;
@@ -65,6 +81,10 @@ namespace NServiceBus
             return false;
         }
 
+        /// <summary>
+        /// Provides a hash code of the Address.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return this.ToString().GetHashCode();

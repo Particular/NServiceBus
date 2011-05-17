@@ -4,6 +4,6 @@
 
     public interface IRouteMessagesToEndpoints
     {
-        string GetDestinationFor(TransportMessage messageToSend);
+        Address GetDestinationFor(TransportMessage messageToSend);
     }
 }

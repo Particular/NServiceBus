@@ -24,7 +24,7 @@
             activeReceivers = new List<IReceiveMessagesFromSites>();
         }
 
-        public void Start(string localAddress)
+        public void Start(Address localAddress)
         {
             returnAddress = localAddress;
 
@@ -65,7 +65,7 @@
         {
             var messageToSend = e.Message;
 
-            messageToSend.ReturnAddress = returnAddress;
+            messageToSend.ReplyToAddress = returnAddress;
             
             var destination = endpointRouter.GetDestinationFor(messageToSend);
 
@@ -80,7 +80,7 @@
         readonly IRouteMessagesToEndpoints endpointRouter;
         readonly IBuilder builder;
         readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
-        string returnAddress;
+        Address returnAddress;
         
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }

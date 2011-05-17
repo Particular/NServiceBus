@@ -522,11 +522,11 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
-            var gatewayAddress = Address.Local + ".gateway";
+            var gatewayAddress = Address.Local.SubScope("gateway");
             var masterNodeAddress = MasterNodeManager.GetMasterNode();
 
             if (!string.IsNullOrEmpty(masterNodeAddress))
-                gatewayAddress += "@" + masterNodeAddress;
+                gatewayAddress = new Address(gatewayAddress.Queue, masterNodeAddress);
 
             messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
 
