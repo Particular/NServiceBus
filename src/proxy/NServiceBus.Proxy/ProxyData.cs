@@ -6,7 +6,7 @@ namespace NServiceBus.Proxy
     public class ProxyData
     {
         public string Id;
-        public string ClientAddress;
+        public Address ClientAddress;
         public string CorrelationId;
     }
 }

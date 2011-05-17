@@ -1,4 +1,5 @@
 using System;
+using NServiceBus;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 
 namespace ReturnToSourceQueue
@@ -32,7 +33,7 @@ namespace ReturnToSourceQueue
                 Console.WriteLine("Attempting to return message to source queue. Please stand by.");
             }
 
-            errorManager.InputQueue = inputQueue;
+            errorManager.InputQueue = Address.Parse(inputQueue);
 
             try
             {

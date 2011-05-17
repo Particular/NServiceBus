@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.Serialization;
 
 namespace NServiceBus
 {
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
-    public class Address
+    [Serializable]
+    public class Address : ISerializable
     {
         /// <summary>
         /// Get the address of this endpoint.
@@ -54,6 +56,38 @@ namespace NServiceBus
         {
             Queue = queueName.ToLower();
             Machine = machineName.ToLower();
+        }
+
+        protected Address(SerializationInfo info, StreamingContext context)
+        {
+            Queue = info.GetString("Queue");
+            Machine = info.GetString("Machine");
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Queue", Queue);
+            info.AddValue("Machine", Machine);
+        }
+
+        /// <summary>
+        /// Implicit cast from string to Address.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static implicit operator Address(string s)
+        {
+            return Parse(s);
+        }
+
+        /// <summary>
+        /// Implicit cast from Address to string.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static implicit operator string(Address a)
+        {
+            return a == null ? null : a.ToString();
         }
 
         /// <summary>

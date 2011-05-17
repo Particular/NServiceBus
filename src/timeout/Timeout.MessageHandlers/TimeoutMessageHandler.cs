@@ -22,7 +22,7 @@ namespace Timeout.MessageHandlers
             {
                 var data = new TimeoutData
                                {
-                                   Destination = Bus.CurrentMessageContext.ReturnAddress,
+                                   Destination = Bus.CurrentMessageContext.ReplyToAddress,
                                    SagaId = message.SagaId,
                                    State = message.State,
                                    Time = message.Expires

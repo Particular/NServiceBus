@@ -17,7 +17,7 @@
     {
         IBus bus;
         ISendMessages messageSender;
-        string gatewayAddress;
+        Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
 
         [SetUp]
@@ -25,7 +25,6 @@
         {
             string masterNodeAddress = "MasterNode";
             string localAddress = "endpointA";
-            gatewayAddress = localAddress + ".gateway@" + masterNodeAddress;
 
             try
             {
@@ -34,6 +33,8 @@
             catch // intentional
             {
             }
+
+            gatewayAddress = new Address(Address.Local.SubScope("gateway").Queue, masterNodeAddress);
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
@@ -64,7 +65,7 @@
         {
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<string>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<Address>.Is.Anything));
         }
 
         [Test]
@@ -72,7 +73,7 @@
         {
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<string>.Is.Equal(gatewayAddress)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(gatewayAddress)));
         }
 
 

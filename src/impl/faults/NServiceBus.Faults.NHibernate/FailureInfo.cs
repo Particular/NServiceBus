@@ -11,7 +11,7 @@ namespace NServiceBus.Faults.NHibernate
    {
       public Guid Id { get; set; }
       public bool IsSerializationFailure { get; set; }
-      public Address ReplyToAddress { get; set; }
+      public string ReturnAddress { get; set; }
       public TransportMessage Message { get; set; }
       public Exception Exception { get; set; }      
       public string TopmostExceptionMessage { get; set; }
@@ -21,7 +21,7 @@ namespace NServiceBus.Faults.NHibernate
       {                           
          Message = message;
          Exception = exception;
-         ReplyToAddress = message.ReplyToAddress;
+         ReturnAddress = message.ReplyToAddress == null ? string.Empty : message.ReplyToAddress.ToString();
          TopmostExceptionMessage = exception.Message;
          IsSerializationFailure = serializationFailure;
          StackTraces = CombineStackTraces(exception);
@@ -52,7 +52,7 @@ namespace NServiceBus.Faults.NHibernate
          Not.LazyLoad();
          Id(x => x.Id).GeneratedBy.GuidComb();
          Map(x => x.IsSerializationFailure).Not.Nullable();
-         Map(x => x.ReplyToAddress).CustomType("Serializable").Length(1000).Not.Nullable();
+         Map(x => x.ReturnAddress).Length(1000).Not.Nullable();
          Map(x => x.Message).CustomType("Serializable").Length(8001).Not.Nullable();
          Map(x => x.Exception).CustomType("Serializable").Length(8001).Not.Nullable();
          Map(x => x.TopmostExceptionMessage).Length(8001);

@@ -12,7 +12,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         private MessageQueue queue;
         private static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
 
-        public virtual string InputQueue
+        public virtual Address InputQueue
         {
             set
             {
