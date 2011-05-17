@@ -87,6 +87,9 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
         {
+            if (Address.Local != null)
+                return;
+
             var address = GetLocalAddress(unicastConfig);
             Address.InitializeLocalAddress(address);
         }

@@ -1121,7 +1121,7 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress.ToString(), msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress.ToString() , msg.Headers))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
@@ -1219,6 +1219,9 @@ namespace NServiceBus.Unicast
             {
                 var key = de.Key as string;
                 if (key == null)
+                    continue;
+
+                if (string.IsNullOrEmpty(de.Value as string))
                     continue;
 
                 try
@@ -1541,7 +1544,7 @@ namespace NServiceBus.Unicast
         /// <returns>The address of the destination associated with the message type.</returns>
         protected Address GetAddressForMessageType(Type messageType)
         {
-            Address destination;
+            Address destination = null;
 
             lock (messageTypeToDestinationLookup)
                 messageTypeToDestinationLookup.TryGetValue(messageType, out destination);

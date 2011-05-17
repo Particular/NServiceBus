@@ -17,7 +17,7 @@ namespace NServiceBus
         {
             var msmqTransport = Configure.GetConfigSection<MsmqTransportConfig>();
             
-            Logger = LogManager.GetLogger(Address.Local + ".distributor");
+            Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
 
             var inputQueue = Address.Local.Queue;
             var storageQueue = Address.Local.SubScope("distributor.storage");
