@@ -65,7 +65,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
         {
-            return GetSubscribersForMessage(messageTypes).Select(Address.Parse);
+            return GetSubscribersForMessage(messageTypes).Select(s => Address.Parse(s));
         }
 
         public IEnumerable<string> GetSubscribersForMessage(IEnumerable<string> messageTypes)
