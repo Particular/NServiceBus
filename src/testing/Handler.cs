@@ -203,17 +203,28 @@ namespace NServiceBus.Testing
         /// <param name="messageId"></param>
         public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId) where TMessage : IMessage
         {
+            var msg = messageCreator.CreateInstance(initializeMessage);
+            OnMessage(msg, messageId);
+        }
+
+        /// <summary>
+        /// Activates the test that has been set up passing in given message,
+        /// setting the incoming headers and the message Id.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="message"></param>
+        /// <param name="messageId"></param>
+        public void OnMessage<TMessage>(TMessage message, string messageId) where TMessage : IMessage
+        {
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
 
-            var msg = messageCreator.CreateInstance(initializeMessage);
+            foreach (KeyValuePair<string, string> kvp in incomingHeaders)
+                ExtensionMethods.SetHeaderAction(message, kvp.Key, kvp.Value);
 
-            foreach(KeyValuePair<string, string> kvp in incomingHeaders)
-                ExtensionMethods.SetHeaderAction(msg, kvp.Key, kvp.Value);
+            ExtensionMethods.CurrentMessageBeingHandled = message;
 
-            ExtensionMethods.CurrentMessageBeingHandled = msg;
-
-			MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
-            helper.Go(context, () => method.Invoke(handler, new object[] { msg }));
+            MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
+            helper.Go(context, () => method.Invoke(handler, new object[] { message }));
             assertions.ForEach(a => a());
 
             assertions.Clear();
