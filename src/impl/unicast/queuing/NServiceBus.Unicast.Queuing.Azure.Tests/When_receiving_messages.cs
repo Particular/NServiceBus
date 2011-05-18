@@ -120,7 +120,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                                        CorrelationId = "123",
                                        //Id = "11111",
                                        Recoverable = true,
-                                       ReturnAddress= "response",
+                                       ReplyToAddress= Address.Parse("response"),
                                        TimeSent = DateTime.Now,
                                        TimeToBeReceived = TimeSpan.FromHours(1)
                                    };
@@ -136,7 +136,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                 Assert.AreEqual(result.CorrelationId,original.CorrelationId);
                 Assert.NotNull(result.Id);
                 Assert.AreEqual(result.Recoverable,original.Recoverable);
-                Assert.AreEqual(result.ReturnAddress,original.ReturnAddress);
+                Assert.AreEqual(result.ReplyToAddress,original.ReplyToAddress);
                 Assert.AreEqual(result.TimeSent,original.TimeSent);
                 Assert.AreEqual(result.TimeToBeReceived,original.TimeToBeReceived);
 

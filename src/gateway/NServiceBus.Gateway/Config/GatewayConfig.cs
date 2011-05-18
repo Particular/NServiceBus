@@ -38,7 +38,7 @@
 
         static Configure SetupGateway(this Configure config)
         {
-            var gatewayInputAddress = GetMainInputAddress() + ".gateway"; //todo - should have the config enforce local addresses? Check with Udi
+            var gatewayInputAddress = Address.Local.SubScope("gateway");
 
             config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
@@ -52,7 +52,7 @@
             return config;
         }
 
-        static void ConfigureStartup(string gatewayInputAddress)
+        static void ConfigureStartup(Address gatewayInputAddress)
         {
             Configure.ConfigurationComplete +=
                 (o, a) =>
@@ -88,18 +88,8 @@
             config.Configurer.ConfigureComponent<IdempotentReceiver>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                                               .ConfigureProperty(x => x.MainInputAddress,GetMainInputAddress());
+                                               .ConfigureProperty(x => x.MainInputAddress, Address.Local);
 
-        }
-
-        private static string GetMainInputAddress()
-        {
-            var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
-          
-            var inputQueue = unicastBusConfig.LocalAddress;
-            if (inputQueue == null)
-                inputQueue = Configure.GetConfigSection<MsmqTransportConfig>().InputQueue;
-            return inputQueue;
         }
     }
 }

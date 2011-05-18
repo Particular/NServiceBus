@@ -10,7 +10,13 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The address of the subscriber.
         /// </summary>
+        [Obsolete("Use SubscriberReturnAddress instead.", true)]
         public string SubscriberAddress { get; set; }
+
+        /// <summary>
+        /// The address of the subscriber.
+        /// </summary>
+        public Address SubscriberReturnAddress { get; set; }
 
         /// <summary>
         /// The type of message the client subscribed to.

@@ -16,6 +16,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <summary>
         /// Gets the subscription request message.
         /// </summary>
-        public string Subscriber { get; set; }
+        public Address Subscriber { get; set; }
     }
 }

@@ -46,8 +46,13 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Init(string address, bool transactional)
         {
+            Init(Address.Parse(address), transactional);
+        }
+
+        public void Init(Address address, bool transactional)
+        {
             useTransactions = transactional;
-            queue = client.GetQueueReference(address);
+            queue = client.GetQueueReference(address.ToString());
             queue.CreateIfNotExist();
 
 			if (PurgeOnStartup)
@@ -56,7 +61,12 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, string destination)
         {
-            var sendQueue = client.GetQueueReference(destination);
+            Send(message, Address.Parse(destination));
+        }
+
+        public void Send(TransportMessage message, Address address)
+        {
+            var sendQueue = client.GetQueueReference(address.ToString());
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();

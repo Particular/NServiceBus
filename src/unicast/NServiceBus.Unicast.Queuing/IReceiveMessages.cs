@@ -1,4 +1,5 @@
-﻿using NServiceBus.Unicast.Transport;
+﻿using System;
+using NServiceBus.Unicast.Transport;
 namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
@@ -11,7 +12,15 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         /// <param name="address">The address of the message source</param>
         /// <param name="transactional">Indicates if the receiver should be transactional</param>
+        [Obsolete("Use the overload accepting the Address parameter instead.", true)]
         void Init(string address, bool transactional);
+
+        /// <summary>
+        /// Initializes the message receiver.
+        /// </summary>
+        /// <param name="address">The address of the message source</param>
+        /// <param name="transactional">Indicates if the receiver should be transactional</param>
+        void Init(Address address, bool transactional);
 
         /// <summary>
         /// Returns true if there's a message ready to be received at the address passed in the Init method.

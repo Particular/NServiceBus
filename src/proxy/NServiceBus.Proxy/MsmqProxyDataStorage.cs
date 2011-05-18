@@ -8,7 +8,7 @@ namespace NServiceBus.Proxy
     {
         private MessageQueue storageQueue;
 
-        public string StorageQueue
+        public Address StorageQueue
         {
             get; set;
         }

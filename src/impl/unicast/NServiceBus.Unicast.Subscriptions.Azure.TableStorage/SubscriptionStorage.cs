@@ -18,13 +18,12 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
             this.sessionSource = sessionSource;
         }
 
-        /// <summary>
-        /// Adds the given subscription to the DB.
-        /// Method checks for existing subcriptions to prevent duplicates
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
-        public void Subscribe(string client, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
+        {
+            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
+        }
+
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
         {
             using (var session = sessionSource.CreateSession())
             using(var transaction = new TransactionScope())
@@ -33,48 +32,46 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
                 {
                     var subscription = new Subscription
                     {
-                        SubscriberEndpoint = client,
+                        SubscriberEndpoint = address.ToString(),
                         MessageType = messageType
                     };
 
                     if (session.Get<Subscription>(subscription) == null)
                         session.Save(subscription);
-
                 }
-
 
                 transaction.Complete();
                 session.Flush();
             }
         }
 
-        /// <summary>
-        /// Removes the specified subscriptions from DB
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
-        public void Unsubscribe(string client, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
+            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);
+        }
 
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
+        {
             using (var session = sessionSource.CreateSession())
             using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
-                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", client, messageType));
+                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", address, messageType));
 
                 transaction.Complete();
                 session.Flush();
             }
         }
 
-        /// <summary>
-        /// Lists all subscribers for the specified message types
-        /// </summary>
-        /// <param name="messageTypes"></param>
-        /// <returns></returns>
-        public IEnumerable<string> GetSubscribersForMessage(IEnumerable<string> messageTypes)
+        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
-            var subscribers = new List<string>();
+            return ((ISubscriptionStorage) this).GetSubscriberAddressesForMessage(messageTypes)
+                .Select(a => a.ToString());
+        }
+
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        {
+            var subscribers = new List<Address>();
 
             using (var session = sessionSource.CreateSession())
             {
@@ -82,8 +79,9 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
                                      from subscription in session.CreateCriteria(typeof (Subscription))
                                                             .Add(Restrictions.Eq("MessageType", messageType))
                                                             .List<Subscription>()
-                                     select subscription.SubscriberEndpoint);
+                                     select Address.Parse(subscription.SubscriberEndpoint));
             }
+
             return subscribers;
         }
 

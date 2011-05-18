@@ -13,7 +13,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          using (var transactionScope = new TransactionScope())
          {
-            FaultManager.SerializationFailedForMessage(new TransportMessage{ ReturnAddress = "returnAddress" }, new Exception());            
+             FaultManager.SerializationFailedForMessage(new TransportMessage { ReplyToAddress = Address.Parse("returnAddress") }, new Exception());            
             transactionScope.Complete();
          }
          using (var session = SessionFactory.OpenSession())
@@ -27,7 +27,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       {
          using (var transactionScope = new TransactionScope())
          {
-            FaultManager.SerializationFailedForMessage(new TransportMessage { ReturnAddress = "returnAddress" }, new Exception());
+             FaultManager.SerializationFailedForMessage(new TransportMessage { ReplyToAddress = Address.Parse("returnAddress") }, new Exception());
          }
 
          using (var session = SessionFactory.OpenSession())
