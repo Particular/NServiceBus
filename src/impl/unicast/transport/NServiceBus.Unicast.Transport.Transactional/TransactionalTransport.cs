@@ -142,7 +142,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void ITransport.Start(string inputqueue)
         {
-            MessageReceiver.Init(inputqueue,IsTransactional);
+            ((ITransport)this).Start(Address.Parse(inputqueue));
+        }
+
+        void ITransport.Start(Address address)
+        {
+            MessageReceiver.Init(address,IsTransactional);
             
             LimitWorkerThreadsToOne();
 

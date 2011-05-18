@@ -9,22 +9,24 @@ namespace NServiceBus.Gateway.Routing.Endpoints
     {
         public LegacyEndpointRouter()
         {
-            defaultDestinationAddress = ConfigurationManager.AppSettings["OutputQueue"];
+            var outputQueue = ConfigurationManager.AppSettings["OutputQueue"];
 
-            if (string.IsNullOrEmpty(defaultDestinationAddress))
+            if (string.IsNullOrEmpty(outputQueue))
                 throw new ConfigurationErrorsException("Required setting 'OutputQueue' is missing");
+
+            defaultDestinationAddress = Address.Parse(outputQueue);
         }
 
-        public string GetDestinationFor(TransportMessage messageToSend)
+        public Address GetDestinationFor(TransportMessage messageToSend)
         {
             var routeTo = Headers.RouteTo.Replace(HeaderMapper.NServiceBus + Headers.HeaderName + ".", "");
           
             if (messageToSend.Headers.ContainsKey(routeTo))
-                return  messageToSend.Headers[routeTo];
+                return Address.Parse(messageToSend.Headers[routeTo]);
 
             return defaultDestinationAddress;
         }
 
-        readonly string defaultDestinationAddress;
+        readonly Address defaultDestinationAddress;
     }
 }

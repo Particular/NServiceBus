@@ -48,7 +48,7 @@ namespace NServiceBus
 		/// <summary>
 		/// Sets the time to be received.
 		/// </summary>
-		/// <param name="timeSpan">A timespan that can be interpreted by <see cref="TimeSpan.Parse"/>.</param>
+		/// <param name="timeSpan">A timespan that can be interpreted by <see cref="TimeSpan.Parse(string)"/>.</param>
         public TimeToBeReceivedAttribute(string timeSpan)
         {
             timeToBeReceived = TimeSpan.Parse(timeSpan);

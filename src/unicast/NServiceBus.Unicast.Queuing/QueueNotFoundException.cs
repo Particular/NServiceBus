@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast.Queuing
     [Serializable]
     public class QueueNotFoundException : Exception
     {
-        public string Queue { get; set; }
+        public Address Queue { get; set; }
 
         public QueueNotFoundException()
         {
@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Queuing
             System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
             if (info != null)
-                Queue = info.GetString("Queue");
+                Queue = Address.Parse(info.GetString("Queue"));
         }
 
         public override void GetObjectData(
@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Queuing
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("Queue", Queue);
+            info.AddValue("Queue", Queue.ToString());
         }
     }
 }

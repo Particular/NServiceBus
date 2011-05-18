@@ -1,4 +1,5 @@
 ﻿using System;
+using NServiceBus;
 
 namespace Timeout.MessageHandlers
 {
@@ -10,7 +11,7 @@ namespace Timeout.MessageHandlers
         /// <summary>
         /// The address of the client who requested the timeout.
         /// </summary>
-        public string Destination { get; set; }
+        public Address Destination { get; set; }
 
         /// <summary>
         /// The saga ID.

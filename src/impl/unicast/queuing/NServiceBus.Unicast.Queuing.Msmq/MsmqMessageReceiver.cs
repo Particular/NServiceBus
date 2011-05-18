@@ -16,12 +16,17 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     {
         public void Init(string address, bool transactional)
         {
+            Init(Address.Parse(address), transactional);
+        }
+
+        public void Init(Address address, bool transactional)
+        {
             useTransactions = transactional;
 
-            if (string.IsNullOrEmpty(address))
+            if (address == null)
                 throw new ArgumentException("Input queue must be specified");
 
-            var machine = MsmqUtilities.GetMachineNameFromLogicalName(address);
+            var machine = address.Machine;
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
                 throw new InvalidOperationException("Input queue must be on the same machine as this process.");
@@ -91,7 +96,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     Recoverable = m.Recoverable,
                     TimeToBeReceived = m.TimeToBeReceived,
                     TimeSent = m.SentTime,
-                    ReturnAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
+                    ReplyToAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
                     MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                 };
 

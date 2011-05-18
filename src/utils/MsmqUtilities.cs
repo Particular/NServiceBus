@@ -17,6 +17,7 @@ namespace NServiceBus.Utils
         private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
+        
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
@@ -24,19 +25,28 @@ namespace NServiceBus.Utils
         ///<param name="account">The account to be given permissions to the queue</param>
         public static void CreateQueueIfNecessary(string queueName, string account)
         {
-            if (string.IsNullOrEmpty(queueName))
+            
+        }
+
+        ///<summary>
+        /// Utility method for creating a queue if it does not exist.
+        ///</summary>
+        ///<param name="address"></param>
+        ///<param name="account">The account to be given permissions to the queue</param>
+        public static void CreateQueueIfNecessary(Address address, string account)
+        {
+            if (address == null)
                 return;
 
-            var q = GetFullPathWithoutPrefix(queueName);
-            var machine = GetMachineNameFromLogicalName(queueName);
+            var q = GetFullPathWithoutPrefix(address);
 
-            if (machine != Environment.MachineName)
+            if (address.Machine != Environment.MachineName.ToLower())
             {
                 Logger.Debug("Queue is on remote machine.");
                 Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
             }
 
-            Logger.Debug(string.Format("Checking if queue exists: {0}.", queueName));
+            Logger.Debug(string.Format("Checking if queue exists: {0}.", address));
 
             try
             {
@@ -54,7 +64,7 @@ namespace NServiceBus.Utils
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", queueName), ex);
+                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
         }
         
@@ -96,13 +106,28 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [Obsolete("Use the overload which accepts the Address parameter instead.", true)]
         public static string GetFullPath(string value)
         {
-            var machine = GetMachineNameFromLogicalName(value);
+            return GetFullPath(Address.Parse(value));
+        }
 
+        private static string getFullPath(string value)
+        {
+            return GetFullPath(Address.Parse(value));
+        }
+
+        /// <summary>
+        /// Turns a '@' separated value into a full path.
+        /// Format is 'queue@machine', or 'queue@ipaddress'
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullPath(Address value)
+        {
             IPAddress ipAddress;
-            if (IPAddress.TryParse(machine, out ipAddress))
-				return PREFIX_TCP + GetFullPathWithoutPrefix(value);
+            if (IPAddress.TryParse(value.Machine, out ipAddress))
+                return PREFIX_TCP + GetFullPathWithoutPrefix(value);
 
             return PREFIX + GetFullPathWithoutPrefix(value);
         }
@@ -117,7 +142,20 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         public static string GetReturnAddress(string value, string target)
         {
-            var machine = GetMachineNameFromLogicalName(target);
+            return GetReturnAddress(Address.Parse(value), Address.Parse(target));
+        }
+
+        /// <summary>
+        /// Gets the name of the return address from the provided value.
+        /// If the target includes a machine name, uses the local machine name in the returned value
+        /// otherwise uses the local IP address in the returned value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static string GetReturnAddress(Address value, Address target)
+        {
+            var machine = target.Machine;
 
             IPAddress ipAddress;
 
@@ -141,7 +179,7 @@ namespace NServiceBus.Utils
                 if (myIp == null)
                     myIp = "127.0.0.1";
 
-                return PREFIX_TCP + myIp + PRIVATE + GetQueueNameFromLogicalName(value);
+                return PREFIX_TCP + myIp + PRIVATE + value.Queue;
             }
 
             return PREFIX + GetFullPathWithoutPrefix(value);
@@ -155,7 +193,18 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         public static string GetFullPathWithoutPrefix(string value)
         {
-            return GetMachineNameFromLogicalName(value) + PRIVATE + GetQueueNameFromLogicalName(value);
+            return getMachineNameFromLogicalName(value) + PRIVATE + getQueueNameFromLogicalName(value);
+        }
+
+        /// <summary>
+        /// Returns the full path without Format or direct os
+        /// from an address.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public static string GetFullPathWithoutPrefix(Address address)
+        {
+            return address.Machine + PRIVATE + address.Queue;
         }
 
         /// <summary>
@@ -164,7 +213,13 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="logicalName"></param>
         /// <returns></returns>
+        [Obsolete("Use Address.Machine instead.", true)]
         public static string GetMachineNameFromLogicalName(string logicalName)
+        {
+            return getMachineNameFromLogicalName(logicalName);
+        }
+
+        private static string getMachineNameFromLogicalName(string logicalName)
         {
             string[] arr = logicalName.Split('@');
 
@@ -182,7 +237,13 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="logicalName"></param>
         /// <returns></returns>
+        [Obsolete("Use Address.Queue instead.", true)]
         public static string GetQueueNameFromLogicalName(string logicalName)
+        {
+            return getQueueNameFromLogicalName(logicalName);
+        }
+
+        private static string getQueueNameFromLogicalName(string logicalName)
         {
             string[] arr = logicalName.Split('@');
 
@@ -215,7 +276,7 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public static string GetIndependentAddressForQueue(MessageQueue q)
+        public static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
                 return null;
@@ -225,18 +286,18 @@ namespace NServiceBus.Utils
 
             int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
-                return queueName + '@' + arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length);
+                return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
 
             int tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
-                return queueName + '@' + arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length);
+                return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
 
             try
             {
                 // the pessimistic approach failed, try the optimistic approach
                 arr = q.QueueName.Split('\\');
                 queueName = arr[arr.Length - 1];
-                return queueName + '@' + q.MachineName;
+                return new Address(queueName, q.MachineName);
             }
             catch
             {
@@ -250,7 +311,7 @@ namespace NServiceBus.Utils
         /// <returns></returns>
         public static int GetNumberOfPendingMessages(string queueName)
         {
-            var q = new MessageQueue(GetFullPath(queueName));
+            var q = new MessageQueue(getFullPath(queueName));
 
             var qMgmt = new MSMQ.MSMQManagementClass();
             object machine = Environment.MachineName;

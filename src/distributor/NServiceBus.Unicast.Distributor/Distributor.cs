@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Distributor
         /// <summary>
         /// Sets the address of the datainput queue for this distributor
         /// </summary>
-        public string DataTransportInputQueue { get; set; }
+        public Address DataTransportInputQueue { get; set; }
 
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace NServiceBus.Unicast.Distributor
             if (disabled)
                 Rollback();
 
-            string destination = WorkerManager.PopAvailableWorker();
+            var destination = WorkerManager.PopAvailableWorker();
 
             if (destination == null)
                 Rollback();

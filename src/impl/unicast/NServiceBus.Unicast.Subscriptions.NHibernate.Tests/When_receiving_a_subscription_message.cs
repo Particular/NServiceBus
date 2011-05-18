@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         [Test]
         public void A_subscription_entry_should_be_added_to_the_database()
         {
-            string clientEndpoint = "TestEndpoint";
+            var clientEndpoint = Address.Parse("TestEndpoint");
 
             var messageTypes = new List<String> { "MessageType1", "MessageType2" };
 
@@ -33,8 +33,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         public void Duplicate_subcription_shouldnt_create_additional_db_rows()
         {
 
-            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
-            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
+            storage.Subscribe(Address.Parse("testendpoint"), new List<string> { "SomeMessageType" });
+            storage.Subscribe(Address.Parse("testendpoint"), new List<string> { "SomeMessageType" });
 
 
             using (var session = subscriptionStorageSessionProvider.OpenSession())

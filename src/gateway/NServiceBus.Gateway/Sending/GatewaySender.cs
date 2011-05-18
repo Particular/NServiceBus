@@ -30,7 +30,7 @@
             this.messageSender = messageSender;
         }
 
-        public void Start(string inputAddress)
+        public void Start(Address inputAddress)
         {
             localAddress = inputAddress;
             addressOfAuditStore = settings.AddressOfAuditStore;
@@ -123,7 +123,7 @@
         readonly ISendMessages messageSender;
         ITransport transport;
         readonly IMainEndpointSettings settings;
-        string localAddress;
+        Address localAddress;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }

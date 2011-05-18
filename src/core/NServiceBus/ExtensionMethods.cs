@@ -198,7 +198,7 @@ namespace NServiceBus
 		
 		/// <summary>
         /// Header for specifying to which sites the gateway should send the message. For multiple
-		//  sites a comma separated list can be used
+		/// sites a comma separated list can be used
         /// This header is considered an applicative header.
         /// </summary>
         public const string DestinationSites = "NServiceBus.DestinationSites";

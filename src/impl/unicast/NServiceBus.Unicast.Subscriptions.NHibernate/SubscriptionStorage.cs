@@ -20,15 +20,12 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
             this.subscriptionStorageSessionProvider = subscriptionStorageSessionProvider;
         }
 
-
-
-        /// <summary>
-        /// Adds the given subscription to the DB.
-        /// Method checks for existing subcriptions to prevent duplicates
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
         void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
+        {
+            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
+        }
+
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
         {
             using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
@@ -37,44 +34,41 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                 {
                     var subscription = new Subscription
                     {
-                        SubscriberEndpoint = client,
+                        SubscriberEndpoint = address.ToString(),
                         MessageType = messageType
                     };
 
                     if (session.Get<Subscription>(subscription) == null)
                         session.Save(subscription);
-
                 }
-
 
                 transaction.Complete();
             }
         }
 
-        /// <summary>
-        /// Removes the specified subscriptions from DB
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="messageTypes"></param>
         void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
+            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);
+        }
 
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
+        {
             using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
                 foreach (var messageType in messageTypes)
-                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", client, messageType));
+                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", address, messageType));
 
                 transaction.Complete();
             }
         }
 
-        /// <summary>
-        /// Lists all subscribers for the specified message types
-        /// </summary>
-        /// <param name="messageTypes"></param>
-        /// <returns></returns>
-        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        {
+            return GetSubscribersForMessage(messageTypes).Select(s => Address.Parse(s));
+        }
+
+        public IEnumerable<string> GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
             using (new TransactionScope(TransactionScopeOption.Suppress))
             using (var session = subscriptionStorageSessionProvider.OpenStatelessSession())
@@ -84,6 +78,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                     .SetResultTransformer(new DistinctRootEntityResultTransformer())
                     .List<string>();
         }
+
         public void Init()
         {
             //No-op

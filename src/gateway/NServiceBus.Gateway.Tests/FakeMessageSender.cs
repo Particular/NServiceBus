@@ -10,16 +10,20 @@
         public FakeMessageSender()
         {
             messageReceived = new ManualResetEvent(false);
-            
         }
-        public void Send(TransportMessage message, string destination)
-        {
 
+        void ISendMessages.Send(TransportMessage message, string destination)
+        {
+            ((ISendMessages)this).Send(message, Address.Parse(destination));
+        }
+
+        void ISendMessages.Send(TransportMessage message, Address address)
+        {
             details = new SendDetails
-                          {
-                              Destination = destination,
-                              Message = message
-                          };
+            {
+                Destination = address,
+                Message = message
+            };
 
             messageReceived.Set();
         }
@@ -36,7 +40,7 @@
         public class SendDetails
         {
             public TransportMessage Message { get; set; }
-            public string Destination { get; set; }
+            public Address Destination { get; set; }
         }
     }
 }

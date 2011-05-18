@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Messaging;
 using Common.Logging;
 using System.Transactions;
@@ -61,7 +62,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
             foreach (var m in q.GetAllMessages())
             {
-                var subscriber = m.Label;
+                var subscriber = Address.Parse(m.Label);
                 var messageType = m.Body as string;
 
                 entries.Add(new Entry { MessageType = messageType, Subscriber = subscriber});
@@ -71,11 +72,17 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
         {
-            var result = new List<string>();
+            return ((ISubscriptionStorage) this).GetSubscriberAddressesForMessage(messageTypes)
+                .Select(a => a.ToString());
+        }
+
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        {
+            var result = new List<Address>();
 
             lock (locker)
                 foreach (var e in entries)
-                    foreach(var m in messageTypes)
+                    foreach (var m in messageTypes)
                         if (e.MessageType == m)
                             if (!result.Contains(e.Subscriber))
                                 result.Add(e.Subscriber);
@@ -95,13 +102,18 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
         {
+            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
+        }
+
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
+        {
             lock (locker)
             {
                 foreach (var m in messageTypes)
                 {
                     bool found = false;
                     foreach (var e in entries)
-                        if (e.MessageType == m && e.Subscriber == client)
+                        if (e.MessageType == m && e.Subscriber == address)
                         {
                             found = true;
                             break;
@@ -109,11 +121,11 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
                     if (!found)
                     {
-                        Add(client, m);
+                        Add(address, m);
 
-                        entries.Add(new Entry {MessageType = m, Subscriber = client});
+                        entries.Add(new Entry { MessageType = m, Subscriber = address });
 
-                        log.Debug("Subscriber " + client + " added for message " + m + ".");
+                        log.Debug("Subscriber " + address + " added for message " + m + ".");
                     }
                 }
             }
@@ -121,17 +133,22 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 
         void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
         {
+            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);   
+        }
+
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
+        {
             lock (locker)
             {
                 foreach (var e in entries.ToArray())
                     foreach (var m in messageTypes)
-                        if (e.MessageType == m && e.Subscriber == client)
+                        if (e.MessageType == m && e.Subscriber == address)
                         {
-                            Remove(client, m);
+                            Remove(address, m);
 
                             entries.Remove(e);
 
-                            log.Debug("Subscriber " + client + " removed for message " + m + ".");
+                            log.Debug("Subscriber " + address + " removed for message " + m + ".");
                         }
             }
         }
@@ -139,9 +156,9 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// <summary>
 		/// Adds a message to the subscription store.
 		/// </summary>
-        public void Add(string subscriber, string typeName)
+        public void Add(Address subscriber, string typeName)
         {
-		    var toSend = new Message {Formatter = q.Formatter, Recoverable = true, Label = subscriber, Body = typeName};
+		    var toSend = new Message {Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = typeName};
 
 		    q.Send(toSend, GetTransactionType());
 
@@ -151,7 +168,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// <summary>
 		/// Removes a message from the subscription store.
 		/// </summary>
-        public void Remove(string subscriber, string typeName)
+        public void Remove(Address subscriber, string typeName)
         {
 			var messageId = RemoveFromLookup(subscriber, typeName);
 
@@ -188,9 +205,8 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// <summary>
 		/// Sets the address of the queue where subscription messages will be stored.
 		/// For a local queue, just use its name - msmq specific info isn't needed.
-		/// For a remote queue (supported MSMQ 4.0), use the format "queue@machine".
 		/// </summary>
-        public string Queue
+        public Address Queue
         {
             get; set;
         }
@@ -203,7 +219,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// Adds a message to the lookup to find message from
 		/// subscriber, to message type, to message id
 		/// </summary>
-        private void AddToLookup(string subscriber, string typeName, string messageId)
+        private void AddToLookup(Address subscriber, string typeName, string messageId)
         {
             lock (lookup)
             {
@@ -215,7 +231,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-		private string RemoveFromLookup(string subscriber, string typeName)
+		private string RemoveFromLookup(Address subscriber, string typeName)
 		{
 			string messageId = null;
 			lock (lookup)
@@ -245,7 +261,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <summary>
         /// lookup from subscriber, to message type, to message id
         /// </summary>
-        private readonly Dictionary<string, Dictionary<string, string>> lookup = new Dictionary<string, Dictionary<string, string>>();
+        private readonly Dictionary<Address, Dictionary<string, string>> lookup = new Dictionary<Address, Dictionary<string, string>>();
 
         private readonly List<Entry> entries = new List<Entry>();
         private readonly object locker = new object();

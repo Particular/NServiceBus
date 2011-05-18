@@ -10,7 +10,7 @@ namespace NServiceBus.Distributor
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
-        public string InputQueue { get; set; }
+        public Address InputQueue { get; set; }
 
         public void Init()
         {
