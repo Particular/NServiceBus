@@ -79,6 +79,17 @@ namespace NServiceBus.Testing.Tests
 				.OnMessage<TestMessage>(m => { });
 		}
 
+        [Test]
+        public void ShouldPassExpectPublishWhenMessageIsSend()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .ExpectPublish<Publish1>(m => true)
+                .OnMessage(new TestMessageImpl(), Guid.NewGuid().ToString());
+        }
+
+        private class TestMessageImpl : TestMessage{}
+        
+
 		[Test]
 		public void ShouldPassExpectPublishWhenPublishingAndCheckingPredicate()
 		{
