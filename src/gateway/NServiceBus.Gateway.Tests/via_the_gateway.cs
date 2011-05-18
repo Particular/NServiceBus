@@ -21,11 +21,11 @@
 
     public class via_the_gateway
     {
-        protected const string GatewayAddressForSiteA = "SiteAEndpoint.gateway@masternode_in_site_a";
+        protected Address GatewayAddressForSiteA = Address.Parse("SiteAEndpoint.gateway@masternode_in_site_a");
         protected const string HttpAddressForSiteA = "http://localhost:8090/Gateway/";
 
-        protected const string EndpointAddressForSiteB = "SiteBEndpoint@masternode_in_site_b";
-        protected const string GatewayAddressForSiteB = "SiteBEndpoint.gateway@masternode_in_site_b";
+        protected Address EndpointAddressForSiteB = Address.Parse("SiteBEndpoint@masternode_in_site_b");
+        protected Address GatewayAddressForSiteB = Address.Parse("SiteBEndpoint.gateway@masternode_in_site_b");
         protected const string HttpAddressForSiteB = "http://localhost:8092/Gateway/";
 
         protected InMemoryDataBus databusForSiteA;

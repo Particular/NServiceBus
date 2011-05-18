@@ -11,13 +11,13 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         [Test]
         public void The_names_of_all_subscibers_should_be_returned()
         {
-            string clientEndpoint = "TestEndpoint";
+            var clientEndpoint = Address.Parse("TestEndpoint");
 
             storage.Subscribe(clientEndpoint, new List<string> { "MessageType1" });
             storage.Subscribe(clientEndpoint, new List<string> { "MessageType2" });
-            storage.Subscribe("some other endpoint", new List<string> { "MessageType1" });
+            storage.Subscribe(Address.Parse("some other endpoint"), new List<string> { "MessageType1" });
 
-            var subscriptionsForMessageType = storage.GetSubscribersForMessage(new List<String> { "MessageType1" });
+            var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new List<String> { "MessageType1" });
 
             Assert.AreEqual(subscriptionsForMessageType.Count(), 2);
             Assert.AreEqual(subscriptionsForMessageType.First(), clientEndpoint);

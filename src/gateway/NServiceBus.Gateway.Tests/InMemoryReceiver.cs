@@ -7,8 +7,13 @@
     internal class InMemoryReceiver:IReceiveMessages
     {
         Queue<TransportMessage> queue;
- 
-        public void Init(string address, bool transactional)
+
+        void IReceiveMessages.Init(string address, bool transactional)
+        {
+            queue = new Queue<TransportMessage>();
+        }
+
+        void IReceiveMessages.Init(Address address, bool transactional)
         {
             queue = new Queue<TransportMessage>();
         }

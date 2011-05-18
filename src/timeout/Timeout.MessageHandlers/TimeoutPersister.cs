@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
+using NServiceBus;
 using NServiceBus.Utils;
 
 namespace Timeout.MessageHandlers
 {
     public class TimeoutPersister : IPersistTimeouts
     {
-        public string Queue
+        public Address Queue
         {
             get { return q; } 
             set { q = value; Init(value); }
         }
-        private string q;
+        private Address q;
 
-        private void Init(string queue)
+        private void Init(Address queue)
         {
             var path = MsmqUtilities.GetFullPath(queue);
 

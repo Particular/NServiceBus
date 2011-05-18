@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using log4net;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Msmq;
@@ -49,8 +50,17 @@ namespace NServiceBus.Proxy
             proxy.InternalTransport = internalTransport;
             proxy.InternalMessageSender = new MsmqMessageSender();
 
-            proxy.InternalAddress = ConfigurationManager.AppSettings["InternalQueue"];
-            proxy.ExternalAddress = ConfigurationManager.AppSettings["ExternalQueue"];
+            var internalQueue = ConfigurationManager.AppSettings["InternalQueue"];
+            if (string.IsNullOrEmpty(internalQueue))
+                throw new Exception("Required configuration entry 'InternalQueue' is missing.");
+
+            proxy.InternalAddress = Address.Parse(internalQueue);
+
+            var externalQueue = ConfigurationManager.AppSettings["ExternalQueue"];
+            if (string.IsNullOrEmpty(externalQueue))
+                throw new Exception("Required configuration entry 'ExternalQueue' is missing.");
+
+            proxy.ExternalAddress = Address.Parse(externalQueue);
 
             proxy.Start();
 

@@ -45,8 +45,8 @@
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
 
-            to[NServiceBus + ReturnAddress] = from.ReturnAddress;
-            to[NServiceBus + Headers.HeaderName + "." + ReturnAddress] = from.ReturnAddress;
+            to[NServiceBus + ReturnAddress] = from.ReplyToAddress.ToString();
+            to[NServiceBus + Headers.HeaderName + "." + ReturnAddress] = from.ReplyToAddress.ToString();
 
             if (from.Headers.ContainsKey(ReturnAddress))
                 to[Headers.RouteTo] = from.Headers[ReturnAddress];

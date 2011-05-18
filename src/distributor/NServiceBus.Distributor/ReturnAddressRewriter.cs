@@ -6,7 +6,7 @@ namespace NServiceBus.Distributor
 {
     class ReturnAddressRewriter : IMutateOutgoingTransportMessages
     {
-        public string DistributorDataQueue { get; set; }
+        public Address DistributorDataQueue { get; set; }
 
         public void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
         {
@@ -15,7 +15,7 @@ namespace NServiceBus.Distributor
 
             //when not talking to the distributor, pretend that our address is that of the distributor
             if (DistributorDataQueue != null)
-                transportMessage.ReturnAddress = DistributorDataQueue;
+                transportMessage.ReplyToAddress = DistributorDataQueue;
         }
     }
 }
