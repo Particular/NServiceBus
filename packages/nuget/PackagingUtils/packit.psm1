@@ -54,7 +54,7 @@ function Invoke-Packit
 		{
 			try
 			{
-				 $version = GetVersionFromVersionAssembly
+				 $version = GetVersionFromVersionAssembly				 
 			}
 			catch
 			{
