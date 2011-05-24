@@ -22,7 +22,7 @@ namespace NServiceBus.Saga
         /// <param name="state"></param>
         public TimeoutMessage(DateTime expiration, ISagaEntity saga, object state)
         {
-            expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
+            expires = expiration.ToUniversalTime();
             SagaId = saga.Id;
             State = state;
         }
@@ -60,7 +60,7 @@ namespace NServiceBus.Saga
         public DateTime Expires
         {
             get { return expires; }
-            set { expires = DateTime.SpecifyKind(value, DateTimeKind.Utc); }
+			set { expires = value.ToUniversalTime(); }
         }
 
 		/// <summary>
