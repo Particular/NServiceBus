@@ -169,6 +169,28 @@ namespace NServiceBus.Testing
             helper.ExpectPublish(check);
             return this;
         }
+      
+      /// <summary>
+        /// Check that the saga does not publish any messages of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Saga<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        {
+          helper.ExpectNotPublish(check);
+          return this;
+        }
+
+        /// <summary>
+        /// Check that the saga tells the bus to handle the current message later.
+        /// </summary>
+        /// <returns></returns>
+        public Saga<T> ExpectHandleCurrentMessageLater()
+        {
+          helper.ExpectHandleCurrentMessageLater();
+          return this;
+        }
 
         /// <summary>
         /// Uses the given delegate to invoke the saga, checking all the expectations previously set up,
