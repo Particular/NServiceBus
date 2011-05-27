@@ -442,10 +442,20 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
-            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlWhitespace)
-                return n.ChildNodes[0].InnerText;
+			if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlWhitespace)
+			{
+				if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
+				{
+					var list = CreateList(type);
+					if (type.IsArray)
+						return list.GetType().GetMethod("ToArray").Invoke(list, null);
+					return list;
+				}
 
-            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
+				return n.ChildNodes[0].InnerText;
+			}
+
+        	if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
             {
                 var text = n.ChildNodes[0].InnerText;
 
@@ -569,33 +579,24 @@ namespace NServiceBus.Serializers.XML
 
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
-                bool isArray = type.IsArray;
-
-                Type typeToCreate = type;
-                if (isArray)
-                    typeToCreate = typesToCreateForArrays[type];
-
-                if (typeof(IList).IsAssignableFrom(typeToCreate))
+				var list = CreateList(type);
+                if (list != null)
                 {
-                    var list = Activator.CreateInstance(typeToCreate) as IList;
-                    if (list != null)
+                    foreach (XmlNode xn in n.ChildNodes)
                     {
-                        foreach (XmlNode xn in n.ChildNodes)
-                        {
-                          if (xn.NodeType == XmlNodeType.Whitespace)
-                            continue;
+                      if (xn.NodeType == XmlNodeType.Whitespace)
+                        continue;
 
-                            object m = Process(xn, list);
+                        object m = Process(xn, list);
 
-                            list.Add(m);
-                        }
-
-                        if (isArray)
-                            return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                        list.Add(m);
                     }
 
-                    return list;
+                    if (type.IsArray)
+                        return list.GetType().GetMethod("ToArray").Invoke(list, null);
                 }
+
+                return list;
             }
 
             if (n.ChildNodes.Count == 0)
@@ -608,7 +609,21 @@ namespace NServiceBus.Serializers.XML
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        #endregion
+		private IList CreateList(Type type)
+		{
+			Type typeToCreate = type;
+			if (type.IsArray)
+				typeToCreate = typesToCreateForArrays[type];
+
+			if (typeof (IList).IsAssignableFrom(typeToCreate))
+			{
+				return Activator.CreateInstance(typeToCreate) as IList;
+			}
+
+			return null;
+		}
+
+    	#endregion
 
         #region Serialize
 
