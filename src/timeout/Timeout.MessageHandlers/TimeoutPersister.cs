@@ -78,7 +78,12 @@ namespace Timeout.MessageHandlers
                     var ids = sagaToMessageIdLookup[sagaId];
 
                     foreach(var msgId in ids)
-                        storageQueue.ReceiveById(msgId, MessageQueueTransactionType.Automatic); 
+                        try
+                        {
+                            storageQueue.ReceiveById(msgId, MessageQueueTransactionType.Automatic);
+                        }
+                        catch(InvalidOperationException) //msg ID not in queue
+                        {}
 
                     sagaToMessageIdLookup.Remove(sagaId);
                 }
