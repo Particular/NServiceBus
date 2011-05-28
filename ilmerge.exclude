@@ -1,6 +1,0 @@
-NServiceBus*
-Spring.Reflection.Dynamic
-Rhino.Mocks.*
-Castle.Core.Interceptor.IProxyTargetAccessor
-Castle.DynamicProxy.AbstractInvocation
-NHibernate.Cfg.MappingSchema.*
