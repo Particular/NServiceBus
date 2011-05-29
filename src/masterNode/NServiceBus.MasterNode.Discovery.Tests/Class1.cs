@@ -8,6 +8,7 @@ namespace NServiceBus.MasterNode.Discovery.Tests
     public class When_Two_Nodes_Are_Online
     {
         [Test]
+        [Ignore("Requires elevated priveleges to run.")]
         public void They_should_identify_the_one_that_is_the_master()
         {
             Address.InitializeLocalAddress("test");
