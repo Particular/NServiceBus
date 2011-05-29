@@ -23,9 +23,9 @@
         [SetUp]
         public void SetUp()
         {
-            string masterNodeAddress = "MasterNode";
             string localAddress = "endpointA";
-
+            Address masterNodeAddress = localAddress + "@MasterNode";
+            
             try
             {
                 Address.InitializeLocalAddress(localAddress);
@@ -34,7 +34,7 @@
             {
             }
 
-            gatewayAddress = new Address(Address.Local.SubScope("gateway").Queue, masterNodeAddress);
+            gatewayAddress = masterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
