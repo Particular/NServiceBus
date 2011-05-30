@@ -1,3 +1,4 @@
+using System;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
 

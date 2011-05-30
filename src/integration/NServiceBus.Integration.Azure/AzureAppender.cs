@@ -86,6 +86,7 @@ namespace NServiceBus.Integration.Azure
 
                 roleInstanceDiagnosticManager.SetCurrentConfiguration(configuration);
             }
+            
         }
 
         private void ConfigureDiagnostics(DiagnosticMonitorConfiguration configuration)

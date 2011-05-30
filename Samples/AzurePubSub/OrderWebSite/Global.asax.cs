@@ -33,7 +33,7 @@ namespace OrderWebSite
 
     		_configure = Configure.WithWeb()
     			.DefaultBuilder()
-    			.Log4Net(new AzureAppender())
+    			//.Log4Net(new AzureAppender())
     			.AzureConfigurationSource()
     			.AzureMessageQueue()
     			.BinarySerializer()

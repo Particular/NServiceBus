@@ -27,23 +27,23 @@ namespace OrderWebSite
         protected void Application_Start(object sender, EventArgs e)
         {
             Orders = new List<MyMessages.Order>();
-
-            _configure = Configure.WithWeb()
-                .DefaultBuilder()
-                .Log4Net(new AzureAppender())
-                .AzureConfigurationSource()
-                .AzureMessageQueue()
-                .BinarySerializer()
-                .UnicastBus()
-                .LoadMessageHandlers()
-                .IsTransactional(true)
-                .CreateBus()
-                ;
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            Bus = StartBus.Value;
+            if(_configure == null)
+               _configure = Configure.WithWeb()
+                  .DefaultBuilder()
+                  .Log4Net(new AzureAppender())
+                  .AzureConfigurationSource()
+                  .AzureMessageQueue()
+                  .BinarySerializer()
+                  .UnicastBus()
+                  .LoadMessageHandlers()
+                  .IsTransactional(true)
+                  .CreateBus();
+
+           Bus = StartBus.Value; 
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
