@@ -10,7 +10,7 @@
         /// Implementors should cache the value as this method will be called multiple times.
         /// </summary>
         /// <returns></returns>
-        string GetMasterNode();
+        Address GetMasterNode();
 
         /// <summary>
         /// Returns true if this process/node is the master node.

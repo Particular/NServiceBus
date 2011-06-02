@@ -35,7 +35,7 @@ namespace Timeout.MessageHandlers
 
             configure.Configurer.ConfigureComponent<TimeoutManager>(ComponentCallModelEnum.Singleton);
             configure.Configurer.ConfigureComponent<TimeoutPersister>(ComponentCallModelEnum.Singleton)
-                .ConfigureProperty(tp => tp.Queue, "timeout.storage");
+                .ConfigureProperty(tp => tp.Queue, Address.Parse("timeout.storage"));
         }
     }
 

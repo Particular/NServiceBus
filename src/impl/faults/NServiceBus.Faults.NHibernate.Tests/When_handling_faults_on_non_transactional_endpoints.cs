@@ -10,7 +10,7 @@ namespace NServiceBus.Faults.NHibernate.Tests
       [Test]
       public void Reporting_failure_should_commit_info_immediately()
       {
-         FaultManager.SerializationFailedForMessage(new TransportMessage{ReturnAddress = "returnAddress"}, new Exception());
+         FaultManager.SerializationFailedForMessage(new TransportMessage{ReplyToAddress = Address.Parse("returnAddress")}, new Exception());
 
          using (var session = SessionFactory.OpenSession())
          {

@@ -33,7 +33,13 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Gets/sets the return address of the message bundle.
 		/// </summary>
+		[Obsolete("Use 'ReplyToAddress' instead.", true)]
         public string ReturnAddress { get; set; }
+
+        /// <summary>
+        /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
+        /// </summary>
+        public Address ReplyToAddress { get; set; }
 
 		/// <summary>
 		/// Gets/sets whether or not the message is supposed to

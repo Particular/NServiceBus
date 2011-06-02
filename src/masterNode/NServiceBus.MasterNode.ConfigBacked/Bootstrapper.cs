@@ -7,8 +7,8 @@ namespace NServiceBus.MasterNode.ConfigBacked
     {
         public void Init()
         {
-            if (!Configure.Instance.Configurer.HasComponent<IManageTheMasterNode>())
-                Configure.Instance.Configurer.ConfigureComponent<MasterNodeManager>(DependencyLifecycle.SingleInstance);
+            //if (!Configure.Instance.Configurer.HasComponent<IManageTheMasterNode>())
+            //    Configure.Instance.Configurer.ConfigureComponent<MasterNodeManager>(DependencyLifecycle.SingleInstance);
         }
     }
 }

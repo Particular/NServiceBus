@@ -13,5 +13,12 @@ namespace NServiceBus.Unicast.Queuing
         /// <param name="message"></param>
         /// <param name="destination"></param>
         void Send(TransportMessage message, string destination);
+
+        /// <summary>
+        /// Sends the given message to the address.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="address"></param>
+        void Send(TransportMessage message, Address address);
     }
 }

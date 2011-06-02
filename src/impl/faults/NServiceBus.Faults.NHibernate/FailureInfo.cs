@@ -21,7 +21,7 @@ namespace NServiceBus.Faults.NHibernate
       {                           
          Message = message;
          Exception = exception;
-         ReturnAddress = message.ReturnAddress;
+         ReturnAddress = message.ReplyToAddress == null ? string.Empty : message.ReplyToAddress.ToString();
          TopmostExceptionMessage = exception.Message;
          IsSerializationFailure = serializationFailure;
          StackTraces = CombineStackTraces(exception);

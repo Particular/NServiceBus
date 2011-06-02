@@ -61,9 +61,9 @@ namespace NServiceBus.Proxy
 
         private string remoteServer;
 
-        public string ExternalAddress { get; set; }
+        public Address ExternalAddress { get; set; }
 
-        public string InternalAddress { get; set; }
+        public Address InternalAddress { get; set; }
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace NServiceBus.Proxy
 
                 var types = UnicastBus.DeserializeEnclosedMessageTypes(val);
 
-                var subs = Subscribers.GetSubscribersForMessage(types);
+                var subs = Subscribers.GetSubscriberAddressesForMessage(types);
 
                 Logger.Debug("Received notification from " + remoteServer + ".");
 
@@ -115,7 +115,7 @@ namespace NServiceBus.Proxy
         {
             if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers, null))
             {
-                e.Message.ReturnAddress = ExternalAddress;
+                e.Message.ReplyToAddress = ExternalAddress;
                 ExternalMessageSender.Send(e.Message, remoteServer);
 
                 Logger.Debug("Received subscription message.");
@@ -128,7 +128,7 @@ namespace NServiceBus.Proxy
             var data = new ProxyData
                            {
                                Id = GenerateId(),
-                               ClientAddress = e.Message.ReturnAddress,
+                               ClientAddress = e.Message.ReplyToAddress,
                                CorrelationId = e.Message.IdForCorrelation
                            };
 
@@ -137,7 +137,7 @@ namespace NServiceBus.Proxy
             Logger.Debug("Forwarding request to " + remoteServer + ".");
 
             e.Message.IdForCorrelation = data.Id;
-            e.Message.ReturnAddress = ExternalAddress;
+            e.Message.ReplyToAddress = ExternalAddress;
 
             ExternalMessageSender.Send(e.Message, remoteServer);
 

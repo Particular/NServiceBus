@@ -16,7 +16,13 @@ namespace NServiceBus
         /// <summary>
         /// Returns the address of the endpoint that sent this message.
         /// </summary>
+        [Obsolete("Use ReplyToAddress instead.", true)]
         string ReturnAddress { get; }
+
+        /// <summary>
+        /// The address of the endpoint that sent the current message being handled.
+        /// </summary>
+        Address ReplyToAddress { get; }
 
         /// <summary>
         /// Returns the time at which the message was sent.

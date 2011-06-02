@@ -101,14 +101,23 @@ namespace NServiceBus
         /// </remarks>
         ICallback Send<T>(Action<T> messageConstructor) where T : IMessage;
 
-		/// <summary>
-		/// Sends the list of provided messages.
-		/// </summary>
+        /// <summary>
+        /// Sends the list of provided messages.
+        /// </summary>
         /// <param name="destination">
         /// The address of the destination to which the messages will be sent.
         /// </param>
         /// <param name="messages">The list of messages to send.</param>
         ICallback Send(string destination, params IMessage[] messages);
+
+        /// <summary>
+        /// Sends the list of provided messages.
+        /// </summary>
+        /// <param name="address">
+        /// The address to which the messages will be sent.
+        /// </param>
+        /// <param name="messages">The list of messages to send.</param>
+        ICallback Send(Address address, params IMessage[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and sends it to the given destination.
@@ -120,6 +129,15 @@ namespace NServiceBus
         ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
+        /// Instantiates a message of type T and sends it to the given address.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface</typeparam>
+        /// <param name="address">The address to which the message will be sent.</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message</param>
+        /// <returns></returns>
+        ICallback Send<T>(Address address, Action<T> messageConstructor) where T : IMessage;
+
+        /// <summary>
         /// Sends the messages to the destination as well as identifying this
         /// as a response to a message containing the Id found in correlationId.
         /// </summary>
@@ -127,6 +145,15 @@ namespace NServiceBus
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
         ICallback Send(string destination, string correlationId, params IMessage[] messages);
+
+        /// <summary>
+        /// Sends the messages to the given address as well as identifying this
+        /// as a response to a message containing the Id found in correlationId.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="messages"></param>
+        ICallback Send(Address address, string correlationId, params IMessage[] messages);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
@@ -138,6 +165,17 @@ namespace NServiceBus
         /// <param name="correlationId"></param>
         /// <param name="messageConstructor"></param>
         ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
+
+        /// <summary>
+        /// Instantiates a message of the type T using the given messageConstructor,
+        /// and sends it to the given address identifying it as a response to a message
+        /// containing the Id found in correlationId.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="address"></param>
+        /// <param name="correlationId"></param>
+        /// <param name="messageConstructor"></param>
+        ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor) where T : IMessage;
 
         /// <summary>
         /// Sends the messages to all sites with matching site keys registered with the gateway.

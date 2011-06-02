@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 
 namespace NServiceBus
@@ -29,6 +30,5 @@ namespace NServiceBus
         /// <param name="headers"></param>
         /// <returns></returns>
         bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
-
     }
 }

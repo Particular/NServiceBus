@@ -62,6 +62,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

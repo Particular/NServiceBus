@@ -32,7 +32,12 @@ namespace NServiceBus.Unicast
 
         string IMessageContext.ReturnAddress
         {
-            get { return transportMessage.ReturnAddress; }
+            get { return transportMessage.ReplyToAddress.ToString(); }
+        }
+
+        Address IMessageContext.ReplyToAddress
+        {
+            get { return transportMessage.ReplyToAddress; }
         }
 
         DateTime IMessageContext.TimeSent

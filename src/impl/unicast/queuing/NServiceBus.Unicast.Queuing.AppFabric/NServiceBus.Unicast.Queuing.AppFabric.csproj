@@ -41,6 +41,9 @@
       <HintPath>..\..\..\..\..\lib\Azure\AppFabric\Microsoft.ServiceBus.Messaging.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
       <Private>False</Private>

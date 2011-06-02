@@ -42,7 +42,7 @@ namespace NServiceBus
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
 
-            Configure.TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t))
+            Configure.TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && t.IsInterface == false)
                 .ToList().ForEach(t => config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             return new Installer<T>(new WindowsIdentity(userToken));

@@ -23,7 +23,7 @@
 
             var receivedMessage = GetDetailsForReceivedMessage().Message;
 
-            Assert.AreEqual(receivedMessage.ReturnAddress,GatewayAddressForSiteB);
+            Assert.AreEqual(receivedMessage.ReplyToAddress, GatewayAddressForSiteB);
         }
 
 

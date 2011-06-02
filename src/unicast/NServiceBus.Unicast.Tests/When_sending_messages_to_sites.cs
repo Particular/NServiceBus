@@ -17,15 +17,24 @@
     {
         IBus bus;
         ISendMessages messageSender;
-        string gatewayAddress;
+        Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
 
         [SetUp]
         public void SetUp()
         {
-            string masterNodeAddress = "MasterNode";
             string localAddress = "endpointA";
-            gatewayAddress = localAddress + ".gateway@" + masterNodeAddress;
+            Address masterNodeAddress = localAddress + "@MasterNode";
+            
+            try
+            {
+                Address.InitializeLocalAddress(localAddress);
+            }
+            catch // intentional
+            {
+            }
+
+            gatewayAddress = masterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
@@ -42,7 +51,6 @@
                           Builder = builder,
                           MasterNodeManager = masterNodeManager,
                           MessageSender = messageSender,
-                          Address = localAddress,
                           Transport = MockRepository.GenerateStub<ITransport>()
                       };
 
@@ -57,7 +65,7 @@
         {
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<string>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.DestinationSites)), Arg<Address>.Is.Anything));
         }
 
         [Test]
@@ -65,7 +73,7 @@
         {
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<string>.Is.Equal(gatewayAddress)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(gatewayAddress)));
         }
 
 

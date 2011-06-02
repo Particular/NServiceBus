@@ -5,9 +5,9 @@
 
     public class DefaultEndpointRouter : IRouteMessagesToEndpoints
     {
-        public string MainInputAddress { get; set; }
+        public Address MainInputAddress { get; set; }
 
-        public string GetDestinationFor(TransportMessage messageToSend)
+        public Address GetDestinationFor(TransportMessage messageToSend)
         {
             return MainInputAddress;
         }

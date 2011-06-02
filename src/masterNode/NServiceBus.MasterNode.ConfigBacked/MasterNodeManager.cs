@@ -7,7 +7,7 @@ namespace NServiceBus.MasterNode.ConfigBacked
 {
     public class MasterNodeManager : IManageTheMasterNode
     {
-        public string GetMasterNode()
+        public Address GetMasterNode()
         {
             if (masterNode == null)
             {
