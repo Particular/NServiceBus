@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Resource;
+using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
