@@ -85,6 +85,53 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
+        public void SerializeLists()
+        {
+			var mapper = new MessageMapper();
+			var serializer = new MessageSerializer();
+			serializer.MessageMapper = mapper;
+
+			serializer.MessageTypes = new List<Type>(new[] { typeof(MessageWithList) });
+
+			var item = new MessageWithListItem { Data = "Hello" };
+			var items = new List<MessageWithListItem> { item };
+			var msg = new MessageWithList { Items = items };
+
+			using (var stream = new MemoryStream())
+			{
+				serializer.Serialize(new[] {msg}, stream);
+				stream.Position = 0;
+
+				var msgArray = serializer.Deserialize(stream);
+				var m = msgArray[0] as MessageWithList;
+				Assert.AreEqual("Hello", m.Items.First().Data);
+			}
+        }
+
+		[Test]
+		public void SerializeEmptyLists()
+		{
+			var mapper = new MessageMapper();
+			var serializer = new MessageSerializer();
+			serializer.MessageMapper = mapper;
+
+			serializer.MessageTypes = new List<Type>(new[] { typeof(MessageWithList) });
+
+			var items = new List<MessageWithListItem>();
+			var msg = new MessageWithList { Items = items };
+
+			using (var stream = new MemoryStream())
+			{
+				serializer.Serialize(new[] { msg }, stream);
+				stream.Position = 0;
+
+				var msgArray = serializer.Deserialize(stream);
+				var m = msgArray[0] as MessageWithList;
+				Assert.IsEmpty(m.Items);
+			}
+		}
+
+        [Test]
         public void Comparison()
         {
             TestInterfaces();
@@ -324,4 +371,14 @@ namespace NServiceBus.Serializers.XML.Test
 
         public string WhatEver { get; set; }
     }
+
+	public class MessageWithListItem
+	{
+		public string Data { get; set; }
+	}
+
+	public class MessageWithList : IMessage
+	{
+		public List<MessageWithListItem> Items { get; set; }
+	}
 }
