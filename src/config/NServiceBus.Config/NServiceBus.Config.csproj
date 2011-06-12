@@ -86,6 +86,7 @@
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="INeedInitialization.cs" />
+    <Compile Include="IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

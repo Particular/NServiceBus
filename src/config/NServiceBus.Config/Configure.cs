@@ -206,6 +206,9 @@ namespace NServiceBus
             if (initialized)
                 return;
 
+            TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+                .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall));
+
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
                                       {
@@ -217,6 +220,9 @@ namespace NServiceBus
 
             if (ConfigurationComplete != null)
                 ConfigurationComplete(null, null);
+
+            Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
+                .ToList().ForEach(o => o.Run());
         }
 
         /// <summary>
