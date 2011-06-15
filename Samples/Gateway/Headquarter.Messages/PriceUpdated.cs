@@ -3,6 +3,7 @@
     using System;
     using NServiceBus;
 
+    [Serializable]
     public class PriceUpdated : IMessage
     {
         public int ProductId { get; set; }

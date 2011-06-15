@@ -53,13 +53,23 @@
                 //if (callInfo.Type == CallType.Submit && e.Data.Length > 4 * 1024 * 1024)
                 //    throw new Exception("Cannot accept messages larger than 4MB.");
 
-
-                switch (callInfo.Type)
+                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew,
+                        new TransactionOptions
+                        {
+                            IsolationLevel = IsolationLevel.ReadCommitted,
+                            Timeout = TimeSpan.FromSeconds(30)
+                        }))
                 {
-                    case CallType.Submit: HandleSubmit(callInfo); break;
-                    case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
-                    case CallType.Ack: HandleAck(callInfo); break;
+                    switch (callInfo.Type)
+                    {
+                        case CallType.Submit: HandleSubmit(callInfo); break;
+                        case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
+                        case CallType.Ack: HandleAck(callInfo); break;
+                    }
+
+                    scope.Complete();
                 }
+
             }
         }
 
@@ -101,12 +111,7 @@
 
         void HandleSubmit(CallInfo callInfo)
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
-            {
-                persister.InsertMessage(callInfo.ClientId, DateTime.UtcNow, callInfo.Data, callInfo.Headers);
-
-                scope.Complete();
-            }
+            persister.InsertMessage(callInfo.ClientId, DateTime.UtcNow, callInfo.Data, callInfo.Headers);
         }
 
         void HandleDatabusProperty(CallInfo callInfo)
@@ -124,45 +129,32 @@
             using (callInfo.Data)
                 newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
 
-
-
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
-            {
-                persister.UpdateHeader(callInfo.ClientId, callInfo.Headers[GatewayHeaders.DatabusKey], newDatabusKey);
-
-                scope.Complete();
-            }
+            persister.UpdateHeader(callInfo.ClientId, callInfo.Headers[GatewayHeaders.DatabusKey], newDatabusKey);
         }
 
         void HandleAck(CallInfo callInfo)
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromSeconds(30) }))
-            {
-                byte[] outMessage;
-                IDictionary<string, string> outHeaders;
+            byte[] outMessage;
+            IDictionary<string, string> outHeaders;
 
-                persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders);
+            persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders);
 
-                if (outHeaders != null && outMessage != null)
-                {
-                    var msg = new TransportMessage
-                    {
-                        Body = outMessage,
-                        Headers = new Dictionary<string, string>(),
-                        MessageIntent = MessageIntentEnum.Send,
-                        Recoverable = true
-                    };
+            if (outHeaders == null || outMessage == null) return;
+            
+            var msg = new TransportMessage
+                          {
+                              Body = outMessage,
+                              Headers = new Dictionary<string, string>(),
+                              MessageIntent = MessageIntentEnum.Send,
+                              Recoverable = true
+                          };
 
 
-                    if (outHeaders[GatewayHeaders.IsGatewayMessage] != null)
-                        HeaderMapper.Map(outHeaders, msg);
+            if (outHeaders[GatewayHeaders.IsGatewayMessage] != null)
+                HeaderMapper.Map(outHeaders, msg);
 
 
-                    MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
-                }
-
-                scope.Complete();
-            }
+            MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
         }
 
         public void Dispose()

@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using global::Raven.Abstractions.Exceptions;
     using global::Raven.Client;
-    using global::Raven.Http.Exceptions;
     using Persistence;
 
     public class RavenDBPersistence : IPersistMessages
@@ -20,7 +20,7 @@
         {
             var gatewayMessage = new GatewayMessage
                                      {
-                                         Id = clientId,
+                                         Id = EscapeClientId(clientId),
                                          TimeReceived = timeReceived,
                                          Headers = headers,
                                          OriginalMessage = new byte[messageStream.Length]
@@ -53,10 +53,13 @@
         {
             using (var session = store.OpenSession())
             {
-                var storedMesssage= session.Load<GatewayMessage>(clientId);
+                var storedMessage = session.Load<GatewayMessage>(EscapeClientId(clientId));
 
-                message = storedMesssage.OriginalMessage;
-                headers = storedMesssage.Headers;
+                if (storedMessage == null)
+                    throw new InvalidOperationException("No message with id: " + clientId+ "found");
+                
+                message = storedMessage.OriginalMessage;
+                headers = storedMessage.Headers;
             }
         }
 
@@ -64,10 +67,15 @@
         {
             using (var session = store.OpenSession())
             {
-                session.Load<GatewayMessage>(clientId).Headers[headerKey] = newValue;
+                session.Load<GatewayMessage>(EscapeClientId(clientId)).Headers[headerKey] = newValue;
 
                 session.SaveChanges();
             }
+        }
+
+        public static string EscapeClientId(string clientId)
+        {
+            return clientId.Replace("\\", "_");
         }
     }
 }

@@ -50,7 +50,7 @@
         {
             using (var session = store.OpenSession())
             {
-                var messageStored = session.Load<GatewayMessage>(clientId);
+                var messageStored = session.Load<GatewayMessage>(RavenDBPersistence.EscapeClientId(clientId));
 
                 return new TestMessage
                 {
@@ -70,11 +70,13 @@
 
             headers.Add("Header1", "Value1");
             headers.Add("Header2", "Value2");
+            headers.Add("Header3", "49710.06:28:15");
+
 
             return new TestMessage
             {
-                ClientId = Guid.NewGuid().ToString(),
-                TimeReceived = DateTime.Now,
+                ClientId = Guid.NewGuid() + "\\12345",
+                TimeReceived = DateTime.UtcNow,
                 Headers = headers,
                 OriginalMessage = new byte[] { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 }
 

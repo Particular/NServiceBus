@@ -12,7 +12,8 @@ namespace Headquarter
             Configure.With()
                     .Log4Net<ColoredConsoleAppender>(a =>{a.Threshold = Level.Warn;})
                     .DefaultBuilder()
-                    .GatewayWithInMemoryPersistence();
+                    .BinarySerializer()
+                    .Gateway();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace NServiceBus.Gateway.Installation
 
     public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
     {
-        public string GatewayInputQueue { get; set; }
+        public Address GatewayInputQueue { get; set; }
 
         public void Install(WindowsIdentity identity)
         {
