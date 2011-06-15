@@ -38,12 +38,13 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <returns>The saga entity if found, otherwise null.</returns>
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            return SessionFactory.GetCurrentSession().Get<T>(sagaId);
+            return SessionFactory.GetCurrentSession().Get<T>(sagaId, LockMode.Upgrade);
         }
 
         T ISagaPersister.Get<T>(string property, object value)
         {
             return SessionFactory.GetCurrentSession().CreateCriteria(typeof(T))
+                .SetLockMode(LockMode.Upgrade)
                 .Add(Restrictions.Eq(property, value))
                 .UniqueResult<T>();
         }
