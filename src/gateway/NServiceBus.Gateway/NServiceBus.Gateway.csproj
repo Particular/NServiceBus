@@ -36,6 +36,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\lib\RavenDb\Client\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=2.7.6.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -90,6 +93,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
     </Reference>
+    <Reference Include="Raven.Abstractions">
+      <HintPath>..\..\..\lib\RavenDb\Client\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight">
+      <HintPath>..\..\..\lib\RavenDb\Client\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -110,6 +119,8 @@
     </Compile>
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Installation\Installer.cs" />
+    <Compile Include="Persistence\Raven\GatewayMessage.cs" />
+    <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />
     <Compile Include="Receiving\IdempotentReceiver.cs" />
     <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Receiving\LegacyChannelManager.cs" />
@@ -155,5 +166,6 @@
   <ItemGroup>
     <Content Include="Persistence\Sql\Schema.sql" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -7,6 +7,7 @@
     using Gateway.Installation;
     using Gateway.Notifications;
     using Gateway.Persistence;
+    using Gateway.Persistence.Raven;
     using Gateway.Persistence.Sql;
     using Gateway.Receiving;
     using Gateway.Routing.Endpoints;
@@ -19,8 +20,7 @@
        
         public static Configure Gateway(this Configure config)
         {
-            //todo - use DefaultPersistence == raven
-            return Gateway(config,typeof(SqlPersistence));
+            return Gateway(config, typeof(RavenDBPersistence));
         }
 
         public static Configure GatewayWithInMemoryPersistence(this Configure config)
