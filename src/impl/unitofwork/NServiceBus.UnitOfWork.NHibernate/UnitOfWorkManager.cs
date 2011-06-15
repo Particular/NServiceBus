@@ -17,52 +17,62 @@ namespace NServiceBus.UnitOfWork.NHibernate
 
             CurrentSessionContext.Bind(session);
 
-            if (NoAmbientTransaction())
-            {
-                session.BeginTransaction();
-            }
+            session.BeginTransaction();
         }
 
         void IManageUnitsOfWork.End()
         {
             if (SessionFactory == null) return;
 
-            if (!NoAmbientTransaction()) return;
-
-            var session = SessionFactory.GetCurrentSession();
-
-            session.Transaction.Commit();
-            session.Transaction.Dispose();
-
-            session.Close();
+            var session = CurrentSessionContext.Unbind(SessionFactory);
+            
+            try
+            {
+              try
+              {
+                session.Transaction.Commit();
+              }
+              finally
+              {
+                session.Transaction.Dispose();
+              }
+            }
+            finally
+            {
+              session.Dispose();
+            }
         }
 
         void IManageUnitsOfWork.Error()
         {
             if (SessionFactory == null) return;
 
-            //HandleError always run after the transactionscope so we can't check for ambient trans here
-            var session = SessionFactory.GetCurrentSession();
+            if (!CurrentSessionContext.HasBind(SessionFactory))
+              return;
 
-            if (session.Transaction.IsActive)
+            var session = CurrentSessionContext.Unbind(SessionFactory);
+
+            try
             {
-                session.Transaction.Rollback();
+              try
+              {
+                if (session.Transaction.IsActive)
+                  session.Transaction.Rollback();
+              }
+              finally
+              {
                 session.Transaction.Dispose();
+              }
             }
-
-            if (session.IsOpen)
-                session.Close();
+            finally
+            {
+              session.Dispose();
+            }
         }
 
         /// <summary>
         /// Injected NHibernate session factory.
         /// </summary>
         public ISessionFactory SessionFactory { get; set; }
-
-
-        private static bool NoAmbientTransaction()
-        {
-            return Transaction.Current == null;
-        }
     }
 }
