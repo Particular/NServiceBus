@@ -166,6 +166,11 @@
   <ItemGroup>
     <Content Include="Persistence\Sql\Schema.sql" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\impl\Persistence\RavenPersistence\NServiceBus.Persistence.Raven\NServiceBus.Persistence.Raven.csproj">
+      <Project>{37CB5DE9-013D-4779-9D35-342F902E8DE1}</Project>
+      <Name>NServiceBus.Persistence.Raven</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

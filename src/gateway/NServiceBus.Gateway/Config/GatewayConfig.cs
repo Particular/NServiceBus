@@ -1,25 +1,29 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Config;
     using Gateway.Channels.Http;
     using Gateway.Config;
     using Gateway.Installation;
     using Gateway.Notifications;
     using Gateway.Persistence;
     using Gateway.Persistence.Raven;
-    using Gateway.Persistence.Sql;
     using Gateway.Receiving;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
     using ObjectBuilder;
+    using Raven.Client;
+    using Persistence.Raven.Config;
+
 
     public static class GatewayConfig
     {
        
         public static Configure Gateway(this Configure config)
         {
+            if (!config.Configurer.HasComponent<IDocumentStore>())
+                config.RavenPersistence();
+
             return Gateway(config, typeof(RavenDBPersistence));
         }
 

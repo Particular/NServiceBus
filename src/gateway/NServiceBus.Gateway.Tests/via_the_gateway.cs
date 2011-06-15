@@ -110,7 +110,8 @@
                                   Id =  Guid.NewGuid().ToString(),
                                   Headers = headers,
                                   Body = new byte[500],
-                                  TimeToBeReceived = TimeSpan.FromDays(1)
+                                  TimeToBeReceived = TimeSpan.FromDays(1),
+                                  ReplyToAddress = GatewayAddressForSiteA
                               };
 
             message.Headers[Headers.DestinationSites] = destinationSites;
