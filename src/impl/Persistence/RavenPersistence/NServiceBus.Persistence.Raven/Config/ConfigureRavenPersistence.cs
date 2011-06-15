@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Reflection;
 using Raven.Client;
-using Raven.Client.Client;
 using Raven.Client.Document;
 
 namespace NServiceBus.Persistence.Raven.Config
 {
+    using global::Raven.Client.Embedded;
+
     public static class ConfigureRavenPersistence
     {
         public static Configure EmbeddedRavenPersistence(this Configure config)

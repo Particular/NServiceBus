@@ -4,29 +4,29 @@
         <name>Raven.Client.Lightweight</name>
     </assembly>
     <members>
-        <member name="T:Raven.Client.Client.Async.AsyncServerClient">
+        <member name="T:Raven.Client.Connection.Async.AsyncServerClient">
             <summary>
             Access the database commands in async fashion
             </summary>
         </member>
-        <member name="T:Raven.Client.Client.Async.IAsyncDatabaseCommands">
+        <member name="T:Raven.Client.Connection.Async.IAsyncDatabaseCommands">
             <summary>
             An async database command operations
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetAsync(System.String)">
             <summary>
             Begins an async get operation
             </summary>
             <param name="key">The key.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.MultiGetAsync(System.String[])">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.MultiGetAsync(System.String[])">
             <summary>
             Begins an async multi get operation
             </summary>
             <param name="keys">The keys.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetDocumentsAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetDocumentsAsync(System.Int32,System.Int32)">
             <summary>
             Begins an async get operation for documents
             </summary>
@@ -36,7 +36,7 @@
             This is primarily useful for administration of a database
             </remarks>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetDocumentsStartingWithAsync(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetDocumentsStartingWithAsync(System.String,System.Int32,System.Int32)">
             <summary>
             Begins an async get operation for documents whose id starts with the specified prefix
             </summary>
@@ -47,7 +47,7 @@
             This is primarily useful for administration of a database
             </remarks>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.QueryAsync(System.String,Raven.Database.Data.IndexQuery,System.String[])">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.QueryAsync(System.String,Raven.Abstractions.Data.IndexQuery,System.String[])">
             <summary>
             Begins the async query.
             </summary>
@@ -55,52 +55,52 @@
             <param name="query">The query.</param>
             <param name="includes">The include paths</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.LinearQueryAsync(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.LinearQueryAsync(System.String,System.Int32,System.Int32)">
             <summary>
             Begins the async query.
             </summary>
             <param name="query">A string representation of a Linq query</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.BatchAsync(Raven.Database.Data.ICommandData[])">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.BatchAsync(Raven.Abstractions.Commands.ICommandData[])">
             <summary>
             Begins the async batch operation
             </summary>
             <param name="commandDatas">The command data.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.SuggestAsync(System.String,Raven.Abstractions.Data.SuggestionQuery)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.SuggestAsync(System.String,Raven.Abstractions.Data.SuggestionQuery)">
             <summary>
             Returns a list of suggestions based on the specified suggestion query.
             </summary>
             <param name="index">The index to query for suggestions</param>
             <param name="suggestionQuery">The suggestion query.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetIndexNamesAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetIndexNamesAsync(System.Int32,System.Int32)">
             <summary>
             Gets the index names from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetIndexesAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetIndexesAsync(System.Int32,System.Int32)">
             <summary>
             Gets the indexes from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.ResetIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.ResetIndexAsync(System.String)">
             <summary>
             Resets the specified index asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetIndexAsync(System.String)">
             <summary>
             Gets the index definition for the specified name asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.PutIndexAsync(System.String,Raven.Database.Indexing.IndexDefinition,System.Boolean)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.PutIndexAsync(System.String,Raven.Abstractions.Indexing.IndexDefinition,System.Boolean)">
             <summary>
             Puts the index definition for the specified name asyncronously
             </summary>
@@ -108,19 +108,19 @@
             <param name="indexDef">The index def.</param>
             <param name="overwrite">Should overwrite index</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.DeleteIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.DeleteIndexAsync(System.String)">
             <summary>
             Deletes the index definition for the specified name asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.DeleteDocumentAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.DeleteDocumentAsync(System.String)">
             <summary>
             Deletes the document for the specified id asyncronously
             </summary>
             <param name="id">The id.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.PutAsync(System.String,System.Nullable{System.Guid},Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.PutAsync(System.String,System.Nullable{System.Guid},Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the document with the specified key in the database
             </summary>
@@ -129,36 +129,36 @@
             <param name="document">The document.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.ForDatabase(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.ForDatabase(System.String)">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.Async.IAsyncDatabaseCommands"/> that will interacts
+            Create a new instance of <see cref="T:Raven.Client.Connection.Async.IAsyncDatabaseCommands"/> that will interacts
             with the specified database
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.With(System.Net.ICredentials)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.With(System.Net.ICredentials)">
             <summary>
-            Returns a new <see cref="T:Raven.Client.Client.IDatabaseCommands"/> using the specified credentials
+            Returns a new <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> using the specified credentials
             </summary>
             <param name="credentialsForSession">The credentials for session.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetStatisticsAsync">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetStatisticsAsync">
             <summary>
             Retrieve the statistics for the database asynchronously
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetDatabaseNamesAsync">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetDatabaseNamesAsync">
             <summary>
             Gets the list of databases from the server asyncronously
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetCollectionsAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetCollectionsAsync(System.Int32,System.Int32)">
             <summary>
             Gets the list of collections from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.PutAttachmentAsync(System.String,System.Nullable{System.Guid},System.Byte[],Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.PutAttachmentAsync(System.String,System.Nullable{System.Guid},System.Byte[],Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the attachment with the specified key asyncronously
             </summary>
@@ -167,21 +167,21 @@
             <param name="data">The data.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetAttachmentAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetAttachmentAsync(System.String)">
             <summary>
             Gets the attachment by the specified key asyncronously
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.DeleteAttachmentAsync(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.DeleteAttachmentAsync(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the attachment with the specified key asyncronously
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.GetTermsAsync(System.String,System.String,System.String,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.GetTermsAsync(System.String,System.String,System.String,System.Int32)">
             <summary>
              Get the possible terms for the specified field in the index asynchronously
              You can page through the results by use fromValue parameter as the 
@@ -189,63 +189,63 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.IAsyncDatabaseCommands.EnsureSilverlightStartUpAsync">
+        <member name="M:Raven.Client.Connection.Async.IAsyncDatabaseCommands.EnsureSilverlightStartUpAsync">
             <summary>
             Ensures that the silverlight startup tasks have run
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.Async.IAsyncDatabaseCommands.OperationsHeaders">
+        <member name="P:Raven.Client.Connection.Async.IAsyncDatabaseCommands.OperationsHeaders">
             <summary>
             Gets or sets the operations headers.
             </summary>
             <value>The operations headers.</value>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.#ctor(System.String,Raven.Client.Document.DocumentConvention,System.Net.ICredentials,Raven.Client.Client.HttpJsonRequestFactory)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.#ctor(System.String,Raven.Client.Document.DocumentConvention,System.Net.ICredentials,Raven.Client.Connection.HttpJsonRequestFactory)">
             <summary>
-            Initializes a new instance of the <see cref="T:Raven.Client.Client.Async.AsyncServerClient"/> class.
+            Initializes a new instance of the <see cref="T:Raven.Client.Connection.Async.AsyncServerClient"/> class.
             </summary>
             <param name="url">The URL.</param>
             <param name="convention">The convention.</param>
             <param name="credentials">The credentials.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.Dispose">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.With(System.Net.ICredentials)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.With(System.Net.ICredentials)">
             <summary>
-            Returns a new <see cref="T:Raven.Client.Client.IDatabaseCommands"/> using the specified credentials
+            Returns a new <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> using the specified credentials
             </summary>
             <param name="credentialsForSession">The credentials for session.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetIndexNamesAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetIndexNamesAsync(System.Int32,System.Int32)">
             <summary>
             Gets the index names from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetIndexesAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetIndexesAsync(System.Int32,System.Int32)">
             <summary>
             Gets the indexes from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.ResetIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.ResetIndexAsync(System.String)">
             <summary>
             Resets the specified index asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetIndexAsync(System.String)">
             <summary>
             Gets the index definition for the specified name asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.PutIndexAsync(System.String,Raven.Database.Indexing.IndexDefinition,System.Boolean)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.PutIndexAsync(System.String,Raven.Abstractions.Indexing.IndexDefinition,System.Boolean)">
             <summary>
             Puts the index definition for the specified name asyncronously
             </summary>
@@ -253,19 +253,19 @@
             <param name="indexDef">The index def.</param>
             <param name="overwrite">Should overwrite index</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.DeleteIndexAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.DeleteIndexAsync(System.String)">
             <summary>
             Deletes the index definition for the specified name asyncronously
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.DeleteDocumentAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.DeleteDocumentAsync(System.String)">
             <summary>
             Deletes the document for the specified id asyncronously
             </summary>
             <param name="id">The id.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.PutAsync(System.String,System.Nullable{System.Guid},Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.PutAsync(System.String,System.Nullable{System.Guid},Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the document with the specified key in the database
             </summary>
@@ -274,33 +274,33 @@
             <param name="document">The document.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.ForDatabase(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.ForDatabase(System.String)">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interacts
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interacts
             with the specified database
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetRootDatabase">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetRootDatabase">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interact
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interact
             with the root database. Useful if the database has works against a tenant database.
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetAsync(System.String)">
             <summary>
             Begins an async get operation
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.MultiGetAsync(System.String[])">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.MultiGetAsync(System.String[])">
             <summary>
             Begins an async multi get operation
             </summary>
             <param name="keys">The keys.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetDocumentsAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetDocumentsAsync(System.Int32,System.Int32)">
             <summary>
             Begins an async get operation for documents
             </summary>
@@ -308,7 +308,7 @@
             This is primarily useful for administration of a database
             </remarks>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetDocumentsStartingWithAsync(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetDocumentsStartingWithAsync(System.String,System.Int32,System.Int32)">
             <summary>
             Begins an async get operation for documents whose id starts with the specified prefix
             </summary>
@@ -319,7 +319,7 @@
             This is primarily useful for administration of a database
             </remarks>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.QueryAsync(System.String,Raven.Database.Data.IndexQuery,System.String[])">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.QueryAsync(System.String,Raven.Abstractions.Data.IndexQuery,System.String[])">
             <summary>
             Begins the async query.
             </summary>
@@ -327,45 +327,45 @@
             <param name="query">The query.</param>
             <param name="includes">The include paths</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.LinearQueryAsync(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.LinearQueryAsync(System.String,System.Int32,System.Int32)">
             <summary>
             Begins the async query.
             </summary>
             <param name="query">A string representation of a Linq query</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.SuggestAsync(System.String,Raven.Abstractions.Data.SuggestionQuery)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.SuggestAsync(System.String,Raven.Abstractions.Data.SuggestionQuery)">
             <summary>
             Returns a list of suggestions based on the specified suggestion query.
             </summary>
             <param name="index">The index to query for suggestions</param>
             <param name="suggestionQuery">The suggestion query.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.BatchAsync(Raven.Database.Data.ICommandData[])">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.BatchAsync(Raven.Abstractions.Commands.ICommandData[])">
             <summary>
             Begins the async batch operation
             </summary>
             <param name="commandDatas">The command data.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetStatisticsAsync">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetStatisticsAsync">
             <summary>
             Begins retrieving the statistics for the database
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetDatabaseNamesAsync">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetDatabaseNamesAsync">
             <summary>
             Gets the list of databases from the server asyncronously
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetCollectionsAsync(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetCollectionsAsync(System.Int32,System.Int32)">
             <summary>
             Gets the list of collections from the server asyncronously
             </summary>
             <param name="start">Paging start</param>
             <param name="pageSize">Size of the page.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.PutAttachmentAsync(System.String,System.Nullable{System.Guid},System.Byte[],Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.PutAttachmentAsync(System.String,System.Nullable{System.Guid},System.Byte[],Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the attachment with the specified key asyncronously
             </summary>
@@ -374,26 +374,26 @@
             <param name="data">The data.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetAttachmentAsync(System.String)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetAttachmentAsync(System.String)">
             <summary>
             Gets the attachment by the specified key asyncronously
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.DeleteAttachmentAsync(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.DeleteAttachmentAsync(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the attachment with the specified key asyncronously
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.EnsureSilverlightStartUpAsync">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.EnsureSilverlightStartUpAsync">
             <summary>
             Ensures that the silverlight startup tasks have run
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.Async.AsyncServerClient.GetTermsAsync(System.String,System.String,System.String,System.Int32)">
+        <member name="M:Raven.Client.Connection.Async.AsyncServerClient.GetTermsAsync(System.String,System.String,System.String,System.Int32)">
             <summary>
              Get the possible terms for the specified field in the index asynchronously
              You can page through the results by use fromValue parameter as the 
@@ -401,18 +401,18 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:Raven.Client.Client.Async.AsyncServerClient.OperationsHeaders">
+        <member name="P:Raven.Client.Connection.Async.AsyncServerClient.OperationsHeaders">
             <summary>
             Gets or sets the operations headers.
             </summary>
             <value>The operations headers.</value>
         </member>
-        <member name="T:Raven.Client.Client.HttpJsonRequest">
+        <member name="T:Raven.Client.Connection.HttpJsonRequest">
             <summary>
             A representation of an HTTP json request to the RavenDB server
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.BeginReadResponseString(System.AsyncCallback,System.Object)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.BeginReadResponseString(System.AsyncCallback,System.Object)">
             <summary>
             Begins the read response string.
             </summary>
@@ -420,32 +420,32 @@
             <param name="state">The state.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.EndReadResponseString(System.IAsyncResult)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.EndReadResponseString(System.IAsyncResult)">
             <summary>
             Ends the reading of the response string.
             </summary>
             <param name="result">The result.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.ReadResponseString">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.ReadResponseString">
             <summary>
             Reads the response string.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.Write(System.String)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.Write(System.String)">
             <summary>
             Writes the specified data.
             </summary>
             <param name="data">The data.</param>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.Write(System.Byte[])">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.Write(System.Byte[])">
             <summary>
             Writes the specified byte array.
             </summary>
             <param name="byteArray">The byte array.</param>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.BeginWrite(System.Byte[],System.AsyncCallback,System.Object)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.BeginWrite(System.Byte[],System.AsyncCallback,System.Object)">
             <summary>
             Begins the write operation
             </summary>
@@ -454,48 +454,48 @@
             <param name="state">The state.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.EndWrite(System.IAsyncResult)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.EndWrite(System.IAsyncResult)">
             <summary>
             Ends the write operation.
             </summary>
             <param name="result">The result.</param>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.AddOperationHeaders(System.Collections.Specialized.NameValueCollection)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.AddOperationHeaders(System.Collections.Specialized.NameValueCollection)">
             <summary>
             Adds the operation headers.
             </summary>
             <param name="operationsHeaders">The operations headers.</param>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequest.AddOperationHeaders(System.Collections.Generic.IDictionary{System.String,System.String})">
+        <member name="M:Raven.Client.Connection.HttpJsonRequest.AddOperationHeaders(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
             Adds the operation headers.
             </summary>
             <param name="operationsHeaders">The operations headers.</param>
         </member>
-        <member name="P:Raven.Client.Client.HttpJsonRequest.ResponseHeaders">
+        <member name="P:Raven.Client.Connection.HttpJsonRequest.ResponseHeaders">
             <summary>
             Gets or sets the response headers.
             </summary>
             <value>The response headers.</value>
         </member>
-        <member name="P:Raven.Client.Client.HttpJsonRequest.ResponseStatusCode">
+        <member name="P:Raven.Client.Connection.HttpJsonRequest.ResponseStatusCode">
             <summary>
             Gets or sets the response status code.
             </summary>
             <value>The response status code.</value>
         </member>
-        <member name="T:Raven.Client.Client.HttpJsonRequestFactory">
+        <member name="T:Raven.Client.Connection.HttpJsonRequestFactory">
             <summary>
              Create the HTTP Json Requests to the RavenDB Server
              and manages the http cache
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequestFactory.CreateHttpJsonRequest(System.Object,System.String,System.String,System.Net.ICredentials,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequestFactory.CreateHttpJsonRequest(System.Object,System.String,System.String,System.Net.ICredentials,Raven.Client.Document.DocumentConvention)">
             <summary>
             Creates the HTTP json request.
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequestFactory.CreateHttpJsonRequest(System.Object,System.String,System.String,Newtonsoft.Json.Linq.JObject,System.Net.ICredentials,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Connection.HttpJsonRequestFactory.CreateHttpJsonRequest(System.Object,System.String,System.String,Raven.Json.Linq.RavenJObject,System.Net.ICredentials,Raven.Client.Document.DocumentConvention)">
             <summary>
             Creates the HTTP json request.
             </summary>
@@ -507,47 +507,47 @@
             <param name="convention">The document conventions governing this request</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequestFactory.ResetCache">
+        <member name="M:Raven.Client.Connection.HttpJsonRequestFactory.ResetCache">
             <summary>
             Reset the number of cached requests and clear the entire cache
             Mostly used for testing
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.HttpJsonRequestFactory.Dispose">
+        <member name="M:Raven.Client.Connection.HttpJsonRequestFactory.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
             <filterpriority>2</filterpriority>
         </member>
-        <member name="E:Raven.Client.Client.HttpJsonRequestFactory.ConfigureRequest">
+        <member name="E:Raven.Client.Connection.HttpJsonRequestFactory.ConfigureRequest">
             <summary>
             Occurs when a json request is created
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.HttpJsonRequestFactory.NumberOfCachedRequests">
+        <member name="P:Raven.Client.Connection.HttpJsonRequestFactory.NumberOfCachedRequests">
             <summary>
             The number of requests that we got 304 for 
             and were able to handle purely from the cache
             </summary>
         </member>
-        <member name="T:Raven.Client.Client.IDatabaseCommands">
+        <member name="T:Raven.Client.Connection.IDatabaseCommands">
             <summary>
              Expose the set of operations by the RavenDB server
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.StartsWith(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.StartsWith(System.String,System.Int32,System.Int32)">
             <summary>
             Gets documents for the specified key prefix
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Get(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Get(System.String)">
             <summary>
             Gets the document for the specified key.
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Get(System.String[],System.String[])">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Get(System.String[],System.String[])">
             <summary>
             Gets the results for the specified ids.
             </summary>
@@ -555,7 +555,7 @@
             <param name="includes">The includes.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Put(System.String,System.Nullable{System.Guid},Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Put(System.String,System.Nullable{System.Guid},Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the document with the specified key in the database
             </summary>
@@ -565,14 +565,14 @@
             <param name="metadata">The metadata.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Delete(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Delete(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the document with the specified key.
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PutAttachment(System.String,System.Nullable{System.Guid},System.Byte[],Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PutAttachment(System.String,System.Nullable{System.Guid},System.Byte[],Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the attachment with the specified key
             </summary>
@@ -581,21 +581,21 @@
             <param name="data">The data.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.GetAttachment(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.GetAttachment(System.String)">
             <summary>
             Gets the attachment by the specified key
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.DeleteAttachment(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.DeleteAttachment(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the attachment with the specified key
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.GetIndexNames(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.GetIndexNames(System.Int32,System.Int32)">
             <summary>
             Gets the index names from the server
             </summary>
@@ -603,26 +603,26 @@
             <param name="pageSize">Size of the page.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.ResetIndex(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.ResetIndex(System.String)">
             <summary>
             Resets the specified index
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.GetIndex(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.GetIndex(System.String)">
             <summary>
             Gets the index definition for the specified name
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PutIndex(System.String,Raven.Database.Indexing.IndexDefinition)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PutIndex(System.String,Raven.Abstractions.Indexing.IndexDefinition)">
             <summary>
             Puts the index definition for the specified name
             </summary>
             <param name="name">The name.</param>
             <param name="indexDef">The index def.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinition{``0,``1})">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinitionBuilder{``0,``1})">
             <summary>
             Puts the index definition for the specified name
             </summary>
@@ -632,7 +632,7 @@
             <param name="indexDef">The index def.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PutIndex(System.String,Raven.Database.Indexing.IndexDefinition,System.Boolean)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PutIndex(System.String,Raven.Abstractions.Indexing.IndexDefinition,System.Boolean)">
             <summary>
             Puts the index for the specified name
             </summary>
@@ -640,7 +640,7 @@
             <param name="indexDef">The index def.</param>
             <param name="overwrite">if set to <c>true</c> [overwrite].</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinition{``0,``1},System.Boolean)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinitionBuilder{``0,``1},System.Boolean)">
             <summary>
             Puts the index for the specified name
             </summary>
@@ -650,7 +650,7 @@
             <param name="indexDef">The index def.</param>
             <param name="overwrite">if set to <c>true</c> [overwrite].</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Query(System.String,Raven.Database.Data.IndexQuery,System.String[])">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Query(System.String,Raven.Abstractions.Data.IndexQuery,System.String[])">
             <summary>
             Queries the specified index.
             </summary>
@@ -658,38 +658,38 @@
             <param name="query">The query.</param>
             <param name="includes">The includes.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.DeleteIndex(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.DeleteIndex(System.String)">
             <summary>
             Deletes the index.
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Batch(System.Collections.Generic.IEnumerable{Raven.Database.Data.ICommandData})">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Batch(System.Collections.Generic.IEnumerable{Raven.Abstractions.Commands.ICommandData})">
             <summary>
             Executed the specified commands as a single batch
             </summary>
             <param name="commandDatas">The command data.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Commit(System.Guid)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Commit(System.Guid)">
             <summary>
             Commits the specified tx id.
             </summary>
             <param name="txId">The tx id.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Rollback(System.Guid)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Rollback(System.Guid)">
             <summary>
             Rollbacks the specified tx id.
             </summary>
             <param name="txId">The tx id.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.PromoteTransaction(System.Guid)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.PromoteTransaction(System.Guid)">
             <summary>
             Promotes the transaction.
             </summary>
             <param name="fromTxId">From tx id.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
             <summary>
             Stores the recovery information.
             </summary>
@@ -697,13 +697,13 @@
             <param name="txId">The tx id.</param>
             <param name="recoveryInformation">The recovery information.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.With(System.Net.ICredentials)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.With(System.Net.ICredentials)">
             <summary>
-            Returns a new <see cref="T:Raven.Client.Client.IDatabaseCommands"/> using the specified credentials
+            Returns a new <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> using the specified credentials
             </summary>
             <param name="credentialsForSession">The credentials for session.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.DeleteByIndex(System.String,Raven.Database.Data.IndexQuery,System.Boolean)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.DeleteByIndex(System.String,Raven.Abstractions.Data.IndexQuery,System.Boolean)">
             <summary>
             Perform a set based deletes using the specified index.
             </summary>
@@ -711,7 +711,7 @@
             <param name="queryToDelete">The query to delete.</param>
             <param name="allowStale">if set to <c>true</c> [allow stale].</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.UpdateByIndex(System.String,Raven.Database.Data.IndexQuery,Raven.Database.Json.PatchRequest[],System.Boolean)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.UpdateByIndex(System.String,Raven.Abstractions.Data.IndexQuery,Raven.Abstractions.Data.PatchRequest[],System.Boolean)">
             <summary>
             Perform a set based update using the specified index.
             </summary>
@@ -720,26 +720,26 @@
             <param name="patchRequests">The patch requests.</param>
             <param name="allowStale">if set to <c>true</c> [allow stale].</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.ForDatabase(System.String)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.ForDatabase(System.String)">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interacts
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interacts
             with the specified database
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.GetRootDatabase">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.GetRootDatabase">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interact
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interact
             with the root database. Useful if the database has works against a tenant database.
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.Suggest(System.String,Raven.Abstractions.Data.SuggestionQuery)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.Suggest(System.String,Raven.Abstractions.Data.SuggestionQuery)">
             <summary>
             Returns a list of suggestions based on the specified suggestion query.
             </summary>
             <param name="index">The index to query for suggestions</param>
             <param name="suggestionQuery">The suggestion query.</param>
         </member>
-        <member name="M:Raven.Client.Client.IDatabaseCommands.GetTerms(System.String,System.String,System.String,System.Int32)">
+        <member name="M:Raven.Client.Connection.IDatabaseCommands.GetTerms(System.String,System.String,System.String,System.Int32)">
             <summary>
              Get the possible terms for the specified field in the index 
              You can page through the results by use fromValue parameter as the 
@@ -747,13 +747,13 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:Raven.Client.Client.IDatabaseCommands.OperationsHeaders">
+        <member name="P:Raven.Client.Connection.IDatabaseCommands.OperationsHeaders">
             <summary>
             Gets or sets the operations headers.
             </summary>
             <value>The operations headers.</value>
         </member>
-        <member name="P:Raven.Client.Client.IDatabaseCommands.SupportsPromotableTransactions">
+        <member name="P:Raven.Client.Connection.IDatabaseCommands.SupportsPromotableTransactions">
             <summary>
             Gets a value indicating whether [supports promotable transactions].
             </summary>
@@ -761,27 +761,52 @@
             	<c>true</c> if [supports promotable transactions]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="T:Raven.Client.Client.JsonExtensions">
+        <member name="T:Raven.Client.Connection.IRavenQueryInspector">
+            <summary>
+            Provide access to the underlying <see cref="T:Raven.Client.IDocumentQuery`1"/>
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Connection.IRavenQueryInspector.GetLastEqualityTerm">
+            <summary>
+            The last term that we asked the query to use equals on
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Connection.IRavenQueryInspector.IndexQueried">
+            <summary>
+            Get the name of the index being queried
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Connection.IRavenQueryInspector.DatabaseCommands">
+            <summary>
+            Grant access to the database commands
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Connection.IRavenQueryInspector.AsyncDatabaseCommands">
+            <summary>
+            Grant access to the async database commands
+            </summary>
+        </member>
+        <member name="T:Raven.Client.Connection.JsonExtensions">
             <summary>
             Extension to json objects
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.JsonExtensions.Deserialize``1(Newtonsoft.Json.Linq.JObject,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Connection.JsonExtensions.Deserialize``1(Raven.Json.Linq.RavenJObject,Raven.Client.Document.DocumentConvention)">
             <summary>
             Deserializes the specified instance <param name="self"/> to an instance of <typeparam name="T"/> using the specified <param name="convention"/>
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.JsonExtensions.Deserialize(Newtonsoft.Json.Linq.JObject,System.Type,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Connection.JsonExtensions.Deserialize(Raven.Json.Linq.RavenJObject,System.Type,Raven.Client.Document.DocumentConvention)">
             <summary>
             Deserializes the specified instance <param name="self"/> to an instance of <param name="type"/> using the specified <param name="convention"/>
             </summary>
         </member>
-        <member name="T:Raven.Database.Json.JsonLuceneDateTimeConverter">
+        <member name="T:Raven.Client.Connection.JsonLuceneDateTimeConverter">
             <summary>
             Convert a lucene data format to and from json values
             </summary>
         </member>
-        <member name="M:Raven.Database.Json.JsonLuceneDateTimeConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+        <member name="M:Raven.Client.Connection.JsonLuceneDateTimeConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
             <summary>
             Writes the JSON representation of the object.
             </summary>
@@ -789,7 +814,7 @@
             <param name="value">The value.</param>
             <param name="serializer">The calling serializer.</param>
         </member>
-        <member name="M:Raven.Database.Json.JsonLuceneDateTimeConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+        <member name="M:Raven.Client.Connection.JsonLuceneDateTimeConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
             <summary>
             Reads the JSON representation of the object.
             </summary>
@@ -799,7 +824,7 @@
             <param name="serializer">The calling serializer.</param>
             <returns>The object value.</returns>
         </member>
-        <member name="M:Raven.Database.Json.JsonLuceneDateTimeConverter.CanConvert(System.Type)">
+        <member name="M:Raven.Client.Connection.JsonLuceneDateTimeConverter.CanConvert(System.Type)">
             <summary>
             Determines whether this instance can convert the specified object type.
             </summary>
@@ -808,7 +833,7 @@
             	<c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
             </returns>
         </member>
-        <member name="P:Raven.Database.Json.JsonLuceneDateTimeConverter.CanWrite">
+        <member name="P:Raven.Client.Connection.JsonLuceneDateTimeConverter.CanWrite">
             <summary>
             Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter"/> can write JSON.
             </summary>
@@ -816,17 +841,17 @@
             	<c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter"/> can write JSON; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="T:Raven.Client.Client.RavenQuery">
+        <member name="T:Raven.Client.Connection.RavenQuery">
             <summary>
             Helper class that provide a way to escape query terms
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.RavenQuery.Escape(System.String)">
+        <member name="M:Raven.Client.Connection.RavenQuery.Escape(System.String)">
             <summary>
             Escapes Lucene operators and quotes phrases
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.RavenQuery.Escape(System.String,System.Boolean)">
+        <member name="M:Raven.Client.Connection.RavenQuery.Escape(System.String,System.Boolean)">
             <summary>
             Escapes Lucene operators and quotes phrases
             </summary>
@@ -837,128 +862,128 @@
             http://lucene.apache.org/java/2_4_0/queryparsersyntax.html#Escaping%20Special%20Characters
             </remarks>
         </member>
-        <member name="T:Raven.Client.Client.RavenTransactionAccessor">
+        <member name="T:Raven.Client.Connection.RavenTransactionAccessor">
             <summary>
             Provide access to the current transaction 
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.RavenTransactionAccessor.StartTransaction">
+        <member name="M:Raven.Client.Connection.RavenTransactionAccessor.StartTransaction">
             <summary>
             Starts a transaction
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.RavenTransactionAccessor.StartTransaction(System.TimeSpan)">
+        <member name="M:Raven.Client.Connection.RavenTransactionAccessor.StartTransaction(System.TimeSpan)">
             <summary>
             Starts a transaction with the specified timeout
             </summary>
             <param name="timeout">The timeout.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.RavenTransactionAccessor.GetTransactionInformation">
+        <member name="M:Raven.Client.Connection.RavenTransactionAccessor.GetTransactionInformation">
             <summary>
             Gets the transaction information for the current transaction
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Raven.Client.Client.ReplicationInformer">
+        <member name="T:Raven.Client.Connection.ReplicationInformer">
             <summary>
             Replication and failover management on the client side
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.#ctor(Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.#ctor(Raven.Client.Document.DocumentConvention)">
             <summary>
              Create a new instance of this class
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.UpdateReplicationInformationIfNeeded(Raven.Client.Client.ServerClient)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.UpdateReplicationInformationIfNeeded(Raven.Client.Connection.ServerClient)">
             <summary>
             Updates the replication information if needed.
             </summary>
             <param name="serverClient">The server client.</param>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.ShouldExecuteUsing(System.String,System.Int32,System.String,System.Boolean)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.ShouldExecuteUsing(System.String,System.Int32,System.String,System.Boolean)">
             <summary>
             Should execute the operation using the specified operation URL
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.IsFirstFailure(System.String)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.IsFirstFailure(System.String)">
             <summary>
             Determines whether this is the first failure on the specified operation URL.
             </summary>
             <param name="operationUrl">The operation URL.</param>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.IncrementFailureCount(System.String)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.IncrementFailureCount(System.String)">
             <summary>
             Increments the failure count for the specified operation URL
             </summary>
             <param name="operationUrl">The operation URL.</param>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.RefreshReplicationInformation(Raven.Client.Client.ServerClient)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.RefreshReplicationInformation(Raven.Client.Connection.ServerClient)">
             <summary>
             Refreshes the replication information.
             </summary>
             <param name="commands">The commands.</param>
         </member>
-        <member name="M:Raven.Client.Client.ReplicationInformer.ResetFailureCount(System.String)">
+        <member name="M:Raven.Client.Connection.ReplicationInformer.ResetFailureCount(System.String)">
             <summary>
             Resets the failure count for the specified URL
             </summary>
             <param name="operationUrl">The operation URL.</param>
         </member>
-        <member name="P:Raven.Client.Client.ReplicationInformer.ReplicationDestinations">
+        <member name="P:Raven.Client.Connection.ReplicationInformer.ReplicationDestinations">
             <summary>
             Gets the replication destinations.
             </summary>
             <value>The replication destinations.</value>
         </member>
-        <member name="T:Raven.Client.Client.SerializationHelper">
+        <member name="T:Raven.Client.Connection.SerializationHelper">
             <summary>
-             Helper method to do serialization from JObject to JsonDocument
+             Helper method to do serialization from RavenJObject to JsonDocument
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.SerializationHelper.JObjectsToJsonDocuments(System.Collections.Generic.IEnumerable{Newtonsoft.Json.Linq.JObject})">
+        <member name="M:Raven.Client.Connection.SerializationHelper.RavenJObjectsToJsonDocuments(System.Collections.Generic.IEnumerable{Raven.Json.Linq.RavenJObject})">
             <summary>
-             Translate a collection of JObject to JsonDocuments
+             Translate a collection of RavenJObject to JsonDocuments
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.SerializationHelper.ToJsonDocuments(System.Collections.Generic.IEnumerable{Newtonsoft.Json.Linq.JObject})">
+        <member name="M:Raven.Client.Connection.SerializationHelper.ToJsonDocuments(System.Collections.Generic.IEnumerable{Raven.Json.Linq.RavenJObject})">
             <summary>
-             Translate a collection of JObject to JsonDocuments
+             Translate a collection of RavenJObject to JsonDocuments
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.SerializationHelper.ToJsonDocument(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.SerializationHelper.ToJsonDocument(Raven.Json.Linq.RavenJObject)">
             <summary>
-             Translate a collection of JObject to JsonDocuments
+             Translate a collection of RavenJObject to JsonDocuments
             </summary>
         </member>
-        <member name="T:Raven.Client.Client.ServerClient">
+        <member name="T:Raven.Client.Connection.ServerClient">
             <summary>
             Access the RavenDB operations using HTTP
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.#ctor(System.String,Raven.Client.Document.DocumentConvention,System.Net.ICredentials,Raven.Client.Client.ReplicationInformer,Raven.Client.Client.HttpJsonRequestFactory)">
+        <member name="M:Raven.Client.Connection.ServerClient.#ctor(System.String,Raven.Client.Document.DocumentConvention,System.Net.ICredentials,Raven.Client.Connection.ReplicationInformer,Raven.Client.Connection.HttpJsonRequestFactory)">
             <summary>
-            Initializes a new instance of the <see cref="T:Raven.Client.Client.ServerClient"/> class.
+            Initializes a new instance of the <see cref="T:Raven.Client.Connection.ServerClient"/> class.
             </summary>
             <param name="url">The URL.</param>
             <param name="convention">The convention.</param>
             <param name="credentials">The credentials.</param>
             <param name="replicationInformer">The replication informer.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Get(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.Get(System.String)">
             <summary>
             Gets the document for the specified key.
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.StartsWith(System.String,System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.ServerClient.StartsWith(System.String,System.Int32,System.Int32)">
             <summary>
             Gets documents for the specified key prefix
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.ExecuteGetRequest(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.ExecuteGetRequest(System.String)">
             <summary>
             Execute a GET request against the provided url
             and return the result as a string
@@ -968,7 +993,7 @@
             This method respects the replication semantics against the database.
             </remarks>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.DirectGet(System.String,System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.DirectGet(System.String,System.String)">
             <summary>
             Perform a direct get for a document with the specified key on the specified server URL.
             </summary>
@@ -976,7 +1001,7 @@
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Put(System.String,System.Nullable{System.Guid},Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.ServerClient.Put(System.String,System.Nullable{System.Guid},Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the document with the specified key in the database
             </summary>
@@ -986,14 +1011,14 @@
             <param name="metadata">The metadata.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Delete(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.ServerClient.Delete(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the document with the specified key.
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PutAttachment(System.String,System.Nullable{System.Guid},System.Byte[],Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Connection.ServerClient.PutAttachment(System.String,System.Nullable{System.Guid},System.Byte[],Raven.Json.Linq.RavenJObject)">
             <summary>
             Puts the attachment with the specified key
             </summary>
@@ -1002,21 +1027,21 @@
             <param name="data">The data.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.GetAttachment(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.GetAttachment(System.String)">
             <summary>
             Gets the attachment by the specified key
             </summary>
             <param name="key">The key.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.DeleteAttachment(System.String,System.Nullable{System.Guid})">
+        <member name="M:Raven.Client.Connection.ServerClient.DeleteAttachment(System.String,System.Nullable{System.Guid})">
             <summary>
             Deletes the attachment with the specified key
             </summary>
             <param name="key">The key.</param>
             <param name="etag">The etag.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.GetIndexNames(System.Int32,System.Int32)">
+        <member name="M:Raven.Client.Connection.ServerClient.GetIndexNames(System.Int32,System.Int32)">
             <summary>
             Gets the index names from the server
             </summary>
@@ -1024,20 +1049,20 @@
             <param name="pageSize">Size of the page.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.ResetIndex(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.ResetIndex(System.String)">
             <summary>
             Resets the specified index
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.GetIndex(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.GetIndex(System.String)">
             <summary>
             Gets the index definition for the specified name
             </summary>
             <param name="name">The name.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PutIndex(System.String,Raven.Database.Indexing.IndexDefinition)">
+        <member name="M:Raven.Client.Connection.ServerClient.PutIndex(System.String,Raven.Abstractions.Indexing.IndexDefinition)">
             <summary>
             Puts the index.
             </summary>
@@ -1045,7 +1070,7 @@
             <param name="definition">The definition.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PutIndex(System.String,Raven.Database.Indexing.IndexDefinition,System.Boolean)">
+        <member name="M:Raven.Client.Connection.ServerClient.PutIndex(System.String,Raven.Abstractions.Indexing.IndexDefinition,System.Boolean)">
             <summary>
             Puts the index.
             </summary>
@@ -1054,7 +1079,7 @@
             <param name="overwrite">if set to <c>true</c> [overwrite].</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinition{``0,``1})">
+        <member name="M:Raven.Client.Connection.ServerClient.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinitionBuilder{``0,``1})">
             <summary>
             Puts the index definition for the specified name
             </summary>
@@ -1064,7 +1089,7 @@
             <param name="indexDef">The index def.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinition{``0,``1},System.Boolean)">
+        <member name="M:Raven.Client.Connection.ServerClient.PutIndex``2(System.String,Raven.Client.Indexes.IndexDefinitionBuilder{``0,``1},System.Boolean)">
             <summary>
             Puts the index for the specified name
             </summary>
@@ -1075,7 +1100,7 @@
             <param name="overwrite">if set to <c>true</c> [overwrite].</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Query(System.String,Raven.Database.Data.IndexQuery,System.String[])">
+        <member name="M:Raven.Client.Connection.ServerClient.Query(System.String,Raven.Abstractions.Data.IndexQuery,System.String[])">
             <summary>
             Queries the specified index.
             </summary>
@@ -1084,13 +1109,13 @@
             <param name="includes">The includes.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.DeleteIndex(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.DeleteIndex(System.String)">
             <summary>
             Deletes the index.
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Get(System.String[],System.String[])">
+        <member name="M:Raven.Client.Connection.ServerClient.Get(System.String[],System.String[])">
             <summary>
             Gets the results for the specified ids.
             </summary>
@@ -1098,7 +1123,7 @@
             <param name="includes">The includes.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.DirectGet(System.String[],System.String,System.String[])">
+        <member name="M:Raven.Client.Connection.ServerClient.DirectGet(System.String[],System.String,System.String[])">
             <summary>
             Perform a direct get for loading multiple ids in one request
             </summary>
@@ -1107,33 +1132,33 @@
             <param name="includes">The includes.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Batch(System.Collections.Generic.IEnumerable{Raven.Database.Data.ICommandData})">
+        <member name="M:Raven.Client.Connection.ServerClient.Batch(System.Collections.Generic.IEnumerable{Raven.Abstractions.Commands.ICommandData})">
             <summary>
             Executed the specified commands as a single batch
             </summary>
             <param name="commandDatas">The command data.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Commit(System.Guid)">
+        <member name="M:Raven.Client.Connection.ServerClient.Commit(System.Guid)">
             <summary>
             Commits the specified tx id.
             </summary>
             <param name="txId">The tx id.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Rollback(System.Guid)">
+        <member name="M:Raven.Client.Connection.ServerClient.Rollback(System.Guid)">
             <summary>
             Rollbacks the specified tx id.
             </summary>
             <param name="txId">The tx id.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.PromoteTransaction(System.Guid)">
+        <member name="M:Raven.Client.Connection.ServerClient.PromoteTransaction(System.Guid)">
             <summary>
             Promotes the transaction.
             </summary>
             <param name="fromTxId">From tx id.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
+        <member name="M:Raven.Client.Connection.ServerClient.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
             <summary>
             Stores the recovery information.
             </summary>
@@ -1141,26 +1166,26 @@
             <param name="txId">The tx id.</param>
             <param name="recoveryInformation">The recovery information.</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.With(System.Net.ICredentials)">
+        <member name="M:Raven.Client.Connection.ServerClient.With(System.Net.ICredentials)">
             <summary>
-            Returns a new <see cref="T:Raven.Client.Client.IDatabaseCommands"/> using the specified credentials
+            Returns a new <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> using the specified credentials
             </summary>
             <param name="credentialsForSession">The credentials for session.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.ForDatabase(System.String)">
+        <member name="M:Raven.Client.Connection.ServerClient.ForDatabase(System.String)">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interacts
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interacts
             with the specified database
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.GetRootDatabase">
+        <member name="M:Raven.Client.Connection.ServerClient.GetRootDatabase">
             <summary>
-            Create a new instance of <see cref="T:Raven.Client.Client.IDatabaseCommands"/> that will interact
+            Create a new instance of <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> that will interact
             with the root database. Useful if the database has works against a tenant database.
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.DeleteByIndex(System.String,Raven.Database.Data.IndexQuery,System.Boolean)">
+        <member name="M:Raven.Client.Connection.ServerClient.DeleteByIndex(System.String,Raven.Abstractions.Data.IndexQuery,System.Boolean)">
             <summary>
             Perform a set based deletes using the specified index.
             </summary>
@@ -1168,7 +1193,7 @@
             <param name="queryToDelete">The query to delete.</param>
             <param name="allowStale">if set to <c>true</c> [allow stale].</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.UpdateByIndex(System.String,Raven.Database.Data.IndexQuery,Raven.Database.Json.PatchRequest[],System.Boolean)">
+        <member name="M:Raven.Client.Connection.ServerClient.UpdateByIndex(System.String,Raven.Abstractions.Data.IndexQuery,Raven.Abstractions.Data.PatchRequest[],System.Boolean)">
             <summary>
             Perform a set based update using the specified index.
             </summary>
@@ -1177,7 +1202,7 @@
             <param name="patchRequests">The patch requests.</param>
             <param name="allowStale">if set to <c>true</c> [allow stale].</param>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.Suggest(System.String,Raven.Abstractions.Data.SuggestionQuery)">
+        <member name="M:Raven.Client.Connection.ServerClient.Suggest(System.String,Raven.Abstractions.Data.SuggestionQuery)">
             <summary>
             Returns a list of suggestions based on the specified suggestion query.
             </summary>
@@ -1185,7 +1210,7 @@
             <param name="suggestionQuery">The suggestion query.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Client.ServerClient.GetTerms(System.String,System.String,System.String,System.Int32)">
+        <member name="M:Raven.Client.Connection.ServerClient.GetTerms(System.String,System.String,System.String,System.Int32)">
             <summary>
              Get the possible terms for the specified field in the index 
              You can page through the results by use fromValue parameter as the 
@@ -1193,18 +1218,18 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:Raven.Client.Client.ServerClient.ReplicationInformer">
+        <member name="P:Raven.Client.Connection.ServerClient.ReplicationInformer">
             <summary>
             Allow access to the replication informer used to determine how we replicate requests
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.ServerClient.OperationsHeaders">
+        <member name="P:Raven.Client.Connection.ServerClient.OperationsHeaders">
             <summary>
             Gets or sets the operations headers.
             </summary>
             <value>The operations headers.</value>
         </member>
-        <member name="P:Raven.Client.Client.ServerClient.SupportsPromotableTransactions">
+        <member name="P:Raven.Client.Connection.ServerClient.SupportsPromotableTransactions">
             <summary>
             Gets a value indicating whether [supports promotable transactions].
             </summary>
@@ -1212,29 +1237,29 @@
             	<c>true</c> if [supports promotable transactions]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:Raven.Client.Client.ServerClient.Url">
+        <member name="P:Raven.Client.Connection.ServerClient.Url">
             <summary>
             Gets the URL.
             </summary>
             <value>The URL.</value>
         </member>
-        <member name="T:Raven.Client.Client.WebRequestEventArgs">
+        <member name="T:Raven.Client.Connection.WebRequestEventArgs">
             <summary>
             Event arguments for the event of creating a <see cref="T:System.Net.WebRequest"/>
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.WebRequestEventArgs.Request">
+        <member name="P:Raven.Client.Connection.WebRequestEventArgs.Request">
             <summary>
             Gets or sets the web request.
             </summary>
             <value>The request.</value>
         </member>
-        <member name="T:Raven.Client.Client.WebResponseExtensions">
+        <member name="T:Raven.Client.Connection.WebResponseExtensions">
             <summary>
             Extensions for web requests
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.WebResponseExtensions.GetResponseStreamWithHttpDecompression(System.Net.WebResponse)">
+        <member name="M:Raven.Client.Connection.WebResponseExtensions.GetResponseStreamWithHttpDecompression(System.Net.WebResponse)">
             <summary>
             Gets the response stream with HTTP decompression.
             </summary>
@@ -1262,14 +1287,16 @@
             <param name="sourceType">A <see cref="T:System.Type"/> that represents the type you want to convert from. 
                             </param>
         </member>
-        <member name="M:Raven.Client.Converters.ITypeConverter.ConvertFrom(System.Object)">
+        <member name="M:Raven.Client.Converters.ITypeConverter.ConvertFrom(System.String,System.Object,System.Boolean)">
             <summary>
             Converts the given object to the type of this converter.
             </summary>
             <returns>
             An <see cref="T:System.Object"/> that represents the converted value.
             </returns>
+            <param name="tag">The tag prefix to use</param>
             <param name="value">The <see cref="T:System.Object"/> to convert. </param>
+            <param name="allowNull">Whatever null is a valid value</param>
             <exception cref="T:System.NotSupportedException">The conversion cannot be performed. </exception>
         </member>
         <member name="M:Raven.Client.Converters.ITypeConverter.ConvertTo(System.String)">
@@ -1291,14 +1318,13 @@
             <param name="sourceType">A <see cref="T:System.Type"/> that represents the type you want to convert from. 
                             </param>
         </member>
-        <member name="M:Raven.Client.Converters.GuidConverter.ConvertFrom(System.Object)">
+        <member name="M:Raven.Client.Converters.GuidConverter.ConvertFrom(System.String,System.Object,System.Boolean)">
             <summary>
             Converts the given object to the type of this converter, using the specified context and culture information.
             </summary>
             <returns>
             An <see cref="T:System.Object"/> that represents the converted value.
             </returns>
-            <param name="value">The <see cref="T:System.Object"/> to convert. </param>
             <exception cref="T:System.NotSupportedException">The conversion cannot be performed. </exception>
         </member>
         <member name="M:Raven.Client.Converters.GuidConverter.ConvertTo(System.String)">
@@ -1325,14 +1351,13 @@
             <param name="sourceType">A <see cref="T:System.Type"/> that represents the type you want to convert from. 
                             </param>
         </member>
-        <member name="M:Raven.Client.Converters.Int32Converter.ConvertFrom(System.Object)">
+        <member name="M:Raven.Client.Converters.Int32Converter.ConvertFrom(System.String,System.Object,System.Boolean)">
             <summary>
             Converts the given object to the type of this converter, using the specified context and culture information.
             </summary>
             <returns>
             An <see cref="T:System.Object"/> that represents the converted value.
             </returns>
-            <param name="value">The <see cref="T:System.Object"/> to convert. </param>
             <exception cref="T:System.NotSupportedException">The conversion cannot be performed. </exception>
         </member>
         <member name="M:Raven.Client.Converters.Int32Converter.ConvertTo(System.String)">
@@ -1359,14 +1384,13 @@
             <param name="sourceType">A <see cref="T:System.Type"/> that represents the type you want to convert from. 
                             </param>
         </member>
-        <member name="M:Raven.Client.Converters.Int64Converter.ConvertFrom(System.Object)">
+        <member name="M:Raven.Client.Converters.Int64Converter.ConvertFrom(System.String,System.Object,System.Boolean)">
             <summary>
             Converts the given object to the type of this converter, using the specified context and culture information.
             </summary>
             <returns>
             An <see cref="T:System.Object"/> that represents the converted value.
             </returns>
-            <param name="value">The <see cref="T:System.Object"/> to convert. </param>
             <exception cref="T:System.NotSupportedException">The conversion cannot be performed. </exception>
         </member>
         <member name="M:Raven.Client.Converters.Int64Converter.ConvertTo(System.String)">
@@ -1460,29 +1484,297 @@
             <param name="latitude">The latitude.</param>
             <param name="longitude">The longitude.</param>
         </member>
-        <member name="T:Raven.Client.Client.IRavenQueryInspector">
+        <member name="T:Raven.Client.Document.IAbstractDocumentQuery`1">
             <summary>
-            Provide access to the underlying <see cref="T:Raven.Client.IDocumentQuery`1"/>
+             Mostly used by the linq provider
             </summary>
         </member>
-        <member name="M:Raven.Client.Client.IRavenQueryInspector.GetLastEqualityTerm">
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResults(System.TimeSpan)">
             <summary>
-            The last term that we asked the query to use equals on
+              Instruct the query to wait for non stale result for the specified wait timeout.
+            </summary>
+            <param name = "waitTimeout">The wait timeout.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.GetProjectionFields">
+            <summary>
+              Gets the fields for projection
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.AddOrder(System.String,System.Boolean)">
+            <summary>
+              Adds an ordering for a specific field to the query
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "descending">if set to <c>true</c> [descending].</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.AddOrder(System.String,System.Boolean,System.Type)">
+            <summary>
+              Adds an ordering for a specific field to the query and specifies the type of field for sorting purposes
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "descending">if set to <c>true</c> [descending].</param>
+            <param name = "fieldType">the type of the field to be sorted.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Include(System.String)">
+            <summary>
+              Includes the specified path in the query, loading the document specified in that path
+            </summary>
+            <param name = "path">The path.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Include(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+            <summary>
+              Includes the specified path in the query, loading the document specified in that path
+            </summary>
+            <param name = "path">The path.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Take(System.Int32)">
+            <summary>
+              Takes the specified count.
+            </summary>
+            <param name = "count">The count.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Skip(System.Int32)">
+            <summary>
+              Skips the specified count.
+            </summary>
+            <param name = "count">The count.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Where(System.String)">
+            <summary>
+              Filter the results from the index using the specified where clause.
+            </summary>
+            <param name = "whereClause">The where clause.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereEquals(System.String,System.Object)">
+            <summary>
+              Matches exact value
+            </summary>
+            <remarks>
+              Defaults to NotAnalyzed
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereEquals(System.String,System.Object,System.Boolean)">
+            <summary>
+              Matches exact value
+            </summary>
+            <remarks>
+              Defaults to allow wildcards only if analyzed
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.OpenSubclause">
+            <summary>
+              Simplified method for opening a new clause within the query
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.GroupBy(Raven.Abstractions.Data.AggregationOperation,System.String[])">
+            <summary>
+              Instruct the index to group by the specified fields using the specified aggregation operation
+            </summary>
+            <remarks>
+              This is only valid on dynamic indexes queries
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.CloseSubclause">
+            <summary>
+              Simplified method for closing a clause within the query
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereEquals(Raven.Client.WhereEqualsParams)">
+            <summary>
+              Matches exact value
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.IRavenQueryInspector.IndexQueried">
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.NegateNext">
             <summary>
-            Get the name of the index being queried
+             Negate the next operation
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.IRavenQueryInspector.DatabaseCommands">
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereContains(System.String,System.Object)">
             <summary>
-            Grant access to the database commands
+              Matches substrings of the field
             </summary>
         </member>
-        <member name="P:Raven.Client.Client.IRavenQueryInspector.AsyncDatabaseCommands">
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereContains(System.String,System.Object[])">
             <summary>
-            Grant access to the async database commands
+              Matches substrings of the field
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereContains(System.String,System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+              Matches substrings of the field
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereStartsWith(System.String,System.Object)">
+            <summary>
+              Matches fields which starts with the specified value.
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereEndsWith(System.String,System.Object)">
+            <summary>
+              Matches fields which ends with the specified value.
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereBetween(System.String,System.Object,System.Object)">
+            <summary>
+              Matches fields where the value is between the specified start and end, exclusive
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "start">The start.</param>
+            <param name = "end">The end.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereBetweenOrEqual(System.String,System.Object,System.Object)">
+            <summary>
+              Matches fields where the value is between the specified start and end, inclusive
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "start">The start.</param>
+            <param name = "end">The end.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereGreaterThan(System.String,System.Object)">
+            <summary>
+              Matches fields where the value is greater than the specified value
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereGreaterThanOrEqual(System.String,System.Object)">
+            <summary>
+              Matches fields where the value is greater than or equal to the specified value
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereLessThan(System.String,System.Object)">
+            <summary>
+              Matches fields where the value is less than the specified value
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WhereLessThanOrEqual(System.String,System.Object)">
+            <summary>
+              Matches fields where the value is less than or equal to the specified value
+            </summary>
+            <param name = "fieldName">Name of the field.</param>
+            <param name = "value">The value.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.AndAlso">
+            <summary>
+              Add an AND to the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.OrElse">
+            <summary>
+              Add an OR to the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Boost(System.Decimal)">
+            <summary>
+              Specifies a boost weight to the last where clause.
+              The higher the boost factor, the more relevant the term will be.
+            </summary>
+            <param name = "boost">boosting factor where 1.0 is default, less than 1.0 is lower weight, greater than 1.0 is higher weight</param>
+            <returns></returns>
+            <remarks>
+              http://lucene.apache.org/java/2_4_0/queryparsersyntax.html#Boosting%20a%20Term
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Fuzzy(System.Decimal)">
+            <summary>
+              Specifies a fuzziness factor to the single word term in the last where clause
+            </summary>
+            <param name = "fuzzy">0.0 to 1.0 where 1.0 means closer match</param>
+            <returns></returns>
+            <remarks>
+              http://lucene.apache.org/java/2_4_0/queryparsersyntax.html#Fuzzy%20Searches
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.Proximity(System.Int32)">
+            <summary>
+              Specifies a proximity distance for the phrase in the last where clause
+            </summary>
+            <param name = "proximity">number of words within</param>
+            <returns></returns>
+            <remarks>
+              http://lucene.apache.org/java/2_4_0/queryparsersyntax.html#Proximity%20Searches
+            </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.OrderBy(System.String[])">
+            <summary>
+              Order the results by the specified fields
+            </summary>
+            <remarks>
+              The fields are the names of the fields to sort, defaulting to sorting by ascending.
+              You can prefix a field name with '-' to indicate sorting by descending or '+' to sort by ascending
+            </remarks>
+            <param name = "fields">The fields.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResultsAsOfNow">
+            <summary>
+              Instructs the query to wait for non stale results as of now.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResultsAsOfNow(System.TimeSpan)">
+            <summary>
+              Instructs the query to wait for non stale results as of now for the specified timeout.
+            </summary>
+            <param name = "waitTimeout">The wait timeout.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResultsAsOf(System.DateTime)">
+            <summary>
+              Instructs the query to wait for non stale results as of the cutoff date.
+            </summary>
+            <param name = "cutOff">The cut off.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResultsAsOf(System.DateTime,System.TimeSpan)">
+            <summary>
+              Instructs the query to wait for non stale results as of the cutoff date for the specified timeout
+            </summary>
+            <param name = "cutOff">The cut off.</param>
+            <param name = "waitTimeout">The wait timeout.</param>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.WaitForNonStaleResults">
+            <summary>
+              EXPERT ONLY: Instructs the query to wait for non stale results.
+              This shouldn't be used outside of unit tests unless you are well aware of the implications
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.ToString">
+            <summary>
+              Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+              A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:Raven.Client.Document.IAbstractDocumentQuery`1.GetLastEqualityTerm">
+            <summary>
+              The last term that we asked the query to use equals on
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Document.IAbstractDocumentQuery`1.IndexQueried">
+            <summary>
+              Get the name of the index being queried
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Document.IAbstractDocumentQuery`1.DocumentConvention">
+            <summary>
+            Gets the document convention from the query session
             </summary>
         </member>
         <member name="F:Raven.Client.Document.AbstractDocumentQuery`2.negate">
@@ -1575,7 +1867,12 @@
             Fields to group on
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Client.IDatabaseCommands,System.String,System.String[],Raven.Client.IDocumentQueryListener[])">
+        <member name="F:Raven.Client.Document.AbstractDocumentQuery`2.queryStats">
+            <summary>
+            Holds the query stats
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Connection.IDatabaseCommands,System.String,System.String[],Raven.Client.Listeners.IDocumentQueryListener[])">
             <summary>
               Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentQuery`1"/> class.
             </summary>
@@ -1584,7 +1881,7 @@
             <param name="indexName">Name of the index.</param>
             <param name="projectionFields">The projection fields.</param>
         </member>
-        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.IDocumentQueryListener[])">
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.Listeners.IDocumentQueryListener[])">
             <param name = "indexName">Name of the index.</param>
             <param name = "projectionFields">The projection fields.</param>
             <param name = "theSession">The session.</param>
@@ -1963,6 +2260,21 @@
               This shouldn't be used outside of unit tests unless you are well aware of the implications
             </summary>
         </member>
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.Statistics(Raven.Client.Linq.RavenQueryStatistics@)">
+            <summary>
+            Provide statistics about the query, such as total count of matching records
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
+            <summary>
+            Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
+            </summary>
+        </member>
         <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.GetQueryResult">
             <summary>
               Gets the query result.
@@ -1994,6 +2306,11 @@
             Returns a list of results for a query asynchronously. 
             </summary>
         </member>
+        <member name="M:Raven.Client.Document.AbstractDocumentQuery`2.CountAsync">
+            <summary>
+            Gets the total count of records for this query
+            </summary>
+        </member>
         <member name="P:Raven.Client.Document.AbstractDocumentQuery`2.IndexQueried">
             <summary>
               Get the name of the index being queried
@@ -2007,6 +2324,11 @@
         <member name="P:Raven.Client.Document.AbstractDocumentQuery`2.AsyncDatabaseCommands">
             <summary>
               Grant access to the async database commands
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Document.AbstractDocumentQuery`2.DocumentConvention">
+            <summary>
+            Gets the document convention from the query session
             </summary>
         </member>
         <member name="P:Raven.Client.Document.AbstractDocumentQuery`2.Session">
@@ -2041,6 +2363,11 @@
         <member name="T:Raven.Client.IDocumentQueryBase`2">
             <summary>
               A query against a Raven index
+            </summary>
+        </member>
+        <member name="M:Raven.Client.IDocumentQueryBase`2.NegateNext">
+            <summary>
+              Negate the next operation
             </summary>
         </member>
         <member name="M:Raven.Client.IDocumentQueryBase`2.Include(System.String)">
@@ -2326,6 +2653,26 @@
               This is only valid on dynamic indexes queries
             </remarks>
         </member>
+        <member name="M:Raven.Client.IDocumentQueryBase`2.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
+            <summary>
+            Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.IDocumentQueryBase`2.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
+            </summary>
+        </member>
+        <member name="M:Raven.Client.IDocumentQueryBase`2.Statistics(Raven.Client.Linq.RavenQueryStatistics@)">
+            <summary>
+            Provide statistics about the query, such as total count of matching records
+            </summary>
+        </member>
+        <member name="P:Raven.Client.IDocumentQueryBase`2.DocumentConvention">
+            <summary>
+            Gets the document convention from the query session
+            </summary>
+        </member>
         <member name="P:Raven.Client.IDocumentQueryBase`2.Not">
             <summary>
               Negate the next operation
@@ -2338,6 +2685,12 @@
             <typeparam name="TProjection">The type of the projection.</typeparam>
             <param name="fields">The fields.</param>
         </member>
+        <member name="M:Raven.Client.IAsyncDocumentQuery`1.ToListAsync">
+            <summary>
+            Gets the query result
+            </summary>
+            <value>The query result.</value>
+        </member>
         <member name="P:Raven.Client.IAsyncDocumentQuery`1.QueryResultAsync">
             <summary>
             Gets the query result
@@ -2345,7 +2698,7 @@
             </summary>
             <value>The query result.</value>
         </member>
-        <member name="M:Raven.Client.Document.AsyncDocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.IDocumentQueryListener[])">
+        <member name="M:Raven.Client.Document.AsyncDocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.Listeners.IDocumentQueryListener[])">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentQuery`1"/> class.
             </summary>
@@ -2634,6 +2987,11 @@
              This is only valid on dynamic indexes queries
              </remarks>
         </member>
+        <member name="M:Raven.Client.Document.AsyncDocumentQuery`1.Raven#Client#IDocumentQueryBase{T@Raven#Client#IAsyncDocumentQuery{T}}#Statistics(Raven.Client.Linq.RavenQueryStatistics@)">
+            <summary>
+            Provide statistics about the query, such as total count of matching records
+            </summary>
+        </member>
         <member name="M:Raven.Client.Document.AsyncDocumentQuery`1.GenerateQueryWithinRadiusOf(System.Double,System.Double,System.Double)">
             <summary>
             Filter matches to be inside the specified radius
@@ -2652,7 +3010,7 @@
             A spatial query allows to perform spatial filtering on the index
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.AsyncSpatialDocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.IDocumentQueryListener[])">
+        <member name="M:Raven.Client.Document.AsyncSpatialDocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.Listeners.IDocumentQueryListener[])">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.SpatialDocumentQuery`1"/> class.
             </summary>
@@ -2670,12 +3028,11 @@
             <param name="latitude">The latitude.</param>
             <param name="longitude">The longitude.</param>
         </member>
-        <member name="M:Raven.Client.Document.AsyncSpatialDocumentQuery`1.#ctor(Raven.Client.Document.AsyncDocumentQuery{`0},System.Boolean)">
+        <member name="M:Raven.Client.Document.AsyncSpatialDocumentQuery`1.#ctor(Raven.Client.Document.AsyncDocumentQuery{`0})">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.SpatialDocumentQuery`1"/> class.
             </summary>
             <param name="documentQuery">The document query.</param>
-            <param name="sortByDistance">if set to <c>true</c> the query will be sorted by distance.</param>
         </member>
         <member name="M:Raven.Client.Document.AsyncSpatialDocumentQuery`1.GenerateIndexQuery(System.String)">
             <summary>
@@ -2719,7 +3076,7 @@
             The query listeners allow to modify queries before it is executed
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.IDocumentQueryListener[],Raven.Client.IDocumentStoreListener[],Raven.Client.IDocumentDeleteListener[])">
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.Listeners.IDocumentQueryListener[],Raven.Client.Listeners.IDocumentStoreListener[],Raven.Client.Listeners.IDocumentDeleteListener[])">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.InMemoryDocumentSessionOperations"/> class.
             </summary>
@@ -2762,7 +3119,7 @@
             	<c>true</c> if the specified entity has changed; otherwise, <c>false</c>.
             </returns>
         </member>
-        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.TrackEntity``1(Raven.Database.JsonDocument)">
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.TrackEntity``1(Raven.Abstractions.Data.JsonDocument)">
             <summary>
             Tracks the entity inside the unit of work
             </summary>
@@ -2770,7 +3127,7 @@
             <param name="documentFound">The document found.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.TrackEntity``1(System.String,Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.TrackEntity``1(System.String,Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Tracks the entity.
             </summary>
@@ -2787,7 +3144,7 @@
             <typeparam name="T"></typeparam>
             <param name="entity">The entity.</param>
         </member>
-        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.ConvertToEntity``1(System.String,Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.ConvertToEntity``1(System.String,Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Converts the json document to an entity.
             </summary>
@@ -2831,7 +3188,7 @@
             <param name="documentMetadata">The document metadata.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.UpdateBatchResults(System.Collections.Generic.IList{Raven.Database.BatchResult},System.Collections.Generic.IList{System.Object})">
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.UpdateBatchResults(System.Collections.Generic.IList{Raven.Abstractions.Data.BatchResult},System.Collections.Generic.IList{System.Object})">
             <summary>
             Updates the batch results.
             </summary>
@@ -2851,6 +3208,17 @@
             <param name="entity">The entity.</param>
             <param name="documentMetadata">The document metadata.</param>
             <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.EntitiesToJsonCachingScope">
+            <summary>
+            All calls to convert an entity to a json object would be cache
+            This is used inside the SaveChanges() action, where we need to access the entities json
+            in several disparate places.
+            
+            Note: This assumes that no modifications can happen during the SaveChanges. This is naturally true
+            Note: for SaveChanges (and multi threaded access will cause undefined behavior anyway).
+            Note: For SaveChangesAsync, the same holds true as well.
+            </summary>
         </member>
         <member name="M:Raven.Client.Document.InMemoryDocumentSessionOperations.Evict``1(``0)">
             <summary>
@@ -2941,7 +3309,7 @@
             <summary>
             Gets or sets a value indicating whether the session should use optimistic concurrency.
             When set to <c>true</c>, a check is made so that a change made behind the session back would fail
-            and raise <see cref="T:Raven.Http.Exceptions.ConcurrencyException"/>.
+            and raise <see cref="T:Raven.Abstractions.Exceptions.ConcurrencyException"/>.
             </summary>
             <value></value>
         </member>
@@ -3057,6 +3425,20 @@
             <param name="id">The id.</param>
             <returns></returns>
         </member>
+        <member name="M:Raven.Client.IAsyncDocumentSession.LoadAsync``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
+        </member>
         <member name="M:Raven.Client.IAsyncDocumentSession.MultiLoadAsync``1(System.String[])">
             <summary>
             Begins the async multi load operation
@@ -3161,7 +3543,7 @@
             <summary>
             Gets or sets a value indicating whether the session should use optimistic concurrency.
             When set to <c>true</c>, a check is made so that a change made behind the session back would fail
-            and raise <see cref="T:Raven.Http.Exceptions.ConcurrencyException"/>.
+            and raise <see cref="T:Raven.Abstractions.Exceptions.ConcurrencyException"/>.
             </summary>
         </member>
         <member name="P:Raven.Client.IAdvancedDocumentSessionOperations.AllowNonAuthoritiveInformation">
@@ -3252,12 +3634,17 @@
             Create a new query for <typeparam name="T"/>
             </summary>
         </member>
+        <member name="M:Raven.Client.Linq.IDocumentQueryGenerator.AsyncQuery``1(System.String)">
+            <summary>
+            Create a new query for <typeparam name="T"/>
+            </summary>
+        </member>
         <member name="P:Raven.Client.Linq.IDocumentQueryGenerator.Conventions">
             <summary>
             Gets the conventions asosciated with this query
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.Async.AsyncDocumentSession.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.Client.Async.IAsyncDatabaseCommands,Raven.Client.IDocumentQueryListener[],Raven.Client.IDocumentStoreListener[],Raven.Client.IDocumentDeleteListener[])">
+        <member name="M:Raven.Client.Document.Async.AsyncDocumentSession.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.Connection.Async.IAsyncDatabaseCommands,Raven.Client.Listeners.IDocumentQueryListener[],Raven.Client.Listeners.IDocumentStoreListener[],Raven.Client.Listeners.IDocumentDeleteListener[])">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.Async.AsyncDocumentSession"/> class.
             </summary>
@@ -3271,6 +3658,20 @@
             <summary>
             Dynamically query RavenDB using Lucene syntax
             </summary>
+        </member>
+        <member name="M:Raven.Client.Document.Async.AsyncDocumentSession.LoadAsync``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="M:Raven.Client.Document.Async.AsyncDocumentSession.LoadAsync``1(System.String)">
             <summary>
@@ -3322,6 +3723,11 @@
             </summary>
             <typeparam name="T">The result of the query</typeparam>
         </member>
+        <member name="M:Raven.Client.Document.Async.AsyncDocumentSession.AsyncQuery``1(System.String)">
+            <summary>
+            Create a new query for <typeparam name="T"/>
+            </summary>
+        </member>
         <member name="P:Raven.Client.Document.Async.AsyncDocumentSession.AsyncDatabaseCommands">
             <summary>
             Gets the async database commands.
@@ -3369,6 +3775,13 @@
             Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentConvention"/> class.
             </summary>
         </member>
+        <member name="M:Raven.Client.Document.DocumentConvention.DefaultFindFullDocumentKeyFromNonStringIdentifier(System.Object,System.Type,System.Boolean)">
+            <summary>
+             Find the full document name assuming that we are using the standard conventions
+             for generating a document key
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Raven.Client.Document.DocumentConvention.GenerateDocumentKeyUsingIdentity(Raven.Client.Document.DocumentConvention,System.Object)">
             <summary>
             Generates the document key using identity.
@@ -3409,7 +3822,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Document.DocumentConvention.GetClrType(System.String,Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Document.DocumentConvention.GetClrType(System.String,Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Get the CLR type (if exists) from the document
             </summary>
@@ -3446,6 +3859,12 @@
         <member name="P:Raven.Client.Document.DocumentConvention.FindClrType">
             <summary>
             Gets or sets the function to find the clr type of a document.
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Document.DocumentConvention.FindFullDocumentKeyFromNonStringIdentifier">
+            <summary>
+            Gets or sets the function to find the full document key based on the type of a document
+            and the value type identifier (just the numeric part of the id).
             </summary>
         </member>
         <member name="P:Raven.Client.Document.DocumentConvention.JsonContractResolver">
@@ -3511,17 +3930,6 @@
             <typeparam name="TProjection">The type of the projection.</typeparam>
             <param name="fields">The fields.</param>
         </member>
-        <member name="M:Raven.Client.IDocumentQuery`1.ToListAsync">
-            <summary>
-            Gets the query result
-            </summary>
-            <value>The query result.</value>
-        </member>
-        <member name="P:Raven.Client.IDocumentQuery`1.DocumentConvention">
-            <summary>
-            Gets the document convention from the query session
-            </summary>
-        </member>
         <member name="P:Raven.Client.IDocumentQuery`1.QueryResult">
             <summary>
             Gets the query result
@@ -3529,7 +3937,7 @@
             </summary>
             <value>The query result.</value>
         </member>
-        <member name="M:Raven.Client.Document.DocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.IDocumentQueryListener[])">
+        <member name="M:Raven.Client.Document.DocumentQuery`1.#ctor(Raven.Client.Document.InMemoryDocumentSessionOperations,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.String,System.String[],Raven.Client.Listeners.IDocumentQueryListener[])">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentQuery`1"/> class.
             </summary>
@@ -3592,6 +4000,11 @@
              <remarks>
              This is only valid on dynamic indexes queries
              </remarks>
+        </member>
+        <member name="M:Raven.Client.Document.DocumentQuery`1.Raven#Client#IDocumentQueryBase{T@Raven#Client#IDocumentQuery{T}}#Statistics(Raven.Client.Linq.RavenQueryStatistics@)">
+            <summary>
+            Provide statistics about the query, such as total count of matching records
+            </summary>
         </member>
         <member name="M:Raven.Client.Document.DocumentQuery`1.Raven#Client#IDocumentQueryBase{T@Raven#Client#IDocumentQuery{T}}#Include(System.String)">
             <summary>
@@ -3841,11 +4254,6 @@
               A <see cref="T:System.String"/> that represents this instance.
             </returns>
         </member>
-        <member name="P:Raven.Client.Document.DocumentQuery`1.DocumentConvention">
-            <summary>
-            Gets the document convention from the query session
-            </summary>
-        </member>
         <member name="P:Raven.Client.Document.DocumentQuery`1.Raven#Client#IDocumentQueryBase{T@Raven#Client#IDocumentQuery{T}}#Not">
             <summary>
             Negate the next operation
@@ -3885,6 +4293,20 @@
             Loads the specified entities with the specified ids.
             </summary>
             <param name="ids">The ids.</param>
+        </member>
+        <member name="M:Raven.Client.IDocumentSession.Load``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="M:Raven.Client.IDocumentSession.Query``1(System.String)">
             <summary>
@@ -4026,7 +4448,7 @@
             </summary>
             <value>The async database commands.</value>
         </member>
-        <member name="M:Raven.Client.Document.DocumentSession.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.IDocumentQueryListener[],Raven.Client.IDocumentStoreListener[],Raven.Client.IDocumentDeleteListener[],Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands)">
+        <member name="M:Raven.Client.Document.DocumentSession.#ctor(Raven.Client.Document.DocumentStore,Raven.Client.Listeners.IDocumentQueryListener[],Raven.Client.Listeners.IDocumentStoreListener[],Raven.Client.Listeners.IDocumentDeleteListener[],Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands)">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentSession"/> class.
             </summary>
@@ -4052,6 +4474,20 @@
             Loads the specified entities with the specified ids.
             </summary>
             <param name="ids">The ids.</param>
+        </member>
+        <member name="M:Raven.Client.Document.DocumentSession.Load``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="M:Raven.Client.Document.DocumentSession.Query``1(System.String)">
             <summary>
@@ -4166,6 +4602,11 @@
             Create a new query for <typeparam name="T"/>
             </summary>
         </member>
+        <member name="M:Raven.Client.Document.DocumentSession.Raven#Client#Linq#IDocumentQueryGenerator#AsyncQuery``1(System.String)">
+            <summary>
+            Create a new query for <typeparam name="T"/>
+            </summary>
+        </member>
         <member name="P:Raven.Client.Document.DocumentSession.DatabaseCommands">
             <summary>
             Gets the database commands.
@@ -4201,20 +4642,6 @@
             <summary>
             Initializes this instance.
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Raven.Client.IDocumentStore.RegisterListener(Raven.Client.IDocumentDeleteListener)">
-            <summary>
-            Registers the delete listener.
-            </summary>
-            <param name="deleteListener">The delete listener.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Raven.Client.IDocumentStore.RegisterListener(Raven.Client.IDocumentStoreListener)">
-            <summary>
-            Registers the store listener.
-            </summary>
-            <param name="documentStoreListener">The document store listener.</param>
             <returns></returns>
         </member>
         <member name="M:Raven.Client.IDocumentStore.OpenAsyncSession">
@@ -4259,7 +4686,7 @@
         </member>
         <member name="P:Raven.Client.IDocumentStore.JsonRequestFactory">
             <summary>
-            Get the <see cref="T:Raven.Client.Client.HttpJsonRequestFactory"/> for this store
+            Get the <see cref="T:Raven.Client.Connection.HttpJsonRequestFactory"/> for this store
             </summary>
         </member>
         <member name="E:Raven.Client.IDocumentStore.Stored">
@@ -4301,9 +4728,14 @@
             Initializes a new instance of the <see cref="T:Raven.Client.Document.DocumentStore"/> class.
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.DocumentStore.ProcessConnectionStringOption(System.Net.NetworkCredential,System.String,System.String)">
+        <member name="M:Raven.Client.Document.DocumentStore.SetConnectionStringSettings(Raven.Abstractions.Data.RavenConnectionStringOptions)">
             <summary>
-            Parse the connection string option
+            Copy the relevant connection string settings
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.DocumentStore.GetConnectionStringOptions">
+            <summary>
+            Create the connection string parser
             </summary>
         </member>
         <member name="M:Raven.Client.Document.DocumentStore.Dispose">
@@ -4333,7 +4765,7 @@
             Opens the session for a particular database with the specified credentials
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.IDocumentStoreListener)">
+        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.Listeners.IDocumentStoreListener)">
             <summary>
             Registers the store listener.
             </summary>
@@ -4351,19 +4783,19 @@
             Initialize the document store access method to RavenDB
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.IDocumentDeleteListener)">
+        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.Listeners.IDocumentDeleteListener)">
             <summary>
             Registers the delete listener.
             </summary>
             <param name="deleteListener">The delete listener.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.IDocumentQueryListener)">
+        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.Listeners.IDocumentQueryListener)">
             <summary>
             Registers the query listener.
             </summary>
         </member>
-        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.IDocumentConversionListener)">
+        <member name="M:Raven.Client.Document.DocumentStore.RegisterListener(Raven.Client.Listeners.IDocumentConversionListener)">
             <summary>
             Registers the convertion listener.
             </summary>
@@ -4388,7 +4820,7 @@
         </member>
         <member name="P:Raven.Client.Document.DocumentStore.JsonRequestFactory">
             <summary>
-             Get the <see cref="T:Raven.Client.Client.HttpJsonRequestFactory"/> for the stores
+             Get the <see cref="T:Raven.Client.Connection.HttpJsonRequestFactory"/> for the stores
             </summary>
         </member>
         <member name="P:Raven.Client.Document.DocumentStore.DatabaseCommands">
@@ -4423,6 +4855,11 @@
         <member name="P:Raven.Client.Document.DocumentStore.ConnectionStringName">
             <summary>
             Gets or sets the name of the connection string name.
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Document.DocumentStore.EnlistInDistributedTransactions">
+            <summary>
+             Whatever or not we will automatically enlist in distributed transactions
             </summary>
         </member>
         <member name="P:Raven.Client.Document.DocumentStore.Url">
@@ -4513,6 +4950,11 @@
             <param name="entity">The entity.</param>
             <returns></returns>
         </member>
+        <member name="M:Raven.Client.Document.HiLoKeyGenerator.NextId">
+            <summary>
+             Create the next id (numeric)
+            </summary>
+        </member>
         <member name="T:Raven.Client.Document.ILoaderWithInclude`1">
             <summary>
             Fluent interface for specifying include paths
@@ -4547,6 +4989,20 @@
             <param name="id">The id.</param>
             <returns></returns>
         </member>
+        <member name="M:Raven.Client.Document.ILoaderWithInclude`1.Load(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
+        </member>
         <member name="M:Raven.Client.Document.ILoaderWithInclude`1.Load``1(System.String[])">
             <summary>
             Loads the specified ids.
@@ -4561,6 +5017,20 @@
             <typeparam name="TResult"></typeparam>
             <param name="id">The id.</param>
             <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Document.ILoaderWithInclude`1.Load``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="T:Raven.Client.Document.MultiLoaderWithInclude`1">
             <summary>
@@ -4592,6 +5062,20 @@
             </summary>
             <param name="id">The id.</param>
         </member>
+        <member name="M:Raven.Client.Document.MultiLoaderWithInclude`1.Load(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
+        </member>
         <member name="M:Raven.Client.Document.MultiLoaderWithInclude`1.#ctor(Raven.Client.Document.DocumentSession)">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.MultiLoaderWithInclude`1"/> class.
@@ -4611,6 +5095,20 @@
             </summary>
             <typeparam name="TResult"></typeparam>
             <param name="id">The id.</param>
+        </member>
+        <member name="M:Raven.Client.Document.MultiLoaderWithInclude`1.Load``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="T:Raven.Client.Document.MultiTypeHiLoKeyGenerator">
             <summary>
@@ -4769,6 +5267,11 @@
             Fors the each query.
             </summary>
             <param name="action">The action.</param>
+        </member>
+        <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.NegateNext">
+            <summary>
+              Negate the next operation
+            </summary>
         </member>
         <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.Include(System.String)">
             <summary>
@@ -5015,6 +5518,11 @@
             Returns a list of results for a query asynchronously. 
             </summary>
         </member>
+        <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.CountAsync">
+            <summary>
+            Gets the total count of records for this query
+            </summary>
+        </member>
         <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.AddOrder(System.String,System.Boolean)">
             <summary>
             Adds an ordering for a specific field to the query
@@ -5062,6 +5570,21 @@
              This is only valid on dynamic indexes queries
              </remarks>
         </member>
+        <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
+            <summary>
+            Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.Statistics(Raven.Client.Linq.RavenQueryStatistics@)">
+            <summary>
+            Provide statistics about the query, such as total count of matching records
+            </summary>
+        </member>
         <member name="M:Raven.Client.Document.ShardedDocumentQuery`1.CloseSubclause">
             <summary>
             Simplified method for closing a clause within the query
@@ -5099,12 +5622,11 @@
             <param name="latitude">The latitude.</param>
             <param name="longitude">The longitude.</param>
         </member>
-        <member name="M:Raven.Client.Document.SpatialDocumentQuery`1.#ctor(Raven.Client.Document.DocumentQuery{`0},System.Boolean)">
+        <member name="M:Raven.Client.Document.SpatialDocumentQuery`1.#ctor(Raven.Client.Document.DocumentQuery{`0})">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Document.SpatialDocumentQuery`1"/> class.
             </summary>
             <param name="documentQuery">The document query.</param>
-            <param name="sortByDistance">if set to <c>true</c> the query will be sorted by distance.</param>
         </member>
         <member name="M:Raven.Client.Document.SpatialDocumentQuery`1.GenerateIndexQuery(System.String)">
             <summary>
@@ -5269,7 +5791,7 @@
              Extension methods that make certain database command operations more convenient to use
             </summary>
         </member>
-        <member name="M:Raven.Client.Extensions.DatabaseCommandsExtensions.PutIndexAsync``1(Raven.Client.Client.Async.IAsyncDatabaseCommands,System.Boolean)">
+        <member name="M:Raven.Client.Extensions.DatabaseCommandsExtensions.PutIndexAsync``1(Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.Boolean)">
             <summary>
             Asynchronously creates an index
             </summary>
@@ -5303,7 +5825,7 @@
              Extension methods to create mutli tenants databases
             </summary>
         </member>
-        <member name="M:Raven.Client.Extensions.MultiTenancyExtensions.EnsureDatabaseExists(Raven.Client.Client.IDatabaseCommands,System.String)">
+        <member name="M:Raven.Client.Extensions.MultiTenancyExtensions.EnsureDatabaseExists(Raven.Client.Connection.IDatabaseCommands,System.String)">
             <summary>
              Ensures that the database exists, creating it if needed
             </summary>
@@ -5311,33 +5833,33 @@
              This operation happens _outside_ of any transaction
              </remarks>
         </member>
-        <member name="M:Raven.Client.Extensions.MultiTenancyExtensions.EnsureDatabaseExistsAsync(Raven.Client.Client.Async.IAsyncDatabaseCommands,System.String)">
+        <member name="M:Raven.Client.Extensions.MultiTenancyExtensions.EnsureDatabaseExistsAsync(Raven.Client.Connection.Async.IAsyncDatabaseCommands,System.String)">
             <summary>
              Ensures that the database exists, creating it if needed
             </summary>
         </member>
-        <member name="T:Raven.Client.IDocumentConversionListener">
+        <member name="T:Raven.Client.Listeners.IDocumentConversionListener">
             <summary>
             Hook for users to provide additional logic for converting to / from 
             entities to document/metadata pairs.
             </summary>
         </member>
-        <member name="M:Raven.Client.IDocumentConversionListener.EntityToDocument(System.Object,Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Listeners.IDocumentConversionListener.EntityToDocument(System.Object,Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Called when converting an entity to a document and metadata
             </summary>
         </member>
-        <member name="M:Raven.Client.IDocumentConversionListener.DocumentToEntity(System.Object,Newtonsoft.Json.Linq.JObject,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Listeners.IDocumentConversionListener.DocumentToEntity(System.Object,Raven.Json.Linq.RavenJObject,Raven.Json.Linq.RavenJObject)">
             <summary>
             Called when converting a document and metadata to an entity
             </summary>
         </member>
-        <member name="T:Raven.Client.IDocumentDeleteListener">
+        <member name="T:Raven.Client.Listeners.IDocumentDeleteListener">
             <summary>
             Hook for users to provide additional logic on delete operations
             </summary>
         </member>
-        <member name="M:Raven.Client.IDocumentDeleteListener.BeforeDelete(System.String,System.Object,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Listeners.IDocumentDeleteListener.BeforeDelete(System.String,System.Object,Raven.Json.Linq.RavenJObject)">
             <summary>
             Invoked before the delete request is sent to the server.
             </summary>
@@ -5345,30 +5867,35 @@
             <param name="entityInstance">The entity instance.</param>
             <param name="metadata">The metadata.</param>
         </member>
-        <member name="T:Raven.Client.IDocumentQueryListener">
+        <member name="T:Raven.Client.Listeners.IDocumentQueryListener">
             <summary>
             Hook for users to modify all queries globally
             </summary>
         </member>
-        <member name="M:Raven.Client.IDocumentQueryListener.BeforeQueryExecuted(Raven.Client.IDocumentQueryCustomization)">
+        <member name="M:Raven.Client.Listeners.IDocumentQueryListener.BeforeQueryExecuted(Raven.Client.IDocumentQueryCustomization)">
             <summary>
             Allow to customize a query globally
             </summary>
         </member>
-        <member name="T:Raven.Client.IDocumentStoreListener">
+        <member name="T:Raven.Client.Listeners.IDocumentStoreListener">
             <summary>
             Hook for users to provide additional logic on store operations
             </summary>
         </member>
-        <member name="M:Raven.Client.IDocumentStoreListener.BeforeStore(System.String,System.Object,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Listeners.IDocumentStoreListener.BeforeStore(System.String,System.Object,Raven.Json.Linq.RavenJObject)">
             <summary>
             Invoked before the store request is sent to the server.
             </summary>
             <param name="key">The key.</param>
             <param name="entityInstance">The entity instance.</param>
             <param name="metadata">The metadata.</param>
+            <returns>
+            Whatever the entity instance was modified and requires us re-serialize it.
+            Returning true would force re-serialization of the entity, returning false would 
+            mean that any changes to the entityInstance would be ignored in the current SaveChanges call.
+            </returns>
         </member>
-        <member name="M:Raven.Client.IDocumentStoreListener.AfterStore(System.String,System.Object,Newtonsoft.Json.Linq.JObject)">
+        <member name="M:Raven.Client.Listeners.IDocumentStoreListener.AfterStore(System.String,System.Object,Raven.Json.Linq.RavenJObject)">
             <summary>
             Invoked after the store request is sent to the server.
             </summary>
@@ -5401,12 +5928,12 @@
             Executes the index creation against the specified document store.
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask.Execute(Raven.Client.Client.IDatabaseCommands,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask.Execute(Raven.Client.Connection.IDatabaseCommands,Raven.Client.Document.DocumentConvention)">
             <summary>
             Executes the index creation against the specified document database using the specified conventions
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask.ExecuteAsync(Raven.Client.Client.Async.IAsyncDatabaseCommands,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask.ExecuteAsync(Raven.Client.Connection.Async.IAsyncDatabaseCommands,Raven.Client.Document.DocumentConvention)">
             <summary>
             Executes the index creation against the specified document store.
             </summary>
@@ -5452,17 +5979,17 @@
             Create a new instance
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Index(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Database.Indexing.FieldIndexing)">
+        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Index(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Abstractions.Indexing.FieldIndexing)">
             <summary>
             Register a field to be indexed
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Store(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Database.Indexing.FieldStorage)">
+        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Store(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Abstractions.Indexing.FieldStorage)">
             <summary>
             Register a field to be stored
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Sort(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Database.Indexing.SortOptions)">
+        <member name="M:Raven.Client.Indexes.AbstractIndexCreationTask`2.Sort(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},Raven.Abstractions.Indexing.SortOptions)">
             <summary>
             Register a field to be sorted
             </summary>
@@ -5911,7 +6438,7 @@
         </member>
         <member name="T:Raven.Client.Indexes.IndexCreation">
             <summary>
-            Helper class for creating indexed from implementations of <see cref="T:Raven.Client.Indexes.AbstractIndexCreationTask"/>.
+            Helper class for creating indexes from implementations of <see cref="T:Raven.Client.Indexes.AbstractIndexCreationTask"/>.
             </summary>
         </member>
         <member name="M:Raven.Client.Indexes.IndexCreation.CreateIndexes(System.Reflection.Assembly,Raven.Client.IDocumentStore)">
@@ -5921,7 +6448,7 @@
             <param name="assemblyToScanForIndexingTasks">The assembly to scan for indexing tasks.</param>
             <param name="documentStore">The document store.</param>
         </member>
-        <member name="M:Raven.Client.Indexes.IndexCreation.CreateIndexes(System.ComponentModel.Composition.Hosting.ExportProvider,Raven.Client.Client.IDatabaseCommands,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Indexes.IndexCreation.CreateIndexes(System.ComponentModel.Composition.Hosting.ExportProvider,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Document.DocumentConvention)">
             <summary>
             Creates the indexes found in the specified catalog
             </summary>
@@ -5948,77 +6475,73 @@
             <param name="catalogToGetnIndexingTasksFrom">The catalog to getn indexing tasks from.</param>
             <param name="documentStore">The document store.</param>
         </member>
-        <member name="M:Raven.Client.Indexes.IndexCreation.CreateIndexesAsync(System.ComponentModel.Composition.Hosting.ExportProvider,Raven.Client.Client.Async.IAsyncDatabaseCommands,Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Indexes.IndexCreation.CreateIndexesAsync(System.ComponentModel.Composition.Hosting.ExportProvider,Raven.Client.Connection.Async.IAsyncDatabaseCommands,Raven.Client.Document.DocumentConvention)">
             <summary>
             Creates the indexes found in the specified catalog
             </summary>
             <param name="catalogToGetnIndexingTasksFrom">The catalog to getn indexing tasks from.</param>
         </member>
-        <member name="T:Raven.Client.Indexes.IndexDefinition`2">
+        <member name="T:Raven.Client.Indexes.IndexDefinitionBuilder`2">
             <summary>
-            This class attempts to provide a strongly typed index definition on the client.
-            It is here solely as a convenience, and it is _expected_ to fail in some scenarios.
-            The recommended way is to define indexes outside your code, using the Web UI.
+            This class provides a way to define a strongly typed index on the client.
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.IndexDefinition`2.#ctor">
+        <member name="M:Raven.Client.Indexes.IndexDefinitionBuilder`2.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:Raven.Client.Indexes.IndexDefinition`2"/> class.
+            Initializes a new instance of the <see cref="T:Raven.Client.Indexes.IndexDefinitionBuilder`2"/> class.
             </summary>
         </member>
-        <member name="M:Raven.Client.Indexes.IndexDefinition`2.ToIndexDefinition(Raven.Client.Document.DocumentConvention)">
+        <member name="M:Raven.Client.Indexes.IndexDefinitionBuilder`2.ToIndexDefinition(Raven.Client.Document.DocumentConvention)">
             <summary>
             Toes the index definition.
             </summary>
             <param name="convention">The convention.</param>
             <returns></returns>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.Map">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.Map">
             <summary>
             Gets or sets the map function
             </summary>
             <value>The map.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.Reduce">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.Reduce">
             <summary>
             Gets or sets the reduce function
             </summary>
             <value>The reduce.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.TransformResults">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.TransformResults">
             <summary>
             Gets or sets the reduce function
             </summary>
             <value>The reduce.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.Stores">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.Stores">
             <summary>
             Gets or sets the stores options
             </summary>
             <value>The stores.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.Indexes">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.Indexes">
             <summary>
             Gets or sets the indexing options
             </summary>
             <value>The indexes.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.SortOptions">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.SortOptions">
             <summary>
             Gets or sets the sort options.
             </summary>
             <value>The sort options.</value>
         </member>
-        <member name="P:Raven.Client.Indexes.IndexDefinition`2.Analyzers">
+        <member name="P:Raven.Client.Indexes.IndexDefinitionBuilder`2.Analyzers">
             <summary>
             Get os set the analyzers
             </summary>
         </member>
-        <member name="T:Raven.Client.Indexes.IndexDefinition`1">
+        <member name="T:Raven.Client.Indexes.IndexDefinitionBuilder`1">
             <summary>
-            This class attempts to provide a strongly typed index definition on the client.
-            It is here solely as a convenience, and it is _expected_ to fail in some scenarios.
-            The recommended way is to define indexes outside your code, using the Web UI.
+            This class provides a way to define a strongly typed index on the client.
             </summary>
         </member>
         <member name="T:Raven.Client.Indexes.IndexDefinitionHelper">
@@ -6091,7 +6614,7 @@
             The index name
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.Action{Raven.Client.IDocumentQueryCustomization},System.Action{Raven.Database.Data.QueryResult},System.String,System.Collections.Generic.HashSet{System.String})">
+        <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.Action{Raven.Client.IDocumentQueryCustomization},System.Action{Raven.Abstractions.Data.QueryResult},System.String,System.Collections.Generic.HashSet{System.String})">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Linq.RavenQueryProviderProcessor`1"/> class.
             </summary>
@@ -6114,12 +6637,28 @@
             <param name="expression"></param>
             <returns></returns>
         </member>
+        <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.GetPath(System.Linq.Expressions.Expression,System.String@,System.Type@,System.Boolean@)">
+            <summary>
+            Get the path from the expression, including considering dictionary calls
+            </summary>
+        </member>
         <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.GetMemberExpression(System.Linq.Expressions.Expression)">
             <summary>
             Get the member expression from the expression
             </summary>
         </member>
+        <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.GetValueFromExpression(System.Linq.Expressions.Expression,System.Type)">
+            <summary>
+            Get the actual value from the expression
+            </summary>
+        </member>
         <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.GetLuceneQueryFor(System.Linq.Expressions.Expression)">
+            <summary>
+            Gets the lucene query.
+            </summary>
+            <value>The lucene query.</value>
+        </member>
+        <member name="M:Raven.Client.Linq.RavenQueryProviderProcessor`1.GetAsyncLuceneQueryFor(System.Linq.Expressions.Expression)">
             <summary>
             Gets the lucene query.
             </summary>
@@ -6188,7 +6727,7 @@
             Get only the first item (or throw if there are more than one) or null if empty
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.DynamicQueryProviderProcessor`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.Action{Raven.Client.IDocumentQueryCustomization},System.Action{Raven.Database.Data.QueryResult},System.String,System.Collections.Generic.HashSet{System.String})">
+        <member name="M:Raven.Client.Linq.DynamicQueryProviderProcessor`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.Action{Raven.Client.IDocumentQueryCustomization},System.Action{Raven.Abstractions.Data.QueryResult},System.String,System.Collections.Generic.HashSet{System.String})">
             <summary>
             Creates a dynamic query provider around the provided session
             </summary>
@@ -6228,7 +6767,7 @@
             <param name="action">The action.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Linq.RavenQueryInspector`1.#ctor(Raven.Client.Linq.IRavenQueryProvider,Raven.Client.Linq.RavenQueryStatistics,System.String,System.Linq.Expressions.Expression,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands)">
+        <member name="M:Raven.Client.Linq.RavenQueryInspector`1.#ctor(Raven.Client.Linq.IRavenQueryProvider,Raven.Client.Linq.RavenQueryStatistics,System.String,System.Linq.Expressions.Expression,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands)">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Linq.RavenQueryInspector`1"/> class.
             </summary>
@@ -6284,7 +6823,7 @@
             Grant access to the async database commands
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.DynamicRavenQueryInspector`1.#ctor(Raven.Client.Linq.IRavenQueryProvider,Raven.Client.Linq.RavenQueryStatistics,System.String,System.Linq.Expressions.Expression,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands)">
+        <member name="M:Raven.Client.Linq.DynamicRavenQueryInspector`1.#ctor(Raven.Client.Linq.IRavenQueryProvider,Raven.Client.Linq.RavenQueryStatistics,System.String,System.Linq.Expressions.Expression,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands)">
             <summary>
             Creates a dynamic raven queryable around the provided query provider
             </summary>
@@ -6300,9 +6839,14 @@
             Extension for the built-in <see cref="T:System.Linq.IQueryProvider"/> allowing for Raven specific operations
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.IRavenQueryProvider.AfterQueryExecuted(System.Action{Raven.Database.Data.QueryResult})">
+        <member name="M:Raven.Client.Linq.IRavenQueryProvider.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
             <summary>
             Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Linq.IRavenQueryProvider.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
             </summary>
         </member>
         <member name="M:Raven.Client.Linq.IRavenQueryProvider.Customize(System.Action{Raven.Client.IDocumentQueryCustomization})">
@@ -6315,7 +6859,7 @@
             Change the result type for the query provider
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.IRavenQueryProvider.ToLuceneQuery``1(System.Linq.Expressions.Expression)">
+        <member name="M:Raven.Client.Linq.IRavenQueryProvider.ToAsyncLuceneQuery``1(System.Linq.Expressions.Expression)">
             <summary>
             Convert the Linq query to a Lucene query
             </summary>
@@ -6337,7 +6881,7 @@
             Set the fields to fetch
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.String,Raven.Client.Linq.RavenQueryStatistics,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands)">
+        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.String,Raven.Client.Linq.RavenQueryStatistics,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands)">
             <summary>
             Creates a dynamic query provider around the provided document session
             </summary>
@@ -6348,6 +6892,11 @@
             </summary>
         </member>
         <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.ToLuceneQuery``1(System.Linq.Expressions.Expression)">
+            <summary>
+            Convert the expression to a Lucene query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.ToAsyncLuceneQuery``1(System.Linq.Expressions.Expression)">
             <summary>
             Convert the expression to a Lucene query
             </summary>
@@ -6378,9 +6927,14 @@
             The value that results from executing the specified query.
             </returns>
         </member>
-        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.AfterQueryExecuted(System.Action{Raven.Database.Data.QueryResult})">
+        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
             <summary>
             Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
             </summary>
         </member>
         <member name="M:Raven.Client.Linq.DynamicRavenQueryProvider`1.Customize(System.Action{Raven.Client.IDocumentQueryCustomization})">
@@ -6487,9 +7041,14 @@
             Marker method for allowing hierarchical queries on the server.
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.LinqExtensions.ToListAsync``1(Raven.Client.Linq.IRavenQueryable{``0})">
+        <member name="M:Raven.Client.Linq.LinqExtensions.ToListAsync``1(System.Linq.IQueryable{``0})">
             <summary>
             Returns a list of results for a query asynchronously. 
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Linq.LinqExtensions.CountAsync``1(System.Linq.IQueryable{``0})">
+            <summary>
+            Returns the total count of results for a query asynchronously. 
             </summary>
         </member>
         <member name="M:Raven.Client.Linq.LinqExtensions.Include``1(Raven.Client.Linq.IRavenQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
@@ -6548,6 +7107,12 @@
              implementation of In operator
             </summary>
         </member>
+        <member name="M:Raven.Client.Linq.LinqExtensions.Skip``1(Raven.Client.Linq.IRavenQueryable{``0},System.Int32)">
+            <summary>
+            Bypasses a specified number of elements in a sequence and then returns the remaining elements.
+            </summary>
+            Summary:
+        </member>
         <member name="T:Raven.Client.Linq.RavenQueryProvider`1">
             <summary>
             An implementation of <see cref="T:Raven.Client.Linq.IRavenQueryProvider"/>
@@ -6558,7 +7123,7 @@
             Change the result type for the query provider
             </summary>
         </member>
-        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.String,Raven.Client.Linq.RavenQueryStatistics,Raven.Client.Client.IDatabaseCommands,Raven.Client.Client.Async.IAsyncDatabaseCommands)">
+        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.#ctor(Raven.Client.Linq.IDocumentQueryGenerator,System.String,Raven.Client.Linq.RavenQueryStatistics,Raven.Client.Connection.IDatabaseCommands,Raven.Client.Connection.Async.IAsyncDatabaseCommands)">
             <summary>
             Initializes a new instance of the <see cref="T:Raven.Client.Linq.RavenQueryProvider`1"/> class.
             </summary>
@@ -6589,9 +7154,14 @@
             The value that results from executing the specified query.
             </returns>
         </member>
-        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.AfterQueryExecuted(System.Action{Raven.Database.Data.QueryResult})">
+        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.AfterQueryExecuted(System.Action{Raven.Abstractions.Data.QueryResult})">
             <summary>
             Callback to get the results of the query
+            </summary>
+        </member>
+        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.InvokeAfterQueryExecuted(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Called externally to raise the after query executed callback
             </summary>
         </member>
         <member name="M:Raven.Client.Linq.RavenQueryProvider`1.Customize(System.Action{Raven.Client.IDocumentQueryCustomization})">
@@ -6600,7 +7170,7 @@
             </summary>
             <param name="action">The action.</param>
         </member>
-        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.ToLuceneQuery``1(System.Linq.Expressions.Expression)">
+        <member name="M:Raven.Client.Linq.RavenQueryProvider`1.ToAsyncLuceneQuery``1(System.Linq.Expressions.Expression)">
             <summary>
             Convert the expression to a Lucene query
             </summary>
@@ -6632,6 +7202,11 @@
             Such as how many records match the query
             </summary>
         </member>
+        <member name="M:Raven.Client.Linq.RavenQueryStatistics.UpdateQueryStats(Raven.Abstractions.Data.QueryResult)">
+            <summary>
+            Update the query stats from the query results
+            </summary>
+        </member>
         <member name="P:Raven.Client.Linq.RavenQueryStatistics.IsStale">
             <summary>
             Whatever the query returned potentially stale results
@@ -6650,6 +7225,21 @@
         <member name="P:Raven.Client.Linq.RavenQueryStatistics.Timestamp">
             <summary>
             The time when the query results were unstale.
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Linq.RavenQueryStatistics.IndexName">
+            <summary>
+            The name of the index queried
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Linq.RavenQueryStatistics.IndexTimestamp">
+            <summary>
+            The timestamp of the queried index
+            </summary>
+        </member>
+        <member name="P:Raven.Client.Linq.RavenQueryStatistics.IndexEtag">
+            <summary>
+            The etag of the queried index
             </summary>
         </member>
         <member name="T:Raven.Client.Shard.ShardedDocumentSession">
@@ -6723,6 +7313,20 @@
             <typeparam name="T"></typeparam>
             <param name="ids">The ids.</param>
             <returns></returns>
+        </member>
+        <member name="M:Raven.Client.Shard.ShardedDocumentSession.Load``1(System.ValueType)">
+            <summary>
+            Loads the specified entities with the specified id after applying
+            conventions on the provided id to get the real document id.
+            </summary>
+            <remarks>
+            This method allows you to call:
+            Load{Post}(1)
+            And that call will internally be translated to 
+            Load{Post}("posts/1");
+            
+            Or whatever your conventions specify.
+            </remarks>
         </member>
         <member name="M:Raven.Client.Shard.ShardedDocumentSession.Include(System.String)">
             <summary>
@@ -6838,7 +7442,7 @@
             <summary>
             Gets or sets a value indicating whether the session should use optimistic concurrency.
             When set to <c>true</c>, a check is made so that a change made behind the session back would fail
-            and raise <see cref="T:Raven.Http.Exceptions.ConcurrencyException"/>.
+            and raise <see cref="T:Raven.Abstractions.Exceptions.ConcurrencyException"/>.
             </summary>
             <value></value>
         </member>
@@ -6954,13 +7558,6 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
-        <member name="M:Raven.Client.Shard.ShardedDocumentStore.RegisterListener(Raven.Client.IDocumentStoreListener)">
-            <summary>
-            Registers the store listener.
-            </summary>
-            <param name="documentStoreListener">The document store listener.</param>
-            <returns></returns>
-        </member>
         <member name="M:Raven.Client.Shard.ShardedDocumentStore.OpenAsyncSession">
             <summary>
             Opens the async session.
@@ -7001,13 +7598,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Shard.ShardedDocumentStore.RegisterListener(Raven.Client.IDocumentDeleteListener)">
-            <summary>
-            Registers the delete listener.
-            </summary>
-            <param name="deleteListener">The delete listener.</param>
-            <returns></returns>
-        </member>
         <member name="P:Raven.Client.Shard.ShardedDocumentStore.SharedOperationsHeaders">
             <summary>
             Gets the shared operations headers.
@@ -7016,7 +7606,7 @@
         </member>
         <member name="P:Raven.Client.Shard.ShardedDocumentStore.JsonRequestFactory">
             <summary>
-            Get the <see cref="T:Raven.Client.Client.HttpJsonRequestFactory"/> for this store
+            Get the <see cref="T:Raven.Client.Connection.HttpJsonRequestFactory"/> for this store
             </summary>
         </member>
         <member name="E:Raven.Client.Shard.ShardedDocumentStore.Stored">
