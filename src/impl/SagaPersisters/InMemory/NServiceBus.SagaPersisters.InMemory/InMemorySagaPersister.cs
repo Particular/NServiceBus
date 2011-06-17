@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using NServiceBus.Saga;
 
@@ -16,7 +17,7 @@ namespace NServiceBus.SagaPersisters.InMemory
 
         T ISagaPersister.Get<T>(string property, object value)
         {
-            foreach(var entity in data.Values)
+            foreach(var entity in data.Values.Where(x=>x.GetType() is T))
             {
                 var prop = entity.GetType().GetProperty(property);
                 if (prop != null)
