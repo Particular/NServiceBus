@@ -53,12 +53,7 @@
                 //if (callInfo.Type == CallType.Submit && e.Data.Length > 4 * 1024 * 1024)
                 //    throw new Exception("Cannot accept messages larger than 4MB.");
 
-                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew,
-                        new TransactionOptions
-                        {
-                            IsolationLevel = IsolationLevel.ReadCommitted,
-                            Timeout = TimeSpan.FromSeconds(30)
-                        }))
+                using (var scope = DefaultTransactionScope())
                 {
                     switch (callInfo.Type)
                     {
@@ -71,6 +66,16 @@
                 }
 
             }
+        }
+
+        static TransactionScope DefaultTransactionScope()
+        {
+            return new TransactionScope(TransactionScopeOption.Required,
+                                        new TransactionOptions
+                                            {
+                                                IsolationLevel = IsolationLevel.ReadCommitted,
+                                                Timeout = TimeSpan.FromSeconds(30)
+                                            });
         }
 
         CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
@@ -138,8 +143,11 @@
             IDictionary<string, string> outHeaders;
 
             if (!persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders))
-                return;
-
+            {
+                Logger.InfoFormat("Message with id: {0} is already acked, dropping the request", callInfo.ClientId);
+                return;    
+            }
+            
             var msg = new TransportMessage
                           {
                               Body = outMessage,

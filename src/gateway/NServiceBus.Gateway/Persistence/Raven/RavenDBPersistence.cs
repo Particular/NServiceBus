@@ -23,7 +23,8 @@
                                          Id = EscapeClientId(clientId),
                                          TimeReceived = timeReceived,
                                          Headers = headers,
-                                         OriginalMessage = new byte[messageStream.Length]
+                                         OriginalMessage = new byte[messageStream.Length],
+                                         Acknowledged = false
                                      };
 
             messageStream.Read(gatewayMessage.OriginalMessage, 0, (int)messageStream.Length);
@@ -68,6 +69,7 @@
                 headers = storedMessage.Headers;
 
                 storedMessage.Acknowledged = true;
+               
                 session.SaveChanges();
 
                 return true;

@@ -11,9 +11,8 @@ namespace SiteA
         public void Init()
         {
             Configure.With()
-                    .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
-                    .DefaultBuilder()
-                    .BinarySerializer();
+                .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
+                .DefaultBuilder();
         }
 
 
@@ -23,7 +22,7 @@ namespace SiteA
     {
         public void Init()
         {
-            Configure.Instance.Gateway();
+            Configure.Instance.GatewayWithInMemoryPersistence();
         }
     }
 }
