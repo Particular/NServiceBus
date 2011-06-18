@@ -101,13 +101,8 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            var isKeyValuePair = false;
 
             var args = t.GetGenericArguments();
-            if (args.Length == 2)
-            {
-                isKeyValuePair = (typeof (KeyValuePair<,>).MakeGenericType(args) == t);
-            }
 
             if (args.Length == 1 && args[0].IsValueType)
             {
@@ -124,7 +119,9 @@ namespace NServiceBus.Serializers.XML
 
             typesBeingInitialized.Add(t);
 
-            var props = GetAllPropertiesForType(t, isKeyValuePair);
+            var isTuple = IsTuple(t);
+
+            var props = GetAllPropertiesForType(t, isTuple);
             typeToProperties[t] = props;
             var fields = GetAllFieldsForType(t);
             typeToFields[t] = fields;
@@ -136,7 +133,7 @@ namespace NServiceBus.Serializers.XML
 
                 propertyInfoToLateBoundProperty[p] = DelegateFactory.Create(p);
 
-                if (!isKeyValuePair)
+                if (!isTuple)
                     propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
             
                 InitType(p.PropertyType);
@@ -148,7 +145,7 @@ namespace NServiceBus.Serializers.XML
                 
                 fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
 
-                if (!isKeyValuePair)
+                if (!isTuple)
                     fieldInfoToLateBoundFieldSet[f] = DelegateFactory.CreateSet(f);
 
                 InitType(f.FieldType);
@@ -159,9 +156,9 @@ namespace NServiceBus.Serializers.XML
         /// Gets a PropertyInfo for each property of the given type.
         /// </summary>
         /// <param name="t"></param>
-        /// <param name="isKeyValuePair"></param>
+        /// <param name="isTuple"></param>
         /// <returns></returns>
-        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isKeyValuePair)
+        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isTuple)
         {
             var result = new List<PropertyInfo>();
 
@@ -180,7 +177,7 @@ namespace NServiceBus.Serializers.XML
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead.");
 
-                if (!prop.CanWrite && !isKeyValuePair)
+                if (!prop.CanWrite && !isTuple)
                     continue;
                 if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
                     continue;
@@ -572,6 +569,22 @@ namespace NServiceBus.Serializers.XML
                 }
             }
 
+            //handle tuples
+            if (IsTuple(type))
+            {
+                var genericArguments = type.GetGenericArguments();
+                var constructorParameters = new List<object>();
+
+                var genericArgumentIndex = 0;
+                foreach(XmlNode childNode in n.ChildNodes)
+                {
+                    if (childNode.NodeType == XmlNodeType.Element)
+                        constructorParameters.Add(GetObjectOfTypeFromNode(genericArguments[genericArgumentIndex++], childNode));
+                }
+
+                return Activator.CreateInstance(type, constructorParameters.ToArray());
+            }
+
             if (n.ChildNodes.Count == 0)
                 if (type == typeof(string))
                     return string.Empty;
@@ -718,7 +731,7 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            if (type.IsValueType || type == typeof(string) || type == typeof(Uri))
+            if ((type.IsValueType && !IsTuple(type)) || type == typeof(string) || type == typeof(Uri))
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, FormatAsString(value));
                 return;
@@ -866,6 +879,9 @@ namespace NServiceBus.Serializers.XML
         private static readonly Dictionary<PropertyInfo, LateBoundPropertySet> propertyInfoToLateBoundPropertySet = new Dictionary<PropertyInfo, LateBoundPropertySet>();
         private static readonly Dictionary<FieldInfo, LateBoundFieldSet> fieldInfoToLateBoundFieldSet = new Dictionary<FieldInfo, LateBoundFieldSet>();
 
+        private static readonly List<Type> tupleTypeTemplates = new List<Type> { typeof(Tuple<>), typeof(Tuple<,>), typeof(Tuple<,,>), typeof(Tuple<,,,>), 
+            typeof(Tuple<,,,,>), typeof(Tuple<,,,,,>), typeof(Tuple<,,,,,,>), typeof(Tuple<,,,,,,,>)};
+
         [ThreadStatic]
         private static string defaultNameSpace;
 
@@ -890,5 +906,27 @@ namespace NServiceBus.Serializers.XML
         private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
 
         #endregion
+
+
+        /// <summary>
+        /// Indicates whether the supplied type is a tuple type.
+        /// </summary>
+        /// <param name="t">The type</param>
+        /// <returns>True if the type is one of the generic tuple types (e.g. Tuple<,>), otherwise false</returns>
+        /// <remarks>This method treats the KeyValuePair<,> type to be a special instance of a tuple, and as such
+        /// returns true for it.</remarks>
+        private static bool IsTuple(Type t)
+        {
+            var genericArguments = t.GetGenericArguments();
+
+            if (genericArguments.Length < 1 || genericArguments.Length > 8)
+                return false;
+
+            if (genericArguments.Length == 2 && typeof(KeyValuePair<,>).MakeGenericType(genericArguments).IsAssignableFrom(t))
+                return true;
+
+            return tupleTypeTemplates[genericArguments.Length - 1].MakeGenericType(genericArguments).IsAssignableFrom(t);
+
+        }
     }
 }
