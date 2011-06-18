@@ -31,28 +31,72 @@ namespace NServiceBus.Serializers.XML.Test
                                      MessageTypes = new List<Type>(new[] {typeof (MessageWithGenericProperty)})
                                  };
 
-            using (var stream = new MemoryStream())
+
+            var message = new MessageWithGenericProperty
+                              {
+                                  GenericProperty = new GenericProperty<string>("test") {WhatEver = "a property"}
+                              };
+
+            var result = SerializeAndDeserializeFromMemoryStream(serializer, message) as MessageWithGenericProperty;
+
+            Assert.NotNull(result);
+
+            Assert.AreEqual(message.GenericProperty.WhatEver, result.GenericProperty.WhatEver);
+
+
+        }
+
+
+        [Test]
+        public void Tuple_properties_should_be_supported()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = new MessageSerializer
             {
-                var message = new MessageWithGenericProperty
-                                  {
-                                      GenericProperty = new GenericProperty<string>("test"){WhatEver = "a property"}
-                                  };
+                MessageMapper = mapper,
+                MessageTypes = new List<Type>(new[] { typeof(MessageWithTupleProperty) })
+            };
 
-                serializer.Serialize(new IMessage[] { message }, stream);
+          
+                var message = new MessageWithTupleProperty
+                {
+                    Tuple = Tuple.Create(1, "two")
+                };
 
-                stream.Position = 0;
 
-                Debug.WriteLine(new StreamReader(stream).ReadToEnd());
-
-                stream.Position = 0;
-
-                var result = serializer.Deserialize(stream)[0] as MessageWithGenericProperty;
+                var result = SerializeAndDeserializeFromMemoryStream(serializer, message) as MessageWithTupleProperty;
 
                 Assert.NotNull(result);
 
-                Assert.AreEqual(message.GenericProperty.WhatEver,result.GenericProperty.WhatEver);
-            }
-                
+                Assert.AreEqual(message.Tuple.Item1, result.Tuple.Item1);
+                Assert.AreEqual(message.Tuple.Item2, result.Tuple.Item2);
+            
+
+        }
+
+        [Test]
+        public void KeyValuePair_properties_should_be_supported()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = new MessageSerializer
+                                 {
+                                     MessageMapper = mapper,
+                                     MessageTypes = new List<Type>(new[] {typeof (MessageWithKeyValuePairProperty)})
+                                 };
+
+            var message = new MessageWithKeyValuePairProperty
+                              {
+                                  KeyValuePair = new KeyValuePair<int, string>(1, "two")
+                              };
+
+            var result = SerializeAndDeserializeFromMemoryStream(serializer, message) as MessageWithKeyValuePairProperty;
+
+            Assert.NotNull(result);
+
+            Assert.AreEqual(message.KeyValuePair.Key, result.KeyValuePair.Key);
+            Assert.AreEqual(message.KeyValuePair.Value, result.KeyValuePair.Value);
+
+
         }
 
         [Test]
@@ -293,7 +337,30 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
+
+        private static object SerializeAndDeserializeFromMemoryStream(IMessageSerializer serializer, IMessage message)
+        {
+            return SerializeAndDeserializeFromMemoryStream(serializer, new IMessage[] {message})[0];
+        }
+
+        private static object[] SerializeAndDeserializeFromMemoryStream(IMessageSerializer serializer, IMessage[] messages)
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(messages, stream);
+
+                stream.Position = 0;
+
+                Debug.WriteLine(new StreamReader(stream).ReadToEnd());
+
+                stream.Position = 0;
+
+                return serializer.Deserialize(stream);
+            }
+        }
     }
+
+
 
     public class MessageWithDouble : IMessage
     {
@@ -305,6 +372,16 @@ namespace NServiceBus.Serializers.XML.Test
         public GenericProperty<string> GenericProperty { get; set; }
         public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
 
+    }
+
+    public class MessageWithTupleProperty : IMessage
+    {
+        public Tuple<int,string> Tuple { get; set; }
+    }
+
+    public class MessageWithKeyValuePairProperty : IMessage
+    {
+        public KeyValuePair<int, string> KeyValuePair { get; set; }
     }
 
     public class GenericProperty<T>
