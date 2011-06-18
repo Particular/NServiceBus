@@ -58,7 +58,7 @@
             return results > 0;
         }
 
-        public void AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
+        public bool AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
         {
             message = null;
             headers = null;
@@ -82,6 +82,8 @@
                     statusParam.Value = 0;
                     cmd.Parameters.Add(statusParam);
 
+                    var ackOk = false;
+
                     using (var reader = cmd.ExecuteReader())
                     if (reader.Read())
                     {
@@ -92,9 +94,13 @@
                         var o = serializer.Deserialize(stream);
                         stream.Close();
                         headers = o as IDictionary<string,string>;
+
+                        ackOk = true;
                     }
 
                     tx.Commit();
+
+                    return ackOk;
                 }
             }
         }

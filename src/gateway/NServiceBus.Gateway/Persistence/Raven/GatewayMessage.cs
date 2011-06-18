@@ -12,5 +12,7 @@
         public string Id { get; set; }
 
         public byte[] OriginalMessage { get; set; }
+
+        public bool Acknowledged { get; set; }
     }
 }

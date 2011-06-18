@@ -137,10 +137,9 @@
             byte[] outMessage;
             IDictionary<string, string> outHeaders;
 
-            persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders);
+            if (!persister.AckMessage(callInfo.ClientId, out outMessage, out outHeaders))
+                return;
 
-            if (outHeaders == null || outMessage == null) return;
-            
             var msg = new TransportMessage
                           {
                               Body = outMessage,

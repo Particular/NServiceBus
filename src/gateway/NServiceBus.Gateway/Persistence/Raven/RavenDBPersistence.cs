@@ -49,17 +49,28 @@
             return true;
         }
 
-        public void AckMessage(string clientId, out byte[] message, out IDictionary<string, string> headers)
+        public bool AckMessage(string clientId, out byte[] message, out IDictionary<string, string> headers)
         {
+            message = null;
+            headers = null;
+
             using (var session = store.OpenSession())
             {
                 var storedMessage = session.Load<GatewayMessage>(EscapeClientId(clientId));
 
                 if (storedMessage == null)
                     throw new InvalidOperationException("No message with id: " + clientId+ "found");
-                
+
+                if (storedMessage.Acknowledged)
+                    return false;
+
                 message = storedMessage.OriginalMessage;
                 headers = storedMessage.Headers;
+
+                storedMessage.Acknowledged = true;
+                session.SaveChanges();
+
+                return true;
             }
         }
 
