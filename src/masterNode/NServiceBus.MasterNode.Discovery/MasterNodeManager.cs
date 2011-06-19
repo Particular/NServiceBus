@@ -67,7 +67,7 @@ namespace NServiceBus.MasterNode.Discovery
 
         public bool IsCurrentNodeTheMaster
         {
-            get { return MasterNodeConfigurer.MasterNodeConfigured; }
+            get { return MasterNodeConfigurer.ConfiguredAsMasterNode; }
         }
 
         public static readonly TimeSpan presenceInterval = TimeSpan.FromSeconds(3);

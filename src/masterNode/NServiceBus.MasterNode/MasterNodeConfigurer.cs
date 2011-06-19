@@ -8,7 +8,7 @@
             return config;
         }
 
-        public static bool MasterNodeConfigured { get { return masterNode; } }
+        public static bool ConfiguredAsMasterNode { get { return masterNode; } }
         private static bool masterNode;
     }
 }

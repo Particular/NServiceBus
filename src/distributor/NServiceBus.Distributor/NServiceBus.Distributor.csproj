@@ -58,6 +58,10 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.MasterNode">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>
@@ -105,6 +109,7 @@
     </Compile>
     <Compile Include="Configurer.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
+    <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="ReadyMessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnAddressRewriter.cs" />

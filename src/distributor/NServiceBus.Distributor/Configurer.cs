@@ -43,11 +43,10 @@ namespace NServiceBus
                     {
                         var mgr = new MsmqWorkerAvailabilityManager { StorageQueue = storageQueue };
 
-                        new ReadyMessageManager 
+                        new DistributorReadyMessageProcessor 
                         { 
                             WorkerAvailabilityManager = mgr,
-                            NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads,
-                            ControlQueue = controlQueue
+                            NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads
                         }.Init();
 
                         new DistributorBootstrapper
@@ -59,16 +58,6 @@ namespace NServiceBus
                     };
 
             return config;
-        }
-
-        private static string GetInputQueue(MsmqTransportConfig msmqTransportConfig)
-        {
-            var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
-
-            var inputQueue = unicastBusConfig.LocalAddress;
-            if (inputQueue == null)
-                inputQueue = msmqTransportConfig.InputQueue;
-            return inputQueue;
         }
     }
 }

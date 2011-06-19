@@ -7,58 +7,26 @@ using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Transactional;
+using NServiceBus.Config;
+using NServiceBus.MasterNode;
 
 namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager : IDisposable
+    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
     {
-        public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
+        public IManageTheMasterNode masterNodeManager { get; set; }
+        public IStartableBus Bus { get; set; }
+        public ITransport EndpointTransport { get; set; }
+        public IBus EndpointBus { get; set; }
+
         public int NumberOfWorkerThreads { get; set; }
         public Address ControlQueue { get; set; }
 
-        public void Init()
+        public void Run()
         {
-            endpointTransport = Configure.Instance.Builder.Build<ITransport>();
-            endpointTransport.FinishedMessageProcessing += (x, y) => SendReadyMessage(false);
+            Bus.Started += (x, y) => SendReadyMessage(true);
 
-            var bus = Configure.Instance.Builder.Build<IStartableBus>();
-            bus.Started += (x, y) =>
-                                {
-                                    SendReadyMessage(true);
-                                    controlTransport.Start(ControlQueue);
-                                };
-
-            endpointBus = Configure.Instance.Builder.Build<IBus>();
-
-            controlTransport = new TransactionalTransport
-                            {
-                                IsTransactional = true,
-                                FailureManager = Configure.Instance.Builder.Build<IManageMessageFailures>(),
-                                MessageReceiver = new MsmqMessageReceiver(),
-                                MaxRetries = 1,
-                                NumberOfWorkerThreads = NumberOfWorkerThreads
-                            };
-
-            var serializer = Configure.Instance.Builder.Build<IMessageSerializer>();
-
-            controlTransport.TransportMessageReceived +=
-                (obj, ev) =>
-                    {
-                        var messages = serializer.Deserialize(new MemoryStream(ev.Message.Body));
-                        foreach (var msg in messages)
-                            if (msg is ReadyMessage)
-                                Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
-                    };
-        }
-
-        private void Handle(ReadyMessage message, Address returnAddress)
-        {
- 	        Configurer.Logger.Info("Server available: " + returnAddress);
-
-            if (message.ClearPreviousFromThisAddress) //indicates worker started up
-                WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);
-
-            WorkerAvailabilityManager.WorkerAvailable(returnAddress);
+            EndpointTransport.FinishedMessageProcessing += (x, y) => SendReadyMessage(false);
         }
 
         public void SendReadyMessage(bool startup)
@@ -66,8 +34,8 @@ namespace NServiceBus.Distributor
             IMessage[] messages;
             if (startup)
             {
-                messages = new IMessage[endpointTransport.NumberOfWorkerThreads];
-                for (var i = 0; i < endpointTransport.NumberOfWorkerThreads; i++)
+                messages = new IMessage[EndpointTransport.NumberOfWorkerThreads];
+                for (var i = 0; i < EndpointTransport.NumberOfWorkerThreads; i++)
                 {
                     var rm = new ReadyMessage
                     {
@@ -82,17 +50,7 @@ namespace NServiceBus.Distributor
                 messages = new IMessage[] {new ReadyMessage()};
             }
 
-            endpointBus.Send(ControlQueue, messages);
+            EndpointBus.Send(ControlQueue, messages);
         }
-
-        public void Dispose()
-        {
-            if (controlTransport != null)
-                controlTransport.Dispose();
-        }
-
-        private ITransport controlTransport;
-        private ITransport endpointTransport;
-        private IBus endpointBus;
     }
 }
