@@ -15,8 +15,16 @@ namespace NServiceBus.Distributor
         public void Init()
         {
             if (RoutingConfig.IsConfiguredAsMasterNode)
+            {
                 ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+                return;
+            }
 
+            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+            {
+                var cfg = Configure.GetConfigSection<UnicastBusConfig>();
+                ControlQueue = Address.Parse(cfg.DistributorControlAddress);
+            }
         }
 
         public IManageTheMasterNode masterNodeManager { get; set; }
@@ -29,20 +37,12 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
+            if (ControlQueue == null && RoutingConfig.IsDynamicNodeDiscoveryOn)
+                ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
 
-            Bus.Started += (x, y) => 
-                ThreadPool.QueueUserWorkItem(s =>
-                    {
-                        while (ControlQueue == null)
-                            ControlQueue = masterNodeManager.GetMasterNode(); // has built in sleep
+            Bus.Started += (x, y) => SendReadyMessage(true);
 
-                        ControlQueue = ControlQueue.SubScope(Configurer.DistributorControlName);
-
-                        SendReadyMessage(true);
-
-                        EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
-                    }
-                );
+            EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
         }
 
         public void SendReadyMessage(bool startup)

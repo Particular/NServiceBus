@@ -37,8 +37,11 @@ namespace NServiceBus.MasterNode.Discovery
                         Logger.Debug(toLog);
 
                         if (remoteIsMaster)
-                            if (callback != null)
-                                callback(nodeMetadata.Metadata["Address"]);
+                            masterNode = Address.Parse(nodeMetadata.Metadata["Address"]);
+
+                        if (callback != null && masterNode != null)
+                            callback(masterNode);
+                            
 
                         break;
                     case TopologyChangeType.Gone:
@@ -57,19 +60,7 @@ namespace NServiceBus.MasterNode.Discovery
 
         public Address GetMasterNode()
         {
-            if (masterNode != null)
-                return masterNode;
-
-            YieldMasterNode(Address.Local, IsCurrentNodeTheMaster, s => masterNode = s);
-
-            Thread.Sleep(presenceInterval + TimeSpan.FromSeconds(1));
-
             return masterNode;
-        }
-
-        public void YieldMasterNode(string localAddress, bool isLocalTheMaster, Action<string> callback)
-        {
-            
         }
 
         public bool IsCurrentNodeTheMaster
@@ -78,7 +69,7 @@ namespace NServiceBus.MasterNode.Discovery
         }
 
         public static readonly TimeSpan presenceInterval = TimeSpan.FromSeconds(3);
-        private Address masterNode;
+        private static Address masterNode;
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof (MasterNodeManager).Namespace);
     }
