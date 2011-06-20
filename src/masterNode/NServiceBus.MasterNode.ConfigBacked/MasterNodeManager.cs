@@ -14,6 +14,9 @@ namespace NServiceBus.MasterNode.ConfigBacked
                 var section = Configure.GetConfigSection<MasterNodeLocatorConfig>();
                 if (section != null)
                     masterNode = section.Node.ToLower();
+                else
+                    masterNode = Address.Local;
+                
             }
 
             return masterNode;
@@ -26,6 +29,9 @@ namespace NServiceBus.MasterNode.ConfigBacked
                 if (GetMasterNode() == null)
                     return false;
 
+                if (GetMasterNode() == Address.Local)
+                    return true;
+                
                 if (Environment.MachineName.ToLower() == masterNode)
                     return true;
 
@@ -42,6 +48,6 @@ namespace NServiceBus.MasterNode.ConfigBacked
             }
         }
 
-        private string masterNode; //lower case; cached output of GetMasterNode()
+        private Address masterNode; //lower case; cached output of GetMasterNode()
     }
 }

@@ -57,7 +57,8 @@
                     ClientId = messageStored.Id,
                     Headers = messageStored.Headers,
                     TimeReceived = messageStored.TimeReceived,
-                    OriginalMessage = messageStored.OriginalMessage
+                    OriginalMessage = messageStored.OriginalMessage,
+                    Acknowledged = messageStored.Acknowledged
                 };
             }
 
@@ -96,5 +97,7 @@
         public string ClientId { get; set; }
 
         public byte[] OriginalMessage { get; set; }
+
+        public bool Acknowledged { get; set; }
     }
 }

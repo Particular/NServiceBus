@@ -32,7 +32,7 @@
             return true;
         }
 
-        public void AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
+        public bool AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
         {
             message = null;
             headers = null;
@@ -42,13 +42,15 @@
                 var messageToAck =
                     storage.FirstOrDefault(m => !m.Acknowledged && m.ClientId == clientId);
 
-                if (messageToAck == null)
-                    return;
+                if (messageToAck == null || messageToAck.Acknowledged)
+                    return false;
 
                 messageToAck.Acknowledged = true;
 
                 message = messageToAck.Message;
                 headers = messageToAck.Headers;
+
+                return true;
             }
         }
 

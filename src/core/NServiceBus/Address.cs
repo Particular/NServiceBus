@@ -35,6 +35,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Address Parse(string destination)
         {
+            if(string.IsNullOrEmpty(destination))
+                throw new InvalidOperationException("Invalid destination address specified");
+
             var arr = destination.Split('@');
 
             var queue = arr[0];
