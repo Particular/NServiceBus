@@ -11,7 +11,14 @@ namespace SiteA
 
         public void Handle(PriceUpdated message)
         {
-            Console.WriteLine("Price update for product: " + message.ProductId);
+            Console.WriteLine("Price update for product: " + message.ProductId +  " received. Going to reply");
+
+
+            //this shows how the gateway rewrites the return address to marshal replies to and from remote sites
+            Bus.Reply<PriceUpdateReceived>(m=>
+                {
+                    m.BranchOffice = "SiteA";
+                });
         }
     }
 }

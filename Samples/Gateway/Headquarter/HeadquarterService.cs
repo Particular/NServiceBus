@@ -13,7 +13,7 @@ namespace Headquarter
         public void Run()
         {
 
-            Console.WriteLine("Press 'A' to send a message to SiteA. To exit, Ctrl + C");
+            Console.WriteLine("Press 'A' to send a message to SiteA and SiteB, SiteA will also reply to the sent message. To exit, Ctrl + C");
 
             string key;
 
@@ -22,7 +22,7 @@ namespace Headquarter
                 if (key.ToLower() == "a")
                 {
                     //todo - use a sitekey instead when we have support for that
-                    Bus.SendToSites(new[] { "http://localhost:8085/siteA" }, new PriceUpdated
+                    Bus.SendToSites(new[] { "http://localhost:8085/siteA", "http://localhost:8085/siteB" }, new PriceUpdated
                     {
                         ProductId = 2,
                         NewPrice = 100.0,
@@ -43,6 +43,15 @@ namespace Headquarter
         public void Stop()
         {
 
+        }
+    }
+
+    internal class PriceUpdateReceivedMessageHandler:IHandleMessages<PriceUpdateReceived>
+    {
+        public void Handle(PriceUpdateReceived message)
+        {
+            //this shows how the gateway rewrites the return address to marshal replies to and from remote sites
+            Console.WriteLine("Price update received by: " + message.BranchOffice);
         }
     }
 }
