@@ -14,10 +14,11 @@ namespace NServiceBus.MasterNode.Discovery.Tests
             Address.InitializeLocalAddress("test");
 
             var m = new MasterNodeManager();
+            
             string a = null, b = null;
 
-            m.YieldMasterNode("test@A", true, s => a = s);
-            m.YieldMasterNode("test@B", false, s => b = s);
+            MasterNodeManager.Init("test@A", true, s => a = s);
+            MasterNodeManager.Init("test@B", false, s => b = s);
 
             Thread.Sleep(MasterNodeManager.presenceInterval + TimeSpan.FromSeconds(1));
 

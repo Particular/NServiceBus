@@ -74,6 +74,8 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
+    <Compile Include="Profiles\Master.cs" />
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Arguments\HostArguments.cs" />
     <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />

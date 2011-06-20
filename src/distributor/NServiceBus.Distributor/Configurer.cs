@@ -12,6 +12,7 @@ namespace NServiceBus
     public static class Configurer
     {
         public static ILog Logger;
+        public static string DistributorControlName { get { return "distributor.control"; } }
 
         public static Configure Distributor(this Configure config)
         {
@@ -21,7 +22,7 @@ namespace NServiceBus
 
             var inputQueue = Address.Local.Queue;
             var storageQueue = Address.Local.SubScope("distributor.storage");
-            var controlQueue = Address.Local.SubScope("distributor.control");
+            var controlQueue = Address.Local.SubScope(DistributorControlName);
             var applicativeInputQueue = Address.Local.SubScope("worker");
 
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(DependencyLifecycle.SingleInstance)

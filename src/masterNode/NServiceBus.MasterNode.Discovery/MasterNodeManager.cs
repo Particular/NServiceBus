@@ -8,25 +8,13 @@ namespace NServiceBus.MasterNode.Discovery
 {
     public class MasterNodeManager : IManageTheMasterNode
     {
-        public Address GetMasterNode()
-        {
-            if (masterNode != null)
-                return masterNode;
-
-            YieldMasterNode(Address.Local, IsCurrentNodeTheMaster, s => masterNode = s);
-
-            Thread.Sleep(presenceInterval + TimeSpan.FromSeconds(1));
-
-            return masterNode;
-        }
-
-        public void YieldMasterNode(string localAddress, bool isLocalTheMaster, Action<string> callback)
+        public static void Init(string localAddress, bool isLocalTheMaster, Action<string> callback)
         {
             var d = new Dictionary<string, string>();
             d["Address"] = localAddress;
             d["Master"] = isLocalTheMaster.ToString();
 
-            var presence = new Presence(Address.Parse(localAddress).Queue, d, presenceInterval);
+            var presence = new PresenceWithoutMasterSelection(Address.Parse(localAddress).Queue, d, presenceInterval);
 
             presence.TopologyChanged += (sender, nodeMetadata) =>
             {
@@ -49,7 +37,8 @@ namespace NServiceBus.MasterNode.Discovery
                         Logger.Debug(toLog);
 
                         if (remoteIsMaster)
-                            callback(nodeMetadata.Metadata["Address"]);
+                            if (callback != null)
+                                callback(nodeMetadata.Metadata["Address"]);
 
                         break;
                     case TopologyChangeType.Gone:
@@ -62,12 +51,30 @@ namespace NServiceBus.MasterNode.Discovery
             presence.Start();
 
             if (isLocalTheMaster)
-                callback(localAddress);
+                if (callback != null)
+                    callback(localAddress);
+        }
+
+        public Address GetMasterNode()
+        {
+            if (masterNode != null)
+                return masterNode;
+
+            YieldMasterNode(Address.Local, IsCurrentNodeTheMaster, s => masterNode = s);
+
+            Thread.Sleep(presenceInterval + TimeSpan.FromSeconds(1));
+
+            return masterNode;
+        }
+
+        public void YieldMasterNode(string localAddress, bool isLocalTheMaster, Action<string> callback)
+        {
+            
         }
 
         public bool IsCurrentNodeTheMaster
         {
-            get { return MasterNodeConfigurer.ConfiguredAsMasterNode; }
+            get { return RoutingConfig.IsConfiguredAsMasterNode; }
         }
 
         public static readonly TimeSpan presenceInterval = TimeSpan.FromSeconds(3);

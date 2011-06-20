@@ -1,32 +1,48 @@
 ﻿using System;
-using System.IO;
-using NServiceBus.Faults;
 using NServiceBus.Grid.Messages;
-using NServiceBus.Serialization;
-using NServiceBus.Unicast.Distributor;
-using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport;
-using NServiceBus.Unicast.Transport.Transactional;
 using NServiceBus.Config;
 using NServiceBus.MasterNode;
+using System.Threading;
 
 namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
+    public class ReadyMessageManager : INeedInitialization, IWantToRunWhenConfigurationIsComplete
     {
+        /// <summary>
+        /// No DI available here.
+        /// </summary>
+        public void Init()
+        {
+            if (RoutingConfig.IsConfiguredAsMasterNode)
+                ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+
+        }
+
         public IManageTheMasterNode masterNodeManager { get; set; }
         public IStartableBus Bus { get; set; }
         public ITransport EndpointTransport { get; set; }
         public IBus EndpointBus { get; set; }
 
         public int NumberOfWorkerThreads { get; set; }
-        public Address ControlQueue { get; set; }
+        private static Address ControlQueue { get; set; }
 
         public void Run()
         {
-            Bus.Started += (x, y) => SendReadyMessage(true);
 
-            EndpointTransport.FinishedMessageProcessing += (x, y) => SendReadyMessage(false);
+            Bus.Started += (x, y) => 
+                ThreadPool.QueueUserWorkItem(s =>
+                    {
+                        while (ControlQueue == null)
+                            ControlQueue = masterNodeManager.GetMasterNode(); // has built in sleep
+
+                        ControlQueue = ControlQueue.SubScope(Configurer.DistributorControlName);
+
+                        SendReadyMessage(true);
+
+                        EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
+                    }
+                );
         }
 
         public void SendReadyMessage(bool startup)
