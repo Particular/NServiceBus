@@ -157,7 +157,7 @@
                           };
 
 
-            if (outHeaders[GatewayHeaders.IsGatewayMessage] != null)
+            if (outHeaders.ContainsKey(GatewayHeaders.IsGatewayMessage))
                 HeaderMapper.Map(outHeaders, msg);
 
 

@@ -21,7 +21,7 @@ namespace Headquarter
     {
         public void Init()
         {
-            Configure.Instance.Gateway();
+            Configure.Instance.GatewayWithInMemoryPersistence();
         }
     }
 }

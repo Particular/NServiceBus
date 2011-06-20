@@ -19,8 +19,7 @@
     $(document).ready(function () {
         $('#go').click(function () {
             
-            //var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/MyMessages\"><RequestDataMessage><DataId>0685e460-c71b-48c3-a326-d396d0fb94a6</DataId><String>&lt;node&gt;it&apos;s my &quot;node&quot; &amp; i like it a lot&lt;node&gt;</String></RequestDataMessage></Messages>";
-            var params = $('#messageToSend').val();
+            var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/Headquarter.Messages\"><UpdatePrice></UpdatePrice></Messages>";
             var md5 = b64_md5(params) + "==";
             var clientId = Math.uuid() + "\\123456";
 
@@ -50,7 +49,7 @@
                         processData: false,
                         type: 'POST',
                         success: function (data) {
-                            alert("Success");
+                            alert("Success - Check the output of the headquarter server process");
                         },
                         error: function (http, status, error) {
                             alert("Failed ack: " + status);
@@ -69,13 +68,9 @@
     <h1>Test on IE as involves Cross Origin Resource Sharing</h1>
 
     <p>Enter Gateway address:</p>
-    <input type="text" id="gatewayaddress" />
+    <input type="text" id="gatewayaddress" value="http://localhost:8085/headquarter/"/>
 
-    <p>Enter message to send:</p>
-    <textarea id="messageToSend" cols="100"  rows="10" >
-
-    </textarea>
-    <input type="button" id="go" name="go" value="Submit" />
+    <input type="button" id="go" name="go" value="Send price update command to server" />
     
 </body>
 </html>

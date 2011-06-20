@@ -3,7 +3,7 @@
     using System;
     using NServiceBus;
 
-    public class PriceUpdated : IMessage
+    public class UpdatePrice : IMessage
     {
         public int ProductId { get; set; }
         public double NewPrice { get; set; }

@@ -3,27 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway", "NServiceBus.Gateway\NServiceBus.Gateway.csproj", "{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebClient", "WebClient\", "{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv2.0"
-		Debug.AspNetCompiler.VirtualPath = "/WebClient"
-		Debug.AspNetCompiler.PhysicalPath = "WebClient\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\WebClient\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/WebClient"
-		Release.AspNetCompiler.PhysicalPath = "WebClient\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\WebClient\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "49177"
-		DefaultWebSiteLanguage = "Visual C#"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway.Tests", "NServiceBus.Gateway.Tests\NServiceBus.Gateway.Tests.csproj", "{33632B71-0CAA-4245-A4E3-BA94B563D679}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Persistence.Raven", "..\impl\Persistence\RavenPersistence\NServiceBus.Persistence.Raven\NServiceBus.Persistence.Raven.csproj", "{37CB5DE9-013D-4779-9D35-342F902E8DE1}"
@@ -38,10 +17,6 @@ Global
 		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBA08E8-EC86-4BA3-B6B7-88C6D241AE18}.Release|Any CPU.Build.0 = Release|Any CPU
-		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{652FFDCF-4233-429D-BB8C-E6EBDA737F0D}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33632B71-0CAA-4245-A4E3-BA94B563D679}.Release|Any CPU.ActiveCfg = Release|Any CPU
