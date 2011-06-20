@@ -51,7 +51,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.DataBus.FileShare\NServiceBus.DataBus.FileShare.csproj">
       <Project>{A24998E6-306D-4727-B3F3-21189DD64F55}</Project>
-      <Name>NServiceBus.Databus.FileShare</Name>
+      <Name>NServiceBus.DataBus.FileShare</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
