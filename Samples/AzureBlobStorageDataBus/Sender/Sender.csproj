@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1E69B249-00AD-4B93-9B28-D5193357FED0}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{D04CF1FC-C4C0-4959-A817-2BC68770CA9B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Databus.FileShare.Tests</RootNamespace>
-    <AssemblyName>NServiceBus.Databus.FileShare.Tests</AssemblyName>
+    <RootNamespace>Sender</RootNamespace>
+    <AssemblyName>Sender</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,36 +30,40 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Sender.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.DataBus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.DataBus.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\binaries\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="AcceptanceTests.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.DataBus.FileShare\NServiceBus.DataBus.FileShare.csproj">
-      <Project>{A24998E6-306D-4727-B3F3-21189DD64F55}</Project>
-      <Name>NServiceBus.DataBus.FileShare</Name>
+    <ProjectReference Include="..\Receiver.Messages\Receiver.Messages.csproj">
+      <Project>{E4A4B35E-AFD3-456C-A5AC-4A88AAD77156}</Project>
+      <Name>Receiver.Messages</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+  </PropertyGroup>
 </Project>

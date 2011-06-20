@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1E69B249-00AD-4B93-9B28-D5193357FED0}</ProjectGuid>
+    <ProjectGuid>{BF761591-5BAE-4CA1-96D5-CB70DBD4B71B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Databus.FileShare.Tests</RootNamespace>
-    <AssemblyName>NServiceBus.Databus.FileShare.Tests</AssemblyName>
+    <RootNamespace>NServiceBus.DataBus.Azure.BlobStorage</RootNamespace>
+    <AssemblyName>NServiceBus.DataBus.Azure.BlobStorage</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,29 +31,43 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.DataBus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.DataBus">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.DataBus.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
+    <Reference Include="NServiceBus.ObjectBuilder">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AcceptanceTests.cs" />
+    <Compile Include="BlobStorageDataBus.cs" />
+    <Compile Include="Block.cs" />
+    <Compile Include="Config\AzureDataBusConfig.cs" />
+    <Compile Include="Config\ConfigureAzureBlobStorageDataBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.DataBus.FileShare\NServiceBus.DataBus.FileShare.csproj">
-      <Project>{A24998E6-306D-4727-B3F3-21189DD64F55}</Project>
-      <Name>NServiceBus.DataBus.FileShare</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
