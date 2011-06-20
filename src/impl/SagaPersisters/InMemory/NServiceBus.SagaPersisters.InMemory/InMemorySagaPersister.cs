@@ -17,7 +17,8 @@ namespace NServiceBus.SagaPersisters.InMemory
 
         T ISagaPersister.Get<T>(string property, object value)
         {
-            foreach(var entity in data.Values.Where(x=>x.GetType() is T))
+            var values = data.Values.Where(x => x is T);
+            foreach(var entity in values)
             {
                 var prop = entity.GetType().GetProperty(property);
                 if (prop != null)
