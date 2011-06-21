@@ -40,6 +40,9 @@ namespace NServiceBus.Distributor
             if (ControlQueue == null && RoutingConfig.IsDynamicNodeDiscoveryOn)
                 ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
 
+            if (ControlQueue == null)
+                return;
+
             Bus.Started += (x, y) => SendReadyMessage(true);
 
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
