@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus">
@@ -41,15 +41,20 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Raven.SituationalAwareness">
-      <HintPath>..\..\..\lib\Raven.SituationalAwareness.dll</HintPath>
+      <HintPath>..\..\..\..\lib\Raven.SituationalAwareness.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -57,15 +62,12 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="MasterNodeManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.MasterNode\NServiceBus.MasterNode.csproj">
-      <Project>{C2AD5F30-0A7D-4146-A9D7-4136B886961B}</Project>
-      <Name>NServiceBus.MasterNode</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1299,7 +1299,9 @@ namespace NServiceBus.Unicast
                 if (MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
                     return;
 
+                messageTypeToDestinationLocker.EnterWriteLock();
                 messageTypeToDestinationLookup[messageType] = address;
+                messageTypeToDestinationLocker.ExitWriteLock();
 
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
@@ -1324,7 +1326,11 @@ namespace NServiceBus.Unicast
         /// <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
         private bool MustNotOverrideExistingConfiguration(Type messageType, bool configuredByAssembly)
         {
-            return messageTypeToDestinationLookup.ContainsKey(messageType) && configuredByAssembly;
+            messageTypeToDestinationLocker.EnterReadLock();
+            var result = messageTypeToDestinationLookup.ContainsKey(messageType) && configuredByAssembly;
+            messageTypeToDestinationLocker.ExitReadLock();
+
+            return result;
         }
 
         /// <summary>
@@ -1543,8 +1549,9 @@ namespace NServiceBus.Unicast
         {
             Address destination = null;
 
-            lock (messageTypeToDestinationLookup)
-                messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
+            messageTypeToDestinationLocker.EnterReadLock();
+            messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
+            messageTypeToDestinationLocker.ExitReadLock();
 
             if (destination == null)
             {
@@ -1602,7 +1609,7 @@ namespace NServiceBus.Unicast
         /// Accessed by multiple threads - needs appropriate locking
         /// </remarks>
         private readonly IDictionary<Type, Address> messageTypeToDestinationLookup = new Dictionary<Type, Address>();
-
+        private readonly ReaderWriterLockSlim messageTypeToDestinationLocker = new ReaderWriterLockSlim();
         /// <remarks>
         /// ThreadStatic
         /// </remarks>

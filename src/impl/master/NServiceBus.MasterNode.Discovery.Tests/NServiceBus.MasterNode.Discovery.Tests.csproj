@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3BD9CDE8-7D0A-44A8-83CC-15C2F2EC9D93}</ProjectGuid>
+    <ProjectGuid>{CD699676-5E49-40B4-A6FD-93234B62F5ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.MasterNode.Discovery</RootNamespace>
-    <AssemblyName>NServiceBus.MasterNode.Discovery</AssemblyName>
+    <RootNamespace>NServiceBus.MasterNode.Discovery.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.MasterNode.Discovery.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,40 +31,40 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Common.Logging, Version=2.0.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Raven.SituationalAwareness">
-      <HintPath>..\..\..\lib\Raven.SituationalAwareness.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Raven.SituationalAwareness, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Raven.SituationalAwareness.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bootstrapper.cs" />
-    <Compile Include="MasterNodeManager.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.MasterNode\NServiceBus.MasterNode.csproj">
-      <Project>{C2AD5F30-0A7D-4146-A9D7-4136B886961B}</Project>
-      <Name>NServiceBus.MasterNode</Name>
+    <ProjectReference Include="..\NServiceBus.MasterNode.Discovery\NServiceBus.MasterNode.Discovery.csproj">
+      <Project>{3BD9CDE8-7D0A-44A8-83CC-15C2F2EC9D93}</Project>
+      <Name>NServiceBus.MasterNode.Discovery</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

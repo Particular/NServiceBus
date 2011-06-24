@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using Common.Logging;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
@@ -24,7 +22,7 @@ namespace NServiceBus.MasterNode.Discovery
 
             if (RoutingConfig.IsConfiguredAsMasterNode)
             {
-                StartMasterPresence(localQueue, localQueue);
+                //StartMasterPresence(localQueue, localQueue);
                 cfg.ConfigureProperty(m => m.IsCurrentNodeTheMaster, true);
                 cfg.ConfigureProperty(m => m.MasterNode, localQueue);
             }
@@ -33,26 +31,32 @@ namespace NServiceBus.MasterNode.Discovery
                 
             }
 
+            Configure.ConfigurationComplete += (o, e) => configIsComplete = true;
+
             GetMessageTypesThisEndpointOwns().ToList().ForEach(t =>
                 StartMasterPresence(localQueue, t.FullName));
 
             GetAllMessageTypes().Except(GetMessageTypesThisEndpointOwns()).ToList().ForEach(t =>
                 DetectMasterPresence(t.FullName, a =>
                                                      {
-                                                         Configure.ConfigurationComplete +=
-                                                             (o, e) =>
-                                                                 {
-                                                                     var bus =
-                                                                         Configure.Instance.Builder.Build<UnicastBus>();
-                                                                     bus.RegisterMessageType(t, a, false);
-                                                                 };
+                                                         var action = new EventHandler((o, e) =>
+                                                                                {
+                                                                                    var bus =
+                                                                                        Configure.Instance.Builder.Build<UnicastBus>();
+                                                                                    bus.RegisterMessageType(t, a, false);
+                                                                                });
+                                                         if (configIsComplete)
+                                                             action(null, null);
+                                                         else
+                                                             Configure.ConfigurationComplete += action;
+
                                                      })
                 );
         }
 
         private static void DetectMasterPresence(string topic, Action<Address> masterDetected)
         {
-            var presence = new PresenceWithoutMasterSelection(topic, null, presenceInterval);
+            var presence = new PresenceWithoutMasterSelection(topic, new Dictionary<string, string>(), presenceInterval);
 
             presence.TopologyChanged += (sender, nodeMetadata) =>
             {
@@ -84,6 +88,9 @@ namespace NServiceBus.MasterNode.Discovery
 
         private static Address GenerateLocalQueueFromMessageTypes(IEnumerable<Type> messageTypes)
         {
+            if (messageTypes == null || messageTypes.Count() == 0)
+                return Address.Local;
+
             var queue = string.Join("_", messageTypes.Select(t => t.FullName));
             return Address.Parse(queue);
         }
@@ -91,7 +98,7 @@ namespace NServiceBus.MasterNode.Discovery
         private static IEnumerable<Type> GetAllMessageTypes()
         {
             return Configure.TypesToScan.Where(
-                t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage));
+                t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage) && !t.Namespace.Contains("NServiceBus"));
         }
 
         private static IEnumerable<Type> GetMessageTypesThisEndpointOwns()
@@ -109,6 +116,7 @@ namespace NServiceBus.MasterNode.Discovery
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(MasterNodeManager).Namespace);
 
-        private static TimeSpan presenceInterval = TimeSpan.FromSeconds(3);
+        private static TimeSpan presenceInterval = TimeSpan.FromSeconds(0.5);
+        private static bool configIsComplete;
     }
 }
