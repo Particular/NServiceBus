@@ -17,7 +17,7 @@ namespace NServiceBus.Host.Internal
 
         T ISagaPersister.Get<T>(string property, object value)
         {
-            foreach(var entity in data.Values.Where(x=>x.GetType() is T))
+            foreach(var entity in data.Values.Where(x=>x is T))
             {
                 var prop = entity.GetType().GetProperty(property);
                 if (prop != null)
