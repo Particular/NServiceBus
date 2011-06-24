@@ -286,7 +286,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public T CreateInstance<T>(Action<T> action) where T : IMessage
         {
             T result = CreateInstance<T>();
-            action(result);
+            
+            if (action != null)
+                action(result);
 
             return result;
         }
