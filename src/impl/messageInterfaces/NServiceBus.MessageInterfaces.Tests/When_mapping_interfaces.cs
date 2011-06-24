@@ -22,6 +22,17 @@ namespace NServiceBus.MessageInterfaces.Tests
 
             Assert.NotNull(mapper.GetMappedTypeFor(typeof(InterfaceWithProperties)));
         }
+
+        [Test]
+        public void Interface_should_be_created()
+        {
+            mapper.Initialize(new[] { typeof(InterfaceWithProperties) });
+
+            var result = mapper.CreateInstance<InterfaceWithProperties>(null);
+
+            Assert.IsNotNull(result);
+        }
+
         [Test]
         public void Interfaces_with_methods_should_be_ignored()
         {
@@ -53,7 +64,7 @@ namespace NServiceBus.MessageInterfaces.Tests
         }
     }
 
-    public interface InterfaceWithProperties
+    public interface InterfaceWithProperties : IMessage
     {
         string SomeProperty { get; set; }
     }
