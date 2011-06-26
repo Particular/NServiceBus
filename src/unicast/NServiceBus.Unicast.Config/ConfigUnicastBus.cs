@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast.Config
         {
             var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
             this.ConfigureBusProperties(unicastBusConfig);
-            this.ConfigureLocalAddress(unicastBusConfig);
+            ConfigureLocalAddress(unicastBusConfig);
         }
 
         private void ConfigureBusProperties(UnicastBusConfig unicastConfig)
@@ -85,13 +85,15 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
         }
 
-        private void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
+        private static void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
         {
             if (Address.Local != null)
                 return;
 
             var address = GetLocalAddress(unicastConfig);
-            Address.InitializeLocalAddress(address);
+
+            if (!string.IsNullOrEmpty(address))
+                Address.InitializeLocalAddress(address);
         }
 
         private static string GetLocalAddress(UnicastBusConfig unicastConfig)
@@ -247,6 +249,20 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
             busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
+            return this;
+        }
+
+        /// <summary>
+        /// Instructs bus to allow subscribing and sending to message types
+        /// for which a destination has not been configured, pending the discovery
+        /// of where those destinations are.
+        /// 
+        /// Suitable for dev environments - not recommended for production.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus AllowDiscovery()
+        {
+            busConfig.ConfigureProperty(b => b.AllowDiscovery, true);
             return this;
         }
 

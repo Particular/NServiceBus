@@ -18,7 +18,12 @@ namespace NServiceBus.MasterNode.Discovery
 
             var cfg = Configure.Instance.Configurer.ConfigureComponent<MasterNodeManager>(DependencyLifecycle.SingleInstance);
 
-            var localQueue = GenerateLocalQueueFromMessageTypes(GetMessageTypesThisEndpointOwns());
+            var localQueue = Address.Local;
+            if (localQueue == null)
+            {
+                localQueue = GenerateLocalQueueFromMessageTypes(GetMessageTypesThisEndpointOwns());
+                Address.InitializeLocalAddress(localQueue.Queue);
+            }
 
             if (RoutingConfig.IsConfiguredAsMasterNode)
             {
@@ -66,24 +71,32 @@ namespace NServiceBus.MasterNode.Discovery
 
                         if (nodeMetadata.Metadata.ContainsKey("Address"))
                             if (nodeMetadata.Metadata["Address"] != null)
+                            {
+                                Logger.Info("Heard from broadcaster: " + nodeMetadata.Metadata["Address"] + " about message type: " + topic);
                                 if (masterDetected != null)
                                     masterDetected(Address.Parse(nodeMetadata.Metadata["Address"]));
-
+                            }
                         break;
                 }
             };
 
             presence.Start();
+
+            Logger.Info("Listening for broadcasts about message type: " + topic);
         }
 
         private static void StartMasterPresence(string localQueue, string topic)
         {
-            var d = new Dictionary<string, string>();
-            d["Address"] = localQueue;
+            new PresenceWithoutMasterSelection(
+                topic, 
+                new Dictionary<string, string>
+                    {
+                        {"Address", localQueue }
+                    }, 
+                presenceInterval)
+            .Start();
 
-            var presence = new PresenceWithoutMasterSelection(topic, d, presenceInterval);
-            
-            presence.Start();
+            Logger.Info("Broadcasting ownership of message type: " + topic);
         }
 
         private static Address GenerateLocalQueueFromMessageTypes(IEnumerable<Type> messageTypes)
@@ -98,7 +111,7 @@ namespace NServiceBus.MasterNode.Discovery
         private static IEnumerable<Type> GetAllMessageTypes()
         {
             return Configure.TypesToScan.Where(
-                t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage) && !t.Namespace.Contains("NServiceBus"));
+                t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage) && !t.Namespace.StartsWith("NServiceBus"));
         }
 
         private static IEnumerable<Type> GetMessageTypesThisEndpointOwns()
@@ -116,7 +129,7 @@ namespace NServiceBus.MasterNode.Discovery
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(MasterNodeManager).Namespace);
 
-        private static TimeSpan presenceInterval = TimeSpan.FromSeconds(0.5);
+        private static TimeSpan presenceInterval = TimeSpan.FromSeconds(10);
         private static bool configIsComplete;
     }
 }

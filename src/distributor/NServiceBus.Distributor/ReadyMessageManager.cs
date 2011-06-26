@@ -7,28 +7,8 @@ using System.Threading;
 
 namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager : INeedInitialization, IWantToRunWhenConfigurationIsComplete
+    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
     {
-        /// <summary>
-        /// No DI available here.
-        /// </summary>
-        public void Init()
-        {
-            if (RoutingConfig.IsConfiguredAsMasterNode)
-            {
-                ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
-                return;
-            }
-
-            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
-            {
-                var cfg = Configure.GetConfigSection<UnicastBusConfig>();
-                if (string.IsNullOrEmpty(cfg.DistributorControlAddress)) return;
-
-                ControlQueue = Address.Parse(cfg.DistributorControlAddress);
-            }
-        }
-
         public IManageTheMasterNode masterNodeManager { get; set; }
         public IStartableBus Bus { get; set; }
         public ITransport EndpointTransport { get; set; }
@@ -39,6 +19,16 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
+            if (RoutingConfig.IsConfiguredAsMasterNode)
+                ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+
+            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+            {
+                var cfg = Configure.GetConfigSection<UnicastBusConfig>();
+                if (!string.IsNullOrEmpty(cfg.DistributorControlAddress))
+                    ControlQueue = Address.Parse(cfg.DistributorControlAddress);
+            }
+
             if (ControlQueue == null && RoutingConfig.IsDynamicNodeDiscoveryOn)
                 ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
 
