@@ -17,6 +17,20 @@ namespace NServiceBus.Config
             }
         }
 
+        [ConfigurationProperty("BlockSize", IsRequired = false, DefaultValue = ConfigureAzureBlobStorageDataBus.DefaultBlockSize)]
+        public int BlockSize
+        {
+            get
+            {
+                return (int)this["BlockSize"];
+            }
+            set
+            {
+                this["BlockSize"] = value;
+            }
+        }
+
+
         [ConfigurationProperty("NumberOfIOThreads", IsRequired = false, DefaultValue = ConfigureAzureBlobStorageDataBus.DefaultNumberOfIOThreads)]
         public int NumberOfIOThreads
         {

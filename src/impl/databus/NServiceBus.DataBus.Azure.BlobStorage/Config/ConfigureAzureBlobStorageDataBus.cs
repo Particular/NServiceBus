@@ -11,11 +11,12 @@ namespace NServiceBus
 	/// </summary>
 	public static class ConfigureAzureBlobStorageDataBus
 	{
-	    public const string Defaultcontainer = "$root";
+	    public const string Defaultcontainer = "databus";
         public const string DefaultBasePath = "";
         public const int DefaultMaxRetries = 5;
         public const int DefaultNumberOfIOThreads = 5;
 	    public const string DefaultConnectionString = "UseDevelopmentStorage=true";
+	    public const int DefaultBlockSize = 4*1024*1024; // 4MB
 		
 		public static Configure AzureDataBus(this Configure config)
 		{
@@ -43,6 +44,7 @@ namespace NServiceBus
                 dataBus.BasePath = configSection.BasePath;
                 dataBus.MaxRetries = configSection.MaxRetries;
                 dataBus.NumberOfIOThreads = configSection.NumberOfIOThreads;
+                dataBus.BlockSize = configSection.BlockSize;
             }
 
 		    config.Configurer.RegisterSingleton<IDataBus>(dataBus);

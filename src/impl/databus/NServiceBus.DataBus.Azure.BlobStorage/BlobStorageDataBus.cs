@@ -13,7 +13,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 {
     public class BlobStorageDataBus : IDataBus
     {
-        private const int BufferLength = 4 * 1024 * 1024; // 4 MB
+        
 
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
         private readonly CloudBlobContainer container;
@@ -22,6 +22,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
         public int MaxRetries { get; set; }
         public int NumberOfIOThreads { get; set; }
         public string BasePath { get; set; }
+        public int BlockSize { get; set; }
 
 
 
@@ -73,8 +74,9 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
                 if (blockBlob == null) continue;
 
                 blockBlob.FetchAttributes();
-                var validUntil = DateTime.Parse(blockBlob.Attributes.Metadata["ValidUntil"]);
-                if (validUntil < DateTime.Now)
+                DateTime validUntil;
+                DateTime.TryParse(blockBlob.Attributes.Metadata["ValidUntil"], out validUntil);
+                if (validUntil == default(DateTime) || validUntil < DateTime.Now)
                     blockBlob.DeleteIfExists();
             }
         }
@@ -89,7 +91,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             {
                 try
                 {
-                    var buffer = new byte[BufferLength];
+                    var buffer = new byte[BlockSize];
                     lock (stream)
                     {
                         stream.Position = block.Offset;
@@ -139,7 +141,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             ExecuteInParallel(() => AsLongAsThereAre(blocksToDownload, block =>
             {
                 var s = DownloadBlockFromBlob(blob, block, blocksToDownload); if (s == null) return;
-                var buffer = new byte[BufferLength];
+                var buffer = new byte[BlockSize];
                 ExtractBytesFromBlockIntoBuffer(buffer, s, block);
                 lock (stream)
                 {
@@ -150,12 +152,12 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             stream.Seek(0, SeekOrigin.Begin);
         }
 
-        private static void CalculateBlocks(Queue<Block> blocksToUpload, int blobLength, ICollection<string> order)
+        private void CalculateBlocks(Queue<Block> blocksToUpload, int blobLength, ICollection<string> order)
         {
             var offset = 0;
             while (blobLength > 0)
             {
-                var blockLength = Math.Min(BufferLength, blobLength);
+                var blockLength = Math.Min(BlockSize, blobLength);
                 var block = new Block { Offset = offset, Length = blockLength };
                 blocksToUpload.Enqueue(block);
                 order.Add(block.Name);
