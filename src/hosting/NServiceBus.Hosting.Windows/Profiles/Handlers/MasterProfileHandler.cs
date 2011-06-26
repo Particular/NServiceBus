@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         public void ProfileActivated()
         {
-            Configure.Instance.AsMasterNode().DynamicNodeDiscovery();
+            Configure.Instance.AsMasterNode().DynamicNodeDiscovery().UnicastBus().AllowDiscovery();
         }
     }
 }
