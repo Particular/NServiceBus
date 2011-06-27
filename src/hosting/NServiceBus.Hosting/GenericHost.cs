@@ -79,6 +79,21 @@ namespace NServiceBus.Hosting
 
                 profileManager.ActivateProfileHandlers();
 
+                if (Address.Local == null)
+                {
+                    var arr = specifier.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
+                    if (arr.Length == 1)
+                    {
+                        string q = (arr[0] as EndpointNameAttribute).Name;
+                        Address.InitializeLocalAddress(q);
+                    }
+                    else
+                    {
+                        string q = specifier.GetType().Namespace;
+                        Address.InitializeLocalAddress(q);
+                    }
+                }
+
                 var bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();

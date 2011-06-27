@@ -46,11 +46,19 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.MessageMutator">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Raven.SituationalAwareness">
@@ -67,6 +75,7 @@
     </Compile>
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="MasterNodeManager.cs" />
+    <Compile Include="OwnershipChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

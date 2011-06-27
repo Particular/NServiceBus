@@ -9,27 +9,24 @@ using Raven.SituationalAwareness;
 
 namespace NServiceBus.MasterNode.Discovery
 {
-    public class Bootstrapper : INeedInitialization
+    public class Bootstrapper : INeedInitialization, IWantToRunWhenConfigurationIsComplete
     {
+        public static IEnumerable<Type> MessageTypesOwned { get; private set; }
+
         public void Init()
         {
             if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
                 return;
 
-            var cfg = Configure.Instance.Configurer.ConfigureComponent<MasterNodeManager>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<OwnershipChecker>(DependencyLifecycle.InstancePerCall);
 
-            var localQueue = Address.Local;
-            if (localQueue == null)
-            {
-                localQueue = GenerateLocalQueueFromMessageTypes(GetMessageTypesThisEndpointOwns());
-                Address.InitializeLocalAddress(localQueue.Queue);
-            }
+            var cfg = Configure.Instance.Configurer.ConfigureComponent<MasterNodeManager>(DependencyLifecycle.SingleInstance);
 
             if (RoutingConfig.IsConfiguredAsMasterNode)
             {
-                //StartMasterPresence(localQueue, localQueue);
+                StartMasterPresence(Address.Local);
                 cfg.ConfigureProperty(m => m.IsCurrentNodeTheMaster, true);
-                cfg.ConfigureProperty(m => m.MasterNode, localQueue);
+                cfg.ConfigureProperty(m => m.MasterNode, Address.Local);
             }
             else
             {
@@ -37,25 +34,28 @@ namespace NServiceBus.MasterNode.Discovery
             }
 
             Configure.ConfigurationComplete += (o, e) => configIsComplete = true;
+        }
 
-            GetMessageTypesThisEndpointOwns().ToList().ForEach(t =>
-                StartMasterPresence(localQueue, t.FullName));
+        public void Run()
+        {
+            MessageTypesOwned = GetMessageTypesThisEndpointOwns();
+            MessageTypesOwned.ToList().ForEach(t =>
+                StartMasterPresence(t.FullName));
 
             GetAllMessageTypes().Except(GetMessageTypesThisEndpointOwns()).ToList().ForEach(t =>
                 DetectMasterPresence(t.FullName, a =>
-                                                     {
-                                                         var action = new EventHandler((o, e) =>
-                                                                                {
-                                                                                    var bus =
-                                                                                        Configure.Instance.Builder.Build<UnicastBus>();
-                                                                                    bus.RegisterMessageType(t, a, false);
-                                                                                });
-                                                         if (configIsComplete)
-                                                             action(null, null);
-                                                         else
-                                                             Configure.ConfigurationComplete += action;
-
-                                                     })
+                {
+                    var action = new EventHandler((o, e) =>
+                    {
+                        var bus =
+                            Configure.Instance.Builder.Build<UnicastBus>();
+                        bus.RegisterMessageType(t, a, false);
+                    });
+                    if (configIsComplete)
+                        action(null, null);
+                    else
+                        Configure.ConfigurationComplete += action;
+                })
                 );
         }
 
@@ -85,27 +85,18 @@ namespace NServiceBus.MasterNode.Discovery
             Logger.Info("Listening for broadcasts about message type: " + topic);
         }
 
-        private static void StartMasterPresence(string localQueue, string topic)
+        private static void StartMasterPresence(string topic)
         {
             new PresenceWithoutMasterSelection(
                 topic, 
                 new Dictionary<string, string>
                     {
-                        {"Address", localQueue }
+                        {"Address", Address.Local }
                     }, 
                 presenceInterval)
             .Start();
 
             Logger.Info("Broadcasting ownership of message type: " + topic);
-        }
-
-        private static Address GenerateLocalQueueFromMessageTypes(IEnumerable<Type> messageTypes)
-        {
-            if (messageTypes == null || messageTypes.Count() == 0)
-                return Address.Local;
-
-            var queue = string.Join("_", messageTypes.Select(t => t.FullName));
-            return Address.Parse(queue);
         }
 
         private static IEnumerable<Type> GetAllMessageTypes()

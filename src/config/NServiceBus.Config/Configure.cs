@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using Common.Logging;
@@ -205,6 +206,32 @@ namespace NServiceBus
         {
             if (initialized)
                 return;
+
+            if (Address.Local == null) // try to find a meaningful name
+            {
+                var trace = new StackTrace();
+                StackFrame targetFrame = null;
+                foreach (var f in trace.GetFrames())
+                {
+                    if (typeof (HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType))
+                    {
+                        targetFrame = f;
+                        break;
+                    }
+                    var mi = f.GetMethod() as MethodInfo;
+                    if (mi != null && mi.IsStatic && mi.ReturnType == typeof(void) && mi.Name == "Main")
+                    {
+                        targetFrame = f;
+                        break;
+                    }
+                }
+
+                if (targetFrame != null)
+                {
+                    string q = targetFrame.GetMethod().ReflectedType.Namespace;
+                    Address.InitializeLocalAddress(q);
+                }
+            }
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall));

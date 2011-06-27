@@ -1,8 +1,10 @@
-﻿using NServiceBus.Hosting.Profiles;
+﻿using System;
+using NServiceBus.Config;
+using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig, IWantToRunWhenConfigurationIsComplete
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -12,7 +14,10 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
             if (Config is AsA_Publisher)
                 Configure.Instance.InMemorySubscriptionStorage();
+        }
 
+        public void Run()
+        {
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
         }
 

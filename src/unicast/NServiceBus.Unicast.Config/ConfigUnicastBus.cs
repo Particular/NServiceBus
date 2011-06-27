@@ -1,5 +1,6 @@
 using System;
 using System.Configuration;
+using System.Diagnostics;
 using Common.Logging;
 using NServiceBus.ObjectBuilder;
 using System.Collections;
