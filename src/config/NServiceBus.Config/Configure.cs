@@ -219,7 +219,7 @@ namespace NServiceBus
                         break;
                     }
                     var mi = f.GetMethod() as MethodInfo;
-                    if (mi != null && mi.IsStatic && mi.ReturnType == typeof(void) && mi.Name == "Main")
+                    if (mi != null && mi.IsStatic && mi.ReturnType == typeof(void) && mi.Name == "Main" && mi.DeclaringType.Name == "Program")
                     {
                         targetFrame = f;
                         break;
