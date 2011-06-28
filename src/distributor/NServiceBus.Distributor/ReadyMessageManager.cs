@@ -1,13 +1,12 @@
-﻿using System;
+﻿using System.Threading;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Config;
 using NServiceBus.MasterNode;
-using System.Threading;
 
 namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
+    public class ReadyMessageManager
     {
         public IManageTheMasterNode masterNodeManager { get; set; }
         public IStartableBus Bus { get; set; }
@@ -16,32 +15,43 @@ namespace NServiceBus.Distributor
 
         public int NumberOfWorkerThreads { get; set; }
         private static Address ControlQueue { get; set; }
-
+        
+        /// <summary>
+        /// Assumes that the bus is already started.
+        /// </summary>
         public void Run()
         {
             if (RoutingConfig.IsConfiguredAsMasterNode)
                 ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
-
-            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+            else
             {
-                var cfg = Configure.GetConfigSection<UnicastBusConfig>();
-                if (cfg != null && !string.IsNullOrEmpty(cfg.DistributorControlAddress))
-                    ControlQueue = Address.Parse(cfg.DistributorControlAddress);
-            }
+                if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+                {
+                    var cfg = Configure.GetConfigSection<UnicastBusConfig>();
+                    if (cfg != null && !string.IsNullOrEmpty(cfg.DistributorControlAddress))
+                        ControlQueue = Address.Parse(cfg.DistributorControlAddress);
+                }
+                else
+                {
+                    if (masterNodeManager.GetMasterNode() != null)
+                        ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
+                    else
+                    {
+                        
+                    }
+                }
+            } 
 
-            if (ControlQueue == null && RoutingConfig.IsDynamicNodeDiscoveryOn)
-                ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
-
-            if (ControlQueue == null)
-                return;
-
-            Bus.Started += (x, y) => SendReadyMessage(true);
+            SendReadyMessage(true);
 
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
         }
 
         public void SendReadyMessage(bool startup)
         {
+            if (ControlQueue == null)
+                return;
+
             IMessage[] messages;
             if (startup)
             {

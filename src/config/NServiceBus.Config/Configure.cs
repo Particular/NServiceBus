@@ -33,12 +33,12 @@ namespace NServiceBus
         /// <summary>
         /// Event raised when configuration is complete
         /// </summary>
-        public static event EventHandler ConfigurationComplete;
+        public static event Action ConfigurationComplete;
 
         /// <summary>
         /// Event raised before going to invoke INeedInitialization implementors.
         /// </summary>
-        public static event EventHandler BeforeInitialization;
+        public static event Action BeforeInitialization;
 
         /// <summary>
         /// Gets/sets the builder.
@@ -239,10 +239,10 @@ namespace NServiceBus
             }
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall));
+                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             if (BeforeInitialization != null)
-                BeforeInitialization(null, null);
+                BeforeInitialization();
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
@@ -254,7 +254,7 @@ namespace NServiceBus
             initialized = true;
 
             if (ConfigurationComplete != null)
-                ConfigurationComplete(null, null);
+                ConfigurationComplete();
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList().ForEach(o => o.Run());

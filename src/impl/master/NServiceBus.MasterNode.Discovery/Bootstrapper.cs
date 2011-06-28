@@ -29,10 +29,10 @@ namespace NServiceBus.MasterNode.Discovery
             }
             else
             {
-                
+                DetectMasterPresence(Address.Local, a => cfg.ConfigureProperty(m => m.MasterNode, a));
             }
 
-            Configure.ConfigurationComplete += (o, e) => configIsComplete = true;
+            Configure.ConfigurationComplete += () => configIsComplete = true;
         }
 
         public void Run()
@@ -44,14 +44,14 @@ namespace NServiceBus.MasterNode.Discovery
             GetAllMessageTypes().Except(GetMessageTypesThisEndpointOwns()).ToList().ForEach(t =>
                 DetectMasterPresence(t.FullName, a =>
                 {
-                    var action = new EventHandler((o, e) =>
+                    Action action = () =>
                     {
                         var bus =
                             Configure.Instance.Builder.Build<UnicastBus>();
                         bus.RegisterMessageType(t, a, false);
-                    });
+                    };
                     if (configIsComplete)
-                        action(null, null);
+                        action();
                     else
                         Configure.ConfigurationComplete += action;
                 })

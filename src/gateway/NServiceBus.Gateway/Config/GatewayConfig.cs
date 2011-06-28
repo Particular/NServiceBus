@@ -59,7 +59,7 @@
         static void ConfigureStartup(Address gatewayInputAddress)
         {
             Configure.ConfigurationComplete +=
-                (o, a) =>
+                () =>
                     {
                         Configure.Instance.Builder.Build<IStartableBus>()
                             .Started += (sender, eventargs) =>

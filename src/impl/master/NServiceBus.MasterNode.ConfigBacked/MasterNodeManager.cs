@@ -48,6 +48,8 @@ namespace NServiceBus.MasterNode.ConfigBacked
             }
         }
 
+        public event Action MasterNodeChanged;
+
         private Address masterNode; //lower case; cached output of GetMasterNode()
     }
 }

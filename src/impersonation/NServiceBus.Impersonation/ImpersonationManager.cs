@@ -19,7 +19,7 @@ namespace NServiceBus.Impersonation
             NServiceBus.Configure.Instance.Configurer.ConfigureComponent<ImpersonationManager>(DependencyLifecycle.SingleInstance);
 
             Configure.ConfigurationComplete +=
-                (o, a) =>
+                () =>
                     {
                         Configure.Instance.Builder.Build<ITransport>().TransportMessageReceived +=
                             Transport_TransportMessageReceived;

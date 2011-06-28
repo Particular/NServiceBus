@@ -26,7 +26,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             }
 
             Configure.ConfigurationComplete += 
-                (o, e) =>
+                () =>
                     {
                         var transport = Configure.Instance.Builder.Build<ITransport>();
                         transport.TransportMessageReceived += HandleTransportMessageReceived;
@@ -50,7 +50,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             timeOfLastCounter = DateTime.Now;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             timer.Dispose();
         }

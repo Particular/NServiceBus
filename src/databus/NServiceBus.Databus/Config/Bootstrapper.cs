@@ -1,18 +1,15 @@
+using System;
 using System.Linq;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.DataBus.Config
 {
-	using System;
-	using System.Configuration;
-	using Unicast;
-
-	public class Bootstrapper : INeedInitialization
+	public class Bootstrapper : INeedInitialization, IWantToRunWhenConfigurationIsComplete
 	{
 		public void Init()
 		{
-			bool dataBusPropertyFound = Configure.TypesToScan
+			dataBusPropertyFound = Configure.TypesToScan
 				.Where(t => typeof(IMessage).IsAssignableFrom(t))
 				.SelectMany(messageType => messageType.GetProperties())
 				.Any(t => typeof(IDataBusProperty).IsAssignableFrom(t.PropertyType));
@@ -28,19 +25,18 @@ namespace NServiceBus.DataBus.Config
 
 			Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
 				DependencyLifecycle.SingleInstance);
-
-			HookupDataBusStartMethod();
 		}
 
-		static void HookupDataBusStartMethod()
-		{
-			Configure.ConfigurationComplete +=
-				(o,a) =>
-					{
-						Configure.Instance.Builder.Build<IStartableBus>()
-							.Started += (sender, eventargs) => Configure.Instance.Builder.Build<IDataBus>().Start();
+	    public void Run()
+	    {
+            if (!dataBusPropertyFound)
+                return;
 
-					};
-		}
+            Bus.Started += (sender, eventargs) => Configure.Instance.Builder.Build<IDataBus>().Start();
+	    }
+
+        public IStartableBus Bus { get; set; }
+
+	    private static bool dataBusPropertyFound;
 	}
 }
