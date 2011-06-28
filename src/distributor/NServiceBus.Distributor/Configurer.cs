@@ -16,32 +16,35 @@ namespace NServiceBus
 
         public static Configure Distributor(this Configure config)
         {
-            var msmqTransport = Configure.GetConfigSection<MsmqTransportConfig>();
-            
-            Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
-
-            var inputQueue = Address.Local.Queue;
-            var storageQueue = Address.Local.SubScope("distributor.storage");
-            var controlQueue = Address.Local.SubScope(DistributorControlName);
-            var applicativeInputQueue = Address.Local.SubScope("worker");
-
-            config.Configurer.ConfigureComponent<ReturnAddressRewriter>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.DistributorDataQueue, Address.Local);
-
-            NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
-
-            try
-            {
-                Address.InitializeLocalAddress(applicativeInputQueue.Queue);
-            }
-            catch (Exception)
-            {
-                //intentionally swallow
-            }
-
-            Configure.ConfigurationComplete +=
+            Configure.BeforeInitialization +=
                 (o, e) =>
                     {
+                        var msmqTransport = Configure.GetConfigSection<MsmqTransportConfig>();
+
+                        Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
+
+                        var inputQueue = Address.Local.Queue;
+                        var storageQueue = Address.Local.SubScope("distributor.storage");
+                        var controlQueue = Address.Local.SubScope(DistributorControlName);
+                        var applicativeInputQueue = Address.Local.SubScope("worker");
+
+                        config.Configurer.ConfigureComponent<ReturnAddressRewriter>(DependencyLifecycle.SingleInstance)
+                            .ConfigureProperty(r => r.DistributorDataQueue, inputQueue);
+
+                        config.Configurer.ConfigureComponent<ReadyMessageManager>(DependencyLifecycle.SingleInstance)
+                            .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads);
+
+                        NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
+
+                        try
+                        {
+                            Address.InitializeLocalAddress(applicativeInputQueue.Queue);
+                        }
+                        catch (Exception)
+                        {
+                            //intentionally swallow
+                        }
+                    
                         var mgr = new MsmqWorkerAvailabilityManager { StorageQueue = storageQueue };
 
                         new DistributorReadyMessageProcessor 
@@ -50,12 +53,15 @@ namespace NServiceBus
                             NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads
                         }.Init();
 
-                        new DistributorBootstrapper
+                        var d = new DistributorBootstrapper
                             {
                                 WorkerAvailabilityManager = mgr,
                                 NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads,
                                 InputQueue = Address.Parse(inputQueue)
-                        }.Init();
+                        };
+                        d.Init();
+
+                        Configure.ConfigurationComplete += (obj, ev) => d.Start();
                     };
 
             return config;

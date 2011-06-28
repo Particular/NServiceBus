@@ -4,6 +4,9 @@
     {
         Address IManageTheMasterNode.GetMasterNode()
         {
+            if (IsCurrentNodeTheMaster)
+                return Address.Local;
+
             return MasterNode;
         }
 

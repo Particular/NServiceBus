@@ -71,7 +71,7 @@ namespace NServiceBus.Hosting.Profiles
 
         private Type FindConfigurerForProfile(Type openGenericType, Type profile, IEnumerable<Type> options)
         {
-            if (profile == typeof(object)) return null;
+            if (profile == typeof(object) || profile == null) return null;
 
             foreach(var o in options)
             {
@@ -123,7 +123,7 @@ namespace NServiceBus.Hosting.Profiles
             IEnumerable<Type> profiles = new List<Type>();
 
             foreach (var assembly in assembliesToScan)
-                profiles = profiles.Union(assembly.GetTypes().Where(t => typeof(IProfile).IsAssignableFrom(t) && !t.IsInterface));
+                profiles = profiles.Union(assembly.GetTypes().Where(t => typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile)));
 
             return profiles;
         }

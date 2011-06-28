@@ -25,7 +25,7 @@ namespace NServiceBus.Distributor
             if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
             {
                 var cfg = Configure.GetConfigSection<UnicastBusConfig>();
-                if (!string.IsNullOrEmpty(cfg.DistributorControlAddress))
+                if (cfg != null && !string.IsNullOrEmpty(cfg.DistributorControlAddress))
                     ControlQueue = Address.Parse(cfg.DistributorControlAddress);
             }
 

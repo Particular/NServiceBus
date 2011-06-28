@@ -26,7 +26,6 @@ namespace NServiceBus.MasterNode.Discovery
             {
                 StartMasterPresence(Address.Local);
                 cfg.ConfigureProperty(m => m.IsCurrentNodeTheMaster, true);
-                cfg.ConfigureProperty(m => m.MasterNode, Address.Local);
             }
             else
             {
@@ -72,7 +71,7 @@ namespace NServiceBus.MasterNode.Discovery
                         if (nodeMetadata.Metadata.ContainsKey("Address"))
                             if (nodeMetadata.Metadata["Address"] != null)
                             {
-                                Logger.Info("Heard from broadcaster: " + nodeMetadata.Metadata["Address"] + " about message type: " + topic);
+                                Logger.Info("Heard from broadcaster: " + nodeMetadata.Metadata["Address"] + " about topic: " + topic);
                                 if (masterDetected != null)
                                     masterDetected(Address.Parse(nodeMetadata.Metadata["Address"]));
                             }
@@ -82,7 +81,7 @@ namespace NServiceBus.MasterNode.Discovery
 
             presence.Start();
 
-            Logger.Info("Listening for broadcasts about message type: " + topic);
+            Logger.Info("Listening for broadcasts about topic: " + topic);
         }
 
         private static void StartMasterPresence(string topic)
@@ -96,7 +95,7 @@ namespace NServiceBus.MasterNode.Discovery
                 presenceInterval)
             .Start();
 
-            Logger.Info("Broadcasting ownership of message type: " + topic);
+            Logger.Info("Broadcasting ownership of topic: " + topic);
         }
 
         private static IEnumerable<Type> GetAllMessageTypes()
