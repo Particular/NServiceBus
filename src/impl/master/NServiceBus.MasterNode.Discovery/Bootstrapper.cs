@@ -37,6 +37,9 @@ namespace NServiceBus.MasterNode.Discovery
 
         public void Run()
         {
+            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+                return;
+
             MessageTypesOwned = GetMessageTypesThisEndpointOwns();
             MessageTypesOwned.ToList().ForEach(t =>
                 StartMasterPresence(t.FullName));
