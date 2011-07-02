@@ -29,7 +29,7 @@ namespace Cashier
                 .StructureMapBuilder(ObjectFactory.Container)
 
                 .AzureConfigurationSource()
-                .AzureMessageQueue().XmlSerializer()
+                .AzureMessageQueue().JsonSerializer()
                 .AzureSubcriptionStorage()
                 .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
 

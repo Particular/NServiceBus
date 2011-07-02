@@ -23,7 +23,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                            : instance.AzureMessageQueue();
 
             return instance
-                .BinarySerializer()
+                .JsonSerializer()
                     .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()

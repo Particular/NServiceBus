@@ -3,9 +3,9 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="Mqa2w96Wr+ThKR9pBFGKnm9tgRyJUkANAriW+W7lgMU=" />
       <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
-      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />      
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />      
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
       <Setting name="Diagnostics.Level" value="Error" />
@@ -13,7 +13,7 @@
 
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
 
-      <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue" />
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue10" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
@@ -21,9 +21,9 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="Mqa2w96Wr+ThKR9pBFGKnm9tgRyJUkANAriW+W7lgMU=" />
       <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
-      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       
@@ -32,7 +32,7 @@
       
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
 
-      <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue10" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>

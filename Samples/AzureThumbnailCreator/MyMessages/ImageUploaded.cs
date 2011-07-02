@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace MyMessages
 {
-    [Serializable, TimeToBeReceived("00:05:00")]
+    [Serializable, TimeToBeReceived("01:00:00")]
     public class ImageUploaded : IMessage
     {
         public Guid Id { get; set; }

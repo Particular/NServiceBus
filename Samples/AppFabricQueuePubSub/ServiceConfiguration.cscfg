@@ -3,9 +3,9 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="Mqa2w96Wr+ThKR9pBFGKnm9tgRyJUkANAriW+W7lgMU=" />
       <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
-      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
@@ -22,9 +22,9 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="Mqa2w96Wr+ThKR9pBFGKnm9tgRyJUkANAriW+W7lgMU=" />
       <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
-      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       

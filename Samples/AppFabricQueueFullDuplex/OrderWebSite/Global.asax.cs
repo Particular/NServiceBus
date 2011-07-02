@@ -39,7 +39,7 @@ namespace OrderWebSite
                .Log4Net(new AzureAppender())
                .AzureConfigurationSource()
                .AppFabricMessageQueue()
-               .BinarySerializer()
+               .JsonSerializer()
                .UnicastBus()
                .DoNotAutoSubscribe()
                .LoadMessageHandlers()

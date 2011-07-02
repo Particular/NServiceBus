@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
+using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.Queuing.Azure
@@ -42,6 +44,11 @@ namespace NServiceBus.Unicast.Queuing.Azure
         /// Controls the number of messages that will be read in bulk from the queue
         /// </summary>
         public int BatchSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the message serializer
+        /// </summary>
+        public IMessageSerializer MessageSerializer { get; set; }
 
         public AzureMessageQueue(CloudQueueClient client)
         {
@@ -84,7 +91,17 @@ namespace NServiceBus.Unicast.Queuing.Azure
             var rawMessage = SerializeMessage(message);
 
             if (Transaction.Current == null)
-                sendQueue.AddMessage(rawMessage);
+            {
+                try
+                {
+                  sendQueue.AddMessage(rawMessage);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+                
+            }
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
         }
@@ -157,28 +174,54 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
         }
 
-        private static CloudQueueMessage SerializeMessage(TransportMessage originalMessage)
+        private CloudQueueMessage SerializeMessage(TransportMessage message)
         {
             using (var stream = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, originalMessage);
+                //var formatter = new BinaryFormatter();
+                //formatter.Serialize(stream, originalMessage);
+                var toSend = new MessageWrapper
+                {
+                    Id = message.Id,
+                    Body = message.Body,
+                    CorrelationId = message.CorrelationId,
+                    Recoverable = message.Recoverable,
+                    ReplyToAddress = message.ReplyToAddress,
+                    TimeToBeReceived = message.TimeToBeReceived,
+                    Headers = message.Headers,
+                    MessageIntent = message.MessageIntent,
+                    TimeSent = message.TimeSent,
+                    IdForCorrelation = message.IdForCorrelation
+                };
+                MessageSerializer.Serialize(new IMessage[] { toSend }, stream);
                 return new CloudQueueMessage(stream.ToArray());
             }
-
-            
         }
 
-        private static TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
+        private TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
         {
-            var formatter = new BinaryFormatter();
+            //var formatter = new BinaryFormatter();
 
             using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
-                var message = formatter.Deserialize(stream) as TransportMessage;
-
-                if (message == null)
+                var m = MessageSerializer.Deserialize(stream).FirstOrDefault() as MessageWrapper;
+                
+                if (m == null)
                     throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
+
+                var message = new TransportMessage
+                {
+                    Id = m.Id,
+                    Body = m.Body,
+                    CorrelationId = m.CorrelationId,
+                    Recoverable = m.Recoverable,
+                    ReplyToAddress = m.ReplyToAddress,
+                    TimeToBeReceived = m.TimeToBeReceived,
+                    Headers = m.Headers,
+                    MessageIntent = m.MessageIntent,
+                    TimeSent = m.TimeSent,
+                    IdForCorrelation = m.IdForCorrelation
+                };
 
                 return message;
             }
@@ -190,5 +233,22 @@ namespace NServiceBus.Unicast.Queuing.Azure
         }
 
         private bool useTransactions;
+
+        
+    }
+
+    [Serializable]
+    internal class MessageWrapper : IMessage
+    {
+        public string IdForCorrelation { get; set; }
+        public DateTime TimeSent { get; set; }
+        public string Id { get; set; }
+        public MessageIntentEnum MessageIntent { get; set; }
+        public string ReplyToAddress { get; set; }
+        public TimeSpan TimeToBeReceived { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
+        public byte[] Body { get; set; }
+        public string CorrelationId { get; set; }
+        public bool Recoverable { get; set; }
     }
 }

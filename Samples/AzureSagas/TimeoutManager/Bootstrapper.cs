@@ -22,15 +22,12 @@ namespace TimeoutManager
 
         private static void BootstrapNServiceBus()
         {
-
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                
                .AzureConfigurationSource()
-               .AzureMessageQueue().XmlSerializer()
-               //.AzureSubcriptionStorage()
-               //.Sagas().AzureSagaPersister()
+               .AzureMessageQueue().JsonSerializer()
 
                .UnicastBus()
                .LoadMessageHandlers()

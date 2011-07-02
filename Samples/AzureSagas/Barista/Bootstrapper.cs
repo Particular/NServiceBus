@@ -22,29 +22,11 @@ namespace Barista
 
         private static void BootstrapNServiceBus()
         {
-            //Configure.With()
-            //    .Log4Net()
-            //    .StructureMapBuilder(ObjectFactory.Container)
-            //    .MsmqSubscriptionStorage()
-            //    .XmlSerializer()
-            //    // For sagas
-            //    .Sagas()
-            //    .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration()
-            //    // End
-            //    .MsmqTransport()
-            //        .IsTransactional(true)
-            //        .PurgeOnStartup(false)
-            //    .UnicastBus()
-            //        .ImpersonateSender(false)
-            //        .LoadMessageHandlers()
-            //    .CreateBus()
-            //    .Start();
-
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                .AzureConfigurationSource()
-               .AzureMessageQueue().XmlSerializer()
+               .AzureMessageQueue().JsonSerializer()
                .AzureSubcriptionStorage()
                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
 
