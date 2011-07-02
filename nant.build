@@ -101,6 +101,11 @@
 		<tstamp>
 			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
 		</tstamp>
+		
+		<echo message="Downloading dependencies from NuGet..."/>
+		<exec 	program=".\tools\NuGet\NuGet.exe"
+				commandline="install packages.config -o packages"
+				workingdir="."/>
 		<echo message="Creating build dir: ${build.base}"/>
 		<delete dir="${build.base}"/>
 		<mkdir dir="${build.base}"/>
