@@ -96,24 +96,23 @@
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
-            transportMessage.Headers[Headers.OriginatingSite] = GetCurrentSiteKey();
+            transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
 
             //todo - derive this from the message and the channeltype
-            builder.Build<IdempotentSender>()
-                .Send(targetSite,transportMessage);
+            builder.Build<IdempotentChannelForwarder>()
+                .Forward(transportMessage,targetSite);
 
-            notifier.RaiseMessageForwarded(settings.Receiver.GetType(), targetSite.ChannelType, transportMessage);
+            notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
 
             if (!string.IsNullOrEmpty(addressOfAuditStore))
                 messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
        
-        string GetCurrentSiteKey()
+        string GetDefaultAddressForThisSite()
         {
-            //return the address of the default channel and let the convention based router do it's magic
-            return channelManager.GetDefaultChannel().ReceiveAddress;
+            return channelManager.GetDefaultChannel().ToString();
         }
 
         string addressOfAuditStore;

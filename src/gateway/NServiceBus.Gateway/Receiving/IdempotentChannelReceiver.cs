@@ -18,11 +18,11 @@
     using Unicast.Transport;
     using Utils;
 
-    public class IdempotentReceiver : IReceiveMessagesFromSites
+    public class IdempotentChannelReceiver : IReceiveMessagesFromSites
     {
-        public IdempotentReceiver(IBuilder builder, IPersistMessages persister)
+        public IdempotentChannelReceiver(IChannelFactory channelFactory, IPersistMessages persister)
         {
-            this.builder = builder;
+            this.channelFactory = channelFactory;
             this.persister = persister;
         }
 
@@ -31,13 +31,13 @@
         public IDataBus DataBus { get; set; }
 
 
-        public void Start(Channel channel)
+        public void Start(Channel channel, int numWorkerThreads)
         {
 
-            channelReceiver = (IChannelReceiver)builder.Build(channel.Receiver);
+            channelReceiver = channelFactory.GetReceiver(channel.Type);
 
             channelReceiver.DataReceived += DataReceivedOnChannel;
-            channelReceiver.Start(channel.ReceiveAddress, channel.NumWorkerThreads);
+            channelReceiver.Start(channel.Address,numWorkerThreads);
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
@@ -171,7 +171,7 @@
         }
 
         IChannelReceiver channelReceiver;
-        readonly IBuilder builder;
+        readonly IChannelFactory channelFactory;
         readonly IPersistMessages persister;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");

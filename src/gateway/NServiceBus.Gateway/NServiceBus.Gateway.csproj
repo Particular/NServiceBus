@@ -118,10 +118,11 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channels\Channel.cs" />
+    <Compile Include="Channels\ChannelFactory.cs" />
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />
-    <Compile Include="Receiving\IdempotentReceiver.cs" />
+    <Compile Include="Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Receiving\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
@@ -134,8 +135,9 @@
     <Compile Include="HeaderManagement\Bootstrapper.cs" />
     <Compile Include="HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="HeaderManagement\GatewayReturnInfo.cs" />
-    <Compile Include="Sending\IdempotentSender.cs" />
-    <Compile Include="Sending\ISendMessagesToSites.cs" />
+    <Compile Include="Routing\Sites\OriginatingSiteHeaderRouter.cs" />
+    <Compile Include="Sending\IdempotentChannelForwarder.cs" />
+    <Compile Include="Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />

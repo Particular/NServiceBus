@@ -17,7 +17,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         TransportMessage responseMessage;
 
         MessageHeaderManager headerManager;
-        string addressOfOriginatingEndpoint;
+        Address addressOfOriginatingEndpoint;
         const string originatingSite = "SiteA";
         const string idOfIncommingMessage = "xyz";
 
@@ -25,12 +25,14 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         public void SetUp()
         {
             var bus = MockRepository.GenerateStub<IBus>();
-
+            addressOfOriginatingEndpoint = Address.Parse( "EnpointLocatedInSiteA");
+        
             headerManager = new MessageHeaderManager();
 
-            bus.Stub(x => x.CurrentMessageContext).Return(new FakeMessageConext
+            bus.Stub(x => x.CurrentMessageContext).Return(new FakeMessageContext
                                                               {
-                                                                  Id = idOfIncommingMessage
+                                                                  Id = idOfIncommingMessage,
+                                                                  ReplyToAddress = addressOfOriginatingEndpoint
                                                               });
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
             ExtensionMethods.GetHeaderAction = headerManager.GetHeader;
@@ -38,9 +40,6 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
             incomingMessage = new TestMessage();
 
             incomingMessage.SetOriginatingSiteHeader(originatingSite);
-
-            addressOfOriginatingEndpoint = "EnpointLocatedInSiteA";
-            incomingMessage.SetHeader("ReturnAddress",addressOfOriginatingEndpoint);
 
             gatewayHeaderManager = new GatewayHeaderManager
                                        {
@@ -66,15 +65,15 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         }
 
         [Test]
-        public void Should_route_the_response_to_the_return_address_specified_in_the_incoming_message()
+        public void Should_route_the_response_to_the_replyto_address_specified_in_the_incoming_message()
         {
             gatewayHeaderManager.MutateOutgoing(null, responseMessage);
 
-            Assert.AreEqual(responseMessage.Headers[Headers.RouteTo], addressOfOriginatingEndpoint);
+            Assert.AreEqual(Address.Parse(responseMessage.Headers[Headers.RouteTo]), addressOfOriginatingEndpoint);
         }
     }
 
-    public class FakeMessageConext : IMessageContext
+    public class FakeMessageContext : IMessageContext
     {
         public string Id { get;  set; }
         public string ReturnAddress 

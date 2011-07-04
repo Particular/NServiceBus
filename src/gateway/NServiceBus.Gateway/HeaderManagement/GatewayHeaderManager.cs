@@ -15,16 +15,14 @@
 
             if (originatingSite != null)
             {
-                var returnAddress = message.GetHeader("ReturnAddress");
-                var id = Bus.CurrentMessageContext.Id;
-
                 if (messageReturns == null)
                     messageReturns = new Dictionary<string, GatewayReturnInfo>();
 
-                messageReturns.Add(id, new GatewayReturnInfo
+                messageReturns.Add(Bus.CurrentMessageContext.Id, 
+                                    new GatewayReturnInfo
                                            {
-                                               From = originatingSite, 
-                                               ReturnAddress = returnAddress
+                                               From = originatingSite,
+                                               ReplyToAddress = Bus.CurrentMessageContext.ReplyToAddress
                                            });
             }
 
@@ -47,7 +45,7 @@
             transportMessage.Headers[Headers.DestinationSites] = info.From;
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
-                transportMessage.Headers[Headers.RouteTo] = info.ReturnAddress;
+                transportMessage.Headers[Headers.RouteTo] = info.ReplyToAddress;
         }
 
         public ITransport Transport

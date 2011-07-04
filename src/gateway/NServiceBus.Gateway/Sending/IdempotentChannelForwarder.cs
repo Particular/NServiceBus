@@ -2,34 +2,32 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.IO;
     using Channels;
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
     using log4net;
-    using ObjectBuilder;
     using Routing;
     using Unicast.Transport;
     using Utils;
 
-    public class IdempotentSender:ISendMessagesToSites
+    public class IdempotentChannelForwarder:IForwardMessagesToSites
     {
-        readonly IBuilder builder;
+        readonly IChannelFactory channelFactory;
 
-        public IdempotentSender(IBuilder builder)
+        public IdempotentChannelForwarder(IChannelFactory channelFactory)
         {
-            this.builder = builder;
+            this.channelFactory = channelFactory;
         }
 
-        public void Send(Site targetSite, TransportMessage message)
+        public void Forward(TransportMessage message,Site targetSite)
         {
             var headers = new Dictionary<string,string>();
 
             HeaderMapper.Map(message, headers);
-            
-            var channelSender = GetChannelSenderFor(targetSite);
+
+            var channelSender = channelFactory.GetSender(targetSite.Channel.Type);
 
             using(var messagePayload = new MemoryStream(message.Body))
                 Transmit(channelSender,targetSite, CallType.Submit, headers, messagePayload);
@@ -42,12 +40,13 @@
          
         void Transmit(IChannelSender channelSender, Site targetSite, CallType callType, IDictionary<string,string> headers, Stream data)
         {
+            headers[GatewayHeaders.IsGatewayMessage] = true.ToString();
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
             headers[HttpHeaders.ContentMd5Key] = Hasher.Hash(data);
 
-            Logger.DebugFormat("Sending message - {0} to: {1}", callType, targetSite.Address);
+            Logger.DebugFormat("Sending message - {0} to: {1}", callType, targetSite.Channel.Address);
             
-            channelSender.Send(targetSite.Address, headers, data);
+            channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
      
@@ -73,10 +72,6 @@
 
         }
 
-        IChannelSender GetChannelSenderFor(Site targetSite)
-        {
-            return builder.Build(targetSite.ChannelType) as IChannelSender;
-        }
 
         public IDataBus DataBus { get; set; }
 

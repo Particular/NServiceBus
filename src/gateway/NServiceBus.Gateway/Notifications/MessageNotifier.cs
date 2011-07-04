@@ -8,7 +8,7 @@
         public event EventHandler<MessageReceivedOnChannelArgs> MessageForwarded;
         
         
-        void IMessageNotifier.RaiseMessageForwarded(Type from, Type to, TransportMessage message)
+        void IMessageNotifier.RaiseMessageForwarded(string from, string to, TransportMessage message)
         {
             if (MessageForwarded != null)
                 MessageForwarded(this, new MessageReceivedOnChannelArgs

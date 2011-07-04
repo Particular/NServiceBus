@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using Gateway.Channels;
     using Gateway.Channels.Http;
     using Gateway.Config;
     using Gateway.Installation;
@@ -47,6 +48,9 @@
             config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
 
+            config.Configurer.ConfigureComponent<ChannelFactory>(DependencyLifecycle.SingleInstance);
+           
+
             ConfigureReceiver(config);
             
             ConfigureSender(config);
@@ -72,9 +76,8 @@
 
         static void ConfigureSender(Configure config)
         {
-            config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<IdempotentSender>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
@@ -89,7 +92,7 @@
             config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<IdempotentReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                                                .ConfigureProperty(x => x.MainInputAddress, Address.Local);

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Configuration;
+    using Channels;
     using Channels.Http;
     using Unicast.Transport;
 
@@ -20,8 +21,7 @@
 
             return new []{new Site
             {
-                Address = address,
-                ChannelType = typeof(HttpChannelSender),
+                Channel = new Channel{Address = address,Type = "Http"},
                 Key = address
             }};
         }

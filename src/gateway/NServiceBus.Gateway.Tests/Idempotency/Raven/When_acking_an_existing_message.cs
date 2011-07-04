@@ -10,6 +10,9 @@
     [TestFixture]
     public class When_acking_an_existing_message : in_the_raven_storage
     {
+        const string QueueAddress = "FormatName:DIRECT=OS:win2008r2\\private$\\headquarter.gateway";
+          
+
         [Test]
         public void Should_return_the_message_and_headers()
         {
@@ -51,6 +54,9 @@
         [Explicit("Until Ayende fixes the issue")]
         public void Raven_dtc_bug()
         {
+            new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)
+            .Purge();
+
             using (var tx = new TransactionScope())
             {
                 
@@ -60,7 +66,7 @@
                     session.SaveChanges();
                 }
 
-                using (var q = new MessageQueue("FormatName:DIRECT=OS:win2008r2\\private$\\headquarter.gateway", QueueAccessMode.Send))
+                using (var q = new MessageQueue(QueueAddress, QueueAccessMode.Send))
                 {
                     var toSend = new Message { BodyStream = new MemoryStream(new byte[8]) };
 
@@ -71,6 +77,9 @@
                 //when we complete raven commits it tx but the DTC tx is never commited and eventually times out
                 tx.Complete();
             }
+
+            Assert.AreEqual(1,new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)
+            .GetAllMessages().Length);
         }
     }
 }

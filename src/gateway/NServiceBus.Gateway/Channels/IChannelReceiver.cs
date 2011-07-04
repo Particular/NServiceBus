@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
 
     public interface IChannelReceiver:IDisposable
     {
@@ -17,6 +16,5 @@
         public IDictionary<string,string> Headers { get; set; }
 
         public Stream Data { get; set; }
-
     }
 }

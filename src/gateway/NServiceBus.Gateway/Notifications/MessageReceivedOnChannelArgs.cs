@@ -6,7 +6,7 @@
     public class MessageReceivedOnChannelArgs : EventArgs
     {
         public TransportMessage Message { get; set; }
-        public Type FromChannel { get; set; }
-        public Type ToChannel { get; set; }
+        public string FromChannel { get; set; }
+        public string ToChannel { get; set; }
     }
 }

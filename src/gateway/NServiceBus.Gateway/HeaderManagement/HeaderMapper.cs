@@ -37,19 +37,16 @@
             if (!String.IsNullOrEmpty(from.IdForCorrelation))
                 from.IdForCorrelation = from.Id;
 
-            to[GatewayHeaders.IsGatewayMessage] = true.ToString();
-
             to[NServiceBus + Id] = from.Id;
             to[NServiceBus + IdForCorrelation] = from.IdForCorrelation;
             to[NServiceBus + CorrelationId] = from.CorrelationId;
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
 
-            to[NServiceBus + ReturnAddress] = from.ReplyToAddress.ToString();
-            to[NServiceBus + Headers.HeaderName + "." + ReturnAddress] = from.ReplyToAddress.ToString();
-
-            if (from.Headers.ContainsKey(ReturnAddress))
-                to[Headers.RouteTo] = from.Headers[ReturnAddress];
+            to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
+         
+            if (from.Headers.ContainsKey(ReplyToAddress))
+                to[Headers.RouteTo] = from.Headers[ReplyToAddress];
 
             from.Headers.ToList()
                 .ForEach(header =>to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
@@ -61,7 +58,7 @@
         private const string IdForCorrelation = "IdForCorrelation";
         private const string CorrelationId = "CorrelationId";
         private const string Recoverable = "Recoverable";
-        private const string ReturnAddress = "ReturnAddress";
+        private const string ReplyToAddress = "ReplyToAddress";
         private const string TimeToBeReceived = "TimeToBeReceived";
     }
 }
