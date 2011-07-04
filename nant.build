@@ -508,7 +508,7 @@
 
 		<mkdir dir="${binaries.dir}\containers\structuremap" />
 		<copy todir="${binaries.dir}\containers\structuremap">
-			<fileset basedir="${lib.dir}\containers\structuremap">
+			<fileset basedir=".\packages\structuremap.2.6.2\lib">
 				<include name="StructureMap*.*" />
 			</fileset>
 		</copy>
