@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using Gateway.Channels;
-    using Gateway.Channels.Http;
     using Gateway.Config;
     using Gateway.Installation;
     using Gateway.Notifications;
@@ -48,8 +48,9 @@
             config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
 
-            config.Configurer.ConfigureComponent<ChannelFactory>(DependencyLifecycle.SingleInstance);
-           
+            
+            ConfigureChannels(config);
+          
 
             ConfigureReceiver(config);
             
@@ -58,6 +59,19 @@
             ConfigureStartup(gatewayInputAddress);
 
             return config;
+        }
+
+        static void ConfigureChannels(Configure config)
+        {
+            var channelFactory = new ChannelFactory();
+
+            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+                channelFactory.RegisterReceiver(type);
+
+            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+                channelFactory.RegisterSender(type);
+
+            config.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
         }
 
         static void ConfigureStartup(Address gatewayInputAddress)
@@ -76,7 +90,6 @@
 
         static void ConfigureSender(Configure config)
         {
-            config.Configurer.ConfigureComponent<HttpChannelSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
 
@@ -91,7 +104,6 @@
             config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<HttpChannelReceiver>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)

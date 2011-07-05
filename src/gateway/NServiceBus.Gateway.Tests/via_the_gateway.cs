@@ -48,6 +48,13 @@
 
             var builder = MockRepository.GenerateStub<IBuilder>();
 
+            var channelFactory = new ChannelFactory();
+
+            channelFactory.RegisterReceiver(typeof(HttpChannelReceiver));
+
+            channelFactory.RegisterSender(typeof(HttpChannelSender));
+
+
             var channelManager = MockRepository.GenerateStub<IMangageReceiveChannels>();
             channelManager.Stub(x => x.GetActiveChannels()).Return(new[] {new Channel
                                                                               {
@@ -57,18 +64,16 @@
             channelManager.Stub(x => x.GetDefaultChannel()).Return(defaultChannelForSiteA);
 
 
-            builder.Stub(x => x.Build<IdempotentChannelForwarder>()).Return(new IdempotentChannelForwarder(new ChannelFactory(builder))
+            builder.Stub(x => x.Build<IdempotentChannelForwarder>()).Return(new IdempotentChannelForwarder(channelFactory)
                                                                              {
                                                                                  DataBus = databusForSiteA
                                                                              });
 
-            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentChannelReceiver(new ChannelFactory(builder), new InMemoryPersistence())
+            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentChannelReceiver(channelFactory, new InMemoryPersistence())
             {
                 DataBus = databusForSiteB
             });
           
-            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver());
-            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
