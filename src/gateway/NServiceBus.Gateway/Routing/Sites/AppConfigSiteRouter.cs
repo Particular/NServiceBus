@@ -4,13 +4,16 @@
     using System.Collections.Generic;
     using Unicast.Transport;
 
-    public class AppConfigSiteRouter : IRouteMessagesToSites
-    {
-        public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //public class AppConfigSiteRouter : IRouteMessagesToSites
+    //{
+    //    public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
+    //    {
+    //        if(false)
+    //        {
+    //            y
+    //        }
+    //    }
+    //}
 
 
     //if (messageToDispatched.Headers.ContainsKey(DestinationSites))

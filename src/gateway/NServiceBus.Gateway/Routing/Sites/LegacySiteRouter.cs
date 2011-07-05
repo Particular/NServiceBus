@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Configuration;
     using Channels;
-    using Channels.Http;
     using Unicast.Transport;
 
     public class LegacySiteRouter:IRouteMessagesToSites

@@ -91,12 +91,19 @@
         static void ConfigureSender(Configure config)
         {
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
   
             config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
+
+            ConfigureSiteRouters(config);
+        }
+
+        static void ConfigureSiteRouters(Configure config)
+        {
+            config.Configurer.ConfigureComponent<OriginatingSiteHeaderRouter>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
         }
 
         static void ConfigureReceiver(Configure config)
