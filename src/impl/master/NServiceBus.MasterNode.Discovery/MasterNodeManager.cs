@@ -6,7 +6,7 @@ namespace NServiceBus.MasterNode.Discovery
     {
         Address IManageTheMasterNode.GetMasterNode()
         {
-            if (IsCurrentNodeTheMaster)
+            if (IsCurrentNodeTheMaster || MasterNode == null)
                 return Address.Local;
 
             return MasterNode;
