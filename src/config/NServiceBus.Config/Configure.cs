@@ -46,7 +46,7 @@ namespace NServiceBus
         /// </summary>
         public IBuilder Builder { get; set; }
 
-        private bool initialized { get; set; }
+        private static bool initialized { get; set; }
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
