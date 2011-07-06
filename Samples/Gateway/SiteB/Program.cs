@@ -16,7 +16,6 @@ namespace SiteB
             Configure.With()
                 .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
                 .DefaultBuilder()
-                .DynamicNodeDiscovery()
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()

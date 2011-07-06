@@ -12,7 +12,9 @@ namespace SiteA
         {
             Configure.With()
                 .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
-                .DefaultBuilder();
+                .DefaultBuilder()
+                .UnicastBus()
+                .AllowDiscovery();
         }
 
 

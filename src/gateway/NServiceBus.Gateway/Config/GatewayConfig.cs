@@ -1,121 +1,127 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Config
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
+    using System.Configuration;
     using Gateway.Channels;
-    using Gateway.Config;
-    using Gateway.Installation;
-    using Gateway.Notifications;
-    using Gateway.Persistence;
-    using Gateway.Persistence.Raven;
-    using Gateway.Receiving;
-    using Gateway.Routing.Endpoints;
-    using Gateway.Routing.Sites;
-    using Gateway.Sending;
-    using ObjectBuilder;
-    using Raven.Client;
-    using Persistence.Raven.Config;
 
-
-    public static class GatewayConfig
+    /// <summary>
+    /// Config section for the NHibernate Saga Persister
+    /// </summary>
+    public class GatewayConfig : ConfigurationSection
     {
-       
-        public static Configure Gateway(this Configure config)
+        /// <summary>
+        /// Collection of sites
+        /// </summary>
+        [ConfigurationProperty("Sites", IsRequired = true)]
+        [ConfigurationCollection(typeof(SiteCollection), AddItemName = "Site")]
+        public SiteCollection Sites
         {
-            if (!config.Configurer.HasComponent<IDocumentStore>())
-                config.RavenPersistence();
-
-            return Gateway(config, typeof(RavenDBPersistence));
+            get
+            {
+                return this["Sites"] as SiteCollection;
+            }
+            set
+            {
+                this["Sites"] = value;
+            }
         }
 
-        public static Configure GatewayWithInMemoryPersistence(this Configure config)
+        public IDictionary<string, Gateway.Routing.Site> SitesAsDictionary()
         {
-            return Gateway(config, typeof(InMemoryPersistence));
+            var result = new Dictionary<string, Gateway.Routing.Site>();
+
+            foreach (SiteConfig site in Sites)
+            {
+                result.Add(site.Key, new Gateway.Routing.Site
+                                        {
+                                            Key = site.Key,
+                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address}
+                                        });
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Collection of sites
+    /// </summary>
+    public class SiteCollection : ConfigurationElementCollection
+    {
+        /// <summary>
+        /// Creates a new empty property
+        /// </summary>
+        /// <returns></returns>
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new SiteConfig();
         }
 
-        public static Configure Gateway(this Configure config,Type persistence)
+        /// <summary>
+        /// Returns the key for the given element
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        protected override object GetElementKey(ConfigurationElement element)
         {
-            config.Configurer.ConfigureComponent(persistence,DependencyLifecycle.SingleInstance);
-
-            return SetupGateway(config);
+            return ((SiteConfig)element).Key;
         }
 
 
-        static Configure SetupGateway(this Configure config)
+    }
+
+    /// <summary>
+    /// A site property
+    /// </summary>
+    public class SiteConfig : ConfigurationElement
+    {
+        /// <summary>
+        /// The key
+        /// </summary>
+        [ConfigurationProperty("Key", IsRequired = true, IsKey = true)]
+        public string Key
         {
-            var gatewayInputAddress = Address.Local.SubScope("gateway");
-
-            config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
-
-            
-            ConfigureChannels(config);
-          
-
-            ConfigureReceiver(config);
-            
-            ConfigureSender(config);
-
-            ConfigureStartup(gatewayInputAddress);
-
-            return config;
+            get
+            {
+                return (string)this["Key"];
+            }
+            set
+            {
+                this["Key"] = value;
+            }
         }
 
-        static void ConfigureChannels(Configure config)
+        /// <summary>
+        /// The Address of this site
+        /// </summary>
+        [ConfigurationProperty("Address", IsRequired = true, IsKey = false)]
+        public string Address
         {
-            var channelFactory = new ChannelFactory();
-
-            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
-                channelFactory.RegisterReceiver(type);
-
-            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
-                channelFactory.RegisterSender(type);
-
-            config.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
+            get
+            {
+                return (string)this["Address"];
+            }
+            set
+            {
+                this["Address"] = value;
+            }
         }
 
-        static void ConfigureStartup(Address gatewayInputAddress)
+        /// <summary>
+        /// The ChannelType of this site
+        /// </summary>
+        [ConfigurationProperty("ChannelType", IsRequired = true, IsKey = false)]
+        public string ChannelType
         {
-            Configure.ConfigurationComplete +=
-                () =>
-                    {
-                        Configure.Instance.Builder.Build<IStartableBus>()
-                            .Started += (sender, eventargs) =>
-                                {
-                                    Configure.Instance.Builder.Build<GatewayReceiver>().Start(gatewayInputAddress);
-                                    Configure.Instance.Builder.Build<GatewaySender>().Start(gatewayInputAddress);
-                                };
-                    };
-        }
-
-        static void ConfigureSender(Configure config)
-        {
-            config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
-
-            config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<LegacyChannelManager>(DependencyLifecycle.SingleInstance);
-  
-            config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
-
-            ConfigureSiteRouters(config);
-        }
-
-        static void ConfigureSiteRouters(Configure config)
-        {
-            config.Configurer.ConfigureComponent<OriginatingSiteHeaderRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<KeyPrefixConventionSiteRouter>(DependencyLifecycle.SingleInstance);
-        }
-
-        static void ConfigureReceiver(Configure config)
-        {
-            config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
-
-            config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                                               .ConfigureProperty(x => x.MainInputAddress, Address.Local);
-
+            get
+            {
+                return ((string)this["ChannelType"]).ToLower();
+            }
+            set
+            {
+                this["ChannelType"] = value;
+            }
         }
     }
 }
