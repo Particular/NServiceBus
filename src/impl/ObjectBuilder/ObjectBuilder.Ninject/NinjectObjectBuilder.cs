@@ -195,8 +195,9 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </returns>
         public bool HasComponent(Type componentType)
         {
-            var bindings = this.kernel.GetBindings(componentType);
-            return bindings.Any();
+            var req = this.kernel.CreateRequest(componentType, null, new IParameter[0], false, true);
+
+            return this.kernel.CanResolve(req);
         }
 
         /// <summary>
