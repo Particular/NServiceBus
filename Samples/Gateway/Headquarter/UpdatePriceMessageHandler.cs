@@ -1,6 +1,7 @@
-namespace Headquarter.Messages
+namespace Headquarter
 {
     using System;
+    using Messages;
     using NServiceBus;
 
     public class UpdatePriceMessageHandler:IHandleMessages<UpdatePrice>
