@@ -242,6 +242,28 @@ namespace NServiceBus.Serializers.XML.Test
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
 
+        [Test]
+        public void NestedObjectWithNullPropertiesShouldBeSerialized()
+        {
+            var mapper = new MessageMapper();
+            var serializer = new MessageSerializer();
+            serializer.MessageMapper = mapper;
+
+            serializer.MessageTypes = new List<Type> { typeof(MessageWithNestedObject) };
+
+            var msg = new MessageWithNestedObject { NestedObject = new MessageWithListItem() };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream);
+                var actualMessage = (MessageWithNestedObject)msgArray[0];
+                Assert.IsNotNull(actualMessage.NestedObject);
+            }
+        }
+
         private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
         {
             ArrayList o = new ArrayList(messages);
@@ -381,4 +403,9 @@ namespace NServiceBus.Serializers.XML.Test
 	{
 		public List<MessageWithListItem> Items { get; set; }
 	}
+
+    public class MessageWithNestedObject : IMessage
+    {
+        public MessageWithListItem NestedObject { get; set; }
+    }
 }
