@@ -6,13 +6,15 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance
-                .NHibernateSagaPersister();
+            //todo
+            //Configure.Instance
+             //   .RavenSagaPersister();
 
             Configure.Instance.MessageForwardingInCaseOfFault();
 
-            if (Config is AsA_Publisher)
-                Configure.Instance.DBSubcriptionStorage();
+            //todo
+            //if (Config is AsA_Publisher)
+              //  Configure.Instance.RavenSubscriptionStoreage();
         }
 
         public IConfigureThisEndpoint Config { get; set; }

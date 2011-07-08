@@ -11,8 +11,9 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance
-                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
+            //todo
+            //Configure.Instance
+            //    .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
             Configure.Instance.MessageForwardingInCaseOfFault();
 

@@ -16,8 +16,9 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            if (!Configure.Instance.Configurer.HasComponent<IManageUnitsOfWork>())
-                Configure.Instance.NHibernateUnitOfWork();
+            //todo raven unit of work
+            //if (!Configure.Instance.Configurer.HasComponent<IManageUnitsOfWork>())
+            //    Configure.Instance.NHibernateUnitOfWork();
 
             return Configure.Instance
                 .Sagas()
