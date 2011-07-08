@@ -45,6 +45,7 @@ namespace ObjectBuilder.Tests
         {
             VerifyForAllBuilders((builder) =>
             {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "EnumDependency", SomeEnum.X);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "SimpleDependency",1);
@@ -55,6 +56,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.EnumDependency,SomeEnum.X);
                 Assert.AreEqual(component.SimpleDependency,1);
                 Assert.AreEqual(component.StringDependency,"Test");
+                Assert.NotNull(component.ConcreteDependecy, "Concrete classed should be property injected");
+                Assert.NotNull(component.InterfaceDependency,"Interfaces should be property injected");
             });
 
         }
@@ -84,6 +87,16 @@ namespace ObjectBuilder.Tests
         public SomeEnum EnumDependency { get; set; }
         public int SimpleDependency { get; set; }
         public string StringDependency { get; set; }
+        public ISomeClass InterfaceDependency { get; set; }
+        public SomeClass ConcreteDependecy { get; set; }
+    }
+
+    public class SomeClass:ISomeClass
+    {
+    }
+
+    public interface ISomeClass
+    {
     }
 
     public enum SomeEnum

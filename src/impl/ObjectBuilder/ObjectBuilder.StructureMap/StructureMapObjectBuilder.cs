@@ -108,6 +108,8 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                      .LifecycleIs(lifecycle)
                      .Use(component);
 
+                x.EnableSetterInjectionFor(component);
+
                 foreach (var implementedInterface in GetAllInterfacesImplementedBy(component))
                 {
                     x.RegisterAdditionalInterfaceForPluginType(implementedInterface, component,lifecycle);
