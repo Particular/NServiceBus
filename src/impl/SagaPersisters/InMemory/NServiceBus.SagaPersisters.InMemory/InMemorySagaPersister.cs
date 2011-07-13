@@ -60,6 +60,6 @@ namespace NServiceBus.SagaPersisters.InMemory
         }
 
         private readonly IDictionary<Guid, ISagaEntity> data = new Dictionary<Guid, ISagaEntity>();
-        private static readonly object syncRoot = new object();
+        private readonly object syncRoot = new object();
     }
 }
