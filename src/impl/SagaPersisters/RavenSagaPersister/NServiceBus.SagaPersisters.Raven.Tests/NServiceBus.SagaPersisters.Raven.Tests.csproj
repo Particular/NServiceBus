@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BEC0A9DD-B275-4B62-BF61-22E25B593DB1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus.SagaPersisters.Raven.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.SagaPersisters.Raven.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\..\binaries\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Sagas.Impl">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Sagas.Impl.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded">
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Client.Embedded.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight">
+      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Database">
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Http, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL" />
+    <Reference Include="Raven.Munin">
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Munin.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Server">
+      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.0.397\server\Raven.Server.exe</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Esent">
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Storage.Esent.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Managed">
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Storage.Managed.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\..\..\..\lib\rhino.mocks\Rhino.Mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EqualityExtensions.cs" />
+    <Compile Include="Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
+    <Compile Include="TestSaga.cs" />
+    <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string.cs" />
+    <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string_and_database.cs" />
+    <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string_that_does_not_exist.cs" />
+    <Compile Include="When_configuring_the_embedded_raven_saga_persister.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="When_configuring_the_raven_saga_persister_with_the_default_settings_and_raven_persistence_has_not_been_configured.cs" />
+    <Compile Include="When_configuring_the_raven_saga_persister_with_the_default_settings_and_raven_persistence_has_been_configured.cs" />
+    <Compile Include="When_persisting_a_saga_entity_with_an_Enum_property.cs" />
+    <Compile Include="When_persisting_a_saga_entity_with_a_concrete_class_property.cs" />
+    <Compile Include="When_persisting_a_saga_entity_with_a_date_time_property.cs" />
+    <Compile Include="When_persisting_a_saga_entity_with_related_entities.cs" />
+    <Compile Include="When_persisting_a_saga_entity_with_inherited_property.cs" />
+    <Compile Include="WithRavenDbServer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Persistence\RavenPersistence\NServiceBus.Persistence.Raven\NServiceBus.Persistence.Raven.csproj">
+      <Project>{37CB5DE9-013D-4779-9D35-342F902E8DE1}</Project>
+      <Name>NServiceBus.Persistence.Raven</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.SagaPersisters.Raven\NServiceBus.SagaPersisters.Raven.csproj">
+      <Project>{A263BC37-3427-4B2A-89BD-D0FC976E5822}</Project>
+      <Name>NServiceBus.SagaPersisters.Raven</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,31 @@
+<?xml version= "1.0" encoding="utf-8" ?>
+<CodeSnippets xmlns = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format ="1.0.0">
+    <Header >
+        <Title>NServiceBus Message Handler</Title>
+        <Shortcut>handler</Shortcut>
+    </Header>
+    <Snippet>
+        <Declarations>
+            <Literal>
+                <ID>Message</ID>
+                <ToolTip>Message type</ToolTip>
+                <Default>MessageType</Default>
+            </Literal>
+        </Declarations>
+        <Code Language="CSharp">
+            <![CDATA[
+                public class $Message$Handler : IMessageHandler<$Message$>
+                {
+                    public void Handle($Message$ message)
+                    {
+                       
+                    }
+                    
+                    public IBus Bus { get; set; }
+                }
+            ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

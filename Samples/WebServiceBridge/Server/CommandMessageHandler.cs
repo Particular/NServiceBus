@@ -1,0 +1,21 @@
+using System;
+using Messages;
+using NServiceBus;
+
+namespace Server
+{
+    public class CommandMessageHandler : IHandleMessages<Command>
+    {
+        public IBus Bus { get; set; }
+
+        public void Handle(Command message)
+        {
+            Console.WriteLine("======================================================================");
+
+            if (message.Id % 2 == 0)
+                Bus.Return((int)ErrorCodes.Fail);
+            else 
+                Bus.Return((int)ErrorCodes.None);
+        }
+    }
+}
