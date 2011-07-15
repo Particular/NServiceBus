@@ -168,10 +168,7 @@ namespace NServiceBus
         /// <returns></returns>
         public IStartableBus CreateBus()
         {
-            if (Configurer.HasComponent<IStartableBus>())
-                return Builder.Build<IStartableBus>();
-
-            return null;
+            return Builder.Build<IStartableBus>();
         }
 
         /// <summary>
