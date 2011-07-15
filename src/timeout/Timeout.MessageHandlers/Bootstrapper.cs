@@ -8,7 +8,6 @@ namespace Timeout.MessageHandlers
 {
     public class Bootstrapper : IWantToRunAtStartup
     {
-        public IPersistTimeouts Persister { get; set; }
         public IManageTimeouts Manager { get; set; }
         public IBus Bus { get; set; }
 
@@ -17,6 +16,8 @@ namespace Timeout.MessageHandlers
 
         public void Run()
         {
+            Manager.Init(TimeSpan.FromMilliseconds(100));
+
             Manager.SagaTimedOut +=
                 (o, e) =>
                     {
@@ -24,14 +25,10 @@ namespace Timeout.MessageHandlers
                         {
                             Bus.Send(e.Destination,
                                      new TimeoutMessage {SagaId = e.SagaId, Expires = e.Time, State = e.State});
-                            Persister.Remove(e.SagaId);
-
+                            
                             scope.Complete();
                         }
                     };
-
-            Persister.GetAll().ToList().ForEach(td => 
-                Manager.PushTimeout(td));
 
             thread = new Thread(Poll);
             thread.Start();

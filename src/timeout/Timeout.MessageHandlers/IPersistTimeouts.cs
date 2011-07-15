@@ -5,10 +5,14 @@ namespace Timeout.MessageHandlers
 {
     public interface IPersistTimeouts
     {
+        void Init();
+
         IEnumerable<TimeoutData> GetAll();
 
         void Add(TimeoutData timeout);
 
-        void Remove(Guid sagaId);
+        void Remove(TimeoutData timeout);
+
+        void ClearAll(Guid sagaId);
     }
 }

@@ -22,6 +22,11 @@ namespace Timeout.Tests
             interval = TimeSpan.FromSeconds(2);
 
             var mgr = new TimeoutManager();
+            var persister = new TimeoutPersister();
+
+            persister.Queue = "timeout.storage";
+            mgr.Persister = persister;
+
             mgr.Init(interval);
 
             manager = mgr;

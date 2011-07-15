@@ -9,6 +9,12 @@ namespace Timeout.MessageHandlers
     public interface IManageTimeouts
     {
         /// <summary>
+        /// Initializes the object including its sleeping interval when a Pop returns null.
+        /// </summary>
+        /// <param name="interval"></param>
+        void Init(TimeSpan interval);
+
+        /// <summary>
         /// When <see cref="PopTimeout"/> is called, this event is raised for 
         /// every saga ID passed in to <see cref="PushTimeout"/> for a single time slot.
         /// </summary>

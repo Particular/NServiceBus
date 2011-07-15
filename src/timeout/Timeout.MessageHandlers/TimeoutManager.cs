@@ -10,13 +10,23 @@ namespace Timeout.MessageHandlers
     /// </summary>
     public class TimeoutManager : IManageTimeouts
     {
+        public IPersistTimeouts Persister { get; set; }
+
         public event EventHandler<TimeoutData> SagaTimedOut;
 
         public void Init(TimeSpan interval)
         {
-            duration = interval;
+            lock (data)
+            {
+                duration = interval;
+                Persister.Init();
+
+                Persister.GetAll().ToList().ForEach(td =>
+                    PushTimeout(td));
+            }
         }
-        void IManageTimeouts.PushTimeout(TimeoutData timeout)
+
+        public void PushTimeout(TimeoutData timeout)
         {
             lock (data)
             {
@@ -29,10 +39,12 @@ namespace Timeout.MessageHandlers
                     sagaLookup[timeout.SagaId] = new List<DateTime>();
 
                 sagaLookup[timeout.SagaId].Add(timeout.Time);
+
+                Persister.Add(timeout);
             }
         }
 
-        void IManageTimeouts.PopTimeout()
+        public void PopTimeout()
         {
             var pair = new KeyValuePair<DateTime, List<TimeoutData>>(DateTime.MinValue, null);
 
@@ -41,12 +53,16 @@ namespace Timeout.MessageHandlers
                 if (data.Count > 0)
                 {
                     var next = data.ElementAt(0);
-                    if (next.Key - DateTime.UtcNow < duration)
+                    if (next.Key - DateTime.Now < duration)
                     {
                         pair = next;
                         data.Remove(pair.Key);
 
-                        pair.Value.ForEach(td => sagaLookup.Remove(td.SagaId));
+                        pair.Value.ForEach(td =>
+                            {
+                                sagaLookup.Remove(td.SagaId);
+                                Persister.Remove(td);
+                            });
                     }
                 }
             }
@@ -57,13 +73,13 @@ namespace Timeout.MessageHandlers
                 return;
             }
 
-            if (pair.Key > DateTime.UtcNow)
-                Thread.Sleep(pair.Key - DateTime.UtcNow);
+            if (pair.Key > DateTime.Now)
+                Thread.Sleep(pair.Key - DateTime.Now);
 
             pair.Value.ForEach(OnSagaTimedOut);
         }
 
-        void IManageTimeouts.ClearTimeout(Guid sagaId)
+        public void ClearTimeout(Guid sagaId)
         {
             lock(data)
             {
@@ -83,6 +99,8 @@ namespace Timeout.MessageHandlers
                     if (data[time].Count == 0)
                         data.Remove(time);
                 }
+
+                Persister.ClearAll(sagaId);
             }
         }
 
@@ -95,6 +113,6 @@ namespace Timeout.MessageHandlers
         private readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
         private readonly Dictionary<Guid, List<DateTime>> sagaLookup = new Dictionary<Guid, List<DateTime>>();
 
-        private TimeSpan duration = TimeSpan.FromMilliseconds(100);
+        private TimeSpan duration;
     }
 }

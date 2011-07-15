@@ -5,7 +5,6 @@ namespace Timeout.MessageHandlers
 {
     public class TimeoutMessageHandler : IMessageHandler<TimeoutMessage>
     {
-        public IPersistTimeouts Persister { get; set; }
         public IManageTimeouts Manager { get; set; }
         public IBus Bus { get; set; }
 
@@ -14,7 +13,6 @@ namespace Timeout.MessageHandlers
             if (message.ClearTimeout)
             {
                 Manager.ClearTimeout(message.SagaId);
-                Persister.Remove(message.SagaId);
             }
             else
             {
@@ -27,7 +25,6 @@ namespace Timeout.MessageHandlers
                                };
 
                 Manager.PushTimeout(data);
-                Persister.Add(data);
             }
 
             Bus.DoNotContinueDispatchingCurrentMessageToHandlers();

@@ -26,5 +26,10 @@ namespace Timeout.MessageHandlers
         /// The time at which the saga ID expired.
         /// </summary>
         public DateTime Time { get; set; }
+
+        /// <summary>
+        /// The MSMQ message lookup value - set after storage occurs.
+        /// </summary>
+        public string MessageId { get; set; }
     }
 }
