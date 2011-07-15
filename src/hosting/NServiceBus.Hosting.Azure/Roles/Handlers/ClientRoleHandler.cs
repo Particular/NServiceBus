@@ -6,12 +6,12 @@ using NServiceBus.Unicast.Config;
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
 {
     /// <summary>
-    /// Handles configuration related to the server role
+    /// Handles configuration related to the client role
     /// </summary>
-    public class ServerRoleHandler : IConfigureRole<AsA_Server>
+    public class ClientRoleHandler : IConfigureRole<AsA_Client>
     {
         /// <summary>
-        /// Configures the UnicastBus with typical settings for a server on azure
+        /// Configures the UnicastBus with typical settings for a clients on azure
         /// </summary>
         /// <param name="specifier"></param>
         /// <returns></returns>
@@ -33,11 +33,10 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
 
             return instance
                 .JsonSerializer()
-                    .IsTransactional(true)
-                .Sagas()
+                .IsTransactional(true)
                 .UnicastBus()
-                    .ImpersonateSender(false)
-                    .LoadMessageHandlers();
+                .ImpersonateSender(false)
+                .LoadMessageHandlers();
         }
     }
 }

@@ -1,11 +1,8 @@
 using System;
 using System.Configuration;
 using System.Linq;
-using System.Reflection;
-using System.Web;
 using System.Web.Configuration;
 using System.Web.Hosting;
-using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config.ConfigurationSource;
 
 namespace NServiceBus.Integration.Azure
@@ -24,7 +21,7 @@ namespace NServiceBus.Integration.Azure
             var sectionName = typeof(T).Name;
 
             var section = GetConfigurationHandler()
-                                    .GetSection(sectionName) as T;
+                              .GetSection(sectionName) as T ?? new T();
 
             foreach (var property in typeof(T).GetProperties().Where(x => x.DeclaringType == typeof(T)))
             {
@@ -32,9 +29,6 @@ namespace NServiceBus.Integration.Azure
 
                 if (!string.IsNullOrEmpty(setting))
                 {
-                    if (section == null)
-                        section = new T();
-
                     property.SetValue(section, Convert.ChangeType(setting, property.PropertyType), null);
                 }
             }

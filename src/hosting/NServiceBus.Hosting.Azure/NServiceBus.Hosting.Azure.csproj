@@ -65,8 +65,10 @@
     <Compile Include="Profiles\Handler\ProductionProfileHandler.cs" />
     <Compile Include="Profiles\Production.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Roles\AsA_Client.cs" />
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Roles\AsA_Server.cs" />
+    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
     <Compile Include="Roles\Handlers\ICommunicateThroughAppFabricQueues.cs" />
     <Compile Include="Roles\Handlers\ICommunicateThroughAzureQueues.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
