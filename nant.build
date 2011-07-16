@@ -580,13 +580,23 @@
       </fileset>
     </copy>
 
-    <!-- Prepare Tools -->
+    <!-- Prepare Processes for Commercial -->
     <copy todir="${release.dir}\processes" unless="${edition == editions.community}">
       <fileset basedir="${build.base}">
         <include name="timeout\**" />
         <include name="proxy\**" />
         <include name="distributor\**" />
         <include name="gateway\**" />
+
+        <exclude name="**.xml" />
+        <exclude name="**.pdb" />
+      </fileset>
+    </copy>
+
+    <!-- Prepare Processes for Community -->
+    <copy todir="${release.dir}\processes" if="${edition == editions.community}">
+      <fileset basedir="${build.base}">
+        <include name="timeout\**" />
 
         <exclude name="**.xml" />
         <exclude name="**.pdb" />
