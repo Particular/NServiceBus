@@ -63,7 +63,7 @@ http://www.gnu.org/licenses/lgpl-3.0.txt
 
 Iesi.Collections binaries are merged into NServiceBus allowed under the license terms found here:
 
-Copyright © 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
+Copyright ï¿½ 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
 
 Copied from http://www.codeproject.com/csharp/sets.asp#xx703510xx that was posted by JasonSmith 12:13 2 Jan '04
 
@@ -193,5 +193,3 @@ http://www.ayende.com/projects/rhino-mocks.aspx
 Rhino Mocks binaries are merged into NServiceBus allowed under the license terms described here:
 
 http://www.opensource.org/licenses/bsd-license.php
-
-
