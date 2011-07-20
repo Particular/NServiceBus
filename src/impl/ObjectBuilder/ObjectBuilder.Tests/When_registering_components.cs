@@ -74,6 +74,38 @@ namespace ObjectBuilder.Tests
 
 
         }
+
+        [Test]
+        public void All_implemented_interfaces_should_be_registered()
+        {
+            VerifyForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(ComponentWithMultipleInterfaces), DependencyLifecycle.InstancePerCall);
+
+                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+
+                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+
+                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+
+                Assert.AreEqual(1,builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+            }
+            ,typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder));
+
+
+        }
+    }
+
+    public class ComponentWithMultipleInterfaces:ISomeInterface,ISomeOtherInterface,IYetAnotherInterface
+    {
+    }
+
+    public interface ISomeOtherInterface:IYetAnotherInterface
+    {
+    }
+
+    public interface IYetAnotherInterface
+    {
     }
 
     public class DuplicateClass
@@ -87,15 +119,15 @@ namespace ObjectBuilder.Tests
         public SomeEnum EnumDependency { get; set; }
         public int SimpleDependency { get; set; }
         public string StringDependency { get; set; }
-        public ISomeClass InterfaceDependency { get; set; }
+        public ISomeInterface InterfaceDependency { get; set; }
         public SomeClass ConcreteDependecy { get; set; }
     }
 
-    public class SomeClass:ISomeClass
+    public class SomeClass:ISomeInterface
     {
     }
 
-    public interface ISomeClass
+    public interface ISomeInterface
     {
     }
 

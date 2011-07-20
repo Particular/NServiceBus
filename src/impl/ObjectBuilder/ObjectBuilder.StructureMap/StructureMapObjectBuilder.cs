@@ -151,20 +151,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         private static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
         {
-            var result = new List<Type>();
-
-            if (t == null)
-                return result;
-
-            var interfaces = t.GetInterfaces().Where(x => (
-                !x.IsGenericType
-                ));
-            result.AddRange(interfaces);
-
-            foreach (Type interfaceType in interfaces)
-                result.AddRange(GetAllInterfacesImplementedBy(interfaceType));
-
-            return result;
+            return t.GetInterfaces().Where(x => (!x.IsGenericType));
         }
 
     }
