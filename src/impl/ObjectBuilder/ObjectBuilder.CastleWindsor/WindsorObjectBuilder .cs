@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Resource;
+using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
+using log4net;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -47,8 +50,16 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// </summary>
         public void Dispose()
         {
+            if (disposableScope != null)
+            {
+                disposableScope.Dispose();
+                disposableScope = null;
+                return;
+            }
+
             Dispose(true);
         }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing || disposed)
@@ -66,30 +77,38 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <returns></returns>
         public IContainer BuildChildContainer()
         {
-            return new WindsorObjectBuilder(new WindsorContainer{Parent = container});
+            disposableScope = container.Kernel.BeginScope();
+            return this;
         }
 
         void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
-            var handler = GetHandlerForType(concreteComponent);
-            if (handler == null)
+            var reg = GetRegistrationForType(concreteComponent);
+            if (reg == null)
             {
                 var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
 
-                var reg = Component.For(GetAllServiceTypesFor(concreteComponent)).ImplementedBy(concreteComponent);
+                var services = GetAllServiceTypesFor(concreteComponent);
+                reg = Component.For(services).ImplementedBy(concreteComponent);
                 reg.LifeStyle.Is(lifestyle);
                         
-                container.Kernel.Register(reg);
+                lock (lookup)
+                {
+                    lookup[concreteComponent] = reg;
+                    services.ForEach(s => types.Add(s));
+                }
             }
+            else 
+                Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
         }
 
         void IContainer.ConfigureProperty(Type component, string property, object value)
         {
-            var handler = GetHandlerForType(component);
-            if (handler == null)
+            var reg = GetRegistrationForType(component);
+            if (reg == null)
                 throw new InvalidOperationException("Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.");
 
-            handler.AddCustomDependencyValue(property, value);
+            reg.DependsOn(Property.ForKey(property).Eq(value));
         }
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
@@ -99,16 +118,35 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         object IContainer.Build(Type typeToBuild)
         {       
+            Initialize();
+
             return container.Resolve(typeToBuild);  
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
+            Initialize();
+            
             return container.ResolveAll(typeToBuild).Cast<object>();
+        }
+
+        private void Initialize()
+        {
+            if (!initialized)
+                lock (lookup)
+                {
+                    if (!initialized)
+                        container.Register(lookup.Values.ToArray());
+
+                    initialized = true;
+                }
         }
 
         bool IContainer.HasComponent(Type componentType)
         {
+            if (types.Contains(componentType))
+                return true;
+
             return container.Kernel.HasComponent(componentType);
         }
 
@@ -121,7 +159,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 case DependencyLifecycle.SingleInstance: 
                     return LifestyleType.Singleton;
                 case DependencyLifecycle.InstancePerUnitOfWork:
-                    return LifestyleType.Undefined;
+                    return LifestyleType.Scoped;
             }
 
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
@@ -140,18 +178,31 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return result;
         }
 
-        private IHandler GetHandlerForType(Type concreteComponent)
+        private ComponentRegistration<object> GetRegistrationForType(Type concreteComponent)
         {
-            return container.Kernel.GetAssignableHandlers(typeof(object))
-                .Where(h => h.ComponentModel.Implementation == concreteComponent)
-                .FirstOrDefault();
+            ComponentRegistration<object> output;
+
+            lock(lookup)
+                lookup.TryGetValue(concreteComponent, out output);
+
+            return output;
         }
+
+
+        private bool initialized;
+        private IDictionary<Type, ComponentRegistration<object>> lookup = new Dictionary<Type, ComponentRegistration<object>>();
+        private IList<Type> types = new List<Type>();
+
+        [ThreadStatic]
+        private static IDisposable disposableScope;
+
+        private static ILog Logger = LogManager.GetLogger("NServiceBus.ObjectBuilder");
     }
 
     internal class NoOpInterpreter:AbstractInterpreter
 
     {
-        public override void ProcessResource(IResource resource, IConfigurationStore store)
+        public override void ProcessResource(IResource resource, IConfigurationStore store, IKernel kernel)
         {
             
         }
