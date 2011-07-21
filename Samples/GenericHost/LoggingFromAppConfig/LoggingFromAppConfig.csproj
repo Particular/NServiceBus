@@ -39,9 +39,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
+    <Reference Include="NServiceBus.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Host, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -49,13 +48,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
-      
     </Reference>
     <Reference Include="System.Xml.Linq">
-      
     </Reference>
     <Reference Include="System.Data.DataSetExtensions">
-      
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />

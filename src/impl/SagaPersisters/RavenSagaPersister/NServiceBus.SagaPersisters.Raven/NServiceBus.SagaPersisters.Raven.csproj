@@ -41,13 +41,13 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Embedded">
-      <HintPath>..\..\..\..\..\lib\RavenDb\EmbeddedClient\Raven.Client.Embedded.dll</HintPath>
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\..\..\..\lib\RavenDb\Client\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Storage.Esent">
-      <HintPath>..\..\..\..\..\lib\RavenDb\EmbeddedClient\Raven.Storage.Esent.dll</HintPath>
+      <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Storage.Esent.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

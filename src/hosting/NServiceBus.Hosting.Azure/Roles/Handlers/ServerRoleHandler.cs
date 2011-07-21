@@ -1,5 +1,6 @@
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
+using NServiceBus.Integration.Azure;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
@@ -18,12 +19,20 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             var instance = Configure.Instance;
 
+            instance
+                .AzureConfigurationSource()
+                .Log4Net<AzureAppender>(
+                    a =>
+                        {
+                            a.ScheduledTransferPeriod = 10;
+                        });
+
             instance = specifier is ICommunicateThroughAppFabricQueues
                            ? instance.AppFabricMessageQueue()
                            : instance.AzureMessageQueue();
 
             return instance
-                .BinarySerializer()
+                .JsonSerializer()
                     .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()

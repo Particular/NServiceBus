@@ -293,6 +293,34 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
+
+
+        [Test]
+        public void NestedObjectWithNullPropertiesShouldBeSerialized()
+        {
+            var mapper = new MessageMapper();
+            var serializer = new MessageSerializer();
+            serializer.MessageMapper = mapper;
+
+            serializer.MessageTypes = new List<Type> { typeof(MessageWithNestedObject) };
+
+            var msg = new MessageWithNestedObject { NestedObject = new MessageWithNullProperty() };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream);
+                var actualMessage = (MessageWithNestedObject)msgArray[0];
+                Assert.IsNotNull(actualMessage.NestedObject);
+            }
+        }
+    }
+
+    public class MessageWithNullProperty
+    {
+        public string WillBeNull { get; set; }
     }
 
     public class MessageWithDouble : IMessage
@@ -305,6 +333,11 @@ namespace NServiceBus.Serializers.XML.Test
         public GenericProperty<string> GenericProperty { get; set; }
         public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
 
+    }
+
+    public class MessageWithNestedObject : IMessage
+    {
+        public MessageWithNullProperty NestedObject { get; set; }
     }
 
     public class GenericProperty<T>

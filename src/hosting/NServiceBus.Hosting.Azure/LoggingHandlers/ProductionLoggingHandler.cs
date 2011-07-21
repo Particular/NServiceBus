@@ -10,19 +10,16 @@ namespace NServiceBus.Hosting.Azure.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            if (Configure.Instance == null)
-                Configure.With();
+            //if (Configure.Instance == null || Configure.Instance.Configurer == null)
+            //    return;
 
-            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
-                Configure.Instance.DefaultBuilder();
-
-            Configure.Instance
-                .AzureConfigurationSource()
-                .Log4Net<AzureAppender>(
-                a =>
-                {
-                    a.ScheduledTransferPeriod = 10;                    
-                });
+            //Configure.Instance
+            //    .AzureConfigurationSource()
+            //    .Log4Net<AzureAppender>(
+            //    a =>
+            //    {
+            //        a.ScheduledTransferPeriod = 10;
+            //    });
         }
     }
 }

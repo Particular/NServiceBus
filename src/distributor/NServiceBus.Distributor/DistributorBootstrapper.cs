@@ -28,9 +28,11 @@ namespace NServiceBus.Distributor
                                   WorkerManager = WorkerAvailabilityManager,
                                   DataTransportInputQueue = InputQueue
                               };
+        }
 
-            var bus = Configure.Instance.Builder.Build<IStartableBus>();
-            bus.Started += (x, y) => distributor.Start();
+        public void Start()
+        {
+            distributor.Start();
         }
 
         public void Dispose()

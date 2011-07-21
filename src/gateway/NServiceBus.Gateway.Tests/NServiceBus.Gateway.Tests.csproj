@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\lib\RavenDb\Client\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -76,10 +76,10 @@
       <HintPath>..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\..\lib\RavenDb\Client\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\..\lib\RavenDb\Client\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\..\..\lib\rhino.mocks\Rhino.Mocks.dll</HintPath>
@@ -109,6 +109,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Idempotency\Persistenstester.cs" />
     <Compile Include="RegularMessage.cs" />
+    <Compile Include="Routing\When_routing_a_reply_message.cs" />
+    <Compile Include="Routing\When_routing_using_the_configuration_source.cs" />
     <Compile Include="via_the_gateway.cs" />
     <Compile Include="When_a_message_is_sent.cs" />
     <Compile Include="When_a_message_with_a_databus_property_is_sent.cs" />

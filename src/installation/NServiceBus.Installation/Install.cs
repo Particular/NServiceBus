@@ -71,10 +71,10 @@ namespace NServiceBus
             NServiceBus.Configure.Instance.Initialize();
 
             GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
-                .ForEach(t => ((INeedToInstallInfrastructure)Configure.Instance.Builder.Build(t)).Install(winIdentity));
+                .ForEach(t => ((INeedToInstallInfrastructure)Activator.CreateInstance(t)).Install(winIdentity));
 
             GetInstallers<T>(typeof(INeedToInstallSomething<>))
-                .ForEach(t => ((INeedToInstallSomething)Configure.Instance.Builder.Build(t)).Install(winIdentity));
+                .ForEach(t => ((INeedToInstallSomething)Activator.CreateInstance(t)).Install(winIdentity));
         }
 
         private static List<Type> GetInstallers<TEnvtype>(Type openGenericInstallType) where TEnvtype : IEnvironment

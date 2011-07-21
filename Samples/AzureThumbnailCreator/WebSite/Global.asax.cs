@@ -31,7 +31,7 @@ namespace OrderWebSite
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()
                   .AzureMessageQueue()
-                    .BinarySerializer()
+                    .JsonSerializer()
                   .AzureDataBus()
                   .UnicastBus()
                     .LoadMessageHandlers()

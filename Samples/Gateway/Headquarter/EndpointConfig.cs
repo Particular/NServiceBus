@@ -13,6 +13,7 @@ namespace Headquarter
             Configure.With()
                 .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
                 .DefaultBuilder()
+                .UnicastBus().AllowDiscovery()
                 .Configurer.ConfigureComponent<NServiceBus.MasterNode.ConfigBacked.MasterNodeManager>(DependencyLifecycle.SingleInstance);
         }
     }

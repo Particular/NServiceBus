@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.MasterNode
+﻿using System;
+
+namespace NServiceBus.MasterNode
 {
     /// <summary>
     /// Provides ability to find out which machine is the "master node" for this endpoint.
@@ -16,5 +18,10 @@
         /// Returns true if this process/node is the master node.
         /// </summary>
         bool IsCurrentNodeTheMaster { get; }
+
+        /// <summary>
+        /// Raised when the master node changes.
+        /// </summary>
+        event Action MasterNodeChanged;
     }
 }

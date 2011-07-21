@@ -23,26 +23,12 @@ namespace Customer
 
         private static void BootstrapNServiceBus()
         {
-            //Configure.With()
-            //    .Log4Net()
-            //    .StructureMapBuilder(ObjectFactory.Container)
-            //    .MsmqSubscriptionStorage()
-            //    .XmlSerializer()
-            //    .MsmqTransport()
-            //        .IsTransactional(true)
-            //        .PurgeOnStartup(false)
-            //    .UnicastBus()
-            //        .ImpersonateSender(false)
-            //        .LoadMessageHandlers()
-            //    .CreateBus()
-            //    .Start();
-
-            Configure.With()
+           Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                
                .AzureConfigurationSource()
-               .AzureMessageQueue().XmlSerializer()
+               .AzureMessageQueue().JsonSerializer()
                .AzureSubcriptionStorage()
                .Sagas().AzureSagaPersister()
 

@@ -33,7 +33,12 @@ namespace NServiceBus
         /// <summary>
         /// Event raised when configuration is complete
         /// </summary>
-        public static event EventHandler ConfigurationComplete;
+        public static event Action ConfigurationComplete;
+
+        /// <summary>
+        /// Event raised before going to invoke INeedInitialization implementors.
+        /// </summary>
+        public static event Action BeforeInitialization;
 
         /// <summary>
         /// Gets/sets the builder.
@@ -41,7 +46,7 @@ namespace NServiceBus
         /// </summary>
         public IBuilder Builder { get; set; }
 
-        private bool initialized { get; set; }
+        private static bool initialized { get; set; }
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
@@ -153,7 +158,7 @@ namespace NServiceBus
                       }
                       catch (ReflectionTypeLoadException e)
                       {
-                          Logger.WarnFormat("Could not scan assembly: {0}. The reason is {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
+                          Logger.Warn("Could not scan assembly: " + a.FullName, e);
                           return;//intentionally swallow exception
                       }
                   });
@@ -196,7 +201,10 @@ namespace NServiceBus
         {
             Initialize();
 
-            return Builder.Build<IStartableBus>();
+            if (Configurer.HasComponent<IStartableBus>())
+                return Builder.Build<IStartableBus>();
+
+            return null;
         }
 
         /// <summary>
@@ -234,7 +242,10 @@ namespace NServiceBus
             }
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, ComponentCallModelEnum.Singlecall));
+                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
+            if (BeforeInitialization != null)
+                BeforeInitialization();
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
@@ -246,7 +257,7 @@ namespace NServiceBus
             initialized = true;
 
             if (ConfigurationComplete != null)
-                ConfigurationComplete(null, null);
+                ConfigurationComplete();
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList().ForEach(o => o.Run());

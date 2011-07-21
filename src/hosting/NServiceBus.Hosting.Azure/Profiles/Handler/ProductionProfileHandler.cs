@@ -1,4 +1,6 @@
-﻿using NServiceBus.Hosting.Profiles;
+﻿using NServiceBus.Config;
+using NServiceBus.Hosting.Profiles;
+using NServiceBus.Integration.Azure;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {

@@ -3,11 +3,11 @@
   <Role name="WebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
-      <Setting name="AzureDatabusConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
 
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
 
@@ -17,15 +17,15 @@
     </ConfigurationSettings>
   </Role>
   <Role name="Service">
-    <Instances count="1" />
+    <Instances count="0" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
-      <Setting name="AzureDatabusConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       
       <Setting name="UnicastBusConfig.LocalAddress" value="serviceinputqueue" />
       
@@ -34,7 +34,7 @@
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
 
-      <Setting name="ThumbNailStore.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={yourAccountName};AccountKey={yourAccountKey}" />
+      <Setting name="ThumbNailStore.ConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

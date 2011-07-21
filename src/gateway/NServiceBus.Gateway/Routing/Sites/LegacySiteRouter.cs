@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Configuration;
-    using Channels.Http;
+    using Channels;
     using Unicast.Transport;
 
     public class LegacySiteRouter:IRouteMessagesToSites
@@ -20,8 +20,7 @@
 
             return new []{new Site
             {
-                Address = address,
-                ChannelType = typeof(HttpChannelSender),
+                Channel = new Channel{Address = address,Type = "Http"},
                 Key = address
             }};
         }

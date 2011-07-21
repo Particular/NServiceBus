@@ -3,6 +3,6 @@
     public class GatewayReturnInfo
     {
         public string From { get; set; }
-        public string ReturnAddress { get; set; }
+        public string ReplyToAddress { get; set; }
     }
 }

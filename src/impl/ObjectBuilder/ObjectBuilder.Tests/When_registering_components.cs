@@ -45,6 +45,7 @@ namespace ObjectBuilder.Tests
         {
             VerifyForAllBuilders((builder) =>
             {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "EnumDependency", SomeEnum.X);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "SimpleDependency",1);
@@ -55,6 +56,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.EnumDependency,SomeEnum.X);
                 Assert.AreEqual(component.SimpleDependency,1);
                 Assert.AreEqual(component.StringDependency,"Test");
+                Assert.NotNull(component.ConcreteDependecy, "Concrete classed should be property injected");
+                Assert.NotNull(component.InterfaceDependency,"Interfaces should be property injected");
             });
 
         }
@@ -71,6 +74,38 @@ namespace ObjectBuilder.Tests
 
 
         }
+
+        [Test]
+        public void All_implemented_interfaces_should_be_registered()
+        {
+            VerifyForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(ComponentWithMultipleInterfaces), DependencyLifecycle.InstancePerCall);
+
+                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+
+                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+
+                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+
+                Assert.AreEqual(1,builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+            }
+            ,typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder));
+
+
+        }
+    }
+
+    public class ComponentWithMultipleInterfaces:ISomeInterface,ISomeOtherInterface,IYetAnotherInterface
+    {
+    }
+
+    public interface ISomeOtherInterface:IYetAnotherInterface
+    {
+    }
+
+    public interface IYetAnotherInterface
+    {
     }
 
     public class DuplicateClass
@@ -84,6 +119,16 @@ namespace ObjectBuilder.Tests
         public SomeEnum EnumDependency { get; set; }
         public int SimpleDependency { get; set; }
         public string StringDependency { get; set; }
+        public ISomeInterface InterfaceDependency { get; set; }
+        public SomeClass ConcreteDependecy { get; set; }
+    }
+
+    public class SomeClass:ISomeInterface
+    {
+    }
+
+    public interface ISomeInterface
+    {
     }
 
     public enum SomeEnum

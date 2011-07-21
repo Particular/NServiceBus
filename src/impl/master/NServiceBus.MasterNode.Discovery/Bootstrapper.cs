@@ -26,18 +26,20 @@ namespace NServiceBus.MasterNode.Discovery
             {
                 StartMasterPresence(Address.Local);
                 cfg.ConfigureProperty(m => m.IsCurrentNodeTheMaster, true);
-                cfg.ConfigureProperty(m => m.MasterNode, Address.Local);
             }
             else
             {
-                
+                DetectMasterPresence(Address.Local, a => cfg.ConfigureProperty(m => m.MasterNode, a));
             }
 
-            Configure.ConfigurationComplete += (o, e) => configIsComplete = true;
+            Configure.ConfigurationComplete += () => configIsComplete = true;
         }
 
         public void Run()
         {
+            if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
+                return;
+
             MessageTypesOwned = GetMessageTypesThisEndpointOwns();
             MessageTypesOwned.ToList().ForEach(t =>
                 StartMasterPresence(t.FullName));
@@ -45,14 +47,14 @@ namespace NServiceBus.MasterNode.Discovery
             GetAllMessageTypes().Except(GetMessageTypesThisEndpointOwns()).ToList().ForEach(t =>
                 DetectMasterPresence(t.FullName, a =>
                 {
-                    var action = new EventHandler((o, e) =>
+                    Action action = () =>
                     {
                         var bus =
                             Configure.Instance.Builder.Build<UnicastBus>();
                         bus.RegisterMessageType(t, a, false);
-                    });
+                    };
                     if (configIsComplete)
-                        action(null, null);
+                        action();
                     else
                         Configure.ConfigurationComplete += action;
                 })
@@ -72,7 +74,7 @@ namespace NServiceBus.MasterNode.Discovery
                         if (nodeMetadata.Metadata.ContainsKey("Address"))
                             if (nodeMetadata.Metadata["Address"] != null)
                             {
-                                Logger.Info("Heard from broadcaster: " + nodeMetadata.Metadata["Address"] + " about message type: " + topic);
+                                Logger.Info("Heard from broadcaster: " + nodeMetadata.Metadata["Address"] + " about topic: " + topic);
                                 if (masterDetected != null)
                                     masterDetected(Address.Parse(nodeMetadata.Metadata["Address"]));
                             }
@@ -82,7 +84,7 @@ namespace NServiceBus.MasterNode.Discovery
 
             presence.Start();
 
-            Logger.Info("Listening for broadcasts about message type: " + topic);
+            Logger.Info("Listening for broadcasts about topic: " + topic);
         }
 
         private static void StartMasterPresence(string topic)
@@ -96,7 +98,7 @@ namespace NServiceBus.MasterNode.Discovery
                 presenceInterval)
             .Start();
 
-            Logger.Info("Broadcasting ownership of message type: " + topic);
+            Logger.Info("Broadcasting ownership of topic: " + topic);
         }
 
         private static IEnumerable<Type> GetAllMessageTypes()

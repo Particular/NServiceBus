@@ -7,6 +7,6 @@
     public interface IReceiveMessagesFromSites :IDisposable
     {
         event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
-        void Start(Channel channel);
+        void Start(Channel channel, int numWorkerThreads);
     }
 }

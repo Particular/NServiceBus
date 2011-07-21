@@ -2,19 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
     using Channels;
     using Channels.Http;
-    using DataBus;
+    using Gateway.Routing;
+    using Gateway.Routing.Endpoints;
+    using Gateway.Routing.Sites;
     using Notifications;
     using NUnit.Framework;
     using ObjectBuilder;
     using Persistence;
     using Receiving;
     using Rhino.Mocks;
-    using Routing;
-    using Routing.Endpoints;
-    using Routing.Sites;
     using Sending;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -30,6 +28,8 @@
 
         protected InMemoryDataBus databusForSiteA;
         protected InMemoryDataBus databusForSiteB;
+
+        protected Channel defaultChannelForSiteA = new Channel {Address = HttpAddressForSiteA, Type = "http"};
 
 
         [TearDown]
@@ -48,34 +48,32 @@
 
             var builder = MockRepository.GenerateStub<IBuilder>();
 
+            var channelFactory = new ChannelFactory();
+
+            channelFactory.RegisterReceiver(typeof(HttpChannelReceiver));
+
+            channelFactory.RegisterSender(typeof(HttpChannelSender));
+
+
             var channelManager = MockRepository.GenerateStub<IMangageReceiveChannels>();
             channelManager.Stub(x => x.GetActiveChannels()).Return(new[] {new Channel
                                                                               {
-                                                                                  NumWorkerThreads = 1,
-                                                                                  ReceiveAddress = HttpAddressForSiteB,
-                                                                                  Receiver = typeof(HttpChannelReceiver)
+                                                                                  Address = HttpAddressForSiteB,
+                                                                                  Type = "http"
                                                                               }});
-            channelManager.Stub(x => x.GetDefaultChannel()).Return(new Channel
-                                                                       {
-                                                                           NumWorkerThreads = 1,
-                                                                           ReceiveAddress = HttpAddressForSiteA,
-                                                                           Receiver = typeof(HttpChannelReceiver)
-                                                                       });
+            channelManager.Stub(x => x.GetDefaultChannel()).Return(defaultChannelForSiteA);
 
 
-            builder.Stub(x => x.Build<IdempotentSender>()).Return(new IdempotentSender(builder)
+            builder.Stub(x => x.Build<IdempotentChannelForwarder>()).Return(new IdempotentChannelForwarder(channelFactory)
                                                                              {
                                                                                  DataBus = databusForSiteA
                                                                              });
 
-            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentReceiver(builder, new InMemoryPersistence()
-                                                                                                               )
+            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentChannelReceiver(channelFactory, new InMemoryPersistence())
             {
                 DataBus = databusForSiteB
             });
           
-            builder.Stub(x => x.Build(typeof(HttpChannelReceiver))).Return(new HttpChannelReceiver());
-            builder.Stub(x => x.Build(typeof(HttpChannelSender))).Return(new HttpChannelSender());
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 

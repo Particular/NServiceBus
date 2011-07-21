@@ -20,8 +20,15 @@ namespace NServiceBus.MasterNode.Discovery
                 return;
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
-                if (!Bootstrapper.MessageTypesOwned.Contains(messages[0].GetType()))
-                    throw new InvalidOperationException("You are publishing a message of the type " + messages[0].GetType().FullName + " but have not implemented IAmResponsibleForMessages<T> for it.");
+            {
+                foreach (var t in Bootstrapper.MessageTypesOwned)
+                    if (t.IsAssignableFrom(messages[0].GetType()))
+                        return;
+
+                throw new InvalidOperationException("You are publishing a message of the type " +
+                                                    messages[0].GetType().FullName +
+                                                    " but have not implemented IAmResponsibleForMessages<T> for it.");
+            }
         }
     }
 }

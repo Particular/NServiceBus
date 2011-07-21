@@ -106,7 +106,7 @@ namespace NServiceBus.Serializers.XML
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                isKeyValuePair = (typeof (KeyValuePair<,>).MakeGenericType(args) == t);
+                isKeyValuePair = (typeof(KeyValuePair<,>).MakeGenericType(args) == t);
             }
 
             if (args.Length == 1 && args[0].IsValueType)
@@ -138,14 +138,14 @@ namespace NServiceBus.Serializers.XML
 
                 if (!isKeyValuePair)
                     propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
-            
+
                 InitType(p.PropertyType);
             }
 
             foreach (var f in fields)
             {
                 logger.Debug("Handling field: " + f.Name);
-                
+
                 fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
 
                 if (!isKeyValuePair)
@@ -223,7 +223,7 @@ namespace NServiceBus.Serializers.XML
 
             var doc = new XmlDocument { PreserveWhitespace = true };
 
-            doc.Load(XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}));
+            doc.Load(XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }));
 
             if (doc.DocumentElement == null)
                 return result.ToArray();
@@ -316,15 +316,15 @@ namespace NServiceBus.Serializers.XML
             if (t == null)
             {
                 logger.Debug("Could not load " + typeName + ". Trying base types...");
-                foreach(Type baseType in messageBaseTypes)
+                foreach (Type baseType in messageBaseTypes)
                     try
                     {
                         logger.Debug("Trying to deserialize message to " + baseType.FullName);
                         return GetObjectOfTypeFromNode(baseType, node);
                     }
-// ReSharper disable EmptyGeneralCatchClause
+                    // ReSharper disable EmptyGeneralCatchClause
                     catch { } // intentionally swallow exception
-// ReSharper restore EmptyGeneralCatchClause
+                // ReSharper restore EmptyGeneralCatchClause
 
                 throw new TypeLoadException("Could not handle type '" + typeName + "'.");
             }
@@ -417,17 +417,14 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
-            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlWhitespace)
-                return n.ChildNodes[0].InnerText;
-
-            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlText)
+            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlCharacterData)
             {
                 var text = n.ChildNodes[0].InnerText;
 
                 var args = type.GetGenericArguments();
-                if (args.Length == 1)
+                if (args.Length == 1 && args[0].IsValueType)
                 {
-                    var nullableType = typeof (Nullable<>).MakeGenericType(args);
+                    var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
                         if (text.ToLower() == "null")
@@ -500,7 +497,11 @@ namespace NServiceBus.Serializers.XML
                 if (type == typeof(Uri))
                     return new Uri(text);
 
-                throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
+                if (n.ChildNodes[0] is XmlWhitespace)
+                    return Activator.CreateInstance(type);
+
+                 throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
+
             }
 
             //Handle dictionaries
@@ -508,10 +509,10 @@ namespace NServiceBus.Serializers.XML
             {
                 var result = Activator.CreateInstance(type) as IDictionary;
 
-                var keyType = typeof (object);
-                var valueType = typeof (object);
+                var keyType = typeof(object);
+                var valueType = typeof(object);
 
-                foreach(var interfaceType in type.GetInterfaces())
+                foreach (var interfaceType in type.GetInterfaces())
                 {
                     var args = interfaceType.GetGenericArguments();
                     if (args.Length == 2)
@@ -665,7 +666,7 @@ namespace NServiceBus.Serializers.XML
             foreach (PropertyInfo prop in typeToProperties[t])
                 WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
 
-            foreach(FieldInfo field in typeToFields[t])
+            foreach (FieldInfo field in typeToFields[t])
                 WriteEntry(field.Name, field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
         }
 
@@ -680,7 +681,7 @@ namespace NServiceBus.Serializers.XML
                 if (!namespacesToAdd.Contains(value.GetType()))
                     namespacesToAdd.Add(value.GetType());
 
-                builder.AppendFormat("<{0}>{1}</{0}>\n", 
+                builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
 
@@ -707,7 +708,7 @@ namespace NServiceBus.Serializers.XML
                 var args = type.GetGenericArguments();
                 if (args.Length == 1 && args[0].IsValueType)
                 {
-                    var nullableType = typeof (Nullable<>).MakeGenericType(args);
+                    var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
                         WriteEntry(name, typeof(string), "null", builder);
@@ -738,7 +739,7 @@ namespace NServiceBus.Serializers.XML
                     Type baseType = typeof(object);
 
                     //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
-                    foreach(Type interfaceType in type.GetInterfaces())
+                    foreach (Type interfaceType in type.GetInterfaces())
                     {
                         Type[] arr = interfaceType.GetGenericArguments();
                         if (arr.Length == 1)

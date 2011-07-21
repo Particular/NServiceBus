@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using Channels;
     using NUnit.Framework;
 
     [TestFixture]
@@ -29,13 +30,13 @@
 
 
         [Test]
-        public void Should_use_the_address_of_the_default_channel_as_the_originating_site()
+        public void Should_set_the_default_channel_as_the_originating_site()
         {
             SendMessage(HttpAddressForSiteB);
 
             var receivedMessage = GetDetailsForReceivedMessage().Message;
 
-            Assert.AreEqual(receivedMessage.Headers[Headers.OriginatingSite], HttpAddressForSiteA);
+            Assert.AreEqual(receivedMessage.Headers[Headers.OriginatingSite], defaultChannelForSiteA.ToString());
         }
 
         [Test]

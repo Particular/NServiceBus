@@ -1,4 +1,5 @@
-﻿using NServiceBus.Hosting.Profiles;
+﻿using System;
+using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -6,7 +7,15 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         public void ProfileActivated()
         {
-            Configure.Instance.AsMasterNode().DynamicNodeDiscovery().UnicastBus().AllowDiscovery();
+            Configure.Instance.AsMasterNode();
+        }
+    }
+
+    class DynamicDiscoveryHandler : IHandleProfile<DynamicDiscovery>
+    {
+        public void ProfileActivated()
+        {
+            Configure.Instance.DynamicNodeDiscovery().UnicastBus().AllowDiscovery();
         }
     }
 }

@@ -6,6 +6,8 @@ namespace SiteB
     using log4net.Appender;
     using log4net.Core;
     using NServiceBus;
+    using NServiceBus.Config;
+    using NServiceBus.Installation.Environments;
 
     class Program
     {
@@ -17,15 +19,27 @@ namespace SiteB
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()
+                .AllowDiscovery()
                 .GatewayWithInMemoryPersistence()
                 .CreateBus()
                 .Start();
 
+
+           
             Console.WriteLine("Waiting for price updates from the headquarter - press any key to exit");
 
             Console.ReadLine();
         }
     }
+
+    internal class RunInstallers : IWantToRunWhenConfigurationIsComplete
+    {
+        public void Run()
+        {
+            Configure.Instance.ForInstallationOn<Windows>().Install();
+        }
+    }
+
 
     public class PriceUpdatedMessageHandler : IHandleMessages<PriceUpdated>
     {

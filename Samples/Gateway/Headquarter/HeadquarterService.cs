@@ -22,7 +22,7 @@ namespace Headquarter
                 if (key.ToLower() == "a")
                 {
                     //todo - use a sitekey instead when we have support for that
-                    Bus.SendToSites(new[] { "http://localhost:8085/siteA", "http://localhost:8085/siteB" }, new PriceUpdated
+                    Bus.SendToSites(new[] { "SiteA", "SiteB" }, new PriceUpdated
                     {
                         ProductId = 2,
                         NewPrice = 100.0,

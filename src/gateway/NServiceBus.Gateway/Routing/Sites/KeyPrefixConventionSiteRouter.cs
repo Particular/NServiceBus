@@ -1,31 +1,31 @@
 ﻿namespace NServiceBus.Gateway.Routing.Sites
 {
-    using System;
     using System.Collections.Generic;
-    using Channels.Http;
+    using Channels;
     using Unicast.Transport;
 
     public class KeyPrefixConventionSiteRouter : IRouteMessagesToSites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
-            if (!messageToDispatch.Headers.ContainsKey(Headers.DestinationSites))
-                throw new InvalidOperationException("Header not found " + Headers.DestinationSites);
-                
-            var siteKeys = messageToDispatch.Headers[Headers.DestinationSites].Split(',');
-
-            foreach (var siteKey in siteKeys)
+            if (messageToDispatch.Headers.ContainsKey(Headers.DestinationSites))
             {
-                if(siteKey.StartsWith("http://"))
-                    yield return new Site
-                                     {
-                                         Address = siteKey,
-                                         ChannelType = typeof (HttpChannelSender),
-                                         Key = siteKey
-                                     };
-           
+                var siteKeys = messageToDispatch.Headers[Headers.DestinationSites].Split(',');
+
+
+                foreach (var siteKey in siteKeys)
+                {
+                    var parts = siteKey.Split(':');
+
+                    if(parts.Length >= 2)
+                        yield return new Site
+                                         {
+                                             Channel = new Channel { Address = siteKey, Type = parts[0] },
+                                             Key = siteKey
+                                         };
+
+                }
             }
-                   
         }
     }
 }

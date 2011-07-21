@@ -5,6 +5,6 @@
 
     public interface IMessageNotifier : INotifyAboutMessages
     {
-        void RaiseMessageForwarded(Type fromChannel,Type toChannel, TransportMessage message);
+        void RaiseMessageForwarded(string fromChannel,string toChannel, TransportMessage message);
     }
 }

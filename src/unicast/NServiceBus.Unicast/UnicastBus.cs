@@ -325,6 +325,12 @@ namespace NServiceBus.Unicast
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
+            if (messages == null || messages.Length == 0) // Bus.Publish<IFoo>();
+            {
+                Publish(CreateInstance<T>(m => { }));
+                return;
+            }
+
             var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(GetFullTypes(messages as IMessage[]));
 
             if (subscribers.Count() == 0)
