@@ -153,7 +153,7 @@ namespace NServiceBus
                       }
                       catch (ReflectionTypeLoadException e)
                       {
-                          Logger.Warn("Could not scan assembly: " + a.FullName, e);
+                          Logger.WarnFormat("Could not scan assembly: {0}. The reason is {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
                           return;//intentionally swallow exception
                       }
                   });
