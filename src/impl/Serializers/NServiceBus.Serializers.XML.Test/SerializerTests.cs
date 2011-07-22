@@ -117,6 +117,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Foos = new Dictionary<string, List<Foo>>();
             o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name="1", Title = "1"}, new Foo { Name = "2", Title = "2"}});
             o.Data = new byte[] { 1, 2, 3, 4, 5, 4, 3, 2, 1};
+            o.SomeStrings = new List<string> { "a", "b", "c" };
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";

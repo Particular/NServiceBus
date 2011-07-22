@@ -16,6 +16,7 @@ namespace NServiceBus.Serializers.XML.Test
         MyDic Lookup { get; set; }
         Dictionary<string, List<Foo>> Foos { get; set; }
         byte[] Data { get; set; }
+        IEnumerable<string> SomeStrings { get; set; }
     }
 
     public class Foo

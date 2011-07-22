@@ -98,6 +98,15 @@ namespace NServiceBus.Serializers.XML
                             InitType(arr[0]);
                 }
 
+                if (t.IsGenericType && t.IsInterface) //handle IEnumerable<Something>
+                {
+                    var g = t.GetGenericArguments();
+                    var e = typeof(IEnumerable<>).MakeGenericType(g);
+
+                    if (e.IsAssignableFrom(t))
+                        typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
+                }
+
                 return;
             }
 
@@ -551,6 +560,9 @@ namespace NServiceBus.Serializers.XML
                 if (isArray)
                     typeToCreate = typesToCreateForArrays[type];
 
+                if (typesToCreateForEnumerables.ContainsKey(type)) //handle IEnumerable<Something>
+                    typeToCreate = typesToCreateForEnumerables[type];
+
                 if (typeof(IList).IsAssignableFrom(typeToCreate))
                 {
                     var list = Activator.CreateInstance(typeToCreate) as IList;
@@ -860,6 +872,7 @@ namespace NServiceBus.Serializers.XML
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
         private static readonly List<Type> typesBeingInitialized = new List<Type>();
 
         private static readonly Dictionary<PropertyInfo, LateBoundProperty> propertyInfoToLateBoundProperty = new Dictionary<PropertyInfo, LateBoundProperty>();
