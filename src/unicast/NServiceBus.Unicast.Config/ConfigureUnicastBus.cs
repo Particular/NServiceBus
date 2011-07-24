@@ -14,10 +14,15 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
-            var cfg = new ConfigUnicastBus();
-            cfg.Configure(config);
+            if (cfg == null)
+            {
+                cfg = new ConfigUnicastBus();
+                cfg.Configure(config);
+            }
 
             return cfg;
-        } 
+        }
+
+        private static ConfigUnicastBus cfg;
     }
 }

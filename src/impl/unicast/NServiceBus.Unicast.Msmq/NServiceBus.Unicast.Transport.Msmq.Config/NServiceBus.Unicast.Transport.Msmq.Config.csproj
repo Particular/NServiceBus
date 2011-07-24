@@ -54,6 +54,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Config, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Config.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>

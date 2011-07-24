@@ -166,17 +166,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public string DistributorControlAddress { get; set; }
 
-        /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the address to which all messages received on this bus will be 
-        /// forwarded to (not including subscription messages). 
-        /// This is primarily useful for smart client scenarios 
-        /// where both client and server software are installed on the mobile
-        /// device. The server software will have this field set to the address
-        /// of the real server.
-        /// </summary>
-        public string ForwardReceivedMessagesTo { get; set; }
-
 		/// <summary>
 		/// Should be used by administrator, not programmer.
 		/// Sets the message types associated with the bus.
@@ -727,8 +716,6 @@ namespace NServiceBus.Unicast
                     }
                 }
 
-                InitializeSelf();
-
                 SendReadyMessage(true);
 
                 started = true;
@@ -738,15 +725,6 @@ namespace NServiceBus.Unicast
                 Started(this, null);
 
             return this;
-        }
-
-        private void InitializeSelf()
-        {
-            var toSend = GetTransportMessageFor(new CompletionMessage());
-            toSend.ReturnAddress = transport.Address;
-            toSend.MessageIntent = MessageIntentEnum.Init;
-
-            transport.ReceiveMessageLater(toSend);
         }
 
         /// <summary>
@@ -849,8 +827,6 @@ namespace NServiceBus.Unicast
             Thread.CurrentPrincipal = GetPrincipalToExecuteAs(m.WindowsIdentityName);
 
             ((IBus)this).OutgoingHeaders.Clear();
-
-            ForwardMessageIfNecessary(m);
 
             HandleCorellatedMessage(m);
 
@@ -1006,7 +982,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            if (msg.Body[0] == null)
+            if (msg.Body == null || msg.Body[0] == null)
             {
                 Log.Warn("Received an empty message - ignoring. Message came from: " + msg.ReturnAddress);
                 return;
@@ -1166,7 +1142,7 @@ namespace NServiceBus.Unicast
             if (msg.MessageIntent != MessageIntentEnum.Init)
                 return false;
 
-            if (msg.Body.Length > 1)
+            if (msg.Body == null || msg.Body.Length > 1)
                 return false;
 
             // A CompletionMessage is used out of convenience as the initialization message.
@@ -1215,33 +1191,6 @@ namespace NServiceBus.Unicast
                 {
                     throw new ArgumentException("Problem loading message assembly: " + key, ex);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
-        /// if it isn't null.
-        /// </summary>
-        /// <param name="m">The message to forward</param>
-        private void ForwardMessageIfNecessary(TransportMessage m)
-        {
-            if (ForwardReceivedMessagesTo != null)
-            {
-                var toSend = new TransportMessage
-                {
-                    Body = m.Body,
-                    CorrelationId = m.CorrelationId,
-                    Headers = m.Headers,
-                    Id = m.Id,
-                    IdForCorrelation = m.IdForCorrelation,
-                    MessageIntent = m.MessageIntent,
-                    Recoverable = m.Recoverable,
-                    ReturnAddress = transport.Address,
-                    TimeSent = m.TimeSent,
-                    TimeToBeReceived = m.TimeToBeReceived
-                };
-
-                transport.Send(toSend, ForwardReceivedMessagesTo);
             }
         }
 

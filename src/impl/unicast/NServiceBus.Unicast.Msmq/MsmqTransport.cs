@@ -119,6 +119,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
         ///</summary>
         public bool UseJournalQueue { get; set; }
 
+        /// <summary>
+        /// Gets/sets the address to which all received messages will be forwarded.
+        /// </summary>
+        public string ForwardReceivedMessagesTo { get; set; }
+
         #endregion
 
         #region ITransport Members
@@ -291,63 +296,83 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		/// <param name="destination">The address of the destination to send the message to.</param>
         public void Send(TransportMessage m, string destination)
         {
+            var toSend = GetMsmqMessageFor(m);
+
+            try
+            {
+                SendMsmqMessage(toSend, destination);
+            }
+            catch(MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                    throw new ConfigurationErrorsException("The destination queue '" + destination +
+                                                     "' could not be found. You may have misconfigured the destination for this kind of message (" +
+                                                     m.Body[0].GetType().FullName +
+                                                     ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
+                                                     "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
+                                                    , ex);
+
+                throw;
+            }
+
+            m.Id = toSend.Id;
+        }
+
+        /// <summary>
+        /// Returns the ID of the send message.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="destination"></param>
+        /// <returns></returns>
+        private string SendMsmqMessage(Message m, string destination)
+        {
             var address = MsmqUtilities.GetFullPath(destination);
 
             using (var q = new MessageQueue(address, QueueAccessMode.Send))
             {
-                var toSend = new Message();
+                q.Send(m, GetTransactionTypeForSend());
 
-                if (m.Body == null && m.BodyStream != null)
-                    toSend.BodyStream = m.BodyStream;
-                else
-                    MessageSerializer.Serialize(m.Body, toSend.BodyStream);
-
-                if (m.CorrelationId != null)
-                    toSend.CorrelationId = m.CorrelationId;
-
-                toSend.Recoverable = m.Recoverable;
-                toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                toSend.UseJournalQueue = UseJournalQueue;
-
-
-                if (!string.IsNullOrEmpty(m.ReturnAddress))
-                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(m.ReturnAddress));
-
-                FillLabel(toSend, m);
-
-                if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
-                    toSend.TimeToBeReceived = m.TimeToBeReceived;
-
-                if (m.Headers != null && m.Headers.Count > 0)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        headerSerializer.Serialize(stream, m.Headers);
-                        toSend.Extension = stream.GetBuffer();
-                    }
-                }
-
-                toSend.AppSpecific = (int) m.MessageIntent;
-
-                try
-                {
-                    q.Send(toSend, GetTransactionTypeForSend());
-                }
-                catch(MessageQueueException ex)
-                {
-                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                        throw new ConfigurationErrorsException("The destination queue '" + destination +
-                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                         m.Body[0].GetType().FullName +
-                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
-                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                                                        , ex);
-
-                    throw;
-                }
-
-                m.Id = toSend.Id;
+                return m.Id;
             }
+        }
+
+        private Message GetMsmqMessageFor(TransportMessage m)
+        {
+            var toSend = new Message();
+
+            if (m.Body == null && m.BodyStream != null)
+                toSend.BodyStream = m.BodyStream;
+            else
+                MessageSerializer.Serialize(m.Body, toSend.BodyStream);
+
+            if (m.CorrelationId != null)
+                toSend.CorrelationId = m.CorrelationId;
+
+            toSend.Recoverable = m.Recoverable;
+            toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+            toSend.UseJournalQueue = UseJournalQueue;
+
+
+            if (!string.IsNullOrEmpty(m.ReturnAddress))
+                toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(m.ReturnAddress));
+
+            FillLabel(toSend, m);
+
+            if (m.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+                toSend.TimeToBeReceived = m.TimeToBeReceived;
+
+            if (m.Headers != null && m.Headers.Count > 0)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    headerSerializer.Serialize(stream, m.Headers);
+                    toSend.Extension = stream.GetBuffer();
+                }
+            }
+
+            toSend.AppSpecific = (int)m.MessageIntent;
+
+            return toSend;
         }
 
         /// <summary>
@@ -458,6 +483,9 @@ namespace NServiceBus.Unicast.Transport.Msmq
             if (StartedMessageProcessing != null)
                 StartedMessageProcessing(this, null);
 
+            if (ForwardReceivedMessagesTo != null)
+                ForwardMessage(m, ForwardReceivedMessagesTo);
+
             var result = Convert(m);
 
             if (SkipDeserialization)
@@ -491,6 +519,23 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
             if (!(exceptionNotThrown && otherExNotThrown)) //cause rollback
                 throw new ApplicationException("Exception occured while processing message.");
+        }
+
+        private void ForwardMessage(Message m, string destination)
+        {
+            try
+            {
+                SendMsmqMessage(m, destination);
+            }
+            catch (MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                    throw new ConfigurationErrorsException("The destination queue '" + destination +
+                                                     "' could not be found. You may have misconfigured the ForwardReceivedMessagesTo attribute of UnicastBusConfig."
+                                                    , ex);
+
+                throw;
+            }
         }
 
         private bool HandledMaxRetries(string messageId)

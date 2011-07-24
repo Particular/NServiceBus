@@ -48,7 +48,6 @@ namespace NServiceBus.Unicast.Config
 
                 busConfig.ConfigureProperty(b => b.DistributorControlAddress, cfg.DistributorControlAddress);
                 busConfig.ConfigureProperty(b => b.DistributorDataAddress, cfg.DistributorDataAddress);
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, cfg.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
             }
         }
@@ -192,18 +191,6 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
             busConfig.ConfigureProperty(b => b.PropogateReturnAddressOnSend, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Forwards all received messages to a given endpoint (queue@machine).
-        /// This is useful as an auditing/debugging mechanism.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ConfigUnicastBus ForwardReceivedMessagesTo(string  value)
-        {
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
             return this;
         }
 

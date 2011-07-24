@@ -35,6 +35,14 @@ namespace NServiceBus.Unicast.Transport.Msmq.Config
                 transportConfig.ConfigureProperty(t => t.UseDeadLetterQueue, cfg.UseDeadLetterQueue);
                 transportConfig.ConfigureProperty(t => t.UseJournalQueue, cfg.UseJournalQueue); 
             }
+
+            var unicastConfig = GetConfigSection<UnicastBusConfig>();
+
+            if (unicastConfig != null)
+            {
+                if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
+                    transportConfig.ConfigureProperty(t => t.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
+            }
         }
 
         private IComponentConfig<MsmqTransport> transportConfig;
