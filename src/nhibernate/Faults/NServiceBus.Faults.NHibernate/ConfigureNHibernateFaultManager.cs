@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
+using System.Reflection;
+using NHibernate.Cfg.MappingSchema;
+using NHibernate.Dialect;
+using NHibernate.Mapping.ByCode;
 using NServiceBus.Faults.NHibernate;
 using NServiceBus.ObjectBuilder;
 using NHibernate.Cfg;
-using NHibernate.ByteCode.LinFu;
 using NHibernate;
 using NHibernate.Tool.hbm2ddl;
 using Environment=NHibernate.Cfg.Environment;
@@ -82,10 +83,17 @@ namespace NServiceBus
       /// <returns></returns>
       public static Configure NHibernateFaultManagerWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
       {
-         Configuration configuration = new Configuration().SetProperties(
-            SQLiteConfiguration.Standard
-               .UsingFile(".\\NServiceBus.Sagas.sqlite")
-               .ProxyFactoryFactory(typeof (ProxyFactoryFactory).AssemblyQualifiedName).ToProperties());
+        var configuration = new Configuration()
+          .DataBaseIntegration(x =>
+          {
+            x.Dialect<SQLiteDialect>();
+            x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Sagas.sqlite");
+          });
+
+        //Configuration configuration = new Configuration().SetProperties(
+        //    SQLiteConfiguration.Standard
+        //       .UsingFile(".\\NServiceBus.Sagas.sqlite")
+        //       .ProxyFactoryFactory(typeof (ProxyFactoryFactory).AssemblyQualifiedName).ToProperties());
 
          config.Configurer.RegisterSingleton<FaultManagerSessionFactory>(
             CreateSessionFactory(configuration, true));
@@ -98,33 +106,37 @@ namespace NServiceBus
       {
          cfg.AddAssembly(typeof(FailureInfo).Assembly);
 
-         FluentConfiguration fluentConfiguration =
-            Fluently.Configure(cfg).Mappings(m => m.FluentMappings.Add<FailureInfoMap>());
+         var mapper = new ModelMapper();
+         mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
+         HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-         fluentConfiguration.ExposeConfiguration(
-            c =>
-            {
-               //default to LinFu if not specifed by user
-               if (!c.Properties.Keys.Contains(Environment.ProxyFactoryFactoryClass))
-               {
-                  c.SetProperty(Environment.ProxyFactoryFactoryClass,
-                                typeof(ProxyFactoryFactory).AssemblyQualifiedName);
-               }
-            });
+        cfg.AddMapping(faultMappings);
+
+         //FluentConfiguration fluentConfiguration =
+         //   Fluently.Configure(cfg).Mappings(m => m.FluentMappings.Add<FailureInfoMap>());
+
+         //fluentConfiguration.ExposeConfiguration(
+         //   c =>
+         //   {
+         //      //default to LinFu if not specifed by user
+         //      if (!c.Properties.Keys.Contains(Environment.ProxyFactoryFactoryClass))
+         //      {
+         //         c.SetProperty(Environment.ProxyFactoryFactoryClass,
+         //                       typeof(ProxyFactoryFactory).AssemblyQualifiedName);
+         //      }
+         //   });
 
          if (autoUpdateSchema)
          {
-            UpdateDatabaseSchemaUsing(fluentConfiguration);
+           UpdateDatabaseSchemaUsing(cfg);
          }
 
-         ISessionFactory factory = fluentConfiguration.BuildSessionFactory();
+         ISessionFactory factory = cfg.BuildSessionFactory();
          return new FaultManagerSessionFactory(factory);
       }
 
-      private static void UpdateDatabaseSchemaUsing(FluentConfiguration fluentConfiguration)
+      private static void UpdateDatabaseSchemaUsing(Configuration configuration)
       {
-         var configuration = fluentConfiguration.BuildConfiguration();
-
          new SchemaUpdate(configuration)
              .Execute(false, true);
       }

@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using FluentNHibernate.Cfg.Db;
 using NHibernate;
-using NHibernate.ByteCode.LinFu;
 using NHibernate.Cfg;
+using NHibernate.Dialect;
 using NUnit.Framework;
 
 namespace NServiceBus.Faults.NHibernate.Tests
@@ -14,14 +13,24 @@ namespace NServiceBus.Faults.NHibernate.Tests
 
       [SetUp]
       public void SetUp()
-      {         
-         var nhibernateProperties = SQLiteConfiguration.Standard
-             .UsingFile(Path.GetTempFileName())
-             .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-             .ToProperties();
+      {
 
-         FaultManagerSessionFactory factory =
-            ConfigureNHibernateFaultManager.CreateSessionFactory(new Configuration().Configure().SetProperties(nhibernateProperties),true);
+        var cfg = new Configuration()
+          .DataBaseIntegration(x =>
+                                 {
+                                   x.Dialect<SQLiteDialect>();
+                                   x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", Path.GetTempFileName());
+                                 });
+
+         //var nhibernateProperties = SQLiteConfiguration.Standard
+         //    .UsingFile(Path.GetTempFileName())
+         //    .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
+         //    .ToProperties();
+
+         //FaultManagerSessionFactory factory =
+         //   ConfigureNHibernateFaultManager.CreateSessionFactory(new Configuration().Configure().SetProperties(nhibernateProperties),true);
+
+        FaultManagerSessionFactory factory = ConfigureNHibernateFaultManager.CreateSessionFactory(cfg, true);
 
          SessionFactory = factory.Value;
          FaultManager = new FaultManager(factory);

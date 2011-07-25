@@ -18,7 +18,7 @@ namespace NServiceBus.Faults.NHibernate
             throw new ConfigurationErrorsException(
                string.Format("Configuration section {0} either doesn't exist or is not NHibernate's config section.", sectionName));
          }   
-         return DoConfigure(hc);         
+         return DoConfigure(hc.SessionFactory);         
       }
    }
 }

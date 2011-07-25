@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using FluentNHibernate.Mapping;
+using NHibernate.Mapping.ByCode;
+using NHibernate.Mapping.ByCode.Conformist;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Faults.NHibernate
@@ -45,18 +46,33 @@ namespace NServiceBus.Faults.NHibernate
       {}
    }
 
-   public class FailureInfoMap : ClassMap<FailureInfo>
-   {
-      public FailureInfoMap()
-      {
-         Not.LazyLoad();
-         Id(x => x.Id).GeneratedBy.GuidComb();
-         Map(x => x.IsSerializationFailure).Not.Nullable();
-         Map(x => x.ReturnAddress).Length(1000).Not.Nullable();
-         Map(x => x.Message).CustomType("Serializable").Length(8001).Not.Nullable();
-         Map(x => x.Exception).CustomType("Serializable").Length(8001).Not.Nullable();
-         Map(x => x.TopmostExceptionMessage).Length(8001);
-         Map(x => x.StackTraces).Length(8001).Not.Nullable();         
-      }
-   }
+  public class FailureInfoMapping : ClassMapping<FailureInfo>
+  {
+    public FailureInfoMapping()
+    {
+      Lazy(false);
+      Id(x => x.Id, x => x.Generator(Generators.GuidComb));
+      Property(x => x.IsSerializationFailure, x => x.NotNullable(true));
+      Property(x => x.ReturnAddress, x => { x.Length(1000); x.NotNullable(true); });
+      Property(x => x.Message, x => { x.Type(global::NHibernate.NHibernateUtil.Serializable); x.Length(8001); x.NotNullable(true); });
+      Property(x => x.Exception, x => { x.Type(global::NHibernate.NHibernateUtil.Serializable); x.Length(8001); x.NotNullable(true); });
+      Property(x => x.TopmostExceptionMessage, x => x.Length(8001));
+      Property(x => x.StackTraces, x => { x.Length(8001); x.NotNullable(true); });
+    }
+  }
+
+   //public class FailureInfoMap : ClassMap<FailureInfo>
+   //{
+   //   public FailureInfoMap()
+   //   {
+   //      Not.LazyLoad();
+   //      Id(x => x.Id).GeneratedBy.GuidComb();
+   //      Map(x => x.IsSerializationFailure).Not.Nullable();
+   //      Map(x => x.ReturnAddress).Length(1000).Not.Nullable();
+   //      Map(x => x.Message).CustomType("Serializable").Length(8001).Not.Nullable();
+   //      Map(x => x.Exception).CustomType("Serializable").Length(8001).Not.Nullable();
+   //      Map(x => x.TopmostExceptionMessage).Length(8001);
+   //      Map(x => x.StackTraces).Length(8001).Not.Nullable();         
+   //   }
+   //}
 }
