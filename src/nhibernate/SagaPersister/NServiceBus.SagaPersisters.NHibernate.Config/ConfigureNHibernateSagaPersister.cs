@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentNHibernate.Cfg.Db;
 using NHibernate;
-using NHibernate.ByteCode.LinFu;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
+using NServiceBus.SagaPersisters.NHibernate.Tests;
 
 namespace NServiceBus
 {
@@ -47,10 +46,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            var nhibernateProperties = SQLiteConfiguration.Standard
-                    .UsingFile(".\\NServiceBus.Sagas.sqlite")
-                    .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-                    .ToProperties();
+            var nhibernateProperties = SQLiteConfiguration.UsingFile(".\\NServiceBus.Sagas.sqlite");
 
             return NHibernateSagaPersister(config, nhibernateProperties, true);
         }

@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using FluentNHibernate.Cfg;
+using System.Reflection;
 using NHibernate;
-using NHibernate.ByteCode.LinFu;
 using NHibernate.Context;
 using NHibernate.Drivers.Azure.TableStorage.Mapping;
 using NHibernate.Tool.hbm2ddl;
@@ -37,72 +36,68 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
         /// <returns></returns>
         public ISessionFactory Build(IDictionary<string, string> nhibernateProperties, bool updateSchema)
         {
-            var model = Create.SagaPersistenceModel(typesToScan);
-            
-            model.Conventions.Add<IdShouldBeMappedToRowKeyAndPartitionKeyConvention>();
+          var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
 
-            var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
+          var nhibernateConfiguration = new Configuration().SetProperties(nhibernateProperties);
 
-            var nhibernateConfiguration = new Configuration().SetProperties(nhibernateProperties);
+          foreach (var assembly in scannedAssemblies)
+            nhibernateConfiguration.AddAssembly(assembly);
 
-            foreach (var assembly in scannedAssemblies)
-            {
-                nhibernateConfiguration.AddAssembly(assembly);
-            }
-            
-            var fluentConfiguration = Fluently.Configure(nhibernateConfiguration)
-                                        .Mappings(m => m.AutoMappings.Add(model));
+          var mapping = new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-            ApplyDefaultsTo(fluentConfiguration);
+          HackIdIntoMapping(mapping);
 
-            try
-            {
-               var factory = fluentConfiguration.BuildSessionFactory();
+          nhibernateConfiguration.AddMapping(mapping.Compile());
 
-               if (updateSchema)
-               {
-                   UpdateDatabaseSchemaUsing(fluentConfiguration, factory);
-               }
+          ApplyDefaultsTo(nhibernateConfiguration);
 
-                return factory;
-            }
-            catch (FluentConfigurationException e)
-            {
-                if (e.InnerException != null)
-                    throw new ConfigurationErrorsException(e.InnerException.Message, e);
+          if (updateSchema)
+            UpdateDatabaseSchemaUsing(nhibernateConfiguration);
 
-                throw;
-            }
+          try
+          {
+            return nhibernateConfiguration.BuildSessionFactory();
+          }
+          catch (Exception e)
+          {
+            if (e.InnerException != null)
+              throw new ConfigurationErrorsException(e.InnerException.Message, e);
+
+            throw;
+          }
         }
 
-        private static void UpdateDatabaseSchemaUsing(FluentConfiguration fluentConfiguration, ISessionFactory factory)
+      private static void HackIdIntoMapping(SagaModelMapper hbmMapping)
+      {
+        var hbmIdField = typeof(global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        hbmMapping.Mapper.AfterMapClass += (mi, t, map) =>
+                                             {
+                                               map.Id(idmap =>
+                                                        {
+                                                          var hbmId = (global::NHibernate.Cfg.MappingSchema.HbmId)hbmIdField.GetValue(idmap);
+                                                          hbmId.type1 = typeof(GuidToPartitionKeyAndRowKey).AssemblyQualifiedName;
+                                                          hbmId.type = null;
+                                                          hbmId.column1 = null;
+                                                          hbmId.column = new []
+                                                                           {
+                                                                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "RowKey"},
+                                                                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "PartitionKey"},
+                                                                           };
+                                                        });
+                                             };
+      }
+
+      private static void UpdateDatabaseSchemaUsing(Configuration configuration)
         {
-            var configuration = fluentConfiguration.BuildConfiguration();
-
-            using (var session = factory.OpenSession())
-            {
-                var export = new SchemaExport(configuration);
-                export.Execute(true, true, false, session.Connection, null);
-                session.Flush();
-            } 
+          new SchemaUpdate(configuration)
+              .Execute(false, true);
         }
 
-        private static void ApplyDefaultsTo(FluentConfiguration fluentConfiguration)
+        private static void ApplyDefaultsTo(Configuration configuration)
         {
-            fluentConfiguration.ExposeConfiguration(
-                c =>
-                    {
-                        c.SetProperty("current_session_context_class",typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
 
-                        //default to LinFu if not specifed by user
-                        if (!c.Properties.Keys.Contains(PROXY_FACTORY_KEY))
-                            c.SetProperty(PROXY_FACTORY_KEY,typeof(ProxyFactoryFactory).AssemblyQualifiedName);
-                    }
-                );
+          configuration.SetProperty("current_session_context_class", typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
         }
-
-
-       
-        private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
     }
 }

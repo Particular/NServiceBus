@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using FluentNHibernate.Cfg.Db;
-using Microsoft.WindowsAzure.ServiceRuntime;
 using NHibernate;
-using NHibernate.ByteCode.LinFu;
 using NHibernate.Drivers.Azure.TableStorage;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.Azure.Config.Internal;
+using NServiceBus.SagaPersisters.NHibernate.Tests;
 
 namespace NServiceBus
 {
@@ -56,13 +53,7 @@ namespace NServiceBus
             if (!Sagas.Impl.Configure.SagasWereFound)
                 return config; //no sagas - don't need to do anything
 
-            var nhibernateProperties = MsSqlConfiguration.MsSql2005
-                                        .ConnectionString(connectionString)
-                                        .Provider(typeof(TableStorageConnectionProvider).AssemblyQualifiedName)
-                                        .Dialect(typeof(TableStorageDialect).AssemblyQualifiedName)
-                                        .Driver(typeof(TableStorageDriver).AssemblyQualifiedName)
-                                        .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-                                        .ToProperties();
+            var nhibernateProperties = MsSqlConfiguration.Azure(connectionString);
 
             var builder = new SessionFactoryBuilder(Configure.TypesToScan);
 

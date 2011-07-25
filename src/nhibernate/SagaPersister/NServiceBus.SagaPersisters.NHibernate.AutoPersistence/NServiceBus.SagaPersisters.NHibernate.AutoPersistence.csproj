@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentNHibernate">
-      <HintPath>..\..\..\..\lib\FluentNHibernate\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\..\lib\NHibernate.dll</HintPath>
     </Reference>
@@ -43,17 +40,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Conventions\UniqueConvention.cs" />
     <Compile Include="Attributes\TableNameAttribute.cs" />
-    <Compile Include="Conventions\TableNameBasedOnAttributeConvention.cs" />
-    <Compile Include="Create.cs" />
-    <Compile Include="Conventions\CollectionsShouldCascadeConvention.cs" />
-    <Compile Include="Conventions\IdShouldBeAssignedConvention.cs" />
+    <Compile Include="SagaModelMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Attributes\UniqueAttribute.cs" />
   </ItemGroup>

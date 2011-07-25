@@ -1,7 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
-using FluentNHibernate.Cfg.Db;
-using NHibernate.ByteCode.LinFu;
 using NHibernate.Impl;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NUnit.Framework;
@@ -11,26 +10,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     [TestFixture]
     public class When_building_the_sessionfactory
     {
-        private readonly IDictionary<string, string> testProperties = SQLiteConfiguration.Standard
-            .InMemory()
-            .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-            .ToProperties();
-
+      private readonly IDictionary<string, string> testProperties = SQLiteConfiguration.InMemory();
        
-        [Test]
-        public void Proxy_factory_should_default_to_linfu_if_not_set_by_user()
-        {
-            var persistenceConfigWithoutProxySpecfied = SQLiteConfiguration.Standard.InMemory();
-
-            var nhibernateProperties = persistenceConfigWithoutProxySpecfied.ToProperties();
-            nhibernateProperties.Remove("proxyfactory.factory_class");
-
-
-            new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())
-                .Build(nhibernateProperties, false);
-
-        }
-
         [Test]
         public void References_of_the_persistent_entity_should_also_be_mapped()
         {
@@ -46,10 +27,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Database_schema_should_be_updated_if_requested()
         {
-            var nhibernateProperties = SQLiteConfiguration.Standard
-                .UsingFile(Path.GetTempFileName())
-                .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-                .ToProperties();
+          var nhibernateProperties = SQLiteConfiguration.UsingFile(Path.GetTempFileName());
+
+          File.WriteAllText("sqlite.txt", "");
+
+          foreach (var property in nhibernateProperties)
+          {
+            File.AppendAllText("sqlite.txt", String.Format("{{ \"{0}\", \"{1}\" }}\n", property.Key, property.Value));
+
+          }
 
             var sessionFactory = new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())
                 .Build(nhibernateProperties, true);
