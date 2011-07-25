@@ -106,7 +106,7 @@
 
 
   <target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-  <target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host"/>
+  <target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_host, compile_hosts32"/>
  
   <target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
     <tstamp>
@@ -297,6 +297,18 @@
 				workingdir="." />
   </target>
 
+  <target name="compile_hosts32">
+    <!-- Host32 -->
+    <exec 	program="${msbuild}"
+		        commandline="/p:Configuration=${project.config} /p:PlatformTarget=x86 ${msbuild.targetframework} /p:OutDir=${build.dir.absolutepath}\host32\"
+				workingdir="${solution.dir}\host\NServiceBus.Host" />
+
+    <mkdir 	dir="${output.dir}\host32" />
+    <exec 	program="${lib.dir}\ilmerge.exe"
+				commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host32\NServiceBus.Host.exe ${build.base}\host32\NServiceBus.Host.exe ${build.base}\host32\Microsoft.Practices.ServiceLocation.dll ${build.base}\host32\Magnum.dll ${build.base}\host32\Topshelf.dll /internalize /target:exe /xmldocs /log:build\output_host32.txt ${ilmerge.targetframework}"
+				workingdir="." />
+  </target>
+  
   <target name="test" depends="teamcity-nunit-addin">
 	
 	<mkdir dir="${build.base}\test-reports" />
@@ -451,6 +463,11 @@
     </copy>
     <copy todir="${binaries.dir}">
       <fileset basedir="${output.dir}\host">
+        <include name="*.*" />
+      </fileset>
+    </copy>
+    <copy todir="${binaries.dir}\x86">
+      <fileset basedir="${output.dir}\host32">
         <include name="*.*" />
       </fileset>
     </copy>
