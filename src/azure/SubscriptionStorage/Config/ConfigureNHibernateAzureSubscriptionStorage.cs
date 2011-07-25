@@ -1,8 +1,8 @@
 using System;
-using FluentNHibernate;
-using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using NHibernate.ByteCode.LinFu;
+using System.Reflection;
+using NHibernate.Cfg;
+using NHibernate.Cfg.MappingSchema;
+using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.Azure.TableStorage;
@@ -48,30 +48,30 @@ namespace NServiceBus
             bool createSchema)
         {
 
-            var database = MsSqlConfiguration.MsSql2005
-                .ConnectionString(connectionString)
-                .Provider(typeof(TableStorageConnectionProvider).AssemblyQualifiedName)
-                .Dialect(typeof(TableStorageDialect).AssemblyQualifiedName)
-                .Driver(typeof(TableStorageDriver).AssemblyQualifiedName)
-                .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName);
+          var cfg = new Configuration()
+            .DataBaseIntegration(x =>
+                                   {
+                                     x.ConnectionString = connectionString;
+                                     x.ConnectionProvider<TableStorageConnectionProvider>();
+                                     x.Dialect<TableStorageDialect>();
+                                     x.Driver<TableStorageDriver>();
+                                   });
 
-            var fluentConfiguration = Fluently.Configure()
-                .Database(database)
-                .Mappings(m => m.FluentMappings.Add(typeof (SubscriptionMap)));
-            var configuration = fluentConfiguration.BuildConfiguration();
+          var mapper = new ModelMapper();
+          mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
+          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-            var sessionSource = new SessionSource(fluentConfiguration);
+          cfg.AddMapping(faultMappings);
+          
+          if (createSchema)
+          {
+            new SchemaExport(cfg).Execute(true, true, false);
+          }
 
-            if (createSchema)
-            {
-                using (var session = sessionSource.CreateSession())
-                {
-                    new SchemaExport(configuration).Execute(true, true, false, session.Connection, null);
-                    session.Flush();
-                }
-            }
+          var sessionSource = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
 
-            config.Configurer.RegisterSingleton<ISessionSource>(sessionSource);
+            config.Configurer.RegisterSingleton<ISubscriptionStorageSessionProvider>(sessionSource);
+
             config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
 
             return config;

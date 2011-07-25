@@ -53,13 +53,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentNHibernate, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\FluentNHibernate\FluentNHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="LinFu.DynamicProxy">
-      <HintPath>..\..\..\lib\LinFu.DynamicProxy.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
@@ -69,9 +62,6 @@
     <Reference Include="NHibernate, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\NServiceBus.NHibernate\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.LinFu">
-      <HintPath>..\..\..\lib\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
       <HintPath>..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
@@ -100,9 +90,11 @@
     <Compile Include="Config\ConfigureNHibernateAzureSubscriptionStorage.cs" />
     <Compile Include="Config\AzureSubscriptionStorageConfig.cs" />
     <Compile Include="Config\SubscriptionMap.cs" />
+    <Compile Include="ISubscriptionStorageSessionProvider.cs" />
     <Compile Include="SubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Subscription.cs" />
+    <Compile Include="SubscriptionStorageSessionProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
