@@ -27,11 +27,9 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                             a.ScheduledTransferPeriod = 10;
                         });
 
-            instance = specifier is ICommunicateThroughAppFabricQueues
-                           ? instance.AppFabricMessageQueue()
-                           : instance.AzureMessageQueue();
 
             return instance
+                .AzureMessageQueue()
                 .JsonSerializer()
                 .IsTransactional(true)
                 .UnicastBus()

@@ -69,8 +69,6 @@
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Roles\AsA_Server.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
-    <Compile Include="Roles\Handlers\ICommunicateThroughAppFabricQueues.cs" />
-    <Compile Include="Roles\Handlers\ICommunicateThroughAzureQueues.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
   </ItemGroup>
   <ItemGroup>
