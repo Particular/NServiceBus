@@ -73,7 +73,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
-            queue = client.GetQueueReference(address.Queue);
+            queue = client.GetQueueReference(SanitizeQueueName(address.Queue));
             queue.CreateIfNotExist();
 
 			if (PurgeOnStartup)
@@ -87,7 +87,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, Address address)
         {
-            var sendQueue = client.GetQueueReference(address.Queue);
+            var sendQueue = client.GetQueueReference(SanitizeQueueName(address.Queue));
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
@@ -227,7 +227,16 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void CreateQueue(string queueName)
         {
-            client.GetQueueReference(queueName).CreateIfNotExist();
+            client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
+        }
+
+        private string SanitizeQueueName(string queueName)
+        {
+            // The auto queue name generation uses namespaces which includes dots, 
+            // yet dots are not supported in azure storage names
+            // that's why we replace them here.
+
+            return queueName.Replace('.', '-');
         }
 
         private bool useTransactions;
