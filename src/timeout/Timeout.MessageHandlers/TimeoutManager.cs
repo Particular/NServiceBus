@@ -53,7 +53,7 @@ namespace Timeout.MessageHandlers
                 if (data.Count > 0)
                 {
                     var next = data.ElementAt(0);
-                    if (next.Key - DateTime.Now < duration)
+                    if (next.Key - DateTime.UtcNow < duration)
                     {
                         pair = next;
                         data.Remove(pair.Key);
@@ -73,8 +73,8 @@ namespace Timeout.MessageHandlers
                 return;
             }
 
-            if (pair.Key > DateTime.Now)
-                Thread.Sleep(pair.Key - DateTime.Now);
+            if (pair.Key > DateTime.UtcNow)
+                Thread.Sleep(pair.Key - DateTime.UtcNow);
 
             pair.Value.ForEach(OnSagaTimedOut);
         }

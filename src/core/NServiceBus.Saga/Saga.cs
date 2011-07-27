@@ -93,6 +93,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"></param>
         /// <param name="withState"></param>
+        [Obsolete("Use RequestUtcTimeout instead.")]
         protected void RequestTimeout(DateTime at, object withState)
         {
             RequestTimeout(at - DateTime.Now, withState);
@@ -104,12 +105,41 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within"></param>
         /// <param name="withState"></param>
+        [Obsolete("Use RequestUtcTimeout instead.")]
         protected void RequestTimeout(TimeSpan within, object withState)
         {
             if (within <= TimeSpan.Zero)
                 Timeout(withState);
             else
                 Bus.Send(new TimeoutMessage(within, Data, withState));
+        }
+
+        /// <summary>
+        /// Request for a timeout to occur at the given time.
+        /// Causes a callback to the <see cref="Timeout" /> method with the given state.
+        /// </summary>
+        /// <param name="at"></param>
+        /// <param name="withState"></param>
+        protected void RequestUtcTimeout(DateTime at, object withState)
+        {
+            if (at.Kind == DateTimeKind.Unspecified)
+                throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
+
+            if (at.ToUniversalTime() <= DateTime.UtcNow)
+                Timeout(withState);
+            else
+                Bus.Send(TimeoutMessage.CreateUtcTimeout(at.ToUniversalTime(), Data, withState));
+        }
+
+        /// <summary>
+        /// Request for a timeout to occur at the given time.
+        /// Causes a callback to the <see cref="Timeout" /> method with the given state.
+        /// </summary>
+        /// <param name="within"></param>
+        /// <param name="withState"></param>
+        protected void RequestUtcTimeout(TimeSpan within, object withState)
+        {
+            RequestUtcTimeout(DateTime.UtcNow + within, withState);
         }
 
         /// <summary>

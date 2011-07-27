@@ -22,7 +22,7 @@ namespace NServiceBus.Saga
         /// <param name="state"></param>
         public TimeoutMessage(DateTime expiration, ISagaEntity saga, object state)
         {
-            expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);
+            expires = DateTime.SpecifyKind(expiration, DateTimeKind.Utc);//keeping this bad code as a reminder for backwards compatibility
             SagaId = saga.Id;
             State = state;
         }
@@ -34,7 +34,7 @@ namespace NServiceBus.Saga
         /// <param name="saga"></param>
         /// <param name="state"></param>
 	    public TimeoutMessage(TimeSpan expireIn, ISagaEntity saga, object state) :
-	        this(DateTime.Now + expireIn, saga, state)
+            this(DateTime.Now + expireIn, saga, state) //keeping this bad code as a reminder for backwards compatibility
 	    {
 	        
 	    }
@@ -51,6 +51,27 @@ namespace NServiceBus.Saga
             ClearTimeout = clear;
         }
 
+        /// <summary>
+        /// Creates a TimeoutMessage explicitly based on UTC.
+        /// </summary>
+        /// <param name="expiration"></param>
+        /// <param name="saga"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        public static TimeoutMessage CreateUtcTimeout(DateTime expiration, ISagaEntity saga, object state)
+        {
+            if (expiration.Kind == DateTimeKind.Unspecified)
+                throw new InvalidOperationException("Kind property of DateTime 'expiration' must be specified.");
+
+            return new TimeoutMessage
+            {
+                expires = expiration.ToUniversalTime(),
+                SagaId = saga.Id,
+                State = state,
+                IsUtc = true
+            };
+        }
+
         private DateTime expires;
 
 		/// <summary>
@@ -60,7 +81,7 @@ namespace NServiceBus.Saga
         public DateTime Expires
         {
             get { return expires; }
-            set { expires = DateTime.SpecifyKind(value, DateTimeKind.Utc); }
+            set { expires = DateTime.SpecifyKind(value, DateTimeKind.Utc); } //keeping this bad code as a reminder for backwards compatibility
         }
 
 		/// <summary>
@@ -80,13 +101,21 @@ namespace NServiceBus.Saga
         /// </summary>
         public bool ClearTimeout { get; set; }
 
+        /// <summary>
+        /// When true, indicates that the timeout is based on UTC.
+        /// </summary>
+        public bool IsUtc { get; set; }
+
 		/// <summary>
 		/// Gets whether or not the TimeoutMessage has expired.
 		/// </summary>
 		/// <returns>true if the message has expired, otherwise false.</returns>
         public bool HasNotExpired()
         {
-            return DateTime.Now < expires;
+            if (IsUtc)
+                return DateTime.UtcNow <= expires;
+
+            return DateTime.Now <= expires;//keeping this bad code as a reminder for backwards compatibility
         }
     }
 }
