@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Transactions;
+using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport;
@@ -24,6 +25,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         private readonly CloudQueueClient client;
         private int timeToDelayNextPeek;
         private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
+        private readonly Dictionary<string, CloudQueueClient> destinationQueueClients = new Dictionary<string, CloudQueueClient>(); 
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
@@ -87,7 +89,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, Address address)
         {
-            var sendQueue = client.GetQueueReference(SanitizeQueueName(address.Queue));
+            var sendClient = GetClientForConnectionString(address.Machine) ?? client;
+
+            var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Queue));
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
@@ -102,6 +106,29 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
+        }
+
+        private CloudQueueClient GetClientForConnectionString(string connectionString)
+        {
+            CloudQueueClient sendClient;
+
+            if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
+            {
+                CloudStorageAccount account;
+                
+                if(CloudStorageAccount.TryParse(connectionString, out account))
+                {
+                    sendClient = account.CreateCloudQueueClient();
+                }
+
+                // sendClient could be null, this is intentional 
+                // so that it remembers a connectionstring was invald 
+                // and doesn't try to parse it again.
+
+                destinationQueueClients.Add(connectionString, sendClient);
+            }
+
+            return sendClient;
         }
 
         public bool HasMessage()
