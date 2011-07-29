@@ -299,6 +299,11 @@
 
   <target name="compile_hosts32">
     <!-- Host32 -->
+    <!-- Cleanup remnants of previous host compilation -->
+    <exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\host32\ ${msbuild.targetframework} /t:Clean"
+					workingdir="${solution.dir}\host\NServiceBus.Host" />
+    
     <exec 	program="${msbuild}"
 		        commandline="/p:Configuration=${project.config} /p:PlatformTarget=x86 ${msbuild.targetframework} /p:OutDir=${build.dir.absolutepath}\host32\"
 				workingdir="${solution.dir}\host\NServiceBus.Host" />
