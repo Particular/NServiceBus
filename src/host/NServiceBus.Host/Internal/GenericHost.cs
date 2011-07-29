@@ -1,6 +1,8 @@
 using System;
 using System.Configuration;
 using log4net;
+using Topshelf.Internal;
+using NServiceBus.Host.Internal.Arguments;
 
 namespace NServiceBus.Host.Internal
 {
@@ -106,6 +108,8 @@ namespace NServiceBus.Host.Internal
         /// <param name="args"></param>
         public GenericHost(Type endpointType, string[] args)
         {
+            RefreshPropertiesBecauseRunningInDifferentAppDomain(endpointType, args);
+
             specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
@@ -113,6 +117,16 @@ namespace NServiceBus.Host.Internal
             profileManager = new ProfileManager(assembliesToScan, specifier, args);
             configManager = new ConfigManager(assembliesToScan, specifier);
             wcfManager = new WcfManager(assembliesToScan, specifier);
+        }
+
+        private void RefreshPropertiesBecauseRunningInDifferentAppDomain(Type endpointType, string[] args)
+        {
+            Parser.Args commandLineArguments = Parser.ParseArgs(args);
+            var arguments = new HostArguments(commandLineArguments);
+
+            Program.EndpointId = Program.GetEndpointId(Activator.CreateInstance(endpointType));
+            if (arguments.ServiceName != null)
+                Program.EndpointId = arguments.ServiceName.Value;
         }
 
         private readonly IConfigureThisEndpoint specifier;
