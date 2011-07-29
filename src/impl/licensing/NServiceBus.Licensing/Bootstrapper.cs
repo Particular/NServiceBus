@@ -7,7 +7,12 @@ namespace NServiceBus.Licensing
         public void Run()
         {
             var license = Configure.Instance.Builder.Build<LicenseManager>();
-            license.Validate();
+            var validated = license.Validate();
+
+            if (!validated)
+            {
+                //Note: No need to quit the application, just in case.
+            }
         }
 
         public void Init()

@@ -5,6 +5,8 @@ namespace NServiceBus.Licensing
 {
     public class LicenseManager
     {
+        private const int DefaultAllowedCores = 2;
+
         public LicenseManager()
         {
             Validator = CreateValidator();
@@ -18,6 +20,7 @@ namespace NServiceBus.Licensing
         public bool Validate()
         {
             Logger.Info("Checking available license...");
+            var allowedCpuCores = DefaultAllowedCores;
 
             try
             {
@@ -26,7 +29,16 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat("Found a {0} license.", Validator.LicenseType);
                 Logger.InfoFormat("Registered to {0}", Validator.Name);
                 Logger.InfoFormat("Expires on {0}", Validator.ExpirationDate);
-                Logger.InfoFormat("Allowed to use {0} cores.", Validator.LicenseAttributes["AllowedCores"]);
+
+                if (Validator.IsExpired)
+                {
+                    Logger.Warn("Your trial is expired. You are allowed to run on two CPU cores only.");
+                }
+                else
+                {
+                    Logger.WarnFormat("You are allowed to run on {0} CPU cores.", Validator.AllowedCores);
+                    allowedCpuCores = Validator.AllowedCores;
+                }
 
                 return true;
             }
@@ -44,12 +56,18 @@ namespace NServiceBus.Licensing
                 Logger.Warn("This application requires a valid license to run.");
             }
 
+            UpdateCpuCores(allowedCpuCores);
             return false;
         }
 
         public LicenseValidator Validator
         {
             get; private set;
+        }
+
+        private void UpdateCpuCores(int allowedCpuCores)
+        {
+            //NOTE: Update allowed CPU cores.
         }
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);

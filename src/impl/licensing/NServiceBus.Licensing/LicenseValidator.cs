@@ -2,6 +2,7 @@
 using System.IO;
 using Common.Logging;
 using Rhino.Licensing;
+using NServiceBus.Licensing.Extensions;
 
 namespace NServiceBus.Licensing
 {
@@ -30,6 +31,21 @@ namespace NServiceBus.Licensing
                     Logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
                 }
             }
+        }
+
+        public bool IsExpired
+        {
+            get { return LicenseType == LicenseType.Trial && ExpirationDate.Date < DateTime.Today; }
+        }
+
+        public int AllowedCores
+        {
+            get { return LicenseAttributes[LicenseAttributeKeys.AllowedCores].CastWithDefault(0); }
+        }
+
+        public bool ViolatesAllowedCores
+        {
+            get { return SystemInfo.GetNumerOfCores() > AllowedCores; }
         }
 
         public override void AssertValidLicense()
