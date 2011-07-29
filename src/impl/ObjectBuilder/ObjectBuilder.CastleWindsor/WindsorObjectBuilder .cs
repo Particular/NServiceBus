@@ -23,10 +23,8 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <summary>
         /// Instantites the class with a new WindsorContainer setting the NoTrackingReleasePolicy.
         /// </summary>
-        public WindsorObjectBuilder()
+        public WindsorObjectBuilder() : this(new WindsorContainer())
         {
-            Container = new WindsorContainer();
-            Container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
         }
 
         /// <summary>
@@ -36,6 +34,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             Container = container;
+            InstanceReleasingMessageModule.Builder = this;
         }
 
         void IContainer.Configure(Type concreteComponent, ComponentCallModelEnum callModel)
@@ -68,14 +67,19 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         object IContainer.Build(Type typeToBuild)
         {
-            try
+            object result = null;
+
+            if (Container.Kernel.HasComponent(typeToBuild))
             {
-                return Container.Resolve(typeToBuild);
+                result = Container.Resolve(typeToBuild);
+
+                var h = Container.Kernel.GetHandler(typeToBuild);
+                if (h != null)
+                    if (h.ComponentModel.LifestyleType == LifestyleType.Transient)
+                        ResolvedInstancesToRelease.Add(result);                
             }
-            catch (ComponentNotFoundException)
-            {
-                return null;
-            }
+
+            return result;
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
@@ -116,5 +120,29 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 .Where(h => h.ComponentModel.Implementation == concreteComponent)
                 .FirstOrDefault();
         }
+
+        /// <summary>
+        /// Releases all instances resolved by calling Build if they were registered as transient.
+        /// </summary>
+        public void ReleaseResolvedInstances()
+        {
+            foreach (var i in ResolvedInstancesToRelease)
+                Container.Release(i);
+
+            ResolvedInstancesToRelease.Clear();
+        }
+
+        private static IList<object> ResolvedInstancesToRelease
+        {
+            get
+            {
+                if (_resolvedInstancesToRelease == null)
+                    _resolvedInstancesToRelease = new List<object>();
+
+                return _resolvedInstancesToRelease;
+            }
+        }
+        [ThreadStatic]
+        private static IList<object> _resolvedInstancesToRelease;
     }
 }

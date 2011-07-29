@@ -1,5 +1,6 @@
 using NServiceBus;
 using NServiceBus.Saga;
+using System;
 
 namespace Timeout.MessageHandlers
 {
@@ -16,12 +17,16 @@ namespace Timeout.MessageHandlers
             }
             else
             {
+                var time = message.Expires;
+                if (!message.IsUtc)
+                    time = DateTime.SpecifyKind(message.Expires, DateTimeKind.Local).ToUniversalTime();
+
                 var data = new TimeoutData
                                {
                                    Destination = Bus.CurrentMessageContext.ReturnAddress,
                                    SagaId = message.SagaId,
                                    State = message.State,
-                                   Time = message.Expires
+                                   Time = time
                                };
 
                 Manager.PushTimeout(data);

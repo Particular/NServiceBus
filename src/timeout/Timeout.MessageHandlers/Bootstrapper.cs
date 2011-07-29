@@ -24,7 +24,7 @@ namespace Timeout.MessageHandlers
                         using (var scope = new TransactionScope(TransactionScopeOption.Required))
                         {
                             Bus.Send(e.Destination,
-                                     new TimeoutMessage {SagaId = e.SagaId, Expires = e.Time, State = e.State});
+                                     new TimeoutMessage {SagaId = e.SagaId, Expires = DateTime.MinValue, State = e.State});
                             
                             scope.Complete();
                         }

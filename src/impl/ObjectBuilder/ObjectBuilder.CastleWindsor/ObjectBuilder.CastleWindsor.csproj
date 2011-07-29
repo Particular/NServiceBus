@@ -67,12 +67,15 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Config\ConfigureWindsorBuilder.cs" />
+    <Compile Include="InstanceReleasingMessageModule.cs" />
     <Compile Include="WindsorObjectBuilder .cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
