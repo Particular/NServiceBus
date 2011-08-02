@@ -208,6 +208,13 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         private void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
         {
             var classConstructorInfo = customAttribute.GetType().GetConstructor(new Type[] { });
+
+            if (classConstructorInfo == null) 
+            {
+                Logger.Warn(string.Format("Ignoring attribute '{0}' on property {1}.{2} as it has no parameterless .ctor.", customAttribute.GetType(), propBuilder.DeclaringType.Name, propBuilder.Name));
+                return;
+            }
+
             var customAttributeBuilder = new CustomAttributeBuilder(classConstructorInfo,
                                                                             new object[] { });
             propBuilder.SetCustomAttribute(customAttributeBuilder);
