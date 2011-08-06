@@ -119,6 +119,7 @@
     </Compile>
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelFactory.cs" />
+    <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />

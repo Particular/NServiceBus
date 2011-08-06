@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using Channels;
-    using Channels.Http;
+    using Gateway.Channels;
+    using Gateway.Channels.Http;
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;

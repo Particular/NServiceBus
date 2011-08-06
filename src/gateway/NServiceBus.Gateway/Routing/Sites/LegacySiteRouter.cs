@@ -20,7 +20,7 @@
 
             return new []{new Site
             {
-                Channel = new Channel{Address = address,Type = "Http"},
+                Channel = new Channel{Address = address,Type = ChannelTypes.LookupByUrl(address)},
                 Key = address
             }};
         }
