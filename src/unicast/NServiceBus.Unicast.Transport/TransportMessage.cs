@@ -72,6 +72,11 @@ namespace NServiceBus.Unicast.Transport
         public DateTime TimeSent { get; set; }
 
         /// <summary>
+        /// Gets/sets the address at which the processing of this message failed.
+        /// </summary>
+        public string ProcessingFailedAddress { get; set; }
+
+        /// <summary>
         /// Gets/sets other applicative out-of-band information.
         /// </summary>
         public List<HeaderInfo> Headers { get; set; }

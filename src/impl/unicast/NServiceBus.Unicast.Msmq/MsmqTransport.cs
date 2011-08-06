@@ -697,6 +697,10 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		    UpdateMessageIdBasedOnResponseFromErrorQueue(result, m);
 		    FillIdForCorrelationAndWindowsIdentity(result, m);
 
+            string failedQueue = GetFailedQueue(m);
+            if (failedQueue != null)
+                result.ProcessingFailedAddress = MsmqUtilities.GetIndependentAddressForQueue(new MessageQueue(failedQueue));
+
             if (string.IsNullOrEmpty(result.IdForCorrelation))
                 result.IdForCorrelation = result.Id;
 
