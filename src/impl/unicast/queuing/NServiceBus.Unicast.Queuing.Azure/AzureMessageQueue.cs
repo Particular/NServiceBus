@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
+using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast.Transport;
@@ -14,10 +14,18 @@ namespace NServiceBus.Unicast.Queuing.Azure
 {
     public class AzureMessageQueue : IReceiveMessages,ISendMessages
     {
+        public const int DefaultMessageInvisibleTime = 30000;
+        public const int DefaultPeekInterval = 50;
+        public const int DefaultMaximumWaitTimeWhenIdle = 1000;
+        public const int DefaultBatchSize = 10;
+        public const bool DefaultPurgeOnStartup = false;
+        public const string DefaultConnectionString = "UseDevelopmentStorage=true";
+
         private CloudQueue queue;
         private readonly CloudQueueClient client;
         private int timeToDelayNextPeek;
         private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
+        private readonly Dictionary<string, CloudQueueClient> destinationQueueClients = new Dictionary<string, CloudQueueClient>(); 
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
@@ -53,10 +61,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public AzureMessageQueue(CloudQueueClient client)
         {
             this.client = client;
-            MessageInvisibleTime = 30000;
-            PeekInterval = 1000;
-            MaximumWaitTimeWhenIdle = 60000;
-            BatchSize = 10;
+            MessageInvisibleTime = DefaultMessageInvisibleTime;
+            PeekInterval = DefaultPeekInterval;
+            MaximumWaitTimeWhenIdle = DefaultMaximumWaitTimeWhenIdle;
+            BatchSize = DefaultBatchSize;
         }
 
         public void Init(string address, bool transactional)
@@ -67,7 +75,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
-            queue = client.GetQueueReference(address.Queue);
+            queue = client.GetQueueReference(SanitizeQueueName(address.Queue));
             queue.CreateIfNotExist();
 
 			if (PurgeOnStartup)
@@ -81,7 +89,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, Address address)
         {
-            var sendQueue = client.GetQueueReference(address.Queue);
+            var sendClient = GetClientForConnectionString(address.Machine) ?? client;
+
+            var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Queue));
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
@@ -92,18 +102,33 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             if (Transaction.Current == null)
             {
-                try
-                {
-                  sendQueue.AddMessage(rawMessage);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-                
+                sendQueue.AddMessage(rawMessage);
             }
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sendQueue, rawMessage), EnlistmentOptions.None);
+        }
+
+        private CloudQueueClient GetClientForConnectionString(string connectionString)
+        {
+            CloudQueueClient sendClient;
+
+            if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
+            {
+                CloudStorageAccount account;
+                
+                if(CloudStorageAccount.TryParse(connectionString, out account))
+                {
+                    sendClient = account.CreateCloudQueueClient();
+                }
+
+                // sendClient could be null, this is intentional 
+                // so that it remembers a connectionstring was invald 
+                // and doesn't try to parse it again.
+
+                destinationQueueClients.Add(connectionString, sendClient);
+            }
+
+            return sendClient;
         }
 
         public bool HasMessage()
@@ -229,7 +254,16 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void CreateQueue(string queueName)
         {
-            client.GetQueueReference(queueName).CreateIfNotExist();
+            client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
+        }
+
+        private string SanitizeQueueName(string queueName)
+        {
+            // The auto queue name generation uses namespaces which includes dots, 
+            // yet dots are not supported in azure storage names
+            // that's why we replace them here.
+
+            return queueName.Replace('.', '-');
         }
 
         private bool useTransactions;

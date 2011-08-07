@@ -208,7 +208,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             var classConstructorInfo = customAttribute.GetType().GetConstructor(new Type[] { });
             if (classConstructorInfo == null)
-                throw new ArgumentException("NServiceBus does not support attributes without a default constructor. Attribute: " + customAttribute.GetType().Name);
+            {
+                Logger.Warn(string.Format("Ignoring attribute '{0}' on property {1}.{2} as it has no parameterless .ctor.", customAttribute.GetType(), propBuilder.DeclaringType.Name, propBuilder.Name));
+                return;
+            }
 
             var customAttributeBuilder = new CustomAttributeBuilder(classConstructorInfo,
                                                                             new object[] { });

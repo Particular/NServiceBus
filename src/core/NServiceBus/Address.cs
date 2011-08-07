@@ -10,6 +10,9 @@ namespace NServiceBus
     [Serializable]
     public class Address : ISerializable
     {
+        private static AddressMode addressMode = AddressMode.Local;
+        private static string defaultMachine = Environment.MachineName;
+
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
@@ -29,6 +32,32 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Sets the address mode, can only be done as long as the local address is not been initialized.By default the default machine equals Environment.MachineName
+        /// </summary>
+        /// <param name="machineName"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void OverrideDefaultMachine(string machineName)
+        {
+            if (Local != null)
+                throw new InvalidOperationException("The local address has already been initialized, changing the default machine name is no longer possible.");
+
+            defaultMachine = machineName;
+        }
+
+        /// <summary>
+        /// Sets the name of the machine to be used when none is specified in the address.
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void InitializeAddressMode(AddressMode mode)
+        {
+            if (Local != null)
+                throw new InvalidOperationException("The local address has already been initialized, switching address modes is no longer possible.");
+
+            addressMode = mode;
+        }
+
+        /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
         /// <param name="destination"></param>
@@ -41,7 +70,7 @@ namespace NServiceBus
             var arr = destination.Split('@');
 
             var queue = arr[0];
-            var machine = Environment.MachineName;
+            var machine = defaultMachine;
 
             if (arr.Length == 2)
                 if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
@@ -58,7 +87,7 @@ namespace NServiceBus
         public Address(string queueName, string machineName)
         {
             Queue = queueName.ToLower();
-            Machine = machineName.ToLower();
+            Machine = addressMode == AddressMode.Local ? machineName.ToLower() : machineName;
         }
 
         protected Address(SerializationInfo info, StreamingContext context)
@@ -137,12 +166,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The (lowercase) name of the queue not including the name of the machine.
+        /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
         /// </summary>
         public string Queue { get; private set; }
 
         /// <summary>
-        /// The (lowercase) name of the machine.
+        /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
         /// </summary>
         public string Machine { get; private set; }
     }

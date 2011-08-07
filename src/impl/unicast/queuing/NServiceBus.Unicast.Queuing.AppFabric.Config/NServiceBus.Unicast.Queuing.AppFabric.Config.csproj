@@ -60,12 +60,6 @@
     <Compile Include="ConfigureAppFabricQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.AppFabric\NServiceBus.Unicast.Queuing.AppFabric.csproj">
-      <Project>{911C5871-B059-4F8D-99B3-86F13CDEFC86}</Project>
-      <Name>NServiceBus.Unicast.Queuing.AppFabric</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

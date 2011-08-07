@@ -68,6 +68,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Address.cs" />
+    <Compile Include="AddressMode.cs" />
     <Compile Include="CompletionResult.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IAmResponsibleForMessages.cs" />

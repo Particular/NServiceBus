@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
                 {
                     var subscription = new Subscription
                     {
-                        SubscriberEndpoint = address.ToString(),
+                        SubscriberEndpoint = EncodeTo64(address.ToString()),
                         MessageType = messageType
                     };
 
@@ -52,11 +52,13 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
 
         void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
         {
+            var encodedAddress = EncodeTo64(address.ToString());
+
             using (var session = sessionSource.CreateSession())
             using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
-                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", address, messageType));
+                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", encodedAddress, messageType));
 
                 transaction.Complete();
                 session.Flush();
@@ -79,7 +81,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
                                      from subscription in session.CreateCriteria(typeof (Subscription))
                                                             .Add(Restrictions.Eq("MessageType", messageType))
                                                             .List<Subscription>()
-                                     select Address.Parse(subscription.SubscriberEndpoint));
+                                     select Address.Parse(DecodeFrom64(subscription.SubscriberEndpoint)));
             }
 
             return subscribers;
@@ -88,6 +90,20 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
         public void Init()
         {
             //No-op
+        }
+
+        static public string EncodeTo64(string toEncode)
+        {
+            var toEncodeAsBytes= System.Text.Encoding.ASCII.GetBytes(toEncode);
+            var returnValue = System.Convert.ToBase64String(toEncodeAsBytes);
+            return returnValue;
+        }
+
+        static public string DecodeFrom64(string encodedData)
+        {
+            var encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
+            var returnValue = System.Text.Encoding.ASCII.GetString(encodedDataAsBytes);
+            return returnValue;
         }
     }
 }
