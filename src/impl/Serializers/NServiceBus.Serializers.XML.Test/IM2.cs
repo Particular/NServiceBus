@@ -17,12 +17,22 @@ namespace NServiceBus.Serializers.XML.Test
         Dictionary<string, List<Foo>> Foos { get; set; }
         byte[] Data { get; set; }
         IEnumerable<string> SomeStrings { get; set; }
+        Foo[] ArrayFoos { get; set; }
+        Bar[] Bars { get; set; }
+        HashSet<int> NaturalNumbers { get; set; }
+        HashSet<string> Developers { get; set; }
     }
 
     public class Foo
     {
         public string Name { get; set; }
         public string Title { get; set; }
+    }
+
+    public class Bar
+    {
+        public string Name { get; set; }
+        public int Length { get; set; }
     }
 
     public class MyDic : Dictionary<string, string>

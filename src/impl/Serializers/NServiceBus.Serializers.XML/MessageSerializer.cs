@@ -85,6 +85,7 @@ namespace NServiceBus.Serializers.XML
             {
                 if (t.IsArray)
                     typesToCreateForArrays[t] = typeof(List<>).MakeGenericType(t.GetElementType());
+                
 
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g);
@@ -105,6 +106,20 @@ namespace NServiceBus.Serializers.XML
 
                     if (e.IsAssignableFrom(t))
                         typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
+                }
+
+                if (t.IsGenericType && t.GetGenericArguments().Length == 1)
+                {
+                    Type setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
+
+                    if (setType.IsAssignableFrom(t)) //handle ISet<Something>
+                    {
+                        var g = t.GetGenericArguments();
+                        var e = typeof(IEnumerable<>).MakeGenericType(g);
+
+                        if (e.IsAssignableFrom(t))
+                            typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
+                    }
                 }
 
                 return;
@@ -182,8 +197,12 @@ namespace NServiceBus.Serializers.XML
                 var args = prop.PropertyType.GetGenericArguments();
 
                 if (args.Length == 1)
+                {
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                    if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
+                        throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                }
 
                 if (args.Length == 2)
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
@@ -551,11 +570,16 @@ namespace NServiceBus.Serializers.XML
 
                 return result;
             }
-
+            
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
                 bool isArray = type.IsArray;
-
+                bool isISet = false;
+                if (type.IsGenericType && type.GetGenericArguments().Length == 1)
+                {
+                    Type setType = typeof(ISet<>).MakeGenericType(type.GetGenericArguments());
+                    isISet = setType.IsAssignableFrom(type);
+                }
                 Type typeToCreate = type;
                 if (isArray)
                     typeToCreate = typesToCreateForArrays[type];
@@ -579,7 +603,10 @@ namespace NServiceBus.Serializers.XML
 
                         if (isArray)
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                        if(isISet)
+                            return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
                     }
+
 
                     return list;
                 }

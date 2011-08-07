@@ -118,6 +118,11 @@ namespace NServiceBus.Serializers.XML.Test
             o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name="1", Title = "1"}, new Foo { Name = "2", Title = "2"}});
             o.Data = new byte[] { 1, 2, 3, 4, 5, 4, 3, 2, 1};
             o.SomeStrings = new List<string> { "a", "b", "c" };
+            
+            o.ArrayFoos = new Foo[] { new Foo { Name="FooArray1", Title ="Mr." }, new Foo{ Name="FooAray2", Title="Mrs" } };
+            o.Bars = new Bar[] { new Bar { Name = "Bar1", Length = 1 }, new Bar { Name = "BAr2", Length = 5 } };
+            o.NaturalNumbers = new HashSet<int>(new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            o.Developers = new HashSet<string>(new string[] { "Udi Dahan", "Andreas Ohlund", "Matt Burton", "Jonathan Oliver et al" });
 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
