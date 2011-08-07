@@ -52,10 +52,10 @@ namespace NServiceBus.MessageInterfaces.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Invalid_attributes_should_fail()
+        public void Attributes_with_no_default_ctor_should_be_ignored()
         {
             mapper.Initialize(new[] { typeof(InterfaceWithInvalidAttribute) });
+            Assert.IsFalse(PropertyContainsAttribute("SomeProperty", typeof(InvalidAttribute), mapper.CreateInstance(typeof(InterfaceWithInvalidAttribute))));
         }
 
         private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
