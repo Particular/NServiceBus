@@ -76,7 +76,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                     .Add(Restrictions.In("MessageType", messageTypes.ToArray()))
                     .SetProjection(Projections.Property("SubscriberEndpoint"))
                     .SetResultTransformer(new DistinctRootEntityResultTransformer())
-                    .List<string>();
+                    .List<string>()
+                    .Distinct();
         }
 
         public void Init()

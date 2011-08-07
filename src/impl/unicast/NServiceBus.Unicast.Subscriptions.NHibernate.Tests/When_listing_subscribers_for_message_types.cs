@@ -9,7 +9,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
     public class When_listing_subscribers_for_message_types : InMemoryDBFixture
     {
         [Test]
-        public void The_names_of_all_subscibers_should_be_returned()
+        public void The_names_of_all_subscribers_should_be_returned()
         {
             var clientEndpoint = Address.Parse("TestEndpoint");
 
@@ -19,8 +19,23 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new List<String> { "MessageType1" });
 
-            Assert.AreEqual(subscriptionsForMessageType.Count(), 2);
-            Assert.AreEqual(subscriptionsForMessageType.First(), clientEndpoint);
+            Assert.AreEqual(2,subscriptionsForMessageType.Count());
+            Assert.AreEqual(clientEndpoint,subscriptionsForMessageType.First());
+        }
+
+        [Test]
+        public void Duplicates_should_not_be_generated_for_interface_inheritance_chains()
+        {
+            var clientEndpoint = Address.Parse("TestEndpoint");
+
+            //ISomeInterface3:ISomeInterface2:ISomeInterface
+            storage.Subscribe(clientEndpoint, new List<string> { "ISomeInterface" });
+            storage.Subscribe(clientEndpoint, new List<string> { "ISomeInterface2" });
+            storage.Subscribe(clientEndpoint, new List<string> { "ISomeInterface3" });
+
+            var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new List<String> { "ISomeInterface", "ISomeInterface2", "ISomeInterface3" });
+
+            Assert.AreEqual(1,subscriptionsForMessageType.Count());
         }
     }
 }
