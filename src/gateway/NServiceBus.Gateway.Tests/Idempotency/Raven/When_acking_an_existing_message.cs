@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Messaging;
+    using System.Threading;
     using System.Transactions;
     using NUnit.Framework;
     using Persistence.Raven;
@@ -51,7 +52,6 @@
         }
 
         [Test]
-        [Explicit("Until Ayende fixes the issue")]
         public void Raven_dtc_bug()
         {
             new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)
@@ -77,6 +77,7 @@
                 //when we complete raven commits it tx but the DTC tx is never commited and eventually times out
                 tx.Complete();
             }
+            Thread.Sleep(1000);
 
             Assert.AreEqual(1,new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)
             .GetAllMessages().Length);

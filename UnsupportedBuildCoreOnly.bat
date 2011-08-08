@@ -1,1 +1,0 @@
-.\tools\nant\NAnt -D:include.dependencies=false

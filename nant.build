@@ -102,10 +102,6 @@
 			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
 		</tstamp>
 		
-		<echo message="Downloading dependencies from NuGet..."/>
-		<exec 	program=".\tools\NuGet\NuGet.exe"
-				commandline="install packages.config -o packages"
-				workingdir="."/>
 		<echo message="Creating build dir: ${build.base}"/>
 		<delete dir="${build.base}"/>
 		<mkdir dir="${build.base}"/>
@@ -239,6 +235,7 @@
 						<include name="${core.build.dir}\Interop.MSMQ.dll" />
 						<include name="${core.build.dir}\AutoFac.dll"/>
 						<include name="${core.build.dir}\Raven*.dll" />
+						<include name="${core.build.dir}\NLog.dll" />
 						<include name="${core.build.dir}\rhino.licensing.dll" />
 						<include name="${core.build.dir}\MissingBitsFromClientProfile.dll" />
 						<include name="${core.build.dir}\Newtonsoft.Json.dll" />
