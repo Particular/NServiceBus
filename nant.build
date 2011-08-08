@@ -6,7 +6,7 @@
   <property name="bin.dir" value="bin" />
   <property name="lib.dir" value="external-bin" />
   <property name="build.base" value="build"/>
-  <property name="project.fullversion" value="2.5.0.0" dynamic="true" />
+  <property name="project.fullversion" value="2.6.0.0" dynamic="true" />
   <property name="nant.settings.currentframework" value="net-3.5" />
   <property name="release.dir" value="${trunk.dir}\release"/>
   <property name="binaries.dir" value="${trunk.dir}\binaries"/>
