@@ -18,6 +18,12 @@ namespace Timeout.MessageHandlers
 
             string nameSpace = ConfigurationManager.AppSettings["NameSpace"];
             string serialization = ConfigurationManager.AppSettings["Serialization"];
+            string storageQueue = "timeout.storage";
+
+            if(!string.IsNullOrEmpty(ConfigurationManager.AppSettings["StorageQueue"]))
+            {
+                storageQueue = ConfigurationManager.AppSettings["StorageQueue"];
+            }
 
             switch (serialization)
             {
@@ -33,7 +39,7 @@ namespace Timeout.MessageHandlers
 
             configure.Configurer.ConfigureComponent<TimeoutManager>(ComponentCallModelEnum.Singleton);
             configure.Configurer.ConfigureComponent<TimeoutPersister>(ComponentCallModelEnum.Singleton)
-                .ConfigureProperty(tp => tp.Queue, "timeout.storage");
+                .ConfigureProperty(tp => tp.Queue, storageQueue);
         }
 
         void ISpecifyMessageHandlerOrdering.SpecifyOrder(Order order)
