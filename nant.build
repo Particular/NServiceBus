@@ -237,7 +237,6 @@
 						<include name="${core.build.dir}\Raven*.dll" />
 						<include name="${core.build.dir}\NLog.dll" />
 						<include name="${core.build.dir}\rhino.licensing.dll" />
-						<include name="${core.build.dir}\MissingBitsFromClientProfile.dll" />
 						<include name="${core.build.dir}\Newtonsoft.Json.dll" />
 						<include name="${core.build.dir}\ICSharpCode.NRefactory.dll" />
 						<include name="${core.build.dir}\Lucene.Net.dll" />
