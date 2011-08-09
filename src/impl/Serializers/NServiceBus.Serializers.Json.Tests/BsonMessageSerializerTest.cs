@@ -1,10 +1,10 @@
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+﻿using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NUnit.Framework;
 
-namespace NServiceBus.Serializers.Json.Test
+namespace NServiceBus.Serializers.Json.Tests
 {
   [TestFixture]
-  public class JsonMessageSerializerTest : JsonMessageSerializerTestBase
+  public class BsonMessageSerializerTest : JsonMessageSerializerTestBase
   {
     protected override JsonMessageSerializerBase Serializer { get; set; }
 
@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json.Test
       var messageMapper = new MessageMapper();
       messageMapper.Initialize(new[] { typeof(IA), typeof(A) });
 
-      Serializer = new JsonMessageSerializer(messageMapper);
+      Serializer = new BsonMessageSerializer(messageMapper);
     }
   }
 }

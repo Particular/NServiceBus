@@ -8,8 +8,8 @@
     <ProjectGuid>{9D403FEE-88AF-49FD-96CD-A631052F4AF5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Serializers.Json.Test</RootNamespace>
-    <AssemblyName>NServiceBus.Serializers.Json.Test</AssemblyName>
+    <RootNamespace>NServiceBus.Serializers.Json.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Serializers.Json.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

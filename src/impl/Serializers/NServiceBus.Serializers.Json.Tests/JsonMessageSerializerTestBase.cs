@@ -5,7 +5,7 @@ using System.Reflection;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NUnit.Framework;
 
-namespace NServiceBus.Serializers.Json.Test
+namespace NServiceBus.Serializers.Json.Tests
 {
   public class A : IMessage
   {
