@@ -47,7 +47,7 @@ namespace NServiceBus.Serializers.Json
       };
 
       serializerSettings.Converters.Add(new MessageJsonConverter(messageMapper));
-      
+     
       return JsonSerializer.Create(serializerSettings);
     }
 

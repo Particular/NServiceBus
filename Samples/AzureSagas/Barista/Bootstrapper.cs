@@ -25,7 +25,6 @@ namespace Barista
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
-               .AzureConfigurationSource()
                .AzureMessageQueue().JsonSerializer()
                .AzureSubcriptionStorage()
                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()

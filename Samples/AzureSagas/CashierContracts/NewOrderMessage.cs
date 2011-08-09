@@ -3,14 +3,17 @@ using NServiceBus;
 
 namespace CashierContracts
 {
-    [Serializable]
     public class NewOrderMessage : IMessage
     {
-        public String CustomerName { get; private set; }
-        public String Drink { get; private set; }
-        public DrinkSize DrinkSize { get; private set; }
-        public Guid OrderId { get; private set; }
+        public String CustomerName { get; set; }
+        public String Drink { get; set; }
+        public DrinkSize DrinkSize { get; set; }
+        public Guid OrderId { get; set; }
     
+        public NewOrderMessage()
+        {
+        }
+        
         public NewOrderMessage(String customerName, String drink, DrinkSize drinkSize)
         {
             CustomerName = customerName;

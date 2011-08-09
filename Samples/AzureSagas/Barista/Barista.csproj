@@ -84,6 +84,7 @@
     </None>
     <Compile Include="ViewData\DeliverOrderView.cs" />
     <Compile Include="ViewData\OrderIsDoneView.cs" />
+    <Compile Include="ViewData\OrderIsTrashedView.cs" />
     <Compile Include="ViewData\PrepareOrderView.cs" />
   </ItemGroup>
   <ItemGroup>

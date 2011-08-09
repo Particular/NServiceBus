@@ -44,8 +44,18 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\build\timeout\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\hosting\NServiceBus.Hosting.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.StructureMap">
       <HintPath>..\..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Timeout.Core">
+      <HintPath>..\..\..\build\timeout\NServiceBus.Timeout.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Timeout.Hosting.Azure">
+      <HintPath>..\..\..\build\timeout\NServiceBus.Timeout.Hosting.Azure.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\..\..\binaries\containers\structuremap\StructureMap.dll</HintPath>
@@ -60,9 +70,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Timeout.MessageHandlers">
-      <HintPath>..\..\..\build\timeout\Timeout.MessageHandlers.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
@@ -98,6 +105,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Barista\Barista.csproj">
+      <Project>{F5C48D42-06F2-4CCA-88B5-6C49F2A09065}</Project>
+      <Name>Barista</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

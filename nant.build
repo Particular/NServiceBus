@@ -238,6 +238,8 @@
 						<include name="${core.build.dir}\NLog.dll" />
 						<include name="${core.build.dir}\rhino.licensing.dll" />
 						<include name="${core.build.dir}\Newtonsoft.Json.dll" />
+						<include name="${core.build.dir}\ICSharpCode.NRefactory.dll" />
+						<include name="${core.build.dir}\Esent.Interop.dll" />
 						<include name="${core.build.dir}\Lucene.Net.dll" />
 						<include name="${core.build.dir}\SpellChecker.Net.dll" />
 						<include name="${core.build.dir}\Spatial.Net.dll" />

@@ -96,7 +96,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
 
-            message.Id = Guid.NewGuid().ToString();
+            if(string.IsNullOrEmpty(message.Id)) message.Id = Guid.NewGuid().ToString();
 
             var rawMessage = SerializeMessage(message);
 
