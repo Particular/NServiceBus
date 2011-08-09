@@ -262,7 +262,7 @@
 
 		<!-- Create the merged NServiceBus.Core.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
-					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output_core.txt ${ilmerge.targetframework}"
+					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log ${ilmerge.targetframework}"
 					workingdir="." />
 
 	</target>
