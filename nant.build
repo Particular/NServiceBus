@@ -248,6 +248,8 @@
 						<include name="${core.build.dir}\Iesi.Collections.dll" />
 						<include name="${core.build.dir}\LinFu*.dll" />
 						
+						<!-- exclude until we can fix the missing dep on debugvisualizers -->
+						<exclude name="${core.build.dir}\Raven.Client.Debug.dll" />
 						<exclude name="${core.build.dir}\**Tests.dll" />
 					</items>
 				</in>
