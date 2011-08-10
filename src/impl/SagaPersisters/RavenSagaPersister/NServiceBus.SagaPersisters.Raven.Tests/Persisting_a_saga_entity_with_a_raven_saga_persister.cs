@@ -1,10 +1,12 @@
 ﻿using System;
 using NUnit.Framework;
-using Raven.Client.Client;
 using Raven.Storage.Managed;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using global::Raven.Client.Embedded;
+
+    [Ignore]
     public abstract class Persisting_a_saga_entity_with_a_raven_saga_persister
     {
         protected TestSaga entity;

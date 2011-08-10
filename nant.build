@@ -201,7 +201,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor,gateway,impl\licensing"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor,gateway,impl\licensing"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -435,7 +435,8 @@
 					<include name="${core.build.dir}\*Tests.dll" />
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
 					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
-                                        <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
+                    <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
+					<exclude name="${core.build.dir}\NServiceBus.SagaPersisters.Raven.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>

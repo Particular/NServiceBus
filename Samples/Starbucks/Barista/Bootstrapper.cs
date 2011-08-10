@@ -18,7 +18,7 @@ namespace Barista
         {
             ObjectFactory.Initialize(x => x.AddRegistry(new BaristaRegistry()));
         }
-
+       
         private static void BootstrapNServiceBus()
         {
             Configure.With()
@@ -28,7 +28,7 @@ namespace Barista
                 .XmlSerializer()
                 // For sagas
                 .Sagas()
-                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration()
+                .RavenSagaPersister()
                 // End
                 .MsmqTransport()
                     .IsTransactional(true)

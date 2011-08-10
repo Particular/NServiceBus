@@ -4,11 +4,13 @@ using NServiceBus.ObjectBuilder;
 using NServiceBus.Persistence.Raven;
 using NServiceBus.Persistence.Raven.Config;
 using Raven.Client;
-using Raven.Client.Client;
 using Raven.Client.Document;
 
-namespace NServiceBus.SagaPersisters.Raven.Config
+namespace NServiceBus
 {
+    using Raven.Client.Embedded;
+    using SagaPersisters.Raven;
+
     public static class ConfigureRavenSagaPersister
     {
         public static Configure EmbeddedRavenSagaPersister(this Configure config)

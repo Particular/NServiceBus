@@ -1,5 +1,4 @@
 using System;
-using NServiceBus.SagaPersisters.Raven.Config;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests

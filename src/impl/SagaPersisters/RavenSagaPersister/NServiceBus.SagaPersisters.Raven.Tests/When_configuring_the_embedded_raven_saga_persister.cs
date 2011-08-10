@@ -1,10 +1,10 @@
-﻿using NServiceBus.SagaPersisters.Raven.Config;
-using NUnit.Framework;
-using Raven.Client.Client;
+﻿using NUnit.Framework;
 using Raven.Storage.Esent;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using global::Raven.Client.Embedded;
+
     [TestFixture]
     public class When_configuring_the_embedded_raven_saga_persister
     {
