@@ -366,15 +366,6 @@
 			<in>
 				<items>
 					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.**Azure**.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\FluentNHibernate.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.ByteCode.LinFu.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\LinFu.DynamicProxy.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.Drivers.Azure.TableStorage.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\Antlr3.Runtime.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\Common.Logging.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\Iesi.Collections.dll" />
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.NHibernate.dll" />					
 					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\**Tests.dll" />
 					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
 				</items>
