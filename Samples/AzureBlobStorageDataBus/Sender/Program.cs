@@ -57,7 +57,7 @@ namespace Sender
         {
             bus = Configure.With()
                .DefaultBuilder()
-               .AzureConfigurationSource()
+        //       .AzureConfigurationSource()
                .AzureMessageQueue()
                     .BinarySerializer()
                .AzureDataBus()

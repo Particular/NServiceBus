@@ -19,7 +19,7 @@ namespace Receiver
         {
             Configure.With()
                .DefaultBuilder()
-               .AzureConfigurationSource()
+            //   .AzureConfigurationSource()
                .AzureMessageQueue()
                     .BinarySerializer()
                .AzureDataBus()

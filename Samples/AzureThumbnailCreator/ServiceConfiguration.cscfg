@@ -5,35 +5,27 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-
       <Setting name="UnicastBusConfig.LocalAddress" value="websiteinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
   </Role>
   <Role name="Service">
-    <Instances count="0" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
-      
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      
       <Setting name="UnicastBusConfig.LocalAddress" value="serviceinputqueue" />
-      
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
-
       <Setting name="ThumbNailStore.ConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
   </Role>

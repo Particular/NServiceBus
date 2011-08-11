@@ -2,7 +2,7 @@
 
 namespace OrderService
 {
-    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Server
+    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Publisher
     {
         
     }
