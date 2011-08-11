@@ -201,7 +201,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor,gateway,impl\licensing"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -339,7 +339,7 @@
 	<target name="compile_azure" depends="compile_nhibernate">
 		<!-- NServiceBus.azure -->
 		<foreach 	item="String"
-						in="SagaPersister"
+						in="SagaPersister,SubscriptionStorage"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -366,12 +366,22 @@
 		</exec>
 		-->
 		<!-- Create list of all "Azure" assemblies -->
-		<property name="nservicebus.azure" value="" dynamic="true" />
+		<property name="nservicebus.azure" value="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
 		<foreach item="File" property="filename">
 			<in>
 				<items>
 					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.**Azure**.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\FluentNHibernate.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.ByteCode.LinFu.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\LinFu.DynamicProxy.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.Drivers.Azure.TableStorage.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\NHibernate.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\Antlr3.Runtime.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\Common.Logging.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\Iesi.Collections.dll" />
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.NHibernate.dll" />					
 					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\**Tests.dll" />
+					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
 				</items>
 			</in>
 			<do>

@@ -34,7 +34,8 @@
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="FluentNHibernate">
+    <Reference Include="FluentNHibernate, Version=1.1.0.685, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\FluentNHibernate\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -51,13 +52,13 @@
       <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core">
-      <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.NHibernate">
-      <HintPath>..\..\..\..\build\output\NServiceBus.NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
