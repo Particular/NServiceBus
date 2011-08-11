@@ -246,6 +246,8 @@
 						
 						<!-- exclude until we can fix the missing dep on debugvisualizers -->
 						<exclude name="${core.build.dir}\Raven.Client.Debug.dll" />
+						<!-- exclude as this has a dependency on System.Web.Mvc 2 -->
+						<exclude name="${core.build.dir}\Raven.Client.MvcIntegration.dll" />
 						<exclude name="${core.build.dir}\**Tests.dll" />
 					</items>
 				</in>
@@ -260,7 +262,7 @@
 
 		<!-- Create the merged NServiceBus.Core.dll-->
 		<exec program="${lib.dir}\ilmerge.exe"
-					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log ${ilmerge.targetframework}"
+					commandline="/out:${output.dir}\NServiceBus.Core.dll ${nservicebus.coreassemblies} ${nservicebus.merged_dependencies} /target:library /keyfile:NServiceBus.snk /xmldocs /internalize:ilmerge.exclude /log:build\output_core.txt ${ilmerge.targetframework}"
 					workingdir="." />
 
 	</target>
