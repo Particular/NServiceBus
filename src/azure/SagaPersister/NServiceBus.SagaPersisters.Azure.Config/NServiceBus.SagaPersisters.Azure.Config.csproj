@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Common.Logging.2.0.0\lib\2.0\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="FluentNHibernate, Version=1.1.0.685, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -52,13 +52,13 @@
       <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core">
-      <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.NHibernate">
-      <HintPath>..\..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -77,6 +77,9 @@
     <Compile Include="AzureSagaPersisterConfig.cs" />
     <Compile Include="Internal\SessionFactoryBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
