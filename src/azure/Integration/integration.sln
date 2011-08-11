@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Integration.WebServices", "NServiceBus.Integration.WebServices\NServiceBus.Integration.WebServices.csproj", "{4BAFD4CB-59CC-49D6-B1FE-D5D27525D593}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Integration.Azure", "NServiceBus.Integration.Azure\NServiceBus.Integration.Azure.csproj", "{641D0198-FE99-42F4-B6CB-A14D0E9F639E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Integration.WCF", "NServiceBus.Integration.WCF\NServiceBus.Integration.WCF.csproj", "{8CF614E1-FEAC-4C92-9F64-EF809C0BBC0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Integration.Azure.Tests", "NServiceBus.Integration.Azure.Tests\NServiceBus.Integration.Azure.Tests.csproj", "{CA59C36D-FA35-42B4-99B5-5725C6AF1B01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
