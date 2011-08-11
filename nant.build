@@ -339,7 +339,7 @@
 	<target name="compile_azure" depends="compile_nhibernate">
 		<!-- NServiceBus.azure -->
 		<foreach 	item="String"
-						in="SagaPersister,SubscriptionStorage"
+						in="Queueing,SagaPersister,SubscriptionStorage"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
