@@ -441,7 +441,7 @@
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
 					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
                     <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
-					<exclude name="${core.build.dir}\NServiceBus.SagaPersisters.Raven.Tests.dll" />
+					<exclude name="${core.build.dir}\*Raven.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>
