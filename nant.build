@@ -286,14 +286,9 @@
 	
 	<target name="compile_nhibernate" depends="compile_core">
 		<!-- NServiceBus.NHibernate -->
-		<foreach 	item="String"
-						in="UnitOfWork,Faults,SagaPersister,Subscriptions"
-						delim=","
-						property="pathToBuild">
-			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.NHibernate\ ${msbuild.targetframework}"
-						  workingdir="${solution.dir}\nhibernate\${pathToBuild}" />
-		</foreach>
+		<exec 	program="${msbuild}"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.NHibernate\ ${msbuild.targetframework}"
+				workingdir="${solution.dir}\nhibernate" />
 		
 		<property name="nservicebus.nhibernate.tests" value="" dynamic="true" />
 		<foreach item="File" property="filename">

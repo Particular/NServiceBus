@@ -72,7 +72,7 @@
       <HintPath>..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\..\lib\rhino.mocks\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestSagaWithHbmlXmlOverride.hbm.xml" />
