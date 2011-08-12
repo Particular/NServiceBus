@@ -30,9 +30,17 @@ namespace NServiceBus.Serializers.Json.Tests
   public class B
   {
     public string Bstr { get; set; }
+    public object C { get; set; }
   }
 
-  public abstract class JsonMessageSerializerTestBase
+  public class C
+  {
+      public string Cstr { get; set; }
+  }
+
+ 
+
+    public abstract class JsonMessageSerializerTestBase
   {
     protected abstract JsonMessageSerializerBase Serializer { get; set; }
     protected MessageMapper MessageMapper { get; private set; }
@@ -52,7 +60,7 @@ namespace NServiceBus.Serializers.Json.Tests
                     I = 23,
                     S = "Foo",
                     Ints = new List<int> { 12, 42 },
-                    Bs = new List<B> { new B { Bstr = "aaa" }, new B { Bstr = "bbbb" } },
+                    Bs = new List<B> { new B { Bstr = "aaa", C= new C{ Cstr = "ccc" } }, new B { Bstr = "bbbb" , C= new C{ Cstr = "dddd"} } },
                     DateTime = new DateTime(2010, 10, 13, 12, 32, 42)
                   };
 
@@ -84,6 +92,7 @@ namespace NServiceBus.Serializers.Json.Tests
       Assert.AreEqual(23, a.I);
       Assert.AreEqual("Foo", a.S);
       Assert.AreEqual(new DateTime(2010, 10, 13, 12, 32, 42), a.DateTime);
+      Assert.AreEqual("ccc", ((C)a.Bs[0].C).Cstr);
     }
 
     [Test]
@@ -97,7 +106,7 @@ namespace NServiceBus.Serializers.Json.Tests
           x.S = "kalle";
           x.I = 42;
           x.Data = new byte[23];
-          x.B = new B { Bstr = "BOO" };
+          x.B = new B { Bstr = "BOO", C= new C { Cstr = "COO"} };
         }
         );
 
@@ -128,6 +137,7 @@ namespace NServiceBus.Serializers.Json.Tests
       Assert.AreEqual("kalle", a.S);
       Assert.IsNotNull(a.B);
       Assert.AreEqual("BOO", a.B.Bstr);
+      Assert.AreEqual("COO", ((C)a.B.C).Cstr);
     }
 
     [Test]
@@ -141,7 +151,7 @@ namespace NServiceBus.Serializers.Json.Tests
           x.S = "kalle";
           x.I = 42;
           x.Data = new byte[23];
-          x.B = new B { Bstr = "BOO" };
+          x.B = new B { Bstr = "BOO", C = new C{Cstr = "COO"} };
         });
 
       var obj2 = MessageMapper.CreateInstance<IA>(
@@ -150,7 +160,7 @@ namespace NServiceBus.Serializers.Json.Tests
           x.S = "kalle";
           x.I = 42;
           x.Data = new byte[23];
-          x.B = new B { Bstr = "BOO" };
+          x.B = new B { Bstr = "BOO", C = new C { Cstr = "COO" } };
         });
 
       new Random().NextBytes(obj.Data);
@@ -180,6 +190,7 @@ namespace NServiceBus.Serializers.Json.Tests
       Assert.AreEqual("kalle", a.S);
       Assert.IsNotNull(a.B);
       Assert.AreEqual("BOO", a.B.Bstr);
+      Assert.AreEqual("COO", ((C) a.B.C).Cstr);
     }
   }
 }

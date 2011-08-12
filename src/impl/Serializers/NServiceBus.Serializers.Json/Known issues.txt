@@ -1,1 +1,2 @@
-DateTime handling is currently broken when using Bson Serializer.
+- DateTime handling is currently broken when using Bson Serializer.
+- Guid's passed as objects are deserialized as strings when using Json Serializer

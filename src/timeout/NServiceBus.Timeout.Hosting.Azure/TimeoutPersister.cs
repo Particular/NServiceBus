@@ -133,7 +133,7 @@ namespace Timeout.MessageHandlers
             var serializerSettings = new JsonSerializerSettings
             {
                 TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.Objects
             };
             
             return JsonSerializer.Create(serializerSettings);

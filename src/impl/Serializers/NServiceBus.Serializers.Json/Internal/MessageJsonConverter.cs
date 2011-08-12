@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization.Formatters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NServiceBus.MessageInterfaces;
@@ -16,14 +17,19 @@ namespace NServiceBus.Serializers.Json.Internal
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-      var mappedType = messageMapper.GetMappedTypeFor(value.GetType());
-      var typeName = GetTypeName(mappedType);
+        var mappedType = messageMapper.GetMappedTypeFor(value.GetType());
+        var typeName = GetTypeName(mappedType);
 
-      var jobj = JObject.FromObject(value);
+        // the serializer settings need to be passed to correctly add type information to child objects
+        // a new serializer is needed as this converter is otherwise called over and over again
+        var s = JsonSerializer.Create(JsonMessageSerializerBase.JsonSerializerSettings);
 
-      jobj.AddFirst(new JProperty("$type", typeName));
+        var jobj = JObject.FromObject(value, s);
 
-      jobj.WriteTo(writer);
+        jobj.AddFirst(new JProperty("$messagetype", typeName));
+
+        jobj.WriteTo(writer);
+        
     }
 
     private static string GetTypeName(Type mappedType)
@@ -35,7 +41,7 @@ namespace NServiceBus.Serializers.Json.Internal
     {
       var jobject = JObject.Load(reader);
 
-      var typeName = jobject.Value<string>("$type");
+      var typeName = jobject.Value<string>("$messagetype");
 
       var type = Type.GetType(typeName);
 
