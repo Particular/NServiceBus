@@ -3,10 +3,10 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=hVxavAzLPYvu3qOU0vnk67D2yJ9aNN/wfpuQZyp+cczLFyLS5pjQAB4LiYrydG67jAXi9mpR/PTBijLPldk2pA=="/>
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=hVxavAzLPYvu3qOU0vnk67D2yJ9aNN/wfpuQZyp+cczLFyLS5pjQAB4LiYrydG67jAXi9mpR/PTBijLPldk2pA=="/>
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
@@ -16,11 +16,11 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=hVxavAzLPYvu3qOU0vnk67D2yJ9aNN/wfpuQZyp+cczLFyLS5pjQAB4LiYrydG67jAXi9mpR/PTBijLPldk2pA=="/>
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={your account name};AccountKey={your account key}"/>-->
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=hVxavAzLPYvu3qOU0vnk67D2yJ9aNN/wfpuQZyp+cczLFyLS5pjQAB4LiYrydG67jAXi9mpR/PTBijLPldk2pA=="/>
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
