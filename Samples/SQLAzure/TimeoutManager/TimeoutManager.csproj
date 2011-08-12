@@ -35,17 +35,56 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\..\build\NServiceBus.Azure\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="LinFu.DynamicProxy">
+      <HintPath>..\..\..\build\NServiceBus.Azure\LinFu.DynamicProxy.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.ByteCode.LinFu">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.ByteCode.LinFu.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Drivers.Azure.TableStorage">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\timeout\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Azure">
+      <HintPath>..\..\..\build\output\NServiceBus.Azure.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\build\timeout\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Hosting">
+      <HintPath>..\..\..\build\timeout\NServiceBus.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.NHibernate">
+      <HintPath>..\..\..\build\output\NServiceBus.NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.StructureMap">
       <HintPath>..\..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Timeout.Core">
+      <HintPath>..\..\..\build\timeout\NServiceBus.Timeout.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Timeout.Hosting.Azure">
+      <HintPath>..\..\..\build\timeout\NServiceBus.Timeout.Hosting.Azure.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\..\..\binaries\containers\structuremap\StructureMap.dll</HintPath>
@@ -60,9 +99,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Timeout.MessageHandlers">
-      <HintPath>..\..\..\build\timeout\Timeout.MessageHandlers.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />

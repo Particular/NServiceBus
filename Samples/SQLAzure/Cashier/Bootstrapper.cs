@@ -28,8 +28,9 @@ namespace Cashier
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
 
-                .AzureConfigurationSource()
-                .AzureMessageQueue().XmlSerializer()
+              //  .AzureConfigurationSource()
+                .AzureMessageQueue()
+                .JsonSerializer()
                 .DBSubcriptionStorage()
                 .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork()
 
