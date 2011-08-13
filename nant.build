@@ -34,10 +34,12 @@
 	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
 	<property name="ilmerge.targetframework" value="" dynamic="true" />
 	<property name="nunit.targetframework" value="" dynamic="true" />
-	
-	<if test="${targetframework == 'net-4.0'}">
-		<property name="nunit.targetframework" value="/framework=4.0"/>
-	</if>
+  <property name="coreswitch" value="NET35" dynamic="true" />
+
+  <if test="${targetframework == 'net-4.0'}">
+    <property name="nunit.targetframework" value="/framework=4.0"/>
+    <property name="coreswitch" value="NET40"/>
+  </if>
 
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
@@ -205,7 +207,7 @@
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework}"
+						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework} /p:DefineConstants=${coreswitch}"
 						  workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 		<!-- Create list of all "core" assemblies -->
