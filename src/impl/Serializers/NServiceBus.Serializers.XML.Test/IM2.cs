@@ -20,7 +20,7 @@ namespace NServiceBus.Serializers.XML.Test
         Foo[] ArrayFoos { get; set; }
         Bar[] Bars { get; set; }
         HashSet<int> NaturalNumbers { get; set; }
-        HashSet<string> Developers { get; set; }
+        HashSet<string> Developers { get; set; }        
     }
 
     public class Foo

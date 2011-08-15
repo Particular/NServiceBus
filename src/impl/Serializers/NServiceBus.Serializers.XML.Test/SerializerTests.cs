@@ -123,7 +123,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Bars = new Bar[] { new Bar { Name = "Bar1", Length = 1 }, new Bar { Name = "BAr2", Length = 5 } };
             o.NaturalNumbers = new HashSet<int>(new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             o.Developers = new HashSet<string>(new string[] { "Udi Dahan", "Andreas Ohlund", "Matt Burton", "Jonathan Oliver et al" });
-
+ 
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
             o.Parent.Age = 10;
@@ -199,7 +199,7 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
-
+        
         private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
         {
             ArrayList o = new ArrayList(messages);
@@ -300,7 +300,6 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
@@ -320,6 +319,40 @@ namespace NServiceBus.Serializers.XML.Test
                 var msgArray = serializer.Deserialize(stream);
                 var actualMessage = (MessageWithNestedObject)msgArray[0];
                 Assert.IsNotNull(actualMessage.NestedObject);
+            }
+        }
+
+        [Test]
+        public void When_Using_A_Dictionary_With_An_object_As_Key()
+        {
+            MessageMapper mapper = new MessageMapper();
+            MessageSerializer serializer = new MessageSerializer();
+            serializer.MessageMapper = mapper;
+            try
+            {
+                serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsKey) };
+                Assert.Fail("Expected to throw an exception which has not happend");
+            }
+            catch (NotSupportedException)
+            {
+                Assert.Pass("When_Using_A_Dictionary_With_An_object_As_Key Passed");
+            }
+        }
+
+        [Test]
+        public void When_Using_A_Dictionary_With_An_Object_As_Value()
+        {
+            MessageMapper mapper = new MessageMapper();
+            MessageSerializer serializer = new MessageSerializer();
+            serializer.MessageMapper = mapper;
+            try
+            {
+                serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsValue) };
+                Assert.Fail("Expected to throw an exception which has not happend");
+            }
+            catch (NotSupportedException)
+            {
+                Assert.Pass("When_Using_A_Dictionary_With_An_Object_As_Value Passed");
             }
         }
     }
@@ -364,4 +397,15 @@ namespace NServiceBus.Serializers.XML.Test
 
         public string WhatEver { get; set; }
     }
+
+    public class MessageWithDictionaryWithAnObjectAsKey : IMessage
+    {
+        public Dictionary<object, string> Content { get; set; }
+    }
+
+    public class MessageWithDictionaryWithAnObjectAsValue : IMessage
+    {
+        public Dictionary<string, object> Content { get; set; }
+    }
+
 }

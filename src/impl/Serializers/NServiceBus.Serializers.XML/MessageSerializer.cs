@@ -208,8 +208,15 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 if (args.Length == 2)
+                {
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
-                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead.");
+                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
+
+                    if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
+                        throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
+
+
+                }
 
                 if (!prop.CanWrite && !isKeyValuePair)
                     continue;
