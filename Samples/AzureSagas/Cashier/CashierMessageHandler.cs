@@ -43,19 +43,19 @@ namespace Cashier
 
         public void Handle(PaymentMessage message)
         {
-            if(message.Amount >= Data.Amount)
+            if(message.Amount == 0)
+            {
+                var viewData = new CustomerRefusesToPayView(Data.CustomerName, Data.Amount, Data.Drink, Data.DrinkSize);
+                _view.CustomerRefusesToPay(viewData);
+            }
+            else
             {
                 var viewData = new ReceivedFullPaymentView(Data.CustomerName, Data.Drink, Data.DrinkSize);
                 _view.ReceivedFullPayment(viewData);
 
                 Bus.Publish(new PaymentCompleteMessage(Data.OrderId));
             }
-            else if(message.Amount == 0)
-            {
-                var viewData = new CustomerRefusesToPayView(Data.CustomerName, Data.Amount, Data.Drink, Data.DrinkSize);
-                _view.CustomerRefusesToPay(viewData);
-            }
-
+            
             MarkAsComplete();
         }
 

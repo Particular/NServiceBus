@@ -3,12 +3,11 @@ using NServiceBus;
 
 namespace CustomerContracts
 {
-    [Serializable]
     public class PaymentRequestMessage : IMessage
     {
-        public Double Amount { get; private set; }
-        public String CustomerName { get; private set; }
-        public Guid OrderId { get; private set; }
+        public Double Amount { get; set; }
+        public String CustomerName { get; set; }
+        public Guid OrderId { get; set; }
 
         public PaymentRequestMessage(Double amount, String customerName, Guid orderId)
         {

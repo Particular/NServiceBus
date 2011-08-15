@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Threading;
 using log4net.Core;
 using NServiceBus;
 using NServiceBus.Config;
@@ -28,7 +30,6 @@ namespace Cashier
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
 
-                .AzureConfigurationSource()
                 .AzureMessageQueue().JsonSerializer()
                 .AzureSubcriptionStorage()
                 .Sagas().AzureSagaPersister().NHibernateUnitOfWork()

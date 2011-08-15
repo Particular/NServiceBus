@@ -9,6 +9,7 @@ namespace TimeoutManager
             For<IStarbucksTimeoutManagerView>()
                 .Singleton()
                 .Use<StarbucksTimeoutManager>();  
+            
         }
     }
 }

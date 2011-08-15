@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Bin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Json", "NServiceBus.Serializers.Json\NServiceBus.Serializers.Json.csproj", "{0ACDE3AD-9B80-47DE-A0C0-176DECD3C87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Json.Test", "NServiceBus.Serializers.Json.Test\NServiceBus.Serializers.Json.Test.csproj", "{9D403FEE-88AF-49FD-96CD-A631052F4AF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.Json.Tests", "NServiceBus.Serializers.Json.Tests\NServiceBus.Serializers.Json.Tests.csproj", "{9D403FEE-88AF-49FD-96CD-A631052F4AF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -34,14 +34,44 @@
     <StartupObject>Receiver.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\..\build\NServiceBus.Azure\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\..\build\NServiceBus.Azure\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="LinFu.DynamicProxy">
+      <HintPath>..\..\..\build\NServiceBus.Azure\LinFu.DynamicProxy.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\binaries\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.ByteCode.LinFu">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.ByteCode.LinFu.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Drivers.Azure.TableStorage">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Azure">
+      <HintPath>..\..\..\build\output\NServiceBus.Azure.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.NHibernate">
+      <HintPath>..\..\..\build\NServiceBus.Azure\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

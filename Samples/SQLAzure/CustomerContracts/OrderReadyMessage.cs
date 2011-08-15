@@ -3,7 +3,6 @@ using NServiceBus;
 
 namespace CustomerContracts
 {
-    [Serializable]
     public class OrderReadyMessage : IMessage
     {
         public String CustomerName { get; set; }

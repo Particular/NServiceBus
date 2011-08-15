@@ -1,4 +1,3 @@
-using NServiceBus.SagaPersisters.Raven.Config;
 using NUnit.Framework;
 using Raven.Client.Document;
 

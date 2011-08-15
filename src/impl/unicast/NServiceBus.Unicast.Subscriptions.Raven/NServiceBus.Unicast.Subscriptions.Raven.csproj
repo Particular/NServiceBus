@@ -44,16 +44,16 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Embedded">
       <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.397\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Database">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.397\server\Raven.Database.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\server\Raven.Database.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

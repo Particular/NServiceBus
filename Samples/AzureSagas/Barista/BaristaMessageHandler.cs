@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Barista.ViewData;
 using CashierContracts;
@@ -36,6 +37,8 @@ namespace Barista
             Data.Drink = message.Drink;
             Data.OrderId = message.OrderId;
             Data.Size = message.DrinkSize;
+
+            RequestTimeout(TimeSpan.FromMinutes(1), null);
             
             for(var i=0; i<10; i++)
             {
@@ -57,7 +60,7 @@ namespace Barista
 
         private void DeliverOrder()
         {
-            if(!Data.OrderIsReady || !Data.OrderIsPaid)
+            if (!Data.OrderIsReady || !Data.OrderIsPaid)
                 return;
 
             var viewData = new DeliverOrderView(Data.Drink, Data.Size);
@@ -66,6 +69,19 @@ namespace Barista
             Bus.Send(new OrderReadyMessage(Data.CustomerName, Data.Drink));
 
             MarkAsComplete();
+        }
+
+        public override void Timeout(object state)
+        {
+           if (!Data.OrderIsReady || !Data.OrderIsPaid)
+           {
+               var viewData = new OrderIsTrashedView(Data.Drink, Data.CustomerName, Data.Size);
+               _view.TrashOrder(viewData);
+           }
+           else
+           {
+               DeliverOrder();
+           }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Cashier
                 .XmlSerializer()
                 // For sagas
                 .Sagas()
-                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration()
+                .RavenSagaPersister()
                 // End
                 .MsmqTransport()
                     .IsTransactional(true)

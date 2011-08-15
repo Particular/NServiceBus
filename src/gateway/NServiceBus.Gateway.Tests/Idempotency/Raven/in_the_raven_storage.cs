@@ -9,6 +9,7 @@
     using NUnit.Framework;
     using Persistence;
     using Persistence.Raven;
+    using global::Raven.Client.Embedded;
 
     public class in_the_raven_storage
     {
@@ -18,11 +19,9 @@
         [SetUp]
         public void SetUp()
         {
-            store = new DocumentStore
-                        {
-                            Url = "http://localhost:8080",
-                        };
-
+            //store = new EmbeddableDocumentStore { RunInMemory = true };
+            store = new DocumentStore { Url = "http://localhost:8080" };
+            
             store.Initialize();
 
             ravenPersister = new RavenDBPersistence(store);
@@ -40,6 +39,7 @@
             using (var msgStream = new MemoryStream(message.OriginalMessage))
             {
                 var result = ravenPersister.InsertMessage(message.ClientId, message.TimeReceived, msgStream, message.Headers);
+               
                 scope.Complete();
 
                 return result;

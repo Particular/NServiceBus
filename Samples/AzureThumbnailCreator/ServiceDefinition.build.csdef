@@ -27,6 +27,7 @@
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
@@ -44,6 +45,7 @@
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
       <Setting name="ThumbNailStore.ConnectionString" />
+      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

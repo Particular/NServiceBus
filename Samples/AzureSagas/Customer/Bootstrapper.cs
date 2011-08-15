@@ -27,13 +27,12 @@ namespace Customer
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                
-               .AzureConfigurationSource()
                .AzureMessageQueue().JsonSerializer()
-               .AzureSubcriptionStorage()
                .Sagas().AzureSagaPersister()
-
+               
                .UnicastBus()
-               .LoadMessageHandlers()
+                    .DoNotAutoSubscribe()
+                    .LoadMessageHandlers()
                .IsTransactional(true)
                .CreateBus()
                .Start();

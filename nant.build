@@ -34,10 +34,12 @@
 	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
 	<property name="ilmerge.targetframework" value="" dynamic="true" />
 	<property name="nunit.targetframework" value="" dynamic="true" />
-	
-	<if test="${targetframework == 'net-4.0'}">
-		<property name="nunit.targetframework" value="/framework=4.0"/>
-	</if>
+  <property name="coreswitch" value="NET35" dynamic="true" />
+
+  <if test="${targetframework == 'net-4.0'}">
+    <property name="nunit.targetframework" value="/framework=4.0"/>
+    <property name="coreswitch" value="NET40"/>
+  </if>
 
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
@@ -95,17 +97,13 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_hosts,compile_hosts32"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
 			<formatter property="datetime.buildtime" pattern="yyyy-MM-dd, HH:mm:ss" />
 		</tstamp>
 		
-		<echo message="Downloading dependencies from NuGet..."/>
-		<exec 	program=".\tools\NuGet\NuGet.exe"
-				commandline="install packages.config -o packages"
-				workingdir="."/>
 		<echo message="Creating build dir: ${build.base}"/>
 		<delete dir="${build.base}"/>
 		<mkdir dir="${build.base}"/>
@@ -205,11 +203,11 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\unitofwork,impl\SagaPersisters\NHibernateSagaPersister,impl\unicast\NServiceBus.Unicast.Subscriptions.NHibernate,impl\unicast\NServiceBus.Unicast.Subscriptions.Azure.TableStorage,integration,impl\databus,distributor,gateway,impl\licensing"
+						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework}"
+						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework} /p:DefineConstants=${coreswitch}"
 						  workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 		<!-- Create list of all "core" assemblies -->
@@ -239,20 +237,19 @@
 						<include name="${core.build.dir}\Interop.MSMQ.dll" />
 						<include name="${core.build.dir}\AutoFac.dll"/>
 						<include name="${core.build.dir}\Raven*.dll" />
+						<include name="${core.build.dir}\NLog.dll" />
 						<include name="${core.build.dir}\rhino.licensing.dll" />
-						<include name="${core.build.dir}\MissingBitsFromClientProfile.dll" />
 						<include name="${core.build.dir}\Newtonsoft.Json.dll" />
 						<include name="${core.build.dir}\ICSharpCode.NRefactory.dll" />
+						<include name="${core.build.dir}\Esent.Interop.dll" />
 						<include name="${core.build.dir}\Lucene.Net.dll" />
 						<include name="${core.build.dir}\SpellChecker.Net.dll" />
 						<include name="${core.build.dir}\Spatial.Net.dll" />
 						
-						<!-- Remove when we separate NH -->
-						<include name="${core.build.dir}\NHibernate*.dll" />
-						<include name="${core.build.dir}\FluentNHibernate.dll" />
-						<include name="${core.build.dir}\Iesi.Collections.dll" />
-						<include name="${core.build.dir}\LinFu*.dll" />
-						
+						<!-- exclude until we can fix the missing dep on debugvisualizers -->
+						<exclude name="${core.build.dir}\Raven.Client.Debug.dll" />
+						<!-- exclude as this has a dependency on System.Web.Mvc 2 -->
+						<exclude name="${core.build.dir}\Raven.Client.MvcIntegration.dll" />
 						<exclude name="${core.build.dir}\**Tests.dll" />
 					</items>
 				</in>
@@ -289,6 +286,102 @@
 				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="compile_nhibernate" depends="compile_core">
+		<!-- NServiceBus.NHibernate -->
+		<exec 	program="${msbuild}"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.NHibernate\ ${msbuild.targetframework}"
+				workingdir="${solution.dir}\nhibernate" />
+		
+		<property name="nservicebus.nhibernate.tests" value="" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${build.dir.absolutepath}\NServiceBus.NHibernate\**Tests.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.nhibernate.tests" value="${nservicebus.nhibernate.tests} ${filename}"/>
+			</do>
+		</foreach>
+		
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\NServiceBus.NHibernate\">
+			<arg line="${nservicebus.nhibernate.tests}" />
+			<arg value="${nunit.targetframework}" />
+		</exec>
+		
+		<!-- Create list of all "NHibernate" assemblies -->
+		<property name="nservicebus.nhibernate" value="" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${build.dir.absolutepath}\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll" />
+					<exclude name="${build.dir.absolutepath}\NServiceBus.NHibernate\**Tests.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.nhibernate" value="${nservicebus.nhibernate} ${filename}"/>
+			</do>
+		</foreach>
+
+	
+		
+		<echo message="Creating the merged NServiceBus.NHibernate.dll" />
+		
+		<exec program="${lib.dir}\ilmerge.exe"
+					commandline="/out:${output.dir}\NServiceBus.NHibernate.dll ${nservicebus.nhibernate} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output_nhibernate.txt ${ilmerge.targetframework}"
+					workingdir="." />
+
+	</target>
+	
+	<target name="compile_azure" depends="compile_nhibernate">
+		<!-- NServiceBus.azure -->
+		<exec 	program="${msbuild}"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.Azure\ ${msbuild.targetframework}"
+				workingdir="${solution.dir}\azure" />
+		
+		<property name="nservicebus.azure.tests" value="" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${build.dir.absolutepath}\NServiceBus.Azure\**Tests.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.azure.tests" value="${nservicebus.azure.tests} ${filename}"/>
+			</do>
+		</foreach>
+		
+		<!--
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\NServiceBus.azure\">
+			<arg line="${nservicebus.azure.tests}" />
+			<arg value="${nunit.targetframework}" />
+		</exec>
+		-->
+		<!-- Create list of all "Azure" assemblies -->
+		<property name="nservicebus.azure" value="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.**Azure**.dll" />
+					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\**Tests.dll" />
+					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
+				</items>
+			</in>
+			<do>
+				<property name="nservicebus.azure" value="${nservicebus.azure} ${filename}"/>
+			</do>
+		</foreach>
+
+	
+		
+		<echo message="Creating the merged NServiceBus.azure.dll" />
+		
+		<exec program="${lib.dir}\ilmerge.exe"
+					commandline="/out:${output.dir}\NServiceBus.Azure.dll ${nservicebus.azure} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output_azure.txt ${ilmerge.targetframework}"
+					workingdir="." />
+
 	</target>
 
 	<target name="compile_hosts">
@@ -337,7 +430,8 @@
 					<include name="${core.build.dir}\*Tests.dll" />
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
 					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
-                                        <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
+                    <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
+					<exclude name="${core.build.dir}\*Raven.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
 			</in>
@@ -354,6 +448,8 @@
 			<arg value="${nunit.targetframework}" />
 		</exec>
 	</target>
+	
+	
 
 	<target name="compile_tools">
 

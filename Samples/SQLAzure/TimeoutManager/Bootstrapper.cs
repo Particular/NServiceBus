@@ -1,6 +1,9 @@
 using NServiceBus;
-using NServiceBus.Config;
+using NServiceBus.ObjectBuilder;
+using NServiceBus.Sagas.Impl;
 using StructureMap;
+using Timeout.MessageHandlers;
+using Configure = NServiceBus.Configure;
 
 namespace TimeoutManager
 {
@@ -22,18 +25,20 @@ namespace TimeoutManager
 
         private static void BootstrapNServiceBus()
         {
-
-            Configure.With()
+            var configure = Configure.With()
                .Log4Net()
-               .StructureMapBuilder(ObjectFactory.Container)
-               
-               .AzureConfigurationSource()
-               .AzureMessageQueue().XmlSerializer()
-               //.AzureSubcriptionStorage()
-               //.Sagas().AzureSagaPersister()
+               .StructureMapBuilder(ObjectFactory.Container);
+
+            configure.Configurer.ConfigureComponent<Timeout.MessageHandlers.TimeoutManager>(DependencyLifecycle.SingleInstance);
+            configure.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(tp => tp.ConnectionString, "UseDevelopmentStorage=true");
+            configure.Configurer.ConfigureComponent<Timeout.MessageHandlers.Bootstrapper>(DependencyLifecycle.SingleInstance);
+
+            configure
+               .AzureMessageQueue().JsonSerializer()
 
                .UnicastBus()
-               .LoadMessageHandlers()
+               .LoadMessageHandlers(First<TimeoutMessageHandler>.Then<SagaMessageHandler>())
                .IsTransactional(true)
                .CreateBus()
                .Start();

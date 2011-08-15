@@ -1,8 +1,6 @@
-using NServiceBus.SagaPersisters.Raven.Config;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Document;
-using Raven.Storage.Esent;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {

@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
   <Role name="OrderWebSite">
-    <Instances count="0" />
+    <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />      
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-
       <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
@@ -18,18 +16,13 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=http;AccountName={your account name};AccountKey={your account key}"/>-->
-      
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
+      <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={your account name};AccountKey={your account key}"/>-->
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
-      
       <Setting name="Diagnostics.Level" value="Error" />
-      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
-      
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-
       <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />

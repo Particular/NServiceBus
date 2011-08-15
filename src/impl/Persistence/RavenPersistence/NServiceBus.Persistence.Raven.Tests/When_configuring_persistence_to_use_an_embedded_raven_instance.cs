@@ -1,11 +1,12 @@
 ﻿using NServiceBus.Persistence.Raven.Config;
 using NUnit.Framework;
 using Raven.Client;
-using Raven.Client.Client;
-using Raven.Storage.Esent;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
+    using global::Raven.Client.Embedded;
+    using global::Raven.Storage.Managed;
+
     [TestFixture]
     public class When_configuring_persistence_to_use_an_embedded_raven_instance
     {
