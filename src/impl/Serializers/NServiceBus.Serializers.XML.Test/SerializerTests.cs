@@ -328,15 +328,13 @@ namespace NServiceBus.Serializers.XML.Test
             MessageMapper mapper = new MessageMapper();
             MessageSerializer serializer = new MessageSerializer();
             serializer.MessageMapper = mapper;
-            try
+            Exception ex = Assert.Throws<NotSupportedException>(delegate
             {
                 serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsKey) };
-                Assert.Fail("Expected to throw an exception which has not happend");
+
             }
-            catch (NotSupportedException)
-            {
-                Assert.Pass("When_Using_A_Dictionary_With_An_object_As_Key Passed");
-            }
+            );
+            Assert.IsNotNull(ex);
         }
 
         [Test]
@@ -345,15 +343,13 @@ namespace NServiceBus.Serializers.XML.Test
             MessageMapper mapper = new MessageMapper();
             MessageSerializer serializer = new MessageSerializer();
             serializer.MessageMapper = mapper;
-            try
+            Exception ex = Assert.Throws<NotSupportedException>(delegate
             {
                 serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsValue) };
-                Assert.Fail("Expected to throw an exception which has not happend");
+
             }
-            catch (NotSupportedException)
-            {
-                Assert.Pass("When_Using_A_Dictionary_With_An_Object_As_Value Passed");
-            }
+            );
+           Assert.IsNotNull(ex);
         }
     }
 
