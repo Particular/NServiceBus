@@ -11,69 +11,73 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 {
   public class SagaModelMapper
   {
-    private readonly IEnumerable<Type> _typesToScan;
     public ConventionModelMapper Mapper { get; private set; }
     private readonly IEnumerable<Type> _entityTypes;
+    private readonly IEnumerable<Type> _sagaEntites;
 
     public SagaModelMapper(IEnumerable<Type> typesToScan)
     {
-      _typesToScan = typesToScan;
-
       Mapper = new ConventionModelMapper();
 
-      var sagaEntites = typesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
+      _sagaEntites = typesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
 
-      _entityTypes = GetTypesThatShouldBeAutoMapped(sagaEntites, typesToScan);
+      _entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntites, typesToScan);
 
-      Mapper.BeforeMapBag += (mi, t, map) =>
+      Mapper.BeforeMapClass += ApplyClassConvention;
+      Mapper.BeforeMapJoinedSubclass += ApplySubClassConvention;
+      Mapper.BeforeMapProperty += ApplyPropertyConvention;
+      Mapper.BeforeMapBag += ApplyBagConvention;
+      Mapper.BeforeMapManyToOne += ApplyManyToOneConvention;
+    }
+
+    private void ApplyClassConvention(IModelInspector mi, Type type, IClassAttributesMapper map)
+    {
+      if (!_sagaEntites.Contains(type))
+        map.Id(idMapper => idMapper.Generator(Generators.GuidComb));
+      else
+        map.Id(idMapper => idMapper.Generator(Generators.Assigned));
+
+      var tableAttribute = GetAttribute<TableNameAttribute>(type);
+      if (tableAttribute != null)
       {
-        map.Cascade(Cascade.All | Cascade.DeleteOrphans);
-        map.Key(km => km.Column(t.LocalMember.DeclaringType.Name + "_id"));
-      };
+        map.Table(tableAttribute.TableName);
+        if (!String.IsNullOrEmpty(tableAttribute.Schema))
+          map.Schema(tableAttribute.Schema);
+      }
+    }
 
-      Mapper.BeforeMapManyToOne += (mi, t, map) =>
+    private void ApplySubClassConvention(IModelInspector mi, Type type, IJoinedSubclassAttributesMapper map)
+    {
+      map.Key(keyMapping => keyMapping.Column(String.Format("{0}_id", type.BaseType.Name)));
+
+      var tableAttribute = GetAttribute<TableNameAttribute>(type);
+      if (tableAttribute != null)
       {
-        map.Column(t.LocalMember.Name + "_id");
-      };
+        map.Table(tableAttribute.TableName);
+        if (!String.IsNullOrEmpty(tableAttribute.Schema))
+          map.Schema(tableAttribute.Schema);
+      }
+    }
 
-      Mapper.BeforeMapClass += (mi, t, map) =>
-      {
-        if (!sagaEntites.Contains(t))
-          map.Id(idMapper => idMapper.Generator(Generators.GuidComb));
-        else
-          map.Id(idMapper => idMapper.Generator(Generators.Assigned));
+    private void ApplyPropertyConvention(IModelInspector mi, PropertyPath type, IPropertyMapper map)
+    {
+      if (type.PreviousPath != null)
+        if (mi.IsComponent(((PropertyInfo)type.PreviousPath.LocalMember).PropertyType))
+          map.Column(type.PreviousPath.LocalMember.Name + type.LocalMember.Name);
 
-        var tableAttribute = GetAttribute<TableNameAttribute>(t);
-        if (tableAttribute != null)
-        {
-          map.Table(tableAttribute.TableName);
-          if (!String.IsNullOrEmpty(tableAttribute.Schema))
-            map.Schema(tableAttribute.Schema);
-        }
-      };
+      if (type.LocalMember.GetCustomAttributes(typeof(UniqueAttribute), false).Any())
+        map.Unique(true);
+    }
+    
+    private void ApplyBagConvention(IModelInspector mi, PropertyPath type, IBagPropertiesMapper map)
+    {
+      map.Cascade(Cascade.All | Cascade.DeleteOrphans);
+      map.Key(km => km.Column(type.LocalMember.DeclaringType.Name + "_id"));
+    }
 
-      Mapper.BeforeMapJoinedSubclass += (mi, t, map) =>
-      {
-        map.Key(keyMapping => keyMapping.Column(String.Format("{0}_id", t.BaseType.Name)));
-
-        var tableAttribute = GetAttribute<TableNameAttribute>(t);
-        if (tableAttribute != null)
-        {
-          map.Table(tableAttribute.TableName);
-          if (!String.IsNullOrEmpty(tableAttribute.Schema))
-            map.Schema(tableAttribute.Schema);
-        }
-      };
-
-      Mapper.BeforeMapProperty += (mi, t, map) =>
-      {
-        if (t.PreviousPath != null)
-          if (mi.IsComponent(((PropertyInfo)t.PreviousPath.LocalMember).PropertyType))
-            map.Column(t.PreviousPath.LocalMember.Name + t.LocalMember.Name);
-
-        if (t.LocalMember.GetCustomAttributes(typeof(UniqueAttribute), false).Any())
-          map.Unique(true);
-      };
+    private void ApplyManyToOneConvention(IModelInspector mi, PropertyPath type, IManyToOneMapper map)
+    {
+      map.Column(type.LocalMember.Name + "_id");
     }
 
     public HbmMapping Compile()
@@ -130,69 +134,4 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
       return attributes.FirstOrDefault() as T;
     }
   }
-
-
-  //public static class Create2
-  //{
-  //      public static HbmMapping SagaPersistenceModel(IEnumerable<Type> typesToScan)
-  //      {
-  //        var mapper = new ConventionModelMapper();
-
-  //        var sagaEntites = typesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
-
-  //        var entityTypes = GetTypesThatShouldBeAutoMapped(sagaEntites, typesToScan);
-          
-  //        mapper.BeforeMapBag += (mi, t, map) =>
-  //        {
-  //          map.Cascade(Cascade.All | Cascade.DeleteOrphans);
-  //          map.Key(km => km.Column(t.LocalMember.DeclaringType.Name + "_id"));
-  //        };
-
-  //        mapper.BeforeMapManyToOne += (mi, t, map) =>
-  //        {
-  //          map.Column(t.LocalMember.Name + "_id");
-  //        };
-
-  //        mapper.BeforeMapClass += (mi, t, map) =>
-  //                                   {
-  //                                     if (!sagaEntites.Contains(t))
-  //                                       map.Id(idMapper => idMapper.Generator(Generators.GuidComb));
-  //                                     else
-  //                                       map.Id(idMapper => idMapper.Generator(Generators.Assigned));
-
-  //                                     var tableAttribute = GetAttribute<TableNameAttribute>(t);
-  //                                     if (tableAttribute != null)
-  //                                     {
-  //                                       map.Table(tableAttribute.TableName);
-  //                                       if (!String.IsNullOrEmpty(tableAttribute.Schema))
-  //                                         map.Schema(tableAttribute.Schema);
-  //                                     }
-  //                                   };
-
-  //        mapper.BeforeMapJoinedSubclass += (mi, t, map) =>
-  //                                            {
-  //                                              map.Key(keyMapping => keyMapping.Column(String.Format("{0}_id", t.BaseType.Name)));
-
-  //                                              var tableAttribute = GetAttribute<TableNameAttribute>(t);
-  //                                              if (tableAttribute != null)
-  //                                              {
-  //                                                map.Table(tableAttribute.TableName);
-  //                                                if (!String.IsNullOrEmpty(tableAttribute.Schema))
-  //                                                  map.Schema(tableAttribute.Schema);
-  //                                              }
-  //                                            };
-
-  //        mapper.BeforeMapProperty += (mi, t, map) =>
-  //                                     {
-  //                                       if (t.PreviousPath != null)
-  //                                         if (mi.IsComponent(((PropertyInfo)t.PreviousPath.LocalMember).PropertyType))
-  //                                           map.Column(t.PreviousPath.LocalMember.Name + t.LocalMember.Name);
-
-  //                                       if (t.LocalMember.GetCustomAttributes(typeof(UniqueAttribute), false).Any())
-  //                                         map.Unique(true);
-  //                                     };
-
-  //        return mapper.CompileMappingFor(entityTypes);
-  //      }
-  //}
 }

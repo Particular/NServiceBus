@@ -71,7 +71,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
     private static void ApplyDefaultsTo(Configuration configuration)
     {
-
       configuration.SetProperty("current_session_context_class", typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
     }
   }
