@@ -6,6 +6,7 @@ using System.Reflection;
 using NHibernate;
 using NHibernate.Context;
 using NHibernate.Drivers.Azure.TableStorage.Mapping;
+using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
 using Configuration=NHibernate.Cfg.Configuration;
@@ -67,28 +68,38 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
           }
         }
 
-      private static void HackIdIntoMapping(SagaModelMapper hbmMapping)
-      {
-        var hbmIdField = typeof(global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static void HackIdIntoMapping(SagaModelMapper hbmMapping)
+        {
+          var hbmIdField = typeof(global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        hbmMapping.Mapper.AfterMapClass += (mi, t, map) =>
-                                             {
-                                               map.Id(idmap =>
-                                                        {
-                                                          var hbmId = (global::NHibernate.Cfg.MappingSchema.HbmId)hbmIdField.GetValue(idmap);
-                                                          hbmId.type1 = typeof(GuidToPartitionKeyAndRowKey).AssemblyQualifiedName;
-                                                          hbmId.type = null;
-                                                          hbmId.column1 = null;
-                                                          hbmId.column = new []
-                                                                           {
-                                                                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "RowKey"},
-                                                                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "PartitionKey"},
-                                                                           };
-                                                        });
-                                             };
-      }
+          hbmMapping.Mapper.AfterMapClass += (mi, t, map) =>
+          {
+            map.Id(idmap =>
+            {
+              var hbmId = (global::NHibernate.Cfg.MappingSchema.HbmId)hbmIdField.GetValue(idmap);
+              hbmId.type1 = typeof(GuidToPartitionKeyAndRowKey).AssemblyQualifiedName;
+              hbmId.type = null;
+              hbmId.column1 = null;
+              hbmId.column = new[]
+                           {
+                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "RowKey"},
+                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "PartitionKey"},
+                           };
+            });
+          };
 
-      private static void UpdateDatabaseSchemaUsing(Configuration configuration)
+          hbmMapping.Mapper.AfterMapManyToOne += (mi, type, map) => MapIdColumns(map, type.LocalMember);
+          hbmMapping.Mapper.AfterMapBag += (mi, type, map) => map.Key(km => MapIdColumns(km, type.LocalMember));
+          hbmMapping.Mapper.AfterMapJoinedSubclass += (mi, type, map) => map.Key(km => MapIdColumns(km, type.BaseType));
+        }
+
+        private static void MapIdColumns(IColumnsMapper map, MemberInfo type)
+        {
+          map.Columns(cm => cm.Name(type.Name + "_RowKey"),
+                      cm => cm.Name(type.Name + "_PartitionKey"));
+        }
+
+        private static void UpdateDatabaseSchemaUsing(Configuration configuration)
         {
           new SchemaUpdate(configuration)
               .Execute(false, true);
