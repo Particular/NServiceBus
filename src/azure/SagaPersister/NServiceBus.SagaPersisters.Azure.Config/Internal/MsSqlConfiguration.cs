@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NHibernate.Cfg;
 using NHibernate.Drivers.Azure.TableStorage;
 
-namespace NServiceBus.SagaPersisters.NHibernate.Tests
+namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 {
   public static class MsSqlConfiguration
   {
@@ -10,10 +10,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     {
       return new Dictionary<string, string>
                  {
-                   { Environment.ConnectionProvider, typeof(TableStorageConnectionProvider).FullName },
-                   { Environment.ConnectionDriver, typeof(TableStorageDriver).FullName },
-                   { Environment.Dialect, typeof(TableStorageDialect).FullName },
-                   {Environment.ConnectionString, connectionString},
+                   { Environment.ConnectionProvider, typeof(TableStorageConnectionProvider).AssemblyQualifiedName },
+                   { Environment.ConnectionDriver, typeof(TableStorageDriver).AssemblyQualifiedName },
+                   { Environment.Dialect, typeof(TableStorageDialect).AssemblyQualifiedName },
+                   { Environment.ConnectionString, connectionString },
                  };
     }
   }
