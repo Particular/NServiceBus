@@ -6,14 +6,13 @@ using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Hosting.Wcf;
-using NServiceBus.Serialization;
 
 namespace NServiceBus.Hosting
 {
     /// <summary>
     /// A generic host that can be used to provide hosting services in different environments
     /// </summary>
-    public class GenericHost
+    public class GenericHost : IHost
     {
         /// <summary>
         /// Does startup work.

@@ -18,6 +18,7 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={your account name};AccountKey={your account key}"/>-->
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>

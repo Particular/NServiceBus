@@ -25,6 +25,7 @@
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="NServiceBus.Profile" />
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="Diagnostics.Level" />

@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Hosting.Azure.LoggingHandlers
+namespace NServiceBus.Hosting.Azure.LoggingHandlers
 {
     /// <summary>
-    /// Handles logging configuration for the production profile
+    /// Handles logging configuration for the development profile
     /// </summary>
-    public class ProductionLoggingHandler : IConfigureLoggingForProfile<Production>
+    public class DevelopmentLoggingHandler : IConfigureLoggingForProfile<Development>
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {

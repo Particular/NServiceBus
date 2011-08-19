@@ -21,7 +21,7 @@ namespace NServiceBus.Integration.Azure
             var sectionName = typeof(T).Name;
 
             var section = GetConfigurationHandler()
-                              .GetSection(sectionName) as T ?? new T();
+                              .GetSection(sectionName) as T;
 
             foreach (var property in typeof(T).GetProperties().Where(x => x.DeclaringType == typeof(T)))
             {
@@ -29,6 +29,8 @@ namespace NServiceBus.Integration.Azure
 
                 if (!string.IsNullOrEmpty(setting))
                 {
+                    if( section == null) section = new T();
+
                     property.SetValue(section, Convert.ChangeType(setting, property.PropertyType), null);
                 }
             }

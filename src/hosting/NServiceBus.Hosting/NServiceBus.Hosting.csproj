@@ -62,6 +62,7 @@
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="GenericHost.cs" />
     <Compile Include="Configuration\IConfigureLogging.cs" />
+    <Compile Include="IHost.cs" />
     <Compile Include="Profiles\IHandleProfile.cs" />
     <Compile Include="Profiles\IProfile.cs" />
     <Compile Include="Configuration\IWant.cs" />

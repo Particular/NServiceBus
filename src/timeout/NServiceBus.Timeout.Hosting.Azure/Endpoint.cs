@@ -6,7 +6,7 @@ namespace Timeout.MessageHandlers
     /// <summary>
     /// Configures the timeout host.
     /// </summary>
-    public class Endpoint : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
+    public class Endpoint : IConfigureThisEndpoint, AsA_Worker, IWantCustomInitialization
     {
         void IWantCustomInitialization.Init()
         {

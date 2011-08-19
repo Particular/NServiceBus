@@ -1,24 +1,21 @@
-﻿using NServiceBus.Config;
-using NServiceBus.Hosting.Profiles;
+﻿using NServiceBus.Hosting.Profiles;
 using NServiceBus.Integration.Azure;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {
-    internal class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
+    internal class ProductionProfileHandler : IHandleProfile<Production>
     {
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance
-                .AzureSagaPersister().NHibernateUnitOfWork();
-
-            //Configure.Instance.MessageForwardingInCaseOfFault();
-
-            if (Config is AsA_Publisher)
-            {
-                Configure.Instance.AzureSubcriptionStorage();
-            }
+                .Log4Net<AzureAppender>(
+                    a =>
+                    {
+                        a.ScheduledTransferPeriod = 10;
+                    });
+            
         }
 
-        public IConfigureThisEndpoint Config { get; set; }
+        
     }
 }

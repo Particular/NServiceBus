@@ -61,6 +61,8 @@ namespace NServiceBus.Integration.Azure
 
         private void ConfigureAzureDiagnostics()
         {
+            if (!RoleEnvironment.IsAvailable) return;
+
             Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
             
             var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());

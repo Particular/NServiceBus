@@ -19,5 +19,5 @@
 #endregion
 
 using System.Reflection;
-[assembly: AssemblyTitle("Generic Host Process for running NServiceBus on windows azeure")]
+[assembly: AssemblyTitle("Generic Host Process for running NServiceBus in a child process on windows azeure")]
 [assembly: AssemblyDescription("Functionality for generically hosting nServiceBus processes.")]

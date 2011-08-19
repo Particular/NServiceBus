@@ -1,6 +1,6 @@
+using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Integration.Azure;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
@@ -8,7 +8,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
     /// <summary>
     /// Handles configuration related to the server role
     /// </summary>
-    public class ServerRoleHandler : IConfigureRole<AsA_Server>
+    public class WorkerRoleHandler : IConfigureRole<AsA_Worker>, IWantTheEndpointConfig
     {
         /// <summary>
         /// Configures the UnicastBus with typical settings for a server on azure
@@ -19,22 +19,22 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             var instance = Configure.Instance;
 
-            instance
-                .AzureConfigurationSource()
-                .Log4Net<AzureAppender>(
-                    a =>
-                        {
-                            a.ScheduledTransferPeriod = 10;
-                        });
+            if (RoleEnvironment.IsAvailable)
+            {
+                instance.AzureConfigurationSource();
+            }
 
             return instance
                 .AzureMessageQueue()
                 .JsonSerializer()
-                    .IsTransactional(true)
-                .Sagas()
+                .IsTransactional(true)
+                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
+                .AzureSubcriptionStorage()
                 .UnicastBus()
                     .ImpersonateSender(false)
                     .LoadMessageHandlers();
         }
+
+        public IConfigureThisEndpoint Config { get; set; }
     }
 }

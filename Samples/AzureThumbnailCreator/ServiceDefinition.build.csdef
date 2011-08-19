@@ -27,7 +27,6 @@
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
-      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
@@ -36,6 +35,7 @@
   <WorkerRole name="Service" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureDatabusConfig.ConnectionString" />
       <Setting name="NServiceBus.Profile" />
       <Setting name="Diagnostics.ConnectionString" />
@@ -45,7 +45,6 @@
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
       <Setting name="ThumbNailStore.ConnectionString" />
-      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

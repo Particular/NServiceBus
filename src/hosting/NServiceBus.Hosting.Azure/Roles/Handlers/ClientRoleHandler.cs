@@ -1,6 +1,6 @@
+using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Integration.Azure;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
@@ -19,14 +19,10 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             var instance = Configure.Instance;
 
-            instance
-                .AzureConfigurationSource()
-                .Log4Net<AzureAppender>(
-                    a =>
-                        {
-                            a.ScheduledTransferPeriod = 10;
-                        });
-
+            if (RoleEnvironment.IsAvailable)
+            {
+                instance.AzureConfigurationSource();
+            }
 
             return instance
                 .AzureMessageQueue()
