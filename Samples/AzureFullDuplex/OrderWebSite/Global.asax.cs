@@ -37,10 +37,11 @@ namespace OrderWebSite
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()
                   .AzureMessageQueue()
-                  .JsonSerializer()
+                    .JsonSerializer()
+                    .QueuePerInstance()
                   .UnicastBus()
-                  .LoadMessageHandlers()
-                  .IsTransactional(true)
+                      .LoadMessageHandlers()
+                      .IsTransactional(true)
                   .CreateBus();
 
            Bus = StartBus.Value; 

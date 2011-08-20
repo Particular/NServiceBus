@@ -20,6 +20,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public const int DefaultBatchSize = 10;
         public const bool DefaultPurgeOnStartup = false;
         public const string DefaultConnectionString = "UseDevelopmentStorage=true";
+        public const bool DefaultQueuePerInstance = false;
 
         private CloudQueue queue;
         private readonly CloudQueueClient client;

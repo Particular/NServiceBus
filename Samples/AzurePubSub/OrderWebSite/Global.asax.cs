@@ -36,12 +36,12 @@ namespace OrderWebSite
     			//.Log4Net(new AzureAppender())
     			.AzureConfigurationSource()
     			.AzureMessageQueue()
-    			.JsonSerializer()
+    			    .JsonSerializer()
+                    .QueuePerInstance()
     			.UnicastBus()
-    			.LoadMessageHandlers()
-    			.IsTransactional(true)
-				.CreateBus()
-				;
+    			    .LoadMessageHandlers()
+    			    .IsTransactional(true)
+				.CreateBus();
 		}
 
 		protected void Application_BeginRequest(object sender, EventArgs e)

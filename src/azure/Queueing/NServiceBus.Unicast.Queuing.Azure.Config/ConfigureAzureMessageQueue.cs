@@ -20,6 +20,9 @@ namespace NServiceBus
             {
                 queueClient = CloudStorageAccount.Parse(configSection.ConnectionString).CreateCloudQueueClient();
                 Address.OverrideDefaultMachine(configSection.ConnectionString);
+
+                if (configSection.QueuePerInstance)
+                    Configure.Instance.CustomConfigurationSource(new IndividualQueueConfigurationSource(Configure.ConfigurationSource));
             }
             else
             {
@@ -106,6 +109,19 @@ namespace NServiceBus
         public static Configure BatchSize(this Configure config, int value)
         {
             Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.BatchSize, value);
+
+            return config;
+        }
+
+        /// <summary>
+        /// Configures a queue per instance
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure QueuePerInstance(this Configure config)
+        {
+            if(! (Configure.ConfigurationSource is IndividualQueueConfigurationSource))
+                Configure.Instance.CustomConfigurationSource(new IndividualQueueConfigurationSource(Configure.ConfigurationSource));
 
             return config;
         }

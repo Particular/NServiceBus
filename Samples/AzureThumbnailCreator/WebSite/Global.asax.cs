@@ -32,6 +32,7 @@ namespace OrderWebSite
                   .AzureConfigurationSource()
                   .AzureMessageQueue()
                     .JsonSerializer()
+                    .QueuePerInstance()
                   .AzureDataBus()
                   .UnicastBus()
                     .LoadMessageHandlers()

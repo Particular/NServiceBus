@@ -82,5 +82,18 @@ namespace NServiceBus.Config
                 this["BatchSize"] = value;
             }
         }
+
+        [ConfigurationProperty("QueuePerInstance", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultQueuePerInstance)]
+        public bool QueuePerInstance
+        {
+            get
+            {
+                return (bool)this["QueuePerInstance"];
+            }
+            set
+            {
+                this["QueuePerInstance"] = value;
+            }
+        }
    }
 }
