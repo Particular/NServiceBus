@@ -181,7 +181,14 @@ function Invoke-Packit
 					$dependencyInnerXml,$dependencyPackage,$dependencyPackageVersion
 				}
 			}
-			$nuGetSpecContent.package.metadata.dependencies.set_InnerXML($dependencyInnerXml)
+			if($dependencyInnerXml -eq "")
+			{
+				$nuGetSpecContent.package.metadata.RemoveChild($nuGetSpecContent.package.metadata.dependencies)			
+			}
+			else
+			{
+				$nuGetSpecContent.package.metadata.dependencies.set_InnerXML($dependencyInnerXml)
+			}
 		}
 		else
 		{
