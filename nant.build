@@ -97,7 +97,7 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-  <target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -159,7 +159,7 @@
 				<attribute type="AssemblyCompanyAttribute" value="${company.name}" />
 				<attribute type="AssemblyConfigurationAttribute" value="${project.config}" />
 				<attribute type="AssemblyInformationalVersionAttribute" value="${file.version}" />
-				 <!--TODO : Figure out how to handle non trusted callers i .net 4.0--> 
+				<!-- TODO : Figure out how to handle non trusted callers i .net 4.0 -->
 				<if test="${targetframework != 'net-4.0'}">
 					<attribute type="AllowPartiallyTrustedCallersAttribute" asis="true" />
 				</if>
@@ -525,15 +525,15 @@
 		</if>
 
 	</target>
-	
-	<target name="compile_msmqutils">
+
+  <target name="compile_msmqutils" depends="commonassemblyinfo">
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\utils" />
 
 	</target>
-
-  <target name="compile_msmqutils" depends="commonassemblyinfo">
+	
+	<target name="BuildMsmqUtils" depends="compile_msmqutils">
 		<!-- copy the runner to the tools directory -->
 		<copy todir="tools\msmqutils">
 			<fileset basedir="${build.dir.absolutepath}\tools\MsmqUtils">
