@@ -96,7 +96,7 @@
 	<readregistry  property="servicehosting.version" key="SOFTWARE\Microsoft\Microsoft SDKs\ServiceHosting\v1.0\FullVersion" hive="LocalMachine" failonerror="false"/>
 
 
-	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
+	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries"/>
 	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
@@ -502,7 +502,7 @@
 		</copy>
 	</target>
 
-	<target name="compile_samples" depends="prepare_binaries">
+	<!--<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
 						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus"
 						delim=","
@@ -517,14 +517,14 @@
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\AzureService" />
 		</if>
-                <!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 -->
+                --><!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 --><!--
 		<if test="${targetframework != 'net-4.0'}">
 			<exec	program="${msbuild}" 
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\WebServiceBridge" />
 		</if>
 
-	</target>
+	</target>-->
 
   <target name="compile_msmqutils">
 		<exec 	program="${msbuild}"

@@ -82,6 +82,8 @@ task BuildOnNet40 {
     	$buildNumber = $env:BUILD_NUMBER
 	}
 	
+	Write-Output "Build Number: $buildNumber"
+	
 	$productVersion = $productVersion + "." + $buildNumber
  	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $productVersion $productVersion ".\src\CommonAssemblyInfo.cs" 
  }
