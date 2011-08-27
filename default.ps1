@@ -55,12 +55,12 @@ task CreatePackages -depends InstallDependentPackages, GeneateCommonAssemblyInfo
  }
  
 task BuildOnNet35 {
-# 	.\tools\nant\nant.exe -D:targetframework=net-3.5
+# 	.\tools\nant\nant.exe -buildfile:nantdev.build -D:targetframework=net-3.5
 #	XCopy  .\binaries\* .\outdir\lib\net35\ /S /Y
  }
  
 task BuildOnNet40 {
-# 	.\tools\nant\nant.exe -D:targetframework=net-4.0
+# 	.\tools\nant\nant.exe -buildfile:nantdev.build -D:targetframework=net-4.0
 #	XCopy  .\binaries\* .\outdir\lib\net40\ /S /Y
  } 
  

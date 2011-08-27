@@ -40,6 +40,10 @@
     <property name="nunit.targetframework" value="/framework=4.0"/>
     <property name="coreswitch" value="NET40"/>
   </if>
+  
+  <if test="${property::exists('build.number')}">
+			<property name="file.version" value="${project.version}.${build.number}"/>
+	</if>
 
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
