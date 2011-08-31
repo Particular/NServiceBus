@@ -5,7 +5,6 @@ using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
-using NServiceBus.SagaPersisters.NHibernate.Tests;
 
 namespace NServiceBus
 {

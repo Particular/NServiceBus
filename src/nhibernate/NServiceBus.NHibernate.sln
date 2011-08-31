@@ -23,12 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscri
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubscriptionStorage", "SubscriptionStorage", "{0123916C-663A-4DD8-BAA1-928AF4319E5D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Faults", "Faults", "{21669391-9B95-4289-8C6B-541C47240349}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Faults.NHibernate", "Faults\NServiceBus.Faults.NHibernate\NServiceBus.Faults.NHibernate.csproj", "{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Faults.NHibernate.Tests", "Faults\NServiceBus.Faults.NHibernate.Tests\NServiceBus.Faults.NHibernate.Tests.csproj", "{14D55316-91EC-4BDF-B990-614BAE2BE8DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,14 +61,6 @@ Global
 		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06AE9368-B357-4682-8B79-1FB186BF38B5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14D55316-91EC-4BDF-B990-614BAE2BE8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14D55316-91EC-4BDF-B990-614BAE2BE8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14D55316-91EC-4BDF-B990-614BAE2BE8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14D55316-91EC-4BDF-B990-614BAE2BE8DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,7 +74,5 @@ Global
 		{7F1A7421-0335-43D4-8C50-4ED444D19336} = {DFC9939A-CDDF-479B-B6AD-89612AE2A280}
 		{06AE9368-B357-4682-8B79-1FB186BF38B5} = {0123916C-663A-4DD8-BAA1-928AF4319E5D}
 		{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3} = {0123916C-663A-4DD8-BAA1-928AF4319E5D}
-		{C36B4747-C5EB-4FA3-BF1F-78B8912BD58C} = {21669391-9B95-4289-8C6B-541C47240349}
-		{14D55316-91EC-4BDF-B990-614BAE2BE8DC} = {21669391-9B95-4289-8C6B-541C47240349}
 	EndGlobalSection
 EndGlobal

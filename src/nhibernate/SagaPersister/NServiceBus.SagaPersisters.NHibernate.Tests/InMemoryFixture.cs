@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
