@@ -9,7 +9,7 @@
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
-	<property name="release.dir" value="${trunk.dir}\release"/>
+	<property name="release.dir" value="${trunk.dir}\release\.net 3.5" dynamic="true"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="test.dir" value="${build.base}\test"/>
@@ -39,6 +39,7 @@
   <if test="${targetframework == 'net-4.0'}">
     <property name="nunit.targetframework" value="/framework=4.0"/>
     <property name="coreswitch" value="NET40"/>
+    <property name="release.dir" value="${trunk.dir}\release\.net 4.0"  />
   </if>
   
   <if test="${property::exists('build.number')}">
