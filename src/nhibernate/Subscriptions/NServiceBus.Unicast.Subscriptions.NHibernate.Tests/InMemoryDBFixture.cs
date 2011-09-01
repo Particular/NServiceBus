@@ -1,9 +1,9 @@
 using System.IO;
-using FluentNHibernate;
-using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using NHibernate;
-using NHibernate.ByteCode.LinFu;
+using System.Reflection;
+using NHibernate.Cfg;
+using NHibernate.Cfg.MappingSchema;
+using NHibernate.Dialect;
+using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
 
@@ -17,16 +17,22 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         [SetUp]
         public void SetupContext()
         {
-            var cfg = SQLiteConfiguration.Standard
-                  .UsingFile(Path.GetTempFileName())
-                  .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName);
+          var cfg = new Configuration()
+            .DataBaseIntegration(x =>
+            {
+              x.Dialect<SQLiteDialect>();
+              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", Path.GetTempFileName());
+            });
 
-            var fc = Fluently.Configure()
-                .Database(cfg)
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Subscription>())
-                .ExposeConfiguration(config => new SchemaExport(config).Create(true, true));
+          var mapper = new ModelMapper();
+          mapper.AddMappings(typeof(NHibernate.Config.SubscriptionMap).Assembly.GetExportedTypes());
+          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-           subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(fc.BuildSessionFactory());
+          cfg.AddMapping(faultMappings);
+
+          new SchemaExport(cfg).Create(true, true);
+
+           subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
 
            storage = new SubscriptionStorage(subscriptionStorageSessionProvider);
         }

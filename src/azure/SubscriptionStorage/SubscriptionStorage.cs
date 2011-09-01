@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using FluentNHibernate;
 using NHibernate.Criterion;
 
 namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
@@ -11,9 +10,9 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
     /// </summary>
     public class SubscriptionStorage : ISubscriptionStorage
     {
-        private readonly ISessionSource sessionSource;
+      private readonly ISubscriptionStorageSessionProvider sessionSource;
 
-        public SubscriptionStorage(ISessionSource sessionSource)
+      public SubscriptionStorage(ISubscriptionStorageSessionProvider sessionSource)
         {
             this.sessionSource = sessionSource;
         }
@@ -25,7 +24,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
 
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
         {
-            using (var session = sessionSource.CreateSession())
+            using (var session = sessionSource.OpenSession())
             using(var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
@@ -53,8 +52,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
         void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
         {
             var encodedAddress = EncodeTo64(address.ToString());
-
-            using (var session = sessionSource.CreateSession())
+            using (var session = sessionSource.OpenSession())
             using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
@@ -75,7 +73,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
         {
             var subscribers = new List<Address>();
 
-            using (var session = sessionSource.CreateSession())
+            using (var session = sessionSource.OpenSession())
             {
                 subscribers.AddRange(from messageType in messageTypes
                                      from subscription in session.CreateCriteria(typeof (Subscription))

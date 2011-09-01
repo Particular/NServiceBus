@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using FluentNHibernate.Cfg.Db;
-using NHibernate.ByteCode.LinFu;
 using NHibernate.Id;
 using NHibernate.Impl;
 using NHibernate.Persister.Entity;
@@ -23,15 +21,26 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
 
-            sessionFactory = builder.Build(SQLiteConfiguration.Standard
-             .InMemory()
-             .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-             .ToProperties(), false) as SessionFactoryImpl;
+          //var properties = SQLiteConfiguration.Standard
+          //  .InMemory()
+          //  .ToProperties();
+
+          //File.WriteAllText("sqlite.txt", "");
+
+          //foreach (var property in properties)
+          //{
+          //  File.AppendAllText("sqlite.txt", String.Format("{{ \"{0}\", \"{1}\" }}\n", property.Key, property.Value));
+
+          //}
+
+          var properties = SQLiteConfiguration.InMemory();
+
+          sessionFactory = builder.Build(properties, false) as SessionFactoryImpl;
 
             persisterForTestSaga = sessionFactory.GetEntityPersisterFor<TestSaga>();
         }
 
-        [Test]
+      [Test]
         public void Id_generator_should_be_set_to_assigned()
         {
             Assert.AreEqual(persisterForTestSaga.IdentifierGenerator.GetType(),typeof(Assigned));

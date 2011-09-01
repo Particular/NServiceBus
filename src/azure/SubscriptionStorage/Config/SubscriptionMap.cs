@@ -1,14 +1,16 @@
-using FluentNHibernate.Mapping;
+using NHibernate.Mapping.ByCode.Conformist;
 
 namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage.Config
 {
-    public sealed class SubscriptionMap : ClassMap<Subscription>
+    public sealed class SubscriptionMap : ClassMapping<Subscription>
     {
         public SubscriptionMap()
         {
-            CompositeId()
-                .KeyProperty(x => x.SubscriberEndpoint, "RowKey")
-                .KeyProperty(x => x.MessageType, "PartitionKey");
+          ComposedId(id =>
+                       {
+                         id.Property(x => x.SubscriberEndpoint, m => m.Column("RowKey"));
+                         id.Property(x => x.MessageType, m => m.Column("PartitionKey"));
+                       });
         }
     }
 }

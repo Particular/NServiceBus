@@ -9,7 +9,8 @@
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
-	<property name="release.dir" value="${trunk.dir}\release"/>
+	<property name="release.root" value="${trunk.dir}\release"/>
+	<property name="release.dir" value="${trunk.dir}\release\.net 3.5" dynamic="true"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="test.dir" value="${build.base}\test"/>
@@ -39,6 +40,7 @@
   <if test="${targetframework == 'net-4.0'}">
     <property name="nunit.targetframework" value="/framework=4.0"/>
     <property name="coreswitch" value="NET40"/>
+    <property name="release.dir" value="${trunk.dir}\release\.net 4.0"  />
   </if>
   
   <if test="${property::exists('build.number')}">
@@ -666,21 +668,23 @@
 			</fileset>
 		</copy>
 
-		<copy todir="${release.dir}">
-			<fileset basedir="${trunk.dir}">
-				<include name="*.txt" />
-			</fileset>
-		</copy>
+    <if test="${targetframework == 'net-4.0'}">
+      <copy todir="${release.root}">
+        <fileset basedir="${trunk.dir}">
+          <include name="*.txt" />
+        </fileset>
+      </copy>
 
 		<!-- Prepare Tools -->
-		<copy todir="${release.dir}">
-			<fileset basedir="${build.base}">
-				<include name="tools\**" />
-
-				<exclude name="**.xml" />
-				<exclude name="**.pdb" />
-			</fileset>
-		</copy>
+		
+      <copy todir="${release.root}">
+        <fileset basedir="${build.base}">
+          <include name="tools\**" />
+          <exclude name="**.xml" />
+          <exclude name="**.pdb" />
+        </fileset>
+      </copy>
+		</if>
 
 		<!-- Prepare Tools -->
 		<copy todir="${release.dir}\processes">
@@ -694,16 +698,23 @@
 				<exclude name="**.pdb" />
 			</fileset>
 		</copy>
-
-		<copy todir="${release.dir}">
+  
+  <if test="${targetframework == 'net-4.0'}">
+      <copy todir="${release.root}">
+        <fileset basedir="${trunk.dir}">
+          <include name="docs\**" />
+        </fileset>
+      </copy>
+	</if>
+		
+		<copy todir="${release.root}">
 			<fileset basedir="${trunk.dir}">
-				<include name="docs\**" />
+				<include name="RunMeFirst.bat"/>
 			</fileset>
 		</copy>
 
 		<copy todir="${release.dir}">
-			<fileset basedir="${trunk.dir}">
-				<include name="RunMeFirst.bat" />
+			<fileset basedir="${trunk.dir}">				
 				<include name="samples\**" />
 				<exclude name="**/obj/**" />
 				<exclude name="**/bin/**" />
@@ -729,18 +740,21 @@
 				</fileset>
 			</copy>
 		</if>
-
+		
+<if test="${targetframework == 'net-4.0'}">
 		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
 		<zip zipfile="${artifacts.dir}\NServiceBus.${file.version}.zip" includeemptydirs="false" >
-			<fileset basedir="${release.dir}">
+			<fileset basedir="${release.root}">
 				<include name="**"/>
 			</fileset>
 
 		</zip>
 
 		<delete dir="${release.dir}" failonerror="false"/>
-
+		<delete dir="${release.root}" failonerror="false"/>
+</if>		
+     
 	</target>
 </project>

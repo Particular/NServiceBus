@@ -45,9 +45,7 @@
         {
             var gatewayInputAddress = Address.Local.SubScope("gateway");
 
-            config.Configurer.ConfigureComponent<Installer>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(x => x.GatewayInputQueue, gatewayInputAddress);
-
+            Installer.GatewayInputQueue = gatewayInputAddress;
             
             ConfigureChannels(config);
           

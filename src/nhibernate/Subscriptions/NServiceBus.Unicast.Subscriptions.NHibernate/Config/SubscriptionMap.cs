@@ -1,15 +1,27 @@
-using FluentNHibernate.Mapping;
+using NHibernate.Mapping.ByCode.Conformist;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Config
 {
-    public class SubscriptionMap : ClassMap<Subscription>
+  public class SubscriptionMap : ClassMapping<Subscription>
+  {
+    public SubscriptionMap()
     {
-        public SubscriptionMap()
-        {
-            CompositeId()
-                .KeyProperty(x => x.SubscriberEndpoint)
-                .KeyProperty(x => x.MessageType);
-
-        }
+      ComposedId(x =>
+                   {
+                     x.Property(p => p.SubscriberEndpoint);
+                     x.Property(p => p.MessageType);
+                   });
     }
+  }
+
+    //public class SubscriptionMap : ClassMap<Subscription>
+    //{
+    //    public SubscriptionMap()
+    //    {
+    //        CompositeId()
+    //            .KeyProperty(x => x.SubscriberEndpoint)
+    //            .KeyProperty(x => x.MessageType);
+
+    //    }
+    //}
 }

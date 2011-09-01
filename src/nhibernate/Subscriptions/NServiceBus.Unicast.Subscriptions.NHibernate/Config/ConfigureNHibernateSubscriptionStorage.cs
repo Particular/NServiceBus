@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using FluentNHibernate;
-using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using NHibernate.ByteCode.LinFu;
+using System.Reflection;
+using NHibernate.Cfg;
+using NHibernate.Cfg.MappingSchema;
+using NHibernate.Dialect;
+using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
@@ -25,13 +26,20 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            var nhibernateProperties = SQLiteConfiguration
-                .Standard
-                .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-                .UsingFile(".\\NServiceBus.Subscriptions.sqlite")
-                .ToProperties();
+          var configuration = new Configuration()
+            .DataBaseIntegration(x =>
+            {
+              x.Dialect<SQLiteDialect>();
+              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Subscriptions.sqlite");
+            });
+          
+          //var nhibernateProperties = SQLiteConfiguration
+          //      .Standard
+          //      .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
+          //      .UsingFile(".\\NServiceBus.Subscriptions.sqlite")
+          //      .ToProperties();
 
-            return DBSubcriptionStorage(config, nhibernateProperties, true);
+            return DBSubcriptionStorage(config, configuration, true);
         }
 
         /// <summary>
@@ -56,7 +64,7 @@ namespace NServiceBus
             }
 
             return DBSubcriptionStorage(config,
-                configSection.NHibernateProperties.ToProperties(),
+                new Configuration().AddProperties(configSection.NHibernateProperties.ToProperties()),
                 configSection.UpdateSchema);
         }
 
@@ -69,34 +77,24 @@ namespace NServiceBus
         /// <param name="autoUpdateSchema"></param>
         /// <returns></returns>
         public static Configure DBSubcriptionStorage(this Configure config,
-            IDictionary<string, string> nhibernateProperties,
+            Configuration configuration,
             bool autoUpdateSchema)
         {
+          var mapper = new ModelMapper();
+          mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
+          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-            var fluentConfiguration = Fluently.Configure(new Configuration().SetProperties(nhibernateProperties))
-              .Mappings(m => m.FluentMappings.Add(typeof(SubscriptionMap)));
-
-            var cfg = fluentConfiguration.BuildConfiguration();
+          configuration.AddMapping(faultMappings);
 
             if (autoUpdateSchema)
-                new SchemaUpdate(cfg).Execute(false, true);
+                new SchemaUpdate(configuration).Execute(false, true);
 
-            //default to LinFu if not specifed by user
-            if (!cfg.Properties.Keys.Contains(PROXY_FACTORY_KEY))
-                fluentConfiguration.ExposeConfiguration(
-                    x =>
-                    x.SetProperty(PROXY_FACTORY_KEY, typeof(ProxyFactoryFactory).AssemblyQualifiedName));
-
-            var sessionSource = new SubscriptionStorageSessionProvider(fluentConfiguration.BuildSessionFactory());
-
+            var sessionSource = new SubscriptionStorageSessionProvider(configuration.BuildSessionFactory());
 
             config.Configurer.RegisterSingleton<ISubscriptionStorageSessionProvider>(sessionSource);
             config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
 
             return config;
-
         }
-
-        private const string PROXY_FACTORY_KEY = "proxyfactory.factory_class";
     }
 }
