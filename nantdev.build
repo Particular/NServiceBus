@@ -668,7 +668,7 @@
 			</fileset>
 		</copy>
 
-    <if test="${targetframework != 'net-4.0'}">
+    <if test="${targetframework == 'net-4.0'}">
       <copy todir="${release.dir}">
         <fileset basedir="${trunk.dir}">
           <include name="*.txt" />
@@ -699,7 +699,7 @@
 			</fileset>
 		</copy>
   
-  <if test="${targetframework != 'net-4.0'}">
+  <if test="${targetframework == 'net-4.0'}">
       <copy todir="${release.root}">
         <fileset basedir="${trunk.dir}">
           <include name="docs\**" />
