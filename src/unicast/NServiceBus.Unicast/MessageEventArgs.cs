@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast
         /// Instantiates a new object containing the given message.
         /// </summary>
         /// <param name="msg"></param>
-        public MessageEventArgs(IMessage msg)
+        public MessageEventArgs(object msg)
         {
             Message = msg;
         }
@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The message.
         /// </summary>
-        public IMessage Message { get; private set; }
+        public object Message { get; private set; }
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast
         /// Instantiate an event arg referencing multiple messages.
         /// </summary>
         /// <param name="messages"></param>
-        public MessagesEventArgs(IMessage[] messages)
+        public MessagesEventArgs(object[] messages)
         {
             Messages = messages;
         }
@@ -39,6 +39,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The messages that were sent.
         /// </summary>
-        public IMessage[] Messages { get; private set; }
+        public object[] Messages { get; private set; }
     }
 }

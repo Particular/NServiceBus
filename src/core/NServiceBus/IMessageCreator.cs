@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message interface to instantiate.</typeparam>
         /// <returns>A message object that implements the interface T.</returns>
-        T CreateInstance<T>() where T : IMessage;
+        T CreateInstance<T>();
 
         /// <summary>
         /// Creates an instance of the message type T and fills it with data.
@@ -20,7 +20,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message interface to instantiate.</typeparam>
         /// <param name="action">An action to set various properties of the instantiated object.</param>
         /// <returns>A message object that implements the interface T.</returns>
-        T CreateInstance<T>(Action<T> action) where T : IMessage;
+        T CreateInstance<T>(Action<T> action);
 
         /// <summary>
         /// Creates an instance of the given message type.

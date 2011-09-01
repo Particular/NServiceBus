@@ -16,7 +16,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        IMessage MutateIncoming(IMessage message);
+        object MutateIncoming(object message);
     }
 
     /// <summary>
@@ -29,6 +29,6 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        IMessage MutateOutgoing(IMessage message);
+        object MutateOutgoing(object message);
     }
 }

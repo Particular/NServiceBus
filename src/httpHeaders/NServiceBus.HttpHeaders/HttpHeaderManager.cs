@@ -11,7 +11,7 @@ namespace NServiceBus.HttpHeaders
     {
         public IBus Bus { get; set; }
 
-        public IMessage MutateIncoming(IMessage message)
+        public object MutateIncoming(object message)
         {
             var httpFrom = message.GetHttpFromHeader();
             if (httpFrom != null)
@@ -29,7 +29,7 @@ namespace NServiceBus.HttpHeaders
             return message;
         }
 
-        public void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (messageReturns == null)
                 return;

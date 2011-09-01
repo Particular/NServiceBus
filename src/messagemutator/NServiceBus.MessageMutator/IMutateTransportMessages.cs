@@ -18,7 +18,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="transportMessage"></param>
-        void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage);
+        void MutateOutgoing(object[] messages, TransportMessage transportMessage);
     }
 
     /// <summary>

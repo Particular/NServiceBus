@@ -20,6 +20,11 @@ namespace NServiceBus.Serializers.XML.Test
         private int number = 1;
         private int numberOfIterations = 100;
 
+        [SetUp]
+        public void Setup()
+        {
+            NServiceBus.ExtensionMethods.IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) && t != typeof(IMessage);
+        }
 
         [Test]
         public void Generic_properties_should_be_supported()
@@ -271,7 +276,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             watch.Start();
 
-            IMessage[] result = null;
+            object[] result = null;
 
             for (int i = 0; i < numberOfIterations; i++)
                 using (var forDeserializing = new MemoryStream(buffer))

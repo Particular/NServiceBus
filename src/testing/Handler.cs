@@ -77,7 +77,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSend<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSend<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectSend(check);
             return this;
@@ -89,7 +89,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectReply<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectReply<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectReply(check);
             return this;
@@ -102,7 +102,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectSendLocal(check);
             return this;
@@ -125,7 +125,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
         {
             helper.ExpectSendToDestination(check);
             return this;
@@ -137,7 +137,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        public Handler<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
         {
             helper.ExpectPublish(check);
             return this;
@@ -149,7 +149,7 @@ namespace NServiceBus.Testing
 		/// <typeparam name="TMessage"></typeparam>
 		/// <param name="check"></param>
 		/// <returns></returns>
-		public Handler<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+		public Handler<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
 		{
 			helper.ExpectNotPublish(check);
 			return this;
@@ -190,7 +190,7 @@ namespace NServiceBus.Testing
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>
-        public void OnMessage<TMessage>(Action<TMessage> initializeMessage) where TMessage : IMessage
+        public void OnMessage<TMessage>(Action<TMessage> initializeMessage)
         {
             OnMessage(initializeMessage, Guid.NewGuid().ToString("N"));
         }
@@ -201,7 +201,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="initializeMessage"></param>
         /// <param name="messageId"></param>
-        public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId) where TMessage : IMessage
+        public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId)
         {
             var msg = messageCreator.CreateInstance(initializeMessage);
             OnMessage(msg, messageId);
@@ -214,7 +214,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="message"></param>
         /// <param name="messageId"></param>
-        public void OnMessage<TMessage>(TMessage message, string messageId) where TMessage : IMessage
+        public void OnMessage<TMessage>(TMessage message, string messageId)
         {
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
 

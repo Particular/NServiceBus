@@ -16,7 +16,7 @@ namespace NServiceBus.Serializers.Binary
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="stream"></param>
-        public void Serialize(IMessage[] messages, Stream stream)
+        public void Serialize(object[] messages, Stream stream)
         {
             binaryFormatter.Serialize(stream, new List<object>(messages));
         }
@@ -26,7 +26,7 @@ namespace NServiceBus.Serializers.Binary
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public IMessage[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream)
         {
             if (stream == null)
                 return null;

@@ -11,6 +11,6 @@
         /// Implementors will implement this method, likely using an injected IBus
         /// to send responses to the client who sent the message.
         /// </summary>
-        void Handle(IMessage message);
+        void Handle(object message);
     }
 }

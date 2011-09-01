@@ -14,7 +14,7 @@ namespace NServiceBus.MasterNode.Discovery
             //intentionally do nothing
         }
 
-        public void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (messages.Length == 0)
                 return;

@@ -9,7 +9,7 @@
     {
         public IBus Bus { get; set; }
 
-        public IMessage MutateIncoming(IMessage message)
+        public object MutateIncoming(object message)
         {
             var originatingSite = message.GetOriginatingSiteHeader();
 
@@ -29,7 +29,7 @@
             return message;
         }
 
-        public void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (messageReturns == null)
                 return;

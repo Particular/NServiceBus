@@ -17,7 +17,7 @@ namespace NServiceBus.Saga
         /// of type T using messages of type M.
         /// </summary>
         /// <typeparam name="M"></typeparam>
-        public interface Using<M> : IFinder where M : IMessage
+        public interface Using<M> : IFinder
         {
             /// <summary>
             /// Finds a saga entity of the type T using a message of type M.

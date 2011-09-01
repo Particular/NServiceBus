@@ -83,7 +83,7 @@ namespace NServiceBus.Testing
 
             saga.Bus = bus;
 
-            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
             return new Saga<T>(saga, mocks, bus, _messageCreator, messageTypes);
         }
@@ -113,13 +113,13 @@ namespace NServiceBus.Testing
             {
                 var args = i.GetGenericArguments();
                 if (args.Length == 1)
-                    if (typeof(IMessage).IsAssignableFrom(args[0]))
+                    if (args[0].IsMessageType())
                         if (typeof(IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i))
                             isHandler = true;
             }
 
             if (!isHandler)
-                throw new ArgumentException("The handler object given does not implement IMessageHandler<T> where T : IMessage.", "handler");
+                throw new ArgumentException("The handler object given does not implement IMessageHandler<T>.", "handler");
 
             var mocks = new MockRepository();
             var bus = MockTheBus(mocks);
@@ -128,7 +128,7 @@ namespace NServiceBus.Testing
             if (prop != null)
                 prop.SetValue(handler, bus, null);
 
-            var messageTypes = Configure.TypesToScan.Where(t => typeof(IMessage).IsAssignableFrom(t)).ToList();
+            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
             return new Handler<T>(handler, mocks, bus, _messageCreator, messageTypes);
         }
@@ -162,7 +162,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <returns></returns>
-        public static TMessage CreateInstance<TMessage>() where TMessage : IMessage
+        public static TMessage CreateInstance<TMessage>()
         {
             return _messageCreator.CreateInstance<TMessage>();
         }
@@ -174,7 +174,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="action"></param>
         /// <returns></returns>
-        public static TMessage CreateInstance<TMessage>(Action<TMessage> action) where TMessage : IMessage
+        public static TMessage CreateInstance<TMessage>(Action<TMessage> action)
         {
             return _messageCreator.CreateInstance(action);
         }

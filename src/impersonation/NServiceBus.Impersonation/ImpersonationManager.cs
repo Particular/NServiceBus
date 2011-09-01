@@ -33,7 +33,7 @@ namespace NServiceBus.Impersonation
                     Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(e.Message.Headers[WindowsIdentityName]), new string[0]);
         }
 
-        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
 			if (transportMessage.Headers.ContainsKey(WindowsIdentityName))
 				transportMessage.Headers.Remove(WindowsIdentityName);

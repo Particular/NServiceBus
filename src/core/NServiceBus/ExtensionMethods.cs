@@ -13,13 +13,33 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type to instantiate.</typeparam>
         /// <param name="list">The list to which to add the new element</param>
-        /// <param name="constructor">An action for setting properties of the created instance.</param>
-        public static void Add<T>(this IList<T> list, Action<T> constructor) where T : IMessage
+        /// <param name="initializer">An action for setting properties of the created instance.</param>
+        public static void Add<T>(this IList<T> list, Action<T> initializer)
         {
             if (MessageCreator == null)
                 throw new InvalidOperationException("MessageCreator has not been set.");
 
-            list.Add(MessageCreator.CreateInstance(constructor));
+            list.Add(MessageCreator.CreateInstance(initializer));
+        }
+
+        /// <summary>
+        /// Returns true if the given object is a message.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static bool IsMessage(this object o)
+        {
+            return o.GetType().IsMessageType();
+        }
+
+        /// <summary>
+        /// Returns true if the given type is a message type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsMessageType(this Type t)
+        {
+            return IsMessageTypeAction(t);
         }
 
         /// <summary>
@@ -28,7 +48,7 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string GetHeader(this IMessage msg, string key)
+        public static string GetHeader(this object msg, string key)
         {
             return GetHeaderAction(msg, key);
         }
@@ -39,7 +59,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static string GetHttpFromHeader(this IMessage msg)
+        public static string GetHttpFromHeader(this object msg)
         {
             return msg.GetHeader(Headers.HttpFrom);
         }
@@ -50,7 +70,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static string GetHttpToHeader(this IMessage msg)
+        public static string GetHttpToHeader(this object msg)
         {
             return msg.GetHeader(Headers.HttpTo);
         }
@@ -60,7 +80,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static string GetDestinationSitesHeader(this IMessage msg)
+        public static string GetDestinationSitesHeader(this object msg)
         {
             return msg.GetHeader(Headers.DestinationSites);
         }
@@ -70,7 +90,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static string GetOriginatingSiteHeader(this IMessage msg)
+        public static string GetOriginatingSiteHeader(this object msg)
         {
             return msg.GetHeader(Headers.OriginatingSite);
         }
@@ -81,7 +101,7 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static void SetHeader(this IMessage msg, string key, string value)
+        public static void SetHeader(this object msg, string key, string value)
         {
             SetHeaderAction(msg, key, value);
         }
@@ -92,7 +112,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        public static void SetDestinationSitesHeader(this IMessage msg, string value)
+        public static void SetDestinationSitesHeader(this object msg, string value)
         {
             msg.SetHeader(Headers.DestinationSites, value);
         }
@@ -104,7 +124,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        public static void SetOriginatingSiteHeader(this IMessage msg, string value)
+        public static void SetOriginatingSiteHeader(this object msg, string value)
         {
             msg.SetHeader(Headers.OriginatingSite, value);
         }
@@ -115,7 +135,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        public static void SetHttpFromHeader(this IMessage msg, string value)
+        public static void SetHttpFromHeader(this object msg, string value)
         {
             msg.SetHeader(Headers.HttpFrom, value);
         }
@@ -126,7 +146,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        public static void SetHttpToHeader(this IMessage msg, string value)
+        public static void SetHttpToHeader(this object msg, string value)
         {
             msg.SetHeader(Headers.HttpTo, value);
         }
@@ -136,7 +156,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="key"></param>
-        public static void CopyHeaderFromRequest(this IMessage msg, string key)
+        public static void CopyHeaderFromRequest(this object msg, string key)
         {
             if (msg == CurrentMessageBeingHandled)
                 throw new InvalidOperationException("This method is not supported on the request message.");
@@ -157,22 +177,27 @@ namespace NServiceBus
         /// <summary>
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
-        public static IMessage CurrentMessageBeingHandled { get; set; }
+        public static object CurrentMessageBeingHandled { get; set; }
 
         /// <summary>
         /// The action used to set the header in the <see cref="SetHeader"/> method.
         /// </summary>
-        public static Action<IMessage, string, string> SetHeaderAction { get; set;}
+        public static Action<object, string, string> SetHeaderAction { get; set; }
 
         /// <summary>
         /// The action used to get the header value in the <see cref="GetHeader"/> method.
         /// </summary>
-        public static Func<IMessage, string, string> GetHeaderAction { get; set; }
+        public static Func<object, string, string> GetHeaderAction { get; set; }
 
         /// <summary>
         /// The action used to get all the headers for a message.
         /// </summary>
         public static Func<IDictionary<string, string>> GetStaticOutgoingHeadersAction { get; set; }
+
+        /// <summary>
+        /// The function used to determine whether a type is a message type.
+        /// </summary>
+        public static Func<Type, bool> IsMessageTypeAction { get; set; }
     }
 
     /// <summary>

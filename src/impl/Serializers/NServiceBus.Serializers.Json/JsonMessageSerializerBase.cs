@@ -29,7 +29,7 @@ namespace NServiceBus.Serializers.Json
             }
         }
 
-        public void Serialize(IMessage[] messages, Stream stream)
+        public void Serialize(object[] messages, Stream stream)
         {
             JsonSerializer jsonSerializer = CreateJsonSerializer();
 
@@ -40,7 +40,7 @@ namespace NServiceBus.Serializers.Json
             jsonWriter.Flush();
         }
 
-        public IMessage[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream)
         {
             JsonSerializer jsonSerializer = CreateJsonSerializer();
 

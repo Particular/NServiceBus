@@ -6,5 +6,5 @@
     /// it is the server which processes the message.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IAmResponsibleForMessages<T> where T : IMessage { }
+    public interface IAmResponsibleForMessages<T> { }
 }

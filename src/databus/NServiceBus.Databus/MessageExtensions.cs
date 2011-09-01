@@ -8,20 +8,20 @@ namespace NServiceBus.DataBus
 
 	public static class MessageExtensions
     {
-        public static IEnumerable<PropertyInfo> DataBusProperties(this IMessage message)
+        public static IEnumerable<PropertyInfo> DataBusProperties(this object message)
         {
             return message.GetType().GetProperties()
                 .Where(t => typeof (IDataBusProperty).IsAssignableFrom(t.PropertyType));
 
         }
-        public static IEnumerable<IDataBusProperty> DataBusPropertiesWithValues(this IMessage message)
+        public static IEnumerable<IDataBusProperty> DataBusPropertiesWithValues(this object message)
         {
             return message.DataBusProperties()
 				.Select(p => p.GetValue(message,null) as IDataBusProperty)
 				.Where(p=>p != null && p.HasValue);    
         }
 
-		 public static TimeSpan TimeToBeReceived(this IMessage message)
+        public static TimeSpan TimeToBeReceived(this object message)
 		 {
 		 	var attributes = message.GetType().GetCustomAttributes(typeof (TimeToBeReceivedAttribute), true)
 		 		.Select(s => s as TimeToBeReceivedAttribute);

@@ -90,6 +90,11 @@ namespace NServiceBus
             Machine = addressMode == AddressMode.Local ? machineName.ToLower() : machineName;
         }
 
+        /// <summary>
+        /// Deserializes an Address.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         protected Address(SerializationInfo info, StreamingContext context)
         {
             Queue = info.GetString("Queue");

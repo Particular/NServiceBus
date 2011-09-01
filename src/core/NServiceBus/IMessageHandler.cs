@@ -4,7 +4,7 @@ namespace NServiceBus
 	/// Defines a message handler.
 	/// </summary>
 	/// <typeparam name="T">The type of message to be handled.</typeparam>
-    public interface IMessageHandler<T> where T : IMessage
+    public interface IMessageHandler<T>
     {
 		/// <summary>
 		/// Handles a message.
@@ -20,5 +20,5 @@ namespace NServiceBus
     /// Implement this class to be called when messages of the given type arrive at your endpoint.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHandleMessages<T> : IMessageHandler<T> where T : IMessage {}
+    public interface IHandleMessages<T> : IMessageHandler<T> {}
 }
