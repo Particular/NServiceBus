@@ -669,7 +669,7 @@
 		</copy>
 
     <if test="${targetframework == 'net-4.0'}">
-      <copy todir="${release.dir}">
+      <copy todir="${release.root}">
         <fileset basedir="${trunk.dir}">
           <include name="*.txt" />
         </fileset>
