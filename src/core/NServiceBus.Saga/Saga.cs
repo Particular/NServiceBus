@@ -52,7 +52,7 @@ namespace NServiceBus.Saga
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
-        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TMessage : IMessage
+        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
@@ -116,7 +116,7 @@ namespace NServiceBus.Saga
         /// Sends the given messages using the bus to the endpoint that caused this saga to start.
         /// </summary>
         /// <param name="messages"></param>
-        protected virtual void ReplyToOriginator(params IMessage[] messages)
+        protected virtual void ReplyToOriginator(params object[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
                 HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();
@@ -130,7 +130,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="messageConstructor"></param>
-        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : IMessage
+        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor)
         {
             var message = Bus.CreateInstance(messageConstructor);
             ReplyToOriginator(message);

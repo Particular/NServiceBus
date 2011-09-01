@@ -11,8 +11,8 @@ namespace NServiceBus.Encryption
     public class EncryptionMessageMutator:IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
- 
-        public IMessage MutateOutgoing(IMessage message)
+
+        public object MutateOutgoing(object message)
         {
             var encryptedProperties = message.GetType().GetProperties()
              .Where(t => typeof(WireEncryptedString).IsAssignableFrom(t.PropertyType));
@@ -33,7 +33,7 @@ namespace NServiceBus.Encryption
             return message;
         }
 
-        public IMessage MutateIncoming(IMessage message)
+        public object MutateIncoming(object message)
         {
             var encryptedProperties = message.GetType().GetProperties()
              .Where(t => typeof(WireEncryptedString).IsAssignableFrom(t.PropertyType));

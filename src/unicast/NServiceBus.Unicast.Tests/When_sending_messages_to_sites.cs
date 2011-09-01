@@ -34,6 +34,8 @@
             {
             }
 
+            ExtensionMethods.IsMessageTypeAction = t => typeof (IMessage).IsAssignableFrom(t) && t != typeof (IMessage);
+
             gatewayAddress = masterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
@@ -84,7 +86,7 @@
 
     public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {
-        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (messageHeaders != null)
                 if (messageHeaders.ContainsKey(messages[0]))
@@ -92,14 +94,14 @@
                         transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
         }
 
-      
-        public void SetHeader(IMessage message, string key, string value)
+
+        public void SetHeader(object message, string key, string value)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
                 throw new InvalidOperationException("Cannot change headers on the message being processed.");
 
             if (messageHeaders == null)
-                messageHeaders = new Dictionary<IMessage, IDictionary<string, string>>();
+                messageHeaders = new Dictionary<object, IDictionary<string, string>>();
 
             if (!messageHeaders.ContainsKey(message))
                 messageHeaders.Add(message, new Dictionary<string, string>());
@@ -110,6 +112,6 @@
                 messageHeaders[message][key] = value;
         }
 
-        private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
+        private static IDictionary<object, IDictionary<string, string>> messageHeaders;
     }
 }

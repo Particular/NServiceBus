@@ -28,11 +28,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectSend<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectSend<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend(
-                          delegate(IMessage[] msgs)
+                          delegate(object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
                                       if (!check(msg))
@@ -52,11 +52,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectReply<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectReply<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToReply(
-                          delegate(IMessage[] msgs)
+                          delegate(object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
                                       if (!check(msg))
@@ -77,11 +77,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectSendLocal<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSendLocal(
-                          delegate(IMessage[] msgs)
+                          delegate(object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
                                       if (!check(msg))
@@ -115,11 +115,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend(
-                          delegate(string destination, IMessage[] msgs)
+                          delegate(string destination, object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
                                       if (!check(destination, msg))
@@ -139,11 +139,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend(
-                          delegate(string destination, string correlationId, IMessage[] msgs)
+                          delegate(string destination, string correlationId, object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
                                       if (!check(msg))
@@ -163,7 +163,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public void ExpectPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        public void ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToPublish(
@@ -187,7 +187,7 @@ namespace NServiceBus.Testing
 		/// <typeparam name="TMessage"></typeparam>
 		/// <param name="check"></param>
 		/// <returns></returns>
-		public void ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+		public void ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
 		{
 			Delegate d = new HandleMessageDelegate(
 				() => DoNotExpectCallToPublish(
@@ -280,7 +280,7 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToReply(BusSendDelegate callback)
         {
-            IMessage[] messages = null;
+            object[] messages = null;
 
             Expect.Call(() => bus.Reply(messages))
                 .IgnoreArguments()
@@ -289,7 +289,7 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToSendLocal(BusSendDelegate callback)
         {
-            IMessage[] messages = null;
+            object[] messages = null;
 
             Expect.Call(() => bus.SendLocal(messages))
                 .IgnoreArguments().Return(null)
@@ -298,7 +298,7 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToSend(BusSendDelegate callback)
         {
-            IMessage[] messages = null;
+            object[] messages = null;
 
             Expect.Call(() => bus.Send(messages))
                 .IgnoreArguments().Return(null)
@@ -307,7 +307,7 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToSend(BusSendWithDestinationDelegate callback)
         {
-            IMessage[] messages = null;
+            object[] messages = null;
             string destination = null;
 
             Expect.Call(() => bus.Send(destination, messages))
@@ -317,7 +317,7 @@ namespace NServiceBus.Testing
 
         private void ExpectCallToSend(BusSendWithDestinationAndCorrelationIdDelegate callback)
         {
-            IMessage[] messages = null;
+            object[] messages = null;
             string destination = null;
             string correlationId = null;
 
@@ -326,7 +326,7 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
-        private void ExpectCallToPublish<T>(BusPublishDelegate<T> callback) where T : IMessage
+        private void ExpectCallToPublish<T>(BusPublishDelegate<T> callback)
         {
             T[] messages = null;
 
@@ -335,7 +335,7 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
-		private void DoNotExpectCallToPublish<T>(BusPublishDelegate<T> callback) where T : IMessage
+		private void DoNotExpectCallToPublish<T>(BusPublishDelegate<T> callback)
 		{
 			T[] messages = null;
 
@@ -363,14 +363,14 @@ namespace NServiceBus.Testing
         /// Invoked via reflection - do not remove.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
-        private void PrepareBusGenericMethods<TMessage>() where TMessage : IMessage
+        private void PrepareBusGenericMethods<TMessage>()
         {
             var d = GetDelegateForBusGenericMethods<TMessage>();
 
             delegates.Add(d);
         }
 
-        private Delegate GetDelegateForBusGenericMethods<TMessage>() where TMessage : IMessage
+        private Delegate GetDelegateForBusGenericMethods<TMessage>()
         {
             return new HandleMessageDelegate(
                 delegate

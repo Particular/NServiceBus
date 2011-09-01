@@ -36,7 +36,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Config, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -53,7 +54,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Unicast">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>

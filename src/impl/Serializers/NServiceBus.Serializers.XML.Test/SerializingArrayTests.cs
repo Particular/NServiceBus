@@ -24,6 +24,12 @@ namespace NServiceBus.Serializers.XML.Test
     [TestFixture]
     public class SerializingArrayTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            NServiceBus.ExtensionMethods.IsMessageTypeAction = t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage);
+        }
+
         [Test]
         public void CanDeserializeXmlWithWhitespace()
         {
@@ -70,7 +76,7 @@ namespace NServiceBus.Serializers.XML.Test
             var message = new MessageWithArray(Guid.NewGuid(), new int[] { 1234, 5323 });
 
             var stream = new MemoryStream();
-            serializer.Serialize(new IMessage[] { message }, stream);
+            serializer.Serialize(new object[] { message }, stream);
 
             stream.Position = 0;
 

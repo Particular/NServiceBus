@@ -19,6 +19,6 @@ namespace NServiceBus.Saga
         /// <typeparam name="TSagaEntity"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
-        void ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TSagaEntity : ISagaEntity where TMessage : IMessage;
+        void ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TSagaEntity : ISagaEntity;
     }
 }

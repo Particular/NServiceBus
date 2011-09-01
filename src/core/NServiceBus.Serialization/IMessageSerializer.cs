@@ -13,13 +13,13 @@ namespace NServiceBus.Serialization
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="stream"></param>
-        void Serialize(IMessage[] messages, Stream stream);
+        void Serialize(object[] messages, Stream stream);
 
         /// <summary>
         /// Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        IMessage[] Deserialize(Stream stream);
+        object[] Deserialize(Stream stream);
     }
 }

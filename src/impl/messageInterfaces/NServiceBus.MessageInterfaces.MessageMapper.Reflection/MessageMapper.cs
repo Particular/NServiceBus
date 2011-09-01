@@ -288,7 +288,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <typeparam name="T"></typeparam>
         /// <param name="action"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(Action<T> action) where T : IMessage
+        public T CreateInstance<T>(Action<T> action)
         {
             T result = CreateInstance<T>();
 
@@ -304,7 +304,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T CreateInstance<T>() where T : IMessage
+        public T CreateInstance<T>()
         {
             return (T)CreateInstance(typeof(T));
         }

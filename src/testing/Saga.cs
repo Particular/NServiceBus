@@ -92,7 +92,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSend<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectSend<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectSend(check);
             return this;
@@ -104,7 +104,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectReply<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectReply<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectReply(check);
             return this;
@@ -117,7 +117,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectSendLocal(check);
             return this;
@@ -140,7 +140,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
         {
             helper.ExpectSendToDestination(check);
             return this;
@@ -152,7 +152,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectReplyToOrginator(check);
             return this;
@@ -164,7 +164,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
         {
             helper.ExpectPublish(check);
             return this;
@@ -176,7 +176,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check) where TMessage : IMessage
+        public Saga<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
         {
           helper.ExpectNotPublish(check);
           return this;

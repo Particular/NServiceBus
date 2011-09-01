@@ -19,7 +19,7 @@ namespace NServiceBus.DataBus
             this.serializer = serializer;
         }
 
-        IMessage IMutateOutgoingMessages.MutateOutgoing(IMessage message)
+        object IMutateOutgoingMessages.MutateOutgoing(object message)
         {
             var timeToBeReceived = message.TimeToBeReceived();
 
@@ -43,7 +43,7 @@ namespace NServiceBus.DataBus
             return message;
         }
 
-        IMessage IMutateIncomingMessages.MutateIncoming(IMessage message)
+        object IMutateIncomingMessages.MutateIncoming(object message)
         {
             using (new TransactionScope(TransactionScopeOption.Suppress))
                 foreach (var dataBusProperty in message.DataBusPropertiesWithValues())

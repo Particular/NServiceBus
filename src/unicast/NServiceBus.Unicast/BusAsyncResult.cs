@@ -34,7 +34,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="errorCode"></param>
         /// <param name="messages"></param>
-        public void Complete(int errorCode, params IMessage[] messages)
+        public void Complete(int errorCode, params object[] messages)
         {
             this.result.ErrorCode = errorCode;
             this.result.Messages = messages;

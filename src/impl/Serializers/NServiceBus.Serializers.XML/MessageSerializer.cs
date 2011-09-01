@@ -250,14 +250,14 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public IMessage[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream)
         {
             if (stream == null)
                 return null;
 
             prefixesToNamespaces = new Dictionary<string, string>();
             messageBaseTypes = new List<Type>();
-            var result = new List<IMessage>();
+            var result = new List<object>();
 
             var doc = new XmlDocument { PreserveWhitespace = true };
 
@@ -296,7 +296,7 @@ namespace NServiceBus.Serializers.XML
                 if (m == null)
                     throw new SerializationException("Could not deserialize message.");
 
-                result.Add(m as IMessage);
+                result.Add(m);
             }
             else
             {
@@ -306,7 +306,7 @@ namespace NServiceBus.Serializers.XML
                         continue;
 
                     object m = Process(node, null);
-                    result.Add(m as IMessage);
+                    result.Add(m);
                 }
             }
 
@@ -645,7 +645,7 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="stream"></param>
-        public void Serialize(IMessage[] messages, Stream stream)
+        public void Serialize(object[] messages, Stream stream)
         {
             namespacesToPrefix = new Dictionary<string, string>();
             namespacesToAdd = new List<Type>();
@@ -861,11 +861,11 @@ namespace NServiceBus.Serializers.XML
             return value.ToString();
         }
 
-        private static List<string> GetNamespaces(IMessage[] messages, IMessageMapper mapper)
+        private static List<string> GetNamespaces(object[] messages, IMessageMapper mapper)
         {
             var result = new List<string>();
 
-            foreach (IMessage m in messages)
+            foreach (var m in messages)
             {
                 string ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
                 if (!result.Contains(ns))
@@ -875,18 +875,18 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
-        private static List<string> GetBaseTypes(IMessage[] messages, IMessageMapper mapper)
+        private static List<string> GetBaseTypes(object[] messages, IMessageMapper mapper)
         {
             var result = new List<string>();
 
-            foreach (IMessage m in messages)
+            foreach (var m in messages)
             {
                 Type t = mapper.GetMappedTypeFor(m.GetType());
 
                 Type baseType = t.BaseType;
                 while (baseType != typeof(object) && baseType != null)
                 {
-                    if (typeof(IMessage).IsAssignableFrom(baseType))
+                    if (baseType.IsMessageType())
                         if (!result.Contains(baseType.FullName))
                             result.Add(baseType.FullName);
 
@@ -894,7 +894,7 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 foreach (Type i in t.GetInterfaces())
-                    if (i != typeof(IMessage) && typeof(IMessage).IsAssignableFrom(i))
+                    if (i.IsMessageType())
                         if (!result.Contains(i.FullName))
                             result.Add(i.FullName);
             }

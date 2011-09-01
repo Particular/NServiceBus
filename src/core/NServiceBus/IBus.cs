@@ -15,14 +15,14 @@ namespace NServiceBus
 	    /// </summary>
 	    /// <param name="messages">A list of messages. The first message's type
 	    /// is used for looking up subscribers.</param>
-	    void Publish<T>(params T[] messages) where T : IMessage;
+	    void Publish<T>(params T[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and publishes it.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        void Publish<T>(Action<T> messageConstructor) where T : IMessage;
+        void Publish<T>(Action<T> messageConstructor);
 
 		/// <summary>
 		/// Subcribes to recieve published messages of the specified type.
@@ -36,7 +36,7 @@ namespace NServiceBus
         /// This method is only necessary if you turned off auto-subscribe.
         /// </summary>
         /// <typeparam name="T">The type of message to subscribe to.</typeparam>
-        void Subscribe<T>() where T : IMessage;
+        void Subscribe<T>();
 
 		/// <summary>
 		/// Subscribes to receive published messages of the specified type.
@@ -45,7 +45,7 @@ namespace NServiceBus
 		/// </summary>
 		/// <param name="messageType">The type of message to subscribe to.</param>
 		/// <param name="condition">The condition with which to evaluate messages.</param>
-        void Subscribe(Type messageType, Predicate<IMessage> condition);
+        void Subscribe(Type messageType, Predicate<object> condition);
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -54,7 +54,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message to subscribe to.</typeparam>
         /// <param name="condition">The condition with which to evaluate messages.</param>
-        void Subscribe<T>(Predicate<T> condition) where T : IMessage;
+        void Subscribe<T>(Predicate<T> condition);
         
 		/// <summary>
 		/// Unsubscribes from receiving published messages of the specified type.
@@ -66,20 +66,20 @@ namespace NServiceBus
         /// Unsubscribes from receiving published messages of the specified type.
         /// </summary>
         /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
-        void Unsubscribe<T>() where T : IMessage;
+        void Unsubscribe<T>();
 
         /// <summary>
         /// Sends the list of messages back to the current bus.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
-        ICallback SendLocal(params IMessage[] messages);
+        ICallback SendLocal(params object[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and sends it back to the current bus.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        ICallback SendLocal<T>(Action<T> messageConstructor) where T : IMessage;
+        ICallback SendLocal<T>(Action<T> messageConstructor);
 
         /// <summary>
 		/// Sends the list of provided messages.
@@ -89,7 +89,7 @@ namespace NServiceBus
 		/// All the messages will be sent to the destination configured for the
 		/// first message in the list.
 		/// </remarks>
-        ICallback Send(params IMessage[] messages);
+        ICallback Send(params object[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and sends it.
@@ -99,7 +99,7 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for T
         /// </remarks>
-        ICallback Send<T>(Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the list of provided messages.
@@ -108,7 +108,7 @@ namespace NServiceBus
         /// The address of the destination to which the messages will be sent.
         /// </param>
         /// <param name="messages">The list of messages to send.</param>
-        ICallback Send(string destination, params IMessage[] messages);
+        ICallback Send(string destination, params object[] messages);
 
         /// <summary>
         /// Sends the list of provided messages.
@@ -117,7 +117,7 @@ namespace NServiceBus
         /// The address to which the messages will be sent.
         /// </param>
         /// <param name="messages">The list of messages to send.</param>
-        ICallback Send(Address address, params IMessage[] messages);
+        ICallback Send(Address address, params object[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and sends it to the given destination.
@@ -126,7 +126,7 @@ namespace NServiceBus
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         /// <returns></returns>
-        ICallback Send<T>(string destination, Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(string destination, Action<T> messageConstructor);
 
         /// <summary>
         /// Instantiates a message of type T and sends it to the given address.
@@ -135,7 +135,7 @@ namespace NServiceBus
         /// <param name="address">The address to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         /// <returns></returns>
-        ICallback Send<T>(Address address, Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(Address address, Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the messages to the destination as well as identifying this
@@ -144,7 +144,7 @@ namespace NServiceBus
         /// <param name="destination"></param>
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
-        ICallback Send(string destination, string correlationId, params IMessage[] messages);
+        ICallback Send(string destination, string correlationId, params object[] messages);
 
         /// <summary>
         /// Sends the messages to the given address as well as identifying this
@@ -153,7 +153,7 @@ namespace NServiceBus
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
-        ICallback Send(Address address, string correlationId, params IMessage[] messages);
+        ICallback Send(Address address, string correlationId, params object[] messages);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
@@ -164,7 +164,7 @@ namespace NServiceBus
         /// <param name="destination"></param>
         /// <param name="correlationId"></param>
         /// <param name="messageConstructor"></param>
-        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
 
         /// <summary>
         /// Instantiates a message of the type T using the given messageConstructor,
@@ -175,7 +175,7 @@ namespace NServiceBus
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
         /// <param name="messageConstructor"></param>
-        ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor) where T : IMessage;
+        ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor);
 
         /// <summary>
         /// Sends the messages to all sites with matching site keys registered with the gateway.
@@ -184,20 +184,20 @@ namespace NServiceBus
         /// <param name="siteKeys"></param>
         /// <param name="messages"></param>
         /// <returns></returns>
-        ICallback SendToSites(IEnumerable<string> siteKeys, params IMessage[] messages);
+        ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages);
 
         /// <summary>
 		/// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
-        void Reply(params IMessage[] messages);
+        void Reply(params object[] messages);
 
         /// <summary>
         /// Instantiates a message of type T and performs a regular <see cref="Reply"/>.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
-        void Reply<T>(Action<T> messageConstructor) where T : IMessage;
+        void Reply<T>(Action<T> messageConstructor);
 
         /// <summary>
         /// Returns a completion message with the specified error code to the sender

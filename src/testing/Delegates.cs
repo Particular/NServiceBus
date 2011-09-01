@@ -14,7 +14,7 @@ namespace NServiceBus.Testing
     /// <typeparam name="T"></typeparam>
     /// <param name="message"></param>
     /// <returns></returns>
-    public delegate bool PublishPredicate<T>(T message) where T : IMessage;
+    public delegate bool PublishPredicate<T>(T message);
 
     /// <summary>
     /// Predicate for checking the message passed to Bus.Send.
@@ -22,7 +22,7 @@ namespace NServiceBus.Testing
     /// <typeparam name="T"></typeparam>
     /// <param name="message"></param>
     /// <returns></returns>
-    public delegate bool SendPredicate<T>(T message) where T : IMessage;
+    public delegate bool SendPredicate<T>(T message);
 
     /// <summary>
     /// Predicate for checking the message and the destination passed to Bus.Send(msg, destination).
@@ -31,15 +31,15 @@ namespace NServiceBus.Testing
     /// <param name="destination"></param>
     /// <param name="message"></param>
     /// <returns></returns>
-    public delegate bool SendToDestinationPredicate<T>(string destination, T message) where T : IMessage;
+    public delegate bool SendToDestinationPredicate<T>(string destination, T message);
 
-    internal delegate bool BusPublishDelegate<T>(T[] msgs) where T : IMessage;
+    internal delegate bool BusPublishDelegate<T>(T[] msgs);
 
-    internal delegate bool BusSendWithDestinationAndCorrelationIdDelegate(string destination, string correlationId, IMessage[] msgs);
+    internal delegate bool BusSendWithDestinationAndCorrelationIdDelegate(string destination, string correlationId, object[] msgs);
 
-    internal delegate bool BusSendWithDestinationDelegate(string destination, IMessage[] msgs);
+    internal delegate bool BusSendWithDestinationDelegate(string destination, object[] msgs);
 
-    internal delegate bool BusSendDelegate(IMessage[] msgs);
+    internal delegate bool BusSendDelegate(object[] msgs);
 
     /// <summary>
     /// Delegate used for dispatching the call to invoke the saga.

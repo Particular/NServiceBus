@@ -8,7 +8,7 @@ namespace NServiceBus.MessageHeaders
 {
     public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {
-        void IMutateOutgoingTransportMessages.MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             foreach(var key in staticOutgoingHeaders.Keys)
                 transportMessage.Headers.Add(key, staticOutgoingHeaders[key]);
@@ -19,7 +19,7 @@ namespace NServiceBus.MessageHeaders
                         transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
         }
 
-        public string GetHeader(IMessage message, string key)
+        public string GetHeader(object message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
                 if (bus.CurrentMessageContext.Headers.ContainsKey(key))
@@ -39,13 +39,13 @@ namespace NServiceBus.MessageHeaders
             return null;
         }
 
-        public void SetHeader(IMessage message, string key, string value)
+        public void SetHeader(object message, string key, string value)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
                 throw new InvalidOperationException("Cannot change headers on the message being processed.");
             
             if (messageHeaders == null)
-                messageHeaders = new Dictionary<IMessage, IDictionary<string, string>>();
+                messageHeaders = new Dictionary<object, IDictionary<string, string>>();
 
             if (!messageHeaders.ContainsKey(message))
                 messageHeaders.Add(message, new Dictionary<string, string>());
@@ -80,6 +80,7 @@ namespace NServiceBus.MessageHeaders
         
         private static IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
 
-        [ThreadStatic] private static IDictionary<IMessage, IDictionary<string, string>> messageHeaders;
+        [ThreadStatic]
+        private static IDictionary<object, IDictionary<string, string>> messageHeaders;
     }
 }

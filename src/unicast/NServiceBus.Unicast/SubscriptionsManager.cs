@@ -17,13 +17,13 @@ namespace NServiceBus.Unicast
 		/// </summary>
 		/// <param name="message">The message to get conditions for.</param>
 		/// <returns>A list of conditions that are associated with type of message provided.</returns>
-        public IList<Predicate<IMessage>> GetConditionsForMessage(IMessage message)
+        public IList<Predicate<object>> GetConditionsForMessage(object message)
         {
-            IList<Predicate<IMessage>> result = new List<Predicate<IMessage>>();
+            var result = new List<Predicate<object>>();
 
-            lock (this.locker)
-                if (this.messageTypeToConditionLookup.ContainsKey(message.GetType()))
-                    foreach (Predicate<IMessage> condition in this.messageTypeToConditionLookup[message.GetType()])
+            lock (locker)
+                if (messageTypeToConditionLookup.ContainsKey(message.GetType()))
+                    foreach (Predicate<object> condition in this.messageTypeToConditionLookup[message.GetType()])
                         result.Add(condition);
 
             return result;
@@ -37,22 +37,22 @@ namespace NServiceBus.Unicast
 		/// <remarks>
 		/// All conditions added to a message type must be met if the messages of that type 
 		/// are to be published to a subscriber.</remarks>
-        public void AddConditionForSubscriptionToMessageType(Type messageType, Predicate<IMessage> condition)
+        public void AddConditionForSubscriptionToMessageType(Type messageType, Predicate<object> condition)
         {
             if (condition == null)
                 return;
 
-            lock (this.locker)
+            lock (locker)
             {
-                if (!this.messageTypeToConditionLookup.ContainsKey(messageType))
-                    this.messageTypeToConditionLookup.Add(messageType, new List<Predicate<IMessage>>());
+                if (!messageTypeToConditionLookup.ContainsKey(messageType))
+                    messageTypeToConditionLookup.Add(messageType, new List<Predicate<object>>());
 
-                if (!this.messageTypeToConditionLookup[messageType].Contains(condition))
-                    this.messageTypeToConditionLookup[messageType].Add(condition);
+                if (!messageTypeToConditionLookup[messageType].Contains(condition))
+                    messageTypeToConditionLookup[messageType].Add(condition);
             }
         }
 
-        private readonly IDictionary<Type, List<Predicate<IMessage>>> messageTypeToConditionLookup = new Dictionary<Type, List<Predicate<IMessage>>>();
+        private readonly IDictionary<Type, List<Predicate<object>>> messageTypeToConditionLookup = new Dictionary<Type, List<Predicate<object>>>();
 
         private readonly object locker = new object();
     }

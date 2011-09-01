@@ -8,7 +8,7 @@ namespace NServiceBus.Distributor
     {
         public Address DistributorDataQueue { get; set; }
 
-        public void MutateOutgoing(IMessage[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (messages[0] is ReadyMessage)
                 return;
