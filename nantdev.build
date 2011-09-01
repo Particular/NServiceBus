@@ -9,6 +9,7 @@
 	<property name="build.base" value="build"/>
 	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
+	<property name="release.root" value="${trunk.dir}\release"/>
 	<property name="release.dir" value="${trunk.dir}\release\.net 3.5" dynamic="true"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
@@ -735,13 +736,14 @@
 		<mkdir dir="${artifacts.dir}" />
 
 		<zip zipfile="${artifacts.dir}\NServiceBus.${file.version}.zip" includeemptydirs="false" >
-			<fileset basedir="${release.dir}">
+			<fileset basedir="${release.root}">
 				<include name="**"/>
 			</fileset>
 
 		</zip>
 
 		<delete dir="${release.dir}" failonerror="false"/>
-
+		<delete dir="${release.root}" failonerror="false"/>
+     
 	</target>
 </project>
