@@ -114,7 +114,7 @@ using System.Security;
 [assembly: AssemblyConfigurationAttribute(""$configuration"")]
 [assembly: AssemblyInformationalVersionAttribute(""$fileVersion"")]
 #if NET35
-[assembly: AllowPartiallyTrustedCallersAttribute(true)]
+[assembly: AllowPartiallyTrustedCallersAttribute()]
 #endif
 [assembly: ComVisibleAttribute(false)]
 "

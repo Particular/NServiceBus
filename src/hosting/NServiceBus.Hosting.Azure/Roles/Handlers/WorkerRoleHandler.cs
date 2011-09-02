@@ -28,8 +28,6 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 .AzureMessageQueue()
                 .JsonSerializer()
                 .IsTransactional(true)
-                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
-                .AzureSubcriptionStorage()
                 .UnicastBus()
                     .ImpersonateSender(false)
                     .LoadMessageHandlers();

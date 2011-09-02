@@ -1,5 +1,4 @@
 using NServiceBus.Hosting.Profiles;
-using NServiceBus.Integration.Azure;
 using log4net.Appender;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
@@ -10,6 +9,8 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
         {
             Configure.Instance
                 .Log4Net<ConsoleAppender>( a => { });
+
+            DynamicEndpointStarter.Install = false;
         }
 
         public IConfigureThisEndpoint Config { get; set; }
