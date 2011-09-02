@@ -142,7 +142,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="message"></param>
         /// <param name="finder"></param>
         /// <returns></returns>
-        public static Type GetSagaTypeToStartIfMessageNotFoundByFinder(IMessage message, IFinder finder)
+        public static Type GetSagaTypeToStartIfMessageNotFoundByFinder(object message, IFinder finder)
         {
             Type sagaEntityType;
             FinderTypeToSagaEntityTypeLookup.TryGetValue(finder.GetType(), out sagaEntityType);
@@ -238,7 +238,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="finder"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static MethodInfo GetFindByMethodForFinder(IFinder finder, IMessage message)
+        public static MethodInfo GetFindByMethodForFinder(IFinder finder, object message)
         {
             MethodInfo result = null;
 
@@ -263,7 +263,7 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        public static IEnumerable<IFinder> GetFindersFor(IMessage m)
+        public static IEnumerable<IFinder> GetFindersFor(object m)
         {
             var result = new List<IFinder>();
 
@@ -300,7 +300,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="saga"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static MethodInfo GetHandleMethodForSagaAndMessage(object saga, IMessage message)
+        public static MethodInfo GetHandleMethodForSagaAndMessage(object saga, object message)
         {
             IDictionary<Type, MethodInfo> lookup;
             SagaTypeToHandleMethodLookup.TryGetValue(saga.GetType(), out lookup);
@@ -383,7 +383,7 @@ namespace NServiceBus.Sagas.Impl
                     if (typeof (ISagaEntity).IsAssignableFrom(typ))
                         sagaEntityType = typ;
 
-                    if (typeof (IMessage).IsAssignableFrom(typ))
+                    if (typ.IsMessageType())
                         messageType = typ;
                 }
 
@@ -427,7 +427,7 @@ namespace NServiceBus.Sagas.Impl
             {
                 Type[] types = interfaceType.GetGenericArguments();
                 foreach (Type arg in types)
-                    if (typeof(IMessage).IsAssignableFrom(arg))
+                    if (arg.IsMessageType())
                         if (filter.MakeGenericType(arg) == interfaceType)
                             yield return arg;
             }

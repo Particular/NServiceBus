@@ -6,7 +6,7 @@ namespace NServiceBus.Saga
 	/// An interface used to mark messages as requiring the attention of the
     /// saga infrastructure.
 	/// </summary>
-    public interface ISagaMessage
+    public interface ISagaMessage : IMessage
     {
 		/// <summary>
 		/// Gets/sets the Id of the saga the message is related to.

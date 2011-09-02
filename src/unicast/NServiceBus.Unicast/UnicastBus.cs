@@ -1527,9 +1527,6 @@ namespace NServiceBus.Unicast
                     if (args.Length != 1)
                         continue;
 
-                    if (!args[0].IsMessageType())
-                        continue;
-
                     var handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
                     if (handlerType.IsAssignableFrom(t))
                         yield return args[0];
@@ -1560,8 +1557,9 @@ namespace NServiceBus.Unicast
         private IEnumerable<Type> GetMessageTypesHandledOnThisEndpoint()
         {
             foreach (var handlerType in handlerList.Keys)
-                foreach (var msgTypeHandled in handlerList[handlerType])
-                    yield return msgTypeHandled;
+                foreach (var typeHandled in handlerList[handlerType])
+                    if (typeHandled.IsMessageType())
+                        yield return typeHandled;
         }
 
         /// <summary>

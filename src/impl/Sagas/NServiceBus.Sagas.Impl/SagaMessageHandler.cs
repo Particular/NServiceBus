@@ -10,7 +10,7 @@ namespace NServiceBus.Sagas.Impl
 	/// <summary>
     /// A message handler central to the saga infrastructure.
 	/// </summary>
-    public class SagaMessageHandler : IMessageHandler<IMessage>
+    public class SagaMessageHandler : IMessageHandler<object>
     {
         /// <summary>
         /// Used to notify timeout manager of sagas that have completed.
@@ -27,7 +27,7 @@ namespace NServiceBus.Sagas.Impl
 		/// implementation provided in the configuration.  Any other message implementing 
 		/// <see cref="ISagaMessage"/> will cause the existing saga instance with which it is
 		/// associated to continue.</remarks>
-        public void Handle(IMessage message)
+        public void Handle(object message)
         {
             if (!NeedToHandle(message))
                 return;
@@ -107,7 +107,7 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="message">The message being processed</param>
         /// <returns></returns>
-	    public bool NeedToHandle(IMessage message)
+	    public bool NeedToHandle(object message)
 	    {
             if (message is ISagaMessage && !(message is TimeoutMessage))
                 return true;
@@ -147,7 +147,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="finder"></param>
         /// <param name="message"></param>
         /// <returns>The saga entity if found, otherwise null.</returns>
-        private static ISagaEntity UseFinderToFindSaga(IFinder finder, IMessage message)
+        private static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)
         {
             MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
 
@@ -164,7 +164,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="saga"></param>
         /// <param name="message"></param>
         /// <param name="sagaIsPersistent"></param>
-        protected virtual void HaveSagaHandleMessage(ISaga saga, IMessage message, bool sagaIsPersistent)
+        protected virtual void HaveSagaHandleMessage(ISaga saga, object message, bool sagaIsPersistent)
         {
             var tm = message as TimeoutMessage;
             if (tm != null)
@@ -213,7 +213,7 @@ namespace NServiceBus.Sagas.Impl
 		/// </summary>
 		/// <param name="saga">The saga on which to call the handle method.</param>
 		/// <param name="message">The message to pass to the handle method.</param>
-        protected virtual void CallHandleMethodOnSaga(object saga, IMessage message)
+        protected virtual void CallHandleMethodOnSaga(object saga, object message)
         {
 		    MethodInfo method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
 

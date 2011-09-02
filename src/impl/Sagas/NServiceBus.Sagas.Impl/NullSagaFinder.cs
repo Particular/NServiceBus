@@ -7,14 +7,14 @@ namespace NServiceBus.Sagas.Impl
     /// for whether a new saga should be created.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class NullSagaFinder<T> : IFindSagas<T>.Using<IMessage> where T : ISagaEntity
+    public class NullSagaFinder<T> : IFindSagas<T>.Using<object> where T : ISagaEntity
     {
         /// <summary>
         /// Returns null.
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public T FindBy(IMessage message)
+        public T FindBy(object message)
         {
             return default(T);
         }

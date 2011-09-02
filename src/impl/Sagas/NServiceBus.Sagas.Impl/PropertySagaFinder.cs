@@ -10,7 +10,6 @@ namespace NServiceBus.Sagas.Impl
     /// <typeparam name="TMessage"></typeparam>
     public class PropertySagaFinder<TSaga, TMessage> : IFindSagas<TSaga>.Using<TMessage>
         where TSaga : ISagaEntity
-        where TMessage : IMessage
     {
         /// <summary>
         /// Injected persister

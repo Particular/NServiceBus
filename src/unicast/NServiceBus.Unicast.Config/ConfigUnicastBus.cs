@@ -76,11 +76,13 @@ namespace NServiceBus.Unicast.Config
 
         private void ConfigureBusProperties(UnicastBusConfig unicastConfig)
         {
-            if (unicastConfig == null)
-                return;
+            if (unicastConfig != null)
+            {
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
 
-            foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
-                assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
+                foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
+                    assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
+            }
 
             foreach(Type t in TypesToScan)
                 foreach (Type i in t.GetInterfaces())
@@ -92,9 +94,7 @@ namespace NServiceBus.Unicast.Config
                     if (typeof (IAmResponsibleForMessages<>).MakeGenericType(args).IsAssignableFrom(t))
                         assembliesToEndpoints[args[0].AssemblyQualifiedName] = UnicastBus.Myself.ToString();
                 }
-            
 
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
             busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
         }
 
@@ -318,9 +318,6 @@ namespace NServiceBus.Unicast.Config
             {
                 Type[] args = t.GetGenericArguments();
                 if (args.Length != 1)
-                    return null;
-
-                if (!args[0].IsMessageType())
                     return null;
 
                 Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);

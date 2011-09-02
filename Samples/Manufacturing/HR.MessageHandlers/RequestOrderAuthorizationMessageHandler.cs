@@ -5,7 +5,8 @@ using System.Threading;
 
 namespace HR.MessageHandlers
 {
-    public class RequestOrderAuthorizationMessageHandler : IHandleMessages<RequestOrderAuthorizationMessage>
+    public class RequestOrderAuthorizationMessageHandler : IHandleMessages<RequestOrderAuthorizationMessage>,
+        IAmResponsibleForMessages<RequestOrderAuthorizationMessage>
     {
         public void Handle(RequestOrderAuthorizationMessage message)
         {
