@@ -96,6 +96,10 @@
     <Compile Include="DynamicHost\ServiceToRun.cs" />
     <Compile Include="LoggingHandlers\DevelopmentLoggingHandler.cs" />
     <Compile Include="Profiles\Handler\DevelopmentProfileHandler.cs" />
+    <Compile Include="Profiles\Handler\OnAzureStorageProfileHandler.cs" />
+    <Compile Include="Profiles\Handler\OnSqlAzureProfileHandler.cs" />
+    <Compile Include="Profiles\OnAzureStorage.cs" />
+    <Compile Include="Profiles\OnSqlAzure.cs" />
     <Compile Include="RoleHost\Entrypoint.cs" />
     <Compile Include="DynamicHost\DynamicHostController.cs" />
     <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
