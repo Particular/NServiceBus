@@ -39,6 +39,7 @@ namespace OrderWebSite
                   .AzureMessageQueue()
                     .JsonSerializer()
                     .QueuePerInstance()
+                    .PurgeOnStartup(true)
                   .UnicastBus()
                       .LoadMessageHandlers()
                       .IsTransactional(true)

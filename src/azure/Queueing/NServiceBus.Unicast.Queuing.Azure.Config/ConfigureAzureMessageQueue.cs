@@ -46,22 +46,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Requests that the incoming queue be purged of all messages when the bus is started.
-        /// All messages in this queue will be deleted if this is true.
-        /// Setting this to true may make sense for certain smart-client applications, 
-        /// but rarely for server applications.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static Configure PurgeQueueOnStartup(this Configure config, bool value)
-        {
-            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PurgeOnStartup, value);
-
-            return config;
-        }
-
-        /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
         /// </summary>
         /// <param name="config"></param>

@@ -35,20 +35,6 @@ namespace NServiceBus
             return config;
         }
 
-        /// <summary>
-        /// Requests that the incoming queue be purged of all messages when the bus is started.
-        /// All messages in this queue will be deleted if this is true.
-        /// Setting this to true may make sense for certain smart-client applications, 
-        /// but rarely for server applications.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static Configure PurgeOnStartup(this Configure config, bool value)
-        {
-            config.Configurer.ConfigureProperty<MsmqMessageReceiver>(t => t.PurgeOnStartup, value);
-
-            return config;
-        }
+      
     }
 }
