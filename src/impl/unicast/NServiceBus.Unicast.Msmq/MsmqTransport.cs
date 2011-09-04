@@ -470,7 +470,11 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (HandledMaxRetries(m.Id))
                 {
-                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
+                    string id = m.Id;
+                    if (m.Label.Contains(ORIGINALID))
+                        id = GetOriginalMessageIdFromLabel(m.Label);
+
+                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", id));
                     
                     MoveToErrorQueue(m);
                     OnFinishedMessageProcessing();
@@ -786,12 +790,15 @@ namespace NServiceBus.Unicast.Transport.Msmq
                 return;
 
             if (m.Label.Contains(ORIGINALID))
-            {
-                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", ORIGINALID)) + ORIGINALID.Length + 2;
-                int idCount = m.Label.IndexOf(string.Format("</{0}>", ORIGINALID)) - idStartIndex;
+                result.Id = GetOriginalMessageIdFromLabel(m.Label);
+        }
 
-                result.Id = m.Label.Substring(idStartIndex, idCount);
-            }
+        private static string GetOriginalMessageIdFromLabel(string label)
+        {
+            int idStartIndex = label.IndexOf(string.Format("<{0}>", ORIGINALID)) + ORIGINALID.Length + 2;
+            int idCount = label.IndexOf(string.Format("</{0}>", ORIGINALID)) - idStartIndex;
+
+            return label.Substring(idStartIndex, idCount);
         }
 
         private static void FillLabel(Message toSend, TransportMessage m)
