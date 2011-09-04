@@ -470,9 +470,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 if (HandledMaxRetries(m.Id))
                 {
-                    string id = m.Id;
-                    if (m.Label.Contains(ORIGINALID))
-                        id = GetOriginalMessageIdFromLabel(m.Label);
+                    string id = GetRealMessageId(m);
 
                     Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", id));
                     
@@ -686,7 +684,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
         {
 		    var result = new TransportMessage
 		                     {
-		                         Id = m.Id,
+		                         Id = GetRealMessageId(m),
 		                         CorrelationId =
 		                             (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
 		                                  ? null
@@ -698,8 +696,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
 		                         MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
                              };
 
-		    UpdateMessageIdBasedOnResponseFromErrorQueue(result, m);
-		    FillIdForCorrelationAndWindowsIdentity(result, m);
+            FillIdForCorrelationAndWindowsIdentity(result, m);
 
             string failedQueue = GetFailedQueue(m);
             if (failedQueue != null)
@@ -743,6 +740,25 @@ namespace NServiceBus.Unicast.Transport.Msmq
         }
 
         /// <summary>
+        /// Gets the real message ID (which is different than the MSMQ message ID) in the case
+        /// where the message was returned from the error queue.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public static string GetRealMessageId(Message m)
+        {
+            if (m.Label != null && m.Label.Contains(ORIGINALID))
+            {
+                int idStartIndex = m.Label.IndexOf(string.Format("<{0}>", ORIGINALID)) + ORIGINALID.Length + 2;
+                int idCount = m.Label.IndexOf(string.Format("</{0}>", ORIGINALID)) - idStartIndex;
+
+                return m.Label.Substring(idStartIndex, idCount);
+            }
+
+            return m.Id;
+        }
+
+        /// <summary>
         /// Gets the label of the message stripping out the failed queue.
         /// </summary>
         /// <param name="m"></param>
@@ -782,23 +798,6 @@ namespace NServiceBus.Unicast.Transport.Msmq
 
                 result.WindowsIdentityName = m.Label.Substring(winStartIndex, winCount);
             }
-        }
-
-        private static void UpdateMessageIdBasedOnResponseFromErrorQueue(TransportMessage result, Message m)
-        {
-            if (m.Label == null)
-                return;
-
-            if (m.Label.Contains(ORIGINALID))
-                result.Id = GetOriginalMessageIdFromLabel(m.Label);
-        }
-
-        private static string GetOriginalMessageIdFromLabel(string label)
-        {
-            int idStartIndex = label.IndexOf(string.Format("<{0}>", ORIGINALID)) + ORIGINALID.Length + 2;
-            int idCount = label.IndexOf(string.Format("</{0}>", ORIGINALID)) - idStartIndex;
-
-            return label.Substring(idStartIndex, idCount);
         }
 
         private static void FillLabel(Message toSend, TransportMessage m)
