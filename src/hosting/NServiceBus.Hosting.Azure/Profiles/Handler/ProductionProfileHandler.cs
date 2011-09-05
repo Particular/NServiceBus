@@ -14,8 +14,6 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
                         a.ScheduledTransferPeriod = 10;
                     });
 
-            DynamicEndpointStarter.Install = true;
-            
         }
 
         

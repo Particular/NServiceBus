@@ -61,27 +61,13 @@ namespace NServiceBus.Hosting
             var endpointsToHost = loader.LoadEndpoints();
             var servicesToRun = provisioner.Provision(endpointsToHost);
             starter.Start(servicesToRun);
-
-            
-            //if(IsRunningInAzure())
-            //{
-            //    // start monitoring the generic host
-            //    // only monitor on azure itself and when profile is production
-            //}
+        
         }
 
         public void Stop()
         {
-            // stop every host
-
-            // remove the assemblies
+   
         }
-
-        //private bool IsRunningInAzure()
-        //{
-        //    return RoleEnvironment.IsAvailable && !RoleEnvironment.DeploymentId.StartsWith("deployment(");
-        //}
-
       
     }
 }

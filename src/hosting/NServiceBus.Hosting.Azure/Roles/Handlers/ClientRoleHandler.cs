@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
@@ -19,7 +20,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             var instance = Configure.Instance;
 
-            if (RoleEnvironment.IsAvailable)
+            if (RoleEnvironment.IsAvailable && IsNotHostedInChildHostProcess())
             {
                 instance.AzureConfigurationSource();
             }
@@ -31,6 +32,12 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 .UnicastBus()
                 .ImpersonateSender(false)
                 .LoadMessageHandlers();
+        }
+
+        private static bool IsNotHostedInChildHostProcess()
+        {
+            var currentProcess = Process.GetCurrentProcess();
+            return currentProcess.ProcessName != "NServiceBus.Hosting.Azure.HostProcess" ;
         }
     }
 }
