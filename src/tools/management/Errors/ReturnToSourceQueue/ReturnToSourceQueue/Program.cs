@@ -42,8 +42,6 @@ namespace ReturnToSourceQueue
                 else
                     errorManager.ReturnMessageToSourceQueue(messageId);
 
-                Console.WriteLine("Success.");
-
                 if (args == null || args.Length == 0)
                 {
                     Console.WriteLine("Press 'Enter' to exit.");
@@ -54,6 +52,9 @@ namespace ReturnToSourceQueue
             {
                 Console.WriteLine("Could not return message to source queue. Reason: " + e.Message);
                 Console.WriteLine(e.StackTrace);
+
+                Console.WriteLine("\nPress 'Enter' to exit.");
+                Console.ReadLine();
             }
         }
     }

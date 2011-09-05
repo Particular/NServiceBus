@@ -2,7 +2,7 @@
 namespace NServiceBus.Faults.Forwarder
 {
 	using System;
-	using NServiceBus.Unicast.Transport;
+	using Unicast.Transport;
     using Unicast.Queuing;
 
     /// <summary>
@@ -13,7 +13,7 @@ namespace NServiceBus.Faults.Forwarder
     {
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            this.SendFailureMessage(message, e, "SerializationFailed");
+            SendFailureMessage(message, e, "SerializationFailed");
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
@@ -21,7 +21,9 @@ namespace NServiceBus.Faults.Forwarder
             if (SanitizeProcessingExceptions)
                 e = ExceptionSanitizer.Sanitize(e);
 
-            this.SendFailureMessage(message, e, "ProcessingFailed");
+            var id = message.Id;
+            SendFailureMessage(message, e, "ProcessingFailed"); //overwrites message.Id
+            message.Id = id;
         }
 
         // Intentionally service-locate ISendMessages to avoid circular
@@ -35,16 +37,19 @@ namespace NServiceBus.Faults.Forwarder
 
         private static void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
-            message.Headers["ExceptionInfo.Reason"] = reason;
-			message.Headers["ExceptionInfo.ExceptionType"] = e.GetType().FullName;
+            message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
+			message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
 			if (e.InnerException != null)
-				message.Headers["ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+				message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
             
-			message.Headers["ExceptionInfo.HelpLink"] = e.HelpLink;
-            message.Headers["ExceptionInfo.Message"] = e.Message;
-            message.Headers["ExceptionInfo.Source"] = e.Source;
-            message.Headers["ExceptionInfo.StackTrace"] = e.StackTrace;
+			message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
+            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
+            message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
+            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
+
+            message.Headers[HeaderKeys.OriginalId] = message.Id;
+            message.Headers[HeaderKeys.FailedQ] = Address.Local.ToString();
         }
 
         /// <summary>

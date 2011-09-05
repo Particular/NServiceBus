@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Messaging;
 using System.Security.Principal;
 using System.Threading;
-using System.Xml.Serialization;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
 using Common.Logging;
@@ -86,40 +83,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (m == null)
                     return null;
 
-                var result = new TransportMessage
-                {
-                    Id = m.Id,
-                    CorrelationId =
-                        (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
-                             ? null
-                             : m.CorrelationId),
-                    Recoverable = m.Recoverable,
-                    TimeToBeReceived = m.TimeToBeReceived,
-                    TimeSent = m.SentTime,
-                    ReplyToAddress = MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue),
-                    MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
-                };
-
-                m.BodyStream.Position = 0;
-                result.Body = new byte[m.BodyStream.Length];
-                m.BodyStream.Read(result.Body, 0, result.Body.Length);
-
-                result.Headers = new Dictionary<string, string>();
-                if (m.Extension.Length > 0)
-                {
-                    var stream = new MemoryStream(m.Extension);
-                    var o = headerSerializer.Deserialize(stream);
-
-                    foreach(var pair in o as List<HeaderInfo>)
-                        if (pair.Key != null)
-                            result.Headers.Add(pair.Key, pair.Value);
-                }
-
-                result.IdForCorrelation = GetIdForCorrelation(result.Headers);
-                if (result.IdForCorrelation == null)
-                    result.IdForCorrelation = result.Id;
-
-                return result;
+                return MsmqUtilities.Convert(m);
             }
             catch (MessageQueueException mqe)
             {
@@ -148,16 +112,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 throw new InvalidOperationException(string.Format("There is a problem with the input queue given: {0}. See the enclosed exception for details.", myQueue.QueueName), ex);
             }
         }
-
-
-        private static string GetIdForCorrelation(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(HeaderKeys.IDFORCORRELATION))
-                return headers[HeaderKeys.IDFORCORRELATION];
-
-            return null;
-        }
-
+        
         private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
             return useTransactions ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
@@ -179,8 +134,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         private MessageQueue myQueue;
-
-        private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
 
         private bool useTransactions;
 

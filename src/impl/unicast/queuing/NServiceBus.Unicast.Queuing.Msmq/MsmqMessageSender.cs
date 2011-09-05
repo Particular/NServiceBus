@@ -23,40 +23,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
             {
-                var toSend = new Message();
+                var toSend = MsmqUtilities.Convert(message);
 
-                if (message.Body != null)
-                    toSend.BodyStream = new MemoryStream(message.Body);
-
-                if (message.CorrelationId != null)
-                    toSend.CorrelationId = message.CorrelationId;
-
-                toSend.Recoverable = message.Recoverable;
                 toSend.UseDeadLetterQueue = UseDeadLetterQueue;
                 toSend.UseJournalQueue = UseJournalQueue;
 
                 if (message.ReplyToAddress != null)
                     toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
-
-                if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
-                    toSend.TimeToBeReceived = message.TimeToBeReceived;
-
-                if (message.Headers == null)
-                    message.Headers = new Dictionary<string, string>();
-
-                if (!message.Headers.ContainsKey(HeaderKeys.IDFORCORRELATION))
-                    message.Headers.Add(HeaderKeys.IDFORCORRELATION, null);
-
-                if (String.IsNullOrEmpty(message.Headers[HeaderKeys.IDFORCORRELATION]))
-                    message.Headers[HeaderKeys.IDFORCORRELATION] = message.IdForCorrelation;
-
-                using (var stream = new MemoryStream())
-                {
-                    headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
-                    toSend.Extension = stream.GetBuffer();
-                }
-
-                toSend.AppSpecific = (int)message.MessageIntent;
 
                 try
                 {

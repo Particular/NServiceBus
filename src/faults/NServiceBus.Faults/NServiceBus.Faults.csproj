@@ -46,6 +46,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="HeaderKeys.cs" />
     <Compile Include="IManageMessageFailures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -69,7 +69,6 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="HeaderInfo.cs" />
-    <Compile Include="HeaderKeys.cs" />
     <Compile Include="MsmqMessageReceiver.cs" />
     <Compile Include="MsmqMessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

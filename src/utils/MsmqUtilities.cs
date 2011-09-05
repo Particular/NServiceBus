@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Messaging;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
+using System.Xml.Serialization;
 using Common.Logging;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Utils
 {
@@ -322,10 +327,114 @@ namespace NServiceBus.Utils
             return qMgmt.MessageCount;
         }
 
+        /// <summary>
+        /// Converts an MSMQ message to a TransportMessage.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public static TransportMessage Convert(Message m)
+        {
+            var result = new TransportMessage
+            {
+                Id = m.Id,
+                CorrelationId =
+                    (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
+                         ? null
+                         : m.CorrelationId),
+                Recoverable = m.Recoverable,
+                TimeToBeReceived = m.TimeToBeReceived,
+                TimeSent = m.SentTime,
+                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
+                MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
+            };
+
+            m.BodyStream.Position = 0;
+            result.Body = new byte[m.BodyStream.Length];
+            m.BodyStream.Read(result.Body, 0, result.Body.Length);
+
+            result.Headers = new Dictionary<string, string>();
+            if (m.Extension.Length > 0)
+            {
+                var stream = new MemoryStream(m.Extension);
+                var o = headerSerializer.Deserialize(stream);
+
+                foreach (var pair in o as List<HeaderInfo>)
+                    if (pair.Key != null)
+                        result.Headers.Add(pair.Key, pair.Value);
+            }
+
+            result.Id = GetRealId(result.Headers) ?? result.Id;
+
+            result.IdForCorrelation = GetIdForCorrelation(result.Headers) ?? result.Id;
+
+            return result;
+        }
+
+        private static string GetRealId(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(Faults.HeaderKeys.OriginalId))
+                return headers[Faults.HeaderKeys.OriginalId];
+
+            return null;
+        }
+
+        /// <summary>
+        /// Converts a TransportMessage to an Msmq message.
+        /// Doesn't set the ResponseQueue of the result.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static Message Convert(TransportMessage message)
+        {
+            var result = new Message();
+
+            if (message.Body != null)
+                result.BodyStream = new MemoryStream(message.Body);
+
+            if (message.CorrelationId != null)
+                result.CorrelationId = message.CorrelationId;
+
+            result.Recoverable = message.Recoverable;
+
+            if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+                result.TimeToBeReceived = message.TimeToBeReceived;
+
+            if (message.Headers == null)
+                message.Headers = new Dictionary<string, string>();
+
+            if (!message.Headers.ContainsKey(IDFORCORRELATION))
+                message.Headers.Add(IDFORCORRELATION, null);
+
+            if (String.IsNullOrEmpty(message.Headers[IDFORCORRELATION]))
+                message.Headers[IDFORCORRELATION] = message.IdForCorrelation;
+
+            using (var stream = new MemoryStream())
+            {
+                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
+                result.Extension = stream.GetBuffer();
+            }
+
+            result.AppSpecific = (int)message.MessageIntent;
+
+            return result;
+        }
+
+        private static string GetIdForCorrelation(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(IDFORCORRELATION))
+                return headers[IDFORCORRELATION];
+
+            return null;
+        }
+
         private const string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
         private const string PRIVATE = "\\private$\\";
+        private const string IDFORCORRELATION = "CorrId";
+
+        private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+
     }
 }
