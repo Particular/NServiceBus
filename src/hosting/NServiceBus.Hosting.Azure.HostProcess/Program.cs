@@ -15,7 +15,7 @@ namespace NServiceBus.Hosting.Azure.HostProcess
     {
         private static void Main(string[] args)
         {
-            Parser.Args commandLineArguments = Parser.ParseArgs(args);
+            var commandLineArguments = Parser.ParseArgs(args);
             var arguments = new HostArguments(commandLineArguments);
 
             if (arguments.Help != null)
@@ -25,11 +25,11 @@ namespace NServiceBus.Hosting.Azure.HostProcess
                 return;
             }
 
-            Type endpointConfigurationType = GetEndpointConfigurationType(arguments);
+            var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
 
-            string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
+            var endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
             var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
@@ -37,7 +37,7 @@ namespace NServiceBus.Hosting.Azure.HostProcess
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
-            IRunConfiguration cfg = RunnerConfigurator.New(x =>
+            var cfg = RunnerConfigurator.New(x =>
             {
                 x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
                 {
@@ -99,7 +99,7 @@ namespace NServiceBus.Hosting.Azure.HostProcess
         {
             try
             {
-                var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("NServiceBus.Hosting.Windows.Content.Help.txt");
+                var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("NServiceBus.Hosting.Azure.HostProcess.Content.Help.txt");
 
                 if (stream != null)
                 {
