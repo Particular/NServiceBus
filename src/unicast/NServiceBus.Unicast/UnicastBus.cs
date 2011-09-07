@@ -867,25 +867,16 @@ namespace NServiceBus.Unicast
         {
             foreach (var messageHandlerType in GetHandlerTypes(messageType))
             {
-                try
+                Log.Debug("Activating: " + messageHandlerType.Name);
+
+                Builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
+                
+                Log.Debug(messageHandlerType.Name + " Done.");
+
+                if (_doNotContinueDispatchingCurrentMessageToHandlers)
                 {
-                    Log.Debug("Activating: " + messageHandlerType.Name);
-
-                    Builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
-                    
-                    Log.Debug(messageHandlerType.Name + " Done.");
-
-                    if (_doNotContinueDispatchingCurrentMessageToHandlers)
-                    {
-                        _doNotContinueDispatchingCurrentMessageToHandlers = false;
-                        return;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Warn(messageHandlerType.Name + " Failed handling message.", GetInnermostException(e));
-
-                    throw;
+                    _doNotContinueDispatchingCurrentMessageToHandlers = false;
+                    return;
                 }
             }
         }
