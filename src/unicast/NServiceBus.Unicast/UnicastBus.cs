@@ -883,7 +883,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception e)
                 {
-                    Log.Error(messageHandlerType.Name + " Failed handling message.", GetInnermostException(e));
+                    Log.Warn(messageHandlerType.Name + " Failed handling message.", GetInnermostException(e));
 
                     throw;
                 }
