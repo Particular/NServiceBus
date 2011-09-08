@@ -40,7 +40,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>

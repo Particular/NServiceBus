@@ -64,6 +64,9 @@
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Grid.MessageHandlers">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Grid.MessageHandlers.dll</HintPath>
       <Private>False</Private>

@@ -14,7 +14,6 @@
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    
     <UpgradeBackupLocation />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -57,6 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Faults, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

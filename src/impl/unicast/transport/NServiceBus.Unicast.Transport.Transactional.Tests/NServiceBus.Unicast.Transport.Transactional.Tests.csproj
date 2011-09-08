@@ -31,6 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>

@@ -42,6 +42,9 @@
     <Reference Include="NServiceBus.Encryption">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MessageMutator">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

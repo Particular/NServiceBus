@@ -68,6 +68,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Azure">
       <HintPath>..\..\..\build\output\NServiceBus.Azure.dll</HintPath>
     </Reference>

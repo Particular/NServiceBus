@@ -14,7 +14,6 @@
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    
     <UpgradeBackupLocation />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -53,6 +52,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>

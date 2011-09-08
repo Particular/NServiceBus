@@ -38,6 +38,9 @@
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
