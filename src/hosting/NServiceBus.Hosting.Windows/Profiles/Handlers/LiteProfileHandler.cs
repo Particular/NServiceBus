@@ -1,6 +1,9 @@
 ﻿using System;
 using NServiceBus.Config;
+using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
+using NServiceBus.Saga;
+using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -8,12 +11,15 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance.InMemorySagaPersister();
+            if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
+                Configure.Instance.InMemorySagaPersister();
 
-            Configure.Instance.InMemoryFaultManagement();
+            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+                Configure.Instance.InMemoryFaultManagement();
 
             if (Config is AsA_Publisher)
-                Configure.Instance.InMemorySubscriptionStorage();
+                if (!Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
+                    Configure.Instance.InMemorySubscriptionStorage();
         }
 
         public void Run()

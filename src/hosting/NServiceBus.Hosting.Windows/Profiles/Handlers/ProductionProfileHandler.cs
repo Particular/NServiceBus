@@ -1,4 +1,5 @@
-﻿using NServiceBus.Hosting.Profiles;
+﻿using NServiceBus.Faults;
+using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -10,7 +11,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             //Configure.Instance
              //   .RavenSagaPersister();
 
-            Configure.Instance.MessageForwardingInCaseOfFault();
+            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+                Configure.Instance.MessageForwardingInCaseOfFault();
 
             //todo
             //if (Config is AsA_Publisher)

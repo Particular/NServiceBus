@@ -1,7 +1,9 @@
 ﻿using System;
 using NServiceBus.Config;
+using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using log4net;
 
@@ -15,7 +17,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             //Configure.Instance
             //    .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
 
-            Configure.Instance.MessageForwardingInCaseOfFault();
+            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+                Configure.Instance.MessageForwardingInCaseOfFault();
 
             AppDomain.CurrentDomain.UnhandledException += (o, e) =>
             {
@@ -27,12 +30,15 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
             if (Config is AsA_Publisher)
             {
-                if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
-                    Configure.Instance.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(
-                        DependencyLifecycle.SingleInstance)
-                        .ConfigureProperty(s => s.Queue, Program.EndpointId + "_subscriptions");
-                else
-                    Configure.Instance.MsmqSubscriptionStorage();
+                if (!Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
+                {
+                    if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
+                        Configure.Instance.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(
+                            DependencyLifecycle.SingleInstance)
+                            .ConfigureProperty(s => s.Queue, Program.EndpointId + "_subscriptions");
+                    else
+                        Configure.Instance.MsmqSubscriptionStorage();
+                }
             }
         }
 
