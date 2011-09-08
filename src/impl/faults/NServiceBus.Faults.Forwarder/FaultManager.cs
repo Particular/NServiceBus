@@ -1,4 +1,8 @@
 ﻿
+using System.Diagnostics;
+using System.Threading;
+using Common.Logging;
+
 namespace NServiceBus.Faults.Forwarder
 {
 	using System;
@@ -32,7 +36,18 @@ namespace NServiceBus.Faults.Forwarder
         {
             SetExceptionHeaders(message, e, reason);
             var sender = Configure.Instance.Builder.Build<ISendMessages>();
-            sender.Send(message, this.ErrorQueue);
+            try
+            {
+                sender.Send(message, ErrorQueue);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                Logger.FatalFormat("Could not forward failed message to error queue '{0}' as it could not be found. Process wil now exit.", ex.Queue);
+
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+                Process.GetCurrentProcess().Kill();
+            }
+            
         }
 
         private static void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
@@ -61,5 +76,7 @@ namespace NServiceBus.Faults.Forwarder
         /// Indicates of exceptions should be sanitized before sending them on
         /// </summary>
         public bool SanitizeProcessingExceptions { get; set; }
+
+        private static ILog Logger = LogManager.GetLogger("NServiceBus");
     }
 }
