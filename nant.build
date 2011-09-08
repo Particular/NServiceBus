@@ -97,7 +97,7 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -287,6 +287,12 @@
 				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="compile_webservicesintegration">
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\output\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\integration\webservices" />
 	</target>
 	
 	<target name="compile_nhibernate" depends="compile_core">
