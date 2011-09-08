@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NServiceBus.Config;
 
 namespace NServiceBus.Hosting.Azure.HostProcess
 {
