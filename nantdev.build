@@ -170,6 +170,7 @@
 					<attribute type="AllowPartiallyTrustedCallersAttribute" asis="true" />
 				</if>
 				<attribute type="ComVisibleAttribute" value="false" />
+				<attribute type="CLSCompliantAttribute" value="true" />
 			</attributes>
 			<references>
 				<include name="System.dll" />

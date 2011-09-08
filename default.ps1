@@ -117,6 +117,7 @@ using System.Security;
 [assembly: AllowPartiallyTrustedCallersAttribute()]
 #endif
 [assembly: ComVisibleAttribute(false)]
+[assembly: CLSCompliantAttribute(true)]
 "
 
 	$dir = [System.IO.Path]::GetDirectoryName($file)
