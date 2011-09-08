@@ -272,6 +272,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             {
                 MsmqUtilities.CreateQueueIfNecessary(InputQueue);
                 MsmqUtilities.CreateQueueIfNecessary(ErrorQueue);
+                MsmqUtilities.CreateQueueIfNecessary(ForwardReceivedMessagesTo);
             }
         }
 
@@ -532,7 +533,7 @@ namespace NServiceBus.Unicast.Transport.Msmq
             catch (MessageQueueException ex)
             {
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                    throw new ConfigurationErrorsException("The destination queue '" + destination +
+                    Logger.Warn("The destination queue '" + destination +
                                                      "' could not be found. You may have misconfigured the ForwardReceivedMessagesTo attribute of UnicastBusConfig."
                                                     , ex);
 
