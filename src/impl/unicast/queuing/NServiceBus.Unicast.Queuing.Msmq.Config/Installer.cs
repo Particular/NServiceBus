@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
+﻿using System.Security.Principal;
+using NServiceBus.Config;
 using NServiceBus.Installation;
 using NServiceBus.Utils;
 
@@ -16,6 +13,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config
                 return;
 
             MsmqUtilities.CreateQueueIfNecessary(Address.Local, identity.Name);
+
+            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
+            if (unicastConfig != null)
+                if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
+                    MsmqUtilities.CreateQueueIfNecessary(unicastConfig.ForwardReceivedMessagesTo, identity.Name);
         }
     }
 }
