@@ -619,6 +619,9 @@
     <copy todir="${release.dir}\processes" if="${edition == editions.community}">
       <fileset basedir="${build.base}">
         <include name="timeout\**" />
+        <include name="proxy\**" />
+        <include name="distributor\**" />
+        <include name="gateway\**" />
 
         <exclude name="**.xml" />
         <exclude name="**.pdb" />
