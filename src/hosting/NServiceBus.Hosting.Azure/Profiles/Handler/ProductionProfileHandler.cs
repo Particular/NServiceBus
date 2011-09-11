@@ -10,7 +10,8 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
             Configure.Instance
                 .Log4Net<AzureAppender>(
                     a =>
-                    {
+                        {
+                        a.InitializeDiagnostics = !IsHostedIn.ChildHostProcess();
                         a.ScheduledTransferPeriod = 10;
                     });
 

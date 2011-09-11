@@ -26,8 +26,14 @@ namespace NServiceBus.Integration.Azure
         private const string OldScheduledTransferPeriodKey = "Diagnostics.ScheduledTransferPeriod";
         private const string OldEventLogsKey = "Diagnostics.EventLogs";
 
-        public AzureAppender()
+
+        public AzureAppender() : this(true)
         {
+        }
+
+        public AzureAppender(bool initializeDiagnostics)
+        {
+            this.InitializeDiagnostics = initializeDiagnostics;
             ScheduledTransferPeriod = GetScheduledTransferPeriod();
             Layout = new log4net.Layout.PatternLayout(GetLayout());
             Level = GetLevel();
@@ -36,6 +42,8 @@ namespace NServiceBus.Integration.Azure
         public int ScheduledTransferPeriod { get; set; }
 
         public string Level { get; set; }
+
+        public bool InitializeDiagnostics { get; set; }
 
         protected override void Append(LoggingEvent loggingEvent)
         {
@@ -55,6 +63,8 @@ namespace NServiceBus.Integration.Azure
 
         private void ConfigureThreshold()
         {
+            if (!InitializeDiagnostics) return;
+
             var rootRepository = (Hierarchy)log4net.LogManager.GetRepository();
             Threshold = rootRepository.LevelMap[Level];
         }
@@ -64,6 +74,8 @@ namespace NServiceBus.Integration.Azure
             if (!RoleEnvironment.IsAvailable) return;
 
             Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
+
+            if (!InitializeDiagnostics) return;
             
             var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());
 

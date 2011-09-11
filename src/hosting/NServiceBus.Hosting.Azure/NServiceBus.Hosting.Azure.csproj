@@ -114,6 +114,7 @@
     <Compile Include="Roles\AsA_Host.cs" />
     <Compile Include="Roles\AsA_Worker.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="IsHostedIn.cs" />
     <Compile Include="Roles\Handlers\WorkerRoleHandler.cs" />
   </ItemGroup>
   <ItemGroup>
