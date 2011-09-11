@@ -403,9 +403,9 @@ namespace NServiceBus.Unicast
             Action<Address> doIt = address =>
                               {
                                   Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + address);
-                                  
-                                  ((IBus)this).OutgoingHeaders[SubscriptionMessageType] =
-                                      messageType.AssemblyQualifiedName;
+
+                                  ((IBus) this).OutgoingHeaders[SubscriptionMessageType] =
+                                      GetSubscriptionKeyFor(messageType);
                                   SendMessage(address, null, MessageIntentEnum.Subscribe, new CompletionMessage());
                                   ((IBus) this).OutgoingHeaders.Remove(SubscriptionMessageType);
                               };
@@ -450,11 +450,10 @@ namespace NServiceBus.Unicast
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
-            ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
+            ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
             SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
-
 
         void IBus.Reply(params object[] messages)
         {
@@ -1230,6 +1229,14 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
+
+        static string GetSubscriptionKeyFor(Type messageType)
+        {
+            var version = messageType.Assembly.GetName().Version;
+            var qualifiedName = messageType.AssemblyQualifiedName;
+
+            return qualifiedName.Replace("Version=" + version, "Version=" + version.Major +".0.0.0");
+        }
 
         bool IsSendOnlyEndpoint()
         {

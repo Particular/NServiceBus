@@ -72,7 +72,10 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="MessageHeaderManager.cs" />
+    <Compile Include="using_the_unicastbus.cs" />
     <Compile Include="When_sending_messages_to_sites.cs" />
+    <Compile Include="When_subscribing_to_messages.cs" />
     <Compile Include="When_the_bus_is_started_in_send_only_mode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
