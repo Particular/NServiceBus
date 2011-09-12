@@ -7,7 +7,9 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 
 namespace NServiceBus.ObjectBuilder.Unity
 {
-   /// <summary>
+    using Microsoft.Practices.Unity.Utility;
+
+    /// <summary>
    /// Specialy prepared derivative of <see cref="InjectionProperty"/> adjusted to cooperate with 
    /// autowire infrastructure. Does not replace property selector policy for 
    /// <see cref="SpecifiedPropertiesSelectorPolicy"/> but, instead, uses 
@@ -48,16 +50,18 @@ namespace NServiceBus.ObjectBuilder.Unity
          this.propertyName = propertyName;
          parameterValue = InjectionParameterValue.ToParameter(propertyValue);
       }
-      /// <summary>
-      /// Add policies to the <paramref name="policies"/> to configure the
-      /// container to call this constructor with the appropriate parameter values.
-      /// </summary>
-      /// <param name="typeToCreate">Type to register.</param>
-      /// <param name="name">Name used to resolve the type object.</param>
-      /// <param name="policies">Policy list to add policies to.</param>
-      [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
+
+        /// <summary>
+        /// Add policies to the <paramref name="policies"/> to configure the
+        /// container to call this constructor with the appropriate parameter values.
+        /// </summary>
+        /// <param name="typeToCreate">Type to register.</param>
+        /// <param name="implementationType"></param>
+        /// <param name="name">Name used to resolve the type object.</param>
+        /// <param name="policies">Policy list to add policies to.</param>
+        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
           Justification = "Validation is done via Guard class")]
-      public override void AddPolicies(Type typeToCreate, string name, IPolicyList policies)
+      public override void AddPolicies(Type typeToCreate, Type implementationType, string name, IPolicyList policies)
       {
          Guard.ArgumentNotNull(typeToCreate, "typeToCreate");
          PropertyInfo propInfo = typeToCreate.GetProperty(propertyName);
@@ -134,6 +138,8 @@ namespace NServiceBus.ObjectBuilder.Unity
          {
             throw new InvalidOperationException();
          }
-      }     
+      }
+
+
    }
 }

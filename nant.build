@@ -630,12 +630,6 @@
 
 		<mkdir dir="${binaries.dir}\containers\unity" />
 		<copy todir="${binaries.dir}\containers\unity">
-			<fileset basedir="${lib.dir}\containers\unity">
-				<include name="Microsoft.Practices.ObjectBuilder2.dll" />
-				<include name="Microsoft.Practices.Unity.dll" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\unity">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
 			</fileset>

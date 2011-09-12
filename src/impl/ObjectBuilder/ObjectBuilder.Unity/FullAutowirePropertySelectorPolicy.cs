@@ -49,11 +49,11 @@ namespace NServiceBus.ObjectBuilder.Unity
          return new FullAutowirePropertySelectorPolicy(container);
       }
       
-      public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context)
+      public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
       {
-         var t = BuildKey.GetType(context.BuildKey);
+         var t = context.BuildKey.Type;
          var propertyNames = new HashSet<string>();
-         foreach (SelectedProperty prop in specifiedPropertiesPolicy.SelectProperties(context))
+         foreach (SelectedProperty prop in specifiedPropertiesPolicy.SelectProperties(context,resolverPolicyDestination))
          {
             if (!propertyNames.Contains(prop.Property.Name))
             {
@@ -61,7 +61,7 @@ namespace NServiceBus.ObjectBuilder.Unity
                yield return prop;
             }
          }
-         foreach (SelectedProperty prop in defaultProlicy.SelectProperties(context))
+         foreach (SelectedProperty prop in defaultProlicy.SelectProperties(context,resolverPolicyDestination))
          {
             if (!propertyNames.Contains(prop.Property.Name))
             {
@@ -116,6 +116,7 @@ namespace NServiceBus.ObjectBuilder.Unity
              context.BuildKey,
              key);
          return result;
-      }      
+      }
+
    }
 }

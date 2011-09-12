@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.Unity;
+
     [TestFixture]
     public class When_registering_components : BuilderFixture
     {
@@ -35,7 +37,7 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
-            });
+            },typeof(UnityObjectBuilder));
             
         }
 
@@ -58,7 +60,7 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.StringDependency,"Test");
                 Assert.NotNull(component.ConcreteDependecy, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency,"Interfaces should be property injected");
-            });
+            }, typeof(UnityObjectBuilder));
 
         }
 

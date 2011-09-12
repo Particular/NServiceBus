@@ -34,9 +34,7 @@ namespace NServiceBus.ObjectBuilder.Unity
          {
             throw new ArgumentNullException("context");
          }         
-         IBuilderContext recursiveContext = context.CloneForNewBuild(new NamedTypeBuildKey(typeToBuild), null);
-         return recursiveContext.Strategies.ExecuteBuildUp(recursiveContext);
-      }
+         return context.NewBuildUp(new NamedTypeBuildKey(typeToBuild));      }
 
       #endregion
    }
