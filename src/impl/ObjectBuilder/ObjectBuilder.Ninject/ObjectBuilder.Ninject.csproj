@@ -38,11 +38,11 @@
     <Reference Include="log4net">
       <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject">
-      <HintPath>..\..\..\..\lib\containers\ninject\Ninject.dll</HintPath>
+    <Reference Include="Ninject, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Ninject.2.2.1.4\lib\net40-Full\Ninject.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.Extensions.ChildKernel">
-      <HintPath>..\..\..\..\lib\containers\ninject\extensions\Ninject.Extensions.ChildKernel.dll</HintPath>
+    <Reference Include="Ninject.Extensions.ChildKernel, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Ninject.Extensions.ChildKernel.2.2.0.5\lib\net40-Full\Ninject.Extensions.ChildKernel.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -67,7 +67,9 @@
     <Compile Include="NinjectObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

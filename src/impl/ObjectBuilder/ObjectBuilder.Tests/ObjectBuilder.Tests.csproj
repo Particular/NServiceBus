@@ -65,6 +65,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\containers\unity\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Ninject.2.2.1.4\lib\net40-Full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Extensions.ChildKernel, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Ninject.Extensions.ChildKernel.2.2.0.5\lib\net40-Full\Ninject.Extensions.ChildKernel.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
