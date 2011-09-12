@@ -97,7 +97,7 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -345,14 +345,14 @@
 	<target name="compile_azure" depends="compile_nhibernate">
 		<!-- NServiceBus.azure -->
 		<exec 	program="${msbuild}"
-				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.Azure\ ${msbuild.targetframework}"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\NServiceBus.Azure\ ${msbuild.targetframework}"
 				workingdir="${solution.dir}\azure" />
 		
 		<property name="nservicebus.azure.tests" value="" dynamic="true" />
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${build.dir.absolutepath}\NServiceBus.Azure\**Tests.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.Azure\**Tests.dll" />
 				</items>
 			</in>
 			<do>
@@ -361,19 +361,19 @@
 		</foreach>
 		
 		<!--
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\NServiceBus.azure\">
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\azure\NServiceBus.azure\">
 			<arg line="${nservicebus.azure.tests}" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
 		-->
 		<!-- Create list of all "Azure" assemblies -->
-		<property name="nservicebus.azure" value="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
+		<property name="nservicebus.azure" value="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.**Azure**.dll" />
-					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\**Tests.dll" />
-					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.**Azure**.dll" />
+					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\**Tests.dll" />
+					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
 				</items>
 			</in>
 			<do>
@@ -424,6 +424,16 @@
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host32.exe ${hosting.build.dir32}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir32}\NServiceBus.Hosting.dll ${hosting.build.dir32}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir32}\Magnum.dll ${hosting.build.dir32}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost32.txt ${ilmerge.targetframework}"
 					workingdir="." />
+	</target>
+	
+	
+	<target name="compile_azure_hosts">
+		<property name="hosting.build.dirAzure" value="${build.base}\azure\hosting" />
+
+		<!-- Compile all hosts -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\hosting\ ${msbuild.targetframework}"
+						workingdir="${solution.dir}\azure\hosting" />
 	</target>
 
 	<target name="test">
@@ -478,6 +488,10 @@
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\timeout\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\timeout" />
+					
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\timeout\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\azure\timeout" />
 
 
 		<!-- proxy -->
@@ -511,7 +525,7 @@
 
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus"
+						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus,Azure\AzureBlobStorageDataBus"
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
