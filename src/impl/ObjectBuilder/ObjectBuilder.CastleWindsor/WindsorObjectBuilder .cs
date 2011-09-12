@@ -14,6 +14,8 @@ using Castle.MicroKernel.Registration;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
+    using Castle.Core.Internal;
+
     /// <summary>
     /// Castle Windsor implementaton of IContainer.
     /// </summary>

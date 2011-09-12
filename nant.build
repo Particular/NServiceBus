@@ -602,11 +602,6 @@
 		<!-- Prepare Containers -->
 		<mkdir dir="${binaries.dir}\containers\autofac" />
 		<copy todir="${binaries.dir}\containers\autofac">
-			<fileset basedir="${lib.dir}\containers\autofac">
-				<include name="Autofac*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\autofac">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
 			</fileset>
@@ -614,22 +609,12 @@
 
 		<mkdir dir="${binaries.dir}\containers\castle" />
 		<copy todir="${binaries.dir}\containers\castle">
-			<fileset basedir="${lib.dir}\containers\castle">
-				<include name="Castle*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\castle">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
 			</fileset>
 		</copy>
 
 		<mkdir dir="${binaries.dir}\containers\structuremap" />
-		<copy todir="${binaries.dir}\containers\structuremap">
-			<fileset basedir=".\packages\structuremap.2.6.2\lib">
-				<include name="StructureMap*.*" />
-			</fileset>
-		</copy>
 		<copy todir="${binaries.dir}\containers\structuremap">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
