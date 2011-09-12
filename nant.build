@@ -625,9 +625,6 @@
 		<copy todir="${binaries.dir}\containers\spring">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Spring.dll" />
-				<include name="Spring.Core.dll" />
-				<include name="antlr.runtime.dll" />
-				<include name="Common.Logging.dll" />
 			</fileset>
 		</copy>
 
