@@ -132,6 +132,14 @@
             Windows Azure environment in the cloud; otherwise, <c>false</c>.
             </value>
         </member>
+        <member name="P:Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsEmulated">
+            <summary>
+            Indicates whether the role instance is running in the Windows Azure Compute Emulator.
+            </summary>
+            <value>
+            <c>true</c> if this instance is running in the compute emulator; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="E:Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.AvailabilityChanged">
             <summary>
             Occurs when the availability of the role environment has changed.
