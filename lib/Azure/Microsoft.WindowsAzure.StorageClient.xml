@@ -1871,6 +1871,11 @@
             The class is an append-only stream for writing into storage.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.BlobWriteStream.blockIdSequenceNumber">
+            <summary>
+            Internal Block ID sequence number. Used in generating Block IDs.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.BlobWriteStream.canWrite">
             <summary>
             The stream is writable until committed/close.
@@ -2026,7 +2031,7 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.BlobWriteStream.GetBlockID">
             <summary>
-            Creates a blockID using the block's hash and a prefix.
+            Generates a blockID using the block's hash and a prefix.
             </summary>
             <returns>The base64 encoded blockID.</returns>
         </member>
@@ -2873,6 +2878,14 @@
             <param name="options">An object that specifies any additional options for the request.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that downloads the blob to the stream.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.DownloadToStreamSyncImpl(System.IO.Stream,Microsoft.WindowsAzure.StorageClient.BlobRequestOptions)">
+            <summary>
+            Implements the DownloadToStream method.
+            </summary>
+            <param name="target">The target stream.</param>
+            <param name="options">An object that specifies any additional options for the request.</param>
+            <returns>A <see cref="T:Microsoft.WindowsAzure.StorageClient.Tasks.SynchronousTask"/> that downloads the blob to the stream.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.GetStreamImpl(Microsoft.WindowsAzure.StorageClient.BlobRequestOptions,System.Int64,System.Int64,System.Action{System.IO.Stream})">
             <summary>
             Implements getting the stream.
@@ -2882,6 +2895,13 @@
             <param name="count">The count.</param>
             <param name="setResult">The set result.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that gets the stream.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.GetStreamSyncImpl(Microsoft.WindowsAzure.StorageClient.BlobRequestOptions)">
+            <summary>
+            Implements getting the stream without specifying a range.
+            </summary>
+            <param name="options">An object that specifies any additional options for the request.</param>
+            <returns>A <see cref="T:Microsoft.WindowsAzure.StorageClient.Tasks.SynchronousTask"/> that gets the stream.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.GetStreamImpl(Microsoft.WindowsAzure.StorageClient.BlobRequestOptions,System.Action{System.IO.Stream})">
             <summary>
@@ -3420,6 +3440,13 @@
             <param name="asyncresult">An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</param>
             <param name="req">The request to end the operation on.</param>
             <returns>The <see cref="T:System.Net.WebResponse"/> from the asynchronous request.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.GetResponse(System.Net.WebRequest)">
+            <summary>
+            Gets the response for the operation.
+            </summary>
+            <param name="req">The request to end the operation on.</param>
+            <returns>The <see cref="T:System.Net.WebResponse"/> from the request.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.ParseUserPrefix(System.String,System.String@,System.String@)">
             <summary>
@@ -5122,7 +5149,8 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.RetrieveApproximateMessageCount">
             <summary>
-            Retrieves the approximate message count for the queue.
+            Retrieves the approximate message count for the queue. If the cached attributes data is older than 
+            ServiceClient.ApproximateMessageCountCacheLength then it will be updated from the service.
             </summary>
             <returns>The approximate message count.</returns>
         </member>
@@ -5753,9 +5781,9 @@
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.BaseUri">
             <summary>
-            Gets or sets the base Uri.
+            Gets the base URI for the Queue service client.
             </summary>
-            <value>The base Uri.</value>
+            <value>The base URI used to construct the Queue service client.</value>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.QueueMessageType">
             <summary>
@@ -6595,6 +6623,16 @@
             Contains methods for dealing with events.
             </summary>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.EventHelper.ProcessWebResponseSync(System.Net.WebRequest,System.EventHandler{Microsoft.WindowsAzure.StorageClient.ResponseReceivedEventArgs},System.Object)">
+            <summary>
+            This sets the event handler with request and response data and 
+            translates storage exceptions.
+            </summary>
+            <param name="req">The request.</param>
+            <param name="handler">The handler.</param>
+            <param name="sender">The sender.</param>
+            <returns>The processed response.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.EventHelper.ProcessWebResponse(System.Net.WebRequest,System.IAsyncResult,System.EventHandler{Microsoft.WindowsAzure.StorageClient.ResponseReceivedEventArgs},System.Object)">
             <summary>
             This sets the event handler with request and response data and 
@@ -6952,12 +6990,13 @@
             <param name="options">The options.</param>
             <returns>The wait timeout.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.ParallelUpload.DispenseBlockStream(System.Action{Microsoft.WindowsAzure.StorageClient.SmallBlockMemoryStream,System.String})">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.ParallelUpload.DispenseBlockStream(System.Int64,System.Action{Microsoft.WindowsAzure.StorageClient.SmallBlockMemoryStream,System.String,System.String})">
             <summary>
             Upload a single block. This can happen on parallel threads.
             </summary>
-            <param name="setResult">The set result.</param>
-            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that dispenses a block stream.</returns>
+            <param name="blockIdSequenceNumber">The block sequence prefix value.</param>
+            <param name="setResult">The set result.</param>       
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that dispenses a block stream.</returns>   
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.ParallelUpload.GetParallelismFactor">
             <summary>
@@ -7884,6 +7923,11 @@
             Default size of buffer for unknown sized requests.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V2blockPrefix">
+            <summary>
+            This is used to create BlockIDs. The prefix must be Base64 compatible.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.PageSize">
             <summary>
             The size of a page in a PageBlob.
@@ -8027,6 +8071,11 @@
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.ContentLengthElement">
             <summary>
             XML element for content length fields.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.ContentMD5Element">
+            <summary>
+            XML element for content MD5 fields.
             </summary>
         </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.BlobsElement">
@@ -8289,9 +8338,29 @@
             Default client side timeout for all service clients.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.BlockPrefix">
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V1BlockPrefix">
+            <summary>
+            This is used to create V1 BlockIDs. The prefix must be Base64 compatible.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V1MD5blockIdExpectedLength">
+            <summary>
+            This is the offset of the V2 MD5 string where the MD5/ tag resides.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V2MD5blockIdFormat">
             <summary>
             This is used to create BlockIDs. The prefix must be Base64 compatible.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V2MD5blockIdMD5Offset">
+            <summary>
+            This is the offset of the V2 MD5 string where the hash value resides.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V2MD5blockIdExpectedLength">
+            <summary>
+            This is the expected length of a V2 MD5 Block ID string.
             </summary>
         </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.TableServiceMinSupportedDateTime">
@@ -10094,6 +10163,15 @@
             <param name="setResult">The result report delegate.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that performs the request with retries.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.RequestWithRetry.RequestWithRetrySyncImpl``1(Microsoft.WindowsAzure.StorageClient.ShouldRetry,Microsoft.WindowsAzure.StorageClient.Tasks.SynchronousTask{``0})">
+            <summary>
+            Implementation of the *RequestWithRetry methods.
+            </summary>
+            <typeparam name="TResult">The result type of the task.</typeparam>
+            <param name="retryOracle">The retry oracle.</param>
+            <param name="syncTask">The task implementation.</param>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that performs the request with retries.</returns>
+        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.ResponseReceivedEventArgs">
             <summary>
             Provides the arguments for the <c>ResponseReceived</c> event.
@@ -11149,6 +11227,25 @@
             The server is busy.
             </summary>
         </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.StorageExceptionExtensions">
+            <summary>
+             Provides a set of extensions for translating Exceptions into StorageExceptions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.StorageExceptionExtensions.TranslateWebException(System.Net.WebException)">
+            <summary>
+            Translates a WebException into the corresponding StorageException.
+            </summary>
+            <param name="exceptionRef">The exception to translate.</param>
+            <returns>The translated exception.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.StorageExceptionExtensions.TranslateDataServiceClientException(System.InvalidOperationException)">
+            <summary>
+             Translates the data service client exception.
+            </summary>
+            <param name="exceptionRef">The exception to translate.</param>
+            <returns>The translated exception.</returns>
+        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.StorageExtendedErrorInformation">
             <summary>
             Represents extended error information returned by the Windows Azure storage services.
@@ -11568,11 +11665,6 @@
             Helper functions for table service.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.StorageClient.TableServiceUtilities.ValidTableNameRegex">
-            <summary>
-            Regular expression for valid table names.
-            </summary>
-        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.TableServiceUtilities.IsEntityType(System.Type,System.Type)">
             <summary>
             Determines whether the type is an entity type.
@@ -11612,15 +11704,6 @@
             </summary>
             <param name="tableName">The table name.</param>
             <param name="argName">Name of the arg.</param>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.TableServiceUtilities.IsValidTableName(System.String)">
-            <summary>
-            Determines whether the specified name is a valid table name.
-            </summary>
-            <param name="name">The table name.</param>
-            <returns>
-            Returns <c>true</c> if the specified name is a valid table name; otherwise, <c>false</c>.
-            </returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.TaskImplHelper">
             <summary>
@@ -11708,6 +11791,23 @@
             </summary>
             <param name="impl">The task implementation.</param>
             <param name="policy">The policy.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.TaskImplHelper.ExecuteSyncTask``1(Microsoft.WindowsAzure.StorageClient.Tasks.SynchronousTask{``0})">
+            <summary>
+            Executes the impl with retry.
+            </summary>
+            <typeparam name="TResult">The result type.</typeparam>
+            <param name="syncTask">The task implementation.</param>
+            <returns>The task result.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.TaskImplHelper.ExecuteSyncTaskWithRetry``1(Microsoft.WindowsAzure.StorageClient.Tasks.SynchronousTask{``0},Microsoft.WindowsAzure.StorageClient.RetryPolicy)">
+            <summary>
+            Executes the impl with retry.
+            </summary>
+            <typeparam name="TResult">The result type.</typeparam>
+            <param name="syncTask">The task implementation.</param>
+            <param name="policy">The policy.</param>
+            <returns>The task result.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.TaskImplHelper.BeginImplWithRetry(System.Func{System.Collections.Generic.IEnumerable{Microsoft.WindowsAzure.StorageClient.Tasks.ITask}},Microsoft.WindowsAzure.StorageClient.RetryPolicy,System.AsyncCallback,System.Object)">
             <summary>
@@ -11826,6 +11926,12 @@
         <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.Task`1.ExecuteAndWait">
             <summary>
             Executes the tasks and waits for the result.
+            </summary>
+            <returns>The result of the operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.Task`1.Execute">
+            <summary>
+            Executes a task, will not wait on a sync task.
             </summary>
             <returns>The result of the operation.</returns>
         </member>
@@ -12179,6 +12285,13 @@
             <param name="stream">The origin stream.</param>
             <param name="toStream">The destination stream.</param>
             <returns>The sequence that when invoked results in an asynchronous copy.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.StreamExtensions.WriteToSync(System.IO.Stream,System.IO.Stream)">
+            <summary>
+            Reads synchronously the entire content of the stream and writes it to the given output stream.
+            </summary>
+            <param name="stream">The origin stream.</param>
+            <param name="toStream">The destination stream.</param>       
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.StreamExtensions.WriteToAndCloseOutput(System.IO.Stream,System.IO.Stream)">
             <summary>
@@ -12537,6 +12650,21 @@
             <param name="details">The details.</param>
             <param name="inner">The inner.</param>
             <returns>The translated exception.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Utilities.ExtractMD5ValueFromBlockID(System.String)">
+            <summary>
+            Extracts an MD5 value from either an v1 or v2 block id.
+            </summary>
+            <param name="blockId">The block id containing an MD5.</param>
+            <returns>MD5 value, or null if invalid format.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Utilities.GenerateBlockIDWithHash(System.String,System.Int64)">
+            <summary>
+            Generates an block id using the given MD5 hash value. The id must be Base64 compatible.
+            </summary>
+            <param name="hashVal">The hash value to encode in the block id.</param>
+            <param name="seqNo">The sequence prefix value.</param>
+            <returns>The block id.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Utilities.TranslateExtendedError(Microsoft.WindowsAzure.StorageClient.StorageExtendedErrorInformation,System.Net.HttpStatusCode,System.String,System.Exception)">
             <summary>
