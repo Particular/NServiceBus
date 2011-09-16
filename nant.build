@@ -372,6 +372,7 @@
 			<in>
 				<items>
 					<include name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.**Azure**.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.**AppFabric**.dll" />
 					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\**Tests.dll" />
 					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
 				</items>

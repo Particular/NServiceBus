@@ -25,7 +25,6 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
             }
 
             return instance
-                .AzureMessageQueue()
                 .JsonSerializer()
                 .IsTransactional(true)
                 .UnicastBus()

@@ -6,7 +6,6 @@
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={your account name};AccountKey={your account key}"/>-->
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
@@ -21,7 +20,7 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="UnicastBusConfig.LocalAddress" value="serviceinputqueue" />

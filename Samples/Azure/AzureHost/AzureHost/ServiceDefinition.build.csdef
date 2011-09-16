@@ -35,7 +35,7 @@
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>
     <LocalResources>
-      <LocalStorage name="Endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />
+      <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />
     </LocalResources>
   </WebRole>
 </ServiceDefinition>

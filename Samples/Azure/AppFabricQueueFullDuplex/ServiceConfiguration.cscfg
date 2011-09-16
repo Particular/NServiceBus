@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
+  <Role name="OrderWebSite">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />      
+      
+      <Setting name="Diagnostics.Level" value="Error" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderwebsiteinputqueue" />
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
+      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="OrderService">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="yourkey" />
+      <Setting name="AppFabricQueueConfig.IssuerName" value="owner" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="yournamespace" />
+
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Development NServiceBus.OnAzureTableStorage NServiceBus.WithAppFabricQueues" />
+      
+      <Setting name="Diagnostics.Level" value="Error" />
+      <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+
+      <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
+      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

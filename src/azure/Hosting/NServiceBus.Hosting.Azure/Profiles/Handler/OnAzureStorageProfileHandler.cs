@@ -2,7 +2,7 @@ using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {
-    internal class OnAzureStorageProfileHandler : IHandleProfile<OnAzureStorage>
+    internal class OnAzureTableStorageProfileHandler : IHandleProfile<OnAzureTableStorage>
     {
         void IHandleProfile.ProfileActivated()
         {

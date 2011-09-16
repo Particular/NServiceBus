@@ -19,7 +19,6 @@
     </Sites>
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
-      <Setting name="NServiceBus.Profile" />
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="Diagnostics.Level" />

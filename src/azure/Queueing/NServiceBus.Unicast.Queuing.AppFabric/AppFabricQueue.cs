@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.ServiceModel;
 using System.Transactions;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -13,17 +12,16 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
 {
     public class AppFabricQueue : IReceiveMessages, ISendMessages
     {
-        private readonly Dictionary<string, MessageSender> senders = new Dictionary<string, MessageSender>();
+        private readonly Dictionary<string, QueueClient> senders = new Dictionary<string, QueueClient>();
         private static readonly object SenderLock = new Object();
 
         private readonly MessagingFactory factory;
-        private readonly ServiceBusNamespaceClient namespaceClient;
-        private MessageReceiver receiver;
+        private readonly NamespaceManager namespaceClient;
         private bool useTransactions;
         private QueueClient queueClient;
         private string queueName;
 
-        public AppFabricQueue(MessagingFactory factory, ServiceBusNamespaceClient namespaceClient)
+        public AppFabricQueue(MessagingFactory factory, NamespaceManager namespaceClient)
         {
             this.factory = factory;
             this.namespaceClient = namespaceClient;
@@ -40,18 +38,16 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
             try
             {
                 queueName = address.Queue;
-                var description = new QueueDescription {RequiresSession = false, RequiresDuplicateDetection = false, MaxQueueSizeInBytes = 104857600};
-                namespaceClient.CreateQueue(queueName, description);
+                var description = new QueueDescription(queueName) { RequiresSession = false, RequiresDuplicateDetection = false, MaxSizeInMegabytes = 1024 };
+                namespaceClient.CreateQueue(description);
             }
             catch (MessagingEntityAlreadyExistsException)
             {
                 // the queue already exists, which is ok
             }
 
-            queueClient = factory.CreateQueueClient(queueName);
-            receiver = queueClient.CreateReceiver(ReceiveMode.PeekLock);
-            receiver.Faulted += (o, args) => receiver = queueClient.CreateReceiver(ReceiveMode.PeekLock);
-           
+            queueClient = factory.CreateQueueClient(queueName, ReceiveMode.PeekLock);
+            
             useTransactions = transactional;
         }
 
@@ -64,8 +60,8 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
 
         public TransportMessage Receive()
         {
-            BrokeredMessage message;
-            if(receiver.TryReceive(out message))
+            BrokeredMessage message = queueClient.Receive();
+            if(message != null)
             {
                 var rawMessage = message.GetBody<byte[]>();
                 var t = DeserializeMessage(rawMessage);
@@ -98,17 +94,16 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
         {
             var destination = address.Queue;
                 
-            MessageSender sender;
-            if(!senders.TryGetValue(destination, out sender) || sender.State == CommunicationState.Faulted)
+            QueueClient sender;
+            if (!senders.TryGetValue(destination, out sender) )
             {
                 lock (SenderLock)
                 {
-                    if (!senders.TryGetValue(destination, out sender) || sender.State == CommunicationState.Faulted)
+                    if (!senders.TryGetValue(destination, out sender) )
                     {
                             try
                             {
-                                var c = factory.CreateQueueClient(destination);
-                                sender = c.CreateSender();
+                                sender = factory.CreateQueueClient(destination);
                                 senders[destination] = sender;
                             }
                             catch (MessagingEntityNotFoundException)
@@ -122,7 +117,7 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
             message.Id = Guid.NewGuid().ToString();
             var rawMessage = SerializeMessage(message);
 
-            var brokeredMessage = BrokeredMessage.CreateMessage(rawMessage);
+            var brokeredMessage = new BrokeredMessage(rawMessage);
 
             if (Transaction.Current == null)
                 sender.Send(brokeredMessage);
@@ -139,8 +134,6 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
                 formatter.Serialize(stream, originalMessage);
                 return stream.ToArray();
             }
-
-
         }
 
         private static TransportMessage DeserializeMessage(byte[] rawMessage)

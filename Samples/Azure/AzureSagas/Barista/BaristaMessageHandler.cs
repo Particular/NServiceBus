@@ -66,7 +66,10 @@ namespace Barista
             var viewData = new DeliverOrderView(Data.Drink, Data.Size);
             _view.DeliverOrder(viewData);
 
-            Bus.Send(new OrderReadyMessage(Data.CustomerName, Data.Drink));
+            var reply = Bus.CreateInstance<OrderReadyMessage>();
+            reply.Drink = Data.Drink;
+            reply.CustomerName = Data.CustomerName;
+            Bus.Send(reply);
 
             MarkAsComplete();
         }

@@ -24,7 +24,10 @@ namespace Customer
             var drink = DrinkComboBox.Text;
             var drinkSize = (DrinkSize) Enum.Parse(typeof(DrinkSize), SizeComboBox.Text);
 
-            var newOrder = new NewOrderMessage(customerName, drink, drinkSize);
+            var newOrder = _bus.CreateInstance<NewOrderMessage>();
+            newOrder.CustomerName = customerName;
+            newOrder.Drink = drink;
+            newOrder.DrinkSize = drinkSize;
             _bus.Send(newOrder);
         }
 
@@ -34,7 +37,11 @@ namespace Customer
             var result = MessageBox.Show(text, "Request payment", MessageBoxButtons.YesNo);
 
             var amount = (DialogResult.Yes == result) ? message.Amount : 0.0;
-            _bus.Reply(new PaymentMessage(amount, message.OrderId));    
+            var payment = _bus.CreateInstance<PaymentMessage>();
+            payment.Amount = amount;
+            payment.OrderId = message.OrderId;
+
+            _bus.Reply(payment);    
         }
 
         public new void Handle(OrderReadyMessage message)

@@ -18,7 +18,18 @@ namespace OrderWebSite
 
         private static IBus ConfigureNServiceBus()
         {
-            var bus = _configure
+            var bus = Configure.WithWeb()
+                  .DefaultBuilder()
+                  .Log4Net(new AzureAppender())
+                  .AzureConfigurationSource()
+                  .AzureMessageQueue()
+                    .JsonSerializer()
+                    .QueuePerInstance()
+                    .PurgeOnStartup(true)
+                  .UnicastBus()
+                      .LoadMessageHandlers()
+                      .IsTransactional(true)
+                  .CreateBus()
                 .Start();
 
             return bus;
@@ -31,20 +42,6 @@ namespace OrderWebSite
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            if(_configure == null)
-               _configure = Configure.WithWeb()
-                  .DefaultBuilder()
-                  .Log4Net(new AzureAppender())
-                  .AzureConfigurationSource()
-                  .AzureMessageQueue()
-                    .JsonSerializer()
-                    .QueuePerInstance()
-                    .PurgeOnStartup(true)
-                  .UnicastBus()
-                      .LoadMessageHandlers()
-                      .IsTransactional(true)
-                  .CreateBus();
-
            Bus = StartBus.Value; 
         }
 

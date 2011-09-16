@@ -47,6 +47,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.ServiceBus, Version=1.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Microsoft.ServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
@@ -104,8 +108,12 @@
     <Compile Include="Profiles\Handler\DevelopmentProfileHandler.cs" />
     <Compile Include="Profiles\Handler\OnAzureStorageProfileHandler.cs" />
     <Compile Include="Profiles\Handler\OnSqlAzureProfileHandler.cs" />
-    <Compile Include="Profiles\OnAzureStorage.cs" />
+    <Compile Include="Profiles\Handler\WithAppFabricQueuesProfileHandler.cs" />
+    <Compile Include="Profiles\Handler\WithStorageQueuesProfileHandler.cs" />
+    <Compile Include="Profiles\OnAzureTableStorage.cs" />
     <Compile Include="Profiles\OnSqlAzure.cs" />
+    <Compile Include="Profiles\WithAppFabricQueues.cs" />
+    <Compile Include="Profiles\WithAzureStorageQueues.cs" />
     <Compile Include="RoleHost\Entrypoint.cs" />
     <Compile Include="DynamicHost\DynamicHostController.cs" />
     <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />

@@ -37,8 +37,19 @@ namespace Cashier
             Data.CustomerName = message.CustomerName;
             Data.Amount = CalculateAmountAccordingTo(message.DrinkSize);
 
-            Bus.Publish(new PrepareOrderMessage(Data.CustomerName, Data.Drink, Data.DrinkSize, Data.OrderId));
-            Bus.Reply(new PaymentRequestMessage(Data.Amount, message.CustomerName, message.OrderId));
+            var prepareOrder = Bus.CreateInstance<PrepareOrderMessage>();
+            prepareOrder.CustomerName = Data.CustomerName;
+            prepareOrder.Drink = Data.Drink;
+            prepareOrder.DrinkSize = Data.DrinkSize;
+            prepareOrder.OrderId = Data.OrderId;
+
+            var paymentRequest = Bus.CreateInstance<PaymentRequestMessage>();
+            paymentRequest.OrderId = message.OrderId;
+            paymentRequest.CustomerName = message.CustomerName;
+            paymentRequest.Amount = Data.Amount;
+
+            Bus.Publish(prepareOrder);
+            Bus.Reply(paymentRequest);
         }
 
         public void Handle(PaymentMessage message)
@@ -53,7 +64,9 @@ namespace Cashier
                 var viewData = new ReceivedFullPaymentView(Data.CustomerName, Data.Drink, Data.DrinkSize);
                 _view.ReceivedFullPayment(viewData);
 
-                Bus.Publish(new PaymentCompleteMessage(Data.OrderId));
+                var paymentCompleteMessage = Bus.CreateInstance<PaymentCompleteMessage>();
+                paymentCompleteMessage.OrderId = Data.OrderId;
+                Bus.Publish(paymentCompleteMessage);
             }
             
             MarkAsComplete();

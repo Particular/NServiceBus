@@ -6,10 +6,10 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
 {
     public class SendResourceManager : IEnlistmentNotification
     {
-        private readonly MessageSender sender;
+        private readonly QueueClient sender;
         private readonly BrokeredMessage message;
 
-        public SendResourceManager(MessageSender sender, BrokeredMessage message)
+        public SendResourceManager(QueueClient sender, BrokeredMessage message)
         {
             this.sender = sender;
             this.message = message;
@@ -22,15 +22,7 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
 
         public void Commit(Enlistment enlistment)
         {
-            try
-            {
-                sender.Send(message);
-            }
-            catch (Exception)
-            {
-                
-                throw;
-            }
+            sender.Send(message);
             
             enlistment.Done();
         }

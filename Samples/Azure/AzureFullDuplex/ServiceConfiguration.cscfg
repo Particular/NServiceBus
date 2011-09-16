@@ -4,7 +4,6 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
@@ -19,12 +18,11 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true"/>
       <!--<Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={your account name};AccountKey={your account key}"/>-->
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-      <Setting name="MsmqTransportConfig.InputQueue" value="orderserviceinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>

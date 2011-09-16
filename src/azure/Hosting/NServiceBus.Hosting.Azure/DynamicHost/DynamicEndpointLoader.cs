@@ -40,6 +40,8 @@ namespace NServiceBus.Hosting
             }
 
             var blobContainer = client.GetContainerReference(container);
+            blobContainer.CreateIfNotExist();
+
             return from b in blobContainer.ListBlobs()
                    where b.Uri.AbsolutePath.EndsWith(".zip")
                    select new EndpointToHost((CloudBlockBlob)b) ;

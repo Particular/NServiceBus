@@ -12,6 +12,7 @@ namespace CashierContracts
     
         public NewOrderMessage()
         {
+            OrderId = Guid.NewGuid();
         }
         
         public NewOrderMessage(String customerName, String drink, DrinkSize drinkSize)

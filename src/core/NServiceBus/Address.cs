@@ -38,8 +38,8 @@ namespace NServiceBus
         /// <exception cref="InvalidOperationException"></exception>
         public static void OverrideDefaultMachine(string machineName)
         {
-            if (Local != null)
-                throw new InvalidOperationException("The local address has already been initialized, changing the default machine name is no longer possible.");
+            //if (Local != null)
+            //    throw new InvalidOperationException("The local address has already been initialized, changing the default machine name is no longer possible.");
 
             defaultMachine = machineName;
         }
@@ -51,8 +51,8 @@ namespace NServiceBus
         /// <exception cref="InvalidOperationException"></exception>
         public static void InitializeAddressMode(AddressMode mode)
         {
-            if (Local != null)
-                throw new InvalidOperationException("The local address has already been initialized, switching address modes is no longer possible.");
+            //if (Local != null)
+            //    throw new InvalidOperationException("The local address has already been initialized, switching address modes is no longer possible.");
 
             addressMode = mode;
         }
