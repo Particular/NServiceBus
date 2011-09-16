@@ -32,8 +32,7 @@ namespace OrderService.MessageHandlers
             orders.AddOrder(order);
             
             //publish update
-            var orderUpdatedEvent = bus.CreateInstance<OrderUpdatedEvent>(x=>x.UpdatedOrder = order);
-            bus.Publish(orderUpdatedEvent);
+            bus.Publish(new OrderUpdatedEvent { UpdatedOrder =  order});
         }
     }
 }

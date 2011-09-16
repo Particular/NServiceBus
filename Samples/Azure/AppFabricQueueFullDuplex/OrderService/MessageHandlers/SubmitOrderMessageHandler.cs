@@ -24,8 +24,7 @@ namespace OrderService.MessageHandlers
 
             // Thread.Sleep(4000); //simulate processing
             
-            var response = bus.CreateInstance<SubmitOrderResponse>(x=>x.Order = order);
-            bus.Reply(response);
+            bus.Reply(new SubmitOrderResponse{ Order = order});
         }
     }
 }
