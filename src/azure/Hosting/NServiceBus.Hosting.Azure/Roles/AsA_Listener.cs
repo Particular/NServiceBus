@@ -3,7 +3,7 @@ using NServiceBus.Hosting.Roles;
 namespace NServiceBus
 {
     /// <summary>
-    /// Indicates this endpoint is a client.
+    /// Indicates this endpoint is a listener.
     /// </summary>
-    public interface AsA_Client : IRole { }
+    public interface AsA_Listener : IRole { }
 }

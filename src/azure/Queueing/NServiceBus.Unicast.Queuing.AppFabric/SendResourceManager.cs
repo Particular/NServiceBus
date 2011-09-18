@@ -1,4 +1,3 @@
-using System;
 using System.Transactions;
 using Microsoft.ServiceBus.Messaging;
 

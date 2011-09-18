@@ -35,6 +35,10 @@
       <Private>True</Private>
       <HintPath>..\..\..\..\packages\WindowsAzure.ServiceBus.1.5.0.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -57,7 +61,8 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppFabricQueueConfig.cs" />
-    <Compile Include="ConfigureAppFabricQueue.cs" />
+    <Compile Include="ConfigureAppFabricMessageQueue.cs" />
+    <Compile Include="IndividualQueueConfigurationSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

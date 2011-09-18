@@ -28,6 +28,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
             return instance
                 .JsonSerializer()
                 .IsTransactional(true)
+                .Sagas()
                 .UnicastBus()
                     .ImpersonateSender(false);
         }

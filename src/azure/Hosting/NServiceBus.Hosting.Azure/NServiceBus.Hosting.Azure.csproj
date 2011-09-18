@@ -121,10 +121,10 @@
     <Compile Include="Profiles\Handler\ProductionProfileHandler.cs" />
     <Compile Include="Profiles\Production.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Roles\AsA_Client.cs" />
+    <Compile Include="Roles\AsA_Listener.cs" />
     <Compile Include="Roles\AsA_Host.cs" />
     <Compile Include="Roles\AsA_Worker.cs" />
-    <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\ListenerRoleHandler.cs" />
     <Compile Include="IsHostedIn.cs" />
     <Compile Include="Roles\Handlers\WorkerRoleHandler.cs" />
   </ItemGroup>

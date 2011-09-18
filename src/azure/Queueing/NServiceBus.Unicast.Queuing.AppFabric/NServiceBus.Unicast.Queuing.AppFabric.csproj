@@ -74,7 +74,7 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AppFabricQueue.cs" />
+    <Compile Include="AppFabricMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveResourceManager.cs" />
     <Compile Include="SendResourceManager.cs" />

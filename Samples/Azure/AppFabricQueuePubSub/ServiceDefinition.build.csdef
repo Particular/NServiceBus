@@ -19,14 +19,13 @@
     </Sites>
     <ConfigurationSettings>
       <Setting name="AppFabricQueueConfig.IssuerKey" />
-      <Setting name="AppFabricQueueConfig.IssuerName" />
       <Setting name="AppFabricQueueConfig.ServiceNamespace" />
-      <Setting name="Diagnostics.ConnectionString" />
-      <Setting name="Diagnostics.Level" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
@@ -35,16 +34,15 @@
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AppFabricQueueConfig.IssuerKey" />
-      <Setting name="AppFabricQueueConfig.IssuerName" />
       <Setting name="AppFabricQueueConfig.ServiceNamespace" />
       <Setting name="NServiceBus.Profile" />
-      <Setting name="Diagnostics.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
-      <Setting name="Diagnostics.Level" />
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

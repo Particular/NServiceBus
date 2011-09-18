@@ -28,10 +28,6 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
             {
                 // message has been completed by another thread or worker
             }
-            catch (Exception)
-            {
-                throw;
-            }
 
             enlistment.Done();
         }

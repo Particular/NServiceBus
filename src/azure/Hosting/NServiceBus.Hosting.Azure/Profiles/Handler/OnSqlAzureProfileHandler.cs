@@ -2,14 +2,19 @@ using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {
-    internal class OnSqlAzureProfileHandler : IHandleProfile<OnSqlAzure>
+    internal class OnSqlAzureProfileHandler : IHandleProfile<OnSqlAzure>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance
-                .DBSubcriptionStorage()
-                .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork();
+            if (Config is AsA_Worker)
+            {
+                Configure.Instance
+                    .DBSubcriptionStorage()
+                    .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork();
+            }
 
         }
+
+        public IConfigureThisEndpoint Config { get; set; }
     }
 }

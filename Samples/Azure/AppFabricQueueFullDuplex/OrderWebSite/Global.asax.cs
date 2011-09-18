@@ -38,7 +38,7 @@ namespace OrderWebSite
                .DefaultBuilder()
                .Log4Net(new AzureAppender())
                .AzureConfigurationSource()
-               .AppFabricQueue()
+               .AppFabricMessageQueue()
                .JsonSerializer()
                .UnicastBus()
                .DoNotAutoSubscribe()

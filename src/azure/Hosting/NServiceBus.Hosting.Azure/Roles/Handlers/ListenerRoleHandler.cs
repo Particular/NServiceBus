@@ -6,12 +6,12 @@ using NServiceBus.Unicast.Config;
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
 {
     /// <summary>
-    /// Handles configuration related to the client role
+    /// Handles configuration related to the listener role
     /// </summary>
-    public class ClientRoleHandler : IConfigureRole<AsA_Client>
+    public class ListenerRoleHandler : IConfigureRole<AsA_Listener>
     {
         /// <summary>
-        /// Configures the UnicastBus with typical settings for a clients on azure
+        /// Configures the UnicastBus with typical settings for a listener on azure
         /// </summary>
         /// <param name="specifier"></param>
         /// <returns></returns>
@@ -28,8 +28,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 .JsonSerializer()
                 .IsTransactional(true)
                 .UnicastBus()
-                .ImpersonateSender(false)
-                .LoadMessageHandlers();
+                .ImpersonateSender(false);
         }
     }
 }
