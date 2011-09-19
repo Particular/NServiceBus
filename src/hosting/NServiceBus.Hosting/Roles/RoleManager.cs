@@ -53,9 +53,6 @@ namespace NServiceBus.Hosting.Roles
 
                 Logger.Info("Role " + roleType + " configured");
             }
-
-            if (config != null)
-                config.LoadMessageHandlers();
         }
     }
 

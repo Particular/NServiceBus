@@ -2,7 +2,7 @@ using System.Linq;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 
-namespace Timeout.MessageHandlers
+namespace NServiceBus.Timeout.Hosting.Azure
 {
     public class ServiceContext : TableServiceContext
     {

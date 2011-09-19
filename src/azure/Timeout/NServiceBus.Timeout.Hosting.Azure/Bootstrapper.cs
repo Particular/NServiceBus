@@ -1,24 +1,27 @@
 ﻿using System.Linq;
 using System.Threading;
-using NServiceBus;
 using NServiceBus.Saga;
+using Timeout.MessageHandlers;
 
-namespace Timeout.MessageHandlers
+namespace NServiceBus.Timeout.Hosting.Azure
 {
     public class Bootstrapper : IWantToRunAtStartup
     {
         public IPersistTimeouts Persister { get; set; }
+        public IDetermineWhoCanSend I { get; set; }
         public IManageTimeouts Manager { get; set; }
         public IBus Bus { get; set; }
 
         private Thread thread;
-        private volatile bool StopRequested;
+        private volatile bool stopRequested;
 
         public void Run()
         {
             Manager.SagaTimedOut +=
                 (o, e) =>
                     {
+                        if (!I.CanSend(e)) return;
+
                         Bus.Send(e.Destination, new TimeoutMessage {SagaId = e.SagaId, Expires = e.Time, State = e.State});
                         Persister.Remove(e.SagaId);
                     };
@@ -31,13 +34,13 @@ namespace Timeout.MessageHandlers
 
         private void Poll()
         {
-            while(!StopRequested)
+            while(!stopRequested)
                 Manager.PopTimeout();
         }
 
         public void Stop()
         {
-            StopRequested = true;
+            stopRequested = true;
         }
     }
 }

@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\WindowsAzure.StorageClient.Library.1.4\lib\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
@@ -40,6 +44,10 @@
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Azure, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Azure.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
@@ -54,6 +62,7 @@
       <HintPath>..\..\..\..\build\timeout\NServiceBus.Timeout.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Xml.Linq" />
@@ -63,12 +72,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\ConfigureTimeoutManager.cs" />
+    <Compile Include="TimeoutLogic\AutoRenewLease.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Endpoint.cs" />
+    <Compile Include="Roles\Handlers\TimeoutManagerRoleHandler.cs" />
+    <Compile Include="TimeoutLogic\ExistenceExtensions.cs" />
+    <Compile Include="TimeoutLogic\IDetermineWhoCanSend.cs" />
+    <Compile Include="TimeoutLogic\LeaseExtensions.cs" />
+    <Compile Include="Roles\AsA_TimeoutManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceContext.cs" />
-    <Compile Include="TimeoutDataEntity.cs" />
-    <Compile Include="TimeoutPersister.cs" />
+    <Compile Include="TimeoutLogic\ServiceContext.cs" />
+    <Compile Include="TimeoutLogic\TimeoutDataEntity.cs" />
+    <Compile Include="Config\TimeoutManagerConfig.cs" />
+    <Compile Include="TimeoutLogic\TimeoutPersister.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

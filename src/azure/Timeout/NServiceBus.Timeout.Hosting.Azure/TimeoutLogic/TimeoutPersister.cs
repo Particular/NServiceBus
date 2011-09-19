@@ -4,15 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus;
 using Newtonsoft.Json;
+using Timeout.MessageHandlers;
 
-namespace Timeout.MessageHandlers
+namespace NServiceBus.Timeout.Hosting.Azure
 {
-    public class TimeoutPersister : IPersistTimeouts
+    public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
         IEnumerable<TimeoutData> IPersistTimeouts.GetAll()
         {
@@ -32,10 +33,10 @@ namespace Timeout.MessageHandlers
 
         void IPersistTimeouts.Add(TimeoutData timeout)
         {
-            string stateAddress = Serialize(timeout.State);
+            string stateAddress = Serialize(timeout.State, Hash(timeout));
 
             context.AddObject(ServiceContext.TimeoutDataEntityTableName,
-                                  new TimeoutDataEntity(stateAddress, "TimeoutData")
+                                  new TimeoutDataEntity("TimeoutData", stateAddress)
                                       {
                                           Destination = timeout.Destination.ToString(),
                                           SagaId = timeout.SagaId,
@@ -45,7 +46,7 @@ namespace Timeout.MessageHandlers
             context.SaveChanges();
         }
 
-       
+
         void IPersistTimeouts.Remove(Guid sagaId)
         {
             try
@@ -66,6 +67,23 @@ namespace Timeout.MessageHandlers
                 // make sure to add logging here
             }
            
+        }
+
+        public bool CanSend(TimeoutData data)
+        {
+            var hash = Hash(data);
+            var result = (from c in context.TimeoutData
+                          where c.RowKey == hash
+                          select c).SingleOrDefault();
+
+            if (result == null) return false;
+            
+            var leaseBlob = container.GetBlockBlobReference(result.StateAddress);
+
+            using (var lease = new AutoRenewLease(leaseBlob))
+            {
+                return lease.HasLease;
+            }
         }
 
         public string ConnectionString 
@@ -90,9 +108,8 @@ namespace Timeout.MessageHandlers
             container.CreateIfNotExist();
         }
 
-        private string Serialize(object state)
+        private string Serialize(object state, string hash)
         {
-            string stateAddress;
             using (var stream = new MemoryStream())
             {
                  var streamWriter = new StreamWriter(stream, Encoding.UTF8);
@@ -100,11 +117,10 @@ namespace Timeout.MessageHandlers
                  var serializer = CreateJsonSerializer();
                  serializer.Serialize(writer, state);
 
-                stateAddress = Guid.NewGuid().ToString();
-                var blob = container.GetBlockBlobReference(stateAddress);
+                var blob = container.GetBlockBlobReference(hash);
                 blob.UploadFromStream(stream);
             }
-            return stateAddress;
+            return hash;
         }
 
         private object Deserialize(string stateAddress)
@@ -137,11 +153,25 @@ namespace Timeout.MessageHandlers
             };
             
             return JsonSerializer.Create(serializerSettings);
-        } 
+        }
+
+        private string Hash(TimeoutData timeout)
+        {
+            var s = timeout.SagaId + timeout.Destination + timeout.Time.Ticks;
+            var sha1 = SHA1.Create();
+            var bytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(s));
+
+            var hash = new StringBuilder();
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                hash.Append(bytes[i].ToString("X2"));
+            }
+            return hash.ToString();
+        }
         
         private string connectionString;
         private ServiceContext context;
         private CloudBlobContainer container;
-
+       
     }
 }
