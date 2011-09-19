@@ -17,5 +17,25 @@ namespace NServiceBus
         {
             ExtensionMethods.IsMessageTypeAction = definesMessageType;
         }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a type is a commands.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="definesCommandType"></param>
+        public static void DefiningCommandsAs(this Configure config, Func<Type, bool> definesCommandType)
+        {
+            ExtensionMethods.IsCommandTypeAction = definesCommandType;
+        }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a type is a event.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="definesEventType"></param>
+        public static void DefiningEventsAs(this Configure config, Func<Type, bool> definesEventType)
+        {
+            ExtensionMethods.IsCommandTypeAction = definesEventType;
+        }
     }
 }

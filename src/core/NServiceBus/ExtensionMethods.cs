@@ -43,6 +43,47 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns true if the given object is a command.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static bool IsCommand(this object o)
+        {
+            return o.GetType().IsCommandType();
+        }
+
+        /// <summary>
+        /// Returns true if the given type is a command type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsCommandType(this Type t)
+        {
+            return IsCommandTypeAction(t);
+        }
+
+        /// <summary>
+        /// Returns true if the given object is a event.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static bool IsEvent(this object o)
+        {
+            return o.GetType().IsEventType();
+        }
+
+        /// <summary>
+        /// Returns true if the given type is a event type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsEventType(this Type t)
+        {
+            return IsEventTypeAction(t);
+        }
+
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg"></param>
@@ -198,6 +239,18 @@ namespace NServiceBus
         /// The function used to determine whether a type is a message type.
         /// </summary>
         public static Func<Type, bool> IsMessageTypeAction { get; set; }
+
+
+        /// <summary>
+        /// The function used to determine whether a type is a command type.
+        /// </summary>
+        public static Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
+
+
+        /// <summary>
+        /// The function used to determine whether a type is a event type.
+        /// </summary>
+        public static Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
     }
 
     /// <summary>
