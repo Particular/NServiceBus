@@ -35,17 +35,19 @@
 	<property name="msbuild.targetframework" value="/p:TargetFrameworkVersion=v3.5 /ToolsVersion:3.5" dynamic="true" />
 	<property name="ilmerge.targetframework" value="" dynamic="true" />
 	<property name="nunit.targetframework" value="" dynamic="true" />
-  <property name="coreswitch" value="NET35" dynamic="true" />
+	<property name="coreswitch" value="NET35" dynamic="true" />
 
-  <if test="${targetframework == 'net-4.0'}">
-    <property name="nunit.targetframework" value="/framework=4.0"/>
-    <property name="coreswitch" value="NET40"/>
-    <property name="release.dir" value="${trunk.dir}\release\.net 4.0"  />
-  </if>
-  
-  <if test="${property::exists('build.number')}">
+	<if test="${targetframework == 'net-4.0'}">
+		<property name="nunit.targetframework" value="/framework=4.0"/>
+		<property name="coreswitch" value="NET40"/>
+		<property name="release.dir" value="${trunk.dir}\release\.net 4.0"  />
+	</if>
+	
+	<if test="${property::exists('build.number')}">
 			<property name="file.version" value="${project.version}.${build.number}"/>
 	</if>
+	
+	<echo message="##teamcity[buildNumber '${file.version}']" />
 
 
 	<target name="DetectOperatingSystemArchitecture" depends="DetectIfWow64Process,DetectIf64BitProcess">
@@ -62,19 +64,19 @@
 	<script language="C#" prefix="MyWin32Calls">
 		<code>
 			<![CDATA[
-            [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-            public static extern bool IsWow64Process(System.IntPtr hProcess, out bool lpSystemInfo);
+						[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+						public static extern bool IsWow64Process(System.IntPtr hProcess, out bool lpSystemInfo);
 
-            [Function("IsWow64Process")]
-            public bool IsWow64Process()
-            {
-                bool retVal = false;
-               
-                IsWow64Process(System.Diagnostics.Process.GetCurrentProcess().Handle, out retVal);
-               
-                return retVal;
-            }
-    ]]>
+						[Function("IsWow64Process")]
+						public bool IsWow64Process()
+						{
+								bool retVal = false;
+							 
+								IsWow64Process(System.Diagnostics.Process.GetCurrentProcess().Handle, out retVal);
+							 
+								return retVal;
+						}
+		]]>
 		</code>
 		<references>
 			<include name="System.dll" />
@@ -102,8 +104,8 @@
 	<readregistry  property="servicehosting.version" key="SOFTWARE\Microsoft\Microsoft SDKs\ServiceHosting\v1.0\FullVersion" hive="LocalMachine" failonerror="false"/>
 
 
-	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries"/>
-	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32"/>
+	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
+	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -124,7 +126,7 @@
 		</copy>
 
 		<if test="${targetframework == 'net-4.0'}">
-		    <property name="netfx.installroot" value="" dynamic="true" />
+				<property name="netfx.installroot" value="" dynamic="true" />
 			<readregistry 	property="netfx.installroot" key="SOFTWARE\Microsoft\.NETFramework\InstallRoot" hive="LocalMachine" />
 			<echo message="Netfx in:  ${netfx.installroot}" />
 
@@ -185,8 +187,8 @@
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus\ ${msbuild.targetframework}"
-						  workingdir="${solution.dir}\${pathToBuild}" />
+							commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus\ ${msbuild.targetframework}"
+							workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
 		<property name="nservicebus.assemblies" value="${main.build.dir}\NServiceBus.dll" dynamic="true" />
@@ -207,15 +209,16 @@
 					workingdir="." />
 
 	</target>
+	
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,unicastTransport,messagemutator,encryption,faults,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
+						in="unicastTransport,faults,utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,messagemutator,encryption,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework} /p:DefineConstants=${coreswitch}"
-						  workingdir="${solution.dir}\${pathToBuild}" />
+							commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\nservicebus.core\ ${msbuild.targetframework} /p:DefineConstants=${coreswitch}"
+							workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 		<!-- Create list of all "core" assemblies -->
 		<property name="nservicebus.coreassemblies" value="${core.build.dir}\NServiceBus.Objectbuilder.dll" dynamic="true" />
@@ -252,7 +255,7 @@
 						<include name="${core.build.dir}\Lucene.Net.dll" />
 						<include name="${core.build.dir}\SpellChecker.Net.dll" />
 						<include name="${core.build.dir}\Spatial.Net.dll" />
-						
+
 						<!-- exclude until we can fix the missing dep on debugvisualizers -->
 						<exclude name="${core.build.dir}\Raven.Client.Debug.dll" />
 						<!-- exclude as this has a dependency on System.Web.Mvc 2 -->
@@ -276,7 +279,6 @@
 
 	</target>
 
-
 	<target name="compile_containers">
 		<!-- Containers -->
 		<exec 	program="${msbuild}"
@@ -294,7 +296,13 @@
 			</fileset>
 		</copy>
 	</target>
-	
+
+	<target name="compile_webservicesintegration">
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\output\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\integration\webservices" />
+	</target>
+
 	<target name="compile_nhibernate" depends="compile_core">
 		<!-- NServiceBus.NHibernate -->
 		<exec 	program="${msbuild}"
@@ -341,39 +349,40 @@
 					workingdir="." />
 
 	</target>
-	
+
 	<target name="compile_azure" depends="compile_nhibernate">
 		<!-- NServiceBus.azure -->
 		<exec 	program="${msbuild}"
-				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\NServiceBus.Azure\ ${msbuild.targetframework}"
+				commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\NServiceBus.Azure\ ${msbuild.targetframework}"
 				workingdir="${solution.dir}\azure" />
-		
+
 		<property name="nservicebus.azure.tests" value="" dynamic="true" />
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${build.dir.absolutepath}\NServiceBus.Azure\**Tests.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.Azure\**Tests.dll" />
 				</items>
 			</in>
 			<do>
 				<property name="nservicebus.azure.tests" value="${nservicebus.azure.tests} ${filename}"/>
 			</do>
 		</foreach>
-		
+
 		<!--
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\NServiceBus.azure\">
+		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\azure\NServiceBus.azure\">
 			<arg line="${nservicebus.azure.tests}" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
 		-->
 		<!-- Create list of all "Azure" assemblies -->
-		<property name="nservicebus.azure" value="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
+		<property name="nservicebus.azure" value="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" dynamic="true" />
 		<foreach item="File" property="filename">
 			<in>
 				<items>
-					<include name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.**Azure**.dll" />
-					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\**Tests.dll" />
-					<exclude name="${build.dir.absolutepath}\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.**Azure**.dll" />
+					<include name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.**AppFabric**.dll" />
+					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\**Tests.dll" />
+					<exclude name="${build.dir.absolutepath}\azure\NServiceBus.azure\NServiceBus.SagaPersisters.Azure.Config.dll" />
 				</items>
 			</in>
 			<do>
@@ -381,10 +390,10 @@
 			</do>
 		</foreach>
 
-	
-		
+
+
 		<echo message="Creating the merged NServiceBus.azure.dll" />
-		
+
 		<exec program="${lib.dir}\ilmerge.exe"
 					commandline="/out:${output.dir}\NServiceBus.Azure.dll ${nservicebus.azure} /target:library /keyfile:NServiceBus.snk /xmldocs /log:build\output_azure.txt ${ilmerge.targetframework}"
 					workingdir="." />
@@ -413,7 +422,7 @@
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\hosting32\ ${msbuild.targetframework} /t:Clean"
 					workingdir="${solution.dir}\hosting" />
-					
+
 		<!-- Compile all hosts for 32-bit execution -->
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:PlatformTarget=x86 /p:OutDir=${build.dir.absolutepath}\hosting32\ ${msbuild.targetframework}"
@@ -426,6 +435,15 @@
 					workingdir="." />
 	</target>
 
+	<target name="compile_azure_hosts">
+		<property name="hosting.build.dirAzure" value="${build.base}\azure\hosting" />
+
+		<!-- Compile all hosts -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\hosting\ ${msbuild.targetframework}"
+						workingdir="${solution.dir}\azure\hosting" />
+	</target>
+	
 	<target name="test">
 		<mkdir dir="${build.base}\test-reports" />
 
@@ -437,7 +455,7 @@
 					<include name="${core.build.dir}\*Tests.dll" />
 					<include name="${build.dir.absolutepath}\containers\*Tests.dll" />
 					<exclude name="${core.build.dir}\*FileShare.Tests.dll" />
-                    <exclude name="${core.build.dir}\*Gateway.Tests.dll" />
+										<exclude name="${core.build.dir}\*Gateway.Tests.dll" />
 					<exclude name="${core.build.dir}\*Raven.Tests.dll" />
 					<exclude if="${servicehosting.version == '' or include_azure == 'false'} " name="${core.build.dir}\*Azure.Tests.dll" />
 				</items>
@@ -455,8 +473,6 @@
 			<arg value="${nunit.targetframework}" />
 		</exec>
 	</target>
-	
-	
 
 	<target name="compile_tools">
 
@@ -464,7 +480,7 @@
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\testing" />
-		
+
 		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\testing\">
 			<arg line="NServiceBus.Testing.Tests.dll" />
 			<arg value="${nunit.targetframework}" />
@@ -479,6 +495,10 @@
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\timeout\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\timeout" />
 
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\azure\timeout\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\azure\timeout" />
+
 
 		<!-- proxy -->
 		<exec 	program="${msbuild}"
@@ -492,8 +512,8 @@
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
-						  commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\ ${msbuild.targetframework}"
-						  workingdir="${solution.dir}\${pathToBuild}" />
+							commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\ ${msbuild.targetframework}"
+							workingdir="${solution.dir}\${pathToBuild}" />
 		</foreach>
 
 		<!-- ilmerge dependent assemblies into XsdGenerator -->
@@ -509,9 +529,9 @@
 		</copy>
 	</target>
 
-	<!--<target name="compile_samples" depends="prepare_binaries">
+	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus"
+						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus,Azure\AzureBlobStorageDataBus"
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
@@ -520,20 +540,20 @@
 					workingdir="${trunk.dir}\samples\${pathToBuild}" />
 		</foreach>
 		<if test="${servicehosting.version != '' and include_azure == 'true'}">
-			<exec	program="${msbuild}" 
+			<exec	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\AzureService" />
 		</if>
-                --><!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 --><!--
+		<!-- exclude the WebServiceBridge sample until we can figure out why it fails on the CI server when building 4.0 -->
 		<if test="${targetframework != 'net-4.0'}">
-			<exec	program="${msbuild}" 
+			<exec	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} ${msbuild.targetframework}"
 					workingdir="${trunk.dir}\samples\WebServiceBridge" />
 		</if>
 
-	</target>-->
+	</target>
 
-  <target name="compile_msmqutils">
+	<target name="compile_msmqutils">
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\utils" />
@@ -588,11 +608,6 @@
 		<!-- Prepare Containers -->
 		<mkdir dir="${binaries.dir}\containers\autofac" />
 		<copy todir="${binaries.dir}\containers\autofac">
-			<fileset basedir="${lib.dir}\containers\autofac">
-				<include name="Autofac*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\autofac">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Autofac.dll" />
 			</fileset>
@@ -600,22 +615,12 @@
 
 		<mkdir dir="${binaries.dir}\containers\castle" />
 		<copy todir="${binaries.dir}\containers\castle">
-			<fileset basedir="${lib.dir}\containers\castle">
-				<include name="Castle*.*" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\castle">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.CastleWindsor.dll" />
 			</fileset>
 		</copy>
 
 		<mkdir dir="${binaries.dir}\containers\structuremap" />
-		<copy todir="${binaries.dir}\containers\structuremap">
-			<fileset basedir=".\packages\structuremap.2.6.2\lib">
-				<include name="StructureMap*.*" />
-			</fileset>
-		</copy>
 		<copy todir="${binaries.dir}\containers\structuremap">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.StructureMap.dll" />
@@ -626,31 +631,17 @@
 		<copy todir="${binaries.dir}\containers\spring">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Spring.dll" />
-				<include name="Spring.Core.dll" />
-				<include name="antlr.runtime.dll" />
-				<include name="Common.Logging.dll" />
 			</fileset>
 		</copy>
 
 		<mkdir dir="${binaries.dir}\containers\unity" />
 		<copy todir="${binaries.dir}\containers\unity">
-			<fileset basedir="${lib.dir}\containers\unity">
-				<include name="Microsoft.Practices.ObjectBuilder2.dll" />
-				<include name="Microsoft.Practices.Unity.dll" />
-			</fileset>
-		</copy>
-		<copy todir="${binaries.dir}\containers\unity">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Unity.dll" />
 			</fileset>
 		</copy>
-		
+
 		<mkdir dir="${binaries.dir}\containers\ninject" />
-		<copy todir="${binaries.dir}\containers\ninject">
-			<fileset basedir="${lib.dir}\containers\ninject">
-				<include name="**\Ninject*.dll" />
-			</fileset>
-		</copy>
 		<copy todir="${binaries.dir}\containers\ninject">
 			<fileset basedir="${container.build.dir}">
 				<include name="NServiceBus.ObjectBuilder.Ninject.dll" />
@@ -658,6 +649,7 @@
 		</copy>
 
 	</target>
+
 
 	<target name="package" depends="build">
 		<delete dir="${release.dir}" failonerror="false"></delete>
@@ -669,22 +661,22 @@
 			</fileset>
 		</copy>
 
-    <if test="${targetframework == 'net-4.0'}">
-      <copy todir="${release.root}">
-        <fileset basedir="${trunk.dir}">
-          <include name="*.txt" />
-        </fileset>
-      </copy>
+		<if test="${targetframework == 'net-4.0'}">
+			<copy todir="${release.root}">
+				<fileset basedir="${trunk.dir}">
+					<include name="*.txt" />
+				</fileset>
+			</copy>
 
 		<!-- Prepare Tools -->
 		
-      <copy todir="${release.root}">
-        <fileset basedir="${build.base}">
-          <include name="tools\**" />
-          <exclude name="**.xml" />
-          <exclude name="**.pdb" />
-        </fileset>
-      </copy>
+			<copy todir="${release.root}">
+				<fileset basedir="${build.base}">
+					<include name="tools\**" />
+					<exclude name="**.xml" />
+					<exclude name="**.pdb" />
+				</fileset>
+			</copy>
 		</if>
 
 		<!-- Prepare Tools -->
@@ -699,13 +691,13 @@
 				<exclude name="**.pdb" />
 			</fileset>
 		</copy>
-  
-  <if test="${targetframework == 'net-4.0'}">
-      <copy todir="${release.root}">
-        <fileset basedir="${trunk.dir}">
-          <include name="docs\**" />
-        </fileset>
-      </copy>
+	
+	<if test="${targetframework == 'net-4.0'}">
+			<copy todir="${release.root}">
+				<fileset basedir="${trunk.dir}">
+					<include name="docs\**" />
+				</fileset>
+			</copy>
 	</if>
 		
 		<copy todir="${release.root}">
@@ -756,6 +748,6 @@
 		<delete dir="${release.dir}" failonerror="false"/>
 		<delete dir="${release.root}" failonerror="false"/>
 </if>		
-     
+		 
 	</target>
 </project>
