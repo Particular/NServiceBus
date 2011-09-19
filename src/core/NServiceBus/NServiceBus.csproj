@@ -75,6 +75,8 @@
     <Compile Include="IAuthorizeSubscriptions.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="ICallback.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
