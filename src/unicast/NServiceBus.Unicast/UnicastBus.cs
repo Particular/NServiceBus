@@ -327,6 +327,8 @@ namespace NServiceBus.Unicast
         /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
+            AssertIsValidForPubSub(typeof(T));
+           
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
@@ -391,9 +393,7 @@ namespace NServiceBus.Unicast
         /// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
-            if (messageType.IsCommandType())
-                throw new InvalidOperationException("Pub/Sub is npt supported for Commands. They should be be sent direct to their logical owner");
-
+            AssertIsValidForPubSub(messageType);
             AssertBusIsStarted();
             AssertHasLocalAddress();
 
@@ -446,8 +446,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
-            if (messageType.IsCommandType())
-                throw new InvalidOperationException("Pub/Sub is npt supported for Commands. They should be be sent direct to their logical owner");
+            AssertIsValidForPubSub(messageType);
 
             var destination = GetAddressForMessageType(messageType);
 
@@ -459,6 +458,16 @@ namespace NServiceBus.Unicast
             ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
             SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
+        }
+
+        static void AssertIsValidForPubSub(Type messageType)
+        {
+            if (messageType.IsCommandType())
+                throw new InvalidOperationException(
+                    "Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner");
+
+            if(!messageType.IsEventType())
+                Log.Warn("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
 
         void IBus.Reply(params object[] messages)

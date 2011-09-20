@@ -55,6 +55,9 @@
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions.InMemory">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.InMemory.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
@@ -73,6 +76,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="MessageHeaderManager.cs" />
+    <Compile Include="Publishing.cs" />
     <Compile Include="using_the_unicastbus.cs" />
     <Compile Include="When_sending_messages_to_sites.cs" />
     <Compile Include="Subscriptions.cs" />
@@ -80,6 +84,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
+      <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
+      <Name>NServiceBus.Unicast.Subscriptions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast\NServiceBus.Unicast.csproj">
       <Project>{EB2C42A2-70FD-4469-959B-C577470B001B}</Project>
       <Name>NServiceBus.Unicast</Name>

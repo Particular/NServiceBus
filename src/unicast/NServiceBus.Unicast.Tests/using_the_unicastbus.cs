@@ -9,6 +9,8 @@ namespace NServiceBus.Unicast.Tests
     using Queuing;
     using Rhino.Mocks;
     using Serialization;
+    using Subscriptions;
+    using Subscriptions.InMemory;
     using Transport;
 
     public class using_the_unicastbus
@@ -17,6 +19,8 @@ namespace NServiceBus.Unicast.Tests
 
         protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
+        protected ISubscriptionStorage subscriptionStorage;
+
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
 
@@ -41,6 +45,8 @@ namespace NServiceBus.Unicast.Tests
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
             var builder = MockRepository.GenerateStub<IBuilder>();
+            
+            subscriptionStorage =new InMemorySubscriptionStorage();
 
             builder.Stub(x => x.BuildAll<IMutateOutgoingMessages>()).Return(new IMutateOutgoingMessages[] { });
 
@@ -53,7 +59,8 @@ namespace NServiceBus.Unicast.Tests
                           Builder = builder,
                           MasterNodeManager = masterNodeManager,
                           MessageSender = messageSender,
-                          Transport = MockRepository.GenerateStub<ITransport>()
+                          Transport = MockRepository.GenerateStub<ITransport>(),
+                          SubscriptionStorage = subscriptionStorage
                       };
             bus = unicastBus;
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
