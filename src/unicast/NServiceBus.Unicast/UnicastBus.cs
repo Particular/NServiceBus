@@ -771,8 +771,14 @@ namespace NServiceBus.Unicast
         {
             AssertHasLocalAddress();
 
-            foreach (var messageType in GetMessageTypesHandledOnThisEndpoint().Where(t => !t.Namespace.StartsWith("NServiceBus")))
+            foreach (var messageType in GetMessageTypesHandledOnThisEndpoint()
+                .Where(t => !t.Namespace.StartsWith("NServiceBus") && !t.IsCommandType()))
+            {
                 Subscribe(messageType);
+                
+                if(messageType.IsMessageType())
+                    Log.Warn("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
+            }
         }
 
         private void AssertHasLocalAddress()

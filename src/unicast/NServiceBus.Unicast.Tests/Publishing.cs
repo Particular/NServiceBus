@@ -2,6 +2,7 @@
 {
     using System;
     using NUnit.Framework;
+    using SomeUserNamespace;
 
     [TestFixture]
     public class When_publishing_a_command_messages : using_the_unicastbus
@@ -10,6 +11,7 @@
         public void Should_get_an_error_messages()
         {
             RegisterMessageType<CommandMessage>();
+
             Assert.Throws<InvalidOperationException>(() => bus.Publish(new CommandMessage()));
         }
     }

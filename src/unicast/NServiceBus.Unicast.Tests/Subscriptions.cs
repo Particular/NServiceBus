@@ -51,10 +51,4 @@ namespace NServiceBus.Unicast.Tests
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<CommandMessage>());
         }
     }
-
-
-    
-    public class CommandMessage : ICommand
-    {
-    }
 }
