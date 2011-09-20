@@ -734,6 +734,7 @@ namespace NServiceBus.Unicast
 
                 starting = true;
 
+                Address.PreventChanges();
 
                 ValidateConfiguration();
 

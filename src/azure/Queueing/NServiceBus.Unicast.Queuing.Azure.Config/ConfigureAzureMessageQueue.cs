@@ -42,6 +42,10 @@ namespace NServiceBus
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PeekInterval, configSection.PeekInterval);
             }
 
+            var unicastConfigSection = Configure.GetConfigSection<UnicastBusConfig>();
+
+            Address.InitializeLocalAddress(unicastConfigSection.LocalAddress);
+
             return config;
         }
 

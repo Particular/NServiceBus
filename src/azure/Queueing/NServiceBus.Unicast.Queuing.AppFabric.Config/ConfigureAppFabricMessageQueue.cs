@@ -39,8 +39,10 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
-            
 
+            var unicastConfigSection = Configure.GetConfigSection<UnicastBusConfig>();
+
+            Address.InitializeLocalAddress(unicastConfigSection.LocalAddress);
 
             return config;
         }

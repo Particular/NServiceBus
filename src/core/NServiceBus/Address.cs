@@ -12,6 +12,7 @@ namespace NServiceBus
     {
         private static AddressMode addressMode = AddressMode.Local;
         private static string defaultMachine = Environment.MachineName;
+        private static bool preventChanges;
 
         /// <summary>
         /// Get the address of this endpoint.
@@ -25,9 +26,9 @@ namespace NServiceBus
         /// <param name="queue"></param>
         public static void InitializeLocalAddress(string queue)
         {
-            if (Local == null)
-                Local = Parse(queue);
-            else
+            Local = Parse(queue);
+
+            if (preventChanges)
                 throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
@@ -38,10 +39,10 @@ namespace NServiceBus
         /// <exception cref="InvalidOperationException"></exception>
         public static void OverrideDefaultMachine(string machineName)
         {
-            //if (Local != null)
-            //    throw new InvalidOperationException("The local address has already been initialized, changing the default machine name is no longer possible.");
+           defaultMachine = machineName;
 
-            defaultMachine = machineName;
+           if (preventChanges)
+               throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -51,10 +52,10 @@ namespace NServiceBus
         /// <exception cref="InvalidOperationException"></exception>
         public static void InitializeAddressMode(AddressMode mode)
         {
-            //if (Local != null)
-            //    throw new InvalidOperationException("The local address has already been initialized, switching address modes is no longer possible.");
-
             addressMode = mode;
+
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set address mode is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -168,6 +169,14 @@ namespace NServiceBus
         public override string ToString()
         {
             return Queue + "@" + Machine;
+        }
+
+        /// <summary>
+        /// Prevents changes to all addresses.
+        /// </summary>
+        public static void PreventChanges()
+        {
+            preventChanges = true;
         }
 
         /// <summary>

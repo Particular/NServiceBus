@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
