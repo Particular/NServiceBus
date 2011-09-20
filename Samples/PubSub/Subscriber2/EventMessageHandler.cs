@@ -1,13 +1,14 @@
 using System;
 using log4net;
-using MyMessages;
 using NServiceBus;
 
 namespace Subscriber2
 {
-    public class EventMessageHandler : IHandleMessages<IEvent>
+    using MyMessages;
+
+    public class EventMessageHandler : IHandleMessages<IMyEvent>
     {
-        public void Handle(IEvent message)
+        public void Handle(IMyEvent message)
         {
             Logger.Info(string.Format("Subscriber 2 received IEvent with Id {0}.", message.EventId));
             Logger.Info(string.Format("Message time: {0}.", message.Time));

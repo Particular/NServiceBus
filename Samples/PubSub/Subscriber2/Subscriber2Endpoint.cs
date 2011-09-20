@@ -1,8 +1,9 @@
-﻿using MyMessages;
-using NServiceBus;
+﻿using NServiceBus;
 
 namespace Subscriber2
 {
+    using MyMessages;
+
     /// <summary>
     /// Showing how to manage subscriptions manually
     /// </summary>
@@ -12,12 +13,12 @@ namespace Subscriber2
 
         public void Run()
         {
-            Bus.Subscribe<IEvent>();
+            Bus.Subscribe<IMyEvent>();
         }
 
         public void Stop()
         {
-            Bus.Unsubscribe<IEvent>();
+            Bus.Unsubscribe<IMyEvent>();
         }
     }
 }
