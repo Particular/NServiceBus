@@ -75,6 +75,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Sending.cs" />
     <Compile Include="MessageHeaderManager.cs" />
     <Compile Include="Publishing.cs" />
     <Compile Include="using_the_unicastbus.cs" />

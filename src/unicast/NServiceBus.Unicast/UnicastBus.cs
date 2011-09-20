@@ -460,16 +460,6 @@ namespace NServiceBus.Unicast
             ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
 
-        static void AssertIsValidForPubSub(Type messageType)
-        {
-            if (messageType.IsCommandType())
-                throw new InvalidOperationException(
-                    "Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner");
-
-            if(!messageType.IsEventType())
-                Log.Warn("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
-        }
-
         void IBus.Reply(params object[] messages)
         {
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
@@ -623,6 +613,9 @@ namespace NServiceBus.Unicast
 
         private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
+            messages.ToList()
+                .ForEach(message =>AssertIsValidForSend(message.GetType()));
+            
             AssertBusIsStarted();
 
             var result = new List<string>();
@@ -814,7 +807,26 @@ namespace NServiceBus.Unicast
             MessageSender.Send(toSend, Address.Local);
         }
 
-       
+
+        static void AssertIsValidForSend(Type messageType)
+        {
+            if (messageType.IsEventType())
+                throw new InvalidOperationException(
+                    "Events can have multiple recipient so they should be published");
+
+            if (!messageType.IsCommandType())
+                Log.Info("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
+        }
+        static void AssertIsValidForPubSub(Type messageType)
+        {
+            if (messageType.IsCommandType())
+                throw new InvalidOperationException(
+                    "Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner");
+
+            if (!messageType.IsEventType())
+                Log.Warn("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
+        }
+
 
         /// <summary>
         /// Tells the transport to dispose.
