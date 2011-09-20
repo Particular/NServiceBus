@@ -391,6 +391,9 @@ namespace NServiceBus.Unicast
         /// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
+            if (messageType.IsCommandType())
+                throw new InvalidOperationException("Commands should be sent direct to it's logical owner so subscribing is not allowed");
+
             AssertBusIsStarted();
             AssertHasLocalAddress();
 

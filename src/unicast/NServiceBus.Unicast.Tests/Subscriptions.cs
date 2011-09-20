@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using NUnit.Framework;
     using Rhino.Mocks;
     using SomeUserNamespace;
@@ -27,5 +28,20 @@ namespace NServiceBus.Unicast.Tests
                     Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
      
         }
+    }
+
+    [TestFixture]
+    public class When_subscribing_to_command_messages : using_the_unicastbus
+    {
+       [Test]
+        public void Should_get_an_error_messages()
+        {
+            RegisterMessageType<CommandMessage>();
+            Assert.Throws<InvalidOperationException>(() => bus.Subscribe<CommandMessage>());
+        }
+    }
+
+    public class CommandMessage:ICommand
+    {
     }
 }

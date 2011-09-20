@@ -62,5 +62,17 @@ namespace NServiceBus.Unicast.Tests
         }
 
 
+        protected void RegisterMessageType<T>()
+        {
+            unicastBus.RegisterMessageType(typeof(T), new Address(typeof(T).Name,"localhost"), false);
+
+        }
+
+        protected void RegisterMessageType<T>(Address address)
+        {
+            unicastBus.RegisterMessageType(typeof(T), address, false);
+     
+        }
+
     }
 }
