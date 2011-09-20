@@ -392,7 +392,7 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
             if (messageType.IsCommandType())
-                throw new InvalidOperationException("Commands should be sent direct to it's logical owner so subscribing is not allowed");
+                throw new InvalidOperationException("Pub/Sub is npt supported for Commands. They should be be sent direct to their logical owner");
 
             AssertBusIsStarted();
             AssertHasLocalAddress();
@@ -446,6 +446,9 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
+            if (messageType.IsCommandType())
+                throw new InvalidOperationException("Pub/Sub is npt supported for Commands. They should be be sent direct to their logical owner");
+
             var destination = GetAddressForMessageType(messageType);
 
             if (destination == null)
