@@ -127,7 +127,20 @@ namespace NServiceBus
         /// <summary>
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
-        public static IMessage CurrentMessageBeingHandled { get; set; }
+		public static IMessage CurrentMessageBeingHandled 
+		{ 
+			get
+			{
+				return _currentMessageBeingHandled;
+			} 
+			set
+			{
+				_currentMessageBeingHandled = value;
+			}
+		}
+		
+		[ThreadStatic]
+		static IMessage _currentMessageBeingHandled;
     }
 
     /// <summary>
