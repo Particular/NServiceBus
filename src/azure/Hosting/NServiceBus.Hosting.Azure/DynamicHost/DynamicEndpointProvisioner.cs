@@ -6,9 +6,11 @@ namespace NServiceBus.Hosting
 {
     internal class DynamicEndpointProvisioner
     {
+        public string LocalResource { get; set; }
+
         public IEnumerable<ServiceToRun> Provision(IEnumerable<EndpointToHost> toHost)
         {
-            var localResource = RoleEnvironment.GetLocalResource("endpoints");
+            var localResource = RoleEnvironment.GetLocalResource(LocalResource);
 
             foreach (var assemblies in toHost)
             {

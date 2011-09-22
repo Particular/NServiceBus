@@ -9,8 +9,8 @@ namespace NServiceBus.Hosting
 {
     public class DynamicHostController : IHost
     {
-        private IConfigureThisEndpoint specifier;
-        private ConfigManager configManager;
+        private readonly IConfigureThisEndpoint specifier;
+        private readonly ConfigManager configManager;
         private readonly ProfileManager profileManager;
        
         public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles,IEnumerable<Type> defaultProfiles)
@@ -50,6 +50,13 @@ namespace NServiceBus.Hosting
             Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointLoader>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointProvisioner>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointStarter>(DependencyLifecycle.SingleInstance);
+
+            var configSection = Configure.GetConfigSection<DynamicHostControllerConfig>() ?? new DynamicHostControllerConfig();
+
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.ConnectionString, configSection.ConnectionString);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.Container, configSection.Container);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointProvisioner>(t => t.LocalResource, configSection.LocalResource);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointStarter>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
 
             configManager.ConfigureCustomInitAndStartup();
             profileManager.ActivateProfileHandlers();

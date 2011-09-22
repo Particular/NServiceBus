@@ -4,7 +4,7 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
-      <Setting name="NServiceBus.Host.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
+      <Setting name="NServiceBus.DynamicHostController.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
 
       <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />

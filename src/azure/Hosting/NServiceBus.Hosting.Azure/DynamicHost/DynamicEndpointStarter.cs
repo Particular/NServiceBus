@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Common.Logging;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Hosting
 {
@@ -9,10 +10,14 @@ namespace NServiceBus.Hosting
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointStarter));
 
+        public bool RecycleRoleOnError { get; set; }
+
         public void Start(IEnumerable<ServiceToRun> toHost)
         {
             foreach(var service in toHost)
             {
+                
+
                 try
                 {
                     var processStartInfo = new ProcessStartInfo(service.EntryPoint,
@@ -25,13 +30,15 @@ namespace NServiceBus.Hosting
                                                    RedirectStandardInput = true,
                                                    RedirectStandardOutput = true
                                                };
-
-
-
+                    
                     var process = new Process {StartInfo = processStartInfo, EnableRaisingEvents = true};
+                    
+                    process.ErrorDataReceived += (o, args) =>
+                                                     {
+                                                         logger.Error(args.Data);
 
-
-                    process.ErrorDataReceived += (o, args) => logger.Error(args.Data);
+                                                         if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
+                                                     };
                     process.Exited += (o, args) =>
                                           {
                                               var output = process.StandardOutput.ReadToEnd();
@@ -39,6 +46,8 @@ namespace NServiceBus.Hosting
                                                   logger.Error(output);
                                               else 
                                                   logger.Debug(output);
+
+                                              if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
                                           };
 
                     process.Start();
@@ -46,12 +55,10 @@ namespace NServiceBus.Hosting
                 catch (Exception e)
                 {
                     logger.Error(e.Message);
+
+                    if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
                 }
-
             }
-           
         }
-
-      
     }
 }

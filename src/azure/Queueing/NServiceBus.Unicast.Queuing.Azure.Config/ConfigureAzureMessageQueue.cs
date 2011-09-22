@@ -43,8 +43,16 @@ namespace NServiceBus
             }
 
             var unicastConfigSection = Configure.GetConfigSection<UnicastBusConfig>();
+            var address = unicastConfigSection.LocalAddress;
 
-            Address.InitializeLocalAddress(unicastConfigSection.LocalAddress);
+            if (address == null)
+            {
+                var msmqConfigSection = Configure.GetConfigSection<MsmqTransportConfig>();
+                address = msmqConfigSection.InputQueue;
+            }
+
+
+            Address.InitializeLocalAddress(address);
 
             return config;
         }

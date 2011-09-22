@@ -9,37 +9,20 @@ namespace NServiceBus.Hosting
 {
     internal class DynamicEndpointLoader
     {
-        private readonly CloudBlobClient client;
+        private CloudBlobClient client;
 
-        public DynamicEndpointLoader()
-        {
-            string connectionString;
-            try
-            {
-                connectionString = RoleEnvironment.GetConfigurationSettingValue("NServiceBus.Host.ConnectionString");
-            }
-            catch (Exception)
-            {
-                connectionString = "UseDevelopmentStorage=true";
-            }
-
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            client = storageAccount.CreateCloudBlobClient();
-        }
+        public string ConnectionString { get; set; }
+        public string Container { get; set; }
 
         public IEnumerable<EndpointToHost> LoadEndpoints()
         {
-            string container;
-            try
+            if (client == null)
             {
-                container = RoleEnvironment.GetConfigurationSettingValue("NServiceBus.Host.Container");
-            }
-            catch (Exception)
-            {
-                container = "endpoints";
+                var storageAccount = CloudStorageAccount.Parse(ConnectionString);
+                client = storageAccount.CreateCloudBlobClient();
             }
 
-            var blobContainer = client.GetContainerReference(container);
+            var blobContainer = client.GetContainerReference(Container);
             blobContainer.CreateIfNotExist();
 
             return from b in blobContainer.ListBlobs()
