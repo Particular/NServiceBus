@@ -31,5 +31,19 @@ namespace NServiceBus.Hosting
             get { return (bool)this["RecycleRoleOnError"]; }
             set { this["RecycleRoleOnError"] = value; }
         }
+
+        [ConfigurationProperty("AutoUpdate", IsRequired = false, DefaultValue = false)]
+        public bool AutoUpdate
+        {
+            get { return (bool)this["AutoUpdate"]; }
+            set { this["AutoUpdate"] = value; }
+        }
+
+        [ConfigurationProperty("UpdateInterval", IsRequired = false, DefaultValue = 600000)]
+        public int UpdateInterval
+        {
+            get { return (int)this["UpdateInterval"]; }
+            set { this["UpdateInterval"] = value; }
+        }
     }
 }

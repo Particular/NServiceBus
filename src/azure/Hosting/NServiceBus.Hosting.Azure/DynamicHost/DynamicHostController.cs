@@ -12,7 +12,13 @@ namespace NServiceBus.Hosting
         private readonly IConfigureThisEndpoint specifier;
         private readonly ConfigManager configManager;
         private readonly ProfileManager profileManager;
-       
+
+        private DynamicEndpointLoader loader;
+        private DynamicEndpointProvisioner provisioner;
+        private DynamicEndpointRunner runner;
+        private DynamicHostMonitor monitor;
+        private List<EndpointToHost> runningServices;
+
         public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles,IEnumerable<Type> defaultProfiles)
         {
             this.specifier = specifier;
@@ -49,32 +55,76 @@ namespace NServiceBus.Hosting
             Configure.Instance.AzureConfigurationSource();
             Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointLoader>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointProvisioner>(DependencyLifecycle.SingleInstance);
-            Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointStarter>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<DynamicEndpointRunner>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<DynamicHostMonitor>(DependencyLifecycle.SingleInstance);
 
             var configSection = Configure.GetConfigSection<DynamicHostControllerConfig>() ?? new DynamicHostControllerConfig();
 
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.ConnectionString, configSection.ConnectionString);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.Container, configSection.Container);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointProvisioner>(t => t.LocalResource, configSection.LocalResource);
-            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointStarter>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointRunner>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicHostMonitor>(t => t.Interval, configSection.UpdateInterval);
 
             configManager.ConfigureCustomInitAndStartup();
             profileManager.ActivateProfileHandlers();
 
-            var loader = Configure.Instance.Builder.Build<DynamicEndpointLoader>();
-            var provisioner = Configure.Instance.Builder.Build<DynamicEndpointProvisioner>();
-            var starter = Configure.Instance.Builder.Build<DynamicEndpointStarter>();
+            loader = Configure.Instance.Builder.Build<DynamicEndpointLoader>();
+            provisioner = Configure.Instance.Builder.Build<DynamicEndpointProvisioner>();
+            runner = Configure.Instance.Builder.Build<DynamicEndpointRunner>();
 
             var endpointsToHost = loader.LoadEndpoints();
-            var servicesToRun = provisioner.Provision(endpointsToHost);
-            starter.Start(servicesToRun);
-        
+            if (endpointsToHost == null) return;
+
+            runningServices = new List<EndpointToHost>(endpointsToHost);
+
+            provisioner.Provision(runningServices);
+
+            runner.Start(runningServices);
+            
+
+            if (!configSection.AutoUpdate) return;
+
+            monitor = Configure.Instance.Builder.Build<DynamicHostMonitor>();
+            monitor.UpdatedEndpoints += UpdatedEndpoints;
+            monitor.NewEndpoints += NewEndpoints;
+            monitor.RemovedEndpoints += RemovedEndpoints;
+            monitor.Monitor(runningServices);
+            monitor.Start();
         }
 
         public void Stop()
         {
-   
+            if (monitor != null)
+                monitor.Stop();
+
+            if (runner != null)
+                runner.Stop(runningServices);
         }
-      
+
+        public void UpdatedEndpoints(object sender, EndpointsEventArgs e)
+        {
+            runner.Stop(e.Endpoints);
+            provisioner.Remove(e.Endpoints);
+            provisioner.Provision(e.Endpoints);
+            runner.Start(e.Endpoints);
+        }
+
+        public void NewEndpoints(object sender, EndpointsEventArgs e)
+        {
+            provisioner.Provision(e.Endpoints);
+            runner.Start(e.Endpoints);
+            monitor.Monitor(e.Endpoints);
+            runningServices.AddRange(e.Endpoints);
+        }
+
+        public void RemovedEndpoints(object sender, EndpointsEventArgs e)
+        {
+            monitor.StopMonitoring(e.Endpoints);
+            runner.Stop(e.Endpoints);
+            provisioner.Remove(e.Endpoints);
+            foreach (var endpoint in e.Endpoints)
+                runningServices.Remove(endpoint);
+        }
     }
 }

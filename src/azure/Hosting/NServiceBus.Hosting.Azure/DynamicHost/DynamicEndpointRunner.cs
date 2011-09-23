@@ -6,13 +6,13 @@ using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Hosting
 {
-    internal class DynamicEndpointStarter
+    internal class DynamicEndpointRunner
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointStarter));
+        private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointRunner));
 
         public bool RecycleRoleOnError { get; set; }
 
-        public void Start(IEnumerable<ServiceToRun> toHost)
+        public void Start(IEnumerable<EndpointToHost> toHost)
         {
             foreach(var service in toHost)
             {
@@ -21,9 +21,9 @@ namespace NServiceBus.Hosting
                 try
                 {
                     var processStartInfo = new ProcessStartInfo(service.EntryPoint,
-                                                               "/serviceName:\"" + service.ServiceName +
-                                                                "\" /displayName:\"" + service.ServiceName +
-                                                                "\" /description:\"" + service.ServiceName + "\"")
+                                                               "/serviceName:\"" + service.EndpointName +
+                                                                "\" /displayName:\"" + service.EndpointName +
+                                                                "\" /description:\"" + service.EndpointName + "\"")
                                                {
                                                    UseShellExecute = false,
                                                    CreateNoWindow = true,
@@ -42,15 +42,21 @@ namespace NServiceBus.Hosting
                     process.Exited += (o, args) =>
                                           {
                                               var output = process.StandardOutput.ReadToEnd();
-                                              if (process.ExitCode == -1) 
+                                              if (process.ExitCode != 0)
+                                              {
                                                   logger.Error(output);
-                                              else 
+                                                  if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
+                                              }
+                                              else
+                                              {
                                                   logger.Debug(output);
-
-                                              if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
+                                              }
                                           };
 
                     process.Start();
+
+                    service.ProcessId = process.Id;
+                    
                 }
                 catch (Exception e)
                 {
@@ -58,6 +64,18 @@ namespace NServiceBus.Hosting
 
                     if (RecycleRoleOnError) RoleEnvironment.RequestRecycle();
                 }
+            }
+        }
+
+        public void Stop(IEnumerable<EndpointToHost> runningServices)
+        {
+            foreach (var runningService in runningServices)
+            {
+                if (runningService.ProcessId == 0) continue;
+
+                var process = Process.GetProcessById(runningService.ProcessId);
+                process.Kill();
+                runningService.ProcessId = 0;
             }
         }
     }

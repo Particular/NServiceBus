@@ -4,7 +4,9 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="NServiceBus.Profile" value="NServiceBus.Development" />
-      <Setting name="NServiceBus.DynamicHostController.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DynamicHostControllerConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DynamicHostControllerConfig.AutoUpdate" value="true"  />
+      <Setting name="DynamicHostControllerConfig.UpdateInterval" value="30000" />
 
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />

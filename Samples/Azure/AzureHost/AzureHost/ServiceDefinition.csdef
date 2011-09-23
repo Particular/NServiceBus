@@ -18,7 +18,9 @@
     </Imports>
     <ConfigurationSettings>
       <Setting name="NServiceBus.Profile" />
-      <Setting name="NServiceBus.DynamicHostController.ConnectionString"  />
+      <Setting name="DynamicHostControllerConfig.ConnectionString"  />
+      <Setting name="DynamicHostControllerConfig.AutoUpdate"  />
+      <Setting name="DynamicHostControllerConfig.UpdateInterval"  />
 
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />

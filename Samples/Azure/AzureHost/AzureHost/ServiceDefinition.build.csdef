@@ -27,12 +27,15 @@
     </Imports>
     <ConfigurationSettings>
       <Setting name="NServiceBus.Profile" />
-      <Setting name="NServiceBus.DynamicHostController.ConnectionString" />
+      <Setting name="DynamicHostControllerConfig.ConnectionString" />
+      <Setting name="DynamicHostControllerConfig.AutoUpdate" />
+      <Setting name="DynamicHostControllerConfig.UpdateInterval" />
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
     <LocalResources>
       <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />
