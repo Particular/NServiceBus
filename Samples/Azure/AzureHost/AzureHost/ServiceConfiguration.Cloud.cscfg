@@ -4,11 +4,11 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="NServiceBus.Profile" value="NServiceBus.Production" />
-      <Setting name="DynamicHostControllerConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=YFotxSjmeMto+nt3jPm4GIFhx2riRRkdj9uskOcm9XbFVpXc8dzNidUmTCQqrNsjTbm3IitsaM/j66wnSstKQg==" />
+      <Setting name="DynamicHostControllerConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="DynamicHostControllerConfig.AutoUpdate" value="true"  />
       <Setting name="DynamicHostControllerConfig.UpdateInterval" value="60000" />
 
-      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=YFotxSjmeMto+nt3jPm4GIFhx2riRRkdj9uskOcm9XbFVpXc8dzNidUmTCQqrNsjTbm3IitsaM/j66wnSstKQg==" />
+      <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="UnicastBusConfig.LocalAddress" value="websitequeue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
@@ -17,7 +17,7 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="ygoeleve" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="DefaultEndpointsProtocol=https;AccountName=nservicebus;AccountKey=YFotxSjmeMto+nt3jPm4GIFhx2riRRkdj9uskOcm9XbFVpXc8dzNidUmTCQqrNsjTbm3IitsaM/j66wnSstKQg==" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2011-10-02T23:59:59.0000000+02:00" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
     </ConfigurationSettings>

@@ -35,7 +35,6 @@
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
-      <Setting name="CloudToolsDiagnosticAgentVersion" />
     </ConfigurationSettings>
     <LocalResources>
       <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />

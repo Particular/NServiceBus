@@ -106,6 +106,7 @@
     <Compile Include="DynamicHost\DynamicHostMonitor.cs" />
     <Compile Include="DynamicHost\EndpointsEventArgs.cs" />
     <Compile Include="DynamicHost\EndpointToHost.cs" />
+    <Compile Include="DynamicHost\UnableToKillProcessException.cs" />
     <Compile Include="LoggingHandlers\DevelopmentLoggingHandler.cs" />
     <Compile Include="Profiles\Handler\DevelopmentProfileHandler.cs" />
     <Compile Include="Profiles\Handler\OnAzureStorageProfileHandler.cs" />

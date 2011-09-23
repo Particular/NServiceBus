@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Common.Logging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -11,6 +12,8 @@ namespace NServiceBus.Hosting
         private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointRunner));
 
         public bool RecycleRoleOnError { get; set; }
+
+        public int TimeToWaitUntilProcessIsKilled { get; set; }
 
         public void Start(IEnumerable<EndpointToHost> toHost)
         {
@@ -74,9 +77,20 @@ namespace NServiceBus.Hosting
                 if (runningService.ProcessId == 0) continue;
 
                 var process = Process.GetProcessById(runningService.ProcessId);
+                
+                var waitUntilProcessIsKilled = new ManualResetEvent(false);
+                process.Exited += (o, args) => waitUntilProcessIsKilled.Set();
+                   
                 process.Kill();
+                waitUntilProcessIsKilled.WaitOne(TimeToWaitUntilProcessIsKilled);
+                if(!process.HasExited)
+                {
+                    throw new UnableToKillProcessException(string.Format("Unable to kill process {0}",  process.ProcessName));
+                }
                 runningService.ProcessId = 0;
             }
         }
+
+        
     }
 }

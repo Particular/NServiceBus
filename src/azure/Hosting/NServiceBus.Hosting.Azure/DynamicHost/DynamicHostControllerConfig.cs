@@ -45,5 +45,12 @@ namespace NServiceBus.Hosting
             get { return (int)this["UpdateInterval"]; }
             set { this["UpdateInterval"] = value; }
         }
+
+        [ConfigurationProperty("TimeToWaitUntilProcessIsKilled", IsRequired = false, DefaultValue = 10000)]
+        public int TimeToWaitUntilProcessIsKilled
+        {
+            get { return (int)this["TimeToWaitUntilProcessIsKilled"]; }
+            set { this["TimeToWaitUntilProcessIsKilled"] = value; }
+        }
     }
 }

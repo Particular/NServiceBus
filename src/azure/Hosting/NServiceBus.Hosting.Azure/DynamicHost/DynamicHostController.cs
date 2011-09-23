@@ -64,6 +64,7 @@ namespace NServiceBus.Hosting
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.Container, configSection.Container);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointProvisioner>(t => t.LocalResource, configSection.LocalResource);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointRunner>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointRunner>(t => t.TimeToWaitUntilProcessIsKilled, configSection.TimeToWaitUntilProcessIsKilled);
             Configure.Instance.Configurer.ConfigureProperty<DynamicHostMonitor>(t => t.Interval, configSection.UpdateInterval);
 
             configManager.ConfigureCustomInitAndStartup();
