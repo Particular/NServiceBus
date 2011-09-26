@@ -777,7 +777,7 @@ namespace NServiceBus.Unicast
             {
                 Subscribe(messageType);
                 
-                if(messageType.IsMessageType())
+                if(!messageType.IsEventType())
                     Log.Warn("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
             }
         }
