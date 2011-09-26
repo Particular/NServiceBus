@@ -178,9 +178,6 @@ namespace NServiceBus
 
             TypesToScan = typesToScan;
 
-            ExtensionMethods.IsMessageTypeAction =
-                    t => typeof(IMessage).IsAssignableFrom(t) && typeof(IMessage) != t;
-
             return instance;
         }
 

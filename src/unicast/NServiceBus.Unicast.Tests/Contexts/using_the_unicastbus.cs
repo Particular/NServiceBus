@@ -37,7 +37,6 @@ namespace NServiceBus.Unicast.Tests
             {
             }
 
-            ExtensionMethods.IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) && t != typeof(IMessage);
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
             gatewayAddress = masterNodeAddress.SubScope("gateway");
 

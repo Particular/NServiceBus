@@ -24,11 +24,6 @@ namespace NServiceBus.Serializers.XML.Test
     [TestFixture]
     public class SerializingArrayTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            NServiceBus.ExtensionMethods.IsMessageTypeAction = t => typeof (IMessage).IsAssignableFrom(t) && t != typeof(IMessage);
-        }
 
         [Test]
         public void CanDeserializeXmlWithWhitespace()

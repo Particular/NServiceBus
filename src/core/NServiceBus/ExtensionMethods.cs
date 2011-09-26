@@ -238,7 +238,7 @@ namespace NServiceBus
         /// <summary>
         /// The function used to determine whether a type is a message type.
         /// </summary>
-        public static Func<Type, bool> IsMessageTypeAction { get; set; }
+        public static Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) && typeof(IMessage) != t;
 
 
         /// <summary>

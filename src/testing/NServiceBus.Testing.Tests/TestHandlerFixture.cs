@@ -10,7 +10,6 @@ namespace NServiceBus.Testing.Tests
         public void TestFixtureSetUp()
         {
             Test.Initialize(typeof(IMessage).Assembly, typeof(TestHandlerFixture).Assembly);
-            ExtensionMethods.IsMessageTypeAction = t => typeof (IMessage).IsAssignableFrom(t) && t != typeof (IMessage);
         }
 
         [Test]
