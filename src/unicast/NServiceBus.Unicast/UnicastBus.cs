@@ -1259,10 +1259,12 @@ namespace NServiceBus.Unicast
 
             foreach (var message in messages)
             {
-                if (recoverableMessageTypes.Contains(message.GetType()))
+		var mtype = message.GetType();
+
+                if (recoverableMessageTypes.Any(x => x.IsAssignableFrom(mtype)))
                     result.Recoverable = true;
 
-                var span = GetTimeToBeReceivedForMessageType(message.GetType());
+                var span = GetTimeToBeReceivedForMessageType(mtype);
                 timeToBeReceived = (span < timeToBeReceived ? span : timeToBeReceived);
             }
 
