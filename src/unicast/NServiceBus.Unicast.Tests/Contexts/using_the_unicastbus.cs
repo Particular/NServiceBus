@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Tests
 
         protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
-        protected ISubscriptionStorage subscriptionStorage;
+        protected FakeSubscriptionStorage subscriptionStorage;
 
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
@@ -149,6 +149,10 @@ namespace NServiceBus.Unicast.Tests
             });
 
             return result;
+        }
+        public void FakeSubscribe<T>(Address address)
+        {
+            ((ISubscriptionStorage)this).Subscribe(address, new[] { typeof(T).AssemblyQualifiedName });  
         }
 
         public void Init()

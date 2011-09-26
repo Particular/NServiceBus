@@ -1,5 +1,7 @@
-namespace NServiceBus.Unicast.Tests
+namespace SomeUserNamespace
 {
+    using NServiceBus;
+
     public class EventMessage : IEvent
     {
     }

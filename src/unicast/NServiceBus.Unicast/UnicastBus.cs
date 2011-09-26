@@ -614,7 +614,7 @@ namespace NServiceBus.Unicast
         private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             messages.ToList()
-                .ForEach(message =>AssertIsValidForSend(message.GetType()));
+                .ForEach(message => AssertIsValidForSend(message.GetType(), messageIntent));
             
             AssertBusIsStarted();
 
@@ -815,13 +815,13 @@ namespace NServiceBus.Unicast
         }
 
 
-        static void AssertIsValidForSend(Type messageType)
+        static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
-            if (messageType.IsEventType())
+            if (messageType.IsEventType() && messageIntent != MessageIntentEnum.Publish)
                 throw new InvalidOperationException(
                     "Events can have multiple recipient so they should be published");
 
-            if (!messageType.IsCommandType())
+            if (!messageType.IsCommandType() && !messageType.IsEventType())
                 Log.Info("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
         static void AssertIsValidForPubSub(Type messageType)
