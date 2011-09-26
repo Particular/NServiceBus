@@ -79,6 +79,7 @@
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="EventMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ConfigOverride.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
