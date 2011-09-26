@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests
     using System.Collections.Generic;
     using System.Linq;
     using MasterNode;
+    using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using NUnit.Framework;
     using ObjectBuilder;
@@ -22,6 +23,7 @@ namespace NServiceBus.Unicast.Tests
 
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
+        MessageMapper messageMapper = new MessageMapper();
 
         [SetUp]
         public void SetUp()
@@ -59,7 +61,8 @@ namespace NServiceBus.Unicast.Tests
                 MessageSender = messageSender,
                 Transport = MockRepository.GenerateStub<ITransport>(),
                 SubscriptionStorage = subscriptionStorage,
-                AutoSubscribe = true
+                AutoSubscribe = true,
+                MessageMapper = messageMapper
             };
             bus = unicastBus;
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
@@ -71,14 +74,18 @@ namespace NServiceBus.Unicast.Tests
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
         }
 
-        protected void RegisterMessageType<T>()
+        protected Address RegisterMessageType<T>()
         {
-            unicastBus.RegisterMessageType(typeof(T), new Address(typeof(T).Name, "localhost"), false);
+            var address = new Address(typeof (T).Name, "localhost");
+            RegisterMessageType<T>(address);
 
+            return address;
         }
 
         protected void RegisterMessageType<T>(Address address)
         {
+            if(typeof(T).IsInterface)
+                messageMapper.Initialize(new[]{typeof(T)});
             unicastBus.RegisterMessageType(typeof(T), address, false);
 
         }

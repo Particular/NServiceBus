@@ -44,6 +44,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageMutator, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
@@ -75,6 +82,7 @@
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
+    <Compile Include="Contexts\InterfaceMessage.cs" />
     <Compile Include="Sending.cs" />
     <Compile Include="Contexts\MessageHeaderManager.cs" />
     <Compile Include="Publishing.cs" />

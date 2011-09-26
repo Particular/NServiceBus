@@ -46,4 +46,33 @@
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(gatewayAddress)));
         }
     }
+
+    [TestFixture]
+    public class When_sending_a_command_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_specify_the_message_to_be_recoverable()
+        {
+            RegisterMessageType<CommandMessage>();
+            
+            bus.Send(new CommandMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable == true), Arg<Address>.Is.Anything));
+        }
+    }
+
+
+    [TestFixture]
+    public class When_sending_a_interface_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_specify_the_message_to_be_recoverable()
+        {
+            var defaultAddress = RegisterMessageType<InterfaceMessage>();
+
+            bus.Send<InterfaceMessage>(m=>{});
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Equal(defaultAddress)));
+        }
+    }
 }
