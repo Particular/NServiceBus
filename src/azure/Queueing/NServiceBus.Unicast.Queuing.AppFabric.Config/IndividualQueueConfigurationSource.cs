@@ -15,13 +15,17 @@ namespace NServiceBus.Config
         T IConfigurationSource.GetConfiguration<T>()
         {
             var config = innerSource.GetConfiguration<T>();
+            var index = 0;
+            if (RoleEnvironment.IsAvailable)
+                index = ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
 
             var unicastBusConfig = config as UnicastBusConfig;
             if (unicastBusConfig != null && unicastBusConfig.LocalAddress != null && RoleEnvironment.IsAvailable)
             {
-                var individualQueueName = ParseQueueNameFrom(unicastBusConfig.LocalAddress)
-                                          + "-"
-                                          + ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
+                var individualQueueName = ParseQueueNameFrom(unicastBusConfig.LocalAddress) 
+                                          + (index > 0 ? "-" : "")
+                                          + (index > 0 ? index.ToString() : "");
+
                 if (unicastBusConfig.LocalAddress.Contains("@"))
                     individualQueueName += "@" + ParseMachineNameFrom(unicastBusConfig.LocalAddress);
 
@@ -32,8 +36,9 @@ namespace NServiceBus.Config
             if (msmqTransportConfig != null && msmqTransportConfig.InputQueue != null && RoleEnvironment.IsAvailable)
             {
                 var individualQueueName = ParseQueueNameFrom(msmqTransportConfig.InputQueue)
-                                          + "-"
-                                          + ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
+                                          + (index > 0 ? "-" : "")
+                                          + (index > 0 ? index.ToString() : "");
+
                 if (msmqTransportConfig.InputQueue.Contains("@"))
                     individualQueueName += "@" + ParseMachineNameFrom(msmqTransportConfig.InputQueue);
 
