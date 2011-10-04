@@ -63,6 +63,15 @@ namespace NServiceBus
         {
             info.AddValue("EncryptedValue", EncryptedValue);
         }
+        
+        /// <summary>
+        /// Returns a string representation of the address.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 
     /// <summary>
