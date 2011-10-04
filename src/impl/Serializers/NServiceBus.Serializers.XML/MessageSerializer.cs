@@ -37,6 +37,7 @@ namespace NServiceBus.Serializers.XML
         }
 
         private IMessageMapper mapper;
+	private bool sanitizeInput;
 
         /// <summary>
         /// The encryption service used to encrypt and decrypt WireEncryptedStrings.
@@ -53,6 +54,12 @@ namespace NServiceBus.Serializers.XML
             get { return nameSpace; }
             set { nameSpace = value; }
         }
+
+	public bool SanitizeInput 
+	{
+	    get { return sanitizeInput; }
+	    set { sanitizeInput = value; }
+	}
 
         /// <summary>
         /// Gets/sets message types to be serialized
@@ -234,8 +241,11 @@ namespace NServiceBus.Serializers.XML
             var result = new List<IMessage>();
 
             var doc = new XmlDocument { PreserveWhitespace = true };
+            XmlReader reader = sanitizeInput ?
+		XmlReader.Create(new XmlSanitizingStream(stream), new XmlReaderSettings {CheckCharacters = false})
+		: XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false});
 
-            doc.Load(XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}));
+            doc.Load(reader);
 
             if (doc.DocumentElement == null)
                 return result.ToArray();
