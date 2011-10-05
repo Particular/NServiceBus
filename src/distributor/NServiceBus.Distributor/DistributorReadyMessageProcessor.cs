@@ -29,12 +29,11 @@ namespace NServiceBus.Distributor
                 NumberOfWorkerThreads = NumberOfWorkerThreads
             };
 
-            var serializer = Configure.Instance.Builder.Build<IMessageSerializer>();
-
             controlTransport.TransportMessageReceived +=
                 (obj, ev) =>
                 {
-                    var messages = serializer.Deserialize(new MemoryStream(ev.Message.Body));
+                    var messages = Configure.Instance.Builder.Build<IMessageSerializer>()
+                        .Deserialize(new MemoryStream(ev.Message.Body));
                     foreach (var msg in messages)
                         if (msg is ReadyMessage)
                             Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
