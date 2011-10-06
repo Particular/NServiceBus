@@ -4,8 +4,6 @@ using NServiceBus.Config;
 using NServiceBus.Distributor;
 using NServiceBus.Distributor.MsmqWorkerAvailabilityManager;
 using NServiceBus.ObjectBuilder;
-using NServiceBus.Unicast;
-using NServiceBus.Unicast.Distributor;
 
 namespace NServiceBus
 {
@@ -28,16 +26,16 @@ namespace NServiceBus
                         {
                             Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
 
-                            var inputQueue = Address.Local.Queue;
-                            var storageQueue = Address.Local.SubScope("distributor.storage");
-                            var controlQueue = Address.Local.SubScope(DistributorControlName);
-                            var applicativeInputQueue = Address.Local.SubScope("worker");
+                            var inputQueue = Address.Local;
+                            var storageQueue = inputQueue.SubScope("distributor.storage");
+                            //var controlQueue =inputQueue.SubScope(DistributorControlName);
+                            var applicativeInputQueue = inputQueue.SubScope("worker");
 
                             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                                 DependencyLifecycle.SingleInstance)
                                 .ConfigureProperty(r => r.DistributorDataQueue, inputQueue);
 
-                            NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
+                            Installer.DistributorActivated = true;
 
                             try
                             {
@@ -50,21 +48,18 @@ namespace NServiceBus
 
                             var mgr = new MsmqWorkerAvailabilityManager {StorageQueue = storageQueue};
 
+                            config.Configurer.RegisterSingleton<MsmqWorkerAvailabilityManager>(mgr);
+
+                            //todo make this one a configured instance instead
                             new DistributorReadyMessageProcessor
                                 {
                                     WorkerAvailabilityManager = mgr,
                                     NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads
                                 }.Init();
 
-                            var d = new DistributorBootstrapper
-                                        {
-                                            WorkerAvailabilityManager = mgr,
-                                            NumberOfWorkerThreads = msmqTransport.NumberOfWorkerThreads,
-                                            InputQueue = Address.Parse(inputQueue)
-                                        };
-                            d.Init();
-
-                            Configure.ConfigurationComplete += () => d.Start();
+                            config.Configurer.ConfigureComponent<DistributorBootstrapper>(DependencyLifecycle.SingleInstance)
+                                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
+                                .ConfigureProperty(r => r.InputQueue, Address.Parse(inputQueue));
                         }
                     };
 
