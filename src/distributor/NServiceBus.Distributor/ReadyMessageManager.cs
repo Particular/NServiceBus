@@ -1,28 +1,34 @@
-﻿using System.Threading;
-using NServiceBus.Grid.Messages;
+﻿using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Config;
 using NServiceBus.MasterNode;
 
 namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager
+    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
     {
-        public IManageTheMasterNode masterNodeManager { get; set; }
-        public IStartableBus Bus { get; set; }
+        public IManageTheMasterNode MasterNodeManager { get; set; }
         public ITransport EndpointTransport { get; set; }
         public IBus EndpointBus { get; set; }
 
         public int NumberOfWorkerThreads { get; set; }
         private static Address ControlQueue { get; set; }
-        
-        /// <summary>
-        /// Assumes that the bus is already started.
-        /// </summary>
+
         public void Run()
         {
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
+            bus.Started += (obj, ev) => Start();
+        }
+        
+        void Start()
+        {
             if (RoutingConfig.IsConfiguredAsMasterNode)
-                ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+            {
+                //todo, check with udi if the distributor really should do any work
+                //ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+
+                return;
+            }
             else
             {
                 if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
@@ -33,12 +39,8 @@ namespace NServiceBus.Distributor
                 }
                 else
                 {
-                    if (masterNodeManager.GetMasterNode() != null)
-                        ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
-                    else
-                    {
-                        
-                    }
+                    if (MasterNodeManager.GetMasterNode() != null)
+                        ControlQueue = MasterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
                 }
             } 
 
@@ -47,7 +49,7 @@ namespace NServiceBus.Distributor
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
         }
 
-        public void SendReadyMessage(bool startup)
+        void SendReadyMessage(bool startup)
         {
             if (ControlQueue == null)
                 return;
@@ -73,5 +75,7 @@ namespace NServiceBus.Distributor
 
             EndpointBus.Send(ControlQueue, messages);
         }
+
+
     }
 }

@@ -6,18 +6,14 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Distributor
 {
-    public class DistributorBootstrapper : IDisposable,IWantToRunWhenConfigurationIsComplete
+    public class DistributorBootstrapper : IDisposable, IWantToRunWhenConfigurationIsComplete
     {
 
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public Address InputQueue { get; set; }
+        public bool DistributorEnabled { get; set; }
 
-
-        public DistributorBootstrapper(IStartableBus bus)
-        {
-            this.bus = bus;
-        }
 
         public void Dispose()
         {
@@ -27,6 +23,9 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
+            if (!DistributorEnabled)
+                return;
+
             var dataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
@@ -42,14 +41,12 @@ namespace NServiceBus.Distributor
                 DataTransportInputQueue = InputQueue
             };
 
-            Configure.ConfigurationComplete += () =>
-                                                   {
-                                                       bus.Started += (obj, ev) => distributor.Start();
-                                                   };
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
+            bus.Started += (obj, ev) => distributor.Start();
         }
 
         Unicast.Distributor.Distributor distributor;
-        readonly IStartableBus bus;
+
 
     }
 }

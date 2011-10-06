@@ -11,7 +11,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 	/// </summary>
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
-	    private MessageQueue storageQueue;
+	    MessageQueue storageQueue;
 
 		/// <summary>
 		/// Sets the path to the queue that will be used for storing
@@ -32,7 +32,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// </param>
         public void ClearAvailabilityForWorker(Address address)
         {
-            lock (locker)
+            lock (storageQueue)
             {
                 var existing = storageQueue.GetAllMessages();
 
@@ -46,10 +46,9 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// Pops the next available worker from the available worker queue
 		/// and returns its address.
 		/// </summary>
-		/// <returns>The address of the next available worker.</returns>
         public Address PopAvailableWorker()
         {
-            lock (locker)
+            lock (storageQueue)
             {
                 try
                 {
@@ -88,7 +87,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 		/// </param>
         public void WorkerAvailable(Address address)
         {
-            lock (locker)
+            lock (storageQueue)
             {
                 var msg = new Message
                               {
@@ -98,7 +97,5 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
                 storageQueue.Send(msg, MessageQueueTransactionType.Automatic);
             }
         }
-
-	    private readonly object locker = new object();
     }
 }

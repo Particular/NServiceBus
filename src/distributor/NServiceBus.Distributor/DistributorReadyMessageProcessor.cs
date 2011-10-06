@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.Unicast.Distributor;
+﻿using NServiceBus.Unicast.Distributor;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport.Transactional;
 using NServiceBus.Unicast.Queuing.Msmq;
@@ -13,17 +9,24 @@ using System.IO;
 
 namespace NServiceBus.Distributor
 {
-    class DistributorReadyMessageProcessor
+    using Config;
+
+    class DistributorReadyMessageProcessor:IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
+        public IManageMessageFailures MessageFailureManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
+        public bool DistributorEnabled { get; set; }
 
-        public void Init()
+        public void Run()
         {
+            if (!DistributorEnabled)
+                return;
+
             controlTransport = new TransactionalTransport
             {
                 IsTransactional = true,
-                FailureManager = Configure.Instance.Builder.Build<IManageMessageFailures>(),
+                FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 1,
                 NumberOfWorkerThreads = NumberOfWorkerThreads
@@ -50,6 +53,7 @@ namespace NServiceBus.Distributor
             WorkerAvailabilityManager.WorkerAvailable(returnAddress);
         }
 
-        private ITransport controlTransport;
+        ITransport controlTransport;
+        
     }
 }
