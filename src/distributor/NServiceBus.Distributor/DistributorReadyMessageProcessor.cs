@@ -11,12 +11,14 @@ namespace NServiceBus.Distributor
 {
     using Config;
 
-    class DistributorReadyMessageProcessor:IWantToRunWhenConfigurationIsComplete
+    public class DistributorReadyMessageProcessor:IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public bool DistributorEnabled { get; set; }
+
+        public Address ControlQueue { get; set; }
 
         public void Run()
         {
@@ -29,7 +31,7 @@ namespace NServiceBus.Distributor
                 FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 1,
-                NumberOfWorkerThreads = NumberOfWorkerThreads
+                NumberOfWorkerThreads = NumberOfWorkerThreads,
             };
 
             controlTransport.TransportMessageReceived +=
@@ -41,6 +43,9 @@ namespace NServiceBus.Distributor
                         if (msg is ReadyMessage)
                             Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
                 };
+
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
+            bus.Started += (obj, ev) => controlTransport.Start(ControlQueue);
         }
 
         private void Handle(ReadyMessage message, Address returnAddress)

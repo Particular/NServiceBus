@@ -7,7 +7,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
     ///<summary>
     /// Creates the queue to store worker availability information.
     ///</summary>
-    public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
+    public class Installer : INeedToInstallSomething<Installation.Environments.Windows>
     {
         /// <summary>
         /// Implementation of INeedToInstallSomething.Install
@@ -17,7 +17,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         {
             if (DistributorActivated)
             {
-                var m = NServiceBus.Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
+                var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
                 MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);
             }

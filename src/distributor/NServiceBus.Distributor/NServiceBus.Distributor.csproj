@@ -58,6 +58,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Installation.Windows">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
       <Private>False</Private>
@@ -97,6 +100,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -110,6 +116,7 @@
     <Compile Include="Configurer.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
+    <Compile Include="Installer.cs" />
     <Compile Include="ReadyMessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnAddressRewriter.cs" />

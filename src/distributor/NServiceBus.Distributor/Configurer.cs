@@ -33,14 +33,33 @@ namespace NServiceBus
 
             var inputQueue = Address.Local;
             var controlQueue = inputQueue.SubScope(DistributorControlName);
-            var applicativeInputQueue = inputQueue.SubScope("worker");
+            var applicativeInputQueue = inputQueue.SubScope("worker"); //todo discuss the purpose of this with Udi
 
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataQueue, inputQueue);
 
-            Installer.DistributorActivated = true;
+            NServiceBus.Distributor.Installer.DistributorActivated = true;
+            NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
 
+            SetLocalAddress(applicativeInputQueue);
+
+            config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(r => r.StorageQueue, inputQueue.SubScope("distributor.storage"));
+
+            config.Configurer.ConfigureComponent<DistributorReadyMessageProcessor>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
+                .ConfigureProperty(r => r.ControlQueue, controlQueue)
+                .ConfigureProperty(r => r.DistributorEnabled, true);
+
+            config.Configurer.ConfigureComponent<DistributorBootstrapper>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
+                .ConfigureProperty(r => r.InputQueue, inputQueue)
+                .ConfigureProperty(r => r.DistributorEnabled, true);
+        }
+
+        private static void SetLocalAddress(Address applicativeInputQueue)
+        {
             try
             {
                 Address.InitializeLocalAddress(applicativeInputQueue.Queue);
@@ -49,18 +68,6 @@ namespace NServiceBus
             {
                 //intentionally swallow
             }
-
-            config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.StorageQueue, inputQueue.SubScope("distributor.storage"));
-
-            config.Configurer.ConfigureComponent<DistributorReadyMessageProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
-                .ConfigureProperty(r => r.DistributorEnabled, true);
-
-            config.Configurer.ConfigureComponent<DistributorBootstrapper>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
-                .ConfigureProperty(r => r.InputQueue, inputQueue)
-                .ConfigureProperty(r => r.DistributorEnabled, true);
         }
     }
 }
