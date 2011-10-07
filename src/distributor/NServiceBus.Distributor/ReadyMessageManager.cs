@@ -46,6 +46,7 @@ namespace NServiceBus.Distributor
 
             SendReadyMessage(true);
 
+            //todo We send a new readymessage each time we process, even for the "infrastructure messages", should we keep it that way?
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
         }
 
