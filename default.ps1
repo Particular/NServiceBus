@@ -101,14 +101,18 @@ task GeneateCommonAssemblyInfo {
  }
 
 task FinalizeAndClean{
+	echo Finalize and Clean
     if((Test-Path -Path $release_dir) -eq $true)
 	{
 		rmdir $release_dir -Force
 	}	
+	echo Finalize and Clean
 }
 
 
 task ZipOutput {
+
+	echo "Zip Output"
 
 	$productVersion = Get-Content $versionFileFullPath;
 	$buildNumber = 0
@@ -130,10 +134,11 @@ task ZipOutput {
 	exec { 
 		& $tools_dir\zip\zip.exe -9 -A -r `
 			$file `
-			**
+			*.*
 	}
 
     cd $old
+	echo "Zip Output Over"
 
 }
  
