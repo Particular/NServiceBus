@@ -113,23 +113,24 @@ task FinalizeAndClean{
 task ZipOutput {
 
 	echo "Zip Output"
-
+	$versionFileFullPath = Resolve-Path $versionFile
 	$productVersion = Get-Content $versionFileFullPath;
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
 	}
 	$productVersion = $buildNumber
+	
 	echo "Release Dir" $release_dir
 	echo "artifacts Dir" $artifacts_dir
 	
     $old = pwd
 	cd $release_dir
 	
-#	if((Test-Path -Path $artifacts_dir) -eq $true)
-#	{
-#		rmdir $artifacts_dir -Force
-#	}
+	if((Test-Path -Path $artifacts_dir) -eq $true)
+	{
+		rmdir $artifacts_dir -Force
+	}
 	
     mkdir $artifacts_dir
 	
