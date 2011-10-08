@@ -32,7 +32,7 @@ task CreatePackages {
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
 	}
-	$productVersion = $productVersion + "." + $buildNumber
+	$productVersion = $buildNumber
 	
 	$packit.targeted_Frameworks = "net40";
 
@@ -115,7 +115,7 @@ task ZipOutput {
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
 	}
-	$productVersion = $productVersion + "." + $buildNumber
+	$productVersion = $buildNumber
 	
     $old = pwd
 	cd $release_dir
