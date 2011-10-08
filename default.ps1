@@ -132,9 +132,7 @@ task ZipOutput {
 	
 	$file = "$artifacts_dir\NServiceBus$productVersion.zip"
 	exec { 
-		& $tools_dir\zip\zip.exe -9 -A -r `
-			$file `
-			*.*
+		& $tools_dir\zip\zip.exe -9 -A -r $file doc\*.*  *.*
 	}
 
     cd $old
