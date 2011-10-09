@@ -93,16 +93,17 @@ namespace NServiceBus.Hosting.Profiles
             foreach(var p in activeProfiles)
                 Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
 
-            var handlers = new List<Type>();
+            var activeHandlers = new List<Type>();
 
             foreach (var assembly in assembliesToScan)
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (null != type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile)))
-                        handlers.Add(type);
+                    var p = type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile));
+                    if (p != null)
+                        foreach(var ap in activeProfiles)
+                            if (p.IsAssignableFrom(ap))
+                                activeHandlers.Add(type);
                 }
-
-            var activeHandlers = handlers.Where(t => activeProfiles.Any(p => typeof(IHandleProfile<>).MakeGenericType(p).IsAssignableFrom(t)));
 
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)

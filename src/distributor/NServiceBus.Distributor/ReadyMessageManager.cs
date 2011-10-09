@@ -30,7 +30,7 @@ namespace NServiceBus.Distributor
                 return;
             }
             else
-                ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
+                ControlQueue = MasterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
 
             SendReadyMessage(true);
 
