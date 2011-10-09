@@ -30,19 +30,7 @@ namespace NServiceBus.Distributor
                 return;
             }
             else
-            {
-                if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
-                {
-                    var cfg = Configure.GetConfigSection<UnicastBusConfig>();
-                    if (cfg != null && !string.IsNullOrEmpty(cfg.DistributorControlAddress))
-                        ControlQueue = Address.Parse(cfg.DistributorControlAddress);
-                }
-                else
-                {
-                    if (MasterNodeManager.GetMasterNode() != null)
-                        ControlQueue = MasterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
-                }
-            } 
+                ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
 
             SendReadyMessage(true);
 

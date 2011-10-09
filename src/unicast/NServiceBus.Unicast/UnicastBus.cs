@@ -186,13 +186,6 @@ namespace NServiceBus.Unicast
         public string ForwardReceivedMessagesTo { get; set; }
 
         /// <summary>
-        /// Allows discovery - meaning that if subscribing to a message type
-        /// for which a destination hasn't been configured, will wait until
-        /// <see cref="RegisterMessageType"/> is called for that type.
-        /// </summary>
-        public bool AllowDiscovery { get; set; }
-
-        /// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the message types associated with the bus.
         /// </summary>
@@ -403,32 +396,14 @@ namespace NServiceBus.Unicast
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
-            Action<Address> doIt = address =>
-                              {
-                                  Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + address);
-
-                                  ((IBus) this).OutgoingHeaders[SubscriptionMessageType] =
-                                      GetSubscriptionKeyFor(messageType);
-                                  SendMessage(address, null, MessageIntentEnum.Subscribe, new CompletionMessage());
-                                  ((IBus) this).OutgoingHeaders.Remove(SubscriptionMessageType);
-                              };
-
             if (destination == null)
-                if (!AllowDiscovery)
-                    throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly. Alternatively, consider having your message handlers implement IAmResponsibleForMessages<T> for the message type.", messageType));
-                else
-                {
-                    Log.Info("No destation known for message type: " + messageType.FullName +
-                             ". Waiting for destination to be discovered.");
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-                    messageTypeRegistered += (o, e) =>
-                                                 {
-                                                     if (e.MessageType == messageType)
-                                                         doIt(e.Destination);
-                                                 };
-                }
-            else
-                doIt(destination);
+            Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
+
+            ((IBus) this).OutgoingHeaders[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
+            SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
+            ((IBus) this).OutgoingHeaders.Remove(SubscriptionMessageType);
         }
 
         /// <summary>
@@ -1377,12 +1352,6 @@ namespace NServiceBus.Unicast
 
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
-                if (AllowDiscovery)
-                    if (messageTypeRegistered != null)
-                        messageTypeRegistered(this,
-                                              new MessageTypeDestinationEventArgs
-                                                  {MessageType = messageType, Destination = address});
-
                 if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                     recoverableMessageTypes.Add(messageType);
 
@@ -1688,14 +1657,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private readonly IDictionary<Type, Address> messageTypeToDestinationLookup = new Dictionary<Type, Address>();
         private readonly ReaderWriterLockSlim messageTypeToDestinationLocker = new ReaderWriterLockSlim();
-
-        private class MessageTypeDestinationEventArgs : EventArgs
-        {
-            public Type MessageType { get; set; }
-            public Address Destination { get; set; }
-        }
-
-        private event EventHandler<MessageTypeDestinationEventArgs> messageTypeRegistered;
 
         /// <remarks>
         /// ThreadStatic

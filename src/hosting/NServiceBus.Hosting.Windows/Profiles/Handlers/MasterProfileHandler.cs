@@ -10,12 +10,4 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             Configure.Instance.AsMasterNode();
         }
     }
-
-    class DynamicDiscoveryHandler : IHandleProfile<DynamicDiscovery>
-    {
-        public void ProfileActivated()
-        {
-            Configure.Instance.DynamicNodeDiscovery().UnicastBus().AllowDiscovery();
-        }
-    }
 }

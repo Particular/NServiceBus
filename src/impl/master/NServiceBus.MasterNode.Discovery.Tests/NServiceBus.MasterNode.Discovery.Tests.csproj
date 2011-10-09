@@ -61,12 +61,6 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.MasterNode.Discovery\NServiceBus.MasterNode.Discovery.csproj">
-      <Project>{3BD9CDE8-7D0A-44A8-83CC-15C2F2EC9D93}</Project>
-      <Name>NServiceBus.MasterNode.Discovery</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

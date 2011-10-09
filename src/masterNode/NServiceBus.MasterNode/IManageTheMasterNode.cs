@@ -18,10 +18,5 @@ namespace NServiceBus.MasterNode
         /// Returns true if this process/node is the master node.
         /// </summary>
         bool IsCurrentNodeTheMaster { get; }
-
-        /// <summary>
-        /// Raised when the master node changes.
-        /// </summary>
-        event Action MasterNodeChanged;
     }
 }
