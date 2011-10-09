@@ -121,12 +121,6 @@ task ZipOutput {
 	}
 	$productVersion = $buildNumber
 	
-	echo "Release Dir" $release_dir
-	echo "artifacts Dir" $artifacts_dir
-	
-    $old = pwd
-	cd $release_dir
-	
 	if((Test-Path -Path $artifacts_dir) -eq $true)
 	{
 		rmdir $artifacts_dir -Force
@@ -134,13 +128,12 @@ task ZipOutput {
 	
     mkdir $artifacts_dir
 	
-	$file = "$artifacts_dir\NServiceBus$productVersion.zip"
+	$archive = "$artifacts_dir\NServiceBus$productVersion.zip"
 	exec { 
-		& $tools_dir\zip\zip.exe -9 -A -r $file doc\*.*  *.*
+		& $tools_dir\zip\7za.exe a -tzip $archive $release_dir\**
 	}
 
-    cd $old
-	echo "Zip Output Over"
+    echo "Zip Output Over"
 
 }
  
