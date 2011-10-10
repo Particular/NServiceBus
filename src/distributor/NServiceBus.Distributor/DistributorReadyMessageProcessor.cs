@@ -11,18 +11,18 @@ namespace NServiceBus.Distributor
 {
     using Config;
 
+    //todo 
     public class DistributorReadyMessageProcessor:IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
-        public bool DistributorEnabled { get; set; }
 
         public Address ControlQueue { get; set; }
 
         public void Run()
         {
-            if (!DistributorEnabled)
+            if (!RoutingConfig.IsConfiguredAsMasterNode)
                 return;
 
             controlTransport = new TransactionalTransport

@@ -33,14 +33,11 @@ namespace NServiceBus
 
             var inputQueue = Address.Local;
             var controlQueue = inputQueue.SubScope(DistributorControlName);
-            var applicativeInputQueue = inputQueue.SubScope("worker"); //todo discuss the purpose of this with Udi
+            var applicativeInputQueue = inputQueue.SubScope("worker");
 
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataQueue, inputQueue);
-
-            NServiceBus.Distributor.Installer.DistributorActivated = true;
-            NServiceBus.Distributor.MsmqWorkerAvailabilityManager.Installer.DistributorActivated = true;
 
             SetLocalAddress(applicativeInputQueue);
 
@@ -49,13 +46,12 @@ namespace NServiceBus
 
             config.Configurer.ConfigureComponent<DistributorReadyMessageProcessor>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
-                .ConfigureProperty(r => r.ControlQueue, controlQueue)
-                .ConfigureProperty(r => r.DistributorEnabled, true);
+                .ConfigureProperty(r => r.ControlQueue, controlQueue);
+
 
             config.Configurer.ConfigureComponent<DistributorBootstrapper>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads)
-                .ConfigureProperty(r => r.InputQueue, inputQueue)
-                .ConfigureProperty(r => r.DistributorEnabled, true);
+                .ConfigureProperty(r => r.InputQueue, inputQueue);
         }
 
         private static void SetLocalAddress(Address applicativeInputQueue)

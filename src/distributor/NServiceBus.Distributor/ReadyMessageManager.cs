@@ -12,29 +12,25 @@ namespace NServiceBus.Distributor
         public IBus EndpointBus { get; set; }
 
         public int NumberOfWorkerThreads { get; set; }
-        private static Address ControlQueue { get; set; }
 
         public void Run()
         {
             var bus = Configure.Instance.Builder.Build<IStartableBus>();
             bus.Started += (obj, ev) => Start();
         }
-        
+
         void Start()
         {
+            var masterNodeAddress = MasterNodeManager.GetMasterNode();
+            
+            //hack
             if (RoutingConfig.IsConfiguredAsMasterNode)
-            {
-                //todo, check with udi if the distributor really should do any work
-                //ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+                masterNodeAddress = Address.Parse(masterNodeAddress.ToString().Replace(".worker", ""));
 
-                return;
-            }
-            else
-                ControlQueue = MasterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
+            ControlQueue = masterNodeAddress.SubScope(Configurer.DistributorControlName);
 
             SendReadyMessage(true);
 
-            //todo We send a new readymessage each time we process, even for the "infrastructure messages", should we keep it that way?
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
         }
 
@@ -59,12 +55,13 @@ namespace NServiceBus.Distributor
             }
             else
             {
-                messages = new IMessage[] {new ReadyMessage()};
+                messages = new IMessage[] { new ReadyMessage() };
             }
 
             EndpointBus.Send(ControlQueue, messages);
         }
 
+        static Address ControlQueue { get; set; }
 
     }
 }
