@@ -90,6 +90,7 @@
     </Compile>
     <Compile Include="Config\When_configuring_the_subscription_storage.cs" />
     <Compile Include="InMemoryDBFixture.cs" />
+    <Compile Include="SqlServerFixture.cs" />
     <Compile Include="When_listing_subscribers_for_message_types.cs" />
     <Compile Include="When_receiving_a_subscription_message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
