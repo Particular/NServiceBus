@@ -26,8 +26,7 @@ namespace NServiceBus
 
             var msmqTransport = Configure.GetConfigSection<MsmqTransportConfig>();
 
-            config.Configurer.ConfigureComponent<ReadyMessageManager>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.NumberOfWorkerThreads, msmqTransport.NumberOfWorkerThreads);
+            config.Configurer.ConfigureComponent<ReadyMessageManager>(DependencyLifecycle.SingleInstance);
 
             Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
 

@@ -15,8 +15,9 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            if (!RoutingConfig.IsConfiguredAsMasterNode)
+            if (!RoutingConfig.IsConfiguredAsMasterNode || !Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>())
                 return;
+
             var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
             MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);

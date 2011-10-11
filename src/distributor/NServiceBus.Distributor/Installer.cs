@@ -8,7 +8,7 @@
     {
         public void Install(WindowsIdentity identity)
         {
-            if (!RoutingConfig.IsConfiguredAsMasterNode)
+            if (!RoutingConfig.IsConfiguredAsMasterNode || !Configure.Instance.Configurer.HasComponent<DistributorReadyMessageProcessor>())
                 return;
 
             var m = Configure.Instance.Builder.Build<DistributorReadyMessageProcessor>();

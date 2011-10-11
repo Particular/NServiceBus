@@ -12,7 +12,7 @@ namespace NServiceBus.Distributor
     using Config;
 
     //todo 
-    public class DistributorReadyMessageProcessor:IWantToRunWhenConfigurationIsComplete
+    public class DistributorReadyMessageProcessor : IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
@@ -37,28 +37,36 @@ namespace NServiceBus.Distributor
             controlTransport.TransportMessageReceived +=
                 (obj, ev) =>
                 {
-                    var messages = Configure.Instance.Builder.Build<IMessageSerializer>()
-                        .Deserialize(new MemoryStream(ev.Message.Body));
-                    foreach (var msg in messages)
-                        if (msg is ReadyMessage)
-                            Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
+                    var transportMessage = ev.Message;
+
+                    if (!transportMessage.Headers.ContainsKey(Headers.ControlMessage))
+                        return;
+
+                    HandleControlMessage(transportMessage);
                 };
 
             var bus = Configure.Instance.Builder.Build<IStartableBus>();
             bus.Started += (obj, ev) => controlTransport.Start(ControlQueue);
         }
 
-        private void Handle(ReadyMessage message, Address returnAddress)
+        void HandleControlMessage(TransportMessage controlMessage)
         {
-            Configurer.Logger.Info("Server available: " + returnAddress);
+            var returnAddress = controlMessage.ReplyToAddress;
+            Configurer.Logger.Info("Worker available: " + returnAddress);
 
-            if (message.ClearPreviousFromThisAddress) //indicates worker started up
+            if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);
 
-            WorkerAvailabilityManager.WorkerAvailable(returnAddress);
+            if(controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
+            {
+                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
+                    
+                WorkerAvailabilityManager.WorkerAvailable(returnAddress,capacity);
+            }
+            
         }
 
         ITransport controlTransport;
-        
+
     }
 }
