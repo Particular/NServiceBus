@@ -330,8 +330,9 @@ namespace NServiceBus.Unicast
                 Publish(CreateInstance<T>(m => { }));
                 return;
             }
-
-            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(GetFullTypes(messages as object[]));
+            var fullTypes = GetFullTypes(messages as object[]);
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(GetSubscriptionKeyFor))
+                .ToList();
 
             if (subscribers.Count() == 0)
                 if (NoSubscribersForMessage != null)
@@ -646,7 +647,7 @@ namespace NServiceBus.Unicast
             var types = GetFullTypes(messages);
 
             var sBuilder = new StringBuilder("<MessageTypes>");
-            types.ForEach(s => sBuilder.Append("<s>" + s + "</s>"));
+            types.ForEach(type => sBuilder.Append("<s>" + type.AssemblyQualifiedName + "</s>"));
             sBuilder.Append("</MessageTypes>");
 
             return sBuilder.ToString();
@@ -666,13 +667,13 @@ namespace NServiceBus.Unicast
             return new List<string>(arr);
         }
 
-        private static List<string> GetFullTypes(IEnumerable<object> messages)
+        private static List<Type> GetFullTypes(IEnumerable<object> messages)
         {
-            var types = new List<string>();
+            var types = new List<Type>();
 
             foreach (var m in messages)
             {
-                var s = m.GetType().AssemblyQualifiedName;
+                var s = m.GetType();
                 if (types.Contains(s))
                     continue;
 
@@ -680,8 +681,8 @@ namespace NServiceBus.Unicast
 
                 foreach (var t in m.GetType().GetInterfaces())
                     if (t.IsMessageType())
-                        if (!types.Contains(t.AssemblyQualifiedName))
-                            types.Add(t.AssemblyQualifiedName);
+                        if (!types.Contains(t))
+                            types.Add(t);
             }
 
             return types;
@@ -1244,7 +1245,7 @@ namespace NServiceBus.Unicast
             var version = messageType.Assembly.GetName().Version;
             var qualifiedName = messageType.AssemblyQualifiedName;
 
-            return qualifiedName.Replace("Version=" + version, "Version=" + version.Major +".0.0.0");
+            return qualifiedName.Replace(version.ToString(), version.Major +".0.0.0");
         }
 
         bool IsSendOnlyEndpoint()
