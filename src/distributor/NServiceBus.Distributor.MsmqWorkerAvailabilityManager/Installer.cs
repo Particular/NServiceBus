@@ -15,17 +15,13 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            if (DistributorActivated)
-            {
-                var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
+            if (!RoutingConfig.IsConfiguredAsMasterNode || !Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>())
+                return;
 
-                MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);
-            }
+            var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
+
+            MsmqUtilities.CreateQueueIfNecessary(m.StorageQueue, identity.Name);
+
         }
-
-        /// <summary>
-        /// Indication that the distributor has been activated for this endpoint.
-        /// </summary>
-        public static bool DistributorActivated { get; set; }
     }
 }

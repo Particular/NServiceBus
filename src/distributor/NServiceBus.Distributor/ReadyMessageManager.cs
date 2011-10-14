@@ -1,68 +1,63 @@
-﻿using NServiceBus.Grid.Messages;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Config;
-using NServiceBus.MasterNode;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor
 {
+    using System.Collections.Generic;
+    using Unicast.Transport;
+    using Config;
+    using MasterNode;
+    using Unicast.Queuing;
+
     public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
     {
-        public IManageTheMasterNode MasterNodeManager { get; set; }
-        public ITransport EndpointTransport { get; set; }
-        public IBus EndpointBus { get; set; }
+        readonly IManageTheMasterNode masterNodeManager;
+        readonly ITransport endpointTransport;
+        readonly ISendMessages messageSender;
 
-        public int NumberOfWorkerThreads { get; set; }
-        private static Address ControlQueue { get; set; }
+        public ReadyMessageManager(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
+        {
+            this.masterNodeManager = masterNodeManager;
+            this.endpointTransport = endpointTransport;
+            this.messageSender = messageSender;
+        }
 
+        
         public void Run()
         {
             var bus = Configure.Instance.Builder.Build<IStartableBus>();
             bus.Started += (obj, ev) => Start();
         }
-        
+
         void Start()
         {
+            var masterNodeAddress = masterNodeManager.GetMasterNode();
+            
+            //hack
             if (RoutingConfig.IsConfiguredAsMasterNode)
-            {
-                //todo, check with udi if the distributor really should do any work
-                //ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
+                masterNodeAddress = Address.Parse(masterNodeAddress.ToString().Replace(".worker", ""));
 
-                return;
-            }
-            else
-                ControlQueue = MasterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
+            var controlQueue = masterNodeAddress.SubScope(Configurer.DistributorControlName);
 
-            SendReadyMessage(true);
+            var capacityAvailable = endpointTransport.NumberOfWorkerThreads;
+            SendReadyMessage(controlQueue,capacityAvailable,true);
 
-            //todo We send a new readymessage each time we process, even for the "infrastructure messages", should we keep it that way?
-            EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
+            endpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(controlQueue,1);
         }
 
-        void SendReadyMessage(bool startup)
+        void SendReadyMessage(Address controlQueue,int capacityAvailable,bool isStarting = false)
         {
-            if (ControlQueue == null)
-                return;
+            var readyMessage = new TransportMessage
+                              {
+                                  Headers = new Dictionary<string, string>(),
+                                  ReplyToAddress = Address.Local
+                              };
 
-            IMessage[] messages;
-            if (startup)
-            {
-                messages = new IMessage[EndpointTransport.NumberOfWorkerThreads];
-                for (var i = 0; i < EndpointTransport.NumberOfWorkerThreads; i++)
-                {
-                    var rm = new ReadyMessage
-                    {
-                        ClearPreviousFromThisAddress = (i == 0)
-                    };
+            readyMessage.Headers.Add(Headers.ControlMessage, true.ToString());
+            readyMessage.Headers.Add(Headers.WorkerCapacityAvailable,capacityAvailable.ToString());
+            
+            if (isStarting)
+                readyMessage.Headers.Add(Headers.WorkerStarting, true.ToString());
+            
 
-                    messages[i] = rm;
-                }
-            }
-            else
-            {
-                messages = new IMessage[] {new ReadyMessage()};
-            }
-
-            EndpointBus.Send(ControlQueue, messages);
+            messageSender.Send(readyMessage, controlQueue);
         }
 
 

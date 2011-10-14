@@ -12,8 +12,6 @@ namespace NServiceBus.Distributor
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public Address InputQueue { get; set; }
-        public bool DistributorEnabled { get; set; }
-
 
         public void Dispose()
         {
@@ -23,7 +21,7 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            if (!DistributorEnabled)
+            if (!RoutingConfig.IsConfiguredAsMasterNode)
                 return;
 
             var dataTransport = new TransactionalTransport

@@ -116,6 +116,7 @@
     <Compile Include="Configurer.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
+    <Compile Include="Headers.cs" />
     <Compile Include="Installer.cs" />
     <Compile Include="ReadyMessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
