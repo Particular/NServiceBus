@@ -6,12 +6,4 @@
     {
        
     }
-    class MakeThisEndpointADistributor : IWantCustomInitialization
-    {
-        public void Init()
-        {
-            //todo: add a masternode profile handler that does this
-            Configure.Instance.Distributor();
-        }
-    }
 }

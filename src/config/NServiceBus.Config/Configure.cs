@@ -36,11 +36,6 @@ namespace NServiceBus
         public static event Action ConfigurationComplete;
 
         /// <summary>
-        /// Event raised before going to invoke INeedInitialization implementors.
-        /// </summary>
-        public static event Action BeforeInitialization;
-
-        /// <summary>
         /// Gets/sets the builder.
         /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>
@@ -244,8 +239,12 @@ namespace NServiceBus
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            if (BeforeInitialization != null)
-                BeforeInitialization();
+            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+                .ToList().ForEach(t =>
+                                      {
+                                          var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                                          ini.Init();
+                                      });
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>

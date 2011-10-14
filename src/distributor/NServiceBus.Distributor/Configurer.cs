@@ -7,22 +7,18 @@ using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
-    public static class Configurer
+    public class Configurer:IWantToRunBeforeConfiguration
     {
         public static ILog Logger;
         public static string DistributorControlName { get { return "distributor.control"; } }
 
-        public static Configure Distributor(this Configure config)
-        {
-            Configure.BeforeInitialization += () => ConfigureDistributor(config);
 
-            return config;
-        }
-
-        static void ConfigureDistributor(Configure config)
+        public void Init()
         {
             if (!RoutingConfig.IsConfiguredAsMasterNode)
                 return;
+           
+            var config = Configure.Instance;
 
             var msmqTransport = Configure.GetConfigSection<MsmqTransportConfig>();
 
