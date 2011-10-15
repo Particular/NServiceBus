@@ -19,7 +19,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	Write-Output "Loding the moduele for packing.............."
-	$packit.push_to_nuget = $true 
+	$packit.push_to_nuget = $false 
 	
 	
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
@@ -164,20 +164,6 @@ task ZipOutput {
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
-	}
-	
-	$PackagingArtefactsRoot = ".\release\PackagingArtefacts"
-	$packageOutPutDir = ".\release\packages"
-	if((Test-Path -Path $PackagingArtefactsRoot) -eq $true)
-	{
-		rmdir $PackagingArtefactsRoot -Force
-	
-	}
-	
-	if((Test-Path -Path $packageOutPutDir) -eq $true)
-	{
-		rmdir $packageOutPutDir -Force
-	
 	}
 	
 	$productVersion = $buildNumber
