@@ -19,7 +19,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	Write-Output "Loding the moduele for packing.............."
-	$packit.push_to_nuget = $false 
+	$packit.push_to_nuget = $true 
 	
 	
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
@@ -148,15 +148,31 @@ task GeneateCommonAssemblyInfo {
 
 task FinalizeAndClean{
 	echo Finalize and Clean
-    if((Test-Path -Path $release_dir) -eq $true)
+    if(Test-Path -Path $release_dir)
 	{
-		rmdir $release_dir -Force
+		del -Path $release_dir -Force -recurse
 	}	
 	echo Finalize and Clean
 }
 
 
 task ZipOutput {
+
+	
+	echo "Cleaning the Release dir before ziping"
+	
+	$packagingArtefacts = ".\release\PackagingArtefacts"
+	$packageOutPutDir = ".\release\packages"
+	
+	if(Test-Path -Path $packagingArtefacts){
+		del -Path $packagingArtefacts -Force -recurse
+	}
+	
+	if(Test-Path -Path $packageOutPutDir){
+		del -Path $packageOutPutDir -Force -recurse
+	}
+	
+	
 
 	echo "Zip Output"
 	$versionFileFullPath = Resolve-Path $versionFile
@@ -170,7 +186,7 @@ task ZipOutput {
 	
 	if((Test-Path -Path $artifacts_dir) -eq $true)
 	{
-		rmdir $artifacts_dir -Force
+		rmdir $artifacts_dir -Force -recurse
 	}
 	
     mkdir $artifacts_dir

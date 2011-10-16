@@ -71,7 +71,7 @@ function PushPackage($packageName)
     $packages | % { 
         $package = $_.Name
         write-host "Uploading $package"
-        #&$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
+        &$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
         write-host ""    
   	}
   popd
@@ -257,7 +257,10 @@ function Invoke-Packit
 		if($createWithSymbol){&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose -Symbols}
 		else{&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose}
 		 
-		 if($script:packit.push_to_nuget){ PushPackage($packName) }
+		 if($script:packit.push_to_nuget){ 
+		 	$packageToPush = $packageName + "." + $version + ".nupkg"
+		 	PushPackage($packageToPush) 
+		 }
 	}
 	end
 	{
