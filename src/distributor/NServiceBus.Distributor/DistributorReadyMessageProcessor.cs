@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.Unicast.Distributor;
+﻿using NServiceBus.Unicast.Distributor;
 using NServiceBus.Grid.Messages;
 using NServiceBus.Unicast.Transport.Transactional;
 using NServiceBus.Unicast.Queuing.Msmq;
@@ -13,44 +9,64 @@ using System.IO;
 
 namespace NServiceBus.Distributor
 {
-    class DistributorReadyMessageProcessor
+    using Config;
+
+    //todo 
+    public class DistributorReadyMessageProcessor : IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
+        public IManageMessageFailures MessageFailureManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
 
-        public void Init()
+        public Address ControlQueue { get; set; }
+
+        public void Run()
         {
+            if (!RoutingConfig.IsConfiguredAsMasterNode)
+                return;
+
             controlTransport = new TransactionalTransport
             {
                 IsTransactional = true,
-                FailureManager = Configure.Instance.Builder.Build<IManageMessageFailures>(),
+                FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 1,
-                NumberOfWorkerThreads = NumberOfWorkerThreads
+                NumberOfWorkerThreads = NumberOfWorkerThreads,
             };
-
-            var serializer = Configure.Instance.Builder.Build<IMessageSerializer>();
 
             controlTransport.TransportMessageReceived +=
                 (obj, ev) =>
                 {
-                    var messages = serializer.Deserialize(new MemoryStream(ev.Message.Body));
-                    foreach (var msg in messages)
-                        if (msg is ReadyMessage)
-                            Handle(msg as ReadyMessage, ev.Message.ReplyToAddress);
+                    var transportMessage = ev.Message;
+
+                    if (!transportMessage.Headers.ContainsKey(Headers.ControlMessage))
+                        return;
+
+                    HandleControlMessage(transportMessage);
                 };
+
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
+            bus.Started += (obj, ev) => controlTransport.Start(ControlQueue);
         }
 
-        private void Handle(ReadyMessage message, Address returnAddress)
+        void HandleControlMessage(TransportMessage controlMessage)
         {
-            Configurer.Logger.Info("Server available: " + returnAddress);
+            var returnAddress = controlMessage.ReplyToAddress;
+            Configurer.Logger.Info("Worker available: " + returnAddress);
 
-            if (message.ClearPreviousFromThisAddress) //indicates worker started up
+            if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);
 
-            WorkerAvailabilityManager.WorkerAvailable(returnAddress);
+            if(controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
+            {
+                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
+                    
+                WorkerAvailabilityManager.WorkerAvailable(returnAddress,capacity);
+            }
+            
         }
 
-        private ITransport controlTransport;
+        ITransport controlTransport;
+
     }
 }

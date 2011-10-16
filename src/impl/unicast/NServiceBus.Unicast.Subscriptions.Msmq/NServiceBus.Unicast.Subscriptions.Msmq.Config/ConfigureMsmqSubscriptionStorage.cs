@@ -36,7 +36,7 @@ namespace NServiceBus
         /// <summary>
         /// Queue used to store subscriptions.
         /// </summary>
-        public static string Queue { get; set; }
+        public static Address Queue { get; set; }
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionStorage));
     }

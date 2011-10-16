@@ -10,14 +10,15 @@ namespace NServiceBus.Unicast.Distributor
 	    /// Start the worker availability manager
 	    ///</summary>
 	    void Start();
-        
-        /// <summary>
-		/// Signal that a worker is available to receive a dispatched message.
-		/// </summary>
-		/// <param name="address">
-		/// The address of the worker that will accept the dispatched message.
-		/// </param>
-        void WorkerAvailable(Address address);
+
+	    /// <summary>
+	    /// Signal that a worker is available to receive a dispatched message.
+	    /// </summary>
+	    /// <param name="address">
+	    /// The address of the worker that will accept the dispatched message.
+	    /// </param>
+	    /// <param name="capacity">The number of messages that this worker is ready to process</param>
+	    void WorkerAvailable(Address address,int capacity);
 
 		/// <summary>
 		/// Pops the next available worker from the available worker list

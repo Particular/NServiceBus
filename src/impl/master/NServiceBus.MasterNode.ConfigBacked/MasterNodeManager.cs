@@ -32,10 +32,10 @@ namespace NServiceBus.MasterNode.ConfigBacked
                 if (GetMasterNode() == Address.Local)
                     return true;
                 
-                if (Environment.MachineName.ToLower() == masterNode)
+                if (Environment.MachineName == masterNode)
                     return true;
 
-                if (Dns.GetHostName().ToLower() == masterNode)
+                if (Dns.GetHostName() == masterNode)
                     return true;
 
                 IPAddress ip;
@@ -48,8 +48,6 @@ namespace NServiceBus.MasterNode.ConfigBacked
             }
         }
 
-        public event Action MasterNodeChanged;
-
-        private Address masterNode; //lower case; cached output of GetMasterNode()
+        private Address masterNode; //cached output of GetMasterNode()
     }
 }

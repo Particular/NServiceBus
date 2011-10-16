@@ -71,7 +71,7 @@ function PushPackage($packageName)
     $packages | % { 
         $package = $_.Name
         write-host "Uploading $package"
-        #&$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
+        &$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
         write-host ""    
   	}
   popd
@@ -205,14 +205,18 @@ function Invoke-Packit
 				 {
 					 foreach($framework in $script:packit.targeted_Frameworks)
 					 {
+					    $frameworkPath =  $framework.Replace(".","");
+						$frameworkPath =  $frameworkPath.Replace(" ","");
+						
+						
 					 	$source = $script:packit.framework_Isolated_Binaries_Loc + "\" + $framework + "\" + $assemblyName
 						$source = Resolve-Path $source
-						$destination =  $libPath + "\" + $framework +"\"
-						$directoryName  = [system.io.Path]::GetDirectoryName($assemblyName)
-						if($directoryName -ne "")
-						{
-							$destination +=  $directoryName + "\"
-						}
+						$destination =  $libPath + "\" + $frameworkPath +"\"
+#						$directoryName  = [system.io.Path]::GetDirectoryName($assemblyName)
+#						if($directoryName -ne "")
+#						{
+#							$destination +=  $directoryName + "\"
+#						}
 					    $fileElement =  "{0}<file src=""{1}"" target=""{2}""/>" -f
 						$fileElement, $source, $destination					
 					 }
@@ -233,25 +237,6 @@ function Invoke-Packit
 				}
 			}			
 		 
-#		 $packageContentPath = ".\Content" + $packageName
-#		 if(Test-Path $packageContentPath)
-#		 {
-#			 $contentPath = $packageDir + "\Content"
-#			 mkdir $contentPath
-#			 $packageContentPath += "\*.*"
-#			 copy $packageContentPath $contentPath
-#		 }
-#		 $packageToolsPath = ".\Tools" + $packageName
-#		 if(Test-Path $packageToolsPath)
-#		 {
-#			 $toolsPath = $packageDir + "\tools"
-#			 mkdir $toolsPath
-#			 $packageToolsPath += "\*.*"
-#			 copy $packageToolsPath $toolsPath
-#		 }
-
-
-
 		 if($fileElement -ne "")
 		 {
 		    $filesNode.set_InnerXML($fileElement)
@@ -272,7 +257,10 @@ function Invoke-Packit
 		if($createWithSymbol){&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose -Symbols}
 		else{&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose}
 		 
-		 if($script:packit.push_to_nuget){ PushPackage($packName) }
+		 if($script:packit.push_to_nuget){ 
+		 	$packageToPush = $packageName + "." + $version + ".nupkg"
+		 	PushPackage($packageToPush) 
+		 }
 	}
 	end
 	{

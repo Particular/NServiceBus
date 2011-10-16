@@ -10,7 +10,7 @@
 	<property name="project.version" value="3.0.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
 	<property name="release.root" value="${trunk.dir}\release"/>
-	<property name="release.dir" value="${trunk.dir}\release\.net 3.5" dynamic="true"/>
+	<property name="release.dir" value="${trunk.dir}\release\net35" dynamic="true"/>
 	<property name="binaries.dir" value="${trunk.dir}\binaries"/>
 	<property name="output.dir" value="${build.base}\output"/>
 	<property name="test.dir" value="${build.base}\test"/>
@@ -40,7 +40,7 @@
 	<if test="${targetframework == 'net-4.0'}">
 		<property name="nunit.targetframework" value="/framework=4.0"/>
 		<property name="coreswitch" value="NET40"/>
-		<property name="release.dir" value="${trunk.dir}\release\.net 4.0"  />
+		<property name="release.dir" value="${trunk.dir}\release\net40"  />
 	</if>
 	
 	<if test="${property::exists('build.number')}">
@@ -104,7 +104,7 @@
 	<readregistry  property="servicehosting.version" key="SOFTWARE\Microsoft\Microsoft SDKs\ServiceHosting\v1.0\FullVersion" hive="LocalMachine" failonerror="false"/>
 
 
-	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries"/>
+	<target name="build" depends="build_src,compile_tools,compile_msmqutils,prepare_binaries"/>
 	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
@@ -531,7 +531,7 @@
 
 	<target name="compile_samples" depends="prepare_binaries">
 		<foreach 	item="String"
-						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus,Azure\AzureBlobStorageDataBus"
+						in="AsyncPages,FullDuplex,PubSub,Manufacturing,GenericHost,Versioning,WcfIntegration,Starbucks,SendOnlyEndpoint,DataBus,Azure\AzureBlobStorageDataBus,Distributor"
 						delim=","
 						property="pathToBuild">
 			<echo message="${pathToBuild}" />
@@ -734,7 +734,7 @@
 			</copy>
 		</if>
 		
-<if test="${targetframework == 'net-4.0'}">
+<!--<if test="${targetframework == 'net-4.0'}">
 		<delete dir="${artifacts.dir}" failonerror="false"/>
 		<mkdir dir="${artifacts.dir}" />
 
@@ -747,7 +747,7 @@
 
 		<delete dir="${release.dir}" failonerror="false"/>
 		<delete dir="${release.root}" failonerror="false"/>
-</if>		
+</if>-->		
 		 
 	</target>
 </project>

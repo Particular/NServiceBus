@@ -266,20 +266,6 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
-        /// Instructs bus to allow subscribing and sending to message types
-        /// for which a destination has not been configured, pending the discovery
-        /// of where those destinations are.
-        /// 
-        /// Suitable for dev environments - not recommended for production.
-        /// </summary>
-        /// <returns></returns>
-        public ConfigUnicastBus AllowDiscovery()
-        {
-            busConfig.ConfigureProperty(b => b.AllowDiscovery, true);
-            return this;
-        }
-
-        /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
         /// <param name="t"></param>
@@ -292,14 +278,7 @@ namespace NServiceBus.Unicast.Config
             if (typeof(ISaga).IsAssignableFrom(t))
                 return false;
 
-            foreach (Type interfaceType in t.GetInterfaces())
-            {
-                Type messageType = GetMessageTypeFromMessageHandler(interfaceType);
-                if (messageType != null)
-                    return true;
-            }
-
-            return false;
+            return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);
         }
 
         private static bool TypeSpecifiesMessageHandlerOrdering(Type t)

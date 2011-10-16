@@ -1,9 +1,6 @@
-﻿using MyMessages;
-using NServiceBus;
+﻿using NServiceBus;
 
 namespace MyPublisher
 {
-    class EndpointConfig :  IConfigureThisEndpoint, AsA_Publisher,
-                            IAmResponsibleForMessages<IMyEvent>, 
-                            IAmResponsibleForMessages<EventMessage>{}
+    class EndpointConfig :  IConfigureThisEndpoint, AsA_Publisher{}
 }

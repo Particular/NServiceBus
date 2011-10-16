@@ -1,77 +1,65 @@
-﻿using System.Threading;
-using NServiceBus.Grid.Messages;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Config;
-using NServiceBus.MasterNode;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor
 {
-    public class ReadyMessageManager
-    {
-        public IManageTheMasterNode masterNodeManager { get; set; }
-        public IStartableBus Bus { get; set; }
-        public ITransport EndpointTransport { get; set; }
-        public IBus EndpointBus { get; set; }
+    using System.Collections.Generic;
+    using Unicast.Transport;
+    using Config;
+    using MasterNode;
+    using Unicast.Queuing;
 
-        public int NumberOfWorkerThreads { get; set; }
-        private static Address ControlQueue { get; set; }
+    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
+    {
+        readonly IManageTheMasterNode masterNodeManager;
+        readonly ITransport endpointTransport;
+        readonly ISendMessages messageSender;
+
+        public ReadyMessageManager(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
+        {
+            this.masterNodeManager = masterNodeManager;
+            this.endpointTransport = endpointTransport;
+            this.messageSender = messageSender;
+        }
+
         
-        /// <summary>
-        /// Assumes that the bus is already started.
-        /// </summary>
         public void Run()
         {
-            if (RoutingConfig.IsConfiguredAsMasterNode)
-                ControlQueue = Address.Local.SubScope(Configurer.DistributorControlName);
-            else
-            {
-                if (!RoutingConfig.IsDynamicNodeDiscoveryOn)
-                {
-                    var cfg = Configure.GetConfigSection<UnicastBusConfig>();
-                    if (cfg != null && !string.IsNullOrEmpty(cfg.DistributorControlAddress))
-                        ControlQueue = Address.Parse(cfg.DistributorControlAddress);
-                }
-                else
-                {
-                    if (masterNodeManager.GetMasterNode() != null)
-                        ControlQueue = masterNodeManager.GetMasterNode().SubScope(Configurer.DistributorControlName);
-                    else
-                    {
-                        
-                    }
-                }
-            } 
-
-            SendReadyMessage(true);
-
-            EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(false);
+            var bus = Configure.Instance.Builder.Build<IStartableBus>();
+            bus.Started += (obj, ev) => Start();
         }
 
-        public void SendReadyMessage(bool startup)
+        void Start()
         {
-            if (ControlQueue == null)
-                return;
+            var masterNodeAddress = masterNodeManager.GetMasterNode();
+            
+            //hack
+            if (RoutingConfig.IsConfiguredAsMasterNode)
+                masterNodeAddress = Address.Parse(masterNodeAddress.ToString().Replace(".worker", ""));
 
-            IMessage[] messages;
-            if (startup)
-            {
-                messages = new IMessage[EndpointTransport.NumberOfWorkerThreads];
-                for (var i = 0; i < EndpointTransport.NumberOfWorkerThreads; i++)
-                {
-                    var rm = new ReadyMessage
-                    {
-                        ClearPreviousFromThisAddress = (i == 0)
-                    };
+            var controlQueue = masterNodeAddress.SubScope(Configurer.DistributorControlName);
 
-                    messages[i] = rm;
-                }
-            }
-            else
-            {
-                messages = new IMessage[] {new ReadyMessage()};
-            }
+            var capacityAvailable = endpointTransport.NumberOfWorkerThreads;
+            SendReadyMessage(controlQueue,capacityAvailable,true);
 
-            EndpointBus.Send(ControlQueue, messages);
+            endpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(controlQueue,1);
         }
+
+        void SendReadyMessage(Address controlQueue,int capacityAvailable,bool isStarting = false)
+        {
+            var readyMessage = new TransportMessage
+                              {
+                                  Headers = new Dictionary<string, string>(),
+                                  ReplyToAddress = Address.Local
+                              };
+
+            readyMessage.Headers.Add(Headers.ControlMessage, true.ToString());
+            readyMessage.Headers.Add(Headers.WorkerCapacityAvailable,capacityAvailable.ToString());
+            
+            if (isStarting)
+                readyMessage.Headers.Add(Headers.WorkerStarting, true.ToString());
+            
+
+            messageSender.Send(readyMessage, controlQueue);
+        }
+
+
     }
 }
