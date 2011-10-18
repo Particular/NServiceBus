@@ -52,7 +52,7 @@ namespace NServiceBus.Distributor
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var returnAddress = controlMessage.ReplyToAddress;
-            Configurer.Logger.Info("Worker available: " + returnAddress);
+            Configurer.Logger.Debug("Worker available: " + returnAddress);
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);

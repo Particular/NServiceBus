@@ -5,11 +5,6 @@
     ///</summary>
     public enum MessageIntentEnum
     {
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        Init,
-
         ///<summary>
         /// Regular point-to-point send
         ///</summary>

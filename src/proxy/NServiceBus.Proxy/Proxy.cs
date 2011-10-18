@@ -122,9 +122,6 @@ namespace NServiceBus.Proxy
                 return;
             }
 
-            if (e.Message.MessageIntent == MessageIntentEnum.Init)
-                return;
-
             var data = new ProxyData
                            {
                                Id = GenerateId(),

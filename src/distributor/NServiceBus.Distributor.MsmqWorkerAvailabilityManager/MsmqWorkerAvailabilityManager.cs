@@ -91,7 +91,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         {
             lock (storageQueue)
             {
-                for (var i = 0; i <= capacity; i++)
+                for (var i = 0; i < capacity; i++)
                     storageQueue.Send(new Message
                                   {
                                       ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(address))
