@@ -44,6 +44,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public const string EnclosedMessageTypes = "EnclosedMessageTypes";
 
+        private const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
+
         #region config properties
 
         private bool autoSubscribe = true;
@@ -104,7 +106,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageTheMasterNode MasterNodeManager { get; set; }
 
-        
+
         /// <summary>
         /// Object used to manage units of work.
         /// </summary>
@@ -321,7 +323,7 @@ namespace NServiceBus.Unicast
         public virtual void Publish<T>(params T[] messages)
         {
             AssertIsValidForPubSub(typeof(T));
-           
+
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
@@ -401,10 +403,12 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
+            var subscriptionMessage = ControlMessage.Create();
 
-            ((IBus) this).OutgoingHeaders[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
-            SendMessage(destination, null, MessageIntentEnum.Subscribe, new CompletionMessage());
-            ((IBus) this).OutgoingHeaders.Remove(SubscriptionMessageType);
+            subscriptionMessage.Headers[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
+            subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
+
+            MessageSender.Send(subscriptionMessage, destination);
         }
 
         /// <summary>
@@ -431,9 +435,12 @@ namespace NServiceBus.Unicast
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
-            ((IBus)this).OutgoingHeaders[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
-            SendMessage(destination, null, MessageIntentEnum.Unsubscribe, new CompletionMessage());
-            ((IBus)this).OutgoingHeaders.Remove(SubscriptionMessageType);
+            var subscriptionMessage = ControlMessage.Create();
+
+            subscriptionMessage.SetHeader(SubscriptionMessageType, GetSubscriptionKeyFor(messageType));
+            subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
+
+            MessageSender.Send(subscriptionMessage, destination);
         }
 
         void IBus.Reply(params object[] messages)
@@ -448,7 +455,13 @@ namespace NServiceBus.Unicast
 
         void IBus.Return<T>(T errorCode)
         {
-            ((IBus)this).Reply(new CompletionMessage { ErrorCode = errorCode.GetHashCode() });
+            var returnMessage = ControlMessage.Create();
+
+            returnMessage.SetHeader(ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString());
+            returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
+            returnMessage.MessageIntent = MessageIntentEnum.Send;
+
+            MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
         void IBus.HandleCurrentMessageLater()
@@ -480,7 +493,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.SendLocal(params object[] messages)
         {
-            return ((IBus) this).Send(Address.Local, messages);
+            return ((IBus)this).Send(Address.Local, messages);
         }
 
         ICallback IBus.Send<T>(Action<T> messageConstructor)
@@ -542,7 +555,7 @@ namespace NServiceBus.Unicast
 
             var gatewayAddress = MasterNodeManager.GetMasterNode()
                     .SubScope("gateway");
-            
+
             messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
 
             return SendMessage(gatewayAddress, null, MessageIntentEnum.Send, messages);
@@ -591,13 +604,13 @@ namespace NServiceBus.Unicast
         {
             messages.ToList()
                 .ForEach(message => AssertIsValidForSend(message.GetType(), messageIntent));
-            
+
             AssertBusIsStarted();
 
             var result = new List<string>();
 
             messages[0].SetHeader(EnclosedMessageTypes, SerializeEnclosedMessageTypes(messages));
-            var toSend = new TransportMessage {CorrelationId = correlationId, MessageIntent = messageIntent};
+            var toSend = new TransportMessage { CorrelationId = correlationId, MessageIntent = messageIntent };
 
             MapTransportMessageFor(messages, toSend);
 
@@ -726,14 +739,12 @@ namespace NServiceBus.Unicast
                 {
                     transport.Start(Address.Local);
                 }
-                
+
 
                 if (autoSubscribe)
                 {
                     PerformAutoSubcribe();
                 }
-
-                InitializeSelf();
 
                 started = true;
             }
@@ -752,8 +763,8 @@ namespace NServiceBus.Unicast
                 .Where(t => !t.Namespace.StartsWith("NServiceBus") && !t.IsCommandType()))
             {
                 Subscribe(messageType);
-                
-                if(!messageType.IsEventType())
+
+                if (!messageType.IsEventType())
                     Log.Warn("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
             }
         }
@@ -769,27 +780,14 @@ namespace NServiceBus.Unicast
             if (MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
 
-            if(IsSendOnlyEndpoint() && UserDefinedMessageHandlersLoaded())
+            if (IsSendOnlyEndpoint() && UserDefinedMessageHandlersLoaded())
                 throw new InvalidOperationException("Send only endpoints can't contain message handlers.");
         }
 
         bool UserDefinedMessageHandlersLoaded()
         {
-            return messageHandlerTypes != null && messageHandlerTypes.Any(x=>!x.Namespace.StartsWith("NServiceBus"));
+            return messageHandlerTypes != null && messageHandlerTypes.Any(x => !x.Namespace.StartsWith("NServiceBus"));
         }
-
-        private void InitializeSelf()
-        {
-            if (IsSendOnlyEndpoint())
-                return;//send only endpoint
-
-            var toSend = new TransportMessage {MessageIntent = MessageIntentEnum.Init};
-
-            MapTransportMessageFor(new [] { new CompletionMessage() }, toSend);
-
-            MessageSender.Send(toSend, Address.Local);
-        }
-
 
         static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
@@ -1019,15 +1017,13 @@ namespace NServiceBus.Unicast
             }
 
             if (busAsyncResult != null)
-                if (messages != null)
-                    if (messages.Length == 1)
-                    {
-                        var cm = messages[0] as CompletionMessage;
-                        if (cm != null)
-                            busAsyncResult.Complete(cm.ErrorCode, null);
-                        else
-                            busAsyncResult.Complete(int.MinValue, messages);
-                    }
+                if (msg.IsControlMessage())
+                {
+                    if (msg.Headers.ContainsKey(ReturnMessageErrorCodeHeader))
+                        busAsyncResult.Complete(int.Parse(msg.GetHeader(ReturnMessageErrorCodeHeader)), null);
+                    else
+                        busAsyncResult.Complete(int.MinValue, messages);
+                }
         }
 
         /// <summary>
@@ -1070,14 +1066,8 @@ namespace NServiceBus.Unicast
 
             var transportMutators = builder.BuildAll<IMutateIncomingTransportMessages>();
             if (transportMutators != null)
-                foreach(var mutator in transportMutators)
+                foreach (var mutator in transportMutators)
                     mutator.MutateIncoming(msg);
-
-            if (IsInitializationMessage(msg))
-            {
-                Log.Info(Address.Local + " initialized.");
-                return;
-            }
 
             if (HandledSubscriptionMessage(msg, SubscriptionStorage, SubscriptionAuthorizer))
             {
@@ -1158,7 +1148,7 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress.ToString() , msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress.ToString(), msg.Headers))
                         {
                             goAhead = false;
                             Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
@@ -1182,7 +1172,7 @@ namespace NServiceBus.Unicast
 
         private void TransportFinishedMessageProcessing(object sender, EventArgs e)
         {
-            for (int i = modules.Count-1; i >= 0; i--)
+            for (int i = modules.Count - 1; i >= 0; i--)
             {
                 Log.Debug("Calling 'HandleEndMessage' on " + modules[i].GetType().FullName);
                 modules[i].HandleEndMessage();
@@ -1219,23 +1209,6 @@ namespace NServiceBus.Unicast
         {
         }
 
-        private bool IsInitializationMessage(TransportMessage msg)
-        {
-            if (msg.ReplyToAddress == null)
-                return false;
-
-            if (msg.ReplyToAddress != Address.Local)
-                return false;
-
-            if (msg.CorrelationId != null)
-                return false;
-
-            if (msg.MessageIntent != MessageIntentEnum.Init)
-                return false;
-
-            return true;
-        }
-
         #endregion
 
         #region helper methods
@@ -1245,7 +1218,7 @@ namespace NServiceBus.Unicast
             var version = messageType.Assembly.GetName().Version;
             var qualifiedName = messageType.AssemblyQualifiedName;
 
-            return qualifiedName.Replace(version.ToString(), version.Major +".0.0.0");
+            return qualifiedName.Replace(version.ToString(), version.Major + ".0.0.0");
         }
 
         bool IsSendOnlyEndpoint()
@@ -1398,7 +1371,7 @@ namespace NServiceBus.Unicast
             var ms = new MemoryStream();
             MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
-            
+
             var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
             if (mutators != null)
                 foreach (var mutator in mutators)

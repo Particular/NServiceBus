@@ -28,6 +28,20 @@ namespace NServiceBus.Unicast.Tests
                     Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
 
         }
+
+        [Test]
+        public void Should_set_the_message_intent_to_subscribe()
+        {
+            bus.Subscribe<TestMessage>();
+
+            var version = typeof(TestMessage).Assembly.GetName().Version.Major + ".0.0.0";
+
+            messageSender.AssertWasCalled(x =>
+                x.Send(Arg<TransportMessage>.Matches(
+                    m => m.MessageIntent == MessageIntentEnum.Subscribe),
+                    Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
+
+        }
     }
 
     [TestFixture]
