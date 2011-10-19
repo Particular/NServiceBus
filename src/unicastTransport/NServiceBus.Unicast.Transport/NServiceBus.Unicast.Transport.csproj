@@ -56,7 +56,6 @@
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SubscriptionMessage.cs" />
     <Compile Include="TransportMessageHandlingFailedException.cs" />
     <Compile Include="TransportMessageReceivedEventArgs.cs" />
   </ItemGroup>
