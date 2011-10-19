@@ -204,7 +204,7 @@
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
-						in="unicastTransport,faults,utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,messagemutator,encryption,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,grid,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
+						in="unicastTransport,faults,utils,ObjectBuilder,messageInterfaces,impl\messageInterfaces,config,logging,impl\ObjectBuilder.Common,installation,messagemutator,encryption,unitofwork,httpHeaders,masterNode,impl\installation,impl\unicast\NServiceBus.Unicast.Msmq,unicast,headers,impersonation,impl\unicast\queuing,impl\unicast\transport,impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq,impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory,impl\faults,impl\encryption,impl\Serializers,databus,impl\Sagas,impl\master,impl\SagaPersisters\InMemory,impl\SagaPersisters\RavenSagaPersister,integration,impl\databus,distributor,gateway,impl\licensing"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"
@@ -503,7 +503,7 @@
 
 		<!-- Misc -->
 		<foreach 	item="String"
-						in="tools\management\Grid,tools\management\Errors\ReturnToSourceQueue"
+						in="tools\management\Errors\ReturnToSourceQueue"
 						delim=","
 						property="pathToBuild">
 			<exec 	program="${msbuild}"

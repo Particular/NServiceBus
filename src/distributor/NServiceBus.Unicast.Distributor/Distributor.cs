@@ -1,6 +1,5 @@
 using System.Threading;
 using log4net;
-using NServiceBus.Grid.MessageHandlers;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Queuing;
 
@@ -53,13 +52,6 @@ namespace NServiceBus.Unicast.Distributor
         /// </summary>
         public void Start()
         {
-            GridInterceptingMessageHandler.DisabledChanged +=
-                delegate
-                    {
-                        disabled =
-                            GridInterceptingMessageHandler.Disabled;
-                    };
-
             MessageBusTransport.TransportMessageReceived += messageBusTransport_TransportMessageReceived;
             MessageBusTransport.Start(DataTransportInputQueue);
 
@@ -85,9 +77,6 @@ namespace NServiceBus.Unicast.Distributor
         /// </remarks>
         private void messageBusTransport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (disabled)
-                Rollback();
-
             var destination = WorkerManager.PopAvailableWorker();
 
             if (destination == null)
@@ -109,7 +98,6 @@ namespace NServiceBus.Unicast.Distributor
             MessageBusTransport.AbortHandlingCurrentMessage();
         }
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof (Distributor));
-        private volatile bool disabled;
+        static readonly ILog logger = LogManager.GetLogger(typeof (Distributor));
     }
 }

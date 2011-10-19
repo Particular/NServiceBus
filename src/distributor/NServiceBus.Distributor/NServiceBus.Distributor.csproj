@@ -50,10 +50,6 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Grid.Messages">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Grid.Messages.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
       <Private>False</Private>

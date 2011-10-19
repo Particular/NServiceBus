@@ -1,5 +1,4 @@
-﻿using NServiceBus.Grid.Messages;
-using NServiceBus.MessageMutator;
+﻿using NServiceBus.MessageMutator;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Distributor
@@ -10,9 +9,6 @@ namespace NServiceBus.Distributor
 
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if (messages[0] is ReadyMessage)
-                return;
-
             //when not talking to the distributor, pretend that our address is that of the distributor
             if (DistributorDataQueue != null)
                 transportMessage.ReplyToAddress = DistributorDataQueue;

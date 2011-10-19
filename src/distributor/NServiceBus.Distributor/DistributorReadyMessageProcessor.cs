@@ -1,17 +1,12 @@
-﻿using NServiceBus.Unicast.Distributor;
-using NServiceBus.Grid.Messages;
-using NServiceBus.Unicast.Transport.Transactional;
-using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Faults;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Serialization;
-using System.IO;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor
 {
     using Config;
+    using Unicast.Distributor;
+    using Unicast.Transport.Transactional;
+    using Unicast.Queuing.Msmq;
+    using Faults;
+    using Unicast.Transport;
 
-    //todo 
     public class DistributorReadyMessageProcessor : IWantToRunWhenConfigurationIsComplete
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }

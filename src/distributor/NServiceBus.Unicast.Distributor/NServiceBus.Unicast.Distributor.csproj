@@ -67,9 +67,6 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Grid.MessageHandlers">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Grid.MessageHandlers.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
       <Private>False</Private>
