@@ -76,7 +76,7 @@ namespace NServiceBus.Unicast.Tests
 
         protected Address RegisterMessageType<T>()
         {
-            var address = new Address(typeof (T).Name, "localhost");
+            var address = new Address(typeof(T).Name, "localhost");
             RegisterMessageType<T>(address);
 
             return address;
@@ -84,8 +84,8 @@ namespace NServiceBus.Unicast.Tests
 
         protected void RegisterMessageType<T>(Address address)
         {
-            if(typeof(T).IsInterface)
-                messageMapper.Initialize(new[]{typeof(T)});
+            if (typeof(T).IsInterface)
+                messageMapper.Initialize(new[] { typeof(T) });
             unicastBus.RegisterMessageType(typeof(T), address, false);
 
         }
@@ -94,10 +94,10 @@ namespace NServiceBus.Unicast.Tests
         {
             ((IStartableBus)bus).Start();
         }
-  
+
     }
-    
-    public class using_the_unicastbus:using_a_configured_unicastbus
+
+    public class using_the_unicastbus : using_a_configured_unicastbus
     {
         [SetUp]
         public void SetUp()
@@ -108,44 +108,30 @@ namespace NServiceBus.Unicast.Tests
 
     public class FakeSubscriptionStorage : ISubscriptionStorage
     {
-        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
-        {
-            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
-        }
 
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            messageTypes.ToList().ForEach(m =>
+            messageTypes.ToList().ForEach(messageType =>
             {
-                if (!storage.ContainsKey(m))
-                    storage[m] = new List<Address>();
+                if (!storage.ContainsKey(messageType))
+                    storage[messageType] = new List<Address>();
 
-                if (!storage[m].Contains(address))
-                    storage[m].Add(address);
+                if (!storage[messageType].Contains(address))
+                    storage[messageType].Add(address);
             });
         }
 
-        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);
+            messageTypes.ToList().ForEach(messageType =>
+                                              {
+                                                  if (storage.ContainsKey(messageType))
+                                                      storage[messageType].Remove(address);
+                                              });
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
-        {
-            messageTypes.ToList().ForEach(m =>
-            {
-                if (storage.ContainsKey(m))
-                    storage[m].Remove(address);
-            });
-        }
 
-        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
-        {
-            return ((ISubscriptionStorage)this).GetSubscriberAddressesForMessage(messageTypes)
-                .Select(a => a.ToString());
-        }
-
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
             messageTypes.ToList().ForEach(m =>
@@ -158,13 +144,13 @@ namespace NServiceBus.Unicast.Tests
         }
         public void FakeSubscribe<T>(Address address)
         {
-            ((ISubscriptionStorage)this).Subscribe(address, new[] { typeof(T).AssemblyQualifiedName });  
+            ((ISubscriptionStorage)this).Subscribe(address, new[] { new MessageType(typeof(T)) });
         }
 
         public void Init()
         {
         }
 
-        private readonly Dictionary<string, List<Address>> storage = new Dictionary<string, List<Address>>();
+        readonly Dictionary<MessageType, List<Address>> storage = new Dictionary<MessageType, List<Address>>();
     }
 }

@@ -23,6 +23,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using MasterNode;
+    using MessageType = Subscriptions.MessageType;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -333,7 +334,7 @@ namespace NServiceBus.Unicast
                 return;
             }
             var fullTypes = GetFullTypes(messages as object[]);
-            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(GetSubscriptionKeyFor))
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t=>new MessageType(t)))
                 .ToList();
 
             if (subscribers.Count() == 0)
@@ -405,7 +406,7 @@ namespace NServiceBus.Unicast
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
             var subscriptionMessage = ControlMessage.Create();
 
-            subscriptionMessage.Headers[SubscriptionMessageType] = GetSubscriptionKeyFor(messageType);
+            subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
 
             MessageSender.Send(subscriptionMessage, destination);
@@ -437,7 +438,7 @@ namespace NServiceBus.Unicast
 
             var subscriptionMessage = ControlMessage.Create();
 
-            subscriptionMessage.SetHeader(SubscriptionMessageType, GetSubscriptionKeyFor(messageType));
+            subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
             MessageSender.Send(subscriptionMessage, destination);
@@ -1106,7 +1107,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
         {
-            string messageType = GetSubscriptionMessageTypeFrom(msg);
+            string messageTypeString = GetSubscriptionMessageTypeFrom(msg);
 
             Action warn = () =>
                               {
@@ -1123,16 +1124,16 @@ namespace NServiceBus.Unicast
                 {
                     bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageType, msg.ReplyToAddress.ToString(), msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, msg.ReplyToAddress.ToString(), msg.Headers))
                         {
                             goAhead = false;
-                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
+                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageTypeString));
                         }
 
                     if (goAhead)
                     {
-                        Log.Info("Subscribing " + msg.ReplyToAddress + " to message type " + messageType);
-                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] { messageType });
+                        Log.Info("Subscribing " + msg.ReplyToAddress + " to message type " + messageTypeString);
+                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] { new MessageType(messageTypeString) });
                     }
 
                     return true;
@@ -1148,16 +1149,16 @@ namespace NServiceBus.Unicast
                     bool goAhead = true;
 
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageType, msg.ReplyToAddress.ToString(), msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, msg.ReplyToAddress.ToString(), msg.Headers))
                         {
                             goAhead = false;
-                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageType));
+                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageTypeString));
                         }
 
                     if (goAhead)
                     {
-                        Log.Info("Unsubscribing " + msg.ReplyToAddress + " from message type " + messageType);
-                        subscriptionStorage.Unsubscribe(msg.ReplyToAddress, new[] { messageType });
+                        Log.Info("Unsubscribing " + msg.ReplyToAddress + " from message type " + messageTypeString);
+                        subscriptionStorage.Unsubscribe(msg.ReplyToAddress, new[] { new MessageType(messageTypeString) });
                     }
 
                     return true;
@@ -1212,14 +1213,6 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
-
-        static string GetSubscriptionKeyFor(Type messageType)
-        {
-            var version = messageType.Assembly.GetName().Version;
-            var qualifiedName = messageType.AssemblyQualifiedName;
-
-            return qualifiedName.Replace(version.ToString(), version.Major + ".0.0.0");
-        }
 
         bool IsSendOnlyEndpoint()
         {
