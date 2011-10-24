@@ -1,10 +1,11 @@
 using NServiceBus.Unicast.Subscriptions.Raven.Config;
 using NUnit.Framework;
-using Raven.Client.Client;
 using Raven.Storage.Esent;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
 {
+    using global::Raven.Client.Embedded;
+
     [TestFixture]
     public class When_configuring_the_embedded_raven_subscription_storage
     {

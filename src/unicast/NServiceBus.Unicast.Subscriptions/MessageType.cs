@@ -26,14 +26,44 @@ namespace NServiceBus.Unicast.Subscriptions
         {
             var parts = messageTypeString.Split(',');
 
-            var versionString = parts
-                .Single(p=>p.Contains("Version"))
-                .Substring("Version=".Length +1);
-
-            Version = new Version(versionString);
+         
+            Version = ParseVersion(messageTypeString); 
             TypeName = parts.First();
         }
+
+        /// <summary>
+        /// Initializes the message type from the given string. 
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="versionString"></param>
+        public MessageType(string typeName, string versionString)
+        {
+            Version = ParseVersion(versionString);
+            TypeName = typeName;
+        }
+
+        /// <summary>
+        /// Initializes the message type from the given string. 
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="version"></param>
+        public MessageType(string typeName,Version version)
+        {
+            Version = version;
+            TypeName = typeName;
+        }
     
+        Version ParseVersion(string versionString)
+        {
+            const string version = "Version=";
+            var index = versionString.IndexOf(version);
+           
+            if(index >= 0)
+                versionString = versionString.Substring(index + version.Length)
+                    .Split(',').First();
+            return Version.Parse(versionString);
+        }
+
 
         /// <summary>
         /// TypeName of the message
@@ -45,6 +75,10 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public Version Version { get; private set; }
 
+        public override string ToString()
+        {
+            return TypeName + ", " + Version;
+        }
 
         /// <summary>
         /// Equality, only major version is used

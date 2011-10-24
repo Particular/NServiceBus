@@ -3,17 +3,14 @@ using System.Linq;
 
 namespace NServiceBus.Unicast.Subscriptions.InMemory
 {
+    using System.Collections.Concurrent;
+
     /// <summary>
-    /// Inmemory implementation of the subscription storage
+    /// In memory implementation of the subscription storage
     /// </summary>
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        void ISubscriptionStorage.Subscribe(string client, IEnumerable<string> messageTypes)
-        {
-            ((ISubscriptionStorage)this).Subscribe(Address.Parse(client), messageTypes);
-        }
-
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
@@ -25,12 +22,7 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
             });
         }
 
-        void ISubscriptionStorage.Unsubscribe(string client, IEnumerable<string> messageTypes)
-        {
-            ((ISubscriptionStorage)this).Unsubscribe(Address.Parse(client), messageTypes);
-        }
-
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(m =>
             {
@@ -39,13 +31,8 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
             });
         }
 
-        IEnumerable<string> ISubscriptionStorage.GetSubscribersForMessage(IEnumerable<string> messageTypes)
-        {
-            return ((ISubscriptionStorage) this).GetSubscriberAddressesForMessage(messageTypes)
-                .Select(a => a.ToString());
-        }
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<string> messageTypes)
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
             messageTypes.ToList().ForEach(m =>
@@ -61,6 +48,6 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
         {
         }
 
-        private readonly Dictionary<string, List<Address>> storage = new Dictionary<string, List<Address>>();
+        readonly ConcurrentDictionary<MessageType, List<Address>> storage = new ConcurrentDictionary<MessageType, List<Address>>();
     }
 }

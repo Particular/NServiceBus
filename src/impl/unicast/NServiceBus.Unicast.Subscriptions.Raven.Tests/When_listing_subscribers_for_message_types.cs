@@ -13,11 +13,12 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
         {
             string clientEndpoint = "TestEndpoint";
 
-            storage.Subscribe(clientEndpoint, new List<string> { "MessageType1" });
-            storage.Subscribe(clientEndpoint, new List<string> { "MessageType2" });
-            storage.Subscribe("some other endpoint", new List<string> { "MessageType1" });
+            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("MessageType1") });
+            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("MessageType2") });
+            storage.Subscribe(new Address("otherendpoint", "localhost"), new List<MessageType> { new MessageType("MessageType1") });
 
-            var subscriptionsForMessageType = storage.GetSubscribersForMessage(new List<String> { "MessageType1" });
+
+            var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new [] { new MessageType("MessageType1") });
 
             Assert.AreEqual(2, subscriptionsForMessageType.Count());
             Assert.AreEqual(clientEndpoint, subscriptionsForMessageType.First());

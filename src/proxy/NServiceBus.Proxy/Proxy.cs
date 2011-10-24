@@ -7,6 +7,9 @@ using NServiceBus.Unicast;
 
 namespace NServiceBus.Proxy
 {
+    using System.Linq;
+    using MessageType = Unicast.Subscriptions.MessageType;
+
     public class Proxy
     {
         #region config
@@ -86,7 +89,7 @@ namespace NServiceBus.Proxy
 
                 var types = UnicastBus.DeserializeEnclosedMessageTypes(val);
 
-                var subs = Subscribers.GetSubscriberAddressesForMessage(types);
+                var subs = Subscribers.GetSubscriberAddressesForMessage(types.Select(s=> new MessageType(s)));
 
                 Logger.Debug("Received notification from " + remoteServer + ".");
 

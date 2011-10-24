@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <summary>
         /// Gets the message type for the subscription entry.
         /// </summary>
-        public string MessageType { get; set; }
+        public MessageType MessageType { get; set; }
 
         /// <summary>
         /// Gets the subscription request message.

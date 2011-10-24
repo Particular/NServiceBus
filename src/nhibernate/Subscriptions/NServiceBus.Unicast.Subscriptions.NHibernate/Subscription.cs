@@ -1,12 +1,15 @@
 namespace NServiceBus.Unicast.Subscriptions.NHibernate
 {
     /// <summary>
-    /// Enity containing subscription data
+    /// Entity containing subscription data
     /// </summary>
     public class Subscription
     {
         public virtual string SubscriberEndpoint { get; set; }
         public virtual string MessageType { get; set; }
+        public virtual string Version { get; set; }
+
+        public virtual string TypeName { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -20,7 +23,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(other.SubscriberEndpoint, SubscriberEndpoint) && Equals(other.MessageType, MessageType);
+            return Equals(other.SubscriberEndpoint, SubscriberEndpoint) && Equals(other.MessageType, MessageType) && Equals(other.Version, Version);
         }
 
         public override int GetHashCode()

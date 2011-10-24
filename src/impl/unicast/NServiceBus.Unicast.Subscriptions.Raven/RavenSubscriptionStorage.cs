@@ -7,6 +7,8 @@ using RavenDbExceptions = Raven.Http.Exceptions;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven
 {
+    using global::Raven.Abstractions.Exceptions;
+
     public class RavenSubscriptionStorage : ISubscriptionStorage
     {
         public IDocumentStore Store { get; set; }
@@ -18,7 +20,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             new SubscriptionsByMessageType().Execute(Store);
         }
 
-        public void Subscribe(string client, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Subscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
             var subscriptions = messageTypes.Select(m => new Subscription {
                     Id = Subscription.FormatId(Endpoint, m, client),
@@ -35,13 +37,13 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
                     session.SaveChanges();
                 }
             }
-            catch (RavenDbExceptions.ConcurrencyException ex)
+            catch (ConcurrencyException ex)
             {
                 
             }
         }
 
-        public void Unsubscribe(string client, IEnumerable<string> messageTypes)
+        void ISubscriptionStorage.Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
             var ids = messageTypes
                 .Select(m => Subscription.FormatId(Endpoint, m, client))
@@ -54,7 +56,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             }
         }
 
-        public IEnumerable<string> GetSubscribersForMessage(IEnumerable<string> messageTypes)
+        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             using (var session = Store.OpenSession())
             {
@@ -65,7 +67,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             }
         }
 
-        IEnumerable<Subscription> GetSubscribersForMessage(IDocumentSession session, string messageType)
+        IEnumerable<Subscription> GetSubscribersForMessage(IDocumentSession session, MessageType messageType)
         {
             var clients = session.Query<Subscription, SubscriptionsByMessageType>()
                 .Customize(c => c.WaitForNonStaleResults())

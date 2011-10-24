@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
         {
             string clientEndpoint = "TestEndpoint";
 
-            var messageTypes = new List<string> { "MessageType1", "MessageType2" };
+            var messageTypes = new[] { new MessageType("MessageType1"), new MessageType("MessageType2") };
 
             //using (var transaction = new TransactionScope())
             //{

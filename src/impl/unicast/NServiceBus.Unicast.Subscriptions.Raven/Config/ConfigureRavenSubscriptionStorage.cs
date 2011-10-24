@@ -3,11 +3,12 @@ using System.Reflection;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Persistence.Raven.Config;
 using Raven.Client;
-using Raven.Client.Client;
 using Raven.Client.Document;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Config
 {
+    using global::Raven.Client.Embedded;
+
     public static class ConfigureRavenSubscriptionStorage
     {
         const string DefaultDataDirectory = @".\SagaPersistence";

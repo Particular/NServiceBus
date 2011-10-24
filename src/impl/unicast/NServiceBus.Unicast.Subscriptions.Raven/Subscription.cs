@@ -4,11 +4,11 @@
     {
         public string Id { get; set; }
 
-        public string MessageType { get; set; }
+        public MessageType MessageType { get; set; }
 
-        public string Client { get; set; }
+        public Address Client { get; set; }
 
-        public static string FormatId(string endpoint, string messageType, string client)
+        public static string FormatId(string endpoint, MessageType messageType, string client)
         {
             return string.Format("Subscriptions/{0}/{1}/{2}", endpoint, messageType, client);
         }

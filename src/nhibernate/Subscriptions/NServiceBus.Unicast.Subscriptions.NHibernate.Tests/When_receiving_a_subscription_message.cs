@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Transactions;
+﻿using System.Transactions;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
@@ -11,13 +9,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         [Test]
         public void A_subscription_entry_should_be_added_to_the_database()
         {
-            var clientEndpoint = Address.Parse("TestEndpoint");
-
-            var messageTypes = new List<String> { "MessageType1", "MessageType2" };
-
+            var messageTypes = new[] { new MessageType(typeof(MessageA)), new MessageType(typeof(MessageB)) };
+            
             using (var transaction = new TransactionScope())
             {
-                storage.Subscribe(clientEndpoint, messageTypes);
+                storage.Subscribe(TestClients.ClientA, messageTypes);
                 transaction.Complete();
             }
 
@@ -33,9 +29,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         public void Duplicate_subcription_shouldnt_create_additional_db_rows()
         {
 
-            storage.Subscribe(Address.Parse("testendpoint"), new List<string> { "SomeMessageType" });
-            storage.Subscribe(Address.Parse("testendpoint"), new List<string> { "SomeMessageType" });
-
+            storage.Subscribe(TestClients.ClientA, MessageTypes.MessageA);
+            storage.Subscribe(TestClients.ClientA, MessageTypes.MessageA);
+            
 
             using (var session = subscriptionStorageSessionProvider.OpenSession())
             {

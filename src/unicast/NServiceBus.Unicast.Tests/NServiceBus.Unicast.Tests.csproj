@@ -90,6 +90,7 @@
     <Compile Include="Subscriptions.cs" />
     <Compile Include="SendOnlyMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="When_creating_message_types.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">

@@ -90,11 +90,13 @@
     </Compile>
     <Compile Include="Config\When_configuring_the_subscription_storage.cs" />
     <Compile Include="InMemoryDBFixture.cs" />
+    <Compile Include="TestData.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="When_listing_subscribers_for_message_types.cs" />
     <Compile Include="When_receiving_a_subscription_message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_receiving_a_unsubscription_message.cs" />
+    <Compile Include="When_using_semantic_versioning_of_messages.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions.NHibernate\NServiceBus.Unicast.Subscriptions.NHibernate.csproj">

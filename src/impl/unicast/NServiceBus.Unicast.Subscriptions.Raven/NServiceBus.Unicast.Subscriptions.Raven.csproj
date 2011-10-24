@@ -31,8 +31,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\log4net.dll</HintPath>
+    <Reference Include="AsyncCtpLibrary">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\AsyncCtpLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Esent.Interop">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Esent.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Lucene.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
@@ -44,16 +62,43 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Debug">
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Client.Debug.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Embedded">
-      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.397\lib\net40\Raven.Client.Embedded.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.MvcIntegration">
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\lib\net40\Raven.Client.MvcIntegration.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Database">
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.0.427\server\Raven.Database.dll</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Http">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Json">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Munin">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Munin.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Esent">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Storage.Esent.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Managed">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Raven.Storage.Managed.dll</HintPath>
+    </Reference>
+    <Reference Include="Spatial.Net">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\Spatial.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="SpellChecker.Net">
+      <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.0.427\lib\net40\SpellChecker.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -76,6 +121,9 @@
       <Project>{37CB5DE9-013D-4779-9D35-342F902E8DE1}</Project>
       <Name>NServiceBus.Persistence.Raven</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

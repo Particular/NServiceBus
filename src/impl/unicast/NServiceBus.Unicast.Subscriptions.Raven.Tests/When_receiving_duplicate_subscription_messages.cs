@@ -13,8 +13,8 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
         public void shouldnt_create_additional_db_rows()
         {
 
-            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
-            storage.Subscribe("testendpoint", new List<string> { "SomeMessageType" });
+            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType") });
+            storage.Subscribe(new Address("testendpoint","localhost"), new List<MessageType> { new MessageType("SomeMessageType") });
 
 
             using (var session = store.OpenSession())

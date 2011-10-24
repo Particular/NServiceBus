@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using Raven.Client;
-using Raven.Client.Client;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
 {
+    using global::Raven.Client.Embedded;
+
     public class WithRavenSubscriptionStorage
     {
         protected ISubscriptionStorage storage;
