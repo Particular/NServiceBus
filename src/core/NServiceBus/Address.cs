@@ -140,26 +140,15 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Checks equality with another Address
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            var address = obj as Address;
-            if (address != null)
-                return (Queue == address.Queue && Machine == address.Machine);
-
-            return false;
-        }
-
-        /// <summary>
         /// Provides a hash code of the Address.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            unchecked
+            {
+                return ((Queue != null ? Queue.GetHashCode() : 0)*397) ^ (Machine != null ? Machine.GetHashCode() : 0);
+            }
         }
 
         /// <summary>
@@ -188,5 +177,37 @@ namespace NServiceBus
         /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
         /// </summary>
         public string Machine { get; private set; }
+
+        public static bool operator ==(Address left, Address right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Address left, Address right)
+        {
+            return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
+        /// </summary>
+        /// <returns>
+        /// true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>; otherwise, false.
+        /// </returns>
+        /// <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>. </param><filterpriority>2</filterpriority>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != typeof (Address)) return false;
+            return Equals((Address) obj);
+        }
+
+        public bool Equals(Address other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(other.Queue, Queue) && Equals(other.Machine, Machine);
+        }
     }
 }
