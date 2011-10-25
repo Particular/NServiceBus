@@ -146,7 +146,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
 		/// </summary>
         public void Add(Address subscriber, MessageType messageType)
         {
-		    var toSend = new Message {Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = messageType.TypeName +  "Version=" + messageType.Version};
+		    var toSend = new Message {Formatter = q.Formatter, Recoverable = true, Label = subscriber.ToString(), Body = messageType.TypeName +  ", Version=" + messageType.Version};
 
 		    q.Send(toSend, GetTransactionType());
 
