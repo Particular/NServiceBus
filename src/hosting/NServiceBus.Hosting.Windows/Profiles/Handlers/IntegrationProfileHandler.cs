@@ -32,12 +32,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             {
                 if (!Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
                 {
-                    if (Configure.GetConfigSection<MsmqSubscriptionStorageConfig>() == null)
-                        Configure.Instance.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(
-                            DependencyLifecycle.SingleInstance)
-                            .ConfigureProperty(s => s.Queue, Program.EndpointId + "_subscriptions");
-                    else
-                        Configure.Instance.MsmqSubscriptionStorage();
+                    Configure.Instance.MsmqSubscriptionStorage(Program.EndpointId);
                 }
             }
         }

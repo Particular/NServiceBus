@@ -20,12 +20,26 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
+            return MsmqSubscriptionStorage(config,"NServiceBus");
+        }
+
+        /// <summary>
+        /// Stores subscription data using MSMQ.
+        /// If multiple machines need to share the same list of subscribers,
+        /// you should not choose this option - prefer the DbSubscriptionStorage
+        /// in that case.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="endpointId"></param>
+        /// <returns></returns>
+        public static Configure MsmqSubscriptionStorage(this Configure config, string endpointId)
+        {
             var cfg = Configure.GetConfigSection<MsmqSubscriptionStorageConfig>();
 
             if (cfg == null)
                 Logger.Warn("Could not find configuration section for Msmq Subscription Storage.");
 
-            Queue = (cfg != null ? cfg.Queue : "NServiceBus_Subscriptions");
+            Queue = (cfg != null ? cfg.Queue : endpointId + "_subscriptions");
 
             var storageConfig = config.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance);
             storageConfig.ConfigureProperty(s => s.Queue, Queue);
