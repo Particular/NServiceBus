@@ -13,7 +13,6 @@ namespace NServiceBus
     public static class ConfigureRavenSubscriptionStorage
     {
         const string DefaultDataDirectory = @".\SagaPersistence";
-        const string DefaultUrl = "http://localhost:8080";
         static readonly Guid DefaultResourceManagerId = new Guid("DB7F1F2E-643C-4C20-91AD-B01FF4882A2B");
 
         public static Configure EmbeddedRavenSubscriptionStorage(this Configure config)
@@ -26,23 +25,20 @@ namespace NServiceBus
 
         public static Configure RavenSubscriptionStorage(this Configure config)
         {
+            var endpoint = Assembly.GetCallingAssembly()
+                .GetName().Name;
+
+            return RavenSubscriptionStorage(config, endpoint);
+        }
+
+        public static Configure RavenSubscriptionStorage(this Configure config, string endpoint)
+        {
             if (!config.Configurer.HasComponent<IDocumentStore>())
                 config.RavenPersistence();
 
             var store = config.Builder.Build<IDocumentStore>();
 
-            var endpoint = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
             return RavenSubscriptionStorage(config, store, endpoint);
-        }
-
-        public static Configure RavenSubscriptionStorage(this Configure config, string connectionStringName)
-        {
-            var endpoint = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
-            return RavenSubscriptionStorage(config, connectionStringName, endpoint);
         }
 
         public static Configure RavenSubscriptionStorage(this Configure config, string connectionStringName, string endpoint)
