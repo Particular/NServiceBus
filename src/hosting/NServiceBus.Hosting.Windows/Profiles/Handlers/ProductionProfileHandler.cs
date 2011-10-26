@@ -14,9 +14,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.MessageForwardingInCaseOfFault();
 
-            //todo
-            //if (Config is AsA_Publisher)
-              //  Configure.Instance.RavenSubscriptionStoreage();
+            if (Config is AsA_Publisher)
+                Configure.Instance.RavenSubscriptionStorage();
         }
 
         public IConfigureThisEndpoint Config { get; set; }

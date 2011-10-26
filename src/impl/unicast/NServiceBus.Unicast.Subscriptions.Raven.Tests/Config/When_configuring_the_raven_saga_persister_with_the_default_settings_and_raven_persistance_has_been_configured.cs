@@ -1,5 +1,4 @@
 using NServiceBus.Persistence.Raven.Config;
-using NServiceBus.Unicast.Subscriptions.Raven.Config;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Document;

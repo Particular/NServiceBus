@@ -1,4 +1,3 @@
-using NServiceBus.Unicast.Subscriptions.Raven.Config;
 using NUnit.Framework;
 using Raven.Storage.Esent;
 

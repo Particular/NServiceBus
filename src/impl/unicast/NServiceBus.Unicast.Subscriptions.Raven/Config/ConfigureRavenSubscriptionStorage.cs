@@ -5,8 +5,9 @@ using NServiceBus.Persistence.Raven.Config;
 using Raven.Client;
 using Raven.Client.Document;
 
-namespace NServiceBus.Unicast.Subscriptions.Raven.Config
+namespace NServiceBus
 {
+    using Unicast.Subscriptions.Raven;
     using global::Raven.Client.Embedded;
 
     public static class ConfigureRavenSubscriptionStorage

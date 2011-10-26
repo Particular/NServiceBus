@@ -6,6 +6,9 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
 {
+    using NLog.LayoutRenderers;
+    using Newtonsoft.Json;
+
     [TestFixture]
     public class When_receiving_a_subscription_message : WithRavenSubscriptionStorage
     {
@@ -14,7 +17,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
         {
             string clientEndpoint = "TestEndpoint";
 
-            var messageTypes = new [] { new MessageType("MessageType1"), new MessageType("MessageType2") };
+            var messageTypes = new[] { new MessageType("MessageType1"), new MessageType("MessageType2") };
 
             using (var transaction = new TransactionScope())
             {

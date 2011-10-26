@@ -1,5 +1,4 @@
 using System;
-using NServiceBus.Unicast.Subscriptions.Raven.Config;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config

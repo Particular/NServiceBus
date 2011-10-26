@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using NServiceBus.Unicast.Subscriptions.Raven.Indexes;
 using Raven.Client;
-using RavenDbExceptions = Raven.Http.Exceptions;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven
 {
@@ -17,16 +14,16 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
         public void Init()
         {
-            new SubscriptionsByMessageType().Execute(Store);
         }
 
         void ISubscriptionStorage.Subscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
-            var subscriptions = messageTypes.Select(m => new Subscription {
-                    Id = Subscription.FormatId(Endpoint, m, client),
-                    MessageType = m,
-                    Client = client
-                }).ToList();
+            var subscriptions = messageTypes.Select(m => new Subscription
+            {
+                Id = Subscription.FormatId(Endpoint, m, client),
+                MessageType = m,
+                Client = client
+            }).ToList();
 
             try
             {
@@ -39,7 +36,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             }
             catch (ConcurrencyException ex)
             {
-                
+
             }
         }
 
@@ -48,8 +45,9 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             var ids = messageTypes
                 .Select(m => Subscription.FormatId(Endpoint, m, client))
                 .ToList();
-            
-            using (var session = Store.OpenSession()) {
+
+            using (var session = Store.OpenSession())
+            {
                 ids.ForEach(id => session.Advanced.DatabaseCommands.Delete(id, null));
 
                 session.SaveChanges();
@@ -61,19 +59,18 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             using (var session = Store.OpenSession())
             {
                 return messageTypes.SelectMany(m => GetSubscribersForMessage(session, m))
-                    .Select(s => s.Client)
-                    .ToList()
-                    .Distinct();
+                                .Where(s => messageTypes.Contains(s.MessageType))
+                                    .Select(s => s.Client)
+                                    .ToList()
+                                    .Distinct();
             }
         }
 
         IEnumerable<Subscription> GetSubscribersForMessage(IDocumentSession session, MessageType messageType)
         {
-            var clients = session.Query<Subscription, SubscriptionsByMessageType>()
+            return session.Query<Subscription>()
                 .Customize(c => c.WaitForNonStaleResults())
                 .Where(s => s.MessageType == messageType);
-
-            return clients;
         }
     }
 }
