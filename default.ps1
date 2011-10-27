@@ -4,7 +4,7 @@ properties {
   	$version = "1.0.0"
   	$release_dir = "$base_dir\Release"
 
-	$productVersion = "3"
+	$productVersion = "3.0"
 	$buildNumber = "0";
 	$packageNameSuffix = "-CI"
 	$release_dir = "$base_dir\release"
@@ -137,8 +137,8 @@ task GeneateCommonAssemblyInfo {
 	}
 	Write-Output "Build Number: $buildNumber"
 	
-	$fileVersion = $productVersion + ".0." + $buildNumber + ".0"
-	$asmVersion =  $productVersion + ".0.0.0"
+	$fileVersion = $productVersion + "." + $buildNumber + ".0"
+	$asmVersion =  $productVersion + "0.0"
  	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $asmVersion $fileVersion ".\src\CommonAssemblyInfo.cs" 
  }
 
@@ -170,9 +170,7 @@ task ZipOutput {
 	
 	
 
-	echo "Zip Output"
-	$versionFileFullPath = Resolve-Path $versionFile
-	$productVersion = Get-Content $versionFileFullPath;
+	echo "Zip Output"	
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
