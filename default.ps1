@@ -212,17 +212,15 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 
-[assembly: AssemblyVersionAttribute(""$version"")]
-[assembly: AssemblyFileVersionAttribute(""$fileVersion"")]
-[assembly: AssemblyCopyrightAttribute(""$copyright"")]
-[assembly: AssemblyProductAttribute(""$product"")]
-[assembly: AssemblyCompanyAttribute(""$company"")]
-[assembly: AssemblyConfigurationAttribute(""$configuration"")]
-[assembly: AssemblyInformationalVersionAttribute(""$fileVersion"")]
-#if NET35
-[assembly: AllowPartiallyTrustedCallersAttribute()]
-#endif
-[assembly: ComVisibleAttribute(false)]
+
+[assembly: AssemblyVersion(""$version"")]
+[assembly: AssemblyFileVersion(""$fileVersion"")]
+[assembly: AssemblyCopyright(""$copyright"")]
+[assembly: AssemblyProduct(""$product"")]
+[assembly: AssemblyCompany(""$company"")]
+[assembly: AssemblyConfiguration(""$configuration"")]
+[assembly: AssemblyInformationalVersion(""$version"")]
+[assembly: ComVisible(false)]
 [assembly: CLSCompliantAttribute(true)]
 "
 
