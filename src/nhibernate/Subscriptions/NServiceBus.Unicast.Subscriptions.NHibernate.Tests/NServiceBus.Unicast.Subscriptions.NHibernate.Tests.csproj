@@ -92,6 +92,7 @@
     <Compile Include="InMemoryDBFixture.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="SqlServerFixture.cs" />
+    <Compile Include="When_initializing_the_storage_with_existing_v2X_subscriptions.cs" />
     <Compile Include="When_listing_subscribers_for_message_types.cs" />
     <Compile Include="When_receiving_a_subscription_message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
