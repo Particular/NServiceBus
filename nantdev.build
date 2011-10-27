@@ -7,7 +7,7 @@
 	<property name="lib.dir" value="lib" />
 	<property name="tools.dir" value="tools" />
 	<property name="build.base" value="build"/>
-	<property name="project.version" value="3.0.0" />
+	<property name="project.version" value="3.0" />
 	<property name="file.version" value="${project.version}.0000" dynamic="true"/>
 	<property name="release.root" value="${trunk.dir}\release"/>
 	<property name="release.dir" value="${trunk.dir}\release\net35" dynamic="true"/>
@@ -44,7 +44,7 @@
 	</if>
 	
 	<if test="${property::exists('build.number')}">
-			<property name="file.version" value="${project.version}.${build.number}"/>
+			<property name="file.version" value="${project.version}.${build.number}.0"/>
 	</if>
 	
 	<echo message="##teamcity[buildNumber '${file.version}']" />

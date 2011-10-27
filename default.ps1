@@ -4,9 +4,8 @@ properties {
   	$version = "1.0.0"
   	$release_dir = "$base_dir\Release"
 
-	$productVersion = "3.0"
+	$productVersion = "3"
 	$buildNumber = "0";
-	$versionFile = "$base_dir\version.txt"
 	$packageNameSuffix = "-CI"
 	$release_dir = "$base_dir\release"
 	$artifacts_dir = "$base_dir\artifacts"
@@ -25,8 +24,7 @@ task CreatePackages {
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
 	$packit.PackagingArtefactsRoot = ".\release\PackagingArtefacts"
 	$packit.packageOutPutDir = ".\release\packages"
-	$versionFileFullPath = Resolve-Path $versionFile
-    $productVersion = Get-Content $versionFileFullPath;
+
 	#Get Build number from TC
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
@@ -41,7 +39,7 @@ task CreatePackages {
 	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll"
+	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{".\src\**\*.cs"="src"} $true;
 	#endregion
 	
 	#region Packing NServiceBus.Host
@@ -133,17 +131,15 @@ task InstallDependentPackages {
  }
  
 task GeneateCommonAssemblyInfo {
-    $versionFileFullPath = Resolve-Path $versionFile
-    $productVersion = Get-Content $versionFileFullPath;
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
 	}
-	
 	Write-Output "Build Number: $buildNumber"
 	
-	$productVersion = $productVersion + "." + $buildNumber
- 	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $productVersion $productVersion ".\src\CommonAssemblyInfo.cs" 
+	$fileVersion = $productVersion + ".0." + $buildNumber + ".0"
+	$asmVersion =  $productVersion + ".0.0.0"
+ 	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $asmVersion $fileVersion ".\src\CommonAssemblyInfo.cs" 
  }
 
 task FinalizeAndClean{
