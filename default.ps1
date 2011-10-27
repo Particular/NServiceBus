@@ -138,7 +138,7 @@ task GeneateCommonAssemblyInfo {
 	Write-Output "Build Number: $buildNumber"
 	
 	$fileVersion = $productVersion + "." + $buildNumber + ".0"
-	$asmVersion =  $productVersion + "0.0"
+	$asmVersion =  $productVersion + ".0.0"
  	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $asmVersion $fileVersion ".\src\CommonAssemblyInfo.cs" 
  }
 
