@@ -1,4 +1,3 @@
-using NServiceBus;
 using System;
 
 namespace MyMessages
@@ -11,7 +10,7 @@ namespace MyMessages
         public TimeSpan Duration { get; set; }
     }
 
-    public interface IMyEvent : IEvent
+    public interface IMyEvent
     {
         Guid EventId { get; set; }
         DateTime? Time { get; set; }
