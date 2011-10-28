@@ -39,7 +39,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static bool IsMessageType(this Type t)
         {
-            return IsMessageTypeAction(t);
+            return IsMessageTypeAction(t) || IsCommandTypeAction(t) || IsEventTypeAction(t);
         }
 
         /// <summary>
