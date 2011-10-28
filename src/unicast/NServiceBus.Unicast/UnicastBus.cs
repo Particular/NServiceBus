@@ -1305,9 +1305,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public void RegisterMessageType(Type messageType, Address address, bool configuredByAssembly)
         {
-            if (typeof(IMessage) == messageType)
-                return;
-
             if (messageType.IsMessageType())
             {
                 if (MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
