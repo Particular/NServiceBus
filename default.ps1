@@ -18,7 +18,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	Write-Output "Loding the moduele for packing.............."
-	$packit.push_to_nuget = $true 
+	$packit.push_to_nuget = $false 
 	
 	
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
@@ -111,26 +111,8 @@ task CreatePackages {
 		
 	remove-module packit
  }
- 
-task BuildOnNet35 {
- 	
- }
- 
-task BuildOnNet40 {
- 	
- } 
- 
-task InstallDependentPackages {
- 	dir -recurse -include ('packages.config') |ForEach-Object {
-	$packageconfig = [io.path]::Combine($_.directory,$_.name)
-
-	write-host $packageconfig 
-
-	.\tools\NuGet\NuGet.exe install $packageconfig -o packages 
-	}
- }
- 
-task GeneateCommonAssemblyInfo {
+  
+task GeneateCommonAssemblyInfo -depends InstallDependentPackages {
 	$buildNumber = 0
 	if($env:BUILD_NUMBER -ne $null) {
     	$buildNumber = $env:BUILD_NUMBER
@@ -141,8 +123,18 @@ task GeneateCommonAssemblyInfo {
 	$asmVersion =  $productVersion + ".0.0"
  	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright © NServiceBus 2007-2011" $asmVersion $fileVersion ".\src\CommonAssemblyInfo.cs" 
  }
+ 
+ task InstallDependentPackages {
+ 	dir -recurse -include ('packages.config') |ForEach-Object {
+	$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
-task FinalizeAndClean{
+	write-host $packageconfig 
+
+	.\tools\NuGet\NuGet.exe install $packageconfig -o packages 
+	}
+ }
+
+task FinalizeAndClean -depends ZipOutput{
 	echo Finalize and Clean
     if(Test-Path -Path $release_dir)
 	{
@@ -152,7 +144,7 @@ task FinalizeAndClean{
 }
 
 
-task ZipOutput {
+task ZipOutput -depends CreatePackages {
 
 	
 	echo "Cleaning the Release dir before ziping"
