@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config)
         {
-            var messageTypes = Configure.TypesToScan.Where(t => typeof (IMessage).IsAssignableFrom(t)).ToList();
+            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
             if (config.Configurer == null)
                 SetXmlSerializerAsDefault.UseXmlSerializer = true;
