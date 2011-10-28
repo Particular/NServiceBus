@@ -100,6 +100,8 @@ function Invoke-Packit
 			 [Parameter(Position=4, Mandatory=0)]
 			 [System.Collections.Hashtable]$files = @{},
 			 [Parameter(Position=5, Mandatory=0)]
+			 [Array]$srcFiles = @(),
+			 [Parameter(Position=6, Mandatory=0)]
 			 [bool]$createWithSymbol = $false
   		)
 		
@@ -224,21 +226,26 @@ function Invoke-Packit
 			}			 
 		 }
 		 
-		 if($files.Count -gt 0)
-		 {
+		 if($files.Count -gt 0){
 			$files.Keys |  Foreach-Object {
 					$srcResolved = Resolve-Path $_		
 					$target = $files[$_]
-					foreach($src in $srcResolved)
-					{
+					foreach($src in $srcResolved){
 						$fileElement = "{0}<file src=""{1}"" target=""{2}""/>" -f
 						$fileElement,  $src, $target
-					}
 				}
-			}			
+			}
+		}
+		
+		if($srcFiles.Length -gt 0){
+			$srcFiles |  Foreach-Object {
+						$fileElement = "{0}<file src=""{1}"" target=""{2}"" exclude=""{3}""/>" -f
+						$fileElement, $_["src"],  $_["target"], $_["exclude"]
+				
+			}
+		}
 		 
-		 if($fileElement -ne "")
-		 {
+		 if($fileElement -ne ""){
 		    $filesNode.set_InnerXML($fileElement)
 			$nuGetSpecContent.package.AppendChild($filesNode)			
 		 }
