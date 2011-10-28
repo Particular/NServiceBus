@@ -36,7 +36,7 @@ namespace NServiceBus
         /// <param name="definesEventType"></param>
         public static Configure DefiningEventsAs(this Configure config, Func<Type, bool> definesEventType)
         {
-            ExtensionMethods.IsCommandTypeAction = definesEventType;
+            ExtensionMethods.IsEventTypeAction = definesEventType;
             return config;
         }
     }
