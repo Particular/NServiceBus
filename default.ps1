@@ -17,7 +17,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	Write-Output "Loding the moduele for packing.............."
-	$packit.push_to_nuget = $false 
+	$packit.push_to_nuget = $true 
 	
 	
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
