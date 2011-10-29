@@ -17,7 +17,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	Write-Output "Loding the moduele for packing.............."
-	$packit.push_to_nuget = $true 
+	$packit.push_to_nuget = $false 
 	
 	
 	$packit.framework_Isolated_Binaries_Loc = ".\release"
@@ -44,19 +44,19 @@ task CreatePackages {
 	#region Packing NServiceBus.Host
 	$packageName = "NServiceBus.Host" + $packageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.exe"="lib\net40\x86";".\release\net40\binaries\NServiceBus.Host.exe"="lib\net40\x64"} 
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";".\release\net40\binaries\NServiceBus.Host.*"="lib\net40\x64"} $null $true 
 	#endregion
 	
 	#region Packing NServiceBus.Testing
 	$packageName = "NServiceBus.Testing" + $packageNameSuffix
 	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Testing.dll"
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Testing.dll", "binaries\NServiceBus.Testing.pdb" @{} $null $true
 	#endregion
 	
 	#region Packing NServiceBus.Integration.WebServices
 	$packageName = "NServiceBus.Integration.WebServices" + $packageNameSuffix
 	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Integration.WebServices.dll"
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Integration.WebServices.dll", "binaries\NServiceBus.Integration.WebServices.pdb" @{} $null $true
 	#endregion
 
 	#region Packing NServiceBus.Autofac
