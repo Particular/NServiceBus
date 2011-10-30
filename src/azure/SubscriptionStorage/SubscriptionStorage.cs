@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
             using (var transaction = new TransactionScope())
             {
                 foreach (var messageType in messageTypes)
-                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", encodedAddress, messageType));
+                    session.Delete(string.Format("from Subscription where SubscriberEndpoint = '{0}' AND MessageType = '{1}'", encodedAddress, messageType.ToString()));
 
                 transaction.Complete();
                 session.Flush();
@@ -64,7 +64,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
             {
                 subscribers.AddRange(from messageType in messageTypes
                                      from subscription in session.CreateCriteria(typeof(Subscription))
-                                                            .Add(Restrictions.Eq("MessageType", messageType))
+                                                            .Add(Restrictions.Eq("MessageType", messageType.ToString()))
                                                             .List<Subscription>()
                                      select Address.Parse(DecodeFrom64(subscription.SubscriberEndpoint)));
             }
