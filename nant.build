@@ -484,6 +484,11 @@
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt ${ilmerge.targetframework}"
 					workingdir="." />
+					
+		<!-- claims -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\claims\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\claims" />
 
 		<!-- timeout -->
 		<exec 	program="${msbuild}"
