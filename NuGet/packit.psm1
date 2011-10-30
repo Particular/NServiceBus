@@ -69,9 +69,22 @@ function PushPackage($packageName)
   	$packages | % { write-host $_.Name }
  
     $packages | % { 
+		
         $package = $_.Name
         write-host "Uploading $package"
         &$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
+		
+		$symbolPackName =   dir $_.Name |  % {$_.BaseName};
+		$symbolPackName = $symbolPackName + ".symbols.nupkg"
+		if(Test-Path -Path ./$symbolPackName){
+			write-host "pushing symbol:$symbolPackName"
+			&$nugetExcec  push $symbolPackName -source "http://nuget.gw.symbolsource.org/Public/NuGet" $key
+		}
+		else
+		{
+				write-host "No symbol pack:$symbolPackName"
+		}
+		
         write-host ""    
   	}
   popd
