@@ -16,6 +16,8 @@ namespace NServiceBus.Integration.Azure
             azureConfigurationSettings = configurationSettings;
         }
 
+        public string ConfigurationPrefix { get; set; }
+
         T IConfigurationSource.GetConfiguration<T>()
         {
             var sectionName = typeof(T).Name;
@@ -25,7 +27,9 @@ namespace NServiceBus.Integration.Azure
 
             foreach (var property in typeof(T).GetProperties().Where(x => x.DeclaringType == typeof(T)))
             {
-                var setting = azureConfigurationSettings.GetSetting(sectionName + "." + property.Name);
+                var adjustedPrefix = !string.IsNullOrEmpty(ConfigurationPrefix) ? ConfigurationPrefix + "." : string.Empty;
+
+                var setting = azureConfigurationSettings.GetSetting(adjustedPrefix + sectionName + "." + property.Name);
 
                 if (!string.IsNullOrEmpty(setting))
                 {
