@@ -401,7 +401,7 @@ namespace NServiceBus.Unicast
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
             if (destination == null)
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
             var subscriptionMessage = ControlMessage.Create();
