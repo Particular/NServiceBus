@@ -22,8 +22,27 @@
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(commandEndpointAddress)));
         }
 
-    }
+        [Test]
+        public void Should_not_autosubscribe_messages_with_undefined_addre()
+        {
 
+       
+            RegisterMessageType<EventMessage>(Address.Undefined);
+            RegisterMessageHandlerType<EventMessageHandler>();
+            
+            StartBus();
+
+            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(Address.Undefined)));
+        }
+
+    }
+    public class EventMessageHandler : IHandleMessages<EventMessage>
+    {
+        public void Handle(EventMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
     public class CommandMessageHandler : IHandleMessages<CommandMessage>
     {
         public void Handle(CommandMessage message)

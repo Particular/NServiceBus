@@ -20,6 +20,28 @@ namespace NServiceBus
         public static Address Local { get; private set; }
 
         /// <summary>
+        /// Get the address of this endpoint.
+        /// </summary>
+        public static Address Self
+        {
+            get
+            {
+                return new Address("__self", "localhost");
+            }
+        }
+
+        /// <summary>
+        /// Get the address of this endpoint.
+        /// </summary>
+        public static Address Undefined
+        {
+            get
+            {
+                return new Address("", "");
+            }
+        }
+
+        /// <summary>
         /// Sets the address of this endpoint.
         /// Will throw an exception if overwriting a previous value (but value will still be set).
         /// </summary>
@@ -39,10 +61,10 @@ namespace NServiceBus
         /// <exception cref="InvalidOperationException"></exception>
         public static void OverrideDefaultMachine(string machineName)
         {
-           defaultMachine = machineName;
+            defaultMachine = machineName;
 
-           if (preventChanges)
-               throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -65,7 +87,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Address Parse(string destination)
         {
-            if(string.IsNullOrEmpty(destination))
+            if (string.IsNullOrEmpty(destination))
                 throw new InvalidOperationException("Invalid destination address specified");
 
             var arr = destination.Split('@');
@@ -147,7 +169,7 @@ namespace NServiceBus
         {
             unchecked
             {
-                return ((Queue != null ? Queue.GetHashCode() : 0)*397) ^ (Machine != null ? Machine.GetHashCode() : 0);
+                return ((Queue != null ? Queue.GetHashCode() : 0) * 397) ^ (Machine != null ? Machine.GetHashCode() : 0);
             }
         }
 
@@ -199,8 +221,8 @@ namespace NServiceBus
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (Address)) return false;
-            return Equals((Address) obj);
+            if (obj.GetType() != typeof(Address)) return false;
+            return Equals((Address)obj);
         }
 
         public bool Equals(Address other)

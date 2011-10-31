@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Tests
         [SetUp]
         public void SetUp()
         {
-            unicastBus.RegisterMessageType(typeof(TestMessage), addressToOwnerOfTestMessage, false);
+            unicastBus.RegisterMessageType(typeof(TestMessage), addressToOwnerOfTestMessage);
         }
         [Test]
         public void Only_the_major_version_should_be_used_as_the_subscription_key_in_order_to_make_versioning_easier()

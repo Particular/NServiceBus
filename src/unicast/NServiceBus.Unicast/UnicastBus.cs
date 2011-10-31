@@ -23,7 +23,6 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using MasterNode;
-    using MessageType = Subscriptions.MessageType;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -34,11 +33,6 @@ namespace NServiceBus.Unicast
         /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
-
-        /// <summary>
-        /// Entry to indicate local queue to prevent subscribing to own messages.
-        /// </summary>
-        public static Address Myself = Address.Parse("myself");
 
         /// <summary>
         /// Header entry key indicating the types of messages contained.
@@ -199,16 +193,15 @@ namespace NServiceBus.Unicast
         /// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
         /// will be registered against the address defined in the value of the entry.
         /// </remarks>
-        public IDictionary MessageOwners
+        public IDictionary<Type, Address> MessageOwners
         {
-            get { return messageOwners; }
             set
             {
-                messageOwners = value;
-                ConfigureMessageOwners(value);
+                value.ToList()
+                    .ForEach((k) => RegisterMessageType(k.Key, k.Value));
             }
+            get { return null; }
         }
-        private IDictionary messageOwners;
 
         /// <summary>
         /// Sets the list of assemblies which contain a message handlers
@@ -334,7 +327,7 @@ namespace NServiceBus.Unicast
                 return;
             }
             var fullTypes = GetFullTypes(messages as object[]);
-            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t=>new MessageType(t)))
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t)))
                 .ToList();
 
             if (subscribers.Count() == 0)
@@ -395,8 +388,8 @@ namespace NServiceBus.Unicast
             AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);
-            if (Myself.Equals(destination))
-                return;
+            if (Address.Self == destination)
+                throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
@@ -458,7 +451,7 @@ namespace NServiceBus.Unicast
         {
             var returnMessage = ControlMessage.Create();
 
-            returnMessage.SetHeader(ReturnMessageErrorCodeHeader, errorCode.GetHashCode().ToString());
+            returnMessage.Headers[ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
             returnMessage.MessageIntent = MessageIntentEnum.Send;
 
@@ -760,14 +753,21 @@ namespace NServiceBus.Unicast
         {
             AssertHasLocalAddress();
 
-            foreach (var messageType in GetMessageTypesHandledOnThisEndpoint()
-                .Where(t => !t.Namespace.StartsWith("NServiceBus") && !t.IsCommandType()))
+            foreach (var messageType in GetEventsToAutoSubscribe())
             {
                 Subscribe(messageType);
 
                 if (!messageType.IsEventType())
-                    Log.Warn("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
+                    Log.Info("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
             }
+        }
+
+        private IEnumerable<Type> GetEventsToAutoSubscribe()
+        {
+            return GetMessageTypesHandledOnThisEndpoint()
+                .Where(t =>
+                    !t.IsCommandType() &&
+                    messageTypeToDestinationLookup[t] != Address.Undefined);
         }
 
         private void AssertHasLocalAddress()
@@ -1220,49 +1220,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Sets up known types needed for XML serialization as well as
-        /// to which address to send which message.
-        /// </summary>
-        /// <param name="owners">A dictionary of message_type, address pairs.</param>
-        private void ConfigureMessageOwners(IDictionary owners)
-        {
-            foreach (DictionaryEntry de in owners)
-            {
-                var key = de.Key as string;
-                if (key == null)
-                    continue;
-
-                if (string.IsNullOrEmpty(de.Value as string))
-                    continue;
-
-                try
-                {
-                    var messageType = Type.GetType(key, false);
-                    if (messageType != null)
-                    {
-                        RegisterMessageType(messageType, Address.Parse(de.Value as string), false);
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Problem loading message type: " + key, ex);
-                }
-
-                try
-                {
-                    var a = Assembly.Load(key);
-                    foreach (var t in a.GetTypes())
-                        RegisterMessageType(t, Address.Parse(de.Value.ToString()), true);
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException("Problem loading message assembly: " + key, ex);
-                }
-            }
-        }
-
-        /// <summary>
         /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
         /// if it isn't null.
         /// </summary>
@@ -1294,56 +1251,26 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
         /// <param name="address">The address of the destination the message type is registered to.</param>
-        /// <param name="configuredByAssembly">
-        /// Indicates whether or not this registration call is related to a type configured from an
-        /// assembly.
-        /// </param>
-        /// <remarks>
-        /// Since the same message type may be configured specifically to one address
-        /// and via its assembly to a different address, the configuredByAssembly
-        /// parameter dictates that the specific message type data is to be used.
-        /// </remarks>
-        public void RegisterMessageType(Type messageType, Address address, bool configuredByAssembly)
+        public void RegisterMessageType(Type messageType, Address address)
         {
-            if (messageType.IsMessageType())
-            {
-                if (MustNotOverrideExistingConfiguration(messageType, configuredByAssembly))
-                    return;
 
-                messageTypeToDestinationLocker.EnterWriteLock();
-                messageTypeToDestinationLookup[messageType] = address;
-                messageTypeToDestinationLocker.ExitWriteLock();
+            messageTypeToDestinationLocker.EnterWriteLock();
+            messageTypeToDestinationLookup[messageType] = address;
+            messageTypeToDestinationLocker.ExitWriteLock();
 
-                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
+            Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
-                if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
-                    recoverableMessageTypes.Add(messageType);
+            if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
+                recoverableMessageTypes.Add(messageType);
 
-                foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
-                    timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
+            foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
+                timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
 
-                return;
-            }
+            return;
+
         }
 
-        /// <summary>
-        /// Checks whether or not the existing configuration can be overridden for a message type.
-        /// </summary>
-        /// <param name="messageType">The type of message to check the configuration for.</param>
-        /// <param name="configuredByAssembly">
-        /// Indicates whether or not this check is related to a type configured from an
-        /// assembly.
-        /// </param>
-        /// <returns>true if it is acceptable to override the configuration, otherwise false.</returns>
-        private bool MustNotOverrideExistingConfiguration(Type messageType, bool configuredByAssembly)
-        {
-            messageTypeToDestinationLocker.EnterReadLock();
-            var result = messageTypeToDestinationLookup.ContainsKey(messageType) && configuredByAssembly;
-            messageTypeToDestinationLocker.ExitReadLock();
-
-            return result;
-        }
-
+       
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
         /// Invokes message mutators.

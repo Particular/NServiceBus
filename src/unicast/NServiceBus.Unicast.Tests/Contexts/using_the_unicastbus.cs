@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using MasterNode;
@@ -9,6 +10,7 @@ namespace NServiceBus.Unicast.Tests
     using ObjectBuilder;
     using Queuing;
     using Rhino.Mocks;
+    using Rhino.Mocks.Generated;
     using Serialization;
     using Subscriptions;
     using Transport;
@@ -73,7 +75,10 @@ namespace NServiceBus.Unicast.Tests
         {
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
         }
-
+        protected void RegisterOwnedMessageType<T>()
+        {
+            unicastBus.MessageOwners = new Dictionary<Type, Address> { { typeof(T),Address.Local} };
+        }
         protected Address RegisterMessageType<T>()
         {
             var address = new Address(typeof(T).Name, "localhost");
@@ -86,7 +91,7 @@ namespace NServiceBus.Unicast.Tests
         {
             if (typeof(T).IsInterface)
                 messageMapper.Initialize(new[] { typeof(T) });
-            unicastBus.RegisterMessageType(typeof(T), address, false);
+            unicastBus.RegisterMessageType(typeof(T), address);
 
         }
 

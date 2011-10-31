@@ -11,6 +11,9 @@ using System.Linq;
 
 namespace NServiceBus.Unicast.Config
 {
+    using System.Collections.Concurrent;
+    using System.Reflection;
+
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
@@ -20,8 +23,7 @@ namespace NServiceBus.Unicast.Config
         /// A map of which message types (belonging to the given assemblies) are owned 
         /// by which endpoint.
         /// </summary>
-        protected Hashtable assembliesToEndpoints = new Hashtable();
-
+        protected IDictionary<Type,Address> typesToEndpoints = new Dictionary<Type, Address>();
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
@@ -64,13 +66,13 @@ namespace NServiceBus.Unicast.Config
             TypesToScan
                 .Where(t => t.IsMessageType())
                 .ToList()
-                .ForEach(t => assembliesToEndpoints[t.Assembly.GetName().Name] = string.Empty);
+                .ForEach(t => typesToEndpoints[t] = Address.Undefined);
         }
 
         private void RegisterMessageOwnersAndBusAddress()
         {
             var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
-            this.ConfigureBusProperties(unicastBusConfig);
+            ConfigureBusProperties(unicastBusConfig);
             ConfigureLocalAddress(unicastBusConfig);
         }
 
@@ -81,21 +83,36 @@ namespace NServiceBus.Unicast.Config
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
 
                 foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
-                    assembliesToEndpoints[mapping.Messages] = mapping.Endpoint;
+                {
+                    try
+                    {
+                        var messageType = Type.GetType(mapping.Messages, false);
+                        if (messageType != null)
+                        {
+                            typesToEndpoints[messageType] = Address.Parse(mapping.Endpoint);
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Problem loading message type: " + mapping.Messages, ex);
+                    }
+
+                    try
+                    {
+                        var a = Assembly.Load(mapping.Messages);
+                        foreach (var t in a.GetTypes())
+                            typesToEndpoints[t] = Address.Parse(mapping.Endpoint);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentException("Problem loading message assembly: " + mapping.Messages, ex);
+                    }
+                    
+                }
             }
 
-            foreach(Type t in TypesToScan)
-                foreach (Type i in t.GetInterfaces())
-                {
-                    var args = i.GetGenericArguments();
-                    if (args.Length != 1)
-                        continue;
-
-                    if (typeof (IAmResponsibleForMessages<>).MakeGenericType(args).IsAssignableFrom(t))
-                        assembliesToEndpoints[args[0].AssemblyQualifiedName] = UnicastBus.Myself.ToString();
-                }
-
-            busConfig.ConfigureProperty(b => b.MessageOwners, assembliesToEndpoints);
+            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
 
         private static void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
