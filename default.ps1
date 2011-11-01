@@ -38,7 +38,7 @@ task CreatePackages {
 	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
+	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\core\**\*.cs";"target"="src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
 	#endregion
 	
 	#region Packing NServiceBus.Host
@@ -105,7 +105,7 @@ task CreatePackages {
 	#region Packing NServiceBus.Azure
 	$packageName = "NServiceBus.Azure" + $packageNameSuffix
 	$packit.package_description = "The Azure for the NServicebus"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion; $packageNameNHibernate=$productVersion} "binaries\NServiceBus.Azure.dll"
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion; $packageNameNHibernate=$productVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
 	#endregion	
 		
 	remove-module packit
