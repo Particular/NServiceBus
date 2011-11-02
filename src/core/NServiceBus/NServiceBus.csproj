@@ -71,7 +71,6 @@
     <Compile Include="AddressMode.cs" />
     <Compile Include="CompletionResult.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="IAmResponsibleForMessages.cs" />
     <Compile Include="IAuthorizeSubscriptions.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="ICallback.cs" />

@@ -6,8 +6,7 @@ using NServiceBus;
 
 namespace MyServer
 {
-    public class RequestDataMessageHandler : IHandleMessages<RequestDataMessage>,
-        IAmResponsibleForMessages<RequestDataMessage>
+    public class RequestDataMessageHandler : IHandleMessages<RequestDataMessage>
     {
         public IBus Bus { get; set; }
 
