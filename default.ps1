@@ -38,7 +38,7 @@ task CreatePackages {
 	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\core\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
+	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
 	#endregion
 	
 	#region Packing NServiceBus.Host
