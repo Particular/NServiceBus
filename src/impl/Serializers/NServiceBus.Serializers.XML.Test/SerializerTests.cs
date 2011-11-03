@@ -27,12 +27,11 @@ namespace NServiceBus.Serializers.XML.Test
             var result = ExecuteSerializer.ForMessage<MessageWithGenericProperty>(m =>
                                                                          {
                                                                              m.GenericProperty =
-                                                                                 new GenericProperty<string>("test")
-                                                                                     {WhatEver = "a property"};
+                                                                                 new GenericProperty<string>("test") { WhatEver = "a property" };
                                                                          });
-           
+
             Assert.AreEqual("a property", result.GenericProperty.WhatEver);
-            
+
 
         }
 
@@ -72,7 +71,7 @@ namespace NServiceBus.Serializers.XML.Test
             IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<IM2>();
 
-          
+
             var o = mapper.CreateInstance<IM2>();
 
             o.Id = Guid.NewGuid();
@@ -273,15 +272,27 @@ namespace NServiceBus.Serializers.XML.Test
                 string s = e.Message;
             }
         }
-
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
             var result = ExecuteSerializer.ForMessage<MessageWithNestedObject>(m =>
-                                                                      {
-                                                                          m.NestedObject = new MessageWithNullProperty();
-                                                                      });
+            {
+                m.NestedObject = new MessageWithNullProperty();
+            });
             Assert.IsNotNull(result.NestedObject);
+        }
+
+        [Test]
+        public void Messages_with_generic_properties_closing_nullables_should_be_supported()
+        {
+            var theTime = DateTime.Now;
+
+            var result = ExecuteSerializer.ForMessage<MessageWithGenericPropClosingNullable>(
+                m => {
+                         m.GenericNullable = new GenericPropertyWithNullable<DateTime?> {TheType = theTime};
+                         m.Whatever = "fdsfsdfsd";
+                });
+            Assert.IsNotNull(result.GenericNullable.TheType == theTime);
         }
 
         [Test]
@@ -297,26 +308,37 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
+    public class MessageWithGenericPropClosingNullable
+    {
+        public GenericPropertyWithNullable<DateTime?> GenericNullable { get; set; }
+        public string Whatever { get; set; }
+    }
+
     public class MessageWithNullProperty
     {
         public string WillBeNull { get; set; }
     }
 
-    public class MessageWithDouble : IMessage
+    public class MessageWithDouble
     {
         public double Double { get; set; }
     }
 
-    public class MessageWithGenericProperty : IMessage
+    public class MessageWithGenericProperty
     {
         public GenericProperty<string> GenericProperty { get; set; }
         public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
 
     }
 
-    public class MessageWithNestedObject : IMessage
+    public class MessageWithNestedObject
     {
         public MessageWithNullProperty NestedObject { get; set; }
+    }
+
+    public class GenericPropertyWithNullable<T>
+    {
+        public T TheType { get; set; }
     }
 
     public class GenericProperty<T>
@@ -339,12 +361,12 @@ namespace NServiceBus.Serializers.XML.Test
         public string WhatEver { get; set; }
     }
 
-    public class MessageWithDictionaryWithAnObjectAsKey : IMessage
+    public class MessageWithDictionaryWithAnObjectAsKey
     {
         public Dictionary<object, string> Content { get; set; }
     }
 
-    public class MessageWithDictionaryWithAnObjectAsValue : IMessage
+    public class MessageWithDictionaryWithAnObjectAsValue
     {
         public Dictionary<string, object> Content { get; set; }
     }

@@ -103,10 +103,12 @@ namespace NServiceBus.Serializers.XML
 
             if (args.Length == 1 && args[0].IsValueType)
             {
-                if (typeof(Nullable<>).MakeGenericType(args) == t)
+                if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args) == t)
                 {
                     InitType(args[0]);
-                    return;
+                    
+                    if (!args[0].GetGenericArguments().Any())
+                        return;
                 }
             }
 
@@ -427,6 +429,9 @@ namespace NServiceBus.Serializers.XML
                 var args = type.GetGenericArguments();
                 if (args.Length == 1 && args[0].IsValueType)
                 {
+                    if (args[0].GetGenericArguments().Any())
+                        return GetPropertyValue(args[0], n);
+
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
