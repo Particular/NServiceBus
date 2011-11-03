@@ -15,30 +15,17 @@ using System.Xml.Serialization;
 
 namespace NServiceBus.Serializers.XML
 {
+    using System.Linq;
+
     /// <summary>
     /// Implementation of the message serializer over XML supporting interface-based messages.
     /// </summary>
-    public class MessageSerializer : IMessageSerializer
+    public class XmlMessageSerializer : IMessageSerializer
     {
-        /// <summary>
-        /// The message mapper used to translate between types.
-        /// </summary>
-        public IMessageMapper MessageMapper
-        {
-            get { return mapper; }
-            set
-            {
-                mapper = value;
+        readonly IMessageMapper mapper;
+        IList<Type> messageTypes;
 
-                if (messageTypes != null)
-                    mapper.Initialize(messageTypes);
-            }
-        }
-
-        private IMessageMapper mapper;
-
-        private string nameSpace = "http://tempuri.net";
-
+        
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -48,28 +35,8 @@ namespace NServiceBus.Serializers.XML
             set { nameSpace = value; }
         }
 
-        /// <summary>
-        /// Gets/sets message types to be serialized
-        /// </summary>
-        public List<Type> MessageTypes
-        {
-            get { return messageTypes; }
-            set
-            {
-                messageTypes = value;
-                if (!messageTypes.Contains(typeof(EncryptedValue)))
-                    messageTypes.Add(typeof(EncryptedValue));
-
-                if (MessageMapper != null)
-                    MessageMapper.Initialize(messageTypes.ToArray());
-
-                foreach (Type t in messageTypes)
-                    InitType(t);
-            }
-        }
-
-        private List<Type> messageTypes;
-
+        
+       
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
@@ -201,10 +168,8 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
-#if !NET35
                     if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
-#endif
                 }
 
                 if (args.Length == 2)
@@ -279,7 +244,7 @@ namespace NServiceBus.Serializers.XML
 
                         if (prefix.Contains(BASETYPE))
                         {
-                            Type baseType = MessageMapper.GetMappedTypeFor(attr.Value);
+                            Type baseType = mapper.GetMappedTypeFor(attr.Value);
                             if (baseType != null)
                                 messageBaseTypes.Add(baseType);
                         }
@@ -350,7 +315,7 @@ namespace NServiceBus.Serializers.XML
                     return GetObjectOfTypeFromNode(prop.PropertyType, node);
             }
 
-            Type t = MessageMapper.GetMappedTypeFor(typeName);
+            Type t = mapper.GetMappedTypeFor(typeName);
             if (t == null)
             {
                 logger.Debug("Could not load " + typeName + ". Trying base types...");
@@ -378,7 +343,7 @@ namespace NServiceBus.Serializers.XML
             if (typeof(IEnumerable).IsAssignableFrom(t))
                 return GetPropertyValue(t, node);
 
-            object result = MessageMapper.CreateInstance(t);
+            object result = mapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
             {
@@ -584,14 +549,14 @@ namespace NServiceBus.Serializers.XML
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
                 bool isArray = type.IsArray;
-#if !NET35
+
                 bool isISet = false;
                 if (type.IsGenericType && type.GetGenericArguments().Length == 1)
                 {
                     Type setType = typeof(ISet<>).MakeGenericType(type.GetGenericArguments());
                     isISet = setType.IsAssignableFrom(type);
                 }
-#endif
+
                 Type typeToCreate = type;
                 if (isArray)
                     typeToCreate = typesToCreateForArrays[type];
@@ -650,7 +615,7 @@ namespace NServiceBus.Serializers.XML
             namespacesToPrefix = new Dictionary<string, string>();
             namespacesToAdd = new List<Type>();
 
-            var namespaces = GetNamespaces(messages, MessageMapper);
+            var namespaces = GetNamespaces(messages);
             for (int i = 0; i < namespaces.Count; i++)
             {
                 string prefix = "q" + i;
@@ -664,14 +629,14 @@ namespace NServiceBus.Serializers.XML
             var messageBuilder = new StringBuilder();
             foreach (var m in messages)
             {
-                var t = MessageMapper.GetMappedTypeFor(m.GetType());
+                var t = mapper.GetMappedTypeFor(m.GetType());
 
                 WriteObject(t.Name, t, m, messageBuilder);
             }
 
             var builder = new StringBuilder();
 
-            List<string> baseTypes = GetBaseTypes(messages, MessageMapper);
+            List<string> baseTypes = GetBaseTypes(messages);
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
@@ -861,7 +826,7 @@ namespace NServiceBus.Serializers.XML
             return value.ToString();
         }
 
-        private static List<string> GetNamespaces(object[] messages, IMessageMapper mapper)
+        List<string> GetNamespaces(object[] messages)
         {
             var result = new List<string>();
 
@@ -875,7 +840,7 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
-        private static List<string> GetBaseTypes(object[] messages, IMessageMapper mapper)
+        List<string> GetBaseTypes(object[] messages)
         {
             var result = new List<string>();
 
@@ -944,6 +909,29 @@ namespace NServiceBus.Serializers.XML
 
         private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
 
+        public XmlMessageSerializer(IMessageMapper mapper)
+        {
+            this.mapper = mapper;
+        }
+
         #endregion
+
+        /// <summary>
+        /// Initialized the serializer with the given message types
+        /// </summary>
+        /// <param name="types"></param>
+        public void Initialize(IEnumerable<Type> types)
+        {
+            messageTypes = types.ToList();
+
+            if (!messageTypes.Contains(typeof(EncryptedValue)))
+                messageTypes.Add(typeof(EncryptedValue));
+
+            foreach (Type t in messageTypes)
+                InitType(t);
+             
+        }
+
+        string nameSpace = "http://tempuri.net";
     }
 }

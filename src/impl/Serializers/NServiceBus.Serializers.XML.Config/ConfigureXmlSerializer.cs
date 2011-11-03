@@ -5,6 +5,11 @@ using NServiceBus.Serialization;
 
 namespace NServiceBus
 {
+    using System;
+    using MessageInterfaces;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serializers.XML;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
@@ -17,16 +22,24 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config)
         {
+            if (config.Configurer == null)
+            {
+                SetXmlSerializerAsDefault.UseXmlSerializer = true;
+                return config;
+            }
+
             var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
-            if (config.Configurer == null)
-                SetXmlSerializerAsDefault.UseXmlSerializer = true;
-            else
-            {
-                config.Configurer.ConfigureComponent<MessageInterfaces.MessageMapper.Reflection.MessageMapper>(DependencyLifecycle.SingleInstance);
-                config.Configurer.ConfigureComponent<Serializers.XML.MessageSerializer>(DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(ms => ms.MessageTypes, messageTypes);
-            }
+            var mapper = new MessageMapper();
+            mapper.Initialize(messageTypes);
+
+            config.Configurer.RegisterSingleton<IMessageMapper>(mapper);
+            config.Configurer.RegisterSingleton<IMessageCreator>(mapper);//todo - Modify the builders to auto register all types
+
+            var serializer = new XmlMessageSerializer(mapper);
+            serializer.Initialize(messageTypes);
+
+            config.Configurer.RegisterSingleton<IMessageSerializer>(serializer);
 
             return config;
         }
@@ -42,7 +55,7 @@ namespace NServiceBus
         {
             config.XmlSerializer();
 
-            config.Configurer.ConfigureProperty<Serializers.XML.MessageSerializer>(x => x.Namespace, nameSpace);
+            config.Configurer.ConfigureProperty<Serializers.XML.XmlMessageSerializer>(x => x.Namespace, nameSpace);
 
             return config;
         }

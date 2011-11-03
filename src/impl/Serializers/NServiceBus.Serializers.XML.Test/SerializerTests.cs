@@ -23,46 +23,23 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Generic_properties_should_be_supported()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = new MessageSerializer
-                                 {
-                                     MessageMapper = mapper,
-                                     MessageTypes = new List<Type>(new[] {typeof (MessageWithGenericProperty)})
-                                 };
 
-            using (var stream = new MemoryStream())
-            {
-                var message = new MessageWithGenericProperty
-                                  {
-                                      GenericProperty = new GenericProperty<string>("test"){WhatEver = "a property"}
-                                  };
+            var result = ExecuteSerializer.ForMessage<MessageWithGenericProperty>(m =>
+                                                                         {
+                                                                             m.GenericProperty =
+                                                                                 new GenericProperty<string>("test")
+                                                                                     {WhatEver = "a property"};
+                                                                         });
+           
+            Assert.AreEqual("a property", result.GenericProperty.WhatEver);
+            
 
-                serializer.Serialize(new IMessage[] { message }, stream);
-
-                stream.Position = 0;
-
-                Debug.WriteLine(new StreamReader(stream).ReadToEnd());
-
-                stream.Position = 0;
-
-                var result = serializer.Deserialize(stream)[0] as MessageWithGenericProperty;
-
-                Assert.NotNull(result);
-
-                Assert.AreEqual(message.GenericProperty.WhatEver,result.GenericProperty.WhatEver);
-            }
-                
         }
 
         [Test]
         public void Culture()
         {
-            var mapper = new MessageMapper();
-            var serializer = new MessageSerializer();
-            serializer.MessageMapper = mapper;
-
-            serializer.MessageTypes = new List<Type>(new[] { typeof(MessageWithDouble) });
-
+            var serializer = SerializerFactory.Create<MessageWithDouble>();
             double val = 65.36;
             var msg = new MessageWithDouble { Double = val };
 
@@ -88,16 +65,14 @@ namespace NServiceBus.Serializers.XML.Test
             TestInterfaces();
             TestDataContractSerializer();
         }
-       
+
         [Test]
         public void TestInterfaces()
         {
             IMessageMapper mapper = new MessageMapper();
-            var serializer = new MessageSerializer();
-            serializer.MessageMapper = mapper;
+            var serializer = SerializerFactory.Create<IM2>();
 
-            serializer.MessageTypes = new List<Type>(new[] {typeof(IM2)});
-
+          
             var o = mapper.CreateInstance<IM2>();
 
             o.Id = Guid.NewGuid();
@@ -114,15 +89,15 @@ namespace NServiceBus.Serializers.XML.Test
             o.Lookup = new MyDic();
             o.Lookup["1"] = "1";
             o.Foos = new Dictionary<string, List<Foo>>();
-            o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name="1", Title = "1"}, new Foo { Name = "2", Title = "2"}});
-            o.Data = new byte[] { 1, 2, 3, 4, 5, 4, 3, 2, 1};
+            o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name = "1", Title = "1" }, new Foo { Name = "2", Title = "2" } });
+            o.Data = new byte[] { 1, 2, 3, 4, 5, 4, 3, 2, 1 };
             o.SomeStrings = new List<string> { "a", "b", "c" };
-            
-            o.ArrayFoos = new Foo[] { new Foo { Name="FooArray1", Title ="Mr." }, new Foo{ Name="FooAray2", Title="Mrs" } };
+
+            o.ArrayFoos = new Foo[] { new Foo { Name = "FooArray1", Title = "Mr." }, new Foo { Name = "FooAray2", Title = "Mrs" } };
             o.Bars = new Bar[] { new Bar { Name = "Bar1", Length = 1 }, new Bar { Name = "BAr2", Length = 5 } };
             o.NaturalNumbers = new HashSet<int>(new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             o.Developers = new HashSet<string>(new string[] { "Udi Dahan", "Andreas Ohlund", "Matt Burton", "Jonathan Oliver et al" });
- 
+
             o.Parent = mapper.CreateInstance<IM1>();
             o.Parent.Name = "udi";
             o.Parent.Age = 10;
@@ -170,7 +145,7 @@ namespace NServiceBus.Serializers.XML.Test
             xrs.IgnoreWhitespace = true;
             xrs.CheckCharacters = false;
             xrs.ConformanceLevel = ConformanceLevel.Auto;
-            
+
             for (int i = 0; i < numberOfIterations; i++)
                 using (MemoryStream stream = new MemoryStream())
                     DataContractSerialize(xws, dcs, messages, stream);
@@ -198,7 +173,7 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
-        
+
         private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
         {
             ArrayList o = new ArrayList(messages);
@@ -293,7 +268,7 @@ namespace NServiceBus.Serializers.XML.Test
                 XmlReader rdr = XmlReader.Create(new StringReader(document.InnerXml), settings);
                 while (rdr.Read()) { }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 string s = e.Message;
             }
@@ -302,53 +277,23 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
-            var mapper = new MessageMapper();
-            var serializer = new MessageSerializer();
-            serializer.MessageMapper = mapper;
-
-            serializer.MessageTypes = new List<Type> { typeof(MessageWithNestedObject) };
-
-            var msg = new MessageWithNestedObject { NestedObject = new MessageWithNullProperty() };
-
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(new[] { msg }, stream);
-                stream.Position = 0;
-
-                var msgArray = serializer.Deserialize(stream);
-                var actualMessage = (MessageWithNestedObject)msgArray[0];
-                Assert.IsNotNull(actualMessage.NestedObject);
-            }
+            var result = ExecuteSerializer.ForMessage<MessageWithNestedObject>(m =>
+                                                                      {
+                                                                          m.NestedObject = new MessageWithNullProperty();
+                                                                      });
+            Assert.IsNotNull(result.NestedObject);
         }
 
         [Test]
-        public void When_Using_A_Dictionary_With_An_object_As_Key()
+        public void When_Using_A_Dictionary_With_An_object_As_Key_should_throw()
         {
-            MessageMapper mapper = new MessageMapper();
-            MessageSerializer serializer = new MessageSerializer();
-            serializer.MessageMapper = mapper;
-            Exception ex = Assert.Throws<NotSupportedException>(delegate
-            {
-                serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsKey) };
-
-            }
-            );
-            Assert.IsNotNull(ex);
+            Assert.Throws<NotSupportedException>(() => SerializerFactory.Create<MessageWithDictionaryWithAnObjectAsKey>());
         }
 
         [Test]
-        public void When_Using_A_Dictionary_With_An_Object_As_Value()
+        public void When_Using_A_Dictionary_With_An_Object_As_Value_should_throw()
         {
-            MessageMapper mapper = new MessageMapper();
-            MessageSerializer serializer = new MessageSerializer();
-            serializer.MessageMapper = mapper;
-            Exception ex = Assert.Throws<NotSupportedException>(delegate
-            {
-                serializer.MessageTypes = new List<Type> { typeof(MessageWithDictionaryWithAnObjectAsValue) };
-
-            }
-            );
-           Assert.IsNotNull(ex);
+            Assert.Throws<NotSupportedException>(() => SerializerFactory.Create<MessageWithDictionaryWithAnObjectAsValue>());
         }
     }
 
@@ -362,7 +307,7 @@ namespace NServiceBus.Serializers.XML.Test
         public double Double { get; set; }
     }
 
-    public class MessageWithGenericProperty:IMessage
+    public class MessageWithGenericProperty : IMessage
     {
         public GenericProperty<string> GenericProperty { get; set; }
         public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
@@ -383,7 +328,8 @@ namespace NServiceBus.Serializers.XML.Test
             this.value = value;
         }
 
-        public T ReadOnlyBlob {
+        public T ReadOnlyBlob
+        {
             get
             {
                 return value;
@@ -402,5 +348,4 @@ namespace NServiceBus.Serializers.XML.Test
     {
         public Dictionary<string, object> Content { get; set; }
     }
-
 }

@@ -41,11 +41,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var data = Encoding.UTF8.GetBytes(str);
 
-            var serializer = new MessageSerializer
-            {
-                MessageMapper = new MessageMapper(),
-                MessageTypes = new List<Type> { typeof(MessageWithArray) }
-            };
+            var serializer = SerializerFactory.Create<MessageWithArray>();
 
             var messages = serializer.Deserialize(new MemoryStream(data));
 
@@ -62,31 +58,14 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeAndBack()
         {
-            var serializer = new MessageSerializer
-            {
-                MessageMapper = new MessageMapper(),
-                MessageTypes = new List<Type> { typeof(MessageWithArray) }
-            };
-
             var message = new MessageWithArray(Guid.NewGuid(), new int[] { 1234, 5323 });
 
-            var stream = new MemoryStream();
-            serializer.Serialize(new object[] { message }, stream);
+            var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 
-            stream.Position = 0;
-
-            var messages = serializer.Deserialize(stream);
-
-            Assert.NotNull(messages);
-            Assert.That(messages, Has.Length.EqualTo(1));
-
-            Assert.That(messages[0], Is.TypeOf(typeof(MessageWithArray)));
-            var m = (MessageWithArray)messages[0];
-
-            Assert.IsNotNull(m.SomeInts);
-            Assert.That(m.SomeInts, Has.Length.EqualTo(2));
-            Assert.AreEqual(1234, m.SomeInts[0]);
-            Assert.AreEqual(5323, m.SomeInts[1]);
+            Assert.IsNotNull(result.SomeInts);
+            Assert.That(result.SomeInts, Has.Length.EqualTo(2));
+            Assert.AreEqual(1234, result.SomeInts[0]);
+            Assert.AreEqual(5323, result.SomeInts[1]);
         }
     }
 }
