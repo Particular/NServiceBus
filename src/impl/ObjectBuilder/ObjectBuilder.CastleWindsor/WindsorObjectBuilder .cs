@@ -31,7 +31,8 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <summary>
         /// Instantites the class with a new WindsorContainer.
         /// </summary>
-        public WindsorObjectBuilder() : this(new WindsorContainer())
+        public WindsorObjectBuilder()
+            : this(new WindsorContainer())
         {
         }
 
@@ -41,8 +42,8 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <param name="container"></param>
         public WindsorObjectBuilder(IWindsorContainer container)
         {
-            if(container == null)
-                throw new ArgumentNullException("container","The object builder must be initialized with a valid windsor container");
+            if (container == null)
+                throw new ArgumentNullException("container", "The object builder must be initialized with a valid windsor container");
 
             this.container = container;
         }
@@ -93,14 +94,14 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 var services = GetAllServiceTypesFor(concreteComponent);
                 reg = Component.For(services).ImplementedBy(concreteComponent);
                 reg.LifeStyle.Is(lifestyle);
-                        
+
                 lock (lookup)
                 {
                     lookup[concreteComponent] = reg;
                     services.ForEach(s => types.Add(s));
                 }
             }
-            else 
+            else
                 Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
         }
 
@@ -115,20 +116,20 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            container.Register(Component.For(lookupType).Instance(instance));
+            container.Register(Component.For(lookupType).Named(lookupType.Name).Instance(instance));
         }
 
         object IContainer.Build(Type typeToBuild)
-        {       
+        {
             Initialize();
 
-            return container.Resolve(typeToBuild);  
+            return container.Resolve(typeToBuild);
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
             Initialize();
-            
+
             return container.ResolveAll(typeToBuild).Cast<object>();
         }
 
@@ -156,9 +157,9 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         {
             switch (dependencyLifecycle)
             {
-                case DependencyLifecycle.InstancePerCall: 
+                case DependencyLifecycle.InstancePerCall:
                     return LifestyleType.Transient;
-                case DependencyLifecycle.SingleInstance: 
+                case DependencyLifecycle.SingleInstance:
                     return LifestyleType.Singleton;
                 case DependencyLifecycle.InstancePerUnitOfWork:
                     return LifestyleType.Scoped;
@@ -172,7 +173,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             if (t == null)
                 return new List<Type>();
 
-            var result = new List<Type>(t.GetInterfaces()) {t};
+            var result = new List<Type>(t.GetInterfaces()) { t };
 
             foreach (var interfaceType in t.GetInterfaces())
                 result.AddRange(GetAllServiceTypesFor(interfaceType));
@@ -184,7 +185,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         {
             ComponentRegistration<object> output;
 
-            lock(lookup)
+            lock (lookup)
                 lookup.TryGetValue(concreteComponent, out output);
 
             return output;
@@ -201,12 +202,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         private static ILog Logger = LogManager.GetLogger("NServiceBus.ObjectBuilder");
     }
 
-    internal class NoOpInterpreter:AbstractInterpreter
-
+    internal class NoOpInterpreter : AbstractInterpreter
     {
         public override void ProcessResource(IResource resource, IConfigurationStore store, IKernel kernel)
         {
-            
+
         }
     }
 }

@@ -12,12 +12,12 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
-            VerifyForAllBuilders((builder)=>
+            VerifyForAllBuilders((builder) =>
                                      {
                                          builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
                                          builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
-                                         Assert.AreEqual(builder.BuildAll(typeof(DuplicateClass)).Count(),1);
+                                         Assert.AreEqual(builder.BuildAll(typeof(DuplicateClass)).Count(), 1);
                                      });
         }
 
@@ -27,8 +27,11 @@ namespace ObjectBuilder.Tests
         {
             VerifyForAllBuilders((builder) =>
             {
-                builder.RegisterSingleton(typeof(SingletonComponent),new SingletonComponent());
-                Assert.AreEqual(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(SingletonComponent)));
+                var singleton = new SingletonComponent();
+                builder.RegisterSingleton(typeof(ISingletonComponent), singleton);
+                builder.RegisterSingleton(typeof(SingletonComponent), singleton);
+                Assert.AreEqual(builder.Build(typeof(SingletonComponent)), singleton);
+                Assert.AreEqual(builder.Build(typeof(ISingletonComponent)), singleton);
             }, typeof(UnityObjectBuilder));
         }
 
@@ -38,8 +41,8 @@ namespace ObjectBuilder.Tests
             VerifyForAllBuilders((builder) =>
             {
                 builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
-                builder.ConfigureProperty(typeof(DuplicateClass),"SomeProperty",true);
-                
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true);
+
                 builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
                 builder.ConfigureProperty(typeof(DuplicateClass), "AnotherProperty", true);
 
@@ -48,8 +51,8 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
-            },typeof(UnityObjectBuilder));
-            
+            }, typeof(UnityObjectBuilder));
+
         }
 
 
@@ -61,16 +64,16 @@ namespace ObjectBuilder.Tests
                 builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "EnumDependency", SomeEnum.X);
-                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "SimpleDependency",1);
+                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "SimpleDependency", 1);
                 builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "StringDependency", "Test");
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
 
-                Assert.AreEqual(component.EnumDependency,SomeEnum.X);
-                Assert.AreEqual(component.SimpleDependency,1);
-                Assert.AreEqual(component.StringDependency,"Test");
+                Assert.AreEqual(component.EnumDependency, SomeEnum.X);
+                Assert.AreEqual(component.SimpleDependency, 1);
+                Assert.AreEqual(component.StringDependency, "Test");
                 Assert.NotNull(component.ConcreteDependecy, "Concrete classed should be property injected");
-                Assert.NotNull(component.InterfaceDependency,"Interfaces should be property injected");
+                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
             }, typeof(UnityObjectBuilder));
 
         }
@@ -101,19 +104,19 @@ namespace ObjectBuilder.Tests
 
                 Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
 
-                Assert.AreEqual(1,builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
             }
-            ,typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder));
+            , typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder));
 
 
         }
     }
 
-    public class ComponentWithMultipleInterfaces:ISomeInterface,ISomeOtherInterface,IYetAnotherInterface
+    public class ComponentWithMultipleInterfaces : ISomeInterface, ISomeOtherInterface, IYetAnotherInterface
     {
     }
 
-    public interface ISomeOtherInterface:IYetAnotherInterface
+    public interface ISomeOtherInterface : IYetAnotherInterface
     {
     }
 
@@ -136,7 +139,7 @@ namespace ObjectBuilder.Tests
         public SomeClass ConcreteDependecy { get; set; }
     }
 
-    public class SomeClass:ISomeInterface
+    public class SomeClass : ISomeInterface
     {
     }
 
