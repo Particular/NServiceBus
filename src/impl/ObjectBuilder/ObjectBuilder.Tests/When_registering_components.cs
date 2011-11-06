@@ -21,6 +21,17 @@ namespace ObjectBuilder.Tests
                                      });
         }
 
+
+        [Test]
+        public void Register_singleton_should_be_supported()
+        {
+            VerifyForAllBuilders((builder) =>
+            {
+                builder.RegisterSingleton(typeof(SingletonComponent),new SingletonComponent());
+                Assert.AreEqual(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(SingletonComponent)));
+            }, typeof(UnityObjectBuilder));
+        }
+
         [Test]
         public void Properties_set_on_duplicate_registrations_should_not_be_discarded()
         {

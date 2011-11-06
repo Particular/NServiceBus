@@ -115,7 +115,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            container.Kernel.AddComponentInstance(Guid.NewGuid().ToString(), lookupType, instance);
+            container.Register(Component.For(lookupType).Instance(instance));
         }
 
         object IContainer.Build(Type typeToBuild)
