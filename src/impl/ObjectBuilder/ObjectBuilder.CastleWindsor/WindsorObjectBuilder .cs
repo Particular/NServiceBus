@@ -168,17 +168,12 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }
 
-        private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
+        static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
-            if (t == null)
-                return new List<Type>();
 
-            var result = new List<Type>(t.GetInterfaces()) { t };
-
-            foreach (var interfaceType in t.GetInterfaces())
-                result.AddRange(GetAllServiceTypesFor(interfaceType));
-
-            return result;
+            return t.GetInterfaces()
+                .Where(x => !x.IsGenericType && x.FullName != null && !x.FullName.StartsWith("System."))
+                .Concat(new[] {t});
         }
 
         private ComponentRegistration<object> GetRegistrationForType(Type concreteComponent)
