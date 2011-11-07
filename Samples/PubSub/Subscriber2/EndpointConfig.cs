@@ -9,7 +9,7 @@ namespace Subscriber2
             Configure.With()
                 //this overrides the NServiceBus default convention of IEvent
                 .DefiningEventsAs(t=> t.Namespace != null && t.Namespace.StartsWith("MyMessages"))
-                .DefaultBuilder() //TODO - until we fix the bug in the castle builder .CastleWindsorBuilder() // just to show we can mix and match containers
+                .CastleWindsorBuilder() // just to show we can mix and match containers
                 .XmlSerializer()
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
