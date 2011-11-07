@@ -12,13 +12,14 @@
         readonly ITransport endpointTransport;
         readonly ISendMessages messageSender;
 
+        public static bool DoNotUseDistributors { get; set; }
+
         public ReadyMessageManager(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
         {
             this.masterNodeManager = masterNodeManager;
             this.endpointTransport = endpointTransport;
             this.messageSender = messageSender;
         }
-
         
         public void Run()
         {
@@ -28,6 +29,8 @@
 
         void Start()
         {
+            if(DoNotUseDistributors) return;
+
             var masterNodeAddress = masterNodeManager.GetMasterNode();
             
             //hack
