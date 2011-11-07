@@ -19,8 +19,8 @@ namespace NServiceBus
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
             //config.Configurer.ConfigureProperty<ICanPurgeOnStartup>(t => t.PurgeOnStartup, value);
-            var queue = config.Builder.Build<ICanPurgeOnStartup>();
-            queue.PurgeOnStartup = value;
+            //var queue = config.Builder.Build<ICanPurgeOnStartup>();
+            //queue.PurgeOnStartup = value;
 
             return config;
         }
