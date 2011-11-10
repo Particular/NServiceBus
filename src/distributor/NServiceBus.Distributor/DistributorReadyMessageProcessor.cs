@@ -17,9 +17,9 @@
 
         public void Run()
         {
-            if (!RoutingConfig.IsConfiguredAsMasterNode)
+            if (!DistributorSetup.DistributorShouldRunOnThisEndpoint())
                 return;
-
+        
             controlTransport = new TransactionalTransport
             {
                 IsTransactional = true,
@@ -47,7 +47,7 @@
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var returnAddress = controlMessage.ReplyToAddress;
-            Configurer.Logger.Debug("Worker available: " + returnAddress);
+            DistributorSetup.Logger.Debug("Worker available: " + returnAddress);
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);

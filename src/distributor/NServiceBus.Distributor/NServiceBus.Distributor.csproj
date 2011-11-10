@@ -110,7 +110,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigureDistributor.cs" />
-    <Compile Include="Configurer.cs" />
+    <Compile Include="DistributorSetup.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="Headers.cs" />

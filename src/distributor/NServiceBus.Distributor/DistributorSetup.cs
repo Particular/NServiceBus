@@ -7,15 +7,20 @@ using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
-    public class Configurer:IWantToRunBeforeConfiguration
+    public class DistributorSetup:IWantToRunBeforeConfiguration
     {
         public static ILog Logger;
         public static string DistributorControlName { get { return "distributor.control"; } }
 
+        public static bool DistributorShouldRunOnThisEndpoint()
+        {
+            return ConfigureDistributor.DistributorEnabled && RoutingConfig.IsConfiguredAsMasterNode;
+        }
+
 
         public void Init()
         {
-            if (!RoutingConfig.IsConfiguredAsMasterNode)
+            if (!DistributorShouldRunOnThisEndpoint())
                 return;
            
             var config = Configure.Instance;

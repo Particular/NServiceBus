@@ -21,9 +21,9 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            if (!RoutingConfig.IsConfiguredAsMasterNode)
+            if (!DistributorSetup.DistributorShouldRunOnThisEndpoint())
                 return;
-
+           
             var dataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = NumberOfWorkerThreads,

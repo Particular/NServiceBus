@@ -12,8 +12,6 @@
         readonly ITransport endpointTransport;
         readonly ISendMessages messageSender;
 
-        public static bool DoNotUseDistributors { get; set; }
-
         public ReadyMessageManager(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
         {
             this.masterNodeManager = masterNodeManager;
@@ -29,7 +27,8 @@
 
         void Start()
         {
-            if(DoNotUseDistributors) return;
+            if(!ConfigureDistributor.DistributorEnabled) 
+                return;
 
             var masterNodeAddress = masterNodeManager.GetMasterNode();
             
@@ -37,7 +36,7 @@
             if (RoutingConfig.IsConfiguredAsMasterNode)
                 masterNodeAddress = Address.Parse(masterNodeAddress.ToString().Replace(".worker", ""));
 
-            var controlQueue = masterNodeAddress.SubScope(Configurer.DistributorControlName);
+            var controlQueue = masterNodeAddress.SubScope(DistributorSetup.DistributorControlName);
 
             var capacityAvailable = endpointTransport.NumberOfWorkerThreads;
             SendReadyMessage(controlQueue,capacityAvailable,true);

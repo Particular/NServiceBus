@@ -32,7 +32,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 .TimeoutManager()
                 .IsTransactional(true)
                 .Sagas()
-                .DoNotUseDistributors()
                 .UnicastBus()
                     .LoadMessageHandlers(First<TimeoutMessageHandler>.Then<SagaMessageHandler>())
                     .ImpersonateSender(false);

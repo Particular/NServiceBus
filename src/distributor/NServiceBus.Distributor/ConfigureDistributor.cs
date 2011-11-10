@@ -4,9 +4,11 @@ namespace NServiceBus
 {
     public static class ConfigureDistributor
     {
-        public static Configure DoNotUseDistributors(this Configure config)
+        public static bool DistributorEnabled { get; private set; }
+
+        public static Configure UseDistributor(this Configure config)
         {
-            ReadyMessageManager.DoNotUseDistributors = true;
+            DistributorEnabled = true;
 
             return config;
         }
