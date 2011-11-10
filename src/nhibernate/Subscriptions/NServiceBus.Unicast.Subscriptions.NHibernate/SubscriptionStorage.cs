@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                     session.Save(new Subscription
                                         {
                                             SubscriberEndpoint = address.ToString(),
-                                            MessageType = messageType.TypeName + messageType.Version,
+                                            MessageType = messageType.TypeName + "," + messageType.Version,
                                             Version = messageType.Version.ToString(),
                                             TypeName = messageType.TypeName
                                         });

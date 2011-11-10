@@ -24,7 +24,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Config
 
                          });
             Property(p => p.Version, map => map.Column(columnMapper));
-            Property(p => p.TypeName, map => map.Column(columnMapper));
+            Property(p => p.TypeName, map =>
+            {
+              map.Column(columnMapper);
+              map.Index("NCI_Subscription_TypeName");
+            });
         }
     }
 }
