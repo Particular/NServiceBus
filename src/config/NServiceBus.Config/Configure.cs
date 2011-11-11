@@ -66,10 +66,10 @@ namespace NServiceBus
         public IConfigureComponents Configurer
         {
             get { return configurer; }
-            set 
-            { 
+            set
+            {
                 configurer = value;
-                ContainerHasBeenSet(); 
+                ContainerHasBeenSet();
             }
         }
 
@@ -144,19 +144,20 @@ namespace NServiceBus
         {
             var types = new List<Type>();
             Array.ForEach(
-                assemblies, 
+                assemblies,
                 a =>
-                  {
-                      try
-                      {
-                          foreach (Type t in a.GetTypes()) types.Add(t);
-                      }
-                      catch (ReflectionTypeLoadException e)
-                      {
-                          Logger.WarnFormat("Could not scan assembly: {0}. The reason is: {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
-                          return;//intentionally swallow exception
-                      }
-                  });
+                {
+                    try
+                    {
+                        types.AddRange(a.GetTypes()
+                            .Where(t =>t.Namespace == null || !defaultTypeExclusions.Any(exclusion => t.Namespace.ToLower().StartsWith(exclusion))));
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        Logger.WarnFormat("Could not scan assembly: {0}. The reason is: {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
+                        return;//intentionally swallow exception
+                    }
+                });
 
             return With(types);
         }
@@ -172,7 +173,7 @@ namespace NServiceBus
                 instance = new Configure();
 
             TypesToScan = typesToScan;
-
+            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
             return instance;
         }
 
@@ -216,7 +217,7 @@ namespace NServiceBus
                 StackFrame targetFrame = null;
                 foreach (var f in trace.GetFrames())
                 {
-                    if (typeof (HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType))
+                    if (typeof(HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType))
                     {
                         targetFrame = f;
                         break;
@@ -249,7 +250,7 @@ namespace NServiceBus
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
                                       {
-                                          var ini = (INeedInitialization) Activator.CreateInstance(t);
+                                          var ini = (INeedInitialization)Activator.CreateInstance(t);
                                           ini.Init();
                                       });
 
@@ -303,10 +304,14 @@ namespace NServiceBus
         private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, params string[] assembliesToSkip)
         {
             var result = new List<Assembly>();
+
             foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
                 try
                 {
+                    if (defaultAssemblyExclusions.Any(exclusion => file.Name.ToLower().StartsWith(exclusion)))
+                        continue;
+
                     if (assembliesToSkip.Contains(file.Name, StringComparer.InvariantCultureIgnoreCase))
                         continue;
 
@@ -325,7 +330,7 @@ namespace NServiceBus
                         bif);
                 }
             }
-            
+
             return result;
         }
 
@@ -338,10 +343,12 @@ namespace NServiceBus
             if (args.Length != 1)
                 return false;
 
-            return typeof (IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
+            return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
         private static Configure instance;
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
+        static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };
+        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven" };
     }
 }
