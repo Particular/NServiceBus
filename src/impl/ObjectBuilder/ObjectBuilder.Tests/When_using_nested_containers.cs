@@ -14,7 +14,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
         {
-            VerifyForAllBuilders(builder =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
@@ -32,7 +32,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
-            VerifyForAllBuilders(builder =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 

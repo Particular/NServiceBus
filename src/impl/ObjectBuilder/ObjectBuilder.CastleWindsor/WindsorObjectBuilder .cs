@@ -14,8 +14,6 @@ using Castle.MicroKernel.Registration;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
-    using Castle.Core.Internal;
-
     /// <summary>
     /// Castle Windsor implementaton of IContainer.
     /// </summary>
@@ -84,34 +82,36 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return this;
         }
 
+
         void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
-            var reg = GetRegistrationForType(concreteComponent);
-            if (reg == null)
+            var registrations = container.Kernel.GetAssignableHandlers(concreteComponent).Select(x=>x.ComponentModel);
+
+            if (registrations.Any())
             {
-                var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
-
-                var services = GetAllServiceTypesFor(concreteComponent);
-                reg = Component.For(services).ImplementedBy(concreteComponent);
-                reg.LifeStyle.Is(lifestyle);
-
-                lock (lookup)
-                {
-                    lookup[concreteComponent] = reg;
-                    services.ForEach(s => types.Add(s));
-                }
+                 Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
+                return;
             }
-            else
-                Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
+
+            var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
+            var services = GetAllServiceTypesFor(concreteComponent);
+
+            container.Register(Component.For(services).ImplementedBy(concreteComponent).LifeStyle.Is(lifestyle));
+            
         }
 
         void IContainer.ConfigureProperty(Type component, string property, object value)
         {
-            var reg = GetRegistrationForType(component);
-            if (reg == null)
+            var registration = container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
+
+            if (registration==null)
                 throw new InvalidOperationException("Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.");
 
-            reg.DependsOn(Property.ForKey(property).Eq(value));
+            var propertyInfo = component.GetProperty(property);
+
+            registration.AddProperty(
+                new PropertySet(propertyInfo, 
+                    new DependencyModel(property, propertyInfo.PropertyType, false, true, value )));
         }
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
@@ -121,35 +121,17 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         object IContainer.Build(Type typeToBuild)
         {
-            Initialize();
-
             return container.Resolve(typeToBuild);
         }
 
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
-            Initialize();
-
             return container.ResolveAll(typeToBuild).Cast<object>();
         }
 
-        private void Initialize()
-        {
-            if (!initialized)
-                lock (lookup)
-                {
-                    if (!initialized)
-                        container.Register(lookup.Values.ToArray());
-
-                    initialized = true;
-                }
-        }
 
         bool IContainer.HasComponent(Type componentType)
         {
-            if (types.Contains(componentType))
-                return true;
-
             return container.Kernel.HasComponent(componentType);
         }
 
@@ -175,21 +157,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 .Where(x => !x.IsGenericType && x.FullName != null && !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
         }
-
-        private ComponentRegistration<object> GetRegistrationForType(Type concreteComponent)
-        {
-            ComponentRegistration<object> output;
-
-            lock (lookup)
-                lookup.TryGetValue(concreteComponent, out output);
-
-            return output;
-        }
-
-
-        private bool initialized;
-        private IDictionary<Type, ComponentRegistration<object>> lookup = new Dictionary<Type, ComponentRegistration<object>>();
-        private IList<Type> types = new List<Type>();
+        
 
         [ThreadStatic]
         private static IDisposable disposableScope;

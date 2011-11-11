@@ -24,7 +24,7 @@ namespace ObjectBuilder.Tests
 
         private IList<IContainer> objectBuilders;
 
-        protected void VerifyForAllBuilders(Action<IContainer> assertion,params Type[] containersToIgnore)
+        protected void ForAllBuilders(Action<IContainer> assertion,params Type[] containersToIgnore)
         {
             bool failed = false;
 
