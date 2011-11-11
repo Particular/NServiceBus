@@ -391,11 +391,12 @@ namespace NServiceBus.Unicast
             if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
 
-            subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
-
-            if (destination == null)
+            if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
+            subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
+
+           
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
             var subscriptionMessage = ControlMessage.Create();
 
@@ -424,7 +425,7 @@ namespace NServiceBus.Unicast
 
             var destination = GetAddressForMessageType(messageType);
 
-            if (destination == null)
+            if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
@@ -597,9 +598,18 @@ namespace NServiceBus.Unicast
         private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             messages.ToList()
-                .ForEach(message => AssertIsValidForSend(message.GetType(), messageIntent));
+                        .ForEach(message => AssertIsValidForSend(message.GetType(), messageIntent));
+          
+            addresses.ToList()
+                .ForEach(address =>
+                             {
+                                 if(address == Address.Undefined)
+                                     throw new InvalidOperationException("No destination specified for message(s): " +
+                                                                         string.Join(";",messages.Select(m => m.GetType())));
+                             });
 
             AssertBusIsStarted();
+            
 
             var result = new List<string>();
 
@@ -1270,7 +1280,7 @@ namespace NServiceBus.Unicast
 
         }
 
-       
+
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
         /// Invokes message mutators.
@@ -1470,10 +1480,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messages"></param>
         /// <returns></returns>
-        protected Address GetAddressForMessages(object[] messages)
+        Address GetAddressForMessages(object[] messages)
         {
             if (messages == null || messages.Length == 0)
-                return null;
+                return Address.Undefined;
 
             return GetAddressForMessageType(messages[0].GetType());
         }
@@ -1483,26 +1493,28 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        protected Address GetAddressForMessageType(Type messageType)
+        Address GetAddressForMessageType(Type messageType)
         {
-            Address destination = null;
+            Address destination;
 
             messageTypeToDestinationLocker.EnterReadLock();
             messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
             messageTypeToDestinationLocker.ExitReadLock();
 
             if (destination == null)
-            {
-                if (messageType.IsInterface)
-                    return null;
+                destination = Address.Undefined;
 
-                if (messageMapper != null)
-                {
-                    var t = messageMapper.GetMappedTypeFor(messageType);
-                    if (t != null && t != messageType)
-                        return GetAddressForMessageType(t);
-                }
+            if (destination != Address.Undefined)
+                return destination;
+
+
+            if (messageMapper != null && !messageType.IsInterface)
+            {
+                var t = messageMapper.GetMappedTypeFor(messageType);
+                if (t != null && t != messageType)
+                    return GetAddressForMessageType(t);
             }
+
 
             return destination;
         }

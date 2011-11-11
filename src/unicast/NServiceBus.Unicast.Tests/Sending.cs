@@ -47,6 +47,17 @@
         }
     }
 
+
+    [TestFixture]
+    public class When_sending_a_message_that_has_no_configured_address : using_the_unicastbus
+    {
+        [Test]
+        public void Should_throw()
+        {
+            Assert.Throws<InvalidOperationException>(()=>bus.Send(new CommandMessage()));
+        }
+    }
+
     [TestFixture]
     public class When_sending_a_command_message : using_the_unicastbus
     {
