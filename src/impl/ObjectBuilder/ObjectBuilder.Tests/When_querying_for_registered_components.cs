@@ -11,20 +11,20 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Existing_components_should_return_true()
         {
-            VerifyForAllBuilders(builder =>
+            ForAllBuilders(builder =>
                                  Assert.True(builder.HasComponent(typeof(ExistingComponent))));
         }
         [Test]
         public void Non_existing_components_should_return_false()
         {
-            VerifyForAllBuilders(builder =>
+            ForAllBuilders(builder =>
                                  Assert.False(builder.HasComponent(typeof(NonExistingComponent))));
         }
 
         [Test]
         public void Builders_should_not_determine_existence_by_building_components()
         {
-            VerifyForAllBuilders(builder =>
+            ForAllBuilders(builder =>
                                  Assert.True(builder.HasComponent(typeof(ExistingComponentWithUnsatisfiedDep))));
         }
 
