@@ -25,6 +25,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                 .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
+                .UseDistributor()
                 .UnicastBus()
                 .ImpersonateSender(true);
         }

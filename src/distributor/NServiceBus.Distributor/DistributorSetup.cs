@@ -27,7 +27,7 @@ namespace NServiceBus
 
             
             
-            config.Configurer.ConfigureComponent<ReadyMessageManager>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<ReadyMessageSender>(DependencyLifecycle.SingleInstance);
 
             Logger = LogManager.GetLogger(Address.Local.SubScope("distributor").Queue);
 
