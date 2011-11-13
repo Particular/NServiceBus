@@ -104,8 +104,8 @@
 	<readregistry  property="servicehosting.version" key="SOFTWARE\Microsoft\Microsoft SDKs\ServiceHosting\v1.0\FullVersion" hive="LocalMachine" failonerror="false"/>
 
 
-	<target name="build" depends="build_src,compile_tools,compile_msmqutils,prepare_binaries"/>
-	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
+	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
+	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
@@ -209,7 +209,6 @@
 					workingdir="." />
 
 	</target>
-	
 	<target name="compile_core" depends="compile_main">
 		<!-- NServiceBus.Core -->
 		<foreach 	item="String"
@@ -278,6 +277,7 @@
 					workingdir="." />
 
 	</target>
+
 
 	<target name="compile_containers">
 		<!-- Containers -->
@@ -434,6 +434,7 @@
 					commandline="/keyfile:NServiceBus.snk /out:${output.dir}\host\NServiceBus.Host32.exe ${hosting.build.dir32}\NServiceBus.Hosting.Windows.exe ${hosting.build.dir32}\NServiceBus.Hosting.dll ${hosting.build.dir32}\Microsoft.Practices.ServiceLocation.dll ${hosting.build.dir32}\Magnum.dll ${hosting.build.dir32}\Topshelf.dll /internalize:ilmerge.exclude /target:exe /xmldocs /log:build\output_windowshost32.txt ${ilmerge.targetframework}"
 					workingdir="." />
 	</target>
+	
 
 	<target name="compile_azure_hosts">
 		<property name="hosting.build.dirAzure" value="${build.base}\azure\hosting" />
@@ -474,6 +475,8 @@
 		</exec>
 	</target>
 
+	
+
 	<target name="compile_tools">
 
 		<!-- Testing -->
@@ -489,6 +492,11 @@
 		<exec 	program="${lib.dir}\ilmerge.exe"
 					commandline="/out:${output.dir}\testing\NServiceBus.Testing.dll ${build.base}\testing\NServiceBus.Testing.dll ${build.base}\testing\Rhino.Mocks.dll /target:library /xmldocs /internalize:ilmerge.exclude /keyfile:NServiceBus.snk /log:build\output_testing.txt ${ilmerge.targetframework}"
 					workingdir="." />
+
+		<!-- claims -->
+		<exec 	program="${msbuild}"
+					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\claims\ ${msbuild.targetframework}"
+					workingdir="${solution.dir}\claims" />
 
 		<!-- timeout -->
 		<exec 	program="${msbuild}"
@@ -553,7 +561,7 @@
 
 	</target>
 
-	<target name="compile_msmqutils">
+	<target name="compile_msmqutils" depends="init">
 		<exec 	program="${msbuild}"
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\tools\MsmqUtils\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\utils" />
