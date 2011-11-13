@@ -875,12 +875,17 @@ namespace NServiceBus.Unicast
         {
             ForwardMessageIfNecessary(m);
 
-            var messages = Extract(m);
+            var messages = new object[0];
 
-            if (messages == null || messages.Length == 0)
+            if(!m.IsControlMessage())
             {
-                Log.Warn("Received an empty message - ignoring.");
-                return;
+                messages = Extract(m);
+
+                if (messages == null || messages.Length == 0)
+                {
+                    Log.Warn("Received an empty message - ignoring.");
+                    return;
+                }    
             }
 
             HandleCorellatedMessage(m, messages);
@@ -1031,7 +1036,7 @@ namespace NServiceBus.Unicast
                 if (msg.IsControlMessage())
                 {
                     if (msg.Headers.ContainsKey(ReturnMessageErrorCodeHeader))
-                        busAsyncResult.Complete(int.Parse(msg.GetHeader(ReturnMessageErrorCodeHeader)), null);
+                        busAsyncResult.Complete(int.Parse(msg.Headers[ReturnMessageErrorCodeHeader]), null);
                     else
                         busAsyncResult.Complete(int.MinValue, messages);
                 }
