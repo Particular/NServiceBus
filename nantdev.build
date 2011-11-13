@@ -105,7 +105,7 @@
 
 
 	<target name="build" depends="build_src,test,compile_tools,compile_msmqutils,prepare_binaries,compile_samples"/>
-	<target name="build_src" depends="clean, init, commonassemblyinfo, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
+	<target name="build_src" depends="clean, init, compile_main,compile_core,compile_containers,compile_webservicesintegration,compile_nhibernate,compile_azure,compile_hosts,compile_hosts32,compile_azure_hosts"/>
 
 	<target name="init" depends="DetectOperatingSystemArchitecture" description="Initializes build properties">
 		<tstamp>
