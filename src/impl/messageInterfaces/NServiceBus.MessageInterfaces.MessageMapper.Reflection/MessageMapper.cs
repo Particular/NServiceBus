@@ -117,7 +117,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public string GetNewTypeName(Type t)
         {
-            return t.Namespace + SUFFIX + "." + t.Name;
+            return t.Namespace + "." + SUFFIX + t.Name;
         }
 
         /// <summary>

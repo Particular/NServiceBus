@@ -58,6 +58,15 @@ namespace NServiceBus.MessageInterfaces.Tests
             Assert.IsFalse(PropertyContainsAttribute("SomeProperty", typeof(InvalidAttribute), mapper.CreateInstance(typeof(InterfaceWithInvalidAttribute))));
         }
 
+        [Test]
+        public void Generated_type_should_preserve_namespace_to_make_it_easier_for_users_to_define_custom_conventions()
+        {
+            mapper.Initialize(new[] { typeof(InterfaceWithProperties) });
+
+            Assert.AreEqual(typeof(InterfaceWithProperties).Namespace, mapper.CreateInstance(typeof(InterfaceWithProperties)).GetType().Namespace);
+        }
+
+
         private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
