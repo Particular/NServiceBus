@@ -52,6 +52,7 @@
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResponseHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -64,6 +65,10 @@
     <ProjectReference Include="..\Events\Events.csproj">
       <Project>{6F35A2BC-639A-429D-8A40-35784600E956}</Project>
       <Name>Events</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
+      <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

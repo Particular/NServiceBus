@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CatchAllMessageHandler.cs" />
+    <Compile Include="RequestMessageHandler.cs" />
     <Compile Include="EventPublisher.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyCommandHandler.cs" />
@@ -65,6 +66,10 @@
     <ProjectReference Include="..\Events\Events.csproj">
       <Project>{6F35A2BC-639A-429D-8A40-35784600E956}</Project>
       <Name>Events</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
+      <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,6 +2,7 @@ namespace Client
 {
     using System;
     using Commands;
+    using Messages;
     using NServiceBus;
 
     class CommandSender:IWantToRunAtStartup
@@ -32,7 +33,13 @@ namespace Client
 
         void SendRequest()
         {
-            
+            var requestId = Guid.NewGuid();
+
+            Bus.Send<Request>(m =>
+            {
+                m.RequestId = requestId;
+            });
+            Console.WriteLine("Request sent id: " + requestId); 
         }
 
         void SendCommand()

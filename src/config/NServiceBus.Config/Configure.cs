@@ -349,6 +349,6 @@ namespace NServiceBus
         private static Configure instance;
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };
-        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven." };
+        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven.", "system.", "lucene.", "magnum." };
     }
 }

@@ -807,7 +807,7 @@ namespace NServiceBus.Unicast
                     "Events can have multiple recipient so they should be published");
 
             if (!messageType.IsCommandType() && !messageType.IsEventType())
-                Log.Info("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
+                Log.Debug("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
         static void AssertIsValidForPubSub(Type messageType)
         {
@@ -816,7 +816,7 @@ namespace NServiceBus.Unicast
                     "Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner");
 
             if (!messageType.IsEventType())
-                Log.Warn("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
+                Log.Info("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
 
 
