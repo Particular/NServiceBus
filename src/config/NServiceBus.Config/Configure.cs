@@ -150,7 +150,7 @@ namespace NServiceBus
                     try
                     {
                         types.AddRange(a.GetTypes()
-                            .Where(t =>t.Namespace == null || !defaultTypeExclusions.Any(exclusion => t.Namespace.ToLower().StartsWith(exclusion))));
+                            .Where(t => t.FullName == null || !defaultTypeExclusions.Any(exclusion => t.FullName.ToLower().StartsWith(exclusion))));
                     }
                     catch (ReflectionTypeLoadException e)
                     {
@@ -349,6 +349,6 @@ namespace NServiceBus
         private static Configure instance;
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };
-        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven" };
+        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven." };
     }
 }
