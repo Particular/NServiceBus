@@ -25,19 +25,20 @@ namespace NServiceBus
         /// <returns>An Installer object whose Install method should be invoked.</returns>
         public static Installer<T> ForInstallationOn<T>(this Configure config) where T : IEnvironment
         {
-            var i = WindowsIdentity.GetCurrent();
-            return ForInstallationOn<T>(config, i.Token);
+            // todo When code is .Net 4.0 Only, remove this method in favor of optional parameters
+            return ForInstallationOn<T>(config, null);
         }
 
         /// <summary>
         /// Indicates which environment is going to be installed, specifying that resources 
-        /// to be created will be provided permissions for the currently logged on user.
+        /// to be created will be provided permissions for the user represented by the userToken
+        /// (where not the currently logged on user) or the currently logged on user.
         /// </summary>
         /// <typeparam name="T">The environment type.</typeparam>
         /// <param name="config">Extension method object.</param>
         /// <param name="userToken">A token that will be used to create a <see cref="WindowsIdentity"/>.</param>
         /// <returns>An Installer object whose Install method should be invoked.</returns>
-        public static Installer<T> ForInstallationOn<T>(this Configure config, IntPtr userToken) where T : IEnvironment
+        public static Installer<T> ForInstallationOn<T>(this Configure config, IntPtr? userToken) where T : IEnvironment
         {
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
@@ -45,7 +46,15 @@ namespace NServiceBus
             Configure.TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && t.IsInterface == false)
                 .ToList().ForEach(t => config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            return new Installer<T>(new WindowsIdentity(userToken));
+            WindowsIdentity identity;
+            // Passing a token results in a duplicate identity exception in some cases, you can't compare tokens so this could
+            // still happen but at least the explicit WindowsIdentity.GetCurrent().Token is avoided now.
+            if (userToken.HasValue)
+                identity = new WindowsIdentity(userToken.Value);
+            else
+                identity = WindowsIdentity.GetCurrent();
+
+            return new Installer<T>(identity);
         }
     }
 
