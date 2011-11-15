@@ -31,7 +31,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             using (var session = Store.OpenSession())
             {
-                return session.Load<T>(sagaId.ToString());
+                return session.Load<T>(sagaId);
             }
         }
 
