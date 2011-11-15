@@ -244,8 +244,9 @@
 						<include name="${core.build.dir}\ICSharpCode.NRefactory.dll" />
 						<include name="${core.build.dir}\Esent.Interop.dll" />
 						<include name="${core.build.dir}\Lucene.Net.dll" />
-						<include name="${core.build.dir}\SpellChecker.Net.dll" />
-						<include name="${core.build.dir}\Spatial.Net.dll" />
+						<include name="${core.build.dir}\Lucene.Net.Contrib.SpellChecker.dll" />
+						<include name="${core.build.dir}\Lucene.Net.Contrib.Spatial.dll" />
+						<include name="${core.build.dir}\BouncyCastle.Crypto.dll" />
 						
 						<!-- exclude until we can fix the missing dep on debugvisualizers -->
 						<exclude name="${core.build.dir}\Raven.Client.Debug.dll" />
