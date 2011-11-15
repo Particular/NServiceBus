@@ -143,6 +143,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Channels\When_using_other_channel_types.cs" />
     <Compile Include="FakeDispatcherSettings.cs" />
     <Compile Include="FakeMessageSender.cs" />
     <Compile Include="HeaderManagement\When_receiving_a_message_from_another_site.cs" />

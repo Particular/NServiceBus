@@ -1,3 +1,5 @@
+using NServiceBus.Gateway.Utils;
+
 namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
@@ -15,7 +17,7 @@ namespace NServiceBus.Gateway.Receiving
             yield return new Channel
                        {
                            Address = listenUrl,
-                           Type = "Http"
+                           Type = ChannelTypes.LookupByUrl(listenUrl)
                        };
         }
 

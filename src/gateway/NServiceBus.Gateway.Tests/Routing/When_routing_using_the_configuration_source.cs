@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Tests.Routing
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Channels;
+    using Gateway.Channels;
     using Gateway.Routing;
     using Gateway.Routing.Sites;
     using Unicast.Transport;

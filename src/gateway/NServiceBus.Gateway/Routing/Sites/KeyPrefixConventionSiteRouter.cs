@@ -20,7 +20,7 @@
                     if(parts.Length >= 2)
                         yield return new Site
                                          {
-                                             Channel = new Channel { Address = siteKey, Type = parts[0] },
+                                             Channel = new Channel { Address = siteKey, Type = ChannelTypes.LookupByScheme(parts[0]) },
                                              Key = siteKey
                                          };
 
