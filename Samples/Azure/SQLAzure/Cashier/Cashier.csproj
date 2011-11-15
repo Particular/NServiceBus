@@ -34,20 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Antlr3.Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="FluentNHibernate">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="LinFu.DynamicProxy">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\LinFu.DynamicProxy.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -55,9 +46,6 @@
     </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.LinFu">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
@@ -80,9 +68,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll</HintPath>
     </Reference>
-    <Reference Include="StructureMap, Version=2.5.4.0, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\binaries\containers\structuremap\StructureMap.dll</HintPath>
+    <Reference Include="StructureMap">
+      <HintPath>..\..\..\..\packages\structuremap.2.6.3\lib\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

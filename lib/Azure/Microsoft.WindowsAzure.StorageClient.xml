@@ -624,7 +624,7 @@
             </summary>
             <param name="policy">The shared access policy to hash.</param>
             <param name="groupPolicyIdentifier">An optional identifier for the policy.</param>
-            <param name="resourceName">Either "b" for blobs or "c" for containers.</param>
+            <param name="resourceName">The canonical resource string, unescaped.</param>
             <param name="client">The client whose credentials are to be used for signing.</param>
             <returns>The signed hash.</returns>
         </member>
@@ -2229,6 +2229,11 @@
             Stores the <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudBlobContainer"/> that contains this blob.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.CloudBlob.name">
+            <summary>
+            Stores the name of this blob.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.CloudBlob.parent">
             <summary>
             Stores the blob's parent <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudBlobDirectory"/>.
@@ -2749,6 +2754,14 @@
             <param name="options">An object that specifies any additional options for the request.</param>
             <returns>A blob snapshot.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.CreateSnapshot(System.Collections.Specialized.NameValueCollection,Microsoft.WindowsAzure.StorageClient.BlobRequestOptions)">
+            <summary>
+            Creates a snapshot of the blob.
+            </summary>
+            <param name="metadata">A collection of name-value pairs defining the metadata of the snapshot.</param>
+            <param name="options">An object that specifies any additional options for the request, or <c>null</c>.</param>
+            <returns>A blob snapshot.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.BeginCreateSnapshot(System.AsyncCallback,System.Object)">
             <summary>
             Begins an asynchronous operation to create a snapshot of the blob.
@@ -2762,6 +2775,16 @@
             Begins an asynchronous operation to create a snapshot of the blob.
             </summary>
             <param name="options">An object that specifies any additional options for the request.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user-defined object that will be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.BeginCreateSnapshot(System.Collections.Specialized.NameValueCollection,Microsoft.WindowsAzure.StorageClient.BlobRequestOptions,System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to create a snapshot of the blob.
+            </summary>
+            <param name="metadata">A collection of name-value pairs defining the metadata of the snapshot.</param>
+            <param name="options">An object that specifies any additional options for the request, or <c>null</c>.</param>
             <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
             <param name="state">A user-defined object that will be passed to the callback delegate.</param>
             <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
@@ -2933,6 +2956,10 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.GetCanonicalName(System.Boolean)">
             <summary>
+            Gets the canonical name of the blob, formatted as /&lt;account-name&gt;/&lt;container-name&gt;/&lt;blob-name&gt;.
+            If <c>ignoreSnapshotTime</c> is <c>false</c> and this blob is a snapshot, the canonical name is augmented with a
+            query of the form ?snapshot=&lt;snapshot-time&gt;.
+            <para>This is used by both Shared Access and Copy blob operations.</para>
             Used by both Shared Access and Copy blob operation.
             </summary>
             <param name="ignoreSnapshotTime">Indicates if the snapshot time is ignored.</param>
@@ -2988,13 +3015,15 @@
             <param name="setResult">The set result.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that deletes the blob if it exists.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.CreateSnapShotImpl(Microsoft.WindowsAzure.StorageClient.BlobRequestOptions,System.Action{Microsoft.WindowsAzure.StorageClient.CloudBlob})">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.CreateSnapshotImpl(System.Collections.Specialized.NameValueCollection,Microsoft.WindowsAzure.StorageClient.BlobRequestOptions,System.Action{Microsoft.WindowsAzure.StorageClient.CloudBlob})">
             <summary>
             Implementation for the CreateSnapshot method.
             </summary>
+            <param name="metadata">A collection of name-value pairs defining the metadata of the snapshot, or null.</param>
             <param name="options">An object that specifies any additional options for the request.</param>
             <param name="setResult">The result report delegate.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that creates the snapshot.</returns>
+            <remarks>If the <c>metadata</c> parameter is <c>null</c> then no metadata is associated with the request.</remarks>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.SetMetadataImpl(Microsoft.WindowsAzure.StorageClient.BlobRequestOptions)">
             <summary>
@@ -3074,6 +3103,12 @@
             Gets the blob's system properties.
             </summary>
             <value>The blob's system properties.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.CloudBlob.Name">
+            <summary>
+            Gets the blob's name.
+            </summary>
+            <value>The blob's name.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudBlob.Container">
             <summary>
@@ -3165,6 +3200,48 @@
             <param name="usePathStyleUris">True to use path style Uris.</param>
             <param name="baseUri">The base Uri.</param>
             <param name="credentials">The credentials.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.GetServiceProperties">
+            <summary>
+            Gets the properties of the blob service.
+            </summary>
+            <returns>The blob service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to get the properties of the blob service.
+            </summary>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.EndGetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to get the properties of the blob service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)"/>.</param>
+            <returns>The blob service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.SetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Sets the properties of the blob service.
+            </summary>
+            <param name="properties">The blob service properties.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to set the properties of the blob service.
+            </summary>
+            <param name="properties">The blob service properties.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.EndSetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to set the properties of the blob service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)"/>.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.GetPageBlob(System.String)">
             <summary>
@@ -3497,6 +3574,20 @@
             <returns>
             A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that lists the blobs.
             </returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.GetServicePropertiesImpl(System.Action{Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties})">
+            <summary>
+            Generates a task sequence for getting the properties of the blob service.
+            </summary>
+            <param name="setResult">A delegate to receive the service properties.</param>
+            <returns>A task sequence that gets the properties of the blob service.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.SetServicePropertiesImpl(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Generates a task sequence for setting the properties of the blob service.
+            </summary>
+            <param name="properties">The blob service properties to set.</param>
+            <returns>A task sequence that sets the properties of the blob service.</returns>
         </member>
         <member name="E:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.ResponseReceived">
             <summary>
@@ -4987,11 +5078,6 @@
             Uri for the messages.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.StorageClient.CloudQueue.lastRetrievedTime">
-            <summary>
-            The last time count was retrieved.
-            </summary>
-        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.#ctor(System.String,Microsoft.WindowsAzure.StorageCredentials)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudQueue"/> class.
@@ -5149,8 +5235,9 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.RetrieveApproximateMessageCount">
             <summary>
-            Retrieves the approximate message count for the queue. If the cached attributes data is older than 
-            ServiceClient.ApproximateMessageCountCacheLength then it will be updated from the service.
+            Retrieves the approximate message count for the queue. This method fetches
+            the value from the server and updates the <see cref="P:Microsoft.WindowsAzure.StorageClient.CloudQueue.ApproximateMessageCount"/>
+            property as well.
             </summary>
             <returns>The approximate message count.</returns>
         </member>
@@ -5158,20 +5245,29 @@
             <summary>
             Adds a message to the queue.
             </summary>
-            <param name="message">A message.</param>
+            <param name="message">The message to add.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.AddMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.TimeSpan)">
             <summary>
             Adds a message to the queue.
             </summary>
-            <param name="message">A message.</param>
-            <param name="timeToLive">A value indicating the message time-to-live.</param>
+            <param name="message">The message to add.</param>
+            <param name="timeToLive">The maximum time to allow the message to be in the queue.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.AddMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            Adds a message to the queue.
+            </summary>
+            <param name="message">The message to add.</param>
+            <param name="timeToLive">The maximum time to allow the message to be in the queue, or null.</param>
+            <param name="initialVisibilityDelay">The length of time from now during which the message will be invisible.
+            If null then the message will be visible immediately.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.BeginAddMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.AsyncCallback,System.Object)">
             <summary>
             Begins an asynchronous operation to add a message to the queue.
             </summary>
-            <param name="message">A message.</param>
+            <param name="message">The message to add.</param>
             <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
             <param name="state">A user-defined object that will be passed to the callback delegate.</param>
             <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
@@ -5180,8 +5276,20 @@
             <summary>
             Begins an asynchronous operation to add a message to the queue.
             </summary>
-            <param name="message">A message.</param>
-            <param name="timeToLive">A value indicating the message time-to-live.</param>
+            <param name="message">The message to add.</param>
+            <param name="timeToLive">The maximum time to allow the message to be in the queue.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user-defined object that will be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.BeginAddMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan},System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to add a message to the queue.
+            </summary>
+            <param name="message">The message to add.</param>
+            <param name="timeToLive">The maximum time to allow the message to be in the queue, or null.</param>
+            <param name="initialVisibilityDelay">The length of time from now during which the message will be invisible.
+            If null then the message will be visible immediately.</param>        
             <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
             <param name="state">A user-defined object that will be passed to the callback delegate.</param>
             <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
@@ -5352,6 +5460,31 @@
             </summary>
             <param name="asyncResult">An <see cref="T:System.IAsyncResult"/> that references the pending asynchronous operation.</param>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.UpdateMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.TimeSpan,Microsoft.WindowsAzure.StorageClient.MessageUpdateFields)">
+            <summary>
+            Updates the visibility timeout and optionally the content of a message.
+            </summary>
+            <param name="message">The message to update.</param>
+            <param name="visibilityTimeout">The length of time from now during which the message will be invisible.</param>
+            <param name="updateFields">Flags indicating which parts of the message are to be updated. This must include the Visibility flag.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.BeginUpdateMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.TimeSpan,Microsoft.WindowsAzure.StorageClient.MessageUpdateFields,System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to update the visibility timeout and optionally the content of a message.
+            </summary>
+            <param name="message">The message to update.</param>
+            <param name="visibilityTimeout">The length of time from now during which the message will be invisible.</param>
+            <param name="updateFields">Flags indicating which parts of the message are to be updated. This must include the Visibility flag.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user-defined object that will be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.EndUpdateMessage(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to update the visibility timeout and possibly the contents of a message.
+            </summary>
+            <param name="asyncResult">The <c>IAsyncResult</c> returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.BeginUpdateMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.TimeSpan,Microsoft.WindowsAzure.StorageClient.MessageUpdateFields,System.AsyncCallback,System.Object)"/>.</param>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.Clear">
             <summary>
             Clears all messages from the queue.
@@ -5469,13 +5602,21 @@
             </summary>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that clears the messages in the queue.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.AddMessageImpl(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.Nullable{System.TimeSpan})">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.AddMessageImpl(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
-            Adds the message impl.
+            Generates a task sequence for adding a message to the queue.
             </summary>
             <param name="message">The message.</param>
             <param name="timeToLive">The time to live.</param>
+            <param name="initialVisibilityDelay">The initial visibility delay.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that adds the message.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.GenerateMessageContentsForRequest(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage)">
+            <summary>
+            Generates a suitable string for representing the content of a message in the body of a web request.
+            </summary>
+            <param name="message">The message.</param>
+            <returns>A string appropriately encoded depending on the format of the message and the EncodeMessage property.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.PeekMessagesImpl(System.Nullable{System.Int32},System.Action{System.Collections.Generic.IEnumerable{Microsoft.WindowsAzure.StorageClient.CloudQueueMessage}})">
             <summary>
@@ -5492,6 +5633,15 @@
             <param name="messageId">The message id.</param>
             <param name="popReceipt">The pop receipt value.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that deletes the message.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.UpdateMessageImpl(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage,System.TimeSpan,Microsoft.WindowsAzure.StorageClient.MessageUpdateFields)">
+            <summary>
+            Generates a task sequence for updating a message in the queue.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="visibilityTimeout">The visibility timeout.</param>
+            <param name="updateFlags">The flags controlling which parts of the message to update. Must include Visibility.</param>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that updates the message.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueue.GetMessagesImpl(System.Nullable{System.Int32},System.Nullable{System.TimeSpan},System.Action{System.Collections.Generic.IEnumerable{Microsoft.WindowsAzure.StorageClient.CloudQueueMessage}})">
             <summary>
@@ -5707,6 +5857,48 @@
             <param name="asyncResult">An <see cref="T:System.IAsyncResult"/> that references the pending asynchronous operation.</param>
             <returns>A result segment containing the results of the first request.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.GetServiceProperties">
+            <summary>
+            Gets the properties of the queue service.
+            </summary>
+            <returns>The queue service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to get the properties of the queue service.
+            </summary>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.EndGetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to get the properties of the queue service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)"/>.</param>
+            <returns>The queue service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.SetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Sets the properties of the queue service.
+            </summary>
+            <param name="properties">The queue service properties.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to set the properties of the queue service.
+            </summary>
+            <param name="properties">The queue service properties.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.EndSetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to set the properties of the queue service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)"/>.</param>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.EndGetResponse(System.IAsyncResult,System.Net.WebRequest)">
             <summary>
             Ends the get response.
@@ -5744,6 +5936,20 @@
             <param name="item">The item to parse.</param>
             <returns>A <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudQueue"/> object representing the item.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.GetServicePropertiesImpl(System.Action{Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties})">
+            <summary>
+            Generates a task sequence for getting the properties of the queue service.
+            </summary>
+            <param name="setResult">A delegate to receive the service properties.</param>
+            <returns>A task sequence that gets the properties of the queue service.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.SetServicePropertiesImpl(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Generates a task sequence for setting the properties of the queue service.
+            </summary>
+            <param name="properties">The queue service properties to set.</param>
+            <returns>A task sequence that sets the properties of the queue service.</returns>
+        </member>
         <member name="E:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.ResponseReceived">
             <summary>
             Occurs when a response is received from the server.
@@ -5763,9 +5969,10 @@
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.ApproximateMessageCountCacheLength">
             <summary>
-            Gets or sets the lifetime of the approximate message count cache.
+            Gets or sets the lifetime of the approximate message count cache. Obsolete.
             </summary>
             <value>The lifetime of the approximate message count cache.</value>
+            <remarks>The approximate message count is not cached. This is an obsolete property that has no effect.</remarks>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.UsePathStyleUris">
             <summary>
@@ -5845,6 +6052,18 @@
             <param name="content">The text string.</param>
             <param name="isBase64Encoded">Whether the string is Base64 encoded.</param>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.SetMessageContent(System.String)">
+            <summary>
+            Sets the content of this message.
+            </summary>
+            <param name="content">The new message content.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.SetMessageContent(System.Byte[])">
+            <summary>
+            Sets the content of this message.
+            </summary>
+            <param name="content">The new message content.</param>
+        </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.AsBytes">
             <summary>
             Gets the content of the message as a byte array.
@@ -5853,31 +6072,31 @@
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.Id">
             <summary>
-            Gets the message ID.
+            Gets or sets the message ID.
             </summary>
             <value>The message ID.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.PopReceipt">
             <summary>
-            Gets the message's pop receipt.
+            Gets or sets the message's pop receipt.
             </summary>
             <value>The pop receipt value.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.InsertionTime">
             <summary>
-            Gets the time that the message was added to the queue.
+            Gets or sets the time that the message was added to the queue.
             </summary>
             <value>The time that that message was added to the queue.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.ExpirationTime">
             <summary>
-            Gets the time that the message expires.
+            Gets or sets the time that the message expires.
             </summary>
             <value>The time that the message expires.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.NextVisibleTime">
             <summary>
-            Gets the time that the message will next be visible.
+            Gets or sets the time that the message will next be visible.
             </summary>
             <value>The time that the message will next be visible.</value>
         </member>
@@ -5889,19 +6108,20 @@
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.DequeueCount">
             <summary>
-            Gets the number of times this message has been dequeued.
+            Gets or sets the number of times this message has been dequeued.
             </summary>
             <value>The number of times this message has been dequeued.</value>
-        </member>
-        <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.RawString">
-            <summary>
-            Gets or sets the original message string or Base64 encoding of the original binary data.
-            </summary>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.MessageType">
             <summary>
             Gets message type that indicates if the RawString is the original message string or Base64 encoding of the original binary data.
             </summary>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.CloudQueueMessage.RawString">
+            <summary>
+            Gets or sets the original message string or Base64 encoding of the original binary data.
+            </summary>
+            <value>The original message string.</value>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.CloudStorageAccountStorageClientExtensions">
             <summary>
@@ -5941,6 +6161,14 @@
             and account credentials.
             </summary>
             <param name="baseAddress">The Table service endpoint to use to create the client.</param>
+            <param name="credentials">The account credentials.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.#ctor(System.Uri,Microsoft.WindowsAzure.StorageCredentials)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudTableClient"/> class using the specified Table service endpoint
+            and account credentials.
+            </summary>
+            <param name="baseAddressUri">The Table service endpoint to use to create the client.</param>
             <param name="credentials">The account credentials.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.CreateTablesFromModel(System.Type,System.String,Microsoft.WindowsAzure.StorageCredentials)">
@@ -6154,6 +6382,56 @@
             <param name="tableName">The table name.</param>
             <returns><c>true</c> if the table was deleted; otherwise, <c>false</c>.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.GetServiceProperties">
+            <summary>
+            Gets the properties of the table service.
+            </summary>
+            <returns>The table service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to get the properties of the table service.
+            </summary>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.EndGetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to get the properties of the table service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.BeginGetServiceProperties(System.AsyncCallback,System.Object)"/>.</param>
+            <returns>The table service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.SetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Sets the properties of the table service.
+            </summary>
+            <param name="properties">The table service properties.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)">
+            <summary>
+            Begins an asynchronous operation to set the properties of the table service.
+            </summary>
+            <param name="properties">The table service properties.</param>
+            <param name="callback">The callback delegate that will receive notification when the asynchronous operation completes.</param>
+            <param name="state">A user defined object to be passed to the callback delegate.</param>
+            <returns>An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.EndSetServiceProperties(System.IAsyncResult)">
+            <summary>
+            Ends an asynchronous operation to set the properties of the table service.
+            </summary>
+            <param name="asyncResult">The result returned from a prior call to <see cref="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.BeginSetServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.AsyncCallback,System.Object)"/>.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.EndGetResponse(System.IAsyncResult,System.Net.WebRequest)">
+            <summary>
+            Ends the asynchronous GetResponse operation.
+            </summary>
+            <param name="asyncresult">An <see cref="T:System.IAsyncResult"/> that references the asynchronous operation.</param>
+            <param name="req">The request to end the operation on.</param>
+            <returns>The <see cref="T:System.Net.WebResponse"/> from the asynchronous request.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.GetResultOrDefault``1(Microsoft.WindowsAzure.StorageClient.Tasks.Task{``0},``0@)">
             <summary>
             Gets the result or default.
@@ -6222,6 +6500,25 @@
             <param name="tableName">The table name.</param>
             <param name="setResult">The set result.</param>
             <returns>A sequence of tasks to do the operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.GetServicePropertiesImpl(System.Action{Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties})">
+            <summary>
+            Generates a task sequence for getting the properties of the table service.
+            </summary>
+            <param name="setResult">A delegate to receive the service properties.</param>
+            <returns>A task sequence that gets the properties of the table service.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.SetServicePropertiesImpl(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties)">
+            <summary>
+            Generates a task sequence for setting the properties of the table service.
+            </summary>
+            <param name="properties">The table service properties to set.</param>
+            <returns>A task sequence that sets the properties of the table service.</returns>
+        </member>
+        <member name="E:Microsoft.WindowsAzure.StorageClient.CloudTableClient.ResponseReceived">
+            <summary>
+            Occurs when a response is received from the server.
+            </summary>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.CloudTableClient.MinSupportedDateTime">
             <summary>
@@ -6697,9 +6994,30 @@
             </summary>
             <value><c>True</c> if the block has been committed; otherwise, <c>false</c>.</value>
         </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.MessageUpdateFields">
+            <summary>
+            Enumeration controlling the options for updating queue messages.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.MessageUpdateFields.Visibility">
+            <summary>
+            Update the message visibility timeout.
+            This is required for calls to UpdateMessage in version 2011-08-18.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.MessageUpdateFields.Content">
+            <summary>
+            Update the message content.
+            </summary>
+        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.NavigationHelper">
             <summary>
             Contains methods for dealing with navigation.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.NavigationHelper.RootContainerName">
+            <summary>
+            The name of the root container.
             </summary>
         </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.NavigationHelper.Slash">
@@ -6729,19 +7047,28 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.NavigationHelper.GetContainerName(System.Uri,System.Boolean)">
             <summary>
-            Retrieves the container part of a storage Uri.
+            Retrieves the container part of a storage Uri, or "$root" if the container is implicit.
             </summary>
-            <param name="blobAddress">The BLOB address.</param>
-            <param name="usePathStyleUris">True to use path style Uris.</param>
+            <param name="blobAddress">The blob address.</param>
+            <param name="usePathStyleUris">If set to <c>true</c> use path style Uris.</param>
             <returns>Name of the container.</returns>
             <remarks>
-            Any trailing slash is always removed.
+            The trailing slash is always removed.
             <example>
             GetContainerName(new Uri("http://test.blob.core.windows.net/mycontainer/myfolder/myblob")) will return "mycontainer"
-            GetConatinerName(new Uri("http://test.blob.core.windows.net/mycontainer")) will return "mycontainer"
+            GetConatinerName(new Uri("http://test.blob.core.windows.net/mycontainer/")) will return "mycontainer"
+            GetConatinerName(new Uri("http://test.blob.core.windows.net/myblob")) will return "$root"
             GetConatinerName(new Uri("http://test.blob.core.windows.net/")) will throw ArgumentException
             </example>
             </remarks>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.NavigationHelper.GetBlobName(System.Uri,System.Boolean)">
+            <summary>
+            Retrieves the blob part of a storage Uri.
+            </summary>
+            <param name="blobAddress">The blob address.</param>
+            <param name="usePathStyleUris">If set to <c>true</c> use path style Uris.</param>
+            <returns>The name of the blob.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.NavigationHelper.GetContainerAddress(System.Uri,System.Boolean)">
             <summary>
@@ -6768,7 +7095,7 @@
             GetParentName(new Uri("http://test.blob.core.windows.net/mycontainer/myfolder/myblob", "/")) will return "/mycontainer/myfolder/"
             GetParentName(new Uri("http://test.blob.core.windows.net/mycontainer/myfolder|myblob", "|") will return "/mycontainer/myfolder|"
             GetParentName(new Uri("http://test.blob.core.windows.net/mycontainer/myblob", "/") will return "/mycontainer/"
-            GetParentName(new Uri("http://test.blob.core.windows.net/mycontainer", "/") will return "/mycontainer/"
+            GetParentName(new Uri("http://test.blob.core.windows.net/mycontainer/", "/") will return "/mycontainer/"
             </example>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.NavigationHelper.GetParentAddress(System.Uri,System.String,System.Boolean)">
@@ -6861,6 +7188,15 @@
             <param name="usePathStyleUris">True to use path style Uris.</param>
             <param name="containerName">Name of the container.</param>
             <param name="containerUri">The container URI.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.NavigationHelper.GetContainerNameAndBlobName(System.Uri,System.Boolean,System.String@,System.String@)">
+            <summary>
+            Retrieve the container name and the blob name from a blob address.
+            </summary>
+            <param name="blobAddress">The blob address.</param>
+            <param name="usePathStyleUris">If set to <c>true</c> use path style Uris.</param>
+            <param name="containerName">The resulting container name.</param>
+            <param name="blobName">The resulting blob name.</param>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.PageRange">
             <summary>
@@ -7241,137 +7577,6 @@
             </summary>
             <value>The blob name prefix.</value>
         </member>
-        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.BlobQueueFull">
-            <summary>
-            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for requests against 
-            the Table service under the Shared Key authentication scheme.
-            </summary>
-        </member>
-        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy">
-            <summary>
-            Represents the base canonicalization strategy used to authenticate a request against the storage services.
-            </summary>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
-            <summary>
-            Constructs a canonicalized string for signing a request.
-            </summary>
-            <param name="request">The web request.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>A canonicalized string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequest(System.Uri,System.String,System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection)">
-            <summary>
-            Constructs a canonicalized string from the request's headers that will be used to construct the signature
-            string for signing a Blob or Queue service request under the Shared Key Lite authentication scheme.
-            </summary>
-            <param name="address">The request URI.</param>
-            <param name="accountName">The storage account name.</param>
-            <param name="method">The verb to be used for the HTTP request.</param>
-            <param name="contentType">The content type of the HTTP request.</param>
-            <param name="date">The date/time specification for the HTTP request.</param>
-            <param name="headers">A collection of additional headers specified on the HTTP request.</param>
-            <returns>A canonicalized string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequestVersion2(System.Uri,System.String,System.String,System.String,System.Int64,System.String,System.Collections.Specialized.NameValueCollection)">
-            <summary>
-            Constructs a canonicalized string from the request's headers that will be used to construct the signature
-            string for signing a Blob or Queue service request under the Shared Key Lite authentication scheme.
-            </summary>
-            <param name="address">The request URI.</param>
-            <param name="accountName">The storage account name.</param>
-            <param name="method">The verb to be used for the HTTP request.</param>
-            <param name="contentType">The content type of the HTTP request.</param>
-            <param name="contentLength">The length of the HTTP request, in bytes.</param>
-            <param name="date">The date/time specification for the HTTP request.</param>
-            <param name="headers">A collection of additional headers specified on the HTTP request.</param>
-            <returns>A canonicalized string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetStandardHeaderValue(System.Collections.Specialized.NameValueCollection,System.String)">
-            <summary>
-            Gets the value of a standard HTTP header.
-            </summary>
-            <param name="headers">The collection of headers.</param>
-            <param name="headerName">The name of the header.</param>
-            <returns>The header value.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetHeaderValues(System.Collections.Specialized.NameValueCollection,System.String)">
-            <summary>
-            Returns an <see cref="T:System.Collections.ArrayList"/> of HTTP header values for a named header.
-            </summary>
-            <param name="headers">A collection of HTTP headers as name-values pairs.</param>
-            <param name="headerName">The name of the header to return.</param>
-            <returns>An <see cref="T:System.Collections.ArrayList"/> of HTTP header values, stored in the same order as they appear in the collection.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AppendStringToCanonicalizedString(System.Text.StringBuilder,System.String)">
-            <summary>
-            Appends a string to the canonicalized resource string.
-            </summary>
-            <param name="canonicalizedString">The canonicalized resource string.</param>
-            <param name="stringToAppend">The string to append.</param>
-            <returns>The modified canonicalized resource string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetCanonicalizedResource(System.Uri,System.String)">
-            <summary>
-            Gets the canonicalized resource string for a Blob or Queue service request under the Shared Key Lite authentication scheme.
-            </summary>
-            <param name="address">The resource URI.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized resource string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetCanonicalizedResourceVersion2(System.Uri,System.String)">
-            <summary>
-            Gets the canonicalized resource string for a Blob or Queue service request under the Shared Key authentication scheme.
-            </summary>
-            <param name="address">The resource URI.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized resource string.</returns>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedResourceVer2(System.Uri,System.String,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
-            <summary>
-            Adds the canonicalized resource for version 2.
-            </summary>
-            <param name="address">The address.</param>
-            <param name="accountName">Name of the account.</param>
-            <param name="canonicalizedString">The canonicalized string.</param>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedResource(System.Uri,System.String,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
-            <summary>
-            Add the resource name.
-            </summary>
-            <param name="address">The address.</param>
-            <param name="accountName">Name of the account.</param>
-            <param name="canonicalizedString">The canonicalized string.</param>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedHeaders(System.Collections.Specialized.NameValueCollection,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
-            <summary>
-            Add x-ms- prefixed headers in a fixed order.
-            </summary>
-            <param name="headers">The headers.</param>
-            <param name="canonicalizedString">The canonicalized string.</param>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobQueueFull.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
-            <summary>
-            Canonicalizes the HTTP request.
-            </summary>
-            <param name="request">The web request.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized string for the request.</returns>
-        </member>
-        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.BlobQueueLite">
-            <summary>
-            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for blobs and queues
-            for use with the Shared Key Lite authentication scheme.
-            </summary>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobQueueLite.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
-            <summary>
-            Canonicalizes the HTTP request.
-            </summary>
-            <param name="request">A web request.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized string for the request.</returns>
-        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest">
             <summary>
             Provides a set of methods for constructing requests for blob operations.
@@ -7508,16 +7713,16 @@
             <param name="leaseId">The lease ID for the blob, if it has an active lease.</param>
             <returns>A web request for performing the operation.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.Get(System.Uri,System.Int32,System.Nullable{System.DateTime},System.Int64,System.Int64,System.String)">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.Get(System.Uri,System.Int32,System.Nullable{System.DateTime},System.Int64,System.Nullable{System.Int64},System.String)">
             <summary>
             Constructs a web request to return a specified range of the blob's content, together with its properties and metadata.
             </summary>
             <param name="uri">The absolute URI to the blob.</param>
-            <param name="timeout">The server timeout interval.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
             <param name="snapshot">The snapshot version, if the blob is a snapshot.</param>
-            <param name="offset">The offset at which to begin returning content.</param>
-            <param name="count">The number of bytes to return.</param>
-            <param name="leaseId">The lease ID for the blob, if it has an active lease.</param>
+            <param name="offset">The byte offset at which to begin returning content.</param>
+            <param name="count">The number of bytes to return, or null to return all bytes through the end of the blob.</param>
+            <param name="leaseId">The lease ID for the blob if it has an active lease, or null if there is no lease.</param>
             <returns>A web request to use to perform the operation.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.GetBlockList(System.Uri,System.Int32,System.Nullable{System.DateTime},Microsoft.WindowsAzure.StorageClient.BlockListingFilter,System.String)">
@@ -7606,6 +7811,29 @@
             <param name="uri">The absolute URI to the blob.</param>
             <param name="timeout">The server timeout interval.</param>
             <returns>A web request to use to perform the operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.GetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to get the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to get the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.SetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to set the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to set the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.WriteServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.IO.Stream)">
+            <summary>
+            Writes service properties to a stream, formatted in XML.
+            </summary>
+            <param name="properties">The service properties to format and write to the stream.</param>
+            <param name="outputStream">The stream to which the formatted properties are to be written.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobRequest.AddSnapshot(Microsoft.WindowsAzure.StorageClient.Protocol.UriQueryBuilder,System.Nullable{System.DateTime})">
             <summary>
@@ -7713,6 +7941,13 @@
             <param name="response">The web response.</param>
             <returns>An object that may be used for parsing data from the results of an operation to return a range of pages.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.BlobResponse.ReadServiceProperties(System.IO.Stream)">
+            <summary>
+            Reads service properties from a stream.
+            </summary>
+            <param name="inputStream">The stream from which to read the service properties.</param>
+            <returns>The service properties stored in the stream.</returns>
+        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.BlockSearchMode">
             <summary>
             Indicates which block lists should be searched to find a specified block. 
@@ -7733,6 +7968,109 @@
             Search the uncommitted block list first, and if the block is not found there, search 
             the committed block list.
             </summary>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy">
+            <summary>
+            Represents the base canonicalization strategy used to authenticate a request against the storage services.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+            <summary>
+            Constructs a canonicalized string for signing a request.
+            </summary>
+            <param name="request">The web request.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>A canonicalized string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequest(System.Uri,System.String,System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection)">
+            <summary>
+            Constructs a canonicalized string from the request's headers that will be used to construct the signature
+            string for signing a Blob or Queue service request under the Shared Key Lite authentication scheme.
+            </summary>
+            <param name="address">The request URI.</param>
+            <param name="accountName">The storage account name.</param>
+            <param name="method">The verb to be used for the HTTP request.</param>
+            <param name="contentType">The content type of the HTTP request.</param>
+            <param name="date">The date/time specification for the HTTP request.</param>
+            <param name="headers">A collection of additional headers specified on the HTTP request.</param>
+            <returns>A canonicalized string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.CanonicalizeHttpRequestVersion2(System.Uri,System.String,System.String,System.String,System.Int64,System.String,System.Collections.Specialized.NameValueCollection)">
+            <summary>
+            Constructs a canonicalized string from the request's headers that will be used to construct the signature
+            string for signing a Blob or Queue service request under the Shared Key Lite authentication scheme.
+            </summary>
+            <param name="address">The request URI.</param>
+            <param name="accountName">The storage account name.</param>
+            <param name="method">The verb to be used for the HTTP request.</param>
+            <param name="contentType">The content type of the HTTP request.</param>
+            <param name="contentLength">The length of the HTTP request, in bytes.</param>
+            <param name="date">The date/time specification for the HTTP request.</param>
+            <param name="headers">A collection of additional headers specified on the HTTP request.</param>
+            <returns>A canonicalized string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetStandardHeaderValue(System.Collections.Specialized.NameValueCollection,System.String)">
+            <summary>
+            Gets the value of a standard HTTP header.
+            </summary>
+            <param name="headers">The collection of headers.</param>
+            <param name="headerName">The name of the header.</param>
+            <returns>The header value.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetHeaderValues(System.Collections.Specialized.NameValueCollection,System.String)">
+            <summary>
+            Returns an <see cref="T:System.Collections.ArrayList"/> of HTTP header values for a named header.
+            </summary>
+            <param name="headers">A collection of HTTP headers as name-values pairs.</param>
+            <param name="headerName">The name of the header to return.</param>
+            <returns>An <see cref="T:System.Collections.ArrayList"/> of HTTP header values, stored in the same order as they appear in the collection.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AppendStringToCanonicalizedString(System.Text.StringBuilder,System.String)">
+            <summary>
+            Appends a string to the canonicalized resource string.
+            </summary>
+            <param name="canonicalizedString">The canonicalized resource string.</param>
+            <param name="stringToAppend">The string to append.</param>
+            <returns>The modified canonicalized resource string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetCanonicalizedResource(System.Uri,System.String)">
+            <summary>
+            Gets the canonicalized resource string for a Blob or Queue service request under the Shared Key Lite authentication scheme.
+            </summary>
+            <param name="address">The resource URI.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized resource string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.GetCanonicalizedResourceVersion2(System.Uri,System.String)">
+            <summary>
+            Gets the canonicalized resource string for a Blob or Queue service request under the Shared Key authentication scheme.
+            </summary>
+            <param name="address">The resource URI.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized resource string.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedResourceVer2(System.Uri,System.String,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
+            <summary>
+            Adds the canonicalized resource for version 2.
+            </summary>
+            <param name="address">The address.</param>
+            <param name="accountName">Name of the account.</param>
+            <param name="canonicalizedString">The canonicalized string.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedResource(System.Uri,System.String,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
+            <summary>
+            Add the resource name.
+            </summary>
+            <param name="address">The address.</param>
+            <param name="accountName">Name of the account.</param>
+            <param name="canonicalizedString">The canonicalized string.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy.AddCanonicalizedHeaders(System.Collections.Specialized.NameValueCollection,Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizedString)">
+            <summary>
+            Add x-ms- prefixed headers in a fixed order.
+            </summary>
+            <param name="headers">The headers.</param>
+            <param name="canonicalizedString">The canonicalized string.</param>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategyFactory">
             <summary>
@@ -8548,9 +8886,19 @@
             Specifies snapshots are to be included.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.HeaderConstants.UserAgentPrefix">
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.HeaderConstants.UserAgent">
             <summary>
             Specifies the value to use for UserAgent header.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.HeaderConstants.PopReceipt">
+            <summary>
+            Specifies the pop receipt for a message.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.HeaderConstants.NextVisibleTime">
+            <summary>
+            Specifies the next visible time for a message.
             </summary>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants">
@@ -8596,6 +8944,31 @@
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.Signature">
             <summary>
             Query component for SAS signature.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.MessageTimeToLive">
+            <summary>
+            Query component for message time-to-live.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.VisibilityTimeout">
+            <summary>
+            Query component for message visibility timeout.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.PopReceipt">
+            <summary>
+            Query component for message pop receipt.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.ResourceType">
+            <summary>
+            Query component for resource type.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.QueryConstants.Component">
+            <summary>
+            Query component for the operation (component) to access.
             </summary>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.ContainerRequest">
@@ -9223,6 +9596,102 @@
             </summary>
             <value>The NextMarker value.</value>
         </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations">
+            <summary>
+            Enumeration representing the state of logging in a service.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations.None">
+            <summary>
+            Logging is disabled.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations.Read">
+            <summary>
+            Log read operations.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations.Write">
+            <summary>
+            Log write operations.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations.Delete">
+            <summary>
+            Log delete operations.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingOperations.All">
+            <summary>
+            Log all operations.
+            </summary>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties">
+            <summary>
+            Class representing the service properties pertaining to logging.
+            </summary>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties.Version">
+            <summary>
+            Gets or sets the version of the analytics service.
+            </summary>
+            <value>A string identifying the version of the service.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties.LoggingOperations">
+            <summary>
+            Gets or sets the state of logging.
+            </summary>
+            <value>A combination of <see cref="P:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties.LoggingOperations"/> flags describing the operations that are logged.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties.RetentionDays">
+            <summary>
+            Gets or sets the logging retention policy.
+            </summary>
+            <value>The number of days to retain the logs.</value>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsLevel">
+            <summary>
+            Enumeration representing the state of metrics collection in a service.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsLevel.None">
+            <summary>
+            Metrics collection is disabled.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsLevel.Service">
+            <summary>
+            Service-level metrics collection is enabled.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsLevel.ServiceAndApi">
+            <summary>
+            Service-level and API metrics collection are enabled.
+            </summary>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties">
+            <summary>
+            Class representing the service properties pertaining to metrics.
+            </summary>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties.Version">
+            <summary>
+            Gets or sets the version of the analytics service.
+            </summary>
+            <value>A string identifying the version of the service.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties.MetricsLevel">
+            <summary>
+            Gets or sets the state of metrics collection.
+            </summary>
+            <value>A <see cref="P:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties.MetricsLevel"/> value indicating which metrics to collect, if any.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties.RetentionDays">
+            <summary>
+            Gets or sets the logging retention policy.
+            </summary>
+            <value>The number of days to retain the logs.</value>
+        </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.PageWrite">
             <summary>
             Describes actions that may be used for writing to a page blob or clearing a set of pages.
@@ -9509,12 +9978,56 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.PutMessage(System.Uri,System.Int32,System.Nullable{System.Int32})">
             <summary>
-            Constructs a web request to add a message to the queue.
+            Generates a web request to add a message to a queue.
             </summary>
-            <param name="uri">The absolute URI to the queue.</param>
+            <param name="uri">The absolute URI to the queue's messages.</param>
             <param name="timeout">The server timeout interval.</param>
-            <param name="messageTimeToLive">The message time-to-live.</param>
-            <returns>A web request for the specified operation.</returns>
+            <param name="messageTimeToLive">The message time-to-live, or null if no time-to-live is specified.</param>
+            <returns>A web request for the put operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.PutMessage(System.Uri,System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Generates a web request to add a message to a queue.
+            </summary>
+            <param name="uri">The absolute URI to the queue's messages.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <param name="messageTimeToLive">The message time-to-live in seconds. If null, the service default will be used.</param>
+            <param name="visibilityTimeout">The length of time from now during which the message will be invisible, in seconds.
+            If null, the message will be visible immediately.</param>
+            <returns>A web request for the put operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.UpdateMessage(System.Uri,System.Int32,System.String,System.Int32)">
+            <summary>
+            Generates a web request to update a message.
+            </summary>
+            <param name="uri">The absolute URI to the message to update.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <param name="popReceipt">The pop receipt of the message.</param>
+            <param name="visibilityTimeout">The length of time from now during which the message will be invisible, in seconds.</param>
+            <returns>A web request for the update operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.GetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to get the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to get the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.SetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to set the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to set the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.WriteServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.IO.Stream)">
+            <summary>
+            Writes service properties to a stream, formatted in XML.
+            </summary>
+            <param name="properties">The service properties to format and write to the stream.</param>
+            <param name="outputStream">The stream to which the formatted properties are to be written.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueRequest.GenerateMessageRequestBody(System.String)">
             <summary>
@@ -9566,6 +10079,20 @@
             <param name="response">The web response.</param>
             <returns>A unique value associated with the request.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueResponse.GetPopReceipt(System.Net.HttpWebResponse)">
+            <summary>
+            Extracts the pop receipt from a web response header.
+            </summary>
+            <param name="response">The web response.</param>
+            <returns>The pop receipt stored in the header of the response.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueResponse.GetNextVisibleTime(System.Net.HttpWebResponse)">
+            <summary>
+            Extracts the next visibility time from a web response header.
+            </summary>
+            <param name="response">The web response.</param>
+            <returns>The time of next visibility stored in the header of the response.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueResponse.GetApproximateMessageCount(System.Net.HttpWebResponse)">
             <summary>
             Gets the approximate message count for the queue.
@@ -9614,6 +10141,13 @@
             </summary>
             <param name="response">The web response.</param>
             <returns>An object that may be used for parsing data from the results of a message peeking operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.QueueResponse.ReadServiceProperties(System.IO.Stream)">
+            <summary>
+            Reads service properties from a stream.
+            </summary>
+            <param name="inputStream">The stream from which to read the service properties.</param>
+            <returns>The service properties stored in the stream.</returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.Request">
             <summary>
@@ -9683,6 +10217,35 @@
             <param name="timeout">The timeout.</param>
             <param name="builder">The builder.</param>
             <returns>A web request for performing the operation.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Request.GetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to get the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval.</param>
+            <returns>A web request to get the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Request.SetServiceProperties(System.Uri,System.Int32)">
+            <summary>
+            Creates a web request to set the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval.</param>
+            <returns>A web request to set the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Request.WriteServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.IO.Stream)">
+            <summary>
+            Writes service properties to a stream, formatted in XML.
+            </summary>
+            <param name="properties">The service properties to format and write to the stream.</param>
+            <param name="outputStream">The stream to which the formatted properties are to be written.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Request.GetServiceUriQueryBuilder">
+            <summary>
+            Generates a query builder for building service requests.
+            </summary>
+            <returns>A <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.UriQueryBuilder"/> for building service requests.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Request.SignRequestForBlobAndQueue(System.Net.HttpWebRequest,Microsoft.WindowsAzure.StorageClient.Protocol.Credentials)">
             <summary>
@@ -9894,6 +10457,13 @@
             <param name="response">The response from server.</param>
             <returns>The request ID.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Response.ReadServiceProperties(System.IO.Stream)">
+            <summary>
+            Reads service properties from a stream.
+            </summary>
+            <param name="inputStream">The stream from which to read the service properties.</param>
+            <returns>The service properties stored in the stream.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.Response.GetMetadataOrProperties(System.Net.HttpWebResponse,System.String)">
             <summary>
             Gets the metadata or properties.
@@ -9901,6 +10471,205 @@
             <param name="response">The response from server.</param>
             <param name="prefix">The prefix for all the headers.</param>
             <returns>A <see cref="T:System.Collections.Specialized.NameValueCollection"/> of the headers with the prefix.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties">
+            <summary>
+            Class representing a set of properties pertaining to a cloud storage service.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.StorageServicePropertiesName">
+            <summary>
+            The name of the root XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.LoggingName">
+            <summary>
+            The name of the logging XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.MetricsName">
+            <summary>
+            The name of the metrics XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.VersionName">
+            <summary>
+            The name of the version XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.DeleteName">
+            <summary>
+            The name of the delete operation XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.ReadName">
+            <summary>
+            The name of the read operation XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.WriteName">
+            <summary>
+            The name of the write operation XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.RetentionPolicyName">
+            <summary>
+            The name of the retention policy XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.EnabledName">
+            <summary>
+            The name of the enabled XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.DaysName">
+            <summary>
+            The name of the days XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.IncludeApisName">
+            <summary>
+            The name of the include APIs XML element.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.DefaultServiceVersionName">
+            <summary>
+            The name of the default service version XML element.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.#ctor">
+            <summary>
+            Initializes a new instance of the ServiceProperties class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.FromServiceXml(System.Xml.Linq.XDocument)">
+            <summary>
+            Constructs a <c>ServiceProperties</c> object from an XML document received from the service.
+            </summary>
+            <param name="servicePropertiesDocument">The XML document.</param>
+            <returns>A <c>ServiceProperties</c> object containing the properties in the XML document.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.ToServiceXml">
+            <summary>
+            Converts these properties into XML for communicating with the service.
+            </summary>
+            <returns>An XML document containing the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.GenerateRetentionPolicyXml(System.Nullable{System.Int32})">
+            <summary>
+            Generates XML representing the given retention policy.
+            </summary>
+            <param name="retentionDays">The number of days to retain, or null if the policy is disabled.</param>
+            <returns>An XML retention policy element.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.GenerateMetricsXml(Microsoft.WindowsAzure.StorageClient.Protocol.MetricsProperties)">
+            <summary>
+            Generates XML representing the given metrics properties.
+            </summary>
+            <param name="metrics">The metrics properties.</param>
+            <returns>An XML metrics element.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.GenerateLoggingXml(Microsoft.WindowsAzure.StorageClient.Protocol.LoggingProperties)">
+            <summary>
+            Generates XML representing the given logging properties.
+            </summary>
+            <param name="logging">The logging properties.</param>
+            <returns>An XML logging element.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.ReadLoggingPropertiesFromXml(System.Xml.Linq.XElement)">
+            <summary>
+            Constructs a <c>LoggingProperties</c> object from an XML element.
+            </summary>
+            <param name="element">The XML element.</param>
+            <returns>A <c>LoggingProperties</c> object containing the properties in the element.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.ReadMetricsPropertiesFromXml(System.Xml.Linq.XElement)">
+            <summary>
+            Constructs a <c>MetricsProperties</c> object from an XML element.
+            </summary>
+            <param name="element">The XML element.</param>
+            <returns>A <c>MetricsProperties</c> object containing the properties in the element.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.ReadRetentionPolicyFromXml(System.Xml.Linq.XElement)">
+            <summary>
+            Constructs a retention policy (number of days) from an XML element.
+            </summary>
+            <param name="element">The XML element.</param>
+            <returns>The number of days to retain, or null if retention is disabled.</returns>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.Logging">
+            <summary>
+            Gets or sets the logging properties.
+            </summary>
+            <value>The logging properties.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.Metrics">
+            <summary>
+            Gets or sets the metrics properties.
+            </summary>
+            <value>The metrics properties.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties.DefaultServiceVersion">
+            <summary>
+            Gets or sets the default service version.
+            </summary>
+            <value>The default service version identifier.</value>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyCanonicalizer">
+            <summary>
+            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for requests against 
+            the Table service under the Shared Key authentication scheme.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyCanonicalizer.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+            <summary>
+            Canonicalizes the HTTP request.
+            </summary>
+            <param name="request">The web request.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized string for the request.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyLiteCanonicalizer">
+            <summary>
+            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for blobs and queues
+            for use with the Shared Key Lite authentication scheme.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyLiteCanonicalizer.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+            <summary>
+            Canonicalizes the HTTP request.
+            </summary>
+            <param name="request">A web request.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized string for the request.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyLiteTableCanonicalizer">
+            <summary>
+            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for tables
+            for the Shared Key Lite authentication scheme.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyLiteTableCanonicalizer.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+            <summary>
+            Canonicalizes the HTTP request.
+            </summary>
+            <param name="request">A web request.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized string for the request.</returns>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyTableCanonicalizer">
+            <summary>
+            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for requests against 
+            the Table service under the Shared Key authentication scheme.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.SharedKeyTableCanonicalizer.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+            <summary>
+            Canonicalizes the HTTP request.
+            </summary>
+            <param name="request">A web request.</param>
+            <param name="accountName">The name of the storage account.</param>
+            <returns>The canonicalized string for the request.</returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.StorageKey">
             <summary>
@@ -9950,33 +10719,75 @@
             </summary>
             <value>The storage key.</value>
         </member>
-        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.TableFull">
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest">
             <summary>
-            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for requests against 
-            the Table service under the Shared Key authentication scheme.
+            Provides a set of methods for constructing requests for table operations.
             </summary>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableFull.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.GetServiceProperties(System.Uri,System.Int32)">
             <summary>
-            Canonicalizes the HTTP request.
+            Creates a web request to get the properties of the service.
             </summary>
-            <param name="request">A web request.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized string for the request.</returns>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to get the service properties.</returns>
         </member>
-        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.TableLite">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.SetServiceProperties(System.Uri,System.Int32)">
             <summary>
-            Provides an implementation of the <see cref="T:Microsoft.WindowsAzure.StorageClient.Protocol.CanonicalizationStrategy"/> class for tables
-            for the Shared Key Lite authentication scheme.
+            Creates a web request to set the properties of the service.
+            </summary>
+            <param name="uri">The absolute URI to the service.</param>
+            <param name="timeout">The server timeout interval, in seconds.</param>
+            <returns>A web request to set the service properties.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.WriteServiceProperties(Microsoft.WindowsAzure.StorageClient.Protocol.ServiceProperties,System.IO.Stream)">
+            <summary>
+            Writes service properties to a stream, formatted in XML.
+            </summary>
+            <param name="properties">The service properties to format and write to the stream.</param>
+            <param name="outputStream">The stream to which the formatted properties are to be written.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.SignRequest(System.Net.HttpWebRequest,Microsoft.WindowsAzure.StorageClient.Protocol.Credentials)">
+            <summary>
+            Signs the request for Shared Key authentication.
+            </summary>
+            <param name="request">The web request.</param>
+            <param name="credentials">The account credentials.</param>
+            <remarks>The table service usually expects requests to use Shared Key Lite authentication.
+            Use <see cref="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.SignRequestForSharedKeyLite(System.Net.HttpWebRequest,Microsoft.WindowsAzure.StorageClient.Protocol.Credentials)"/> for those requests.</remarks>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableRequest.SignRequestForSharedKeyLite(System.Net.HttpWebRequest,Microsoft.WindowsAzure.StorageClient.Protocol.Credentials)">
+            <summary>
+            Signs the request for Shared Key Lite authentication.
+            </summary>
+            <param name="request">The web request.</param>
+            <param name="credentials">The account credentials.</param>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.TableResponse">
+            <summary>
+            Provides a set of methods for parsing responses from table operations.
             </summary>
         </member>
-        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableLite.CanonicalizeHttpRequest(System.Net.HttpWebRequest,System.String)">
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableResponse.GetError(System.Net.HttpWebResponse)">
             <summary>
-            Canonicalizes the HTTP request.
+            Returns extended error information from the storage service, that is in addition to the HTTP status code returned with the response.
             </summary>
-            <param name="request">A web request.</param>
-            <param name="accountName">The name of the storage account.</param>
-            <returns>The canonicalized string for the request.</returns>
+            <param name="response">The web response.</param>
+            <returns>An object containing extended error information returned with the response.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableResponse.GetRequestId(System.Net.HttpWebResponse)">
+            <summary>
+            Gets the request ID from the response.
+            </summary>
+            <param name="response">The web response.</param>
+            <returns>A unique value associated with the request.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Protocol.TableResponse.ReadServiceProperties(System.IO.Stream)">
+            <summary>
+            Reads service properties from a stream.
+            </summary>
+            <param name="inputStream">The stream from which to read the service properties.</param>
+            <returns>The service properties stored in the stream.</returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.Protocol.UriQueryBuilder">
             <summary>
@@ -12534,6 +13345,15 @@
             <param name="timeout">The timeout.</param>
             <returns>A task that yields the response.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.WebRequestExtensions.GetResponseAsyncWithTimeout(System.Net.WebRequest,Microsoft.WindowsAzure.StorageClient.CloudTableClient,System.Nullable{System.TimeSpan})">
+            <summary>
+            Gets an asynchronous response to a given Web request.
+            </summary>
+            <param name="req">The requested that is used for operation.</param>
+            <param name="service">The service.</param>
+            <param name="timeout">The timeout.</param>
+            <returns>A task that yields the response.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.WebRequestExtensions.GetRequestStreamAsync(System.Net.WebRequest)">
             <summary>
             Gets an asynchronous request stream for a given Web request.
@@ -12550,6 +13370,14 @@
             <returns>A task that yields the response.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.WebRequestExtensions.GetResponseAsync(System.Net.WebRequest,Microsoft.WindowsAzure.StorageClient.CloudQueueClient)">
+            <summary>
+            Gets an asynchronous response to a given Web request.
+            </summary>
+            <param name="req">The requested that is used for operation.</param>
+            <param name="service">The service.</param>
+            <returns>A task that yields the response.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.WebRequestExtensions.GetResponseAsync(System.Net.WebRequest,Microsoft.WindowsAzure.StorageClient.CloudTableClient)">
             <summary>
             Gets an asynchronous response to a given Web request.
             </summary>

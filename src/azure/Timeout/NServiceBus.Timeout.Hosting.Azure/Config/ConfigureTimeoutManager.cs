@@ -10,7 +10,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             var configSection = Configure.GetConfigSection<TimeoutManagerConfig>() ?? new TimeoutManagerConfig();
 
             config.Configurer.ConfigureComponent<TimeoutManager>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.SingleInstance)
+            config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString);
 
             return config;

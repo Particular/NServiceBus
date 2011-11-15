@@ -35,29 +35,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Antlr3.Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="FluentNHibernate">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="LinFu.DynamicProxy">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\LinFu.DynamicProxy.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.LinFu">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
@@ -87,7 +75,7 @@
       <HintPath>..\..\..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
-      <HintPath>..\..\..\..\binaries\containers\structuremap\StructureMap.dll</HintPath>
+      <HintPath>..\..\..\..\packages\structuremap.2.6.3\lib\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

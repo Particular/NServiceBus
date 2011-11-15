@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Services.Client;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
@@ -33,9 +34,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         void IPersistTimeouts.Add(TimeoutData timeout)
         {
-            string stateAddress = Serialize(timeout.State, Hash(timeout));
+            var stateAddress = Serialize(timeout.State, Hash(timeout));
 
-            context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+            context.AttachTo(ServiceContext.TimeoutDataEntityTableName,
                                   new TimeoutDataEntity("TimeoutData", stateAddress)
                                       {
                                           Destination = timeout.Destination.ToString(),
@@ -43,7 +44,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                                           StateAddress = stateAddress,
                                           Time = timeout.Time
                                       });
-            context.SaveChanges();
+            context.SaveChanges(SaveChangesOptions.ReplaceOnUpdate);
         }
 
 

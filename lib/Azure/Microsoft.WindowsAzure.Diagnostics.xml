@@ -9,6 +9,11 @@
             Provides access to common SDK constants.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.MajorMinorSDKVersion">
+            <summary>
+            The version to display in the command line tools banners.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RootKeyPathRegPath">
             <summary>
             Path to the SDK installation registry key.
@@ -60,25 +65,6 @@
             This is in terms of minutes.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IsSimulationEnvironmentPrivateSettingName">
-            <summary>
-            The name of the private configuration setting use to determine if code is running under
-            the devfabric or not.
-            </summary>
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleHostDebuggerPrivateSettingName">
-            <summary>
-            Path to a debugger to launch the role host process under.
-            </summary>
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.StartupTaskDebuggerPrivateSettingName">
-            <summary>
-            Path to a debugger to launch startup tasks under. 
-            </summary>
-            <remarks>
-            Not fully implemented.
-            </remarks>
-        </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleTypeEnvironmentVariable">
             <summary>
             The name of the environment variable that contains the role type.
@@ -99,29 +85,9 @@
             The role type value indicating a web role hosted in IIS.
             </summary>
         </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveKeyPathRegPath">
-            <summary>
-            Registry key path to cloud drive devpath.
-            </summary> 
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.StorageKeyPathRegPath">
-            <summary>
-            Registry key path to storage key path.
-            </summary> 
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathKeyName">
-            <summary>
-            Name of the registry value that contains path for the devpath.
-            </summary>
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathEnvVar">
-            <summary>
-            Name of the registry value that contains path for the devpath.
-            </summary>
-        </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.DeploymentsRegPath">
             <summary>
-            Path to the SDK installation registry key.
+            Path to SDK runtime endpoint discovery.
             </summary> 
         </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RuntimeEndpointKeyName">
@@ -139,11 +105,45 @@
             Subject name of generated management certificates.
             </summary>
         </member>
-        <member name="P:Microsoft.WindowsAzure.Internal.Common.SDKConstants.PrivateSettingsForDebuggingAndSimulation">
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.StorageKeyPathRegPath">
             <summary>
-            Gets all private setting that should be injected into the serivce model to support
-            simulation and debugging.
+            Registry key path to storage key path.
+            </summary> 
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveKeyPathRegPath">
+            <summary>
+            Registry key path to cloud drive devpath.
+            </summary> 
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathKeyName">
+            <summary>
+            Name of the registry value that contains path for the devpath.
             </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.CloudDriveDevPathEnvVar">
+            <summary>
+            Name of the registry value that contains path for the devpath.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.WAEventLogName">
+            <summary>
+            Name of the event log.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.WAEventSourceRuntime">
+            <summary>
+            Name of the event runtime source.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IsSimulationEnvironmentPrivateSettingName">
+            <summary>
+            The name of the private configuration setting use to determine if code is running under
+            the devfabric or not.
+            </summary>
+            <remarks>
+            This is shared between the runtime and the devfabric. Do not change this, as it breaks
+            a contract between the two.
+            </remarks>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions">
             <summary>
@@ -714,6 +714,9 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreTableType.partitionKeyLoadSpreadIndexMax">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreTableType.dontUsePerNDayTable">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreTableType.priority">
             <remarks/>
         </member>
@@ -903,6 +906,9 @@
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.NetFilterRules">
             <remarks/>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.DosDetect">
+            <remarks/>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode">
             <remarks/>
         </member>
@@ -1012,6 +1018,9 @@
             <remarks/>
         </member>
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.HeaderFieldNameType.Version">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.HeaderFieldNameType.EventVersion">
             <remarks/>
         </member>
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.HeaderFieldNameType.Level">
@@ -1558,6 +1567,9 @@
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.TableDeclarationType.partitionKeyLoadSpreadIndexMax">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.TableDeclarationType.dontUsePerNDayTable">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.TableType">

@@ -17,7 +17,7 @@
             is to be stored.</param>
             <param name="pageBlobUri">The path to the page blob where the drive's data
             is to be stored.</param>
-            <returns></returns>
+            <returns>A reference to a Windows Azure drive.</returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageClient.CloudDrive">
             <summary>
@@ -49,17 +49,17 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDrive.CreateIfNotExist(System.Int32)">
             <summary>
-            Creates an NTFS-formatted Windows Azure drive and its associated page blob. The page blob
-            is created at the URI specified for this <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudDrive"/> object.
+            Creates an NTFS-formatted Windows Azure drive and its associated page blob if the drive does not already exist.
+            The page blob is created at the URI specified for this <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudDrive"/> object.
             </summary>
             <param name="sizeInMB">The size of the drive to create. The minimum size permitted is 16 MB.</param>
-            <returns>True if the Windows Azure drive was created, or false if it already existed.</returns>
+            <returns><c>true</c> if the Windows Azure drive was created, or <c>false</c> if it already existed.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDrive.Snapshot">
             <summary>
             Creates a snapshot of the page blob associated with this Windows Azure drive.
             </summary>
-            <returns>Returns a URI to the newly created snapshot.</returns>
+            <returns>A URI to the newly created snapshot.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDrive.CopyTo(System.Uri)">
             <summary>
@@ -125,9 +125,9 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudDrive.MountAt(System.String,System.Int32,Microsoft.WindowsAzure.StorageClient.DriveMountOptions)">
              <summary>
-             Mounts the Windows Azure drive at a drive letter and returns a path to the drive on the local file system.
+             Mounts the Windows Azure drive using the specified drive letter and returns a path to the drive on the local file system.
              </summary>
-             <param name="location">The drive path for the mounted drive.</param>
+             <param name="location">The drive letter for the mounted drive.</param>
              <param name="cacheSize">The size of the read cache for this mounted drive. Set this 
              parameter to 0 for unbuffered access to the drive.</param>
              <param name="options">The set of <see cref="T:Microsoft.WindowsAzure.StorageClient.DriveMountOptions"/> for mounting the drive.</param>
