@@ -16,6 +16,7 @@ task default -depends CreatePackages
 
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
+	
 	Write-Output "Loding the moduele for packing.............."
 	$packit.push_to_nuget = $true 
 	
@@ -34,7 +35,7 @@ task CreatePackages {
 	$packit.targeted_Frameworks = "net40";
 
 
-	#region Packing NserviceBus
+	#region Packing NServiceBus
 	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
@@ -100,8 +101,7 @@ task CreatePackages {
 	$packit.package_description = "The NHibernate for the NServicebus"
 	invoke-packit $packageNameNHibernate $productVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
 	#endregion	
-	
-	
+		
 	#region Packing NServiceBus.Azure
 	$packageName = "NServiceBus.Azure" + $packageNameSuffix
 	$packit.package_description = "The Azure for the NServicebus"
