@@ -6,13 +6,13 @@
     using MasterNode;
     using Unicast.Queuing;
 
-    public class ReadyMessageManager : IWantToRunWhenConfigurationIsComplete
+    public class ReadyMessageSender : IWantToRunWhenConfigurationIsComplete
     {
         readonly IManageTheMasterNode masterNodeManager;
         readonly ITransport endpointTransport;
         readonly ISendMessages messageSender;
 
-        public ReadyMessageManager(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
+        public ReadyMessageSender(IManageTheMasterNode masterNodeManager, ITransport endpointTransport, ISendMessages messageSender)
         {
             this.masterNodeManager = masterNodeManager;
             this.endpointTransport = endpointTransport;

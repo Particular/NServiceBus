@@ -43,7 +43,26 @@ namespace NServiceBus.Unicast.Tests
 
         }
     }
+    
+    [TestFixture]
+    public class When_subscribing_to_a_message_that_has_no_configured_address : using_the_unicastbus
+    {
+        [Test]
+        public void Should_throw()
+        {
+            Assert.Throws<InvalidOperationException>(() => bus.Subscribe<EventMessage>());
+        }
+    }
 
+    [TestFixture]
+    public class When_unsubscribing_to_a_message_that_has_no_configured_address : using_the_unicastbus
+    {
+        [Test]
+        public void Should_throw()
+        {
+            Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<EventMessage>());
+        }
+    }
     [TestFixture]
     public class When_subscribing_to_command_messages : using_the_unicastbus
     {

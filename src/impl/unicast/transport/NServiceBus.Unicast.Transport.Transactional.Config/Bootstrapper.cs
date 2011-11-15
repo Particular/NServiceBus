@@ -18,11 +18,13 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
             var cfg = Configure.GetConfigSection<MsmqTransportConfig>();
 
+            var numberOfWorkerThreads = 1;
             if (cfg != null)
             {
-                transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, cfg.NumberOfWorkerThreads);
+                numberOfWorkerThreads = cfg.NumberOfWorkerThreads;
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
             }
+            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
         }
 
         public static bool IsTransactional { get; set; }

@@ -115,7 +115,7 @@
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Installer.cs" />
-    <Compile Include="ReadyMessageManager.cs" />
+    <Compile Include="ReadyMessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnAddressRewriter.cs" />
   </ItemGroup>
