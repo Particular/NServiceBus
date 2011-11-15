@@ -2,11 +2,12 @@ using System;
 using System.IO;
 using Raven.Database.Config;
 using Raven.Database.Extensions;
-using Raven.Http;
 using Raven.Server;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using global::Raven.Database.Server;
+
     public class WithRavenDbServer
     {
         protected const string DbDirectory = @".\TestDb\";
