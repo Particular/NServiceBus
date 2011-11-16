@@ -23,18 +23,22 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.SingleInstance);
 
-
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
+
+            var useJournalQueue = false;
+            var useDeadLetterQueue = true;
 
             if (cfg != null)
             {
-                config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, cfg.UseJournalQueue);
-                config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, cfg.UseJournalQueue);
+                useJournalQueue = cfg.UseJournalQueue;
+                useDeadLetterQueue = cfg.UseDeadLetterQueue;
             }
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, useDeadLetterQueue);
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, useJournalQueue);
 
             return config;
         }
 
-      
+
     }
 }

@@ -11,7 +11,7 @@ namespace NServiceBus.Config
         ///<summary>
         /// If true, then message-delivery failure should result in a copy of the message being sent to a dead-letter queue
         ///</summary>
-        [ConfigurationProperty("UseDeadLetterQueue", IsRequired = false)]
+        [ConfigurationProperty("UseDeadLetterQueue", IsRequired = false, DefaultValue = true)]
         public bool UseDeadLetterQueue
         {
             get
