@@ -72,7 +72,7 @@
       <HintPath>..\..\..\..\build\NServiceBus.NHibernate\NServiceBus.UnitOfWork.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\..\tools\NUnit\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>

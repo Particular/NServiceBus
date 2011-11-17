@@ -322,7 +322,7 @@
 			</do>
 		</foreach>
 		
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\NServiceBus.NHibernate\">
+		<exec program="nunit-console.exe" basedir="packages\NUnit.2.5.10.11092\tools" workingdir="${build.dir.absolutepath}\NServiceBus.NHibernate\">
 			<arg line="${nservicebus.nhibernate.tests}" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
@@ -370,7 +370,7 @@
 		</foreach>
 
 		<!--
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\azure\NServiceBus.azure\">
+		<exec program="nunit-console.exe" basedir="packages\NUnit.2.5.10.11092\tools" workingdir="${build.dir.absolutepath}\azure\NServiceBus.azure\">
 			<arg line="${nservicebus.azure.tests}" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
@@ -470,7 +470,7 @@
 		
 		<echo message="${nservicebus.testassemblies}" />
 		
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${core.build.dir}">
+		<exec program="nunit-console.exe" basedir="packages\NUnit.2.5.10.11092\tools" workingdir="${core.build.dir}">
 			<arg line="${nservicebus.testassemblies}" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
@@ -485,7 +485,7 @@
 					commandline="/p:Configuration=${project.config} /p:OutDir=${build.dir.absolutepath}\testing\ ${msbuild.targetframework}"
 					workingdir="${solution.dir}\testing" />
 
-		<exec program="nunit-console.exe" basedir="tools\nunit" workingdir="${build.dir.absolutepath}\testing\">
+		<exec program="nunit-console.exe" basedir="packages\NUnit.2.5.10.11092\tools" workingdir="${build.dir.absolutepath}\testing\">
 			<arg line="NServiceBus.Testing.Tests.dll" />
 			<arg value="${nunit.targetframework}" />
 		</exec>
@@ -600,7 +600,7 @@
 		<copy todir="${binaries.dir}" flatten="true">
 			<fileset basedir=".">
 				<include name="${lib.dir}\log4net.dll" />
-				<include name="${tools.dir}\nunit\nunit.framework.dll" />
+				<include name="packages\NUnit.2.5.10.11092\lib\nunit.framework.dll" />
 			</fileset>
 		</copy>
 		<copy todir="${binaries.dir}">
