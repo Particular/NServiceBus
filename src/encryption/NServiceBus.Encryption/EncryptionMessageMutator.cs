@@ -15,7 +15,7 @@ namespace NServiceBus.Encryption
         public object MutateOutgoing(object message)
         {
             var encryptedProperties = message.GetType().GetProperties()
-             .Where(t => typeof(WireEncryptedString).IsAssignableFrom(t.PropertyType));
+             .Where(property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType));
 
             foreach (var encryptedProperty in encryptedProperties)
             {
@@ -52,6 +52,6 @@ namespace NServiceBus.Encryption
             return message;
         }
 
-        private readonly static ILog Log = LogManager.GetLogger(typeof(EncryptionMessageMutator));
+        private readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
     }
 }

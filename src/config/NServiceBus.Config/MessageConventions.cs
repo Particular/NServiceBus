@@ -2,6 +2,8 @@
 
 namespace NServiceBus
 {
+    using System.Reflection;
+
     /// <summary>
     /// Static extension methods to Configure.
     /// </summary>
@@ -37,6 +39,17 @@ namespace NServiceBus
         public static Configure DefiningEventsAs(this Configure config, Func<Type, bool> definesEventType)
         {
             MessageConventionExtensions.IsEventTypeAction = definesEventType;
+            return config;
+        }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a property should be encrypted or not
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="definesEncryptedProperty"></param>
+        public static Configure DefiningEncryptedPropertiesAs(this Configure config, Func<PropertyInfo, bool> definesEncryptedProperty)
+        {
+            MessageConventionExtensions.IsEncryptedPropertyAction = definesEncryptedProperty;
             return config;
         }
     }
