@@ -83,6 +83,7 @@
     <Compile Include="IMessageModule.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
+    <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>

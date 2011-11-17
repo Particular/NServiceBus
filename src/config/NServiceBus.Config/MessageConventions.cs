@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <param name="definesMessageType"></param>
         public static Configure DefiningMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
-            ExtensionMethods.IsMessageTypeAction = definesMessageType;
+            MessageConventionExtensions.IsMessageTypeAction = definesMessageType;
             return config;
         }
 
@@ -25,7 +25,7 @@ namespace NServiceBus
         /// <param name="definesCommandType"></param>
         public static Configure DefiningCommandsAs(this Configure config, Func<Type, bool> definesCommandType)
         {
-            ExtensionMethods.IsCommandTypeAction = definesCommandType;
+            MessageConventionExtensions.IsCommandTypeAction = definesCommandType;
             return config;
         }
 
@@ -36,7 +36,7 @@ namespace NServiceBus
         /// <param name="definesEventType"></param>
         public static Configure DefiningEventsAs(this Configure config, Func<Type, bool> definesEventType)
         {
-            ExtensionMethods.IsEventTypeAction = definesEventType;
+            MessageConventionExtensions.IsEventTypeAction = definesEventType;
             return config;
         }
     }
