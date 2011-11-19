@@ -15,7 +15,8 @@
 
         public void Handle(MyCommand message)
         {
-            Console.WriteLine("Command received, data:" + message.CommandId);
+            Console.WriteLine("Command received, id:" + message.CommandId);
+            Console.WriteLine("EncryptedString:" + message.EncryptedString);
 
             bus.Return(CommandStatus.Ok);
         }

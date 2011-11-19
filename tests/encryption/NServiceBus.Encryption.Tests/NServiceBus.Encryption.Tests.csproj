@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConventionBasedEncryptedStringSpecs.cs" />
     <Compile Include="FakeEncryptionService.cs" />
     <Compile Include="WireEncryptedStringSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

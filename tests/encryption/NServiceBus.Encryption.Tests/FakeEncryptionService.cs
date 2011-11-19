@@ -15,13 +15,18 @@ namespace NServiceBus.Encryption.Tests
         {
             return new EncryptedValue
                        {
-                           EncryptedBase64Value = hardcodedValue
+                           EncryptedBase64Value = hardcodedValue,
+                           Base64Iv = "initialization_vector"
                        };
         }
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
-            throw new NotImplementedException();
+            if(encryptedValue.Base64Iv == "init_vector" && encryptedValue.EncryptedBase64Value == "encrypted_value")
+             return "A secret";
+
+            throw new InvalidOperationException("Failed to deencrypt");
         }
+
     }
 }

@@ -49,6 +49,7 @@ namespace Client
             Bus.Send<MyCommand>(m =>
             {
                 m.CommandId = commandId;
+                m.EncryptedString = "Some sensitive information";
             })
             .Register<CommandStatus>(outcome=> Console.WriteLine("Server returned status: " + outcome));
 
