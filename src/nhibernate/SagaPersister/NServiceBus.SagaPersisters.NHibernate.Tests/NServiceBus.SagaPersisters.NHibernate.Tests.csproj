@@ -69,7 +69,7 @@
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.UnitOfWork.NHibernate">
-      <HintPath>..\..\..\..\build\NServiceBus.NHibernate\NServiceBus.UnitOfWork.NHibernate.dll</HintPath>
+      <HintPath>..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate\bin\Debug\NServiceBus.UnitOfWork.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>

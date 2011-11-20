@@ -33,7 +33,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             {
                 Id = Guid.NewGuid()
             });
-            UnitOfWork.Error();
+            UnitOfWork.End(new Exception());
 
             using (var session = SessionFactory.OpenSession())
             {

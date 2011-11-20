@@ -3,10 +3,11 @@ using NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 using NServiceBus.UnitOfWork;
 using NUnit.Framework;
-using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using UnitOfWork.NHibernate;
+
     public class InMemoryFixture
     {
         protected IManageUnitsOfWork UnitOfWork;
