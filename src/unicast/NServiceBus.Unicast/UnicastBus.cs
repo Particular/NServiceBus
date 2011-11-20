@@ -1230,9 +1230,6 @@ namespace NServiceBus.Unicast
                     exceptionThrown = true;
                 }
 
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End(e.Reason);
-
             if (exceptionThrown)
                 throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
         }
