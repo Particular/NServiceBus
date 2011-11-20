@@ -101,12 +101,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageTheMasterNode MasterNodeManager { get; set; }
 
-
-        /// <summary>
-        /// Object used to manage units of work.
-        /// </summary>
-        public IManageUnitsOfWork UnitOfWorkManager { get; set; }
-
         /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
@@ -1066,8 +1060,10 @@ namespace NServiceBus.Unicast
 
             _messageBeingHandled = msg;
 
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.Begin();
+            unitOfWorkManager = BuildUnitOfWorkManager(builder);
+            
+            if (unitOfWorkManager != null)
+                unitOfWorkManager.Begin();
 
             modules = new List<IMessageModule>();
             var mods = builder.BuildAll<IMessageModule>();
@@ -1104,10 +1100,18 @@ namespace NServiceBus.Unicast
             if (!disableMessageHandling)
                 HandleMessage(builder, msg);
   
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
+            if (unitOfWorkManager != null)
+                unitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
   
             Log.Debug("Finished handling message.");
+        }
+
+        IManageUnitsOfWork BuildUnitOfWorkManager(IBuilder builder)
+        {
+            if(Configure.Instance.Configurer.HasComponent<IManageUnitsOfWork>())
+                return builder.Build<IManageUnitsOfWork>();
+
+            return null;
         }
 
         private static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
@@ -1214,8 +1218,8 @@ namespace NServiceBus.Unicast
                     exceptionThrown = true;
                 }
 
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End(e.Reason);
+            if (unitOfWorkManager != null)
+                unitOfWorkManager.End(e.Reason);
 
             if (exceptionThrown)
                 throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
@@ -1547,6 +1551,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         [ThreadStatic]
         static List<IMessageModule> modules;
+
+        /// <summary>
+        /// Object used to manage units of work.
+        /// </summary>
+        static IManageUnitsOfWork unitOfWorkManager;
 
         /// <summary>
         /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
