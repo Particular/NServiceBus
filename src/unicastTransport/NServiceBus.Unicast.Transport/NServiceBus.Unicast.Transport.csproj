@@ -52,6 +52,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ControlMessage.cs" />
+    <Compile Include="FailedMessageProcessingEventArgs.cs" />
     <Compile Include="ITransport.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="TransportMessage.cs" />

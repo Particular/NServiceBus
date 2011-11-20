@@ -1103,7 +1103,10 @@ namespace NServiceBus.Unicast
 
             if (!disableMessageHandling)
                 HandleMessage(builder, msg);
-
+  
+            if (UnitOfWorkManager != null)
+                UnitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
+  
             Log.Debug("Finished handling message.");
         }
 
@@ -1193,12 +1196,9 @@ namespace NServiceBus.Unicast
                 Log.Debug("Calling 'HandleEndMessage' on " + modules[i].GetType().FullName);
                 modules[i].HandleEndMessage();
             }
-
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End();
         }
 
-        private void TransportFailedMessageProcessing(object sender, EventArgs e)
+        private void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
         {
             var exceptionThrown = false;
 
@@ -1215,7 +1215,7 @@ namespace NServiceBus.Unicast
                 }
 
             if (UnitOfWorkManager != null)
-                UnitOfWorkManager.Error();
+                UnitOfWorkManager.End(e.Reason);
 
             if (exceptionThrown)
                 throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.UnitOfWork
 {
+    using System;
+
     /// <summary>
     /// Interface used by NServiceBus to manage units of work as a part of the
     /// message processing pipeline.
@@ -12,13 +14,8 @@
         void Begin();
 
         /// <summary>
-        /// Called after all message handlers and modules
+        /// Called after all message handlers and modules, if an error has occured the excption will be passed
         /// </summary>
-        void End();
-
-        /// <summary>
-        /// Called in the case there was an exception during the message processing
-        /// </summary>
-        void Error();
+        void End(Exception ex = null);
     }
 }

@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.UnitOfWork", "NServiceBus.UnitOfWork\NServiceBus.UnitOfWork.csproj", "{5664D546-9F42-4DED-9BC1-B6799D3A6AD0}"
 EndProject
 Global

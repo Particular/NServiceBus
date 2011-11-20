@@ -74,7 +74,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Event which indicates that message processing failed for some reason.
         /// </summary>
-	    public event EventHandler FailedMessageProcessing;
+        public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
 
         /// <summary>
         /// Gets/sets the number of concurrent threads that should be
@@ -218,17 +218,17 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch(Exception e)
             {
+                var originalException = e;
+
+                if (e is TransportMessageHandlingFailedException)
+                    originalException = ((TransportMessageHandlingFailedException)e).OriginalException;
+
                 if (IsTransactional)
-                {
-                    var originalException = e;
-
-                    if (e is TransportMessageHandlingFailedException)
-                        originalException = ((TransportMessageHandlingFailedException) e).OriginalException;
-
+                {                
                     IncrementFailuresForMessage(_messageId, originalException);
                 }
 
-                OnFailedMessageProcessing();
+                OnFailedMessageProcessing(originalException);
             }
         }
 
@@ -423,12 +423,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             return null;
         }
 
-        private bool OnFailedMessageProcessing()
+        private bool OnFailedMessageProcessing(Exception originalException)
         {
             try
             {
                 if (FailedMessageProcessing != null)
-                    FailedMessageProcessing(this, null);
+                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(originalException));
             }
             catch (Exception e)
             {
