@@ -14,7 +14,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -60,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="MyOwnUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestDataMessageHandler.cs" />
   </ItemGroup>
