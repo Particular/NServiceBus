@@ -7,6 +7,11 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
     public class Bootstrapper : INeedInitialization
     {
+        static Bootstrapper()
+        {
+            IsTransactional = true;
+        }
+
         public void Init()
         {
             var transportConfig = Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(

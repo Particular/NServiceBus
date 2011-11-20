@@ -33,9 +33,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure Transactions(this Configure config)
+        public static Configure DontUseTransactions(this Configure config)
         {
-            Bootstrapper.IsTransactional = true;
+            Bootstrapper.IsTransactional = false;
             return config;
         }
 
