@@ -1069,44 +1069,60 @@ namespace NServiceBus.Unicast
             if (UnitOfWorkManager != null)
                 UnitOfWorkManager.Begin();
 
-            modules = new List<IMessageModule>();
-            var mods = builder.BuildAll<IMessageModule>();
-            if (mods != null)
-                modules.AddRange(mods);
-
-            foreach (var module in modules)
+            try
             {
-                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
-                module.HandleBeginMessage(); //don't need to call others if one fails
+
+                modules = new List<IMessageModule>();
+                var mods = builder.BuildAll<IMessageModule>();
+                if (mods != null)
+                    modules.AddRange(mods);
+
+                foreach (var module in modules)
+                {
+                    Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
+                    module.HandleBeginMessage(); //don't need to call others if one fails
+                }
+
+                var transportMutators = builder.BuildAll<IMutateIncomingTransportMessages>();
+                if (transportMutators != null)
+                    foreach (var mutator in transportMutators)
+                        mutator.MutateIncoming(msg);
+
+                if (HandledSubscriptionMessage(msg, SubscriptionStorage, SubscriptionAuthorizer))
+                {
+                    var messageType = GetSubscriptionMessageTypeFrom(msg);
+
+                    if (msg.MessageIntent == MessageIntentEnum.Subscribe)
+                        if (ClientSubscribed != null)
+                            ClientSubscribed(this,
+                                             new SubscriptionEventArgs
+                                                 {
+                                                     MessageType = messageType,
+                                                     SubscriberReturnAddress = msg.ReplyToAddress
+                                                 });
+
+                    return;
+                }
+
+                _handleCurrentMessageLaterWasCalled = false;
+
+                if (MessageReceived != null)
+                    MessageReceived(msg);
+
+                if (!disableMessageHandling)
+                    HandleMessage(builder, msg);
+
+                if (UnitOfWorkManager != null)
+                    UnitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
+            }
+            catch (Exception ex)
+            {
+                if (UnitOfWorkManager != null)
+                    UnitOfWorkManager.End(ex); //this will only be called if no exception occured which is what we want
+
+                throw;
             }
 
-            var transportMutators = builder.BuildAll<IMutateIncomingTransportMessages>();
-            if (transportMutators != null)
-                foreach (var mutator in transportMutators)
-                    mutator.MutateIncoming(msg);
-
-            if (HandledSubscriptionMessage(msg, SubscriptionStorage, SubscriptionAuthorizer))
-            {
-                var messageType = GetSubscriptionMessageTypeFrom(msg);
-
-                if (msg.MessageIntent == MessageIntentEnum.Subscribe)
-                    if (ClientSubscribed != null)
-                        ClientSubscribed(this, new SubscriptionEventArgs { MessageType = messageType, SubscriberReturnAddress = msg.ReplyToAddress });
-
-                return;
-            }
-
-            _handleCurrentMessageLaterWasCalled = false;
-
-            if (MessageReceived != null)
-                MessageReceived(msg);
-
-            if (!disableMessageHandling)
-                HandleMessage(builder, msg);
-  
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
-  
             Log.Debug("Finished handling message.");
         }
 
@@ -1213,9 +1229,6 @@ namespace NServiceBus.Unicast
                     Log.Error("Module " + modules[i].GetType().FullName + " failed when handling error.", ex);
                     exceptionThrown = true;
                 }
-
-            if (UnitOfWorkManager != null)
-                UnitOfWorkManager.End(e.Reason);
 
             if (exceptionThrown)
                 throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
