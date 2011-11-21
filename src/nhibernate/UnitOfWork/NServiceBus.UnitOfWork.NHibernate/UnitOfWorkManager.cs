@@ -28,26 +28,16 @@ namespace NServiceBus.UnitOfWork.NHibernate
 
             var session = CurrentSessionContext.Unbind(SessionFactory);
 
-            try
+            using (session)
+            using (session.Transaction)
             {
-                try
-                {
-                    if (!session.Transaction.IsActive)
-                        return;
+                if (!session.Transaction.IsActive)
+                    return;
 
-                    if (ex != null)
-                        session.Transaction.Rollback();
-                    else
-                        session.Transaction.Commit();
-                }
-                finally
-                {
-                    session.Transaction.Dispose();
-                }
-            }
-            finally
-            {
-                session.Dispose();
+                if (ex != null)
+                    session.Transaction.Rollback();
+                else
+                    session.Transaction.Commit();
             }
         }
 
