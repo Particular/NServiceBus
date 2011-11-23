@@ -110,7 +110,6 @@
     <Compile Include="Config\ConfigureRavenPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenPersistenceConstants.cs" />
-    <Compile Include="RavenSessionMessageModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
