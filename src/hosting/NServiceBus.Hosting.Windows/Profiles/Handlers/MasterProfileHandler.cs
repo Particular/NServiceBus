@@ -1,5 +1,4 @@
-﻿using System;
-using NServiceBus.Hosting.Profiles;
+﻿using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
@@ -7,7 +6,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         public void ProfileActivated()
         {
-            Configure.Instance.AsMasterNode();
+            Configure.Instance.AsMasterNode()
+                .UseDistributor();
         }
     }
 }

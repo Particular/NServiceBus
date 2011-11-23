@@ -77,5 +77,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+	<StartArguments>NServiceBus.Integration</StartArguments>
   </PropertyGroup>
 </Project>
