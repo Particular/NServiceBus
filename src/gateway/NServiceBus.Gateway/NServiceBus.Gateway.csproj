@@ -135,6 +135,7 @@
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />
+    <Compile Include="Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Receiving\LegacyChannelManager.cs" />

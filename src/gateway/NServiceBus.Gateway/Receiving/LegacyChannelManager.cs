@@ -4,7 +4,6 @@ namespace NServiceBus.Gateway.Receiving
     using System.Configuration;
     using System.Linq;
     using Channels;
-    using Channels.Http;
 
     public class LegacyChannelManager : IMangageReceiveChannels
     {
