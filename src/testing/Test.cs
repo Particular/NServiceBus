@@ -9,6 +9,11 @@ using Rhino.Mocks;
 
 namespace NServiceBus.Testing
 {
+    using Config.ConfigurationSource;
+    using MasterNode;
+    using Unicast.Queuing;
+    using Unicast.Transport;
+
     /// <summary>
     /// Entry class used for unit testing
     /// </summary>
@@ -35,6 +40,7 @@ namespace NServiceBus.Testing
         private static void InitializeInternal()
         {
             Configure.Instance
+                 .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
                 .XmlSerializer()
                 .InMemoryFaultManagement();
@@ -85,7 +91,7 @@ namespace NServiceBus.Testing
 
             var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
-            return new Saga<T>(saga, mocks, bus, _messageCreator, messageTypes);
+            return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
         }
 
         /// <summary>
@@ -130,7 +136,7 @@ namespace NServiceBus.Testing
 
             var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
-            return new Handler<T>(handler, mocks, bus, _messageCreator, messageTypes);
+            return new Handler<T>(handler, mocks, bus, messageCreator, messageTypes);
         }
 
         private static IUnicastBus MockTheBus(MockRepository mocks)
@@ -138,8 +144,11 @@ namespace NServiceBus.Testing
             var bus = mocks.DynamicMock<IUnicastBus>();
             var starter = mocks.DynamicMock<IStartableBus>();
 
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IStartableBus), starter);
-            Configure.Instance.Configurer.RegisterSingleton(typeof(IUnicastBus), bus);
+            Configure.Instance.Configurer.RegisterSingleton<IStartableBus>(starter);
+            Configure.Instance.Configurer.RegisterSingleton<IUnicastBus>(bus);
+            Configure.Instance.Configurer.RegisterSingleton<IManageTheMasterNode>(mocks.Stub<IManageTheMasterNode>());
+            Configure.Instance.Configurer.RegisterSingleton<ITransport>(mocks.Stub<ITransport>());
+            Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(mocks.Stub<ISendMessages>());
 
             bus.Replay(); // to neutralize any event subscriptions by rest of NSB
             
@@ -148,12 +157,12 @@ namespace NServiceBus.Testing
             Configure.Instance.CreateBus();
 
             Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
-            _messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
-            if (_messageCreator == null)
+            messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
+            if (messageCreator == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
             bus.BackToRecord(); // to get ready for testing
-
+            starter.BackToRecord();
             return bus;
         }
 
@@ -164,7 +173,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static TMessage CreateInstance<TMessage>()
         {
-            return _messageCreator.CreateInstance<TMessage>();
+            return messageCreator.CreateInstance<TMessage>();
         }
 
         /// <summary>
@@ -176,12 +185,25 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static TMessage CreateInstance<TMessage>(Action<TMessage> action)
         {
-            return _messageCreator.CreateInstance(action);
+            return messageCreator.CreateInstance(action);
         }
 
         /// <summary>
         /// Returns the message creator.
         /// </summary>
-        private static IMessageCreator _messageCreator;
+        static IMessageCreator messageCreator;
+
+        static TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
+    }
+
+    /// <summary>
+    /// Configration source suitable for testing
+    /// </summary>
+    public class TestConfigurationSource:IConfigurationSource
+    {
+        public T GetConfiguration<T>() where T : class, new()
+        {
+            return null;
+        }
     }
 }

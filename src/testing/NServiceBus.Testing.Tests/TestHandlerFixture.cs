@@ -9,7 +9,7 @@ namespace NServiceBus.Testing.Tests
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            Test.Initialize(typeof(IMessage).Assembly, typeof(TestHandlerFixture).Assembly);
+            Test.Initialize();
         }
 
         [Test]
