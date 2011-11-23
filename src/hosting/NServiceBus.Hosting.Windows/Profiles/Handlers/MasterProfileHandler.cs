@@ -7,7 +7,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         public void ProfileActivated()
         {
             Configure.Instance.AsMasterNode()
-                .UseDistributor();
+                .UseDistributor()
+                .Gateway();
         }
     }
 }

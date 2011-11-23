@@ -1,5 +1,4 @@
-﻿using System;
-using NServiceBus.Config;
+﻿using NServiceBus.Config;
 using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Saga;
@@ -11,6 +10,9 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
+            Configure.Instance.AsMasterNode()
+                .Gateway();
+
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.InMemorySagaPersister();
 
@@ -24,7 +26,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
         public void Run()
         {
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
         }
 
         public IConfigureThisEndpoint Config { get; set; }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Indicates that the lightest weight infrastructure should be used.
     /// </summary>
-    public class Lite : Master, IProfile
+    public class Lite : IProfile
     {
     }
 }
