@@ -22,17 +22,20 @@
        
         public static Configure Gateway(this Configure config)
         {
-            if (!config.Configurer.HasComponent<IDocumentStore>())
-                config.RavenPersistence();
-
-            return Gateway(config, typeof(RavenDBPersistence));
+            return Gateway(config, typeof(InMemoryPersistence));
         }
 
         public static Configure GatewayWithInMemoryPersistence(this Configure config)
         {
             return Gateway(config, typeof(InMemoryPersistence));
         }
+        public static Configure GatewayWithRavenPersistence(this Configure config)
+        {
+            if (!config.Configurer.HasComponent<IDocumentStore>())
+                config.RavenPersistence();
 
+            return Gateway(config, typeof(RavenDBPersistence));
+        }
         public static Configure Gateway(this Configure config,Type persistence)
         {
             config.Configurer.ConfigureComponent(persistence,DependencyLifecycle.SingleInstance);
