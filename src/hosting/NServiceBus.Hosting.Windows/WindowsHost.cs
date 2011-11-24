@@ -19,8 +19,6 @@ namespace NServiceBus.Hosting.Windows
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            Program.EndpointId = Program.GetEndpointId(specifier);
-
             genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) });
         }
 

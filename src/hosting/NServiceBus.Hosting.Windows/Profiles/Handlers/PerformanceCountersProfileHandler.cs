@@ -18,7 +18,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             
             try
             {
-                counter = new PerformanceCounter(categoryName, counterName, Program.EndpointId, false);
+                counter = new PerformanceCounter(categoryName, counterName, Configure.EndpointName, false);
             }
             catch (Exception e)
             {

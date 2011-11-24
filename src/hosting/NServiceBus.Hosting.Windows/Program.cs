@@ -12,6 +12,8 @@ using Topshelf.Internal;
 
 namespace NServiceBus.Hosting.Windows
 {
+    using System.Diagnostics;
+
     /// <summary>
     /// Entry point to the process.
     /// </summary>
@@ -35,9 +37,9 @@ namespace NServiceBus.Hosting.Windows
 
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+            //var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
 
-            EndpointId = GetEndpointId(endpointConfiguration);
+            var endpointName = GetEndpointName(endpointConfigurationType);
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
@@ -66,8 +68,8 @@ namespace NServiceBus.Hosting.Windows
                                                                        x.DoNotStartAutomatically();
                                                                    }
 
-                                                                   x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : EndpointId);
-                                                                   x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : EndpointId);
+                                                                   x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : endpointName);
+                                                                   x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : endpointName);
                                                                    x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
                                                                    x.DependencyOnMsmq();
 
@@ -118,11 +120,6 @@ namespace NServiceBus.Hosting.Windows
             }
         }
 
-        /// <summary>
-        /// Gives an identifier for this endpoint
-        /// </summary>
-        public static string EndpointId { get; set; }
-
         private static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
@@ -138,20 +135,18 @@ namespace NServiceBus.Hosting.Windows
 
         private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
         {
-            return Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
         /// <summary>
         /// Gives a string which serves to identify the endpoint.
         /// </summary>
-        /// <param name="endpointConfiguration"></param>
+        /// <param name="endpointConfigurationType"></param>
         /// <returns></returns>
-        public static string GetEndpointId(object endpointConfiguration)
+        static string GetEndpointName(Type endpointConfigurationType)
         {
-            string endpointName = endpointConfiguration.GetType().FullName;
-            return string.Format("{0}_v{1}", endpointName, endpointConfiguration.GetType().Assembly.GetName().Version);
+            //FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name));
+            return endpointConfigurationType.Namespace; //todo
         }
 
         private static Type GetEndpointConfigurationType(HostArguments arguments)
