@@ -10,12 +10,13 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         RavenSagaPersister persister;
         IDocumentStore store;
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             using (var server = GetNewServer())
             {
                 var config = Configure.With(new[] {GetType().Assembly})
+                    .DefineEndpointName("MyEndpoint")
                     .DefaultBuilder()
                     .Sagas().RavenSagaPersister();
 
@@ -33,9 +34,9 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         }
 
         [Test]
-        public void It_should_configure_to_use_the_calling_assembly_name_as_the_endpoint()
+        public void It_should_configure_to_use_the_endpointname_as_the_database()
         {
-            Assert.AreEqual(GetType().Assembly.GetName().Name, persister.Endpoint);
+            Assert.AreEqual("MyEndpoint", persister.Database);
         }
     }
 }

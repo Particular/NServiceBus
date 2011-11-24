@@ -23,7 +23,7 @@ namespace NServiceBus
 
             store.Initialize();
 
-            return RavenSagaPersister(config, store, "Default");
+            return RavenSagaPersister(config, store);
         }
 
         public static Configure RavenSagaPersister(this Configure config)
@@ -33,21 +33,10 @@ namespace NServiceBus
 
             var store = config.Builder.Build<IDocumentStore>();
             
-            var endpoint = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
-            return RavenSagaPersister(config, store, endpoint);
+            return RavenSagaPersister(config, store);
         }
 
         public static Configure RavenSagaPersister(this Configure config, string connectionStringName)
-        {
-            var endpoint = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
-            return RavenSagaPersister(config, connectionStringName, endpoint);
-        }
-
-        public static Configure RavenSagaPersister(this Configure config, string connectionStringName, string endpoint)
         {
             var store = new DocumentStore
             {
@@ -57,16 +46,16 @@ namespace NServiceBus
 
             store.Initialize();
 
-            return RavenSagaPersister(config, store, endpoint);
+            return RavenSagaPersister(config, store);
         }
 
-        static Configure RavenSagaPersister(this Configure config, IDocumentStore store, string endpoint)
+        static Configure RavenSagaPersister(this Configure config, IDocumentStore store)
         {
             if (config == null) throw new ArgumentNullException("config");
             if (store == null) throw new ArgumentNullException("store");
 
             config.Configurer.ConfigureComponent<RavenSagaPersister>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(x => x.Endpoint, endpoint)
+                .ConfigureProperty(x => x.Database, Configure.EndpointName)
                 .ConfigureProperty(x => x.Store, store);
 
             return config;

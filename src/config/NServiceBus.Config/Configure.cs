@@ -285,7 +285,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointName
         {
-            get { return endpointName ?? (endpointName = GetEndpointNameAction()); }
+            get { return GetEndpointNameAction(); }
         }
 
         /// <summary>
@@ -339,7 +339,6 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        static string endpointName;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };

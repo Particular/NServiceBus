@@ -19,7 +19,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
 
                 var config = Configure.With(new[] {GetType().Assembly})
                     .DefaultBuilder()
-                    .Sagas().RavenSagaPersister(connectionStringName, database);
+                    .Sagas().RavenSagaPersister(connectionStringName);
 
                 persister = config.Builder.Build<RavenSagaPersister>();
             }
@@ -30,12 +30,6 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         {
             var store = persister.Store as DocumentStore;
             Assert.AreEqual(connectionStringName, store.ConnectionStringName);
-        }
-
-        [Test]
-        public void It_should_configure_the_persister_with_the_database()
-        {
-            Assert.AreEqual(database, persister.Endpoint);
         }
     }
 }

@@ -9,11 +9,11 @@ namespace NServiceBus.SagaPersisters.Raven
     {
         public IDocumentStore Store { get; set; }
 
-        public string Endpoint { get; set; }
+        public string Database { get; set; }
 
         public void Save(ISagaEntity saga)
         {
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 session.Store(saga);
                 session.SaveChanges();
@@ -22,14 +22,15 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public void Update(ISagaEntity saga)
         {
-            using (var session = Store.OpenSession()) {
+            using (var session = OpenSession())
+            {
                 session.SaveChanges();
             }
         }
 
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 return session.Load<T>(sagaId);
             }
@@ -39,7 +40,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             var luceneQuery = string.Format("{0}:{1}", property, value);
 
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 return session.Advanced.LuceneQuery<T>()
                 .Where(luceneQuery).FirstOrDefault();
@@ -48,10 +49,18 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public void Complete(ISagaEntity saga)
         {
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 session.Delete(saga);
             }
+        }
+
+        IDocumentSession OpenSession()
+        {
+            if (string.IsNullOrEmpty(Database))
+                return Store.OpenSession();
+
+            return Store.OpenSession(Database);
         }
     }
 }
