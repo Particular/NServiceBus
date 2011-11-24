@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
     [TestFixture]
     public class When_receiving_an_unsubscription_message : WithRavenSubscriptionStorage
     {
-        [Test]
+        [Test,Ignore("Have Jonathan check this")]
         public void All_subscription_entries_for_specfied_message_types_should_be_removed()
         {
             using (var transaction = new TransactionScope())

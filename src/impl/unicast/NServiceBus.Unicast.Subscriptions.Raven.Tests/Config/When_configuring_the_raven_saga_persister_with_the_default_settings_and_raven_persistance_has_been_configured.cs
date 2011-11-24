@@ -17,6 +17,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
             using (var server = GetNewServer())
             {
                 var config = Configure.With(new[] {GetType().Assembly})
+                    .DefineEndpointName("MyEndpoint")
                     .DefaultBuilder()
                     .RavenPersistence();
 
@@ -38,7 +39,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
         [Test]
         public void It_should_configure_to_use_the_calling_assembly_name_as_the_endpoint()
         {
-            Assert.AreEqual(GetType().Assembly.GetName().Name, subscriptionStorage.Endpoint);
+            Assert.AreEqual("MyEndpoint", subscriptionStorage.Endpoint);
         }
     }
 }

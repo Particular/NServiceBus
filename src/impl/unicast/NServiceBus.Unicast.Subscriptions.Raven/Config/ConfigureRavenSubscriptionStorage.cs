@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Persistence.Raven.Config;
 using Raven.Client;
@@ -20,33 +19,25 @@ namespace NServiceBus
             var store = new EmbeddableDocumentStore { ResourceManagerId = DefaultResourceManagerId, DataDirectory = DefaultDataDirectory };
             store.Initialize();
 
-            return RavenSubscriptionStorage(config, store, "Default");
+            return RavenSubscriptionStorage(config, store, Configure.EndpointName);
         }
 
         public static Configure RavenSubscriptionStorage(this Configure config)
-        {
-            var endpoint = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
-            return RavenSubscriptionStorage(config, endpoint);
-        }
-
-        public static Configure RavenSubscriptionStorage(this Configure config, string endpoint)
         {
             if (!config.Configurer.HasComponent<IDocumentStore>())
                 config.RavenPersistence();
 
             var store = config.Builder.Build<IDocumentStore>();
 
-            return RavenSubscriptionStorage(config, store, endpoint);
+            return RavenSubscriptionStorage(config, store, Configure.EndpointName);
         }
 
-        public static Configure RavenSubscriptionStorage(this Configure config, string connectionStringName, string endpoint)
+        public static Configure RavenSubscriptionStorage(this Configure config, string connectionStringName)
         {
             var store = new DocumentStore { ConnectionStringName = connectionStringName, ResourceManagerId = DefaultResourceManagerId };
             store.Initialize();
 
-            return RavenSubscriptionStorage(config, store, endpoint);
+            return RavenSubscriptionStorage(config, store, Configure.EndpointName);
         }
 
         static Configure RavenSubscriptionStorage(this Configure config, IDocumentStore store, string endpoint)

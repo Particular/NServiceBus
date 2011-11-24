@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
@@ -13,8 +11,8 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
         public void shouldnt_create_additional_db_rows()
         {
 
-            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType") });
-            storage.Subscribe(new Address("testendpoint","localhost"), new List<MessageType> { new MessageType("SomeMessageType") });
+            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType","1.0.0.0") });
+            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType", "1.0.0.0") });
 
 
             using (var session = store.OpenSession())
