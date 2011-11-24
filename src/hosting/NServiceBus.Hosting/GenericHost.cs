@@ -9,6 +9,8 @@ using NServiceBus.Hosting.Wcf;
 
 namespace NServiceBus.Hosting
 {
+    using System.Linq;
+
     /// <summary>
     /// A generic host that can be used to provide hosting services in different environments
     /// </summary>
@@ -106,8 +108,10 @@ namespace NServiceBus.Hosting
             
             if (arr.Length == 1)
                 endpointName = (arr[0] as EndpointNameAttribute).Name;
-                
-          
+              
+            if(specifier is INameThisEndpoint)
+                endpointName = (specifier as INameThisEndpoint).GetName();
+
             Configure.GetEndpointNameAction = () => endpointName;
         }
 
@@ -131,7 +135,8 @@ namespace NServiceBus.Hosting
         {
             this.specifier = specifier;
 
-            var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
+            var assembliesToScan = AssemblyScanner.GetScannableAssemblies()
+                .ToList();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
             configManager = new ConfigManager(assembliesToScan, specifier);
