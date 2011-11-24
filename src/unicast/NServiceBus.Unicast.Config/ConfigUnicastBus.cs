@@ -133,7 +133,7 @@ namespace NServiceBus.Unicast.Config
                     return unicastConfig.LocalAddress;
 
             var transportConfig = GetConfigSection<MsmqTransportConfig>();
-            if (transportConfig == null || transportConfig.InputQueue == null)
+            if (transportConfig == null || string.IsNullOrEmpty(transportConfig.InputQueue))
                 return null;
 
             Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
