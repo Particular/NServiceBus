@@ -20,7 +20,12 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
-            return MsmqSubscriptionStorage(config,"NServiceBus");
+            var endpointName = Configure.EndpointName;
+
+            if (string.IsNullOrEmpty(endpointName))
+                endpointName = "NServiceBus";
+
+            return MsmqSubscriptionStorage(config, endpointName);
         }
 
         /// <summary>
@@ -30,16 +35,16 @@ namespace NServiceBus
         /// in that case.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="endpointId"></param>
+        /// <param name="endpointName"></param>
         /// <returns></returns>
-        public static Configure MsmqSubscriptionStorage(this Configure config, string endpointId)
+        public static Configure MsmqSubscriptionStorage(this Configure config, string endpointName)
         {
             var cfg = Configure.GetConfigSection<MsmqSubscriptionStorageConfig>();
 
             if (cfg == null)
                 Logger.Warn("Could not find configuration section for Msmq Subscription Storage.");
 
-            Queue = (cfg != null ? cfg.Queue : endpointId + "_subscriptions");
+            Queue = (cfg != null ? cfg.Queue : endpointName + "_subscriptions");
 
             var storageConfig = config.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance);
             storageConfig.ConfigureProperty(s => s.Queue, Queue);
