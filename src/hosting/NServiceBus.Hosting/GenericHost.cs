@@ -21,6 +21,9 @@ namespace NServiceBus.Hosting
         {
             try
             {
+                SetDefaultEndpointName();
+
+
                 if (specifier is IWantCustomLogging)
                     (specifier as IWantCustomLogging).Init();
                 else
@@ -37,7 +40,7 @@ namespace NServiceBus.Hosting
                         {
                             bool called = false;
                             //make sure we don't call the Init method again, unless there's an explicit impl
-                            var initMap = specifier.GetType().GetInterfaceMap(typeof (IWantCustomInitialization));
+                            var initMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomInitialization));
                             foreach (var m in initMap.TargetMethods)
                                 if (!m.IsPublic && m.Name == "NServiceBus.IWantCustomInitialization.Init")
                                 {
@@ -48,7 +51,7 @@ namespace NServiceBus.Hosting
                             if (!called)
                             {
                                 //call the regular Init method if IWantCustomLogging was an explicitly implemented method
-                                var logMap = specifier.GetType().GetInterfaceMap(typeof (IWantCustomLogging));
+                                var logMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomLogging));
                                 foreach (var tm in logMap.TargetMethods)
                                     if (!tm.IsPublic && tm.Name == "NServiceBus.IWantCustomLogging.Init")
                                         (specifier as IWantCustomInitialization).Init();
@@ -57,9 +60,9 @@ namespace NServiceBus.Hosting
                         else
                             (specifier as IWantCustomInitialization).Init();
                     }
-                    catch(NullReferenceException ex)
+                    catch (NullReferenceException ex)
                     {
-                        throw new NullReferenceException("NServiceBus has detected a null reference in your initalization code." + 
+                        throw new NullReferenceException("NServiceBus has detected a null reference in your initalization code." +
                             " This could be due to trying to use NServiceBus.Configure before it was ready." +
                             " One possible solution is to inherit from IWantCustomInitialization in a different class" +
                             " than the one that inherits from IConfigureThisEndpoint, and put your code there.", ex);
@@ -78,21 +81,6 @@ namespace NServiceBus.Hosting
 
                 profileManager.ActivateProfileHandlers();
 
-                if (Address.Local == null)
-                {
-                    var arr = specifier.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
-                    if (arr.Length == 1)
-                    {
-                        string q = (arr[0] as EndpointNameAttribute).Name;
-                        Address.InitializeLocalAddress(q);
-                    }
-                    else
-                    {
-                        string q = specifier.GetType().Namespace;
-                        Address.InitializeLocalAddress(q);
-                    }
-                }
-
                 var bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();
@@ -108,6 +96,19 @@ namespace NServiceBus.Hosting
 
                 throw new Exception("Exception when starting endpoint, error has been logged. Reason: " + ex.Message, ex);
             }
+        }
+
+        void SetDefaultEndpointName()
+        {
+            var endpointName = specifier.GetType().Namespace;
+
+            var arr = specifier.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
+            
+            if (arr.Length == 1)
+                endpointName = (arr[0] as EndpointNameAttribute).Name;
+                
+          
+            Configure.GetEndpointNameAction = () => endpointName;
         }
 
         /// <summary>
@@ -126,13 +127,13 @@ namespace NServiceBus.Hosting
         /// <param name="specifier"></param>
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args,IEnumerable<Type> defaultProfiles)
+        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles)
         {
             this.specifier = specifier;
 
             var assembliesToScan = AssemblyScanner.GetScannableAssemblies();
 
-            profileManager = new ProfileManager(assembliesToScan, specifier, args,defaultProfiles);
+            profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
             configManager = new ConfigManager(assembliesToScan, specifier);
             wcfManager = new WcfManager(assembliesToScan);
             roleManager = new RoleManager(assembliesToScan);
