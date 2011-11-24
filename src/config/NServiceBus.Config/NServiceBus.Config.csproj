@@ -85,10 +85,12 @@
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
+    <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunWhenConfigurationIsComplete.cs" />
-    <Compile Include="MessageConventions.cs" />
+    <Compile Include="Conventions\EndpointConventions.cs" />
+    <Compile Include="Naming\DefaultEndpointName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

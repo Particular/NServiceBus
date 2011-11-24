@@ -12,6 +12,8 @@ using System.Reflection;
 
 namespace NServiceBus
 {
+    using Config.Naming;
+
     /// <summary>
     /// Central configuration entry point for NServiceBus.
     /// </summary>
@@ -211,31 +213,8 @@ namespace NServiceBus
             if (initialized)
                 return;
 
-            if (Address.Local == null) // try to find a meaningful name
-            {
-                var trace = new StackTrace();
-                StackFrame targetFrame = null;
-                foreach (var f in trace.GetFrames())
-                {
-                    if (typeof(HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType))
-                    {
-                        targetFrame = f;
-                        break;
-                    }
-                    var mi = f.GetMethod() as MethodInfo;
-                    if (mi != null && mi.IsStatic && mi.ReturnType == typeof(void) && mi.Name == "Main" && mi.DeclaringType.Name == "Program")
-                    {
-                        targetFrame = f;
-                        break;
-                    }
-                }
-
-                if (targetFrame != null)
-                {
-                    string q = targetFrame.GetMethod().ReflectedType.Namespace;
-                    Address.InitializeLocalAddress(q);
-                }
-            }
+            if (Address.Local == null && !string.IsNullOrEmpty(EndpointName))
+                Address.InitializeLocalAddress(EndpointName);
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
@@ -301,6 +280,20 @@ namespace NServiceBus
                 yield return a;
         }
 
+        /// <summary>
+        /// The name of this endpoint
+        /// </summary>
+        public static string EndpointName
+        {
+            get { return endpointName ?? (endpointName = GetEndpointNameAction()); }
+        }
+
+        /// <summary>
+        /// The function used to get the name of this endpoint
+        /// </summary>
+        public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
+
+
         private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, params string[] assembliesToSkip)
         {
             var result = new List<Assembly>();
@@ -346,8 +339,9 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
-        private static Configure instance;
-        private static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
+        static string endpointName;
+        static Configure instance;
+        static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };
         static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven.", "system.", "lucene.", "magnum." };
     }
