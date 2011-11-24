@@ -8,6 +8,8 @@ using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 
 namespace NServiceBus
 {
+    using Common.Logging;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister.
     /// </summary>
@@ -47,6 +49,14 @@ namespace NServiceBus
         {
             var nhibernateProperties = SQLiteConfiguration.UsingFile(".\\NServiceBus.Sagas.sqlite");
 
+            AppDomain.CurrentDomain.UnhandledException += (o, e) =>
+            {
+                if (e.ExceptionObject.GetType() ==
+                    typeof(AccessViolationException))
+                    LogManager.GetLogger("System.Data.SQLite").Fatal(
+                        "NServiceBus has detected an error in the operation of SQLite. SQLite is the database used to store sagas from NServiceBus when running under the 'Integration' profile. This error usually occurs only under load. If you wish to use sagas under load, it is recommended to run NServiceBus under the 'Production' profile. This can be done by passing the value 'NServiceBus.Production' on the command line to the NServiceBus.Host.exe process. For more information see http://www.NServiceBus.com/Profiles.aspx .");
+            };
+            
             return NHibernateSagaPersister(config, nhibernateProperties, true);
         }
 
