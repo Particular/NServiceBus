@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="HttpResponders\StatusResponder.cs" />
     <Compile Include="PriceUpdatedHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
