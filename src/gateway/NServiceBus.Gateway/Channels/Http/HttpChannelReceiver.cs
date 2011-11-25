@@ -73,7 +73,7 @@
 
         static IDictionary<string,string> GetHeaders(HttpListenerContext ctx)
         {
-            var headers = new Dictionary<string,string>();
+            var headers = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
 
             foreach (string header in ctx.Request.Headers.Keys)
                 headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(ctx.Request.Headers[header]));

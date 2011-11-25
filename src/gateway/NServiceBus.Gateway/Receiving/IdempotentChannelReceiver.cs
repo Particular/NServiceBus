@@ -81,7 +81,7 @@
         CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
         {
             var headers = receivedData.Headers;
-
+       
             string callType = headers[GatewayHeaders.CallTypeHeader];
             if (!Enum.IsDefined(typeof(CallType), callType))
                 throw new HttpChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");

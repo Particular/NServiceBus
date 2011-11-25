@@ -23,7 +23,7 @@
 
         public void Forward(TransportMessage message,Site targetSite)
         {
-            var headers = new Dictionary<string,string>();
+            var headers = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
             HeaderMapper.Map(message, headers);
 

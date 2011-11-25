@@ -36,6 +36,7 @@ namespace SiteB
     {
         public void Run()
         {
+            //run the installers to  make sure that all queues are created
             Configure.Instance.ForInstallationOn<Windows>().Install();
         }
     }

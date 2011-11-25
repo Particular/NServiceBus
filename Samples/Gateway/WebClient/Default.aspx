@@ -68,7 +68,7 @@
     <h1>Test on IE as involves Cross Origin Resource Sharing</h1>
 
     <p>Enter Gateway address:</p>
-    <input type="text" id="gatewayaddress" value="http://localhost:8085/headquarter/"/>
+    <input type="text" id="gatewayaddress" value="http://localhost/NServiceBus/Gateways/headquarter/"/>
 
     <input type="button" id="go" name="go" value="Send price update command to server" />
     
