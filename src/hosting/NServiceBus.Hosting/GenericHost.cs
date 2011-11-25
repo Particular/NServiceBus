@@ -78,7 +78,7 @@ namespace NServiceBus.Hosting
 
                 configManager.ConfigureCustomInitAndStartup();
 
-                profileManager.ActivateProfileHandlers();
+                ConfigureProfileManager();
 
                 var bus = Configure.Instance.CreateBus();
                 if (bus != null)
@@ -95,6 +95,11 @@ namespace NServiceBus.Hosting
 
                 throw new Exception("Exception when starting endpoint, error has been logged. Reason: " + ex.Message, ex);
             }
+        }
+
+        void ConfigureProfileManager()
+        {
+            Configure.Instance.Configurer.RegisterSingleton<ProfileManager>(profileManager);
         }
 
         /// <summary>

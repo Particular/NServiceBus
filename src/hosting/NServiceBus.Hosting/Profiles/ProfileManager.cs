@@ -8,6 +8,8 @@ using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Hosting.Profiles
 {
+    using Config;
+
     /// <summary>
     /// Scans and loads profile handlers from the given assemblies
     /// </summary>
@@ -130,5 +132,22 @@ namespace NServiceBus.Hosting.Profiles
         }
 
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Host");
+    }
+
+    /// <summary>
+    /// Activates the profiles to be used
+    /// </summary>
+    public class ProfileActivator : IWantToRunWhenConfigurationIsComplete
+    {
+        /// <summary>
+        /// The profile manager
+        /// </summary>
+        public ProfileManager ProfileManager { get; set; }
+
+        public void Run()
+        {
+            if(ProfileManager != null)
+                ProfileManager.ActivateProfileHandlers();
+        }
     }
 }
