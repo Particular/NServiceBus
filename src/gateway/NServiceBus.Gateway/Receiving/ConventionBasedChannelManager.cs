@@ -8,12 +8,9 @@ namespace NServiceBus.Gateway.Receiving
     {
         public IEnumerable<Channel> GetActiveChannels()
         {
-            //todo use the INameThisEndpoint abstraction
-            string endpointName = Address.Local.Queue;
-
             yield return new Channel
                              {
-                                 Address = string.Format("http://localhost/nservicebus/gateways/{0}/",endpointName),
+                                 Address = string.Format("http://localhost/nservicebus/gateways/{0}/",Configure.EndpointName),
                                  Type = "Http"
                              };
         }
