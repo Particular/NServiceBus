@@ -22,16 +22,6 @@ namespace NServiceBus.Utils
         private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
-        
-        ///<summary>
-        /// Utility method for creating a queue if it does not exist.
-        ///</summary>
-        ///<param name="queueName"></param>
-        ///<param name="account">The account to be given permissions to the queue</param>
-        public static void CreateQueueIfNecessary(string queueName, string account)
-        {
-            
-        }
 
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
