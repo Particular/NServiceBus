@@ -23,9 +23,6 @@ namespace NServiceBus.Hosting
         {
             try
             {
-                SetDefaultEndpointName();
-
-
                 if (specifier is IWantCustomLogging)
                     (specifier as IWantCustomLogging).Init();
                 else
@@ -100,21 +97,6 @@ namespace NServiceBus.Hosting
             }
         }
 
-        void SetDefaultEndpointName()
-        {
-            var endpointName = specifier.GetType().Namespace;
-
-            var arr = specifier.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
-            
-            if (arr.Length == 1)
-                endpointName = (arr[0] as EndpointNameAttribute).Name;
-              
-            if(specifier is INameThisEndpoint)
-                endpointName = (specifier as INameThisEndpoint).GetName();
-
-            Configure.GetEndpointNameAction = () => endpointName;
-        }
-
         /// <summary>
         /// Does shutdown work.
         /// </summary>
@@ -131,9 +113,11 @@ namespace NServiceBus.Hosting
         /// <param name="specifier"></param>
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles)
+        /// <param name="endpointName"></param>
+        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles, string endpointName)
         {
             this.specifier = specifier;
+            Configure.GetEndpointNameAction = () => endpointName;
 
             var assembliesToScan = AssemblyScanner.GetScannableAssemblies()
                 .ToList();

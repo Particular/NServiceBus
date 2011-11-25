@@ -37,9 +37,19 @@ namespace NServiceBus.Hosting.Windows
 
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-            //var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
-
+          
             var endpointName = GetEndpointName(endpointConfigurationType);
+            var endpointVersion = GetEndpointVersion(endpointConfigurationType);
+
+            if (arguments.ServiceName != null)
+                endpointName = arguments.ServiceName.Value;
+
+            var serviceName = endpointName;
+
+            var displayName = serviceName + "-" + endpointVersion;
+
+            //add the endpoint name so that the new appdomain can get it
+            args = args.Concat(new[] {endpointName}).ToArray();
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
@@ -68,17 +78,13 @@ namespace NServiceBus.Hosting.Windows
                                                                        x.DoNotStartAutomatically();
                                                                    }
 
-                                                                   x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : endpointName);
-                                                                   x.SetServiceName(arguments.ServiceName != null ? arguments.ServiceName.Value : endpointName);
-                                                                   x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service");
+                                                                   x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : displayName);
+                                                                   x.SetServiceName(serviceName);
+                                                                   x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service for " + displayName);
                                                                    x.DependencyOnMsmq();
 
                                                                    var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
-
-                                                                   if (arguments.ServiceName != null)
-                                                                   {
-                                                                       serviceCommandLine += " /serviceName:\"" + arguments.ServiceName.Value + "\"";
-                                                                   }
+                                                                   serviceCommandLine += " /serviceName:\"" + serviceName + "\"";
 
                                                                    x.SetServiceCommandLine(serviceCommandLine);
 
@@ -99,6 +105,14 @@ namespace NServiceBus.Hosting.Windows
                                                                });
 
             Runner.Host(cfg, args);
+        }
+
+        static string GetEndpointVersion(Type endpointConfigurationType)
+        {
+            var fileVersion = FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name));
+          
+            //build a semver compliant version
+            return string.Format("{0}.{1}.{2}",fileVersion.FileMajorPart,fileVersion.FileMinorPart,fileVersion.FileBuildPart);
         }
 
         private static void DisplayHelpContent()
@@ -123,6 +137,7 @@ namespace NServiceBus.Hosting.Windows
         private static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
+            HostServiceLocator.EndpointName = args.Last();
         }
 
         private static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
@@ -135,7 +150,7 @@ namespace NServiceBus.Hosting.Windows
 
         private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
         {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
         /// <summary>
@@ -144,9 +159,19 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="endpointConfigurationType"></param>
         /// <returns></returns>
         static string GetEndpointName(Type endpointConfigurationType)
-        {
-            //FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name));
-            return endpointConfigurationType.Namespace; //todo
+        {  
+            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
+            var endpointName = endpointConfiguration.GetType().Namespace;
+
+            var arr = endpointConfiguration.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
+
+            if (arr.Length == 1)
+                endpointName = (arr[0] as EndpointNameAttribute).Name;
+
+            if (endpointConfiguration is INameThisEndpoint)
+                endpointName = (endpointConfiguration as INameThisEndpoint).GetName();
+            
+            return endpointName;
         }
 
         private static Type GetEndpointConfigurationType(HostArguments arguments)
@@ -184,13 +209,13 @@ namespace NServiceBus.Hosting.Windows
         private static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
             foreach (var assembly in AssemblyScanner.GetScannableAssemblies())
-				foreach (Type type in assembly.GetTypes().Where(
-						t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t) 
-						&& t != typeof(IConfigureThisEndpoint)
-						&& !t.IsAbstract))
-				{
-					yield return type;
-				}
+                foreach (Type type in assembly.GetTypes().Where(
+                        t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
+                        && t != typeof(IConfigureThisEndpoint)
+                        && !t.IsAbstract))
+                {
+                    yield return type;
+                }
         }
 
         private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)

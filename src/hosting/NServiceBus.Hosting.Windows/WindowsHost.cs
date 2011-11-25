@@ -15,11 +15,12 @@ namespace NServiceBus.Hosting.Windows
         /// </summary>
         /// <param name="endpointType"></param>
         /// <param name="args"></param>
-        public WindowsHost(Type endpointType, string[] args)
+        /// <param name="endpointName"></param>
+        public WindowsHost(Type endpointType, string[] args, string endpointName)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) });
+            genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) }, endpointName);
         }
 
         /// <summary>

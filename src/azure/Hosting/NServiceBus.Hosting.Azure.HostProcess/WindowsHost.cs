@@ -25,7 +25,7 @@ namespace NServiceBus.Hosting.Azure.HostProcess
 
             args = AddProfilesFromConfiguration(args);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Development), typeof(OnAzureTableStorage) });
+            genericHost = new GenericHost(specifier, args, new[] { typeof(Development), typeof(OnAzureTableStorage) }, Program.EndpointId);
         }
 
         /// <summary>

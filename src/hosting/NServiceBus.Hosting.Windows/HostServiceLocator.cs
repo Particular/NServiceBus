@@ -15,6 +15,11 @@ namespace NServiceBus.Hosting.Windows
         public static string[] Args;
 
         /// <summary>
+        /// The name of this endpoint
+        /// </summary>
+        public static string EndpointName { get; set; }
+
+        /// <summary>
         /// Returns an instance of <see cref="GenericHost"/>
         /// </summary>
         /// <param name="serviceType"></param>
@@ -23,7 +28,7 @@ namespace NServiceBus.Hosting.Windows
         protected override object DoGetInstance(Type serviceType, string key)
         {
             var endpoint = Type.GetType(key,true);
-            return new WindowsHost(endpoint, Args);
+            return new WindowsHost(endpoint, Args, EndpointName);
         }
 
         /// <summary>
