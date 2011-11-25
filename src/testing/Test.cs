@@ -40,6 +40,7 @@ namespace NServiceBus.Testing
         private static void InitializeInternal()
         {
             Configure.Instance
+                .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
                 .XmlSerializer()
