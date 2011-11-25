@@ -1,5 +1,6 @@
-﻿namespace NServiceBus.Config.Naming
+﻿namespace NServiceBus.Config.Conventions
 {
+    using System;
     using System.Diagnostics;
     using System.Reflection;
     using System.Web;
@@ -39,7 +40,8 @@
             if (targetFrame != null)
                 return targetFrame.GetMethod().ReflectedType.Namespace;
 
-            return "";
+            throw new InvalidOperationException(
+                "No endpoint name could be generated, please specify your own convention using Configure.DefineEndpointName(...)");
         }
     }
 }

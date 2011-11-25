@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace NServiceBus
 {
-    using Config.Naming;
+    using Config.Conventions;
 
     /// <summary>
     /// Central configuration entry point for NServiceBus.
@@ -212,9 +212,6 @@ namespace NServiceBus
         {
             if (initialized)
                 return;
-
-            if (Address.Local == null && !string.IsNullOrEmpty(EndpointName))
-                Address.InitializeLocalAddress(EndpointName);
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
