@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Web;
     using log4net;
     using System.Net;
@@ -37,6 +38,13 @@
         {
             try
             {
+                if(ctx.Request.HttpMethod == "GET")
+                {
+                    Configure.Instance.Builder.BuildAll<IHandleGatewayGets>().ToList()
+                        .ForEach(h=>h.Handle(ctx));
+                    return;
+                }
+
                 var streamToReturn = new MemoryStream();
 
                 ctx.Request.InputStream.CopyTo_net35(streamToReturn, MaximumBytesToRead);

@@ -19,8 +19,7 @@ namespace SiteB
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()
-                .AllowDiscovery()
-                .GatewayWithInMemoryPersistence()
+                .Gateway()
                 .CreateBus()
                 .Start();
 ;

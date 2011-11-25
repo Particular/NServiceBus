@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Config;
     using Gateway.Channels;
     using Gateway.Config;
     using Gateway.Installation;
@@ -19,7 +20,8 @@
 
     public static class GatewayConfiguration
     {
-       
+        public static Address GatewayInputAddress { get; private set; }
+
         public static Configure Gateway(this Configure config)
         {
             return Gateway(config, typeof(InMemoryPersistence));
@@ -36,9 +38,9 @@
 
             return Gateway(config, typeof(RavenDBPersistence));
         }
-        public static Configure Gateway(this Configure config,Type persistence)
+        public static Configure Gateway(this Configure config, Type persistence)
         {
-            config.Configurer.ConfigureComponent(persistence,DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent(persistence, DependencyLifecycle.SingleInstance);
 
             return SetupGateway(config);
         }
@@ -46,18 +48,13 @@
 
         static Configure SetupGateway(this Configure config)
         {
-            var gatewayInputAddress = Address.Local.SubScope("gateway");
+            GatewayInputAddress = Address.Local.SubScope("gateway");
 
-            Installer.GatewayInputQueue = gatewayInputAddress;
-            
             ConfigureChannels(config);
-          
 
             ConfigureReceiver(config);
-            
-            ConfigureSender(config);
 
-            ConfigureStartup(gatewayInputAddress);
+            ConfigureSender(config);
 
             return config;
         }
@@ -75,27 +72,13 @@
             config.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
         }
 
-        static void ConfigureStartup(Address gatewayInputAddress)
-        {
-            Configure.ConfigurationComplete +=
-                () =>
-                    {
-                        Configure.Instance.Builder.Build<IStartableBus>()
-                            .Started += (sender, eventargs) =>
-                                {
-                                    Configure.Instance.Builder.Build<GatewayReceiver>().Start(gatewayInputAddress);
-                                    Configure.Instance.Builder.Build<GatewaySender>().Start(gatewayInputAddress);
-                                };
-                    };
-        }
-
         static void ConfigureSender(Configure config)
         {
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
-  
+
             config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
 
             ConfigureSiteRouters(config);
@@ -118,6 +101,20 @@
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                                                .ConfigureProperty(x => x.MainInputAddress, Address.Local);
 
+        }
+    }
+
+    public class GatewayBootstrapper : IWantToRunWhenConfigurationIsComplete
+    {
+        public void Run()
+        {
+            //todo . introduce a IWantToRunWhenTheBusIsStarted
+            Configure.Instance.Builder.Build<IStartableBus>()
+                            .Started += (s, e) =>
+                                            {
+                                                Configure.Instance.Builder.Build<GatewaySender>().Start(GatewayConfiguration.GatewayInputAddress);
+                                                Configure.Instance.Builder.Build<GatewayReceiver>().Start(GatewayConfiguration.GatewayInputAddress);
+                                            };
         }
     }
 }

@@ -6,12 +6,10 @@ namespace NServiceBus.Gateway.Installation
 
     public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
     {
-        public static Address GatewayInputQueue { get; set; }
-
         public void Install(WindowsIdentity identity)
         {
-            if (!string.IsNullOrEmpty(GatewayInputQueue))
-                MsmqUtilities.CreateQueueIfNecessary(GatewayInputQueue, identity.Name);
+            if (!string.IsNullOrEmpty(GatewayConfiguration.GatewayInputAddress))
+                MsmqUtilities.CreateQueueIfNecessary(GatewayConfiguration.GatewayInputAddress, identity.Name);
         }
     }
 }
