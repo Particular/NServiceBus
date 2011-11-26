@@ -8,7 +8,8 @@ namespace NServiceBus.Faults.Forwarder.Config
     {
         public void Install(WindowsIdentity identity)
         {
-            MsmqUtilities.CreateQueueIfNecessary(ConfigureFaultsForwarder.ErrorQueue, identity.Name);
+            if(ConfigureFaultsForwarder.ErrorQueue != null)
+                MsmqUtilities.CreateQueueIfNecessary(ConfigureFaultsForwarder.ErrorQueue, identity.Name);
         }
     }
 }

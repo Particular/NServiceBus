@@ -30,13 +30,13 @@ namespace NServiceBus
                 if (msmq == null)
                     throw new ConfigurationErrorsException("Could not find backup configuration section 'MsmqTransportConfig' in order to locate the error queue.");
 
-                
-                ErrorQueue = msmq.ErrorQueue;
+
+                ErrorQueue = Address.Parse(msmq.ErrorQueue);
             }
             else
-                ErrorQueue = section.ErrorQueue;
+                ErrorQueue =  Address.Parse(section.ErrorQueue);
 
-			if(string.IsNullOrEmpty(ErrorQueue))
+			if(ErrorQueue == Address.Undefined)
 				throw new ConfigurationErrorsException("Faults forwarding requires a error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
              
             config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
@@ -48,7 +48,7 @@ namespace NServiceBus
         /// <summary>
         /// The queue to which to forward errors.
         /// </summary>
-        public static string ErrorQueue { get; set; }
+        public static Address ErrorQueue { get; set; }
 
         private static ILog Logger = LogManager.GetLogger("MessageForwardingInCaseOfFault");
     }

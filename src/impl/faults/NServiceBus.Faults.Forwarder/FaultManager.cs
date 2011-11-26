@@ -75,7 +75,7 @@ namespace NServiceBus.Faults.Forwarder
         /// <summary>
         /// Endpoint to which message failures are forwarded
         /// </summary>
-        public string ErrorQueue { get; set; }
+        public Address ErrorQueue { get; set; }
 
         /// <summary>
         /// Indicates of exceptions should be sanitized before sending them on
