@@ -78,8 +78,6 @@ namespace NServiceBus.Hosting
 
                 configManager.ConfigureCustomInitAndStartup();
 
-                ConfigureProfileManager();
-
                 var bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();
@@ -97,10 +95,7 @@ namespace NServiceBus.Hosting
             }
         }
 
-        void ConfigureProfileManager()
-        {
-            Configure.Instance.Configurer.RegisterSingleton<ProfileManager>(profileManager);
-        }
+     
 
         /// <summary>
         /// Does shutdown work.
@@ -128,6 +123,8 @@ namespace NServiceBus.Hosting
                 .ToList();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
+            ProfileActivator.ProfileManager = profileManager;
+
             configManager = new ConfigManager(assembliesToScan, specifier);
             wcfManager = new WcfManager(assembliesToScan);
             roleManager = new RoleManager(assembliesToScan);

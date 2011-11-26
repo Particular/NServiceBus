@@ -137,16 +137,16 @@ namespace NServiceBus.Hosting.Profiles
     /// <summary>
     /// Activates the profiles to be used
     /// </summary>
-    public class ProfileActivator : IWantToRunWhenConfigurationIsComplete
+    public class ProfileActivator : INeedInitialization
     {
         /// <summary>
         /// The profile manager
         /// </summary>
-        public ProfileManager ProfileManager { get; set; }
+        public static ProfileManager ProfileManager { get; set; }
 
-        public void Run()
+        public void Init()
         {
-            if(ProfileManager != null)
+            if (ProfileManager != null)
                 ProfileManager.ActivateProfileHandlers();
         }
     }
