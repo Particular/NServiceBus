@@ -928,6 +928,9 @@ namespace NServiceBus.Unicast
         {
             try
             {
+                if (m.Body == null || m.Body.Length == 0)
+                    return null;
+
                 return MessageSerializer.Deserialize(new MemoryStream(m.Body));
             }
             catch (Exception e)
@@ -1054,22 +1057,18 @@ namespace NServiceBus.Unicast
                 HandleTransportMessage(child, e.Message);
         }
 
-        private void HandleTransportMessage(IBuilder builder, TransportMessage msg)
+        private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             _messageBeingHandled = msg;
 
-            unitOfWorkManager = BuildUnitOfWorkManager(builder);
-            
-            if (unitOfWorkManager != null)
-                unitOfWorkManager.Begin();
-
             try
             {
+                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.Begin());
 
                 modules = new List<IMessageModule>();
-                var mods = builder.BuildAll<IMessageModule>();
+                var mods = childBuilder.BuildAll<IMessageModule>();
                 if (mods != null)
                     modules.AddRange(mods);
 
@@ -1079,7 +1078,7 @@ namespace NServiceBus.Unicast
                     module.HandleBeginMessage(); //don't need to call others if one fails
                 }
 
-                var transportMutators = builder.BuildAll<IMutateIncomingTransportMessages>();
+                var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
                 if (transportMutators != null)
                     foreach (var mutator in transportMutators)
                         mutator.MutateIncoming(msg);
@@ -1106,31 +1105,21 @@ namespace NServiceBus.Unicast
                     MessageReceived(msg);
 
                 if (!disableMessageHandling)
-                    HandleMessage(builder, msg);
+                    HandleMessage(childBuilder, msg);
 
-                if (unitOfWorkManager != null)
-                    unitOfWorkManager.End(); //this will only be called if no exception occured which is what we want
+                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.End());
+
             }
             catch (Exception ex)
             {
-                if (unitOfWorkManager != null)
-                    unitOfWorkManager.End(ex); //this will only be called if no exception occured which is what we want
-
+                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.End(ex));
                 throw;
             }
 
             Log.Debug("Finished handling message.");
         }
 
-        IManageUnitsOfWork BuildUnitOfWorkManager(IBuilder builder)
-        {
-            if(Configure.Instance.Configurer.HasComponent<IManageUnitsOfWork>())
-                return builder.Build<IManageUnitsOfWork>();
-
-            return null;
-        }
-
-        private static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
+        static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
         {
             return (from header in msg.Headers where header.Key == SubscriptionMessageType select header.Value).FirstOrDefault();
         }
@@ -1566,11 +1555,6 @@ namespace NServiceBus.Unicast
         static List<IMessageModule> modules;
 
         /// <summary>
-        /// Object used to manage units of work.
-        /// </summary>
-        static IManageUnitsOfWork unitOfWorkManager;
-
-        /// <summary>
         /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
@@ -1600,5 +1584,24 @@ namespace NServiceBus.Unicast
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
         #endregion
+    }
+
+
+    /// <summary>
+    /// Extansion methods for IBuilder
+    /// </summary>
+    public static class BuilderExtensions
+    {
+         /// <summary>
+         /// Applies the action on the instances of T
+         /// </summary>
+         /// <param name="builder"></param>
+         /// <param name="action"></param>
+         /// <typeparam name="T"></typeparam>
+         public static void ForEach<T>(this IBuilder builder,Action<T> action)
+         {
+             builder.BuildAll<T>().ToList()
+                 .ForEach(action);
+         }
     }
 }

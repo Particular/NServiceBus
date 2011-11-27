@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using MasterNode;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -13,7 +14,7 @@ namespace NServiceBus.Unicast.Tests
     using Rhino.Mocks.Generated;
     using Serialization;
     using Subscriptions;
-    using Transport;
+    using UnitOfWork;
 
     public class using_a_configured_unicastbus
     {
@@ -26,6 +27,10 @@ namespace NServiceBus.Unicast.Tests
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
         MessageMapper messageMapper = new MessageMapper();
+
+        protected FakeTransport Transport = new FakeTransport();
+        protected IList<IMessageModule> MessageModules = new List<IMessageModule>();
+        protected IList<IManageUnitsOfWork> UnitsOfWork = new List<IManageUnitsOfWork>();
 
         [SetUp]
         public void SetUp()
@@ -51,6 +56,9 @@ namespace NServiceBus.Unicast.Tests
             subscriptionStorage = new FakeSubscriptionStorage();
 
             builder.Stub(x => x.BuildAll<IMutateOutgoingMessages>()).Return(new IMutateOutgoingMessages[] { });
+            builder.Stub(x => x.BuildAll<IMessageModule>()).Return(MessageModules);
+            builder.Stub(x => x.BuildAll<IManageUnitsOfWork>()).Return(UnitsOfWork);
+            builder.Stub(x => x.CreateChildBuilder()).Return(builder);
 
             builder.Stub(x => x.BuildAll<IMutateOutgoingTransportMessages>()).Return(new IMutateOutgoingTransportMessages[] { headerManager });
 
@@ -61,7 +69,7 @@ namespace NServiceBus.Unicast.Tests
                 Builder = builder,
                 MasterNodeManager = masterNodeManager,
                 MessageSender = messageSender,
-                Transport = MockRepository.GenerateStub<ITransport>(),
+                Transport =Transport,
                 SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
                 MessageMapper = messageMapper
@@ -70,6 +78,12 @@ namespace NServiceBus.Unicast.Tests
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
 
         }
+
+        protected void RegisterUow(IManageUnitsOfWork uow)
+        {
+            UnitsOfWork.Add(uow);
+        }
+
 
         protected void RegisterMessageHandlerType<T>()
         {

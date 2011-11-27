@@ -9,15 +9,20 @@ namespace MyServer
     {
         public void Begin()
         {
-            Console.WriteLine("UoW: Begin");
+            LogMessage("Begin");
         }
 
         public void End(Exception ex)
         {
             if (ex == null)
-                Console.WriteLine("UoW: Commit");
+                LogMessage("Commit");
             else
-                Console.WriteLine("UoW: Rollback, reason: " + ex);
+                LogMessage("Rollback, reason: " + ex);
+        }
+
+        void LogMessage(string message)
+        {
+            Console.WriteLine(string.Format("UoW({0}) - {1}",GetHashCode(), message));
         }
     }
 
