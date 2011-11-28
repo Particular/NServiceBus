@@ -1,20 +1,18 @@
-namespace NServiceBus.Unicast.Tests
+namespace NServiceBus.Unicast.Tests.Contexts
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using MasterNode;
-    using MessageInterfaces.MessageMapper.Reflection;
-    using MessageMutator;
+    using Helpers;
+    using NServiceBus.Faults;
+    using NServiceBus.MasterNode;
+    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
-    using ObjectBuilder;
-    using Queuing;
+    using NServiceBus.Unicast.Queuing;
     using Rhino.Mocks;
-    using Rhino.Mocks.Generated;
-    using Serialization;
-    using Subscriptions;
-    using UnitOfWork;
+    using NServiceBus.Serializers.XML;
+    using NServiceBus.Unicast.Transport;
+    using NServiceBus.UnitOfWork;
 
     public class using_a_configured_unicastbus
     {
@@ -26,11 +24,12 @@ namespace NServiceBus.Unicast.Tests
 
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
-        MessageMapper messageMapper = new MessageMapper();
+        MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport = new FakeTransport();
         protected IList<IMessageModule> MessageModules = new List<IMessageModule>();
-        protected IList<IManageUnitsOfWork> UnitsOfWork = new List<IManageUnitsOfWork>();
+        protected XmlMessageSerializer MessageSerializer;
+        protected FuncBuilder FuncBuilder = new FuncBuilder();
 
         [SetUp]
         public void SetUp()
@@ -46,33 +45,28 @@ namespace NServiceBus.Unicast.Tests
             {
             }
 
+            MessageSerializer = new XmlMessageSerializer(MessageMapper);
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
             gatewayAddress = masterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
-            var builder = MockRepository.GenerateStub<IBuilder>();
 
             subscriptionStorage = new FakeSubscriptionStorage();
-
-            builder.Stub(x => x.BuildAll<IMutateOutgoingMessages>()).Return(new IMutateOutgoingMessages[] { });
-            builder.Stub(x => x.BuildAll<IMessageModule>()).Return(MessageModules);
-            builder.Stub(x => x.BuildAll<IManageUnitsOfWork>()).Return(UnitsOfWork);
-            builder.Stub(x => x.CreateChildBuilder()).Return(builder);
-
-            builder.Stub(x => x.BuildAll<IMutateOutgoingTransportMessages>()).Return(new IMutateOutgoingTransportMessages[] { headerManager });
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
 
             masterNodeManager.Stub(x => x.GetMasterNode()).Return(masterNodeAddress);
             unicastBus = new UnicastBus
             {
-                MessageSerializer = MockRepository.GenerateStub<IMessageSerializer>(),
-                Builder = builder,
+                MessageSerializer = MessageSerializer,
+                Builder = FuncBuilder,
                 MasterNodeManager = masterNodeManager,
                 MessageSender = messageSender,
-                Transport =Transport,
+                Transport = Transport,
                 SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
-                MessageMapper = messageMapper
+                MessageMapper = MessageMapper,
+                FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
             };
             bus = unicastBus;
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
@@ -81,7 +75,7 @@ namespace NServiceBus.Unicast.Tests
 
         protected void RegisterUow(IManageUnitsOfWork uow)
         {
-            UnitsOfWork.Add(uow);
+            FuncBuilder.Register<IManageUnitsOfWork>(() => uow);
         }
 
 
@@ -91,7 +85,7 @@ namespace NServiceBus.Unicast.Tests
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            unicastBus.MessageOwners = new Dictionary<Type, Address> { { typeof(T),Address.Local} };
+            unicastBus.MessageOwners = new Dictionary<Type, Address> { { typeof(T), Address.Local } };
         }
         protected Address RegisterMessageType<T>()
         {
@@ -103,8 +97,8 @@ namespace NServiceBus.Unicast.Tests
 
         protected void RegisterMessageType<T>(Address address)
         {
-            if (typeof(T).IsInterface)
-                messageMapper.Initialize(new[] { typeof(T) });
+            MessageMapper.Initialize(new[] { typeof(T) });
+            MessageSerializer.Initialize(new[] { typeof(T) });
             unicastBus.RegisterMessageType(typeof(T), address);
 
         }
@@ -123,53 +117,18 @@ namespace NServiceBus.Unicast.Tests
         {
             StartBus();
         }
-    }
 
-    public class FakeSubscriptionStorage : ISubscriptionStorage
-    {
-
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        protected Exception ResultingException;
+        protected void ReceiveMessage(TransportMessage transportMessage)
         {
-            messageTypes.ToList().ForEach(messageType =>
+            try
             {
-                if (!storage.ContainsKey(messageType))
-                    storage[messageType] = new List<Address>();
-
-                if (!storage[messageType].Contains(address))
-                    storage[messageType].Add(address);
-            });
-        }
-
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
-        {
-            messageTypes.ToList().ForEach(messageType =>
-                                              {
-                                                  if (storage.ContainsKey(messageType))
-                                                      storage[messageType].Remove(address);
-                                              });
-        }
-
-
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
-        {
-            var result = new List<Address>();
-            messageTypes.ToList().ForEach(m =>
+                Transport.FakeTransportMessageReceived(transportMessage);
+            }
+            catch (Exception ex)
             {
-                if (storage.ContainsKey(m))
-                    result.AddRange(storage[m]);
-            });
-
-            return result;
+                ResultingException = ex; 
+            }
         }
-        public void FakeSubscribe<T>(Address address)
-        {
-            ((ISubscriptionStorage)this).Subscribe(address, new[] { new MessageType(typeof(T)) });
-        }
-
-        public void Init()
-        {
-        }
-
-        readonly Dictionary<MessageType, List<Address>> storage = new Dictionary<MessageType, List<Address>>();
     }
 }

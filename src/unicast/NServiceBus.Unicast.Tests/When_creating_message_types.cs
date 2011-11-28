@@ -2,7 +2,6 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using NUnit.Framework;
-    using SomeUserNamespace;
 
     [TestFixture]
     public class When_creating_message_types

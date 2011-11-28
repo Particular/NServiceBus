@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using SomeUserNamespace;
     using Subscriptions;
     using Transport;
 

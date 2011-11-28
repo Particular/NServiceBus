@@ -1,9 +1,9 @@
 namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using SomeUserNamespace;
     using Transport;
 
     [TestFixture]

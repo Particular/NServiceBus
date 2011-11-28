@@ -1,14 +1,13 @@
-﻿using System;
-using NServiceBus;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.Serialization;
-using NServiceBus.Unicast.Transport;
-using NUnit.Framework;
-using Rhino.Mocks;
-using SomeUserNamespace;
-
-namespace NServiceBus.Unicast.Tests
+﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
+    using NServiceBus;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Serialization;
+    using NServiceBus.Unicast.Transport;
+    using NUnit.Framework;
+    using Rhino.Mocks;
+
     [TestFixture]
     public class When_the_bus_is_started_in_send_only_mode
     {
@@ -77,10 +76,7 @@ namespace NServiceBus.Unicast.Tests
     public class SomeBuiltinMessage : IMessage
     {
     }
-}
 
-namespace SomeUserNamespace
-{
     public class TestMessageHandler : IHandleMessages<TestMessage>
     {
         public void Handle(TestMessage message)

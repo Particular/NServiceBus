@@ -62,6 +62,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Serializers.XML">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.XML.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
@@ -88,9 +91,13 @@
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
+    <Compile Include="Helpers\FakeSubscriptionStorage.cs" />
+    <Compile Include="Helpers\FuncBuilder.cs" />
     <Compile Include="Contexts\InterfaceMessage.cs" />
+    <Compile Include="Helpers\FakeTransport.cs" />
+    <Compile Include="Helpers\Helpers.cs" />
     <Compile Include="Sending.cs" />
-    <Compile Include="Contexts\MessageHeaderManager.cs" />
+    <Compile Include="Helpers\MessageHeaderManager.cs" />
     <Compile Include="Publishing.cs" />
     <Compile Include="Contexts\using_the_unicastbus.cs" />
     <Compile Include="Subscriptions.cs" />

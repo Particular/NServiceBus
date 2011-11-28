@@ -390,7 +390,7 @@ namespace NServiceBus.Unicast
 
             subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
 
-           
+
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
             var subscriptionMessage = ControlMessage.Create();
 
@@ -593,17 +593,17 @@ namespace NServiceBus.Unicast
         {
             messages.ToList()
                         .ForEach(message => AssertIsValidForSend(message.GetType(), messageIntent));
-          
+
             addresses.ToList()
                 .ForEach(address =>
                              {
-                                 if(address == Address.Undefined)
+                                 if (address == Address.Undefined)
                                      throw new InvalidOperationException("No destination specified for message(s): " +
-                                                                         string.Join(";",messages.Select(m => m.GetType())));
+                                                                         string.Join(";", messages.Select(m => m.GetType())));
                              });
 
             AssertBusIsStarted();
-            
+
 
             var result = new List<string>();
 
@@ -871,7 +871,7 @@ namespace NServiceBus.Unicast
 
             var messages = new object[0];
 
-            if(!m.IsControlMessage())
+            if (!m.IsControlMessage())
             {
                 messages = Extract(m);
 
@@ -879,7 +879,7 @@ namespace NServiceBus.Unicast
                 {
                     Log.Warn("Received an empty message - ignoring.");
                     return;
-                }    
+                }
             }
 
             HandleCorellatedMessage(m, messages);
@@ -1592,16 +1592,17 @@ namespace NServiceBus.Unicast
     /// </summary>
     public static class BuilderExtensions
     {
-         /// <summary>
-         /// Applies the action on the instances of T
-         /// </summary>
-         /// <param name="builder"></param>
-         /// <param name="action"></param>
-         /// <typeparam name="T"></typeparam>
-         public static void ForEach<T>(this IBuilder builder,Action<T> action)
-         {
-             builder.BuildAll<T>().ToList()
-                 .ForEach(action);
-         }
+        /// <summary>
+        /// Applies the action on the instances of T
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void ForEach<T>(this IBuilder builder, Action<T> action)
+        {
+            var objs = builder.BuildAll<T>().ToList();
+
+            objs.ForEach(action);
+        }
     }
 }

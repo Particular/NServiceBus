@@ -1,4 +1,4 @@
-namespace SomeUserNamespace
+namespace NServiceBus.Unicast.Tests.Contexts
 {
     using NServiceBus;
 
