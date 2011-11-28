@@ -16,6 +16,7 @@
         public IStartableBus Bus { get; set; }
 
         public IBuilder Builder { get; set; }
+
         
         public void Run()
         {
@@ -34,9 +35,8 @@
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;
 
 
-            var timeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
-
-            Bus.Started += (obj, ev) => inputTransport.Start(timeoutManagerAddress);
+         
+            Bus.Started += (obj, ev) => inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
         }
 
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)

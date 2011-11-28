@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.Timeout.Hosting.Windows.Config
+﻿namespace NServiceBus
 {
-    using Core;
-    using ObjectBuilder;
-    using Persistence;
+    using Timeout.Core;
+    using Timeout.Hosting.Windows.Persistence;
 
     public static class ConfigureTimeoutManager
     {
@@ -12,6 +11,8 @@
         {
             TimeoutManagerEnabled = true;
 
+            TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TimeoutMessageHandler>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall)
@@ -19,5 +20,8 @@
 
             return config;
         }
+
+        public static Address TimeoutManagerAddress { get; set; }
+
     }
 }
