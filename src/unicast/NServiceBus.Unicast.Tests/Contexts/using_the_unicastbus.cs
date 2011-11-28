@@ -123,7 +123,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                Transport.FakeTransportMessageReceived(transportMessage);
+                Transport.FakeMessageBeeingProcessed(transportMessage);
             }
             catch (Exception ex)
             {

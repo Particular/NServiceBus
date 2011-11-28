@@ -96,6 +96,7 @@
     <Compile Include="Contexts\InterfaceMessage.cs" />
     <Compile Include="Helpers\FakeTransport.cs" />
     <Compile Include="Helpers\Helpers.cs" />
+    <Compile Include="MessageModules.cs" />
     <Compile Include="Sending.cs" />
     <Compile Include="Helpers\MessageHeaderManager.cs" />
     <Compile Include="Publishing.cs" />

@@ -1063,9 +1063,11 @@ namespace NServiceBus.Unicast
 
             _messageBeingHandled = msg;
 
+            var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
+
             try
             {
-                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.Begin());
+                unitsOfWork.ForEach(uow => uow.Begin());
 
                 modules = new List<IMessageModule>();
                 var mods = childBuilder.BuildAll<IMessageModule>();
@@ -1107,12 +1109,12 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.End());
+                unitsOfWork.ForEach(uow => uow.End());
 
             }
             catch (Exception ex)
             {
-                childBuilder.ForEach<IManageUnitsOfWork>(uow => uow.End(ex));
+                unitsOfWork.ForEach(uow => uow.End(ex));
                 throw;
             }
 
