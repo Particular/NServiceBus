@@ -17,7 +17,7 @@ task default -depends CreatePackages
 task CreatePackages {
 	import-module ./NuGet\packit.psm1
 	
-	Write-Output "Loding the moduele for packing.............."
+	Write-Output "Loading the module for packing.............."
 	$packit.push_to_nuget = $true 
 	
 	
@@ -37,15 +37,20 @@ task CreatePackages {
 
 	#region Packing NServiceBus
 	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
-	
 	$packit.package_description = "The most popular open-source service bus for .net"
 	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
 	#endregion
 	
-	#region Packing NServiceBus.Host
+    #region Packing NServiceBus.Host
 	$packageName = "NServiceBus.Host" + $packageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";".\release\net40\binaries\NServiceBus.Host.*"="lib\net40\x64"} $null $true 
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"} $null $true 
+	#endregion
+
+	#region Packing NServiceBus.Host32
+	$packageName = "NServiceBus.Host32" + $packageNameSuffix
+	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"} $null $true 
 	#endregion
 	
 	#region Packing NServiceBus.Testing
@@ -137,11 +142,10 @@ task FinalizeAndClean -depends ZipOutput{
 	echo Finalize and Clean
     if(Test-Path -Path $release_dir)
 	{
-		del -Path $release_dir -Force -recurse
+        del -Path $release_dir -Force -recurse
 	}	
 	echo Finalize and Clean
 }
-
 
 task ZipOutput -depends CreatePackages {
 
@@ -156,7 +160,7 @@ task ZipOutput -depends CreatePackages {
 	}
 	
 	if(Test-Path -Path $packageOutPutDir){
-		del -Path $packageOutPutDir -Force -recurse
+        del -Path $packageOutPutDir -Force -recurse
 	}
 	
 	
