@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Timeout.MessageHandlers
+﻿namespace NServiceBus.Timeout.Core
 {
+    using System;
+
     /// <summary>
     /// Manages timeouts for sagas.
     /// Implementors must be thread-safe.

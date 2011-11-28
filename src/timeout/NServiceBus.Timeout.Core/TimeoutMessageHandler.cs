@@ -1,35 +1,41 @@
-using NServiceBus;
-using NServiceBus.Saga;
-
-namespace Timeout.MessageHandlers
+namespace NServiceBus.Timeout.Core
 {
-    public class TimeoutMessageHandler : IMessageHandler<TimeoutMessage>
+    using System;
+    using NServiceBus;
+    using Unicast.Transport;
+
+    public class TimeoutMessageHandler
     {
         public IPersistTimeouts Persister { get; set; }
         public IManageTimeouts Manager { get; set; }
         public IBus Bus { get; set; }
 
-        public void Handle(TimeoutMessage message)
+        public void Handle(TransportMessage message)
         {
-            if (message.ClearTimeout)
+            var sagaId = Guid.Empty;
+
+            if (message.Headers.ContainsKey(Headers.SagaId))
+                sagaId = Guid.Parse(message.Headers[Headers.SagaId]);
+
+                
+            if (message.Headers.ContainsKey(Headers.ClearTimeout))
             {
-                Manager.ClearTimeout(message.SagaId);
-                Persister.Remove(message.SagaId);
+                Manager.ClearTimeout(sagaId);
+                Persister.Remove(sagaId);
             }
             else
             {
                 var data = new TimeoutData
                                {
                                    Destination = Bus.CurrentMessageContext.ReplyToAddress,
-                                   SagaId = message.SagaId,
-                                   State = message.State,
-                                   Time = message.Expires
+                                   SagaId = sagaId,
+                                   State = message.Body,
+                                   Time = DateTime.Parse(message.Headers[Headers.Expire])
                                };
 
                 Manager.PushTimeout(data);
                 Persister.Add(data);
             }
-
-            Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
-    }}
+    }
+}

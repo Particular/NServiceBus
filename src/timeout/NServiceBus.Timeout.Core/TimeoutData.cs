@@ -21,7 +21,7 @@
         /// <summary>
         /// Additional state.
         /// </summary>
-        public object State { get; set; }
+        public byte[] State { get; set; }
 
         /// <summary>
         /// The time at which the saga ID expired.

@@ -1,10 +1,11 @@
 ﻿using System.Linq;
 using System.Threading;
 using NServiceBus.Saga;
-using Timeout.MessageHandlers;
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
+    using Core;
+
     public class Bootstrapper : IWantToRunAtStartup
     {
         public IPersistTimeouts Persister { get; set; }

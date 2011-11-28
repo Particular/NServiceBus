@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Timeout.MessageHandlers
+﻿namespace NServiceBus.Timeout.Core
 {
+    using System;
+    using System.Collections.Generic;
+
     public interface IPersistTimeouts
     {
         IEnumerable<TimeoutData> GetAll();

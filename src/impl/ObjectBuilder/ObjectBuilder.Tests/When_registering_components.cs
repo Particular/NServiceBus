@@ -1,5 +1,5 @@
 using System.Linq;
-using NServiceBus.ObjectBuilder;
+using NServiceBus;
 using NUnit.Framework;
 
 namespace ObjectBuilder.Tests

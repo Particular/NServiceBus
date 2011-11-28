@@ -1,6 +1,6 @@
 using System;
 
-namespace NServiceBus.ObjectBuilder
+namespace NServiceBus
 {
     /// <summary>
     /// Represent the various lifecycles available for coponents configured in the container

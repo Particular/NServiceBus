@@ -1,10 +1,11 @@
 using System;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
 using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus;
+
     [TestFixture]
     public class When_querying_for_registered_components : BuilderFixture
     {

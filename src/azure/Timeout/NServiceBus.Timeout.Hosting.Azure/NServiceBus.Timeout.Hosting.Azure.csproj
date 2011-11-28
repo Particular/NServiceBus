@@ -59,9 +59,6 @@
     <Reference Include="NServiceBus.Hosting.Azure">
       <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Hosting.Azure.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Timeout.Core">
-      <HintPath>..\..\..\..\build\timeout\NServiceBus.Timeout.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />

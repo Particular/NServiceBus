@@ -4,16 +4,16 @@ using System.Data.Services.Client;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 using Newtonsoft.Json;
-using Timeout.MessageHandlers;
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
+    using Core;
+
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
         IEnumerable<TimeoutData> IPersistTimeouts.GetAll()
@@ -124,7 +124,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             return hash;
         }
 
-        private object Deserialize(string stateAddress)
+        private byte[] Deserialize(string stateAddress)
         {
             var blob = container.GetBlockBlobReference(stateAddress);
             using (var stream = new MemoryStream())
@@ -135,7 +135,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 var streamReader = new StreamReader(stream, Encoding.UTF8);
                 var reader = new JsonTextReader(streamReader);
                 var serializer = CreateJsonSerializer();
-                return serializer.Deserialize(reader);
+                //return serializer.Deserialize(reader);
+                return new byte[0];//fix this one Yves!!
             }
         }
 

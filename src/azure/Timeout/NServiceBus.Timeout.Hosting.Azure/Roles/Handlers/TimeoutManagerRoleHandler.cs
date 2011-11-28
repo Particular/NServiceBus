@@ -4,10 +4,12 @@ using NServiceBus.Hosting.Azure;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Sagas.Impl;
 using NServiceBus.Unicast.Config;
-using Timeout.MessageHandlers;
+
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
+    using Core;
+
     /// <summary>
     /// Handles configuration related to the timeout manager role
     /// </summary>

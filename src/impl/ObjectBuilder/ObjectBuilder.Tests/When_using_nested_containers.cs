@@ -1,5 +1,5 @@
 using System;
-using NServiceBus.ObjectBuilder;
+using NServiceBus;
 using NServiceBus.ObjectBuilder.Spring;
 using NUnit.Framework;
 

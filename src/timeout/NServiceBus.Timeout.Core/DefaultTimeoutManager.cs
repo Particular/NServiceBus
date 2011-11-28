@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-
-namespace Timeout.MessageHandlers
+﻿namespace NServiceBus.Timeout.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+
     /// <summary>
     /// Thread-safe timeout management class.
     /// </summary>
-    public class TimeoutManager : IManageTimeouts
+    public class DefaultTimeoutManager : IManageTimeouts
     {
         public event EventHandler<TimeoutData> SagaTimedOut;
 

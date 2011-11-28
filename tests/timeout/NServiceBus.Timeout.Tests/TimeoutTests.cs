@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Core;
     using NUnit.Framework;
-    using global::Timeout.MessageHandlers;
 
     [TestFixture]
     public class TimeoutTests
@@ -21,7 +21,7 @@
             timeout = TimeSpan.FromSeconds(1);
             interval = TimeSpan.FromSeconds(2);
 
-            manager = new TimeoutManager();
+            manager = new DefaultTimeoutManager();
             manager.Init(interval);
 
             manager.SagaTimedOut += (o, e) =>

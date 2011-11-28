@@ -6,6 +6,8 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus;
+
     [TestFixture]
     public class When_building_components:BuilderFixture
     {
