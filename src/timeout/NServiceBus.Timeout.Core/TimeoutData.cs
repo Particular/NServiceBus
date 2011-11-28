@@ -1,8 +1,8 @@
-﻿using System;
-using NServiceBus;
-
-namespace Timeout.MessageHandlers
+﻿namespace NServiceBus.Timeout.Core
 {
+    using System;
+    using NServiceBus;
+
     /// <summary>
     /// Holds timeout information.
     /// </summary>

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using NUnit.Framework;
-using Timeout.MessageHandlers;
-
-namespace Timeout.Tests
+﻿namespace NServiceBus.Timeout.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using NUnit.Framework;
+    using global::Timeout.MessageHandlers;
+
     [TestFixture]
     public class TimeoutTests
     {
