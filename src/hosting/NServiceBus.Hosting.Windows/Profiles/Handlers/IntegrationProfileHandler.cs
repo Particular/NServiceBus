@@ -2,6 +2,7 @@
 {
     using Faults;
     using Hosting.Profiles;
+    using Saga;
     using Unicast.Subscriptions;
 
     internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
@@ -10,6 +11,9 @@
         {
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.MessageForwardingInCaseOfFault();
+
+            if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
+                Configure.Instance.RavenSagaPersister();
 
 
             if (Config is AsA_Publisher)

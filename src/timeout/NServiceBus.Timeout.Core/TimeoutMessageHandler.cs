@@ -12,6 +12,9 @@ namespace NServiceBus.Timeout.Core
 
         public void Handle(TransportMessage message)
         {
+            if(!message.Headers.ContainsKey(Headers.IsTimeoutMessage))
+                throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
+
             var sagaId = Guid.Empty;
 
             if (message.Headers.ContainsKey(Headers.SagaId))

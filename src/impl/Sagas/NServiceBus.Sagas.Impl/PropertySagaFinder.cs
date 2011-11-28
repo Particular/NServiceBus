@@ -3,6 +3,8 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.Sagas.Impl
 {
+    using System;
+
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
     /// </summary>
@@ -33,6 +35,10 @@ namespace NServiceBus.Sagas.Impl
         /// <returns></returns>
         public TSaga FindBy(TMessage message)
         {
+            if (SagaPersister == null)
+                throw new InvalidOperationException(
+                    "No saga persister configured. Please configure a saga persister if you want to use the nservicebus saga support");
+
             return SagaPersister.Get<TSaga>(SagaProperty.Name, MessageProperty.GetValue(message, null));
         }
     }
