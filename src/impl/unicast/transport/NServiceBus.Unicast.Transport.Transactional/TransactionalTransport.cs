@@ -246,6 +246,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             _messageId = m.Id;
 
+	        var exceptionFromStartedMessageHandling = OnStartedMessageProcessing();
+
             if (IsTransactional)
             {
                 if (HandledMaxRetries(m))
@@ -258,9 +260,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 }
             }
 
-            //exceptions here will cause a rollback - which is what we want.
-            if (StartedMessageProcessing != null)
-                StartedMessageProcessing(this, null);
+            if (exceptionFromStartedMessageHandling != null)
+                throw exceptionFromStartedMessageHandling; //cause rollback 
 
             //care about failures here
             var exceptionFromMessageHandling = OnTransportMessageReceived(m);
@@ -389,6 +390,23 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             _needToAbort = true;
         }
+
+        private Exception OnStartedMessageProcessing()
+        {
+            try
+            {
+                if (StartedMessageProcessing != null)
+                    StartedMessageProcessing(this, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed raising 'started message processing' event.", e);
+                return e;
+            }
+
+            return null;
+        }
+
 
         private Exception OnFinishedMessageProcessing()
         {
