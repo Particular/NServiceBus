@@ -1,7 +1,7 @@
 namespace NServiceBus.Unicast.Tests.Helpers
 {
     using System;
-    using NServiceBus.Unicast.Transport;
+    using Transport;
 
     public class FakeTransport : ITransport
     {
@@ -42,6 +42,12 @@ namespace NServiceBus.Unicast.Tests.Helpers
             StartedMessageProcessing(this, new EventArgs());
             TransportMessageReceived(this,new TransportMessageReceivedEventArgs(transportMessage));
             FinishedMessageProcessing(this,new EventArgs());
+        }
+
+        public void FakeMessageBeeingPassedToTheFaultManager(TransportMessage transportMessage)
+        {
+            StartedMessageProcessing(this, new EventArgs());
+            FinishedMessageProcessing(this, new EventArgs());
         }
     }
 }

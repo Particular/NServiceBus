@@ -130,5 +130,17 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ResultingException = ex; 
             }
         }
+
+        protected void SimulateMessageBeeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
+        {
+            try
+            {
+                Transport.FakeMessageBeeingPassedToTheFaultManager(transportMessage);
+            }
+            catch (Exception ex)
+            {
+                ResultingException = ex;
+            }
+        }
     }
 }

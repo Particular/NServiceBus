@@ -1069,17 +1069,6 @@ namespace NServiceBus.Unicast
             {
                 unitsOfWork.ForEach(uow => uow.Begin());
 
-                modules = new List<IMessageModule>();
-                var mods = childBuilder.BuildAll<IMessageModule>();
-                if (mods != null)
-                    modules.AddRange(mods);
-
-                foreach (var module in modules)
-                {
-                    Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
-                    module.HandleBeginMessage(); //don't need to call others if one fails
-                }
-
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
                 if (transportMutators != null)
                     foreach (var mutator in transportMutators)
@@ -1200,37 +1189,35 @@ namespace NServiceBus.Unicast
             return false;
         }
 
-        private void TransportFinishedMessageProcessing(object sender, EventArgs e)
+        void TransportFinishedMessageProcessing(object sender, EventArgs e)
         {
-            for (int i = modules.Count - 1; i >= 0; i--)
+            modules.ForEach(module =>
             {
-                Log.Debug("Calling 'HandleEndMessage' on " + modules[i].GetType().FullName);
-                modules[i].HandleEndMessage();
-            }
+                Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
+                module.HandleEndMessage();
+            });
         }
 
-        private void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
+        void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
         {
-            var exceptionThrown = false;
-
-            for (int i = modules.Count - 1; i >= 0; i--)
-                try
-                {
-                    Log.Debug("Calling 'HandleError' on " + modules[i].GetType().FullName);
-                    modules[i].HandleError();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Module " + modules[i].GetType().FullName + " failed when handling error.", ex);
-                    exceptionThrown = true;
-                }
-
-            if (exceptionThrown)
-                throw new Exception("Could not handle the failed message processing correctly. Check for prior error messages in the log for more information.");
+            modules.ForEach(module =>
+            {
+                Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
+                module.HandleError();
+            });
         }
 
-        private void TransportStartedMessageProcessing(object sender, EventArgs e)
+        void TransportStartedMessageProcessing(object sender, EventArgs e)
         {
+            modules = Builder.BuildAll<IMessageModule>().ToList();
+
+            modules.ForEach(module =>
+            {
+                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
+                module.HandleBeginMessage(); //don't need to call others if one fails                                    
+            });
+
+            modules.Reverse();//make sure that the modules are called in reverse order when processing ends
         }
 
         #endregion

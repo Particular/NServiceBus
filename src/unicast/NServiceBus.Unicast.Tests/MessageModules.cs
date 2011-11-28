@@ -46,17 +46,29 @@
         [Test]
         public void Should_invoke_begin_and_end_message()
         {
+            var endCalled = false;
+
             var messageModule = new StubMessageModule();
             bool beginCalled = false;
 
-            messageModule.OnBegin = () => { beginCalled = true; };
+            messageModule.OnBegin = () =>
+            {
+                Assert.False(endCalled);
+                beginCalled = true;
+            };
 
-            MessageModules.Add(messageModule);
+            messageModule.OnEnd = () =>
+            {
+                Assert.True(beginCalled);
+                endCalled = true;
+            };
+            FuncBuilder.Register<IMessageModule>(() => messageModule);
 
-            RegisterMessageType<CommandMessage>();
 
-            
+            SimulateMessageBeeingAbortedDueToRetryCountExceeded(Helpers.Helpers.EmptyTransportMessage());
+
             Assert.True(beginCalled);
+            Assert.True(endCalled);
         }
 
         [Test]
