@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="MyOwnMessageModule.cs" />
     <Compile Include="MyOwnUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestDataMessageHandler.cs" />
@@ -78,6 +79,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-	<StartArguments>NServiceBus.Integration</StartArguments>
+    <StartArguments>NServiceBus.Integration</StartArguments>
   </PropertyGroup>
 </Project>
