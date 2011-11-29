@@ -24,6 +24,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             using (var session = OpenSession())
             {
+                session.Store(saga);
                 session.SaveChanges();
             }
         }
@@ -52,6 +53,7 @@ namespace NServiceBus.SagaPersisters.Raven
             using (var session = OpenSession())
             {
                 session.Advanced.DatabaseCommands.Delete(saga.Id.ToString(),null);
+                session.SaveChanges();
             }
         }
 
