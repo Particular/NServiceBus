@@ -16,6 +16,7 @@ namespace NServiceBus.Persistence.Raven.Tests
             using (var server = GetNewServer())
             {
                 var config = Configure.With(new[] { GetType().Assembly })
+                    .DefineEndpointName("UnitTests")
                     .DefaultBuilder()
                     .RavenPersistence();
 
@@ -33,7 +34,7 @@ namespace NServiceBus.Persistence.Raven.Tests
         public void It_should_configure_the_document_store_to_use_the_calling_assembly_name_as_the_database()
         {
 
-            Assert.AreEqual(GetType().Assembly.GetName().Name, store.DefaultDatabase);
+            Assert.AreEqual("UnitTests", store.DefaultDatabase);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             using (var session = OpenSession())
             {
-                session.Delete(saga);
+                session.Advanced.DatabaseCommands.Delete(saga.Id.ToString(),null);
             }
         }
 

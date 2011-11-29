@@ -21,6 +21,7 @@ namespace NServiceBus.Persistence.Raven.Tests
                 database = "CustomDatabase";
 
                 var config = Configure.With(new[] {GetType().Assembly})
+                    .DefineEndpointName("UnitTests")
                     .DefaultBuilder()
                     .RavenPersistence(connectionStringName, database);
 

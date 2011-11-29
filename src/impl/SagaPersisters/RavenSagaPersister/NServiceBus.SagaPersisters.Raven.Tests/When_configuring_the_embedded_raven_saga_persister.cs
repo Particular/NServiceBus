@@ -15,6 +15,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         public void SetUp()
         {
             var config = Configure.With(new[] { GetType().Assembly })
+                    .DefineEndpointName("UnitTests")
                 .DefaultBuilder()
                 .Sagas()
                 .EmbeddedRavenSagaPersister();

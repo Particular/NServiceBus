@@ -17,7 +17,8 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                 connectionStringName = "Raven";
 
                 var config = Configure.With(new[] {GetType().Assembly})
-                    .DefaultBuilder()
+                     .DefineEndpointName("UnitTests")
+                   .DefaultBuilder()
                     .Sagas().RavenSagaPersister(connectionStringName);
 
                 persister = config.Builder.Build<RavenSagaPersister>();

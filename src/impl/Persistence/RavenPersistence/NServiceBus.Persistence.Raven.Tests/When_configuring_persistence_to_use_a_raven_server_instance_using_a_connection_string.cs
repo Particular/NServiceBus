@@ -18,7 +18,8 @@ namespace NServiceBus.Persistence.Raven.Tests
             {
                 connectionStringName = "Raven";
 
-                var config = Configure.With(new[] {GetType().Assembly})
+                var config = Configure.With(new[] { GetType().Assembly })
+                    .DefineEndpointName("UnitTests")
                     .DefaultBuilder()
                     .RavenPersistence(connectionStringName);
 
