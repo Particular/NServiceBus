@@ -100,7 +100,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 numberOfWorkerThreads = value;
             }
         }
-        private int numberOfWorkerThreads;
+        private int numberOfWorkerThreads = 1;
 
 
 		/// <summary>
@@ -149,18 +149,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             MessageReceiver.Init(address,IsTransactional);
             
-            LimitWorkerThreadsToOne();
-
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
-        }
-
-        [Conditional("COMMUNITY")]
-        private void LimitWorkerThreadsToOne()
-        {
-            numberOfWorkerThreads = 1;
-
-            Logger.Info("You are running a community edition of the software which only supports one thread.");
         }
 
         #endregion
