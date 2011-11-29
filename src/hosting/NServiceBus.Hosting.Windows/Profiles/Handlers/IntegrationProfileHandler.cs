@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using Config;
     using Faults;
     using Hosting.Profiles;
     using Saga;
     using Unicast.Subscriptions;
 
-    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
+    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig, IWantToRunWhenConfigurationIsComplete
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -24,6 +25,12 @@
                 }
             }
         }
+
+        public void Run()
+        {
+            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
+        }
+
 
         public IConfigureThisEndpoint Config { get; set; }
         
