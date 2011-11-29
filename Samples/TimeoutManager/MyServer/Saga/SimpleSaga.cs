@@ -7,6 +7,7 @@
     {
         public void Handle(StartSagaMessage message)
         {
+            Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
             RequestTimeout(TimeSpan.FromSeconds(10), someState);
@@ -16,6 +17,7 @@
         public override void Timeout(object state)
         {
             LogMessage("v2.6 Timeout fired, with state: " + state);
+            MarkAsComplete();
         }
 
         public override void ConfigureHowToFindSaga()

@@ -28,7 +28,10 @@ namespace MyServer
 
         void StartSaga()
         {
-            Bus.SendLocal(new StartSagaMessage());
+            Bus.SendLocal(new StartSagaMessage
+                              {
+                                  OrderId = Guid.NewGuid()
+                              });
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
         }
 
