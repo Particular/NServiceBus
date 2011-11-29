@@ -139,7 +139,7 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
                             }
                             catch (MessagingEntityNotFoundException)
                             {
-                                throw new QueueNotFoundException { Queue = destination };
+                                throw new QueueNotFoundException { Queue = Address.Parse(destination) };
                             }
                     }
                 }

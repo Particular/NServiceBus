@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
         {
             var subscriptions = messageTypes.Select(m => new Subscription
             {
-                Id = Subscription.FormatId(Endpoint, m, client),
+                Id = Subscription.FormatId(Endpoint, m, client.ToString()),
                 MessageType = m,
                 Client = client
             }).ToList();
@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
         void ISubscriptionStorage.Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
             var ids = messageTypes
-                .Select(m => Subscription.FormatId(Endpoint, m, client))
+                .Select(m => Subscription.FormatId(Endpoint, m, client.ToString()))
                 .ToList();
 
             using (var session = Store.OpenSession())

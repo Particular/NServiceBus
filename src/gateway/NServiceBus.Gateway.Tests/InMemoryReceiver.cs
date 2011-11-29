@@ -8,11 +8,6 @@
     {
         Queue<TransportMessage> queue;
 
-        void IReceiveMessages.Init(string address, bool transactional)
-        {
-            queue = new Queue<TransportMessage>();
-        }
-
         void IReceiveMessages.Init(Address address, bool transactional)
         {
             queue = new Queue<TransportMessage>();

@@ -22,7 +22,7 @@
                                     new GatewayReturnInfo
                                            {
                                                From = originatingSite,
-                                               ReplyToAddress = Bus.CurrentMessageContext.ReplyToAddress
+                                               ReplyToAddress = Bus.CurrentMessageContext.ReplyToAddress.ToString()
                                            });
             }
 

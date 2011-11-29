@@ -12,14 +12,6 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         /// <param name="address">The address of the message source</param>
         /// <param name="transactional">Indicates if the receiver should be transactional</param>
-        [Obsolete("Use the overload accepting the Address parameter instead.", true)]
-        void Init(string address, bool transactional);
-
-        /// <summary>
-        /// Initializes the message receiver.
-        /// </summary>
-        /// <param name="address">The address of the message source</param>
-        /// <param name="transactional">Indicates if the receiver should be transactional</param>
         void Init(Address address, bool transactional);
 
         /// <summary>

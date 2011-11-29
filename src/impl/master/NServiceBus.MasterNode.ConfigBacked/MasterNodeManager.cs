@@ -13,7 +13,7 @@ namespace NServiceBus.MasterNode.ConfigBacked
             {
                 var section = Configure.GetConfigSection<MasterNodeLocatorConfig>();
                 if (section != null)
-                    masterNode = section.Node.ToLower();
+                    masterNode =  Address.Parse(section.Node.ToLower());
                 else
                     masterNode = Address.Local;
                 
@@ -31,15 +31,15 @@ namespace NServiceBus.MasterNode.ConfigBacked
 
                 if (GetMasterNode() == Address.Local)
                     return true;
-                
-                if (Environment.MachineName == masterNode)
+
+                if (Address.Parse(Environment.MachineName) == GetMasterNode())
                     return true;
 
-                if (Dns.GetHostName() == masterNode)
+                if (Address.Parse(Dns.GetHostName()) == GetMasterNode())
                     return true;
 
                 IPAddress ip;
-                IPAddress.TryParse(masterNode, out ip);
+                IPAddress.TryParse(GetMasterNode().ToString(), out ip);
                 if (ip != null)
                     if (Dns.GetHostAddresses(Dns.GetHostName()).ToList().Contains(ip))
                         return true;

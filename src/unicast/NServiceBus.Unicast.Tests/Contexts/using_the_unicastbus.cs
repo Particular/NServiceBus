@@ -3,16 +3,16 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using Helpers;
-    using NServiceBus.Faults;
-    using NServiceBus.MasterNode;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.MessageMutator;
+    using Faults;
+    using MasterNode;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using MessageMutator;
     using NUnit.Framework;
-    using NServiceBus.Unicast.Queuing;
+    using Queuing;
     using Rhino.Mocks;
-    using NServiceBus.Serializers.XML;
-    using NServiceBus.Unicast.Transport;
-    using NServiceBus.UnitOfWork;
+    using Serializers.XML;
+    using Transport;
+    using UnitOfWork;
 
     public class using_a_configured_unicastbus
     {
@@ -34,8 +34,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
-            string localAddress = "endpointA";
-            Address masterNodeAddress = localAddress + "@MasterNode";
+            const string localAddress = "endpointA";
+            var masterNodeAddress = new Address(localAddress,"MasterNode"); 
 
             try
             {

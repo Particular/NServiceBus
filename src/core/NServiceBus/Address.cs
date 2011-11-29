@@ -131,26 +131,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Implicit cast from string to Address.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static implicit operator Address(string s)
-        {
-            return Parse(s);
-        }
-
-        /// <summary>
-        /// Implicit cast from Address to string.
-        /// </summary>
-        /// <param name="a"></param>
-        /// <returns></returns>
-        public static implicit operator string(Address a)
-        {
-            return a == null ? null : a.ToString();
-        }
-
-        /// <summary>
         /// Creates a new Address whose Queue is derived from the Queue of the existing Address
         /// together with the provided qualifier. For example: queue.qualifier@machine
         /// </summary>

@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
             if (unicastConfig != null)
                 if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
-                    MsmqUtilities.CreateQueueIfNecessary(unicastConfig.ForwardReceivedMessagesTo, identity.Name);
+                    MsmqUtilities.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name);
         }
     }
 }

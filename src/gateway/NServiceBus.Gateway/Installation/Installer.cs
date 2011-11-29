@@ -8,7 +8,7 @@ namespace NServiceBus.Gateway.Installation
     {
         public void Install(WindowsIdentity identity)
         {
-            if (!string.IsNullOrEmpty(GatewayConfiguration.GatewayInputAddress))
+            if (GatewayConfiguration.GatewayInputAddress != null)
                 MsmqUtilities.CreateQueueIfNecessary(GatewayConfiguration.GatewayInputAddress, identity.Name);
         }
     }

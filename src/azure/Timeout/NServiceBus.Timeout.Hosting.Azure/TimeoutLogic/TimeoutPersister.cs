@@ -159,7 +159,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         private string Hash(TimeoutData timeout)
         {
-            var s = timeout.SagaId + timeout.Destination + timeout.Time.Ticks;
+            var s = timeout.SagaId + timeout.Destination.ToString() + timeout.Time.Ticks;
             var sha1 = SHA1.Create();
             var bytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(s));
 
