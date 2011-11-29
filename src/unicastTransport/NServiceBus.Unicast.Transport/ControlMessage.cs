@@ -12,7 +12,9 @@
              var transportMessage = new TransportMessage
                                         {
                                             ReplyToAddress = Address.Local,
-                                            Headers = new Dictionary<string, string>()
+                                            Headers = new Dictionary<string, string>(),
+                                            Recoverable = true,
+                                            MessageIntent = MessageIntentEnum.Send
                                         };
              transportMessage.Headers.Add(ControlMessageHeader,true.ToString());
 
