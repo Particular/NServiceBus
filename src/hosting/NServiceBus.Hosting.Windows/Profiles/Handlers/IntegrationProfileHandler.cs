@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    using Config;
     using Faults;
     using Hosting.Profiles;
     using Saga;
     using Unicast.Subscriptions;
 
-    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig, IWantToRunWhenConfigurationIsComplete
+    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -24,15 +23,12 @@
                     Configure.Instance.MsmqSubscriptionStorage();
                 }
             }
-        }
 
-        public void Run()
-        {
-            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
+            WindowsInstallerRunner.RunInstallers = true;
         }
 
 
         public IConfigureThisEndpoint Config { get; set; }
-        
+
     }
 }

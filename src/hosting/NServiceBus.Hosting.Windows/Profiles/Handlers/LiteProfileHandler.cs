@@ -6,7 +6,7 @@ using NServiceBus.Unicast.Subscriptions;
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig, IWantToRunWhenConfigurationIsComplete
+    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -23,11 +23,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             if (Config is AsA_Publisher)
                 if (!Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
                     Configure.Instance.InMemorySubscriptionStorage();
-        }
 
-        public void Run()
-        {
-            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
+            WindowsInstallerRunner.RunInstallers = true;
         }
 
         public IConfigureThisEndpoint Config { get; set; }

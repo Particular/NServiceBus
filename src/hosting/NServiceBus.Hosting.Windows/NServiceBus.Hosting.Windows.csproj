@@ -75,6 +75,7 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
+    <Compile Include="Profiles\Handlers\WindowsInstallerRunner.cs" />
     <Compile Include="Profiles\Handlers\WorkerProfileHandler.cs" />
     <Compile Include="Profiles\Master.cs" />
     <Compile Include="Profiles\Worker.cs" />
