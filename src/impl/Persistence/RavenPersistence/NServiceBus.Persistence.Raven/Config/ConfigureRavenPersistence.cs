@@ -22,14 +22,11 @@ namespace NServiceBus.Persistence.Raven.Config
 
         public static Configure RavenPersistence(this Configure config)
         {
-            var database = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
             var store = new DocumentStore
             {
                 Url = RavenPersistenceConstants.DefaultUrl,
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DefaultDatabase = database
+                DefaultDatabase = Configure.EndpointName
             };
 
             return RavenPersistence(config, store);
@@ -37,10 +34,7 @@ namespace NServiceBus.Persistence.Raven.Config
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
-            var database = Assembly.GetCallingAssembly()
-                .GetName().Name;
-
-            return RavenPersistence(config, connectionStringName, database);
+            return RavenPersistence(config, connectionStringName, Configure.EndpointName);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
