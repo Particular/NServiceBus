@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
             try
             {
-                using (var session = Store.OpenSession())
+                using (var session = OpenSession())
                 {
                     session.Advanced.UseOptimisticConcurrency = true;
                     subscriptions.ForEach(session.Store);
@@ -40,13 +40,15 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             }
         }
 
+       
+
         void ISubscriptionStorage.Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
             var ids = messageTypes
                 .Select(m => Subscription.FormatId(Endpoint, m, client.ToString()))
                 .ToList();
 
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 ids.ForEach(id => session.Advanced.DatabaseCommands.Delete(id, null));
 
@@ -56,7 +58,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
-            using (var session = Store.OpenSession())
+            using (var session = OpenSession())
             {
                 return messageTypes.SelectMany(m => GetSubscribersForMessage(session, m))
                                 .Where(s => messageTypes.Contains(s.MessageType))
@@ -71,6 +73,15 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
             return session.Query<Subscription>()
                 .Customize(c => c.WaitForNonStaleResults())
                 .Where(s => s.MessageType == messageType);
+        }
+
+        IDocumentSession OpenSession()
+        {
+            if(string.IsNullOrEmpty(Endpoint))
+            return Store.OpenSession();
+
+
+            return Store.OpenSession(Endpoint);
         }
     }
 }
