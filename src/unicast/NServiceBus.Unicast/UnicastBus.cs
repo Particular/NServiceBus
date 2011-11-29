@@ -1485,6 +1485,10 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 return Address.Undefined;
 
+            //todo - keep this code until we decide what the public api should be
+            if (messages[0] is TimeoutMessage)
+                return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+
             return GetAddressForMessageType(messages[0].GetType());
         }
 

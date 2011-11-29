@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="Config\ConfigureTimeoutManager.cs" />
     <Compile Include="Installer\TimeoutInstaller.cs" />
+    <Compile Include="Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\RavenTimeoutPersistence.cs" />
     <Compile Include="TimeoutManagerBootstrapper.cs" />

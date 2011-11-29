@@ -1,4 +1,4 @@
-namespace MyServer
+namespace MyServer.Saga
 {
     using System;
     using NServiceBus.Saga;

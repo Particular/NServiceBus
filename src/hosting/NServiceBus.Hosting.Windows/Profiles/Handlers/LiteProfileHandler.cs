@@ -11,6 +11,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance.AsMasterNode()
+                .UseTimeoutManager()
                 .Gateway();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())

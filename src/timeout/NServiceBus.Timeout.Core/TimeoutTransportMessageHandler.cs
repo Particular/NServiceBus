@@ -1,14 +1,12 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
-    using NServiceBus;
     using Unicast.Transport;
 
-    public class TimeoutMessageHandler
+    public class TimeoutTransportMessageHandler
     {
         public IPersistTimeouts Persister { get; set; }
         public IManageTimeouts Manager { get; set; }
-        public IBus Bus { get; set; }
 
         public void Handle(TransportMessage message)
         {
@@ -30,7 +28,7 @@ namespace NServiceBus.Timeout.Core
             {
                 var data = new TimeoutData
                                {
-                                   Destination = Bus.CurrentMessageContext.ReplyToAddress,
+                                   Destination = message.ReplyToAddress,
                                    SagaId = sagaId,
                                    State = message.Body,
                                    Time = DateTime.Parse(message.Headers[Headers.Expire])

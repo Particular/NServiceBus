@@ -3,7 +3,6 @@
     using System;
     using Config;
     using Core;
-    using NServiceBus.Config;
     using ObjectBuilder;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
@@ -12,6 +11,8 @@
     public class TimeoutManagerBootstrapper : IDisposable, IWantToRunWhenConfigurationIsComplete
     {
         public TransactionalTransport MainTransport { get; set; }
+        
+        public TimeoutRunner Runner { get; set; }
 
         public IStartableBus Bus { get; set; }
 
@@ -27,7 +28,7 @@
             {
                 MessageReceiver = new MsmqMessageReceiver(),
                 IsTransactional = true,
-                NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads,
+                NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                 MaxRetries = MainTransport.MaxRetries,
                 FailureManager = MainTransport.FailureManager
             };
@@ -36,12 +37,16 @@
 
 
          
-            Bus.Started += (obj, ev) => inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
+            Bus.Started += (obj, ev) =>
+                               {
+                                   Runner.Run();
+                                   inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
+                               };
         }
 
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            Builder.Build<TimeoutMessageHandler>()
+            Builder.Build<TimeoutTransportMessageHandler>()
                 .Handle(e.Message);
         }
 

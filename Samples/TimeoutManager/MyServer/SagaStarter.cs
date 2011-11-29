@@ -2,6 +2,7 @@ namespace MyServer
 {
     using System;
     using NServiceBus;
+    using Saga;
 
     class SagaStarter:IWantToRunAtStartup
     {
@@ -28,7 +29,7 @@ namespace MyServer
         void StartSaga()
         {
             Bus.SendLocal(new StartSagaMessage());
-            Console.WriteLine("Saga start message sent"); 
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
         }
 
        

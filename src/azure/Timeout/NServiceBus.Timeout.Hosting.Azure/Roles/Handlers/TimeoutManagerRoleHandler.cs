@@ -13,6 +13,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
     /// <summary>
     /// Handles configuration related to the timeout manager role
     /// </summary>
+    //todo Yves- we need to redo all this when the new timeout support is stable
     public class TimeoutManagerRoleHandler : IConfigureRole<AsA_TimeoutManager>, IWantTheEndpointConfig
     {
         /// <summary>
@@ -35,7 +36,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()
-                    .LoadMessageHandlers(First<TimeoutMessageHandler>.Then<SagaMessageHandler>())
                     .ImpersonateSender(false);
         }
 
