@@ -196,6 +196,7 @@
 			<in>
 				<items>
 					<include name="${main.build.dir}\NServiceBus.*.dll" />
+					<exclude name="${main.build.dir}\**Tests.dll" />
 				</items>
 			</in>
 			<do>
