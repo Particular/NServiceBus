@@ -46,15 +46,10 @@
                     return;
                 }
 
-                var streamToReturn = new MemoryStream();
-
-                ctx.Request.InputStream.CopyTo_net35(streamToReturn, MaximumBytesToRead);
-                streamToReturn.Position = 0;
-                
                 DataReceived(this, new DataReceivedOnChannelArgs
                                        {
                                            Headers = GetHeaders(ctx),
-                                           Data = streamToReturn
+                                           Data = GetMessageStream(ctx)
                                        });
                 ReportSuccess(ctx);
 
@@ -71,10 +66,27 @@
             }
         }
 
+        static MemoryStream GetMessageStream(HttpListenerContext ctx)
+        {
+            if(ctx.Request.QueryString.AllKeys.Contains("Message"))
+            {
+                var message = HttpUtility.UrlDecode(ctx.Request.QueryString["Message"]);
+
+                return new MemoryStream(Encoding.UTF8.GetBytes(message));
+            }
+                
+            var streamToReturn = new MemoryStream();
+
+            ctx.Request.InputStream.CopyTo_net35(streamToReturn, MaximumBytesToRead);
+            streamToReturn.Position = 0;
+            return streamToReturn;
+        }
+
         bool IsGatewayRequest(HttpListenerRequest request)
         {
             return request.Headers.AllKeys.Contains(GatewayHeaders.CallTypeHeader) ||
-                   request.Headers.AllKeys.Contains(GatewayHeaders.CallTypeHeader.ToLower());
+                   request.Headers.AllKeys.Contains(GatewayHeaders.CallTypeHeader.ToLower()) ||
+                   request.QueryString[GatewayHeaders.CallTypeHeader] != null;
         }
 
 
@@ -84,6 +96,9 @@
 
             foreach (string header in ctx.Request.Headers.Keys)
                 headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(ctx.Request.Headers[header]));
+            
+            foreach (string header in ctx.Request.QueryString.Keys)
+                headers[HttpUtility.UrlDecode(header)] = HttpUtility.UrlDecode(ctx.Request.QueryString[header]);
 
             return headers;
         }
@@ -118,9 +133,26 @@
             ctx.Response.StatusCode = 200;
             ctx.Response.StatusDescription = "OK";
 
-            ctx.Response.Close(Encoding.ASCII.GetBytes(ctx.Response.StatusDescription), false);
+          
+            WriteData(ctx,"OK");
         }
 
+        static void WriteData(HttpListenerContext ctx,string status)
+        {
+            var str = status;
+
+            var jsonp = ctx.Request.QueryString["callback"];
+            if (string.IsNullOrEmpty(jsonp) == false)
+            {
+                str = jsonp + "({ status: '" + str + "'})";
+                ctx.Response.AddHeader("Content-Type", "application/javascript; charset=utf-8");
+            }
+            else
+            {
+                ctx.Response.AddHeader("Content-Type", "application/json; charset=utf-8");
+            }
+            ctx.Response.Close(Encoding.ASCII.GetBytes(str), false);
+        }
         
         static void CloseResponseAndWarn(HttpListenerContext ctx, string warning, int statusCode)
         {
@@ -130,7 +162,7 @@
                 ctx.Response.StatusCode = statusCode;
                 ctx.Response.StatusDescription = warning;
 
-                ctx.Response.Close(Encoding.ASCII.GetBytes(warning), false);
+                WriteData(ctx, warning);
             }
             catch (Exception e)
             {
