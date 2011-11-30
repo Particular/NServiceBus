@@ -18,15 +18,14 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('#go').click(function () {
-            
+
             var params = "<?xml version=\"1.0\" ?><Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://tempuri.net/Headquarter.Messages\"><UpdatePrice></UpdatePrice></Messages>";
             var md5 = b64_md5(params) + "==";
             var clientId = Math.uuid() + "\\123456";
 
             $.ajax({
                 url: $('#gatewayaddress').val(),
-                beforeSend: function (http, settings) {
-                //todo add the transmission id!
+                beforeSend: function (http) {
                     http.setRequestHeader("Content-MD5", md5);
                     http.setRequestHeader("NServiceBus.CallType", "Submit");
                     http.setRequestHeader("NServiceBus.Id", clientId);
@@ -37,6 +36,11 @@
                 processData: false,
                 type: 'POST',
                 success: function (data) {
+                    if (data != "OK") {
+                        alert("Failed to submit the request to the gateway");
+                        return;
+                    }
+
                     $.ajax({
                         url: $('#gatewayaddress').val(),
                         beforeSend: function (http, settings) {
