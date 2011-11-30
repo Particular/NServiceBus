@@ -131,8 +131,11 @@
     </Compile>
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelFactory.cs" />
-    <Compile Include="Channels\Http\IHandleGatewayGets.cs" />
+    <Compile Include="Channels\Http\DefaultResponder.cs" />
+    <Compile Include="Channels\Http\IHttpResponder.cs" />
+    <Compile Include="Config\GatewayBootstrapper.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />

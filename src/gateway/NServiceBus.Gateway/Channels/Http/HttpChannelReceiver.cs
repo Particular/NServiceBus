@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Web;
+    using HeaderManagement;
     using log4net;
     using System.Net;
     using System.Text;
@@ -38,10 +39,10 @@
         {
             try
             {
-                if(ctx.Request.HttpMethod == "GET")
+                if(!IsGatewayRequest(ctx.Request))
                 {
-                    Configure.Instance.Builder.BuildAll<IHandleGatewayGets>().ToList()
-                        .ForEach(h=>h.Handle(ctx));
+                    //there will always be a responder
+                    Configure.Instance.Builder.Build<IHttpResponder>().Handle(ctx);
                     return;
                 }
 
@@ -68,6 +69,12 @@
                 Logger.Error("Unexpected error", ex);
                 CloseResponseAndWarn(ctx, "Unexpected server error", 502);
             }
+        }
+
+        bool IsGatewayRequest(HttpListenerRequest request)
+        {
+            return request.Headers.AllKeys.Contains(GatewayHeaders.CallTypeHeader) ||
+                   request.Headers.AllKeys.Contains(GatewayHeaders.CallTypeHeader.ToLower());
         }
 
 

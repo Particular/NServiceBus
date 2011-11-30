@@ -2,10 +2,9 @@
 {
     using System;
     using System.Linq;
-    using Config;
     using Gateway.Channels;
+    using Gateway.Channels.Http;
     using Gateway.Config;
-    using Gateway.Installation;
     using Gateway.Notifications;
     using Gateway.Persistence;
     using Gateway.Persistence.Raven;
@@ -13,7 +12,6 @@
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
-    using ObjectBuilder;
     using Raven.Client;
     using Persistence.Raven.Config;
 
@@ -101,23 +99,6 @@
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                                                .ConfigureProperty(x => x.MainInputAddress, Address.Local);
 
-        }
-    }
-
-    public class GatewayBootstrapper : IWantToRunWhenConfigurationIsComplete
-    {
-        public void Run()
-        {
-            //todo . introduce a IWantToRunWhenTheBusIsStarted
-            Configure.Instance.Builder.Build<IStartableBus>()
-                            .Started += (s, e) =>
-                                            {
-                                                if (!Configure.Instance.Configurer.HasComponent<GatewaySender>())
-                                                    return;
-
-                                                Configure.Instance.Builder.Build<GatewaySender>().Start(GatewayConfiguration.GatewayInputAddress);
-                                                Configure.Instance.Builder.Build<GatewayReceiver>().Start(GatewayConfiguration.GatewayInputAddress);
-                                            };
         }
     }
 }
