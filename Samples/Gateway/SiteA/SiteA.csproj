@@ -47,6 +47,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomResponder\CustomHttpResponder.cs" />
+    <Compile Include="CustomResponder\Inspectors\AuditInspector.cs" />
+    <Compile Include="CustomResponder\Inspectors\NumberOfThreadsInspector.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="PriceUpdatedHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
