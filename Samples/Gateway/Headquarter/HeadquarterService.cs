@@ -21,7 +21,6 @@ namespace Headquarter
             {
                 if (key.ToLower() == "a")
                 {
-                    //todo - use a sitekey instead when we have support for that
                     Bus.SendToSites(new[] { "SiteA", "SiteB" }, new PriceUpdated
                     {
                         ProductId = 2,
