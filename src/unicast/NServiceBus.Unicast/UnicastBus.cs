@@ -416,6 +416,8 @@ namespace NServiceBus.Unicast
         public virtual void Unsubscribe(Type messageType)
         {
             AssertIsValidForPubSub(messageType);
+            AssertBusIsStarted();
+            AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);
 
@@ -602,7 +604,6 @@ namespace NServiceBus.Unicast
                                                                          string.Join(";", messages.Select(m => m.GetType())));
                              });
 
-            AssertBusIsStarted();
 
 
             var result = new List<string>();
@@ -733,10 +734,7 @@ namespace NServiceBus.Unicast
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
 
-                if (!IsSendOnlyEndpoint())
-                {
-                    transport.Start(Address.Local);
-                }
+                transport.Start(Address.Local);
 
 
                 if (autoSubscribe)
@@ -784,14 +782,6 @@ namespace NServiceBus.Unicast
         {
             if (MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
-
-            if (IsSendOnlyEndpoint() && UserDefinedMessageHandlersLoaded())
-                throw new InvalidOperationException("Send only endpoints can't contain message handlers.");
-        }
-
-        bool UserDefinedMessageHandlersLoaded()
-        {
-            return messageHandlerTypes != null && messageHandlerTypes.Any(x => !x.Namespace.StartsWith("NServiceBus"));
         }
 
         static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
@@ -1223,11 +1213,6 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region helper methods
-
-        bool IsSendOnlyEndpoint()
-        {
-            return Address.Local == null;
-        }
 
         /// <summary>
         /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>

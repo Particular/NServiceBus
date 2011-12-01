@@ -204,6 +204,7 @@ namespace NServiceBus
 
             return null;
         }
+       
 
         /// <summary>
         /// Finalizes the configuration by invoking all initializers.
@@ -276,6 +277,23 @@ namespace NServiceBus
             foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", assembliesToSkip))
                 yield return a;
         }
+        
+        /// <summary>
+        /// Initialized the bus in send only mode
+        /// </summary>
+        /// <returns></returns>
+        public IBus SendOnly()
+        {
+            SendOnlyMode = true;
+            Initialize();
+
+            return Builder.Build<IBus>();
+        }
+
+        /// <summary>
+        /// True if this endpoint is operating in send only mode
+        /// </summary>
+        public static bool SendOnlyMode { get; private set; }
 
         /// <summary>
         /// The name of this endpoint

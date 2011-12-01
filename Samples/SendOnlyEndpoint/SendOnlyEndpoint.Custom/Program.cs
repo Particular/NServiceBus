@@ -10,11 +10,9 @@ namespace SendOnlyEndpoint.Custom
             var bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .InMemoryFaultManagement()
                 .MsmqTransport()
                 .UnicastBus()
-                .CreateBus()
-                .Start();
+                .SendOnly();
 
             bus.Send("SendOnlyDestination@someserver",new TestMessage());
 

@@ -57,7 +57,7 @@ namespace NServiceBus
     {
         public void Init()
         {
-            if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!Configure.SendOnlyMode && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.MessageForwardingInCaseOfFault();
         }
     }
