@@ -35,7 +35,7 @@
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.531\lib\net40\AsyncCtpLibrary.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.499\server\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.531\server\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.531\lib\net40\Esent.Interop.dll</HintPath>

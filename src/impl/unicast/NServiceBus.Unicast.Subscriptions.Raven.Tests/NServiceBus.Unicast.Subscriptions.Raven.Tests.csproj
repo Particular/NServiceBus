@@ -100,7 +100,7 @@
     <Reference Include="Raven.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <ExecutableExtension>.exe</ExecutableExtension>
-      <HintPath>..\..\..\..\packages\RavenDB.1.0.499\server\Raven.Server.exe</HintPath>
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.531\server\Raven.Server.exe</HintPath>
     </Reference>
     <Reference Include="Raven.Storage.Esent">
       <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.531\lib\net40\Raven.Storage.Esent.dll</HintPath>
