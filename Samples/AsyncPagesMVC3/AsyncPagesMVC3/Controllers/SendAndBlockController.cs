@@ -1,0 +1,42 @@
+﻿using System;
+using System.Threading;
+using System.Web.Mvc;
+using Messages;
+using NServiceBus;
+
+namespace AsyncPagesMVC3.Controllers
+{
+    public class SendAndBlockController : Controller
+    {
+        // Bus property to be injected
+        public IBus Bus { get; set; }
+        
+        [HttpGet]
+        public ActionResult Index()
+        {
+            ViewBag.Title = "SendAndBlock";
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(string textField)
+        {
+            ViewBag.Title = "SendAndBlock";
+            var command = new Command { Id = int.Parse(textField) };
+
+            IAsyncResult res = Bus.Send(command).Register(SimpleCommandCallback, this);
+            WaitHandle asyncWaitHandle = res.AsyncWaitHandle;
+            asyncWaitHandle.WaitOne(50000);
+            
+            return View();
+        }
+        
+        private void SimpleCommandCallback(IAsyncResult asyncResult)
+        {
+            var result = asyncResult.AsyncState as CompletionResult;
+            var controller = result.State as SendAndBlockController;
+            controller.ViewBag.ResponseText = Enum.GetName(typeof (ErrorCodes), result.ErrorCode);
+        }
+
+    }
+}
