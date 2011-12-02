@@ -1,9 +1,10 @@
 ﻿namespace MyServer.Saga
 {
     using System;
+    using NServiceBus;
     using NServiceBus.Saga;
 
-    public class SimpleSaga:Saga<SimpleSagaData>,IAmStartedByMessages<StartSagaMessage>
+    public class SimpleSaga:Saga<SimpleSagaData>,IAmStartedByMessages<StartSagaMessage>,IHandleTimeouts<MyTimeOutState>
     {
         public void Handle(StartSagaMessage message)
         {
@@ -17,7 +18,11 @@
         public override void Timeout(object state)
         {
             LogMessage("v2.6 Timeout fired, with state: " + state);
-            MarkAsComplete();
+            LogMessage("Requesting a custom timeout v3.0 style");
+            RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
+                                                        {
+                                                            SomeValue = "Custom state"
+                                                        });
         }
 
         public override void ConfigureHowToFindSaga()
@@ -29,5 +34,25 @@
         {
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(),message));
         }
+
+        public void Handle(MyTimeOutState state)
+        {
+            LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
+            MarkAsComplete();
+        }
+    }
+
+    public class MyTimeOutState:ITimeoutState
+    {
+        public string SomeValue { get; set; }
+    }
+
+    public interface ITimeoutState:IMessage
+    {
+    }
+
+    public interface IHandleTimeouts<T>:IHandleMessages<T>
+    {
+         
     }
 }

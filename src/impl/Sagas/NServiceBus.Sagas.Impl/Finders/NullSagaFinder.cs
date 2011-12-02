@@ -1,7 +1,7 @@
-﻿using NServiceBus.Saga;
-
-namespace NServiceBus.Sagas.Impl
+﻿namespace NServiceBus.Sagas.Impl.Finders
 {
+    using NServiceBus.Saga;
+
     /// <summary>
     /// Catch-all finder to return null - so that we can later check
     /// for whether a new saga should be created.

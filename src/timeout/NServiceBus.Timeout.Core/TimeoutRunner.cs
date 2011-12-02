@@ -49,7 +49,7 @@
                                        };
 
             transportMessage.Headers[NServiceBus.Headers.Expire] = timeoutData.Time.ToString();
-            transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
+            transportMessage.Headers[NServiceBus.Headers.SagaId] = timeoutData.SagaId.ToString();
 
             return transportMessage;
         }

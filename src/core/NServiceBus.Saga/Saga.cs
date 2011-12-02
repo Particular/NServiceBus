@@ -17,7 +17,7 @@ namespace NServiceBus.Saga
         /// The saga's strongly typed data.
         /// </summary>
         public T Data { get; set; }
-        
+
         /// <summary>
         /// A more generic projection on <see cref="Data" />.
         /// </summary>
@@ -60,7 +60,7 @@ namespace NServiceBus.Saga
             SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
-     
+
         /// <summary>
         /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
         /// </summary>
@@ -88,8 +88,31 @@ namespace NServiceBus.Saga
         public bool Completed { get; private set; }
 
         /// <summary>
+        /// Request for a timeout to occur within the give timespan
+        /// </summary>
+        /// <param name="within"></param>
+        /// <param name="timeoutMessage"></param>
+        protected void RequestTimeout<TTIMEOUTMESSAGETYPE>(TimeSpan within, TTIMEOUTMESSAGETYPE timeoutMessage)
+        {
+            timeoutMessage.SetHeader(Headers.SagaId,Data.Id.ToString());
+
+            if (within <= TimeSpan.Zero)
+                Bus.SendLocal(timeoutMessage);
+            else
+                Bus.Defer(within, timeoutMessage);
+        }
+        /// <summary>
+        /// Request for a timeout to occure at the given time
+        /// </summary>
+        /// <param name="at"></param>
+        /// <param name="timeoutMessage"></param>
+        protected void RequestTimeout<TTIMEOUTMESSAGETYPE>(DateTime at, TTIMEOUTMESSAGETYPE timeoutMessage)
+        {
+            RequestTimeout(at.ToUniversalTime() - DateTime.UtcNow, timeoutMessage);
+        }
+
+        /// <summary>
         /// Request for a timeout to occur at the given time.
-        /// Causes a callback to the <see cref="Timeout" /> method with the given state.
         /// </summary>
         /// <param name="at"></param>
         /// <param name="withState"></param>
@@ -112,7 +135,7 @@ namespace NServiceBus.Saga
             if (within <= TimeSpan.Zero)
                 Timeout(withState);
             else
-                Bus.Defer(within,new TimeoutMessage(within, Data, withState));
+                Bus.Defer(within, new TimeoutMessage(within, Data, withState));
         }
 
         /// <summary>

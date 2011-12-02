@@ -218,6 +218,13 @@ namespace NServiceBus
         public const string Expire = "NServiceBus.Timeout.Expire";
 
         /// <summary>
+        /// Header containing the id of the saga instance the sent the message
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string SagaId = "NServiceBus.SagaId";
+
+
+        /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
         public const string HeaderName = "Header";

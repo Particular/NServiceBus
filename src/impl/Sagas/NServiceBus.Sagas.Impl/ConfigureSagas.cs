@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+﻿﻿namespace NServiceBus
 {
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.

@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using NServiceBus.ObjectBuilder;
-using System.Reflection;
-using NServiceBus.Saga;
-using Common.Logging;
-
 namespace NServiceBus.Sagas.Impl
 {
+    using System;
+    using System.Collections.Generic;
+    using Finders;
+    using ObjectBuilder;
+    using System.Reflection;
+    using Saga;
+    using Common.Logging;
+
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
     /// </summary>
@@ -32,6 +33,7 @@ namespace NServiceBus.Sagas.Impl
             _builderStatic = builder;
 
             configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
+            configurer.ConfigureComponent<SagaIdEnricher>(DependencyLifecycle.InstancePerCall);
 
             return new Configure { configurer = configurer };
         }
@@ -102,15 +104,14 @@ namespace NServiceBus.Sagas.Impl
             {
                 Type sagaEntityType = SagaTypeToSagaEntityTypeLookup[sagaType];
 
-                Type finder = typeof(SagaEntityFinder<>).MakeGenericType(sagaEntityType);
-                configurer.ConfigureComponent(finder, DependencyLifecycle.InstancePerCall);
-                ConfigureFinder(finder);
 
                 Type nullFinder = typeof (NullSagaFinder<>).MakeGenericType(sagaEntityType);
                 configurer.ConfigureComponent(nullFinder, DependencyLifecycle.InstancePerCall);
                 ConfigureFinder(nullFinder);
 
-                //TODO: Refactor the above.
+                Type sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
+                configurer.ConfigureComponent(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
+                ConfigureFinder(sagaHeaderIdFinder);
             }
         }
 
@@ -383,7 +384,7 @@ namespace NServiceBus.Sagas.Impl
                     if (typeof (ISagaEntity).IsAssignableFrom(typ))
                         sagaEntityType = typ;
 
-                    if (typ.IsMessageType())
+                    if (typ.IsMessageType() || typ == typeof(object))
                         messageType = typ;
                 }
 

@@ -15,8 +15,8 @@ namespace NServiceBus.Timeout.Core
 
             var sagaId = Guid.Empty;
 
-            if (message.Headers.ContainsKey(Headers.SagaId))
-                sagaId = Guid.Parse(message.Headers[Headers.SagaId]);
+            if (message.Headers.ContainsKey(NServiceBus.Headers.SagaId))
+                sagaId = Guid.Parse(message.Headers[NServiceBus.Headers.SagaId]);
 
                 
             if (message.Headers.ContainsKey(Headers.ClearTimeout))

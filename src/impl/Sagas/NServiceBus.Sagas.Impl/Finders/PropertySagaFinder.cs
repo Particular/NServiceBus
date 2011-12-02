@@ -1,8 +1,7 @@
-﻿using System.Reflection;
-using NServiceBus.Saga;
-
-namespace NServiceBus.Sagas.Impl
+﻿namespace NServiceBus.Sagas.Impl.Finders
 {
+    using System.Reflection;
+    using NServiceBus.Saga;
     using System;
 
     /// <summary>
