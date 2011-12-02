@@ -186,6 +186,24 @@ namespace NServiceBus
         /// <returns></returns>
         ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages);
 
+
+        /// <summary>
+        /// Defers the processing of the messages for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <param name="messages"></param>
+        /// <returns></returns>
+        ICallback Defer(TimeSpan delay, params object[] messages);
+
+
+        /// <summary>
+        /// Defers the processing of the messages until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        /// <param name="processAt"></param>
+        /// <param name="messages"></param>
+        /// <returns></returns>
+        ICallback Defer(DateTime processAt, params object[] messages);
+
         /// <summary>
 		/// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>

@@ -109,7 +109,7 @@ namespace NServiceBus.Saga
             if (within <= TimeSpan.Zero)
                 Timeout(withState);
             else
-                Bus.Send(new TimeoutMessage(within, Data, withState));
+                Bus.Defer(within,new TimeoutMessage(within, Data, withState));
         }
 
         /// <summary>

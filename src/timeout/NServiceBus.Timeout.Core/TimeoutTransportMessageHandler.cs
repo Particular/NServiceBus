@@ -10,7 +10,7 @@ namespace NServiceBus.Timeout.Core
 
         public void Handle(TransportMessage message)
         {
-            if(!message.Headers.ContainsKey(Headers.IsTimeoutMessage))
+            if(!message.Headers.ContainsKey(NServiceBus.Headers.Expire))
                 throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
 
             var sagaId = Guid.Empty;
@@ -31,7 +31,7 @@ namespace NServiceBus.Timeout.Core
                                    Destination = message.ReplyToAddress,
                                    SagaId = sagaId,
                                    State = message.Body,
-                                   Time = DateTime.Parse(message.Headers[Headers.Expire])
+                                   Time = DateTime.Parse(message.Headers[NServiceBus.Headers.Expire])
                                };
 
                 Manager.PushTimeout(data);

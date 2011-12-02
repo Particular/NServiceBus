@@ -48,7 +48,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SagaStarter.cs" />
+    <Compile Include="DeferedProcessing\DeferredMessage.cs" />
+    <Compile Include="DeferedProcessing\DeferredMessageHandler.cs" />
+    <Compile Include="Starter.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />

@@ -48,8 +48,7 @@
                                            Body = timeoutData.State
                                        };
 
-            transportMessage.Headers[Headers.IsTimeoutMessage] = true.ToString();
-            transportMessage.Headers[Headers.Expire] = timeoutData.Time.ToString();
+            transportMessage.Headers[NServiceBus.Headers.Expire] = timeoutData.Time.ToString();
             transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
 
             return transportMessage;

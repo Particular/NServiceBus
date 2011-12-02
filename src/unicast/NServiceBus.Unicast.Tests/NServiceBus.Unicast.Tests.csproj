@@ -91,6 +91,7 @@
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
+    <Compile Include="DeferedMessages.cs" />
     <Compile Include="Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Helpers\FuncBuilder.cs" />
     <Compile Include="Contexts\InterfaceMessage.cs" />

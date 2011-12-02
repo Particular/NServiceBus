@@ -12,11 +12,10 @@ namespace NServiceBus.Timeout.Core
 
             if (timeoutMessage != null)
             {
-                message.SetHeader(Headers.IsTimeoutMessage, true.ToString());
-                message.SetHeader(Headers.Expire, timeoutMessage.Expires.ToString());
+                message.SetHeader(NServiceBus.Headers.Expire, timeoutMessage.Expires.ToString());
 
                 if (timeoutMessage.ClearTimeout)
-                    message.SetHeader(Headers.ClearTimeout, timeoutMessage.Expires.ToString());
+                    message.SetHeader(Headers.ClearTimeout, true.ToString());
             }
 
             return message;

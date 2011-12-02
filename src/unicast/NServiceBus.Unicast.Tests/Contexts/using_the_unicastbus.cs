@@ -30,12 +30,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected IList<IMessageModule> MessageModules = new List<IMessageModule>();
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder = new FuncBuilder();
+        protected Address MasterNodeAddress;
 
         [SetUp]
         public void SetUp()
         {
+            Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
-            var masterNodeAddress = new Address(localAddress,"MasterNode"); 
+            MasterNodeAddress = new Address(localAddress,"MasterNode"); 
 
             try
             {
@@ -47,7 +49,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
-            gatewayAddress = masterNodeAddress.SubScope("gateway");
+            gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
@@ -55,7 +57,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
 
-            masterNodeManager.Stub(x => x.GetMasterNode()).Return(masterNodeAddress);
+            masterNodeManager.Stub(x => x.GetMasterNode()).Return(MasterNodeAddress);
             unicastBus = new UnicastBus
             {
                 MessageSerializer = MessageSerializer,
@@ -71,6 +73,16 @@ namespace NServiceBus.Unicast.Tests.Contexts
             bus = unicastBus;
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
 
+        }
+
+        protected void VerifyThatMessageWasSentTo(Address destination)
+        {
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(destination)));
+        }
+
+        protected void VerifyThatMessageWasSentWithHeaders(Func<IDictionary<string,string>,bool> predicate)
+        {
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<Address>.Is.Anything));
         }
 
         protected void RegisterUow(IManageUnitsOfWork uow)

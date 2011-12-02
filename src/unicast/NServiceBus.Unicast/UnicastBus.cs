@@ -552,6 +552,22 @@ namespace NServiceBus.Unicast
             return SendMessage(gatewayAddress, null, MessageIntentEnum.Send, messages);
         }
 
+        public ICallback Defer(TimeSpan delay, params object[] messages)
+        {
+            return Defer(DateTime.UtcNow + delay, messages);
+        }
+
+        public ICallback Defer(DateTime processAt, params object[] messages)
+        {
+            //todo - allow users to override in config
+            var timeoutManagerAddress = MasterNodeManager.GetMasterNode().SubScope("Timeouts");
+            
+            messages.First().SetHeader(Headers.Expire, processAt.ToUniversalTime().ToString());
+
+            return ((IBus) this).Send(timeoutManagerAddress, messages);
+        }
+
+
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
@@ -1470,10 +1486,7 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 return Address.Undefined;
 
-            //todo - keep this code until we decide what the public api should be
-            if (messages[0] is TimeoutMessage)
-                return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
-
+            
             return GetAddressForMessageType(messages[0].GetType());
         }
 

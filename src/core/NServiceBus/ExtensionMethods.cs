@@ -212,6 +212,12 @@ namespace NServiceBus
         public const string OriginatingSite = "NServiceBus.OriginatingSite";
 
         /// <summary>
+        /// Header for time when a message expires in the timeout manager
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string Expire = "NServiceBus.Timeout.Expire";
+
+        /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
         public const string HeaderName = "Header";

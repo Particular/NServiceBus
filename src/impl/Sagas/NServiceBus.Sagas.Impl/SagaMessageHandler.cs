@@ -196,7 +196,8 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="saga"></param>
 	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
 	    {
-	        Bus.Send(new TimeoutMessage(saga.Entity, true));
+            //use bus.Defer just to get the address to the timeoutmanager
+	        Bus.Defer(TimeSpan.FromSeconds(10),new TimeoutMessage(saga.Entity, true));
 	    }
 
 	    /// <summary>

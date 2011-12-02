@@ -11,10 +11,7 @@
             var sagaMessage = message as ISagaMessage;
 
             if (sagaMessage != null)
-            {
-                message.SetHeader(Headers.IsTimeoutMessage, true.ToString());
                 message.SetHeader(Headers.SagaId, sagaMessage.SagaId.ToString());
-            }
             
             return message;
         }

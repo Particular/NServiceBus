@@ -36,7 +36,7 @@
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config">
-      <HintPath>..\NServiceBus.Timeout.Hosting.Windows\bin\Debug\NServiceBus.Config.dll</HintPath>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
