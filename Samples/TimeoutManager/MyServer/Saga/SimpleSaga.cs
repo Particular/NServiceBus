@@ -10,7 +10,7 @@
             Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
-            RequestTimeout(TimeSpan.FromSeconds(10), someState);
+            RequestUtcTimeout(TimeSpan.FromSeconds(10), someState);
             LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
         }
 

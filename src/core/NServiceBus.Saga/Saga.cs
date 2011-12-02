@@ -93,9 +93,12 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"></param>
         /// <param name="withState"></param>
-        protected virtual void RequestTimeout(DateTime at, object withState)
+        protected virtual void RequestUtcTimeout(DateTime at, object withState)
         {
-            RequestTimeout(at - DateTime.UtcNow, withState);
+            if (at.Kind == DateTimeKind.Unspecified)
+                throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
+
+            RequestUtcTimeout(at.ToUniversalTime() - DateTime.UtcNow, withState);
         }
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within"></param>
         /// <param name="withState"></param>
-        protected virtual void RequestTimeout(TimeSpan within, object withState)
+        protected virtual void RequestUtcTimeout(TimeSpan within, object withState)
         {
             if (within <= TimeSpan.Zero)
                 Timeout(withState);

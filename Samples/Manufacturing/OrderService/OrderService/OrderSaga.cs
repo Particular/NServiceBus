@@ -38,7 +38,7 @@ namespace OrderService
 
                 Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, IOrderLine>(status.OrderLines); });
 
-                RequestTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
+                RequestUtcTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
             }
             else
             {
