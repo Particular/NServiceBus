@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="DeferedProcessing\DeferredMessage.cs" />
     <Compile Include="DeferedProcessing\DeferredMessageHandler.cs" />
+    <Compile Include="Saga\MyTimeOutState.cs" />
     <Compile Include="Starter.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

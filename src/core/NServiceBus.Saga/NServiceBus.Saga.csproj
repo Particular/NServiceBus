@@ -14,7 +14,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
@@ -74,6 +73,7 @@
     <Compile Include="IHandleReplyingToNullOriginator.cs" />
     <Compile Include="IFindSagas.cs" />
     <Compile Include="IHandleSagaNotFound.cs" />
+    <Compile Include="IHandleTimeouts.cs" />
     <Compile Include="ISaga.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -82,6 +82,7 @@
     <Compile Include="ISagaPersister.cs" />
     <Compile Include="ISagaStartedBy.cs" />
     <Compile Include="ITimeoutable.cs" />
+    <Compile Include="ITimeoutState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga.cs" />
     <Compile Include="TimeoutMessage.cs" />

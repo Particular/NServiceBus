@@ -1,10 +1,11 @@
 ﻿namespace MyServer.Saga
 {
     using System;
-    using NServiceBus;
     using NServiceBus.Saga;
 
-    public class SimpleSaga:Saga<SimpleSagaData>,IAmStartedByMessages<StartSagaMessage>,IHandleTimeouts<MyTimeOutState>
+    public class SimpleSaga:Saga<SimpleSagaData>,
+        IAmStartedByMessages<StartSagaMessage>,
+        IHandleTimeouts<MyTimeOutState>
     {
         public void Handle(StartSagaMessage message)
         {
@@ -40,19 +41,5 @@
             LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
             MarkAsComplete();
         }
-    }
-
-    public class MyTimeOutState:ITimeoutState
-    {
-        public string SomeValue { get; set; }
-    }
-
-    public interface ITimeoutState:IMessage
-    {
-    }
-
-    public interface IHandleTimeouts<T>:IHandleMessages<T>
-    {
-         
     }
 }
