@@ -10,7 +10,7 @@ namespace NServiceBus.Gateway.Receiving
         {
             yield return new Channel
                              {
-                                 Address = string.Format("http://localhost/nservicebus/gateways/{0}/",Configure.EndpointName),
+                                 Address = string.Format("http://localhost/{0}/",Configure.EndpointName),
                                  Type = "Http"
                              };
         }

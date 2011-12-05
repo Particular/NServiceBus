@@ -1,6 +1,7 @@
 namespace NServiceBus.Gateway.Channels.Http
 {
     using System.Net;
+    using NServiceBus.Config;
 
     public class DefaultResponder : IHttpResponder
     {
@@ -12,6 +13,15 @@ namespace NServiceBus.Gateway.Channels.Http
 
             ctx.Response.ContentType = "text/html";
             ctx.Response.Close(System.Text.Encoding.UTF8.GetBytes(response),true);
+        }
+    }
+
+    public class SetDefaultResponder : IWantToRunWhenConfigurationIsComplete
+    {
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IHttpResponder>())
+                Configure.Instance.Configurer.ConfigureComponent<DefaultResponder>(DependencyLifecycle.InstancePerCall);
         }
     }
 }
