@@ -22,7 +22,12 @@ namespace AsyncPagesMVC3.Controllers
         public ActionResult Index(string textField)
         {
             ViewBag.Title = "SendAndBlock";
-            var command = new Command { Id = int.Parse(textField) };
+
+            int number;
+            if (!int.TryParse(textField, out number))
+                return View();
+
+            var command = new Command { Id = number };
 
             IAsyncResult res = Bus.Send(command).Register(SimpleCommandCallback, this);
             WaitHandle asyncWaitHandle = res.AsyncWaitHandle;

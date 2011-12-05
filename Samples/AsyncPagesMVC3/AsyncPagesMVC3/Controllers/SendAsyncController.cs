@@ -21,8 +21,12 @@ namespace AsyncPagesMVC3.Controllers
         [AsyncTimeout(50000)]
         public void IndexAsync(string textField)
         {
+            int number;
+            if (!int.TryParse(textField, out number))
+                return;
+            
             AsyncManager.OutstandingOperations.Increment();
-            var command = new Command { Id = int.Parse(textField) };
+            var command = new Command { Id = number };
             Bus.Send(command).Register(SimpleCommandCallback, this);
         }
 
