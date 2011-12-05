@@ -110,11 +110,11 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigureDistributor.cs" />
-    <Compile Include="DistributorSetup.cs" />
+    <Compile Include="ControlQueueInstaller.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="Headers.cs" />
-    <Compile Include="Installer.cs" />
+    <Compile Include="WorkerInputInstaller.cs" />
     <Compile Include="ReadyMessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnAddressRewriter.cs" />

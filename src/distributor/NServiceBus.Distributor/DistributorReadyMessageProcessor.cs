@@ -1,13 +1,13 @@
 ﻿namespace NServiceBus.Distributor
 {
-    using Config;
+    using Unicast;
     using Unicast.Distributor;
     using Unicast.Transport.Transactional;
     using Unicast.Queuing.Msmq;
     using Faults;
     using Unicast.Transport;
 
-    public class DistributorReadyMessageProcessor : IWantToRunWhenConfigurationIsComplete
+    public class DistributorReadyMessageProcessor : IWantToRunWhenTheBusStarts
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
@@ -17,7 +17,7 @@
 
         public void Run()
         {
-            if (!DistributorSetup.DistributorShouldRunOnThisEndpoint())
+            if (!ConfigureDistributor.DistributorShouldRunOnThisEndpoint())
                 return;
         
             controlTransport = new TransactionalTransport
@@ -40,14 +40,13 @@
                     HandleControlMessage(transportMessage);
                 };
 
-            var bus = Configure.Instance.Builder.Build<IStartableBus>();
-            bus.Started += (obj, ev) => controlTransport.Start(ControlQueue);
+            controlTransport.Start(ControlQueue);
         }
 
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var returnAddress = controlMessage.ReplyToAddress;
-            DistributorSetup.Logger.Debug("Worker available: " + returnAddress);
+            ConfigureDistributor.Logger.Debug("Worker available: " + returnAddress);
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);

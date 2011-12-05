@@ -94,7 +94,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Installer.cs" />
+    <Compile Include="StorageQueueInstaller.cs" />
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -6,7 +6,9 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Distributor
 {
-    public class DistributorBootstrapper : IDisposable, IWantToRunWhenConfigurationIsComplete
+    using Unicast;
+
+    public class DistributorBootstrapper : IDisposable, IWantToRunWhenTheBusStarts
     {
 
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
@@ -21,7 +23,7 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            if (!DistributorSetup.DistributorShouldRunOnThisEndpoint())
+            if (!ConfigureDistributor.DistributorShouldRunOnThisEndpoint())
                 return;
            
             var dataTransport = new TransactionalTransport
@@ -39,8 +41,8 @@ namespace NServiceBus.Distributor
                 DataTransportInputQueue = InputQueue
             };
 
-            var bus = Configure.Instance.Builder.Build<IStartableBus>();
-            bus.Started += (obj, ev) => distributor.Start();
+
+            distributor.Start();
         }
 
         Unicast.Distributor.Distributor distributor;

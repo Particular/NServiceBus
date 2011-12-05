@@ -750,7 +750,7 @@ namespace NServiceBus.Unicast
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
 
-                transport.Start(Address.Local);
+                transport.Start(InputAddress);
 
 
                 if (autoSubscribe)
@@ -766,6 +766,22 @@ namespace NServiceBus.Unicast
 
             return this;
         }
+
+        /// <summary>
+        /// The address this bus will use as it's main input
+        /// </summary>
+        public  Address InputAddress
+        {
+            get
+            {
+                if (inputAddress == null)
+                    inputAddress = Address.Local;
+
+                return inputAddress;
+            }
+            set { inputAddress = value; }
+        }
+
 
         void PerformAutoSubcribe()
         {
@@ -1533,6 +1549,8 @@ namespace NServiceBus.Unicast
         #endregion
 
         #region Fields
+
+        Address inputAddress;
 
         /// <summary>
         /// Gets/sets the subscription manager to use for the bus.
