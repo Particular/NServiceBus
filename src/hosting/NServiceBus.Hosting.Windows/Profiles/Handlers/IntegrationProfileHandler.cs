@@ -9,6 +9,8 @@
     {
         void IHandleProfile.ProfileActivated()
         {
+            Configure.Instance.RavenPersistence();
+
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.MessageForwardingInCaseOfFault();
 

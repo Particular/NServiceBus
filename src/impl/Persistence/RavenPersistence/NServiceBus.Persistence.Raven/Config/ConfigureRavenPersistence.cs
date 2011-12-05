@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using Raven.Client;
 using Raven.Client.Document;
 
-namespace NServiceBus.Persistence.Raven.Config
+namespace NServiceBus
 {
+    using Persistence.Raven;
     using global::Raven.Client.Embedded;
 
     public static class ConfigureRavenPersistence

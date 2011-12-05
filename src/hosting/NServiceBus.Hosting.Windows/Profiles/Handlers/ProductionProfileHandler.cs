@@ -9,6 +9,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
+            Configure.Instance.RavenPersistence();
+
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.RavenSagaPersister();
 

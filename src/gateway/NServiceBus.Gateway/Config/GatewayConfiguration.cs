@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using Gateway.Channels;
-    using Gateway.Channels.Http;
     using Gateway.Config;
     using Gateway.Notifications;
     using Gateway.Persistence;
@@ -13,7 +12,6 @@
     using Gateway.Routing.Sites;
     using Gateway.Sending;
     using Raven.Client;
-    using Persistence.Raven.Config;
 
 
     public static class GatewayConfiguration
@@ -31,9 +29,6 @@
         }
         public static Configure GatewayWithRavenPersistence(this Configure config)
         {
-            if (!config.Configurer.HasComponent<IDocumentStore>())
-                config.RavenPersistence();
-
             return Gateway(config, typeof(RavenDBPersistence));
         }
         public static Configure Gateway(this Configure config, Type persistence)

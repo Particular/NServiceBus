@@ -1,6 +1,4 @@
 using System;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.Persistence.Raven.Config;
 using Raven.Client;
 using Raven.Client.Document;
 

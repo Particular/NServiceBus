@@ -9,9 +9,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
-        private readonly DocumentStore store;
+        readonly IDocumentStore store;
 
-        public RavenTimeoutPersistence(DocumentStore store)
+        public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
         }

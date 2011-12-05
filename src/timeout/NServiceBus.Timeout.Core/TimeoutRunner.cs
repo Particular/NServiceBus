@@ -5,10 +5,11 @@
     using System.Threading;
     using System.Transactions;
     using Saga;
+    using Unicast;
     using Unicast.Queuing;
     using Unicast.Transport;
 
-    public class TimeoutRunner
+    public class TimeoutRunner : IWantToRunWhenTheBusStarts
     {
         public IManageTimeouts TimeoutManager { get; set; }
 
@@ -18,6 +19,9 @@
         
         public void Run()
         {
+            if (TimeoutManager == null)
+                return;
+
             TimeoutManager.SagaTimedOut +=
                 (o, e) =>
                 {

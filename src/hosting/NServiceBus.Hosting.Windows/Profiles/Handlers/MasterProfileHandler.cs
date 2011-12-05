@@ -9,7 +9,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             Configure.Instance.AsMasterNode()
                 .UseDistributor()
                 .Gateway()
-                .UseTimeoutManagerWithRavenPersistence();
+                .UseTimeoutManagerWithInMemoryPersistence();
         }
     }
 }

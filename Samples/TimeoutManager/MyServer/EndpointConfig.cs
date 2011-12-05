@@ -8,7 +8,7 @@
         {
             Configure.With()
                 .DefaultBuilder()
-                .UseTimeoutManager();
+                .UseTimeoutManager(); //will default to ravendb for storage
         }
     }
 }

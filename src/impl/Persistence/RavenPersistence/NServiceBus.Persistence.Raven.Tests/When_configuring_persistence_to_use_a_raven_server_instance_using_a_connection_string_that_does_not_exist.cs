@@ -1,5 +1,4 @@
 using System;
-using NServiceBus.Persistence.Raven.Config;
 using NUnit.Framework;
 
 namespace NServiceBus.Persistence.Raven.Tests

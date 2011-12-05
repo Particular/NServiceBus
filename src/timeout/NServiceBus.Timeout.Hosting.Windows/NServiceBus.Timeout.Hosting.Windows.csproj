@@ -36,7 +36,7 @@
     <Compile Include="Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\RavenTimeoutPersistence.cs" />
-    <Compile Include="TimeoutManagerBootstrapper.cs" />
+    <Compile Include="TimeoutMessageProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Timeout.Core\NServiceBus.Timeout.Core.csproj">
@@ -72,6 +72,9 @@
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using Config;
+    using ObjectBuilder;
     using Timeout.Core;
     using Timeout.Hosting.Windows.Persistence;
 
@@ -9,15 +11,13 @@
 
         public static Configure UseTimeoutManager(this Configure config)
         {
-            config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.InstancePerCall);
-
             return SetupTimeoutManager(config);
         }
 
-        public static Configure UseTimeoutManagerWithRavenPersistence(this Configure config)
+        public static Configure UseTimeoutManagerWithInMemoryPersistence(this Configure config)
         {
-            config.Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.Database, Configure.EndpointName);
+            config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.SingleInstance);
+
             return SetupTimeoutManager(config);
         }
 
@@ -38,4 +38,16 @@
         public static Address TimeoutManagerAddress { get; set; }
 
     }
+
+    class TimeoutManagerDefaults : IWantToRunWhenConfigurationIsComplete
+    {
+        public IConfigureComponents Configurer { get; set; }
+        public void Run()
+        {
+            if (!Configurer.HasComponent<IPersistTimeouts>())
+                Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall)
+                                .ConfigureProperty(p => p.Database, Configure.EndpointName);
+        }
+    }
+
 }
