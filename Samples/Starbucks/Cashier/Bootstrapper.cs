@@ -25,9 +25,11 @@ namespace Cashier
                 .StructureMapBuilder(ObjectFactory.Container)
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
+                .UseTimeoutManagerWithInMemoryPersistence() // Otherwise it uses RavenTimeoutPersister
                 // For sagas
                 .Sagas()
-                .RavenSagaPersister()
+                .InMemorySagaPersister()
+                //.RavenSagaPersister()
                 // End
                 .MsmqTransport()
                     .IsTransactional(true)
@@ -36,7 +38,7 @@ namespace Cashier
                     .ImpersonateSender(false)
                     .LoadMessageHandlers()
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
         }
     }
 }

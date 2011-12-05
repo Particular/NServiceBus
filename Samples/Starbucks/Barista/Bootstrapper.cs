@@ -24,11 +24,13 @@ namespace Barista
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
+                .UseTimeoutManagerWithInMemoryPersistence() // Otherwise it uses RavenTimeoutPersister
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 // For sagas
                 .Sagas()
-                .RavenSagaPersister()
+                .InMemorySagaPersister()
+                //.RavenSagaPersister()
                 // End
                 .MsmqTransport()
                     .IsTransactional(true)
@@ -37,7 +39,7 @@ namespace Barista
                     .ImpersonateSender(false)
                     .LoadMessageHandlers()
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
         }
     }
 }

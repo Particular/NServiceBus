@@ -25,6 +25,7 @@ namespace Customer
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
+                .UseTimeoutManagerWithInMemoryPersistence() // Otherwise it uses RavenTimeoutPersister
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()
@@ -34,7 +35,7 @@ namespace Customer
                     .ImpersonateSender(false)
                     .LoadMessageHandlers()
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
         }
     }
 }
