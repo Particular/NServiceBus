@@ -1,9 +1,7 @@
 using System;
 using System.Configuration;
-using System.Diagnostics;
 using Common.Logging;
 using NServiceBus.ObjectBuilder;
-using System.Collections;
 using NServiceBus.Config;
 using System.Collections.Generic;
 using NServiceBus.Saga;
@@ -11,7 +9,6 @@ using System.Linq;
 
 namespace NServiceBus.Unicast.Config
 {
-    using System.Collections.Concurrent;
     using System.Reflection;
 
     /// <summary>

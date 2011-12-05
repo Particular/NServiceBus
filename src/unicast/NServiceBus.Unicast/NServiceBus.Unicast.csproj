@@ -115,6 +115,7 @@
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
     <Compile Include="IUnicastBus.cs" />
+    <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
