@@ -7,6 +7,8 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.Sagas.Impl
 {
+    using System.Linq;
+
     /// <summary>
     /// A message handler central to the saga infrastructure.
     /// </summary>
@@ -193,11 +195,13 @@ namespace NServiceBus.Sagas.Impl
                 return;
             }
 
-            // search for the timeout method using reflection
-            var methodInfo = saga.GetType().GetMethod("Timeout", new[] { message.GetType() });
+            var messageType = message.GetType();
 
-            if (methodInfo == null)
-                throw new InvalidOperationException(string.Format("Timeout arrived with state {0}, but no method with signature void Timeout({0}). Please implement IHandleTimeouts<{0}> on your {1} class", message.GetType(), saga.GetType()));
+            // search for the timeout method using reflection
+            var methodInfo = saga.GetType().GetMethod("Timeout", new[] { messageType });
+
+            if (methodInfo == null || methodInfo.GetParameters().First().ParameterType != messageType)
+                throw new InvalidOperationException(string.Format("Timeout arrived with state {0}, but no method with signature void Timeout({0}). Please implement IHandleTimeouts<{0}> on your {1} class", messageType, saga.GetType()));
             
             methodInfo.Invoke(saga, new[] { message });
         }
