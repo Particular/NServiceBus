@@ -88,56 +88,38 @@ namespace NServiceBus.Saga
         public bool Completed { get; private set; }
 
         /// <summary>
-        /// Request for a timeout to occur within the give timespan
-        /// </summary>
-        /// <param name="within"></param>
-        /// <param name="timeoutMessage"></param>
-        protected void RequestTimeout<TTIMEOUTMESSAGETYPE>(TimeSpan within, TTIMEOUTMESSAGETYPE timeoutMessage)
-        {
-            timeoutMessage.SetHeader(Headers.SagaId,Data.Id.ToString());
-
-            if (within <= TimeSpan.Zero)
-                Bus.SendLocal(timeoutMessage);
-            else
-                Bus.Defer(within, timeoutMessage);
-        }
-        /// <summary>
         /// Request for a timeout to occure at the given time
         /// </summary>
         /// <param name="at"></param>
         /// <param name="timeoutMessage"></param>
-        protected void RequestTimeout<TTIMEOUTMESSAGETYPE>(DateTime at, TTIMEOUTMESSAGETYPE timeoutMessage)
-        {
-            RequestTimeout(at.ToUniversalTime() - DateTime.UtcNow, timeoutMessage);
-        }
-
-        /// <summary>
-        /// Request for a timeout to occur at the given time.
-        /// </summary>
-        /// <param name="at"></param>
-        /// <param name="withState"></param>
-        protected virtual void RequestUtcTimeout(DateTime at, object withState)
+        protected void RequestUtcTimeout<TTIMEOUTMESSAGETYPE>(DateTime at, TTIMEOUTMESSAGETYPE timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
-            RequestUtcTimeout(at.ToUniversalTime() - DateTime.UtcNow, withState);
+            RequestUtcTimeout(at.ToUniversalTime() - DateTime.UtcNow, timeoutMessage);
         }
 
         /// <summary>
-        /// Request for a timeout to occur at the given time.
-        /// Causes a callback to the <see cref="Timeout" /> method with the given state.
+        /// Request for a timeout to occur within the give timespan
         /// </summary>
         /// <param name="within"></param>
-        /// <param name="withState"></param>
-        protected virtual void RequestUtcTimeout(TimeSpan within, object withState)
+        /// <param name="timeoutMessage"></param>
+        protected void RequestUtcTimeout<TTIMEOUTMESSAGETYPE>(TimeSpan within, TTIMEOUTMESSAGETYPE timeoutMessage)
         {
-            if (within <= TimeSpan.Zero)
-                Timeout(withState);
-            else
-                Bus.Defer(within, new TimeoutMessage(within, Data, withState));
-        }
+            object toSend = timeoutMessage;
 
+            if(!toSend.IsMessage())
+                toSend = new TimeoutMessage(within, Data, toSend);
+
+            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
+
+            if (within <= TimeSpan.Zero)
+                Bus.SendLocal(toSend);
+            else
+                Bus.Defer(within, toSend);
+        }
+     
         /// <summary>
         /// Sends the given messages using the bus to the endpoint that caused this saga to start.
         /// </summary>

@@ -19,10 +19,13 @@
         public override void Timeout(object state)
         {
             LogMessage("v2.6 Timeout fired, with state: " + state);
-            LogMessage("Requesting a custom timeout v3.0 style");
-            RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
+
+            var someState = new Random().Next(10);
+
+            LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
+            RequestUtcTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
                                                         {
-                                                            SomeValue = "Custom state"
+                                                            SomeValue = someState
                                                         });
         }
 

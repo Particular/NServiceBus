@@ -4,6 +4,6 @@ namespace MyServer.Saga
 
     public class MyTimeOutState:ITimeoutState
     {
-        public string SomeValue { get; set; }
+        public int SomeValue { get; set; }
     }
 }
