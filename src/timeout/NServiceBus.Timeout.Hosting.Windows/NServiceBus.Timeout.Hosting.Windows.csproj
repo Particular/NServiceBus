@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureTimeoutManager.cs" />
+    <Compile Include="Config\TimeoutManagerDefaults.cs" />
     <Compile Include="Installer\TimeoutInstaller.cs" />
     <Compile Include="Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
