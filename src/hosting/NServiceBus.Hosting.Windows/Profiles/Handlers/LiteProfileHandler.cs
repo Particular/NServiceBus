@@ -1,5 +1,4 @@
-﻿using NServiceBus.Config;
-using NServiceBus.Faults;
+﻿using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Saga;
 using NServiceBus.Unicast.Subscriptions;
@@ -11,8 +10,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance.AsMasterNode()
-                .UseTimeoutManager()
-                .Gateway();
+                .UseTimeoutManagerWithInMemoryPersistence()
+                .GatewayWithInMemoryPersistence();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.InMemorySagaPersister();
