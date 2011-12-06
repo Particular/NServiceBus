@@ -9,6 +9,7 @@
         public CallType Type { get; set; }
         public IDictionary<string,string> Headers { get; set; }
         public Stream Data { get; set; }
+        public bool AutoAck { get; set; }
     }
 
     public enum CallType

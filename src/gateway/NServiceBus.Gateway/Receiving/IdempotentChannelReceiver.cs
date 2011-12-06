@@ -48,11 +48,6 @@
 
                 Logger.DebugFormat("Received message of type {0} for client id: {1}", callInfo.Type, callInfo.ClientId);
 
-
-                //todo this is a msmq specific validation and should be moved to the layer above that is sending the message onto the main transport
-                //if (callInfo.Type == CallType.Submit && e.Data.Length > 4 * 1024 * 1024)
-                //    throw new Exception("Cannot accept messages larger than 4MB.");
-
                 using (var scope = DefaultTransactionScope())
                 {
                     switch (callInfo.Type)
@@ -108,7 +103,8 @@
                 ClientId = clientId,
                 Type = type,
                 Headers = headers,
-                Data = receivedData.Data
+                Data = receivedData.Data,
+                AutoAck = headers.ContainsKey(GatewayHeaders.AutoAck)
             };
         }
 
@@ -117,6 +113,9 @@
         void HandleSubmit(CallInfo callInfo)
         {
             persister.InsertMessage(callInfo.ClientId, DateTime.UtcNow, callInfo.Data, callInfo.Headers);
+
+            if(callInfo.AutoAck)
+                HandleAck(callInfo);
         }
 
         void HandleDatabusProperty(CallInfo callInfo)

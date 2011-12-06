@@ -19,6 +19,7 @@
                     data: {
                         Message: message,
                         "NServiceBus.CallType": "Submit",
+                        "NServiceBus.AutoAck": "true",
                         "Content-MD5": md5,
                         "NServiceBus.Id": clientId,
                         "NServiceBus.TimeToBeReceived": "00:10:00"
@@ -30,21 +31,7 @@
                             alert("Failed to submit the request to the gateway");
                             return;
                         }
-                        $.ajax({
-                            url: $('#gatewayaddress').val(),
-                            dataType: 'jsonp',
-                            data: {
-                                "NServiceBus.CallType": "Ack",
-                                "Content-MD5": md5,
-                                "NServiceBus.Id": clientId
-                            },
-                            success: function () {
-                                alert("Success - Check the output of the headquarter server process");
-                            },
-                            error: function (http, status) {
-                                alert("Failed ack: " + status);
-                            }
-                        }); //ajax
+                        alert("Success - Check the output of the headquarter server process");
                     },
                     error: function (http, status) {
                         alert("Failed submit: " + status);
