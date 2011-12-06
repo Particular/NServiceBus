@@ -39,7 +39,7 @@
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(),message));
         }
 
-        public void Handle(MyTimeOutState state)
+        public void Timeout(MyTimeOutState state)
         {
             LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
             MarkAsComplete();

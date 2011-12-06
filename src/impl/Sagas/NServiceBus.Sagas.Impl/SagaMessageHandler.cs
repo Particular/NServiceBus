@@ -7,9 +7,9 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.Sagas.Impl
 {
-	/// <summary>
+    /// <summary>
     /// A message handler central to the saga infrastructure.
-	/// </summary>
+    /// </summary>
     public class SagaMessageHandler : IMessageHandler<object>
     {
         /// <summary>
@@ -17,23 +17,23 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         public IBus Bus { get; set; }
 
-		/// <summary>
-		/// Handles a message.
-		/// </summary>
-		/// <param name="message">The message to handle.</param>
-		/// <remarks>
-		/// If the message received needs to start a new saga, then a new
-		/// saga instance will be created and will be saved using the <see cref="ISagaPersister"/>
-		/// implementation provided in the configuration.  Any other message implementing 
-		/// <see cref="ISagaMessage"/> will cause the existing saga instance with which it is
-		/// associated to continue.</remarks>
+        /// <summary>
+        /// Handles a message.
+        /// </summary>
+        /// <param name="message">The message to handle.</param>
+        /// <remarks>
+        /// If the message received needs to start a new saga, then a new
+        /// saga instance will be created and will be saved using the <see cref="ISagaPersister"/>
+        /// implementation provided in the configuration.  Any other message implementing 
+        /// <see cref="ISagaMessage"/> will cause the existing saga instance with which it is
+        /// associated to continue.</remarks>
         public void Handle(object message)
         {
             if (!NeedToHandle(message))
                 return;
 
             var entitiesHandled = new List<ISagaEntity>();
-		    var sagaTypesHandled = new List<Type>();
+            var sagaTypesHandled = new List<Type>();
 
             foreach (IFinder finder in Configure.GetFindersFor(message))
             {
@@ -69,7 +69,7 @@ namespace NServiceBus.Sagas.Impl
                     }
 
                     saga = Builder.Build(sagaToCreate) as ISaga;
-                    
+
                 }
                 else
                 {
@@ -107,28 +107,23 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="message">The message being processed</param>
         /// <returns></returns>
-	    public bool NeedToHandle(object message)
-	    {
-            if (message is ISagaMessage && !(message is TimeoutMessage))
-                return true;
-
-            var tm = message as TimeoutMessage;
-            if (tm != null)
+        public bool NeedToHandle(object message)
+        {
+            if (message.IsTimeoutMessage())
             {
-                if (tm.HasNotExpired())
-                {
-                    Bus.HandleCurrentMessageLater();
-                    return false;
-                }
+                var expired = message.TimeoutHasExpired();
 
-                return true;
+                if (!expired)
+                    Bus.HandleCurrentMessageLater();
+
+                return expired;
             }
 
-            if (Configure.IsMessageTypeHandledBySaga(message.GetType()))
+            if (message is ISagaMessage)
                 return true;
 
-            return false;
-	    }
+            return Configure.IsMessageTypeHandledBySaga(message.GetType());
+        }
 
         /// <summary>
         /// Generates a new id for a saga.
@@ -152,7 +147,7 @@ namespace NServiceBus.Sagas.Impl
             MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
-                return method.Invoke(finder, new object[] {message}) as ISagaEntity;
+                return method.Invoke(finder, new object[] { message }) as ISagaEntity;
 
             return null;
         }
@@ -166,9 +161,8 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="sagaIsPersistent"></param>
         protected virtual void HaveSagaHandleMessage(ISaga saga, object message, bool sagaIsPersistent)
         {
-            var tm = message as TimeoutMessage;
-            if (tm != null)
-                saga.Timeout(tm.State);
+            if (message.IsTimeoutMessage())
+                DispatchTimeoutMessageToSaga(saga, message);
             else
                 CallHandleMethodOnSaga(saga, message);
 
@@ -190,45 +184,63 @@ namespace NServiceBus.Sagas.Impl
             LogIfSagaIsFinished(saga);
         }
 
+        void DispatchTimeoutMessageToSaga(ITimeoutable saga, object message)
+        {
+            var tm = message as TimeoutMessage;
+            if (tm != null)
+            {
+                saga.Timeout(tm.State);
+                return;
+            }
+
+            // search for the timeout method using reflection
+            var methodInfo = saga.GetType().GetMethod("Timeout", new[] { message.GetType() });
+
+            if (methodInfo == null)
+                throw new InvalidOperationException(string.Format("Timeout arrived with state {0}, but no method with signature void Timeout({0}). Please implement IHandleTimeouts<{0}> on your {1} class", message.GetType(), saga.GetType()));
+            
+            methodInfo.Invoke(saga, new[] { message });
+        }
+
         /// <summary>
         /// Notifies the timeout manager of the saga's completion by sending a timeout message.
         /// </summary>
         /// <param name="saga"></param>
-	    protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
-	    {
+        protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
+        {
             //use bus.Defer just to get the address to the timeoutmanager
-	        Bus.Defer(TimeSpan.FromSeconds(10),new TimeoutMessage(saga.Entity, true));
-	    }
+            Bus.Defer(TimeSpan.FromSeconds(10), new TimeoutMessage(saga.Entity, true));
+        }
 
-	    /// <summary>
-		/// Logs that a saga has completed.
-		/// </summary>
+        /// <summary>
+        /// Logs that a saga has completed.
+        /// </summary>
         protected virtual void LogIfSagaIsFinished(ISaga saga)
         {
             if (saga.Completed)
                 logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
         }
 
-		/// <summary>
-		/// Invokes the handler method on the saga for the message.
-		/// </summary>
-		/// <param name="saga">The saga on which to call the handle method.</param>
-		/// <param name="message">The message to pass to the handle method.</param>
+        /// <summary>
+        /// Invokes the handler method on the saga for the message.
+        /// </summary>
+        /// <param name="saga">The saga on which to call the handle method.</param>
+        /// <param name="message">The message to pass to the handle method.</param>
         protected virtual void CallHandleMethodOnSaga(object saga, object message)
         {
-		    MethodInfo method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
+            var method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
 
             if (method != null)
-                method.Invoke(saga, new object[] { message });
+                method.Invoke(saga, new [] { message });
         }
 
         #endregion
 
         #region config info
 
-		/// <summary>
-		/// Gets/sets the builder that will be used for instantiating sagas.
-		/// </summary>
+        /// <summary>
+        /// Gets/sets the builder that will be used for instantiating sagas.
+        /// </summary>
         public virtual IBuilder Builder { get; set; }
 
         /// <summary>
@@ -242,5 +254,24 @@ namespace NServiceBus.Sagas.Impl
         /// Object used to log information.
         /// </summary>
         protected readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
+    }
+
+    public static class MessageExtensions
+    {
+        public static bool IsTimeoutMessage(this object message)
+        {
+            return !string.IsNullOrEmpty(message.GetHeader(Headers.Expire)) && !string.IsNullOrEmpty(message.GetHeader(Headers.SagaId));
+        }
+
+        public static bool TimeoutHasExpired(this object message)
+        {
+            var tm = message as TimeoutMessage;
+            if (tm != null)
+                return !tm.HasNotExpired();
+
+            return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(Headers.Expire));
+        }
+
+
     }
 }

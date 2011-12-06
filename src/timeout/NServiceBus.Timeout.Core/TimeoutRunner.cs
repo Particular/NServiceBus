@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Timeout.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -53,7 +54,9 @@
                                        };
 
             transportMessage.Headers[NServiceBus.Headers.Expire] = timeoutData.Time.ToString();
-            transportMessage.Headers[NServiceBus.Headers.SagaId] = timeoutData.SagaId.ToString();
+
+            if(timeoutData.SagaId != Guid.Empty)
+                transportMessage.Headers[NServiceBus.Headers.SagaId] = timeoutData.SagaId.ToString();
 
             return transportMessage;
         }
