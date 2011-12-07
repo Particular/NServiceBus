@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace OrderService.Messages
 {
-    public interface OrderLine : IMessage
+    public interface IOrderLine : IMessage
     {
         Guid ProductId { get; set; }
         float Quantity { get; set; }

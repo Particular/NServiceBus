@@ -3,7 +3,6 @@ using System.Configuration;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.AppFabric;
 
 namespace NServiceBus
@@ -39,18 +38,7 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
-
-            var unicastConfigSection = Configure.GetConfigSection<UnicastBusConfig>();
-            var address = unicastConfigSection.LocalAddress;
-
-            if (address == null)
-            {
-                var msmqConfigSection = Configure.GetConfigSection<MsmqTransportConfig>();
-                address = msmqConfigSection.InputQueue;
-            }
-
-            Address.InitializeLocalAddress(address);
-
+            
             return config;
         }
     }

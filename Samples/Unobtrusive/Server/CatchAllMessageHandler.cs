@@ -1,10 +1,9 @@
 ﻿namespace Server
 {
     using System;
-    using Commands;
     using NServiceBus;
 
-    public class CatchAllMessageHandler:IHandleMessages<object>
+    public class CatchAllMessageHandler : IHandleMessages<object>
     {
 
         public void Handle(object message)

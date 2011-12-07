@@ -4,7 +4,7 @@
     using Commands;
     using NServiceBus;
 
-    public class MyCommandHandler:IHandleMessages<MyCommand>
+    public class MyCommandHandler : IHandleMessages<MyCommand>
     {
         readonly IBus bus;
 

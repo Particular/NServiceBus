@@ -4,29 +4,30 @@ using HR.Messages;
 using NServiceBus.Saga;
 using OrderService.Messages;
 using NServiceBus;
+using IOrderLine = HR.Messages.IOrderLine;
 
 namespace OrderService
 {
     public class OrderSaga : Saga<OrderSagaData>,
-        IAmStartedByMessages<OrderMessage>,
+        IAmStartedByMessages<IOrderMessage>,
         IHandleMessages<OrderAuthorizationResponseMessage>,
         IHandleMessages<CancelOrderMessage>
     {
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<OrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            ConfigureMapping<IOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
             ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
         }
 
-        public void Handle(OrderMessage message)
+        public void Handle(IOrderMessage message)
         {
-            Console.WriteLine("======================================================================");
-
+            Console.WriteLine("Recieved message: " + message);
+            
             Data.PurchaseOrderNumber = message.PurchaseOrderNumber;
             Data.PartnerId = message.PartnerId;
             Data.ProvideBy = message.ProvideBy;
 
-            foreach (Messages.OrderLine ol in message.OrderLines)
+            foreach (Messages.IOrderLine ol in message.OrderLines)
                 Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
             var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(Data.OrderLines));
@@ -36,13 +37,14 @@ namespace OrderService
                 ReplyToOriginator(status);
                 Bus.Publish(status);
 
-                Bus.Send<RequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.OrderLine, IOrderLine>(status.OrderLines); });
+                Bus.Send<IRequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.IOrderLine, IOrderLine>(status.OrderLines); });
 
                 RequestUtcTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
             }
             else
             {
                 status.Status = OrderStatusEnum.Tentative;
+                Console.WriteLine("Publishing: " + OrderStatusEnum.Tentative);
                 Bus.Publish(status);
             }
         }
@@ -88,7 +90,7 @@ namespace OrderService
             Complete();
         }
 
-        private List<K> Convert<T, K>(List<T> list) where T : Messages.OrderLine where K : IOrderLine
+        private List<K> Convert<T, K>(List<T> list) where T : Messages.IOrderLine where K : IOrderLine
         {
             var result = new List<K>(list.Count);
 
@@ -97,9 +99,9 @@ namespace OrderService
             return result;
         }
 
-        private static List<Messages.OrderLine> GetOrderLines(IEnumerable<OrderLine> lines)
+        private static List<Messages.IOrderLine> GetOrderLines(IEnumerable<OrderLine> lines)
         {
-            var result = new List<Messages.OrderLine>();
+            var result = new List<Messages.IOrderLine>();
 
             foreach (OrderLine ol in lines)
                 result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
@@ -107,7 +109,7 @@ namespace OrderService
             return result;
         }
 
-        private OrderStatusChangedMessage GetStatus(OrderStatusEnum status, List<Messages.OrderLine> lines)
+        private IOrderStatusChangedMessage GetStatus(OrderStatusEnum status, List<Messages.IOrderLine> lines)
         {
             return Bus.CreateInstance<OrderStatusChangedMessage>(m =>
             {
@@ -118,9 +120,9 @@ namespace OrderService
             });
         }
 
-        private static List<Messages.OrderLine> GetOrderLines(IEnumerable<IOrderLine> lines)
+        private static List<Messages.IOrderLine> GetOrderLines(IEnumerable<IOrderLine> lines)
         {
-            var result = new List<Messages.OrderLine>();
+            var result = new List<Messages.IOrderLine>();
 
             foreach (IOrderLine ol in lines)
                 result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });

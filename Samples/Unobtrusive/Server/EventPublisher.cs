@@ -4,13 +4,13 @@ namespace Server
     using Events;
     using NServiceBus;
 
-    class EventPublisher:IWantToRunAtStartup
+    class EventPublisher : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
 
         public void Run()
         {
-            Console.WriteLine("Press 'E' to publish and event");
+            Console.WriteLine("Press 'E' to publish an event");
             Console.WriteLine("To exit, press Ctrl + C");
 
             string cmd;
@@ -31,7 +31,7 @@ namespace Server
         {
             var eventId = Guid.NewGuid();
 
-            Bus.Publish<MyEvent>(m =>
+            Bus.Publish<IMyEvent>(m =>
             {
                 m.EventId = eventId;
             });
@@ -41,6 +41,7 @@ namespace Server
 
         public void Stop()
         {
+            
         }
     }
 }

@@ -1,15 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using NServiceBus;
 
 namespace OrderService.Messages
 {
-    public interface OrderMessage : IMessage
+    public class OrderMessage : IOrderMessage
     {
-        bool Done { get; set; }
-        DateTime ProvideBy { get; set; }
-        List<OrderLine> OrderLines { get; set; }
-        string PurchaseOrderNumber { get; set; }
-        Guid PartnerId { get; set; }
+        public bool Done { get; set; }
+        public DateTime ProvideBy { get; set; }
+        public List<IOrderLine> OrderLines { get; set; }
+        public string PurchaseOrderNumber { get; set; }
+        public Guid PartnerId { get; set; }
     }
 }

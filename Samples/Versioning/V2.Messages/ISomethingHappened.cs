@@ -1,6 +1,6 @@
 ﻿namespace V2.Messages
 {
-    public interface SomethingHappened : V1.Messages.SomethingHappened
+    public interface ISomethingHappened : V1.Messages.ISomethingHappened
     {
         string MoreInfo { get; set; }
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HR.Messages
 {
-    public interface RequestOrderAuthorizationMessage : ISagaMessage
+    public interface IRequestOrderAuthorizationMessage : ISagaMessage
     {
         Guid PartnerId { get; set; }
         List<IOrderLine> OrderLines { get; set; }

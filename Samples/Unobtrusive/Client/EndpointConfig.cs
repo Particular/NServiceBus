@@ -2,7 +2,7 @@
 {
     using NServiceBus;
 
-    public class EndpointConfig:IConfigureThisEndpoint,AsA_Client,IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Client, IWantCustomInitialization
     {
         public void Init()
         {
@@ -14,7 +14,7 @@
         }
     }
 
-    class EncryptionConfig:IWantCustomInitialization
+    class EncryptionConfig : IWantCustomInitialization
     {
         public void Init()
         {

@@ -7,7 +7,7 @@ namespace HR.Host
     {
         static void Main()
         {
-            var bus = NServiceBus.Configure.With()
+            Configure.With()
                 .Log4Net()
                 .DefaultBuilder()
                 .XmlSerializer()
@@ -18,7 +18,7 @@ namespace HR.Host
                     .ImpersonateSender(false)
                     .LoadMessageHandlers()
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
             Console.Read();
         }

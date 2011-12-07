@@ -13,7 +13,7 @@ namespace V2Publisher
 
            while (Console.ReadLine() != null)
            {
-               Bus.Publish<V2.Messages.SomethingHappened>(sh =>
+               Bus.Publish<V2.Messages.ISomethingHappened>(sh =>
                                                               {
                                                                   sh.SomeData = 1;
                                                                   sh.MoreInfo = "It's a secret.";

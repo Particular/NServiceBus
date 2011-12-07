@@ -11,7 +11,7 @@ namespace InteropPartner
             Console.WriteLine("Using straight xml serialization and msmq to test interop.");
             Console.WriteLine("To exit, enter 'q'. Press 'Enter' to send a message.");
 
-            string queueName = string.Format("FormatName:DIRECT=OS:{0}\\private$\\OrderServiceInputQueue", Environment.MachineName);
+            string queueName = string.Format("FormatName:DIRECT=OS:{0}\\private$\\OrderService", Environment.MachineName);
             var label = "<CorrId></CorrId><WinIdName>UDI_MOBILE_2\\Administrator</WinIdName>";
 
             var q = new MessageQueue(queueName);
@@ -31,7 +31,7 @@ namespace InteropPartner
 
                 var toSend = new Message();
                 serializer.Serialize(toSend.BodyStream, m1);
-                toSend.ResponseQueue = new MessageQueue(string.Format("FormatName:DIRECT=OS:{0}\\private$\\PartnerInputQueue", Environment.MachineName));
+                toSend.ResponseQueue = new MessageQueue(string.Format("FormatName:DIRECT=OS:{0}\\private$\\Partner", Environment.MachineName));
                 toSend.Label = label;
 
                 q.Send(toSend, MessageQueueTransactionType.Single);

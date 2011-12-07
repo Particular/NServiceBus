@@ -9,26 +9,33 @@ namespace Partner
 {
     class Program
     {
+        private static IBus bus;
+        private static void BusBootstrap()
+        {
+            bus = Configure.With()
+                .Log4Net()
+                .DefaultBuilder()
+                .XmlSerializer()
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .ImpersonateSender(false)
+                    .LoadMessageHandlers()
+                .CreateBus()
+                .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+        }
+
         static void Main()
         {
             try
             {
-                var bus = NServiceBus.Configure.With()
-                    .DefaultBuilder()
-                    .XmlSerializer()
-                    .MsmqTransport()
-                        .IsTransactional(true)
-                        .PurgeOnStartup(false)
-                    .UnicastBus()
-                        .ImpersonateSender(false)
-                        .LoadMessageHandlers()
-                    .CreateBus()
-                    .Start();
-
+                BusBootstrap();
+        
                 Guid partnerId = Guid.NewGuid();
                 Guid productId = Guid.NewGuid();
-                float quantity = 10.0F;
-                List<OrderLine> orderlines;
+                
+                List<IOrderLine> orderlines;
 
                 Console.WriteLine("Enter the quantity you wish to order.\nSignal a complete PO with 'y'.\nTo exit, enter 'q'.");
                 string line;
@@ -39,23 +46,24 @@ namespace Partner
                         Simulate(bus, line.ToLower().Contains("step"));
 
                     bool done = (line == "y");
-                    orderlines = new List<OrderLine>(1);
+                    orderlines = new List<IOrderLine>(1);
 
                     if (!done)
                     {
+                        float quantity; 
                         float.TryParse(line, out quantity);
                         orderlines.Add(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
                     }
 
-                    bus.Send<OrderMessage>(m =>
-                    {
-                        m.PurchaseOrderNumber = poId;
-                        m.PartnerId = partnerId;
-                        m.Done = done;
-                        m.ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(10);
-                        m.OrderLines = orderlines;
-                    }).Register<int>(i => Console.WriteLine("OK"));
-
+                    var orderMessage = new OrderMessage
+                                                    {
+                                                        Done = done,
+                                                        OrderLines = orderlines,
+                                                        PartnerId = partnerId,
+                                                        ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(10),
+                                                        PurchaseOrderNumber = poId
+                                                    };
+                    bus.Send(orderMessage).Register<int>(i => Console.WriteLine("OK"));
                     Console.WriteLine("Send PO Number {0}.", poId);
 
                     if (done)
@@ -72,7 +80,6 @@ namespace Partner
         private static void Simulate(IBus bus, bool step)
         {
             Guid partnerId = Guid.NewGuid();
-
             int numberOfLines;
             int secondsToProvideBy;
 
@@ -86,14 +93,14 @@ namespace Partner
 
                 for (int i = 0; i < numberOfLines; i++)
                 {
-                    bus.Send<OrderMessage>(m =>
+                    bus.Send<IOrderMessage>(m =>
                     {
                         m.PurchaseOrderNumber = purchaseOrderNumber;
                         m.PartnerId = partnerId;
                         m.Done = (i == numberOfLines - 1);
                         m.ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(secondsToProvideBy);
-                        m.OrderLines = new List<OrderLine> {
-                            bus.CreateInstance<OrderLine>(ol => { 
+                        m.OrderLines = new List<IOrderLine> {
+                            bus.CreateInstance<IOrderLine>(ol => { 
                                 ol.ProductId = Guid.NewGuid(); 
                                 ol.Quantity = (float) (Math.Sqrt(2)*r.Next(10));
                             })

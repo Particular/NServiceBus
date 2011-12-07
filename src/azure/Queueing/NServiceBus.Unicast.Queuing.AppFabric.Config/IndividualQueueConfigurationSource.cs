@@ -19,19 +19,6 @@ namespace NServiceBus.Config
             if (RoleEnvironment.IsAvailable)
                 index = ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
 
-            var unicastBusConfig = config as UnicastBusConfig;
-            if (unicastBusConfig != null && unicastBusConfig.LocalAddress != null && RoleEnvironment.IsAvailable)
-            {
-                var individualQueueName = ParseQueueNameFrom(unicastBusConfig.LocalAddress) 
-                                          + (index > 0 ? "-" : "")
-                                          + (index > 0 ? index.ToString() : "");
-
-                if (unicastBusConfig.LocalAddress.Contains("@"))
-                    individualQueueName += "@" + ParseMachineNameFrom(unicastBusConfig.LocalAddress);
-
-                unicastBusConfig.LocalAddress = individualQueueName;
-            }
-
             var msmqTransportConfig = config as MsmqTransportConfig;
             if (msmqTransportConfig != null && msmqTransportConfig.InputQueue != null && RoleEnvironment.IsAvailable)
             {

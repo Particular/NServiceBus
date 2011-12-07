@@ -2,7 +2,7 @@
 
 namespace Events
 {
-    public interface MyEvent
+    public interface IMyEvent
     {
         Guid EventId { get; set; }
     }

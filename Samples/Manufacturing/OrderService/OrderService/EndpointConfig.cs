@@ -2,5 +2,5 @@ using NServiceBus;
 
 namespace OrderService
 {
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher { }
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher {}
 }

@@ -4,7 +4,7 @@
     using Messages;
     using NServiceBus;
 
-    public class RequestMessageHandler:IHandleMessages<Request>
+    public class RequestMessageHandler : IHandleMessages<Request>
     {
         readonly IBus bus;
 

@@ -12,7 +12,6 @@
     <AssemblyName>OrderService.Messages</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -64,7 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CancelOrderMessage.cs" />
-    <Compile Include="OrderLine.cs" />
+    <Compile Include="IOrderLine.cs" />
+    <Compile Include="IOrderMessage.cs" />
+    <Compile Include="IOrderStatusChangedMessage.cs" />
     <Compile Include="OrderMessage.cs" />
     <Compile Include="OrderStatusChangedMessage.cs" />
     <Compile Include="OrderStatusEnum.cs" />

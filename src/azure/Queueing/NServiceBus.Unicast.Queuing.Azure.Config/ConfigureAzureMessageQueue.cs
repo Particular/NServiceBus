@@ -1,7 +1,6 @@
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
@@ -41,18 +40,6 @@ namespace NServiceBus
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MessageInvisibleTime, configSection.MessageInvisibleTime);
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PeekInterval, configSection.PeekInterval);
             }
-
-            var unicastConfigSection = Configure.GetConfigSection<UnicastBusConfig>();
-            var address = unicastConfigSection.LocalAddress;
-
-            if (address == null)
-            {
-                var msmqConfigSection = Configure.GetConfigSection<MsmqTransportConfig>();
-                address = msmqConfigSection.InputQueue;
-            }
-
-
-            Address.InitializeLocalAddress(address);
 
             return config;
         }

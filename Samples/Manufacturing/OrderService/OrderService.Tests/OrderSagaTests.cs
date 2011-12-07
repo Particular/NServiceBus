@@ -6,6 +6,7 @@ using NServiceBus.Testing;
 using OrderService.Messages;
 using NUnit.Framework;
 using NServiceBus;
+using IOrderLine = HR.Messages.IOrderLine;
 
 namespace OrderService.Tests
 {
@@ -19,7 +20,7 @@ namespace OrderService.Tests
         float quantity;
         Guid partnerId;
         string purchaseOrderNumber;
-        List<Messages.OrderLine> orderLines;
+        List<Messages.IOrderLine> orderLines;
 
         #endregion
 
@@ -33,7 +34,7 @@ namespace OrderService.Tests
             quantity = 10.0F;
             partnerId = Guid.NewGuid();
             purchaseOrderNumber = Guid.NewGuid().ToString();
-            orderLines = new List<Messages.OrderLine>();
+            orderLines = new List<Messages.IOrderLine>();
             orderLines.Add(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
         }
 
@@ -43,14 +44,14 @@ namespace OrderService.Tests
             var sagaId = Guid.NewGuid();
 
             Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
-                .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
-                .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
-                .ExpectSend<RequestOrderAuthorizationMessage>(Check)
+                .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
+                .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
+                .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
                 .ExpectSend<TimeoutMessage>(m => m.SagaId == sagaId)
             .When(os => os.Handle(CreateRequest()))
 
-                .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
-                .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Accepted))
+                .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
+                .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Accepted))
             .When(os => os.Handle(CreateResponse(sagaId)));
         }
 
@@ -61,14 +62,14 @@ namespace OrderService.Tests
             var sagaId = Guid.NewGuid();
 
             Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
-                .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
-                .ExpectPublish<OrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
-                .ExpectSend<RequestOrderAuthorizationMessage>(Check)
+                .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
+                .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
+                .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
                 .ExpectSend<TimeoutMessage>(m => { state = m.State; return m.SagaId == sagaId; })
             .When(os => os.Handle(CreateRequest()))
 
-                .ExpectReplyToOrginator<OrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
-                .ExpectPublish<OrderStatusChangedMessage>(m => BasicCheck(m, OrderStatusEnum.Accepted))
+                .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
+                .ExpectPublish<IOrderStatusChangedMessage>(m => BasicCheck(m, OrderStatusEnum.Accepted))
             .When(os => os.Timeout(state))
 
             .AssertSagaCompletionIs(true);
@@ -76,9 +77,9 @@ namespace OrderService.Tests
 
         #region helper methods
 
-        private OrderMessage CreateRequest()
+        private IOrderMessage CreateRequest()
         {
-            return Test.CreateInstance<OrderMessage>(m =>
+            return Test.CreateInstance<IOrderMessage>(m =>
             {
                 m.PurchaseOrderNumber = purchaseOrderNumber;
                 m.PartnerId = partnerId;
@@ -102,7 +103,7 @@ namespace OrderService.Tests
             return Test.CreateInstance<OrderAuthorizationResponseMessage>(m => { m.SagaId = sagaId; m.Success = true; m.OrderLines = hrLines; });
         }
 
-        private bool Check(OrderStatusChangedMessage m, OrderStatusEnum status)
+        private bool Check(IOrderStatusChangedMessage m, OrderStatusEnum status)
         {
             return (
                        m.PartnerId == partnerId &&
@@ -114,7 +115,7 @@ namespace OrderService.Tests
                    );
         }
 
-        private bool Check(RequestOrderAuthorizationMessage m)
+        private bool Check(IRequestOrderAuthorizationMessage m)
         {
             return (
                        m.PartnerId == partnerId &&
@@ -124,7 +125,7 @@ namespace OrderService.Tests
                    );
         }
 
-        private bool BasicCheck(OrderStatusChangedMessage m, OrderStatusEnum status)
+        private bool BasicCheck(IOrderStatusChangedMessage m, OrderStatusEnum status)
         {
             return (
                        m.PartnerId == partnerId &&

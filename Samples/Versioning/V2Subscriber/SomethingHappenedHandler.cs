@@ -4,9 +4,9 @@ using NServiceBus;
 
 namespace V2Subscriber
 {
-    public class SomethingHappenedHandler : IHandleMessages<SomethingHappened>
+    public class SomethingHappenedHandler : IHandleMessages<ISomethingHappened>
     {
-        public void Handle(SomethingHappened message)
+        public void Handle(ISomethingHappened message)
         {
             Console.WriteLine("======================================================================");
 

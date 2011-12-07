@@ -59,8 +59,8 @@
     <Reference Include="log4net">
       <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime">
+      <HintPath>..\..\..\lib\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>

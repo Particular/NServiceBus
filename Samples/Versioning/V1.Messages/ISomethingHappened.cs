@@ -2,7 +2,7 @@
 
 namespace V1.Messages
 {
-    public interface SomethingHappened : IMessage
+    public interface ISomethingHappened : IMessage
     {
         int SomeData { get; set; }
     }

@@ -4,11 +4,11 @@
     using Events;
     using NServiceBus;
 
-    public class MyEventHandler:IHandleMessages<MyEvent>
+    public class MyEventHandler : IHandleMessages<IMyEvent>
     {
-        public void Handle(MyEvent message)
+        public void Handle(IMyEvent message)
         {
-            Console.WriteLine("MyEvent received from server with id:" + message.EventId);
+            Console.WriteLine("IMyEvent received from server with id:" + message.EventId);
         }
     }
 }

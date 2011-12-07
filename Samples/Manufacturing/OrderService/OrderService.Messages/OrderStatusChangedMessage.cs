@@ -1,14 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using NServiceBus;
 
 namespace OrderService.Messages
 {
-    public interface OrderStatusChangedMessage : IMessage
+    public class OrderStatusChangedMessage : IOrderStatusChangedMessage
     {
-        string PurchaseOrderNumber { get; set; }
-        Guid PartnerId { get; set; }
-        OrderStatusEnum Status { get; set; }
-        List<OrderLine> OrderLines { get; set; }
+        public string PurchaseOrderNumber { get; set; }
+        public Guid PartnerId { get; set; }
+        public OrderStatusEnum Status { get; set; }
+        public List<IOrderLine> OrderLines { get; set; }
     }
 }
