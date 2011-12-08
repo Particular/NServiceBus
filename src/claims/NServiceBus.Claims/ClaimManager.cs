@@ -83,6 +83,7 @@ namespace NServiceBus.Claims
             if (claimsPrincipal == null) return;
 
             var bootstrapToken = claimsPrincipal.Identities[0].BootstrapToken;
+            if (bootstrapToken == null) return;
 
             var handler = new Saml2SecurityTokenHandler(new SamlSecurityTokenRequirement());
             var stringBuilder = new StringBuilder();
