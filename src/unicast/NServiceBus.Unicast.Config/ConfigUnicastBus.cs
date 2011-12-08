@@ -70,9 +70,6 @@ namespace NServiceBus.Unicast.Config
         {
             var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
             ConfigureBusProperties(unicastBusConfig);
-            /* Delete LocalAddress
-            ConfigureLocalAddress(unicastBusConfig);
-            */
         }
 
         private void ConfigureBusProperties(UnicastBusConfig unicastConfig)
@@ -113,37 +110,9 @@ namespace NServiceBus.Unicast.Config
 
             busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
-/* Delete LocalAddress
-        private static void ConfigureLocalAddress(UnicastBusConfig unicastConfig)
-        {
-            /* Delete LocalAddress
-            if (Address.Local != null)
-                return;
 
-            var address = GetLocalAddress(unicastConfig);
-            
-            if (!string.IsNullOrEmpty(address))
-                Address.InitializeLocalAddress(address);
-             
-        }
- */
 
-/* Delete LocalAddress
-        private static string GetLocalAddress(UnicastBusConfig unicastConfig)
-        {
 
-            if (unicastConfig != null)
-                if (!string.IsNullOrEmpty(unicastConfig.LocalAddress))
-                    return unicastConfig.LocalAddress;
-
-            var transportConfig = GetConfigSection<MsmqTransportConfig>();
-            if (transportConfig == null || string.IsNullOrEmpty(transportConfig.InputQueue))
-                return null;
-
-            Logger.Warn("LocalAddress property of UnicastBusConfig not found. Using InputQueue property of MsmqTransportConfig instead. This will not be supported in the next version.");
-            return transportConfig.InputQueue;
-        }
-*/
         /// <summary>
         /// Used to configure the bus.
         /// </summary>
