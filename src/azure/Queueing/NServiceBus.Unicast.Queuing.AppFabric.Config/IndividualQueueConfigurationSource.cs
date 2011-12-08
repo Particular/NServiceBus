@@ -19,17 +19,17 @@ namespace NServiceBus.Config
             if (RoleEnvironment.IsAvailable)
                 index = ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
 
-            var msmqTransportConfig = config as MsmqTransportConfig;
-            if (msmqTransportConfig != null && msmqTransportConfig.InputQueue != null && RoleEnvironment.IsAvailable)
+            var queueConfig = config as AppFabricQueueConfig;
+            if (queueConfig != null && queueConfig.QueueName != null && RoleEnvironment.IsAvailable)
             {
-                var individualQueueName = ParseQueueNameFrom(msmqTransportConfig.InputQueue)
+                var individualQueueName = ParseQueueNameFrom(queueConfig.QueueName)
                                           + (index > 0 ? "-" : "")
                                           + (index > 0 ? index.ToString() : "");
 
-                if (msmqTransportConfig.InputQueue.Contains("@"))
-                    individualQueueName += "@" + ParseMachineNameFrom(msmqTransportConfig.InputQueue);
+                if (queueConfig.QueueName.Contains("@"))
+                    individualQueueName += "@" + ParseMachineNameFrom(queueConfig.QueueName);
 
-                msmqTransportConfig.InputQueue = individualQueueName;
+                queueConfig.QueueName = individualQueueName;
             }
             
             return config;

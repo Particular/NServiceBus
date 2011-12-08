@@ -5,6 +5,19 @@ namespace NServiceBus.Config
 {
     public class AzureQueueConfig : ConfigurationSection
     {
+        [ConfigurationProperty("QueueName", IsRequired = false, DefaultValue = null)]
+        public string QueueName
+        {
+            get
+            {
+                return (string)this["QueueName"];
+            }
+            set
+            {
+                this["QueueName"] = value;
+            }
+        }
+
         [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultConnectionString)]
         public string ConnectionString
         {

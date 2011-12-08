@@ -1,6 +1,5 @@
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using NServiceBus.Config.Conventions;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Integration.Azure;
 using System.Threading;
@@ -51,8 +50,9 @@ namespace NServiceBus.Hosting.Azure
             }
             else
             {
-                var endpointName = "Put somethingt smart here Yves";
-                host = new GenericHost(specifier, requestedProfiles, new[] { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);           
+                //var endpointName = "Put somethingt smart here Yves"; // wonder if I live up to the expectations :)
+                var endpointName = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Role.Name : GetType().Name;
+                host = new GenericHost(specifier, requestedProfiles, new[] { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
             }
 
             return true;

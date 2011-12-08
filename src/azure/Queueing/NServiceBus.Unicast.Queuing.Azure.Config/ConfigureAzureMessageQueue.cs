@@ -1,6 +1,9 @@
 using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
+using NServiceBus;
 using NServiceBus.Config;
+using NServiceBus.Config.Conventions;
 using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
@@ -40,6 +43,17 @@ namespace NServiceBus
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MessageInvisibleTime, configSection.MessageInvisibleTime);
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PeekInterval, configSection.PeekInterval);
             }
+
+            if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))
+            {
+                Configure.Instance.DefineEndpointName(configSection.QueueName);
+            }
+            else if (RoleEnvironment.IsAvailable)
+            {
+                Configure.Instance.DefineEndpointName(RoleEnvironment.CurrentRoleInstance.Role.Name);
+            }
+            Address.InitializeLocalAddress(Configure.EndpointName);
+
 
             return config;
         }

@@ -19,10 +19,10 @@
     </Sites>
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="Diagnostics.Level" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.InputQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>
@@ -33,11 +33,11 @@
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="NServiceBus.Profile" />
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="Diagnostics.Level" />
-      <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />

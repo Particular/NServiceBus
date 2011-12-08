@@ -2,7 +2,9 @@ using System;
 using System.Configuration;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
+using NServiceBus.Config.Conventions;
 using NServiceBus.Unicast.Queuing.AppFabric;
 
 namespace NServiceBus
@@ -38,7 +40,18 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
             Configure.Instance.Configurer.ConfigureProperty<AppFabricMessageQueue>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
-            
+
+            if (!string.IsNullOrEmpty(configSection.QueueName))
+            {
+                Configure.Instance.DefineEndpointName(configSection.QueueName);
+            }
+            else if (RoleEnvironment.IsAvailable)
+            {
+                Configure.Instance.DefineEndpointName(RoleEnvironment.CurrentRoleInstance.Role.Name);
+            }
+            Address.InitializeLocalAddress(Configure.EndpointName);
+
+
             return config;
         }
     }

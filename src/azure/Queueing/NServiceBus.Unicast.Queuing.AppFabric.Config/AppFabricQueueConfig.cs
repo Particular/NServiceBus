@@ -5,6 +5,18 @@ namespace NServiceBus.Config
 {
     public class AppFabricQueueConfig : ConfigurationSection
     {
+        [ConfigurationProperty("QueueName", IsRequired = false, DefaultValue = null)]
+        public string QueueName
+        {
+            get
+            {
+                return (string)this["QueueName"];
+            }
+            set
+            {
+                this["QueueName"] = value;
+            }
+        }
 
         [ConfigurationProperty("IssuerKey", IsRequired = true)]
         public string IssuerKey
