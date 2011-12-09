@@ -123,6 +123,7 @@
     <Compile Include="EqualityExtensions.cs" />
     <Compile Include="Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
     <Compile Include="TestSaga.cs" />
+    <Compile Include="When_completing_a_saga_with_the_raven_persister.cs" />
     <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string.cs" />
     <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string_and_database.cs" />
     <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string_that_does_not_exist.cs" />

@@ -2,6 +2,9 @@ using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using Newtonsoft.Json.Linq;
+    using global::Raven.Json.Linq;
+
     public class When_persisting_a_saga_entity_with_related_entities : Persisting_a_saga_entity_with_a_raven_saga_persister
     {
         public override void SetupEntity(TestSaga saga)

@@ -10,8 +10,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
     {
         protected TestSaga entity;
         protected TestSaga savedEntity;
-        TransactionalStorage storage;
-
+   
         [TestFixtureSetUp]
         public void Setup()
         {
