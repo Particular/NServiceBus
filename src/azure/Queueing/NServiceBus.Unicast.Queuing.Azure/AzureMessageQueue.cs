@@ -12,7 +12,7 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.Queuing.Azure
 {
-    public class AzureMessageQueue : IReceiveMessages,ISendMessages, ICanPurgeOnStartup
+    public class AzureMessageQueue : IReceiveMessages,ISendMessages
     {
         public const int DefaultMessageInvisibleTime = 30000;
         public const int DefaultPeekInterval = 50;

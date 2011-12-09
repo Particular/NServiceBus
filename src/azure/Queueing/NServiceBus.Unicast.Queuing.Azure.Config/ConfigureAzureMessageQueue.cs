@@ -34,7 +34,8 @@ namespace NServiceBus
 
             config.Configurer.RegisterSingleton<CloudQueueClient>(queueClient);
        
-            config.Configurer.ConfigureComponent<AzureMessageQueue>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<AzureMessageQueue>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
 
             if (configSection != null)
             {

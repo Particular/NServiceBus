@@ -16,9 +16,9 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             return Configure.Instance
+                .PurgeOnStartup(true)
                 .MsmqTransport()
                 .IsTransactional(false)
-                .PurgeOnStartup(true)
                 .UnicastBus()
                 .ImpersonateSender(false);
         }

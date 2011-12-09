@@ -9,7 +9,7 @@ using Common.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
-    public class MsmqMessageReceiver : IReceiveMessages, ICanPurgeOnStartup
+    public class MsmqMessageReceiver : IReceiveMessages
     {
         public void Init(string address, bool transactional)
         {

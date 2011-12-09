@@ -1,5 +1,3 @@
-using NServiceBus.Unicast.Queuing;
-
 namespace NServiceBus
 {
     /// <summary>
@@ -18,11 +16,14 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
-            //config.Configurer.ConfigureProperty<ICanPurgeOnStartup>(t => t.PurgeOnStartup, value);
-            //var queue = config.Builder.Build<ICanPurgeOnStartup>();
-            //queue.PurgeOnStartup = value;
+            PurgeRequested = value;
 
             return config;
         }
+
+        /// <summary>
+        /// True if the users wants the input queue to be purged when we starts up
+        /// </summary>
+        public static bool PurgeRequested { get; private set; }
     }
 }

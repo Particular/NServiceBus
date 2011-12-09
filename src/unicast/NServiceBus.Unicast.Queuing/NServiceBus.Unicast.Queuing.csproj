@@ -65,7 +65,6 @@
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigurePurging.cs" />
-    <Compile Include="ICanPurgeOnStartup.cs" />
     <Compile Include="ISendMessages.cs" />
     <Compile Include="QueueNotFoundException.cs" />
     <Compile Include="IReceiveMessages.cs" />
