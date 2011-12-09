@@ -138,10 +138,10 @@
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />
+    <Compile Include="Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Receiving\IdempotentChannelReceiver.cs" />
     <Compile Include="Receiving\IReceiveMessagesFromSites.cs" />
-    <Compile Include="Receiving\LegacyChannelManager.cs" />
     <Compile Include="Channels\Http\HttpChannelException.cs" />
     <Compile Include="Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Channels\Http\HttpHeaders.cs" />

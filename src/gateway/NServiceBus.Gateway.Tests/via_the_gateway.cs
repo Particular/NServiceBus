@@ -56,10 +56,11 @@
 
 
             var channelManager = MockRepository.GenerateStub<IMangageReceiveChannels>();
-            channelManager.Stub(x => x.GetActiveChannels()).Return(new[] {new Channel
+            channelManager.Stub(x => x.GetReceiveChannels()).Return(new[] {new ReceiveChannel()
                                                                               {
                                                                                   Address = HttpAddressForSiteB,
-                                                                                  Type = "http"
+                                                                                  Type = "http",
+                                                                                  NumberOfWorkerThreads = 1
                                                                               }});
             channelManager.Stub(x => x.GetDefaultChannel()).Return(defaultChannelForSiteA);
 

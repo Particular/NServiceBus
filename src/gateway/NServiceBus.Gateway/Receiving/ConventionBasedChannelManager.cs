@@ -1,23 +1,25 @@
 namespace NServiceBus.Gateway.Receiving
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Channels;
 
     public class ConventionBasedChannelManager : IMangageReceiveChannels
     {
-        public IEnumerable<Channel> GetActiveChannels()
+        public IEnumerable<ReceiveChannel> GetReceiveChannels()
         {
-            yield return new Channel
+            yield return new ReceiveChannel()
                              {
                                  Address = string.Format("http://localhost/{0}/",Configure.EndpointName),
-                                 Type = "Http"
+                                 Type = "Http",
+                                 NumberOfWorkerThreads = 1
                              };
         }
 
         public Channel GetDefaultChannel()
         {
-            return GetActiveChannels().First();
+            return GetReceiveChannels().First();
         }
     }
 }

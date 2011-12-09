@@ -137,6 +137,7 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Config\When_routing_using_the_configuration_source.cs" />
     <Compile Include="FakeDispatcherSettings.cs" />
     <Compile Include="FakeMessageSender.cs" />
     <Compile Include="HeaderManagement\When_receiving_a_message_from_another_site.cs" />

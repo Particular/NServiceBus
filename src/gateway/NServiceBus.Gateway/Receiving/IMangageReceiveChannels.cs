@@ -5,7 +5,7 @@
 
     public interface IMangageReceiveChannels
     {
-        IEnumerable<Channel> GetActiveChannels();
+        IEnumerable<ReceiveChannel> GetReceiveChannels();
         Channel GetDefaultChannel();
     }
 }

@@ -27,19 +27,17 @@
         public void Start(Address localAddress)
         {
             returnAddress = localAddress;
-            int numWorkerThreads = 1;//todo
-
-            
-            foreach (var channel in channelManager.GetActiveChannels())
+           
+            foreach (var receiveChannel in channelManager.GetReceiveChannels())
             {
 
                 var receiver = builder.Build<IReceiveMessagesFromSites>();
 
                 receiver.MessageReceived +=  MessageReceivedOnChannel;
-                receiver.Start(channel,numWorkerThreads);
+                receiver.Start(receiveChannel,receiveChannel.NumberOfWorkerThreads);
                 activeReceivers.Add(receiver);
 
-                Logger.InfoFormat("Receive channel {0} started. Adress: {1}", channel.Type,channel.Address);
+                Logger.InfoFormat("Receive channel started: {0}", receiveChannel);
             }
         }
 

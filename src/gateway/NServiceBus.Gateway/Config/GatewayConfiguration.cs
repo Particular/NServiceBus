@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Config;
     using Gateway.Channels;
     using Gateway.Config;
     using Gateway.Notifications;
@@ -70,7 +71,13 @@
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
+           
+            var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
+            
+            if (configSection != null && configSection.GetChannels().Any())
+                config.Configurer.ConfigureComponent<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
+            else
+                config.Configurer.ConfigureComponent<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
 
