@@ -42,7 +42,7 @@
 
         static Configure SetupGateway(this Configure config)
         {
-            GatewayInputAddress = Address.Local.SubScope("gateway");
+            GatewayInputAddress = Address.Parse(Configure.EndpointName).SubScope("gateway");
 
             ConfigureChannels(config);
 
@@ -99,7 +99,7 @@
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                                               .ConfigureProperty(x => x.MainInputAddress, Address.Local);
+                                               .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
 
         }
     }
