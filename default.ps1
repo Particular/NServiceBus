@@ -595,16 +595,14 @@ task geneate_common_assembly_info -depends install_dependent_packages {
 	
 	$fileVersion = $productVersion + "." + $patchVersion + "." + $buildNumber 
 	$asmVersion =  $productVersion + ".0.0"
-	$infoVersion = $asmVersion+$preRelease+$buildNumber 
+	$infoVersion = $productVersion+ ".0" + $preRelease + $buildNumber 
+	$script:releaseVersion = $infoVersion
 	#later after Nuget 1.6 release $script:packageVersion = $infoVersion;
 	$script:packageVersion = $fileVersion;
 	
+	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
 	
 	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright � NServiceBus 2007-2011" $asmVersion $fileVersion $infoVersion "$base_dir\src\CommonAssemblyInfo.cs" 
-	
-	if($env:BUILD_NUMBER -ne $null) {
-		$env:BUILD_NUMBER = $infoVersion
-	}
  }
  
 task install_dependent_packages {
@@ -626,10 +624,7 @@ task prepare_and_release_nservicebus -depends prepare_release, create_packages, 
 }
 
 task zip_output {
-
-	
 	echo "Cleaning the Release Artifacts before ziping"
-	
 	$packagingArtifacts = "$release_dir\PackagingArtifacts"
 	$packageOutPutDir = "$release_dir\packages"
 	
@@ -642,12 +637,7 @@ task zip_output {
 	}
 
 	echo "Zip Output"	
-	$buildNumber = 0
-	if($env:BUILD_NUMBER -ne $null) {
-    	$buildNumber = $env:BUILD_NUMBER
-	}
 	
-	$script:releaseVersion = $buildNumber
 	
 	if((Test-Path -Path $artifacts_dir) -eq $true)
 	{
