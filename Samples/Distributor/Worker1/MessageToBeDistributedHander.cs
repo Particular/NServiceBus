@@ -1,4 +1,4 @@
-﻿namespace Worker1
+﻿namespace Worker
 {
     using System;
     using MyMessages;
@@ -8,7 +8,7 @@
     {
         public void Handle(MessageToBeDistributed message)
         {
-            Console.WriteLine("Message from distributor processed successfully by Worker1");
+            Console.WriteLine("Message from distributor processed successfully by Worker");
         }
     }
 }

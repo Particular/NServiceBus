@@ -1,9 +1,7 @@
-﻿namespace Worker1
+﻿namespace Worker
 {
     using NServiceBus;
-    using NServiceBus.Hosting;
 
-    [EndpointName("Worker1")]
     internal class EndpointConfig : IConfigureThisEndpoint, AsA_Server
     {
     }

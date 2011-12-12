@@ -16,7 +16,7 @@
 
         public void Run()
         {
-            if(!ConfigureDistributor.DistributorEnabled) 
+            if (!Configure.Instance.DistributorEnabled()) 
                 return;
 
             var capacityAvailable = EndpointTransport.NumberOfWorkerThreads;

@@ -8,8 +8,8 @@
     <ProjectGuid>{2471120E-100A-4AA8-9DD4-DB013BA7059B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Worker1</RootNamespace>
-    <AssemblyName>Worker1</AssemblyName>
+    <RootNamespace>Worker</RootNamespace>
+    <AssemblyName>Worker</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -71,6 +71,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-	<StartArguments>NServiceBus.Integration NServiceBus.Worker</StartArguments>
+    <StartArguments>NServiceBus.Integration NServiceBus.Worker</StartArguments>
   </PropertyGroup>
 </Project>

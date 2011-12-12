@@ -9,7 +9,7 @@ namespace NServiceBus.Distributor
     {
         public void Init()
         {
-            if (!ConfigureDistributor.DistributorEnabled)
+            if (!Configure.Instance.DistributorEnabled())
                 return;
 
             var config = Configure.Instance;
@@ -27,7 +27,7 @@ namespace NServiceBus.Distributor
               DependencyLifecycle.SingleInstance)
               .ConfigureProperty(r => r.DistributorDataQueue, masterNodeAddress);
 
-            if (!ConfigureDistributor.DistributorShouldRunOnThisEndpoint())
+            if (!Configure.Instance.DistributorShouldRunOnThisEndpoint())
                 return;
 
           

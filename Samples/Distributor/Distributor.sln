@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterNode", "MasterNode\MasterNode.csproj", "{0B76827D-12D3-45E2-BCC1-86A9AEB2BAEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker1", "Worker1\Worker1.csproj", "{2471120E-100A-4AA8-9DD4-DB013BA7059B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker", "Worker1\Worker.csproj", "{2471120E-100A-4AA8-9DD4-DB013BA7059B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sender", "Sender\Sender.csproj", "{FB44C4C0-A699-4C6F-988E-10AFC1842349}"
 EndProject

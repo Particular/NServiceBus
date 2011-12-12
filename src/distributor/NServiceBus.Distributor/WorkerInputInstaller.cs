@@ -8,7 +8,7 @@
     {
         public void Install(WindowsIdentity identity)
         {
-            if (!ConfigureDistributor.DistributorShouldRunOnThisEndpoint())
+            if (!Configure.Instance.DistributorShouldRunOnThisEndpoint())
                 return;
 
             //create the worker queue
