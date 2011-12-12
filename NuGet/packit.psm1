@@ -18,7 +18,7 @@ $script:packit.framework_Isolated_Binaries_Loc = ".\build\lib"
 $script:packit.targeted_Frameworks = "net35","net40"
 $script:packit.versionAssemblyName = $script:packit.binaries_Location + "\NServiceBus.dll"
 $script:packit.packageOutPutDir = ".\packages"
-$script:packit.PackagingArtefactsRoot = ".\NuGet\PackagingArtefacts"
+$script:packit.PackagingArtifactsRoot = ".\NuGet\PackagingArtifacts"
 $script:packit.nugetCommand = ".\tools\Nuget\NuGet.exe"
 $script:packit.nugetKey =     ".\tools\Nuget\NuGetKey.txt"
 
@@ -152,10 +152,10 @@ function Invoke-Packit
 		 	mkdir $script:packit.packageOutPutDir
 		 }
 		 
-		$packageDir = $script:packit.PackagingArtefactsRoot + "\" + $packageName
-		if((Test-Path -Path $script:packit.PackagingArtefactsRoot) -ne $true)
+		$packageDir = $script:packit.PackagingArtifactsRoot + "\" + $packageName
+		if((Test-Path -Path $script:packit.PackagingArtifactsRoot) -ne $true)
 		{
-			mkdir $script:packit.PackagingArtefactsRoot
+			mkdir $script:packit.PackagingArtifactsRoot
 		}
 		
 		if((Test-Path -Path $packageDir) -ne $true)
