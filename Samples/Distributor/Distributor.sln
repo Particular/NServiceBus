@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sender", "Sender\Sender.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMessages", "MyMessages\MyMessages.csproj", "{921F7B97-BD87-48E2-AC4B-9BECB601B098}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker2", "Worker2\Worker2.csproj", "{A5A58469-1835-4D31-8A73-2C1156758EDC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,10 +31,6 @@ Global
 		{921F7B97-BD87-48E2-AC4B-9BECB601B098}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{921F7B97-BD87-48E2-AC4B-9BECB601B098}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{921F7B97-BD87-48E2-AC4B-9BECB601B098}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5A58469-1835-4D31-8A73-2C1156758EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5A58469-1835-4D31-8A73-2C1156758EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5A58469-1835-4D31-8A73-2C1156758EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5A58469-1835-4D31-8A73-2C1156758EDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
