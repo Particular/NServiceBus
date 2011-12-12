@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Transactions;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
@@ -28,7 +28,16 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             {
                 numberOfWorkerThreads = cfg.NumberOfWorkerThreads;
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
+                if (!string.IsNullOrWhiteSpace(cfg.InputQueue))
+                {
+                    throw new
+                        ConfigurationErrorsException(string.Format("'InputQueue' entry in 'MsmqTransportConfig' section is obsolete. " +
+                        "By default the queue name is taken from the class namespace where the configuration is declared. " +
+                        "To override it, use .DefineEndpointName() with either a string parameter as queue name or Func<string> parameter that returns queue name. " +
+                        "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
+                }
             }
+
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
         }
 
