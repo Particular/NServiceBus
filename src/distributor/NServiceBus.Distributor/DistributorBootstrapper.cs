@@ -1,5 +1,4 @@
 ﻿using System;
-using NServiceBus.Config;
 using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport.Transactional;

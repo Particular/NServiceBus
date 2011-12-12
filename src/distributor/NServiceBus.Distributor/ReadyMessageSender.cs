@@ -1,49 +1,43 @@
 ﻿namespace NServiceBus.Distributor
 {
-    using System.Collections.Generic;
     using Unicast;
     using Unicast.Transport;
-    using MasterNode;
     using Unicast.Queuing;
 
     public class ReadyMessageSender : IWantToRunWhenTheBusStarts
     {
-        public IManageTheMasterNode MasterNodeManager { get; set; }
         public ITransport EndpointTransport { get; set; }
+        
         public ISendMessages MessageSender { get; set; }
-        public Address ReturnAddress { get; set; }
+
+        public UnicastBus Bus { get; set; }
+
+        public Address DistributorControlAddress { get; set; }
 
         public void Run()
         {
             if(!ConfigureDistributor.DistributorEnabled) 
                 return;
 
-            var masterNodeAddress = MasterNodeManager.GetMasterNode();
-            
-            var controlQueue = masterNodeAddress.SubScope(ConfigureDistributor.DistributorControlName);
-
             var capacityAvailable = EndpointTransport.NumberOfWorkerThreads;
-            SendReadyMessage(controlQueue,capacityAvailable,true);
+            SendReadyMessage(capacityAvailable,true);
 
-            EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(controlQueue,1);
+            EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(1);
         }
 
-        void SendReadyMessage(Address controlQueue,int capacityAvailable,bool isStarting = false)
+        void SendReadyMessage(int capacityAvailable,bool isStarting = false)
         {
-            var readyMessage = new TransportMessage
-                              {
-                                  Headers = new Dictionary<string, string>(),
-                                  ReplyToAddress = ReturnAddress ?? Address.Local
-                              };
+            var readyMessage = ControlMessage.Create();
 
-            readyMessage.Headers.Add(Headers.ControlMessage, true.ToString());
+            readyMessage.ReplyToAddress = Bus.InputAddress; //we use the actual address to make sure that the worker inside the masternode will check in correctly
+            
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable,capacityAvailable.ToString());
             
             if (isStarting)
                 readyMessage.Headers.Add(Headers.WorkerStarting, true.ToString());
-            
 
-            MessageSender.Send(readyMessage, controlQueue);
+
+            MessageSender.Send(readyMessage, DistributorControlAddress);
         }
 
 

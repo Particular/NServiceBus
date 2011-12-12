@@ -112,6 +112,7 @@
     <Compile Include="ConfigureDistributor.cs" />
     <Compile Include="ControlQueueInstaller.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
+    <Compile Include="DistributorInitializer.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="WorkerInputInstaller.cs" />

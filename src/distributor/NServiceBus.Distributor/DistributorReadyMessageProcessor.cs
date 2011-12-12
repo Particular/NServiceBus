@@ -6,6 +6,7 @@
     using Unicast.Queuing.Msmq;
     using Faults;
     using Unicast.Transport;
+    using log4net;
 
     public class DistributorReadyMessageProcessor : IWantToRunWhenTheBusStarts
     {
@@ -34,7 +35,7 @@
                 {
                     var transportMessage = ev.Message;
 
-                    if (!transportMessage.Headers.ContainsKey(Headers.ControlMessage))
+                    if (!transportMessage.IsControlMessage())
                         return;
 
                     HandleControlMessage(transportMessage);
@@ -45,22 +46,26 @@
 
         void HandleControlMessage(TransportMessage controlMessage)
         {
-            var returnAddress = controlMessage.ReplyToAddress;
-            ConfigureDistributor.Logger.Debug("Worker available: " + returnAddress);
-
+            var replyToAddress = controlMessage.ReplyToAddress;
+           
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
-                WorkerAvailabilityManager.ClearAvailabilityForWorker(returnAddress);
+            {
+                WorkerAvailabilityManager.ClearAvailabilityForWorker(replyToAddress);
+                Logger.InfoFormat("Worker {0} has started up, clearing previous reported capacity", replyToAddress);
+            }
 
             if(controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
             {
                 var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
                     
-                WorkerAvailabilityManager.WorkerAvailable(returnAddress,capacity);
+                WorkerAvailabilityManager.WorkerAvailable(replyToAddress,capacity);
+
+                Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
             }
             
         }
 
         ITransport controlTransport;
-
+        static readonly ILog Logger = LogManager.GetLogger("Distributor."+Configure.EndpointName);
     }
 }
