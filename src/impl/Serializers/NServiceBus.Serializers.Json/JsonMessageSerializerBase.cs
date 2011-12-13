@@ -50,7 +50,7 @@ namespace NServiceBus.Serializers.Json
 
             JsonReader reader = CreateJsonReader(stream);
 
-            return jsonSerializer.Deserialize<IMessage[]>(reader);
+            return jsonSerializer.Deserialize<object[]>(reader);
         }
 
         protected abstract JsonWriter CreateJsonWriter(Stream stream);

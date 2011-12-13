@@ -16,9 +16,6 @@ namespace NServiceBus.Serializers.Json.Internal
 
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
-            if (!typeof(IMessage).IsAssignableFrom(objectType))
-                return base.CreateObjectContract(objectType);
-
             Type mappedTypeFor = _messageMapper.GetMappedTypeFor(objectType);
 
             if (mappedTypeFor == null)
