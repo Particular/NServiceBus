@@ -157,12 +157,21 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
            
         }
 
-        private static byte[] SerializeMessage(TransportMessage originalMessage)
+        private static byte[] SerializeMessage(TransportMessage message)
         {
+            if (message.Headers == null)
+                message.Headers = new Dictionary<string, string>();
+
+            if (!message.Headers.ContainsKey(Idforcorrelation))
+                message.Headers.Add(Idforcorrelation, null);
+
+            if (String.IsNullOrEmpty(message.Headers[Idforcorrelation]))
+                message.Headers[Idforcorrelation] = message.IdForCorrelation;
+
             using (var stream = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, originalMessage);
+                formatter.Serialize(stream, message);
                 return stream.ToArray();
             }
         }
@@ -178,8 +187,30 @@ namespace NServiceBus.Unicast.Queuing.AppFabric
                 if (message == null)
                     throw new SerializationException("Failed to deserialize message");
 
+                message.Id = GetRealId(message.Headers) ?? message.Id;
+
+                message.IdForCorrelation = GetIdForCorrelation(message.Headers) ?? message.Id;
+
                 return message;
             }
         }
+
+        private static string GetRealId(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(Faults.HeaderKeys.OriginalId))
+                return headers[Faults.HeaderKeys.OriginalId];
+
+            return null;
+        }
+
+        private static string GetIdForCorrelation(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(Idforcorrelation))
+                return headers[Idforcorrelation];
+
+            return null;
+        }
+
+        private const string Idforcorrelation = "CorrId";
     }
 }
