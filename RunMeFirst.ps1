@@ -4,7 +4,7 @@ if(Test-Path  ".\build.ps1"){
 	$runnerExec = ".\build\tools\MsmqUtils\runner.exe" 
    
 }
-else if(Test-Path ".\tools\msmqutils\runner.exe") {
+elseif(Test-Path ".\tools\msmqutils\runner.exe") {
 	
 	$runnerExec = ".\tools\msmqutils\runner.exe" 
 }
