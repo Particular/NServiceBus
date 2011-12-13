@@ -66,6 +66,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MasterNode">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>

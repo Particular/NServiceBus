@@ -5,7 +5,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// Configuration section for holding the node which is the master.
     /// </summary>
-    public class MasterNodeLocatorConfig : ConfigurationSection
+    public class MasterNodeConfig : ConfigurationSection
     {
         /// <summary>
         /// The node .

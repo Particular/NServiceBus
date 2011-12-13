@@ -99,7 +99,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Information regarding the current master node
         /// </summary>
-        public IManageTheMasterNode MasterNodeManager { get; set; }
+        public Address MasterNodeAddress { get; set; }
 
         /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
@@ -544,12 +544,9 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
-            var gatewayAddress = MasterNodeManager.GetMasterNode()
-                    .SubScope("gateway");
-
             messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(gatewayAddress, null, MessageIntentEnum.Send, messages);
+            return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
         }
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
@@ -560,11 +557,11 @@ namespace NServiceBus.Unicast
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
             //todo - allow users to override in config
-            var timeoutManagerAddress = MasterNodeManager.GetMasterNode().SubScope("Timeouts");
+            var timeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts");
             
             messages.First().SetHeader(Headers.Expire, processAt.ToUniversalTime().ToString());
 
-            return ((IBus) this).Send(timeoutManagerAddress, messages);
+            return ((IBus)this).Send(timeoutManagerAddress, messages);
         }
 
 

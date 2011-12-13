@@ -147,7 +147,6 @@ namespace NServiceBus.Testing
 
             Configure.Instance.Configurer.RegisterSingleton<IStartableBus>(starter);
             Configure.Instance.Configurer.RegisterSingleton<IUnicastBus>(bus);
-            Configure.Instance.Configurer.RegisterSingleton<IManageTheMasterNode>(mocks.Stub<IManageTheMasterNode>());
             Configure.Instance.Configurer.RegisterSingleton<ITransport>(mocks.Stub<ITransport>());
             Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(mocks.Stub<ISendMessages>());
 

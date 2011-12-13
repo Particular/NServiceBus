@@ -29,7 +29,8 @@ namespace NServiceBus.Unicast.Config
         {
             Builder = config.Builder;
             Configurer = config.Configurer;
-            busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance);
+            busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p=>p.MasterNodeAddress,config.GetMasterNodeAddress());
 
             ConfigureSubscriptionAuthorization();
 

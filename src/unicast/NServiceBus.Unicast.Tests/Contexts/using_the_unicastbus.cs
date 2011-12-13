@@ -52,17 +52,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
-            var masterNodeManager = MockRepository.GenerateStub<IManageTheMasterNode>();
 
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
 
-            masterNodeManager.Stub(x => x.GetMasterNode()).Return(MasterNodeAddress);
             unicastBus = new UnicastBus
             {
+                MasterNodeAddress = MasterNodeAddress,
                 MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
-                MasterNodeManager = masterNodeManager,
                 MessageSender = messageSender,
                 Transport = Transport,
                 SubscriptionStorage = subscriptionStorage,
