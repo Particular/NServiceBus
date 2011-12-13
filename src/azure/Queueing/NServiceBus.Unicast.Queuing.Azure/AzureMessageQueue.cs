@@ -204,8 +204,16 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             using (var stream = new MemoryStream())
             {
-                //var formatter = new BinaryFormatter();
-                //formatter.Serialize(stream, originalMessage);
+
+                if (message.Headers == null)
+                    message.Headers = new Dictionary<string, string>();
+
+                if (!message.Headers.ContainsKey(Idforcorrelation))
+                    message.Headers.Add(Idforcorrelation, null);
+
+                if (String.IsNullOrEmpty(message.Headers[Idforcorrelation]))
+                    message.Headers[Idforcorrelation] = message.IdForCorrelation;
+
                 var toSend = new MessageWrapper
                 {
                     Id = message.Id,
@@ -219,6 +227,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     TimeSent = message.TimeSent,
                     IdForCorrelation = message.IdForCorrelation
                 };
+                
+
                 MessageSerializer.Serialize(new IMessage[] { toSend }, stream);
                 return new CloudQueueMessage(stream.ToArray());
             }
@@ -226,8 +236,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
         {
-            //var formatter = new BinaryFormatter();
-
             using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
                 var m = MessageSerializer.Deserialize(stream).FirstOrDefault() as MessageWrapper;
@@ -249,6 +257,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     IdForCorrelation = m.IdForCorrelation
                 };
 
+                message.Id = GetRealId(message.Headers) ?? message.Id;
+
+                message.IdForCorrelation = GetIdForCorrelation(message.Headers) ?? message.Id;
+
                 return message;
             }
         }
@@ -267,7 +279,24 @@ namespace NServiceBus.Unicast.Queuing.Azure
             return queueName.Replace('.', '-');
         }
 
+        private static string GetRealId(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(Faults.HeaderKeys.OriginalId))
+                return headers[Faults.HeaderKeys.OriginalId];
+
+            return null;
+        }
+
+        private static string GetIdForCorrelation(IDictionary<string, string> headers)
+        {
+            if (headers.ContainsKey(Idforcorrelation))
+                return headers[Idforcorrelation];
+
+            return null;
+        }
+
         private bool useTransactions;
+        private const string Idforcorrelation = "CorrId";
 
         
     }

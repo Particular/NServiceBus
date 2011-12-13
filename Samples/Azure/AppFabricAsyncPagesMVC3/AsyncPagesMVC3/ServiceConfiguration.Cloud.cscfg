@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AsyncPagesMVC3" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="1" osVersion="*">
+  <Role name="Website">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="syO1br7wndTYPKfqaTzRXGdaymR1KLpMU5seu+e/Kys=" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />
+      <Setting name="AppFabricQueueConfig.QueueName" value="websiteinputqueue"/>
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
+      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="Worker">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AppFabricQueueConfig.IssuerKey" value="syO1br7wndTYPKfqaTzRXGdaymR1KLpMU5seu+e/Kys=" />
+      <Setting name="AppFabricQueueConfig.ServiceNamespace" value="nservicebus" />
+      <Setting name="AppFabricQueueConfig.QueueName" value="workerinputqueue" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAppFabricQueues" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
+      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
+      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>
