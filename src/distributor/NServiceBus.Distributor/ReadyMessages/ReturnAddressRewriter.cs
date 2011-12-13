@@ -1,8 +1,8 @@
-﻿using NServiceBus.MessageMutator;
-using NServiceBus.Unicast.Transport;
-
-namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor.ReadyMessages
 {
+    using NServiceBus.MessageMutator;
+    using NServiceBus.Unicast.Transport;
+
     class ReturnAddressRewriter : IMutateOutgoingTransportMessages
     {
         public Address DistributorDataQueue { get; set; }

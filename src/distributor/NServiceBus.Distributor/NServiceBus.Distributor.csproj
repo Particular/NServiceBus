@@ -109,16 +109,17 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ConfigureDistributor.cs" />
-    <Compile Include="ControlQueueInstaller.cs" />
+    <Compile Include="Config\ConfigureDistributor.cs" />
+    <Compile Include="Installers\ControlQueueInstaller.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
-    <Compile Include="DistributorInitializer.cs" />
+    <Compile Include="Config\DistributorInitializer.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
-    <Compile Include="Headers.cs" />
-    <Compile Include="WorkerInputInstaller.cs" />
-    <Compile Include="ReadyMessageSender.cs" />
+    <Compile Include="ReadyMessages\Headers.cs" />
+    <Compile Include="Config\WorkerInitializer.cs" />
+    <Compile Include="Installers\WorkerInputInstaller.cs" />
+    <Compile Include="ReadyMessages\ReadyMessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReturnAddressRewriter.cs" />
+    <Compile Include="ReadyMessages\ReturnAddressRewriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

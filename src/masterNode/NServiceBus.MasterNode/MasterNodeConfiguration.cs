@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using MasterNode;
+    using Config;
 
     public static class MasterNodeConfiguration
     {
@@ -17,19 +17,24 @@
 
         public static string GetMasterNode(this Configure config)
         {
-            if (string.IsNullOrEmpty(masterNodeAddress))
-                masterNodeAddress = DefaultMasterNodeManager.DetermineMasterNode();
+            var section = Configure.GetConfigSection<MasterNodeConfig>();
+            if (section != null)
+                return section.Node;
 
-            return masterNodeAddress;
+            return null;
         }
 
         public static Address GetMasterNodeAddress(this Configure config)
         {
+            var masterNode = GetMasterNode(config);
+            
+            if (string.IsNullOrWhiteSpace(masterNode))
+                return Address.Parse(Configure.EndpointName);
+
             return new Address(Configure.EndpointName,GetMasterNode(config));
         }
 
 
-        static string masterNodeAddress;
         static bool isMasterNode;
     }
 }

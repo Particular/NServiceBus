@@ -48,7 +48,6 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="DefaultMasterNodeManager.cs" />
     <Compile Include="MasterNodeConfiguration.cs" />
     <Compile Include="MasterNodeConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

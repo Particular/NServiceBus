@@ -1,14 +1,14 @@
-﻿namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor.Installers
 {
     using System.Security.Principal;
-    using Installation;
-    using Utils;
+    using NServiceBus.Installation;
+    using NServiceBus.Utils;
 
     public class WorkerInputInstaller : INeedToInstallSomething<Installation.Environments.Windows>
     {
         public void Install(WindowsIdentity identity)
         {
-            if (!Configure.Instance.DistributorShouldRunOnThisEndpoint())
+            if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
 
             //create the worker queue

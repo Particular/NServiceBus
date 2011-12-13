@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Distributor
 {
+    using ReadyMessages;
     using Unicast;
     using Unicast.Distributor;
     using Unicast.Transport.Transactional;
@@ -18,7 +19,7 @@
 
         public void Run()
         {
-            if (!Configure.Instance.DistributorShouldRunOnThisEndpoint())
+            if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
         
             controlTransport = new TransactionalTransport

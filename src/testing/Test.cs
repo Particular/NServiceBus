@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NServiceBus.Saga;
@@ -10,7 +9,6 @@ using Rhino.Mocks;
 namespace NServiceBus.Testing
 {
     using Config.ConfigurationSource;
-    using MasterNode;
     using Unicast.Queuing;
     using Unicast.Transport;
 

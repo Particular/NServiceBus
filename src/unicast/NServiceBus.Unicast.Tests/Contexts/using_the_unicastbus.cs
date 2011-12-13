@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using Helpers;
     using Faults;
-    using MasterNode;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using NUnit.Framework;

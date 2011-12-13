@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         public void ProfileActivated()
         {
-            Configure.Instance.UseDistributor();
+            Configure.Instance.EnlistWithDistributor();
         }
     }
 }

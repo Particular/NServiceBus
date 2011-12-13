@@ -22,7 +22,7 @@ namespace NServiceBus.Distributor
 
         public void Run()
         {
-            if (!Configure.Instance.DistributorShouldRunOnThisEndpoint())
+            if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
            
             var dataTransport = new TransactionalTransport

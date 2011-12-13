@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Distributor
+﻿namespace NServiceBus.Distributor.ReadyMessages
 {
-    using Unicast;
-    using Unicast.Transport;
-    using Unicast.Queuing;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
+    using NServiceBus.Unicast.Queuing;
 
     public class ReadyMessageSender : IWantToRunWhenTheBusStarts
     {

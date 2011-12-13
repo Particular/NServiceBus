@@ -1,4 +1,4 @@
-namespace NServiceBus.Distributor
+namespace NServiceBus.Distributor.ReadyMessages
 {
     public struct Headers
     {

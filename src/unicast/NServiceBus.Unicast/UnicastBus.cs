@@ -17,13 +17,10 @@ using System.Linq;
 using NServiceBus.Serialization;
 using System.IO;
 using NServiceBus.Faults;
-using System.Net;
 using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
-    using MasterNode;
-
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
