@@ -1,558 +1,529 @@
 ﻿properties {
-
-	
-	$productVersion = "3.0"
-	$buildNumber = "0";
-	$patchVersion = "0"
-	$preRelease = "+build"	
-	$packageNameSuffix = ""
-	
-	
-	$targetframework = "net-4.0"
-	
-	$uploadPackage = $false;
-	
-	$packageIds = ""
-	
-		
+	$ProductVersion = "3.0"
+	$BuildNumber = "0";
+	$PatchVersion = "0"
+	$PreRelease = "-build"	
+	$PackageNameSuffix = ""
+	$TargetFramework = "net-4.0"
+	$UploadPackage = $false;
+	$PackageIds = ""
 }
 
-$base_dir  = resolve-path .
-$release_root = "$base_dir\Release"
-$release_dir = "$release_root\net40"
-$binaries_dir = "$base_dir\binaries"
-$build_base = "$base_dir\build"
-$outDir =  "$build_base\output"
-$coreOnly =  "$build_base\coreonly"
-$libDir = "$base_dir\lib" 
-$release_dir = "$base_dir\release"
-$artifacts_dir = "$base_dir\artifacts"
-$tools_dir = "$base_dir\tools"
+$baseDir  = resolve-path .
+$releaseRoot = "$baseDir\Release"
+$releaseDir = "$releaseRoot\net40"
+$binariesDir = "$baseDir\binaries"
+$buildBase = "$baseDir\build"
+$outDir =  "$buildBase\output"
+$coreOnly =  "$buildBase\coreonly"
+$libDir = "$baseDir\lib" 
+$releaseDir = "$baseDir\release"
+$artifactsDir = "$baseDir\artifacts"
+$toolsDir = "$baseDir\tools"
 $nunitexec = "packages\NUnit.2.5.10.11092\tools\nunit-console.exe"
-$nugetExec = "$tools_dir\NuGet\NuGet.exe"
-$zipExec = "$tools_dir\zip\7za.exe"
+$nugetExec = "$toolsDir\NuGet\NuGet.exe"
+$zipExec = "$toolsDir\zip\7za.exe"
 $script:architecture = "x86"
-$script:ilmergeTargetframework = ""
-$script:msbuildTargetFramework = ""	
+$script:ilmergeTargetFramework = ""
+$script:msBuildTargetFramework = ""	
 $script:nunitTargetFramework = "/framework=4.0";
-$script:msbuild = ""
-$script:isEnviormentinitialized = $false
-$script:packageVersion = "3.0.0"
+$script:msBuild = ""
+$script:isEnvironmentInitialized = $false
+$script:packageVersion = "3.0.0-local"
 $script:releaseVersion = ""
 
-task default -depends prepare_and_release_nservicebus
+task default -depends PrepareAndReleaseNServiceBus
 
-task create_packages {
-	import-module $base_dir\NuGet\packit.psm1
+task CreatePackages {
 	
+	import-module $baseDir\NuGet\packit.psm1
 	Write-Output "Loading the module for packing.............."
-	$packit.push_to_nuget = $uploadPackage 
+	$packit.push_to_nuget = $UploadPackage 
 	
 	
-	$packit.framework_Isolated_Binaries_Loc = "$base_dir\release"
-	$packit.PackagingArtifactsRoot = "$base_dir\release\PackagingArtifacts"
-	$packit.packageOutPutDir = "$base_dir\release\packages"
+	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
+	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
+	$packit.packageOutPutDir = "$baseDir\release\packages"
 
-	#Get Build number from TC
-	
-	if(($packageNameSuffix -eq "") -and ($preRelease -eq "+build")){
-		$packageNameSuffix = "-CI"
-	}
-	
-	
-	$productVersion = $script:packageVersion;
-	
 	$packit.targeted_Frameworks = "net40";
 
 
 	#region Packing NServiceBus
-	$packageNameNsb = "NServiceBus" + $packageNameSuffix 
+	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $productVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
+	invoke-packit $packageNameNsb $script:packageVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
 	#endregion
 	
     #region Packing NServiceBus.Host
-	$packageName = "NServiceBus.Host" + $packageNameSuffix
+	$packageName = "NServiceBus.Host" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"} $null $true 
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"} $null $true 
 	#endregion
 
 	#region Packing NServiceBus.Host32
-	$packageName = "NServiceBus.Host32" + $packageNameSuffix
+	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"} $null $true 
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"} $null $true 
 	#endregion
 	
 	#region Packing NServiceBus.Testing
-	$packageName = "NServiceBus.Testing" + $packageNameSuffix
+	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
 	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Testing.dll", "binaries\NServiceBus.Testing.pdb" @{} $null $true
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll", "binaries\NServiceBus.Testing.pdb" @{} $null $true
 	#endregion
 	
 	#region Packing NServiceBus.Integration.WebServices
-	$packageName = "NServiceBus.Integration.WebServices" + $packageNameSuffix
+	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
 	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion} "binaries\NServiceBus.Integration.WebServices.dll", "binaries\NServiceBus.Integration.WebServices.pdb" @{} $null $true
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll", "binaries\NServiceBus.Integration.WebServices.pdb" @{} $null $true
 	#endregion
 
 	#region Packing NServiceBus.Autofac
-	$packageName = "NServiceBus.Autofac" + $packageNameSuffix
+	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
 	$packit.package_description = "The Autofac Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"Autofac"="2.5.2.830"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.5.2.830"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
 	#endregion
 		
 	#region Packing NServiceBus.CastleWindsor
-	$packageName = "NServiceBus.CastleWindsor" + $packageNameSuffix
+	$packageName = "NServiceBus.CastleWindsor" + $PackageNameSuffix
 	$packit.package_description = "The CastleWindsor Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"Castle.Core"="3.0.0.2001";"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Castle.Core"="3.0.0.2001";"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.StructureMap
-	$packageName = "NServiceBus.StructureMap" + $packageNameSuffix
+	$packageName = "NServiceBus.StructureMap" + $PackageNameSuffix
 	$packit.package_description = "The StructureMap Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"structuremap"="2.6.3"} "" @{".\release\net40\binaries\containers\StructureMap\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"structuremap"="2.6.3"} "" @{".\release\net40\binaries\containers\StructureMap\*.*"="lib\net40"}
 	#endregion		
 	
 	#region Packing NServiceBus.Unity
-	$packageName = "NServiceBus.Unity" + $packageNameSuffix
+	$packageName = "NServiceBus.Unity" + $PackageNameSuffix
 	$packit.package_description = "The Unity Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"CommonServiceLocator"="1.0";"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"CommonServiceLocator"="1.0";"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.Ninject
-	$packageName = "NServiceBus.Ninject" + $packageNameSuffix
+	$packageName = "NServiceBus.Ninject" + $PackageNameSuffix
 	$packit.package_description = "The Ninject Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"Ninject"="2.2.1.4";"Ninject.Extensions.ChildKernel"="2.2.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Ninject"="2.2.1.4";"Ninject.Extensions.ChildKernel"="2.2.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.Spring
-	$packageName = "NServiceBus.Spring" + $packageNameSuffix
+	$packageName = "NServiceBus.Spring" + $PackageNameSuffix
 	$packit.package_description = "The Spring Container for the nservicebus"
-	invoke-packit $packageName $productVersion @{"Common.Logging"="2.0.0";"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Common.Logging"="2.0.0";"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
 	#endregion	
 	
 	#region Packing NServiceBus.NHibernate
-	$packageNameNHibernate = "NServiceBus.NHibernate" + $packageNameSuffix
+	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
 	$packit.package_description = "The NHibernate for the NServicebus"
-	invoke-packit $packageNameNHibernate $productVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
+	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
 	#endregion	
 		
 	#region Packing NServiceBus.Azure
-	$packageName = "NServiceBus.Azure" + $packageNameSuffix
+	$packageName = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "The Azure for the NServicebus"
-	invoke-packit $packageName $productVersion @{$packageNameNsb=$productVersion; $packageNameNHibernate=$productVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
 	#endregion	
 		
 	remove-module packit
  }
  
-task clean{
+task Clean{
 
-	if(Test-Path $build_base){
-		delete_directory $build_base
+	if(Test-Path $buildBase){
+		Delete-Directory $buildBase
 		
 	}
 	
-	if(Test-Path $artifacts_dir){
-		delete_directory $artifacts_dir
+	if(Test-Path $artifactsDir){
+		Delete-Directory $artifactsDir
 		
 	}
 	
-	if(Test-Path $binaries_dir){
-		delete_directory $binaries_dir
+	if(Test-Path $binariesDir){
+		Delete-Directory $binariesDir
 		
 	}
 }
 
-task init_enviorment{
+task InitEnvironment{
 
-	if($script:isEnviormentinitialized -ne $true){
-		if ($targetframework -eq "net-4.0"){
+	if($script:isEnvironmentInitialized -ne $true){
+		if ($TargetFramework -eq "net-4.0"){
 			$netfxInstallroot ="" 
 			$netfxInstallroot =	Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\.NETFramework\' 'InstallRoot' 
-			echo "Netfx in: " + $netfxInstallroot 
-
+			
 			$netfxCurrent = $netfxInstallroot + "v4.0.30319"
 			
-			$script:msbuild = $netfxCurrent + "\msbuild.exe"
+			$script:msBuild = $netfxCurrent + "\msbuild.exe"
 			
-			echo ".Net 4.0 build requested - " + $script:msbuild 
+			echo ".Net 4.0 build requested - " + $script:msBuild 
 
-			$script:ilmergeTargetframework  = "/targetplatform:v4," + $netfxCurrent
+			$script:ilmergeTargetFramework  = "/targetplatform:v4," + $netfxCurrent
 			
-			$script:msbuildTargetFramework ="/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
+			$script:msBuildTargetFramework ="/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
 			
 			$script:nunitTargetFramework = "/framework=4.0";
 			
-			$script:isEnviormentinitialized = $true
+			$script:isEnvironmentInitialized = $true
 		}
 	
 	}
 }
 
-task init -depends clean, init_enviorment, install_dependent_packages, detect_operating_system_architecture {
-   	$datetimeBuildtime  = [datetime]::Now
-	echo "Creating build dir" + $build_base
-	delete_directory $build_base
-	create_directory $build_base
+task Init -depends Clean, InitEnvironment, InstallDependentPackages, DetectOperatingSystemArchitecture {
+   	
+	echo "Creating build directory at the follwing path " + $buildBase
+	Delete-Directory $buildBase
+	Create-Directory $buildBase
 	
 	$currentDirectory = Resolve-Path .
 	
 	echo "Current Directory: $currentDirectory" 
 
-	echo $script:architecture
-	
 	Copy-Item "$libDir\sqlite\*.*"  "$libDir\sqlite\$script:architecture" -Force	
  }
   
-task compile_main -depends init, geneate_common_assembly_info { 
+task CompileMain -depends Init, GeneateCommonAssemblyInfo { 
  	
- 	$solutions = dir "$base_dir\src\core\*.sln"
+ 	$solutions = dir "$baseDir\src\core\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\nservicebus\" }
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" }
 	}
 	
-	$assemblies  =  dir $build_base\nservicebus\NServiceBus*.dll
+	$assemblies  =  dir $buildBase\nservicebus\NServiceBus*.dll
 	
-
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 }
 
-task compile_core -depends compile_main, init_enviorment { 
+task CompileCore -depends CompileMain, InitEnvironment { 
 
-     $core_dirs = "unicastTransport","faults","utils","ObjectBuilder","messageInterfaces","impl\messageInterfaces","config","logging","impl\ObjectBuilder.Common","installation","messagemutator","encryption","unitofwork","httpHeaders","masterNode","impl\installation","impl\unicast\NServiceBus.Unicast.Msmq","impl\Serializers","unicast","headers","impersonation","impl\unicast\queuing","impl\unicast\transport","impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq","impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory","impl\faults","impl\encryption","databus","impl\Sagas","impl\master","impl\SagaPersisters\InMemory","impl\SagaPersisters\RavenSagaPersister","impl\unicast\NServiceBus.Unicast.Subscriptions.Raven","integration","impl\databus","distributor","gateway","timeout","impl\licensing"
+     $coreDirs = "unicastTransport", "faults", "utils", "ObjectBuilder", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "timeout", "impl\licensing"
 	
-	$core_dirs | % {
-		$solutionDir = Resolve-Path "$base_dir\src\$_"
+	$coreDirs | % {
+		$solutionDir = Resolve-Path "$baseDir\src\$_"
 		cd 	$solutionDir
 	 	$solutions = dir "*.sln"
 		$solutions | % {
-			$solution_file = $_.FullName
-			exec { &$script:msbuild $solution_file /p:OutDir="$build_base\nservicebus.core\" }
+			$solutionFile = $_.FullName
+			exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus.core\" }
 		}
 	}
-	cd $base_dir
+	cd $baseDir
 	
-	$assemblies  =  dir $build_base\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
+	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
 	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-	$assemblies += dir $build_base\nservicebus.core\antlr3*.dll	-Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\common.logging.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\common.logging.log4net.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Interop.MSMQ.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\AutoFac.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Raven*.dll -Exclude **Tests.dll, Raven.Client.Debug.dll, Raven.Client.MvcIntegration.dll
-	$assemblies += dir $build_base\nservicebus.core\NLog.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\rhino.licensing.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Newtonsoft.Json.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\ICSharpCode.NRefactory.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Esent.Interop.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Lucene.Net.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Lucene.Net.Contrib.SpellChecker.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\Lucene.Net.Contrib.Spatial.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\nservicebus.core\BouncyCastle.Crypto.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll	-Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\AutoFac.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Raven*.dll -Exclude **Tests.dll, Raven.Client.Debug.dll, Raven.Client.MvcIntegration.dll
+	$assemblies += dir $buildBase\nservicebus.core\NLog.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\ICSharpCode.NRefactory.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Esent.Interop.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.SpellChecker.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.Spatial.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\BouncyCastle.Crypto.dll -Exclude **Tests.dll
 	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 }
 
-task compile_containers -depends init_enviorment {
+task CompileContainers -depends InitEnvironment {
 
-	$solutions = dir "$base_dir\src\impl\ObjectBuilder\*.sln"
+	$solutions = dir "$baseDir\src\impl\ObjectBuilder\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\containers\" }		
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" }		
 	}
 	
-	create_directory "$build_base\output\containers"
-	
-	Copy-Item $build_base\containers\NServiceBus.ObjectBuilder.**.* $build_base\output\containers -Force
-	
-	create_directory $coreOnly\containers
-	
-	Copy-Item $build_base\containers\NServiceBus.ObjectBuilder.**.* $coreOnly\containers -Force
+	Create-Directory "$buildBase\output\containers"
+	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $buildBase\output\containers -Force
+	Create-Directory $coreOnly\containers
+	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $coreOnly\containers -Force
 }
 
-task compile_webservices_integration -depends  init_enviorment{
+task CompileWebServicesIntegration -depends  InitEnvironment{
 
-	$solutions = dir "$base_dir\src\integration\WebServices\*.sln"
+	$solutions = dir "$baseDir\src\integration\WebServices\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$outDir\" }		
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" }		
 	}
 }
 
-task compile_nhibernate -depends init_enviorment {
+task CompileNHibernate -depends InitEnvironment {
 
-	$solutions = dir "$base_dir\src\nhibernate\*.sln"
+	$solutions = dir "$baseDir\src\nhibernate\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\NServiceBus.NHibernate\" }		
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" }		
 	}
 	
-	$testAssemblies = dir $build_base\NServiceBus.NHibernate\**Tests.dll
+	$testAssemblies = dir $buildBase\NServiceBus.NHibernate\**Tests.dll
 	
 #	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 	
-	$assemblies = dir $build_base\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
+	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 }
 
-task compile_azure -depends init_enviorment {
+task CompileAzure -depends InitEnvironment {
 
-	$solutions = dir "$base_dir\src\azure\*.sln"
+	$solutions = dir "$baseDir\src\azure\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\azure\NServiceBus.Azure\" }		
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" }		
 	}
 	
-	$testAssemblies = dir $build_base\azure\NServiceBus.Azure\**Tests.dll
+	$testAssemblies = dir $buildBase\azure\NServiceBus.Azure\**Tests.dll
 	
 #	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 	
-	$assemblies = dir $build_base\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
-	$assemblies += dir $build_base\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
+	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
 	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 }
 
-task compile_hosts  -depends init_enviorment {
+task CompileHosts  -depends InitEnvironment {
 
+	if(Test-Path "$buildBase\hosting"){
 	
-	if(Test-Path "$build_base\hosting"){
-	
-		delete_directory "$build_base\hosting"
+		Delete-Directory "$buildBase\hosting"
 	}
-	create_directory "$build_base\hosting"
-	$solutions = dir "$base_dir\src\hosting\*.sln"
+	Create-Directory "$buildBase\hosting"
+	$solutions = dir "$baseDir\src\hosting\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\hosting\" }		
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting\" }		
 	}
 	
-	
-	$assemblies = @("$build_base\hosting\NServiceBus.Hosting.Windows.exe","$build_base\hosting\NServiceBus.Hosting.dll",
-		"$build_base\hosting\Microsoft.Practices.ServiceLocation.dll","$build_base\hosting\Magnum.dll","$build_base\hosting\Topshelf.dll")
+	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
+		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
 	
 	echo "Merging NServiceBus.Host....."	
-	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host" $assemblies "exe"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 
 }
 
-task compile_hosts32  -depends init_enviorment {
-
-	
-	
-	$solutions = dir "$base_dir\src\hosting\*.sln"
+task CompileHosts32  -depends InitEnvironment {		
+	$solutions = dir "$baseDir\src\hosting\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
+		$solutionFile = $_.FullName
 		
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\hosting32\" /t:Clean }
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting32\" /t:Clean }
 		
-		exec { &$script:msbuild $solution_file /p:PlatformTarget=x86 /p:OutDir="$build_base\hosting32\"}
+		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\"}
 	}
 	
 	
-	$assemblies = @("$build_base\hosting32\NServiceBus.Hosting.Windows.exe","$build_base\hosting32\NServiceBus.Hosting.dll",
-		"$build_base\hosting32\Microsoft.Practices.ServiceLocation.dll","$build_base\hosting32\Magnum.dll","$build_base\hosting32\Topshelf.dll")
+	$assemblies = @("$buildBase\hosting32\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting32\NServiceBus.Hosting.dll",
+		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
 	
 	echo "Merging NServiceBus.Host32....."	
-	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host32" $assemblies "exe"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host32" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 
 }
 
-task compile_azure_hosts  -depends init_enviorment {
+task CompileAzureHosts  -depends InitEnvironment {
 
-	$solutions = dir "$base_dir\src\azure\Hosting\*.sln"
+	$solutions = dir "$baseDir\src\azure\Hosting\*.sln"
 	$solutions | % {
-		$solution_file = $_.FullName
-		exec { &$script:msbuild $solution_file /p:OutDir="$build_base\azure\Hosting\"}
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\"}
 	}
 }
 
-task test{
+task Test{
 	
-	if(Test-Path $build_base\test-reports){
-		delete_directory $build_base\test-reports
+	if(Test-Path $buildBase\test-reports){
+		Delete-Directory $buildBase\test-reports
 	}
 	
-	create_directory $build_base\test-reports 
+	Create-Directory $buildBase\test-reports 
 	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $build_base\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-	$testAssemblies +=  dir $build_base\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-	
-	
+	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 }
 
-task compile_tools -depends init_enviorment{
-	$tools_dirs = "testing","claims","timeout","azure\timeout","proxy","tools\management\Errors\ReturnToSourceQueue\", "utils"
+task CompileTools -depends InitEnvironment{
+	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils"
 	
-	$tools_dirs | % {				
-	 	$solutions = dir "$base_dir\src\$_\*.sln"
-		$currentOutDir = "$build_base\$_\"
+	$toolsDirs | % {				
+	 	$solutions = dir "$baseDir\src\$_\*.sln"
+		$currentOutDir = "$buildBase\$_\"
 		$solutions | % {
-			$solution_file = $_.FullName
-			exec { &$script:msbuild $solution_file /p:OutDir="$currentOutDir" }
+			$solutionFile = $_.FullName
+			exec { &$script:msBuild $solutionFile /p:OutDir="$currentOutDir" }
 		}
 	}
 	
-	if(Test-Path $build_base\tools\MsmqUtils){
-		delete_directory $build_base\tools\MsmqUtils
+	if(Test-Path $buildBase\tools\MsmqUtils){
+		Delete-Directory $buildBase\tools\MsmqUtils
 	}
 	
-	create_directory "$build_base\tools\MsmqUtils"
-	Copy-Item $build_base\utils\*.* $build_base\tools\MsmqUtils -Force
-	delete_directory $build_base\utils
-	Copy-Item $build_base\tools\management\Errors\ReturnToSourceQueue\*.* $build_base\tools\ -Force
+	Create-Directory "$buildBase\tools\MsmqUtils"
+	Copy-Item $buildBase\utils\*.* $buildBase\tools\MsmqUtils -Force
+	Delete-Directory $buildBase\utils
+	Copy-Item $buildBase\tools\management\Errors\ReturnToSourceQueue\*.* $buildBase\tools\ -Force
 	
-	cd $build_base\tools
-	delete_directory "management"
-	cd $base_dir
+	cd $buildBase\tools
+	Delete-Directory "management"
+	cd $baseDir
 	
 	
 	
-	exec {&$nunitexec "$build_base\testing\NServiceBus.Testing.Tests.dll" $script:nunitTargetFramework} 
+	exec {&$nunitexec "$buildBase\testing\NServiceBus.Testing.Tests.dll" $script:nunitTargetFramework} 
 		
-	$assemblies = @("$build_base\testing\NServiceBus.Testing.dll", "$build_base\testing\Rhino.Mocks.dll");
+	$assemblies = @("$buildBase\testing\NServiceBus.Testing.dll", "$buildBase\testing\Rhino.Mocks.dll");
 	
 	echo "Merging NServiceBus.Testing"	
-	Ilmerge "NServiceBus.snk" $outDir\testing "NServiceBus.Testing" $assemblies "dll"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $outDir\testing "NServiceBus.Testing" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
 	
 	
-	$assemblies = @("$build_base\nservicebus.core\XsdGenerator.exe",
-	"$build_base\nservicebus.core\NServiceBus.Serializers.XML.dll", 
-	"$build_base\nservicebus.core\NServiceBus.Utils.Reflection.dll")
+	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
+	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
+	"$buildBase\nservicebus.core\NServiceBus.Utils.Reflection.dll")
 	
 	echo "merging XsdGenerator"	
-	Ilmerge "NServiceBus.snk" $build_base\tools "XsdGenerator" $assemblies "exe"  $script:ilmergeTargetframework "/internalize:$base_dir\ilmerge.exclude"
+	Ilmerge "NServiceBus.snk" $buildBase\tools "XsdGenerator" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 }
 
-task prepare_binaries -depends compile_main, compile_core, compile_containers, compile_webservices_integration, compile_nhibernate, compile_hosts, compile_hosts32, compile_azure, compile_azure_hosts, compile_tools {
-	if(Test-Path $binaries_dir){
-		delete_directory "binaries"
+task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
+	if(Test-Path $binariesDir){
+		Delete-Directory "binaries"
 	}
-	create_directory $binaries_dir;
+	Create-Directory $binariesDir;
 	
-	Copy-Item $outDir\NServiceBus*.* $binaries_dir -Force;
-	Copy-Item $outDir\host\*.* $binaries_dir -Force;
-	Copy-Item $outDir\testing\*.* $binaries_dir -Force;
+	Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
+	Copy-Item $outDir\host\*.* $binariesDir -Force;
+	Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	
-	Copy-Item $libDir\log4net.dll $binaries_dir -Force;
-	Copy-Item "$base_dir\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll"  $binaries_dir -Force;
-	Copy-Item "$libDir\sqlite\x86\*.dll"  $binaries_dir -Force;
+	Copy-Item $libDir\log4net.dll $binariesDir -Force;
+	Copy-Item "$baseDir\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll"  $binariesDir -Force;
+	Copy-Item "$libDir\sqlite\x86\*.dll"  $binariesDir -Force;
 	
-	create_directory "$binaries_dir\x64"
+	Create-Directory "$binariesDir\x64"
 	
-	Copy-Item "$libDir\sqlite\x64\*.dll"  $binaries_dir\x64 -Force;
+	Copy-Item "$libDir\sqlite\x64\*.dll"  $binariesDir\x64 -Force;
 	
-	create_directory "$binaries_dir\containers\autofac"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binaries_dir\containers\autofac -Force;
+	Create-Directory "$binariesDir\containers\autofac"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
 	
-	create_directory "$binaries_dir\containers\castle"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binaries_dir\containers\castle -Force;
+	Create-Directory "$binariesDir\containers\castle"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
 	
-	create_directory "$binaries_dir\containers\structuremap"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binaries_dir\containers\structuremap -Force;
+	Create-Directory "$binariesDir\containers\structuremap"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
 	
-	create_directory "$binaries_dir\containers\spring"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binaries_dir\containers\spring -Force;
+	Create-Directory "$binariesDir\containers\spring"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
 			
-	create_directory "$binaries_dir\containers\unity"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binaries_dir\containers\unity -Force;		
+	Create-Directory "$binariesDir\containers\unity"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force;		
 		
-	create_directory "$binaries_dir\containers\ninject"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binaries_dir\containers\ninject -Force;	
+	Create-Directory "$binariesDir\containers\ninject"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
 }
 
-task compile_samples -depends init_enviorment, prepare_binaries {
+task CompileSamples -depends InitEnvironment, PrepareBinaries {
 
-	$samples_dirs = "AsyncPages","FullDuplex","PubSub","Manufacturing","GenericHost","Versioning","WcfIntegration","Starbucks","SendOnlyEndpoint","DataBus","Azure\AzureBlobStorageDataBus","Distributor"
+	$samplesDirs = "AsyncPages", "AsyncPagesMvc3", "FullDuplex", "PubSub", "Manufacturing", "GenericHost", "Versioning", "WcfIntegration", "Starbucks", "SendOnlyEndpoint", "DataBus", "Azure\AzureBlobStorageDataBus", "Distributor"
 	
-	$samples_dirs | % {				
-	 	$solutions = dir "$base_dir\Samples\$_\*.sln"
+	$samplesDirs | % {				
+	 	$solutions = dir "$baseDir\Samples\$_\*.sln"
 		$solutions | % {
-			$solution_file = $_.FullName
-			exec {&$script:msbuild $solution_file}
+			$solutionFile = $_.FullName
+			exec {&$script:msBuild $solutionFile}
 		}
 	}
 
 }
 
-task prepare_release -depends prepare_binaries, test, compile_samples {
+task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	
-	if(Test-Path $release_root){
-		delete_directory $release_root	
+	if(Test-Path $releaseRoot){
+		Delete-Directory $releaseRoot	
 	}
 	
-	create_directory $release_root
-	if ($targetframework -eq "net-4.0"){
-		$release_dir = "$release_root\net40"
+	Create-Directory $releaseRoot
+	if ($TargetFramework -eq "net-4.0"){
+		$releaseDir = "$releaseRoot\net40"
 	}
-	create_directory $release_dir
+	Create-Directory $releaseDir
 
 	 
-	Copy-Item -Force "$base_dir\*.txt" $release_root  -ErrorAction SilentlyContinue
-	Copy-Item -Force "$base_dir\RunMeFirst.bat" $release_root -ErrorAction  SilentlyContinue
+	Copy-Item -Force "$baseDir\*.txt" $releaseRoot  -ErrorAction SilentlyContinue
+	Copy-Item -Force "$baseDir\RunMeFirst.bat" $releaseRoot -ErrorAction  SilentlyContinue
+	Copy-Item -Force "$baseDir\RunMeFirst.ps1" $releaseRoot -ErrorAction  SilentlyContinue
 	
-	Copy-Item -Force -Recurse "$build_base\tools" $release_root\tools -ErrorAction SilentlyContinue
+	Copy-Item -Force -Recurse "$buildBase\tools" $releaseRoot\tools -ErrorAction SilentlyContinue
 	
-	cd $release_root\tools
+	cd $releaseRoot\tools
 	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
 	write-host deleting $_ 
 	Remove-Item $_ 
 	}
-	cd $base_dir
+	cd $baseDir
 	
-	Copy-Item -Force -Recurse "$base_dir\docs" $release_root\docs -ErrorAction SilentlyContinue
+	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
 	
-	Copy-Item -Force -Recurse "$base_dir\Samples" $release_dir\samples  -ErrorAction SilentlyContinue 
-	cd $release_dir\samples 
+	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseDir\samples  -ErrorAction SilentlyContinue 
+	cd $releaseDir\samples 
 	
 	dir -recurse -include ('bin', 'obj') |ForEach-Object {
 	write-host deleting $_ 
-	delete_directory $_
+	Delete-Directory $_
 	}
 	
-	cd $base_dir
+	cd $baseDir
 	
 	
 	
-	create_directory "$release_dir\processes"
-	$processes_dir = "$release_dir\processes" 
+	Create-Directory "$releaseDir\processes"
+	$processesDir = "$releaseDir\processes" 
 	
-	Copy-Item -Force -Recurse "$build_base\timeout" $processes_dir\timeout -ErrorAction SilentlyContinue
-	cd $processes_dir\timeout
+	Copy-Item -Force -Recurse "$buildBase\timeout" $processesDir\timeout -ErrorAction SilentlyContinue
+	cd $processesDir\timeout
 	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
 	write-host deleting $_ 
 	Remove-Item $_ 
 	}
-	cd $base_dir
+	cd $baseDir
 	
-	Copy-Item -Force -Recurse "$build_base\proxy" $processes_dir\proxy -ErrorAction SilentlyContinue
-	cd $processes_dir\proxy
+	Copy-Item -Force -Recurse "$buildBase\proxy" $processesDir\proxy -ErrorAction SilentlyContinue
+	cd $processesDir\proxy
 	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
 	write-host deleting $_ 
 	Remove-Item $_ 
 	}
-	cd $base_dir
+	cd $baseDir
 	
-	Copy-Item -Force -Recurse "$base_dir\binaries" $release_dir\binaries -ErrorAction SilentlyContinue  
+	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 	
 
 #		<if test="${include.dependencies != 'true'}">
@@ -577,35 +548,33 @@ task prepare_release -depends prepare_binaries, test, compile_samples {
 This will detect whether the current Operating System is running as a 32-bit or 64-bit Operating System regardless of whether this is a 32-bit or 
 64-bit process.
 #>
-task detect_operating_system_architecture {
-	echo $script:architecture
+task DetectOperatingSystemArchitecture {
 	if (IsWow64 -eq $true)
 	{
 		$script:architecture = "x64"
 	}
-    echo $script:architecture
+    echo "Machine Architecture is " + $script:architecture
 }
   
-task geneate_common_assembly_info -depends install_dependent_packages {
-	$buildNumber = 0
+task GeneateCommonAssemblyInfo -depends InstallDependentPackages {
 	if($env:BUILD_NUMBER -ne $null) {
-    	$buildNumber = $env:BUILD_NUMBER
+    	$BuildNumber = $env:BUILD_NUMBER
 	}
-	Write-Output "Build Number: $buildNumber"
+	Write-Output "Build Number: $BuildNumber"
 	
-	$fileVersion = $productVersion + "." + $patchVersion + "." + $buildNumber 
-	$asmVersion =  $productVersion + ".0.0"
-	$infoVersion = $productVersion+ ".0" + $preRelease + $buildNumber 
+	$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
+	$asmVersion =  $ProductVersion + ".0.0"
+	$infoVersion = $ProductVersion+ ".0" + $PreRelease + $BuildNumber 
 	$script:releaseVersion = $infoVersion
-	#later after Nuget 1.6 release $script:packageVersion = $infoVersion;
-	$script:packageVersion = $fileVersion;
+	
+	$script:packageVersion = $infoVersion;
 	
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
 	
-	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright � NServiceBus 2007-2011" $asmVersion $fileVersion $infoVersion "$base_dir\src\CommonAssemblyInfo.cs" 
+	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright � NServiceBus 2007-2011" $asmVersion $fileVersion $infoVersion "$baseDir\src\CommonAssemblyInfo.cs" 
  }
  
-task install_dependent_packages {
+task InstallDependentPackages {
  	dir -recurse -include ('packages.config') |ForEach-Object {
 	$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
@@ -615,69 +584,65 @@ task install_dependent_packages {
 	}
  }
 
-task prepare_and_release_nservicebus -depends prepare_release, create_packages, zip_output{
-    if(Test-Path -Path $release_dir)
+task PrepareAndReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput{
+    if(Test-Path -Path $releaseDir)
 	{
-        del -Path $release_dir -Force -recurse
+        del -Path $releaseDir -Force -recurse
 	}	
-	echo Released $script:releaseVersion 
+	echo "Release completed for NServiceBus." + $script:releaseVersion 
 }
-
-task zip_output {
+<#Ziping artifacts directory for releasing#>
+task ZipOutput {
+	
 	echo "Cleaning the Release Artifacts before ziping"
-	$packagingArtifacts = "$release_dir\PackagingArtifacts"
-	$packageOutPutDir = "$release_dir\packages"
+	$packagingArtifacts = "$releaseDir\PackagingArtifacts"
+	$packageOutPutDir = "$releaseDir\packages"
 	
 	if(Test-Path -Path $packagingArtifacts ){
-		delete_directory $packagingArtifacts
+		Delete-Directory $packagingArtifacts
 	}
 	
-	if((Test-Path -Path $packageOutPutDir) -and ($uploadPackage) ){
-        delete_directory $packageOutPutDir
+	if((Test-Path -Path $packageOutPutDir) -and ($UploadPackage) ){
+        Delete-Directory $packageOutPutDir
 	}
 
-	echo "Zip Output"	
-	
-	
-	if((Test-Path -Path $artifacts_dir) -eq $true)
+	if((Test-Path -Path $artifactsDir) -eq $true)
 	{
-		delete_directory $artifacts_dir
+		Delete-Directory $artifactsDir
 	}
 	
-    create_directory $artifacts_dir
+    Create-Directory $artifactsDir
 	
-	$archive = "$artifacts_dir\NServiceBus.$script:releaseVersion.zip"
-	exec { &$zipExec a -tzip $archive $release_dir\** }
-
-    echo "Zip Output Over"
-
+	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
+	echo "Ziping artifacts directory for releasing"
+	exec { &$zipExec a -tzip $archive $releaseDir\** }
 }
 
-task update_packages{
+task UpdatePackages{
 	dir -recurse -include ('packages.config') |ForEach-Object {
 		$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
 		write-host $packageconfig
 
-		if($packageIds -ne "")
+		if($PackageIds -ne "")
 		{
-			write-host "Doing an unsafe update of" $packageIds 
-			exec{&$nugetExec update $packageconfig -RepositoryPath packages -Id $packageIds}
+			write-host "Doing an unsafe update of" $PackageIds 
+			exec{&$nugetExec update $packageconfig -RepositoryPath packages -Id $PackageIds}
 		}
 		else
 		{	
-			write-host "Doing a safe update of all packages" $packageIds 
+			write-host "Doing a safe update of all packages" $PackageIds 
 			exec{&$nugetExec update -Safe $packageconfig -RepositoryPath packages}
 		}
 	}
 }
 
-function delete_directory($directory_name){
-	Remove-Item -Force -Recurse $directory_name -ErrorAction SilentlyContinue
+function Delete-Directory($directoryName){
+	Remove-Item -Force -Recurse $directoryName -ErrorAction SilentlyContinue
 }
  
-function create_directory($directory_name){
-	New-Item $directory_name -ItemType Directory | Out-Null
+function Create-Directory($directoryName){
+	New-Item $directoryName -ItemType Directory | Out-Null
 }
 
 function Get-RegistryValues($key) {
