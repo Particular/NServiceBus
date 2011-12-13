@@ -10,5 +10,5 @@ elseif(Test-Path ".\tools\msmqutils\runner.exe") {
 }
 
 if($runnerExec -ne ""){
-exec{ &$runnerExec $args }
+ &$runnerExec $args 
 }
