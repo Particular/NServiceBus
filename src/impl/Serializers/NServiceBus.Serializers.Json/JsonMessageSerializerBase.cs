@@ -1,29 +1,32 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Runtime.Serialization.Formatters;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Serialization;
 using NServiceBus.Serializers.Json.Internal;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace NServiceBus.Serializers.Json
 {
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
-        private readonly IMessageMapper messageMapper;
+        private readonly IMessageMapper _messageMapper;
 
         protected JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
-            this.messageMapper = messageMapper;
+            _messageMapper = messageMapper;
         }
 
-        public static JsonSerializerSettings JsonSerializerSettings
+        public JsonSerializerSettings JsonSerializerSettings
         {
             get
             {
                 var serializerSettings = new JsonSerializerSettings
                                              {
                                                  TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                                                 TypeNameHandling = TypeNameHandling.Objects
+                                                 TypeNameHandling = TypeNameHandling.Auto,
+                                                 Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind} }
                                              };
                 return serializerSettings;
             }
@@ -31,33 +34,23 @@ namespace NServiceBus.Serializers.Json
 
         public void Serialize(object[] messages, Stream stream)
         {
-            JsonSerializer jsonSerializer = CreateJsonSerializer();
+            JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
+            jsonSerializer.Binder = new MessageSerializationBinder(_messageMapper);
 
             JsonWriter jsonWriter = CreateJsonWriter(stream);
 
             jsonSerializer.Serialize(jsonWriter, messages);
-
             jsonWriter.Flush();
         }
 
         public object[] Deserialize(Stream stream)
         {
-            JsonSerializer jsonSerializer = CreateJsonSerializer();
+            JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
+            jsonSerializer.ContractResolver = new MessageContractResolver(_messageMapper);
 
             JsonReader reader = CreateJsonReader(stream);
 
-            var messages = jsonSerializer.Deserialize<IMessage[]>(reader);
-
-            return messages;
-        }
-
-        private JsonSerializer CreateJsonSerializer()
-        {
-            JsonSerializerSettings serializerSettings = JsonSerializerSettings;
-
-            serializerSettings.Converters.Add(new MessageJsonConverter(messageMapper));
-
-            return JsonSerializer.Create(serializerSettings);
+            return jsonSerializer.Deserialize<IMessage[]>(reader);
         }
 
         protected abstract JsonWriter CreateJsonWriter(Stream stream);
