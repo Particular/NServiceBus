@@ -72,13 +72,13 @@ function PushPackage($packageName)
 		
         $package = $_.Name
         write-host "Uploading $package"
-        &$nugetExcec  push -source "http://packages.nuget.org/v1/" $package $key
+        &$nugetExcec  push $package -ApiKey $key
 		
 		$symbolPackName =   dir $_.Name |  % {$_.BaseName};
 		$symbolPackName = $symbolPackName + ".symbols.nupkg"
 		if(Test-Path -Path ./$symbolPackName){
 			write-host "pushing symbol:$symbolPackName"
-			&$nugetExcec  push $symbolPackName -source "http://nuget.gw.symbolsource.org/Public/NuGet" $key
+			&$nugetExcec  push $symbolPackName -source "http://nuget.gw.symbolsource.org/Public/NuGet" -ApiKey $key
 		}
 		else
 		{
