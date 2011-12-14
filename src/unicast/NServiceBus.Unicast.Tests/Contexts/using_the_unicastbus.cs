@@ -58,6 +58,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
+                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts"),
                 MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
