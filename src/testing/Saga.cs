@@ -5,6 +5,8 @@ using Rhino.Mocks;
 
 namespace NServiceBus.Testing
 {
+    using System.Linq;
+
     /// <summary>
     /// Saga unit testing framework.
     /// </summary>
@@ -13,7 +15,7 @@ namespace NServiceBus.Testing
         private readonly Helper helper;
         private readonly T saga;
         private string messageId;
-        private string clientAddress;
+        private string clientAddress = "client";
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
         private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
 
@@ -222,6 +224,33 @@ namespace NServiceBus.Testing
             throw new Exception("Assert failed. Saga has not been completed.");
         }
 
+
+     
+        /// <summary>
+        /// Verifies that the saga is setting the specified timeout
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="validateExpiry"></param>
+        /// <returns></returns>
+        public Saga<T> ExpectTimeoutToBeSet<TMessage>(Func<TimeSpan,bool> validateExpiry = null)
+        {
+            helper.ExpectDefer<TMessage>((expiresIn,state)=> (validateExpiry == null || validateExpiry(expiresIn)) &&
+                                                             state.First().GetType() == typeof (TMessage));
+            return this;
+        }
+
+        /// <summary>
+        /// Verifies that the saga is setting the specified timeout
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="validateExpiry"></param>
+        /// <returns></returns>
+        public Saga<T> ExpectTimeoutToBeSetWithState<TMessage>(Func<TMessage, bool> validateState = null)
+        {
+            helper.ExpectDefer<TMessage>((expiresIn, state) => (validateState == null || state.First() is TMessage && validateState((TMessage)state.First())) &&
+                                                             state.First().GetType() == typeof(TMessage));
+            return this;
+        }
     }
 
 }

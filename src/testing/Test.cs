@@ -35,6 +35,15 @@ namespace NServiceBus.Testing
             InitializeInternal();
         }
 
+        /// <summary>
+        /// Initializes the testing infrastructure specifying which types to scan.
+        /// </summary>
+        public static void Initialize(params Type[] types)
+        {
+            Configure.With(types);
+            InitializeInternal();
+        }
+
         private static void InitializeInternal()
         {
             Configure.Instance

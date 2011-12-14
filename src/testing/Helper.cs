@@ -271,6 +271,14 @@ namespace NServiceBus.Testing
             delegates.Clear();
         }
 
+        public void ExpectDefer<T>(Func<TimeSpan,object[],bool> func)
+        {
+            Expect.Call(() => bus.Defer(TimeSpan.FromDays(1),null))
+                .IgnoreArguments().Return(null)
+                .Callback(func);
+        }
+
+
         private void ExpectCallToReturn(ReturnPredicate callback)
         {
             Expect.Call(() => bus.Return(-1))
