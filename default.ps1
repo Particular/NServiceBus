@@ -52,31 +52,31 @@ task CreatePackages {
 	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.pdb", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.Core.pdb" @{} @(@{"src"="..\..\..\src\**\*.cs";"target"="src\src";"exclude"="*.sln;*.csproj;*.config;*.cache"}) $true;
+	invoke-packit $packageNameNsb $script:packageVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
 	#endregion
 	
     #region Packing NServiceBus.Host
 	$packageName = "NServiceBus.Host" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"} $null $true 
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
 	#endregion
 
 	#region Packing NServiceBus.Host32
 	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"} $null $true 
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
 	#endregion
 	
 	#region Packing NServiceBus.Testing
 	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
 	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll", "binaries\NServiceBus.Testing.pdb" @{} $null $true
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll"
 	#endregion
 	
 	#region Packing NServiceBus.Integration.WebServices
 	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
 	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll", "binaries\NServiceBus.Integration.WebServices.pdb" @{} $null $true
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll"
 	#endregion
 
 	#region Packing NServiceBus.Autofac
@@ -194,9 +194,13 @@ task CompileMain -depends Init, GeneateCommonAssemblyInfo {
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" }
 	}
 	
-	$assemblies  =  dir $buildBase\nservicebus\NServiceBus*.dll
+	$assemblies = @()
+	$assemblies +=	dir $buildBase\nservicebus\NServiceBus.dll
+	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
+
 	
 	Ilmerge "NServiceBus.snk" $outDir "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+
 	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 }
 
@@ -424,12 +428,7 @@ task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, Compi
 	Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	
 	Copy-Item $libDir\log4net.dll $binariesDir -Force;
-	Copy-Item "$baseDir\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll"  $binariesDir -Force;
-	Copy-Item "$libDir\sqlite\x86\*.dll"  $binariesDir -Force;
 	
-	Create-Directory "$binariesDir\x64"
-	
-	Copy-Item "$libDir\sqlite\x64\*.dll"  $binariesDir\x64 -Force;
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
@@ -499,28 +498,6 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	write-host deleting $_ 
 	Delete-Directory $_
 	}
-	
-	cd $baseDir
-	
-	
-	
-	Create-Directory "$releaseDir\processes"
-	$processesDir = "$releaseDir\processes" 
-	
-	Copy-Item -Force -Recurse "$buildBase\timeout" $processesDir\timeout -ErrorAction SilentlyContinue
-	cd $processesDir\timeout
-	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
-	write-host deleting $_ 
-	Remove-Item $_ 
-	}
-	cd $baseDir
-	
-	Copy-Item -Force -Recurse "$buildBase\proxy" $processesDir\proxy -ErrorAction SilentlyContinue
-	cd $processesDir\proxy
-	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
-	write-host deleting $_ 
-	Remove-Item $_ 
-	}
 	cd $baseDir
 	
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
@@ -544,6 +521,56 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 #			</copy>
 #		</if>
 }
+
+task PrepareReleaseWithoutSamples -depends PrepareBinaries, Test{
+	
+	if(Test-Path $releaseRoot){
+		Delete-Directory $releaseRoot	
+	}
+	
+	Create-Directory $releaseRoot
+	if ($TargetFramework -eq "net-4.0"){
+		$releaseDir = "$releaseRoot\net40"
+	}
+	Create-Directory $releaseDir
+
+	 
+	Copy-Item -Force "$baseDir\*.txt" $releaseRoot  -ErrorAction SilentlyContinue
+	Copy-Item -Force "$baseDir\RunMeFirst.bat" $releaseRoot -ErrorAction  SilentlyContinue
+	Copy-Item -Force "$baseDir\RunMeFirst.ps1" $releaseRoot -ErrorAction  SilentlyContinue
+	
+	Copy-Item -Force -Recurse "$buildBase\tools" $releaseRoot\tools -ErrorAction SilentlyContinue
+	
+	cd $releaseRoot\tools
+	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
+	write-host deleting $_ 
+	Remove-Item $_ 
+	}
+	cd $baseDir
+	
+	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
+	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
+	
+
+#		<if test="${include.dependencies != 'true'}">
+#			<copy todir="${release.dir}\dependencies" flatten="true">
+#				<fileset basedir="${trunk.dir}" >
+#					<include name="${core.build.dir}\antlr*.dll" />
+#					<include name="${core.build.dir}\common.logging.dll"/>
+#					<include name="${lib.dir}\common.logging.log4net.dll"/>
+#					<include name="${core.build.dir}\Interop.MSMQ.dll" />
+#					<include name="${core.build.dir}\AutoFac.dll"/>
+#					<include name="${core.build.dir}\Spring.Core.dll" />
+#					<include name="${core.build.dir}\NHibernate*.dll" />
+#					<include name="${core.build.dir}\FluentNHibernate.dll" />
+#					<include name="${core.build.dir}\Iesi.Collections.dll" />
+#					<include name="${core.build.dir}\LinFu*.dll" />
+#					<exclude name="${core.build.dir}\**Tests.dll" />
+#				</fileset>
+#			</copy>
+#		</if>
+}
+
 <#
 This will detect whether the current Operating System is running as a 32-bit or 64-bit Operating System regardless of whether this is a 32-bit or 
 64-bit process.
@@ -590,6 +617,14 @@ task PrepareAndReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOu
         del -Path $releaseDir -Force -recurse
 	}	
 	echo "Release completed for NServiceBus." + $script:releaseVersion 
+}
+
+task PrepareAndReleaseNServiceBusWithoutSamples -depends PrepareReleaseWithoutSamples, CreatePackages, ZipOutput{
+    if(Test-Path -Path $releaseDir)
+	{
+        del -Path $releaseDir -Force -recurse
+	}	
+	echo "Release completed for NServiceBus without samples." + $script:releaseVersion 
 }
 <#Ziping artifacts directory for releasing#>
 task ZipOutput {
