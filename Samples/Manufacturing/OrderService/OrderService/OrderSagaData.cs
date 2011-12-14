@@ -25,7 +25,7 @@ namespace OrderService
                 }
 
             if (!found)
-                OrderLines.Add(new OrderLine { Order = this, ProductId = productId, Quantity = quantity });
+                OrderLines.Add(new OrderLine { ProductId = productId, Quantity = quantity });
         }
 
         public virtual void UpdateAuthorization(bool authorized, Guid productId, float quantity)
@@ -70,7 +70,6 @@ namespace OrderService
     public class OrderLine
     {
         public virtual Guid Id { get; set; }
-        public virtual OrderSagaData Order { get; set; }
         public virtual Guid ProductId { get; set; }
         public virtual float Quantity { get; set; }
         public virtual float AuthorizedQuantity { get; set; }
