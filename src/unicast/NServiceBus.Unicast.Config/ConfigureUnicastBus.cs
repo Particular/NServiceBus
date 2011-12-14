@@ -20,7 +20,21 @@ namespace NServiceBus
 
             return Instance;
         }
+        /// <summary>
+        /// Return Timeout Manager Address. Uses "TimeoutManagerAddress" parameter form config file if defined, if not, uses "EndpointName.Timeouts".
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Address GetTimeoutManagerAddress(this Configure config)
+        {
+            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
+            if ((unicastConfig != null) && (!string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
+                return Address.Parse(unicastConfig.TimeoutManagerAddress);
+            
+            return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+        }
+        
         internal static ConfigUnicastBus Instance { get; private set; }
     }
 

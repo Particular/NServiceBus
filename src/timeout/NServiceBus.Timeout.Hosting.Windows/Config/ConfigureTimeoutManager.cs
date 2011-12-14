@@ -3,6 +3,7 @@
     using Timeout.Core;
     using Timeout.Hosting.Windows.Persistence;
 
+
     public static class ConfigureTimeoutManager
     {
         public static bool TimeoutManagerEnabled { get; private set; }
@@ -23,12 +24,11 @@
         {
             TimeoutManagerEnabled = true;
 
-            TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+            TimeoutManagerAddress = config.GetTimeoutManagerAddress();
 
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TimeoutTransportMessageHandler>(DependencyLifecycle.InstancePerCall);
-
 
             return config;
         }

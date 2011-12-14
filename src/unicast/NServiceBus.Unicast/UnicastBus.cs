@@ -99,6 +99,11 @@ namespace NServiceBus.Unicast
         public Address MasterNodeAddress { get; set; }
 
         /// <summary>
+        /// Information regarding the current TimeoutManager node
+        /// </summary>
+        public Address TimeoutManagerAddress { get; set; }
+
+        /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
         /// </summary>
@@ -553,12 +558,9 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            //todo - allow users to override in config
-            var timeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts");
-            
             messages.First().SetHeader(Headers.Expire, processAt.ToUniversalTime().ToString());
 
-            return ((IBus)this).Send(timeoutManagerAddress, messages);
+            return ((IBus)this).Send(TimeoutManagerAddress, messages);
         }
 
 

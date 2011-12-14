@@ -1,5 +1,6 @@
 using System.Configuration;
 
+
 namespace NServiceBus.Config
 {
     /// <summary>
@@ -16,7 +17,7 @@ namespace NServiceBus.Config
             get
             {
                 var result = this["DistributorControlAddress"] as string;
-                if (result != null && result.Length == 0)
+                if (string.IsNullOrWhiteSpace(result))
                     result = null;
 
                 return result;
@@ -36,7 +37,7 @@ namespace NServiceBus.Config
             get
             {
                 var result = this["DistributorDataAddress"] as string;
-                if (result != null && result.Length == 0)
+                if (string.IsNullOrWhiteSpace(result))
                     result = null;
 
                 return result;
@@ -56,7 +57,7 @@ namespace NServiceBus.Config
             get
             {
                 var result = this["ForwardReceivedMessagesTo"] as string;
-                if (result != null && result.Length == 0)
+                if (string.IsNullOrWhiteSpace(result))
                     result = null;
 
                 return result;
@@ -64,6 +65,26 @@ namespace NServiceBus.Config
             set
             {
                 this["ForwardReceivedMessagesTo"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets the address that the timeout manager will use to send and recieve messages.
+        /// </summary>
+        [ConfigurationProperty("TimeoutManagerAddress", IsRequired = false)]
+        public string TimeoutManagerAddress
+        {
+            get
+            {
+                var result = this["TimeoutManagerAddress"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                    result = null;
+
+                return result;
+            }
+            set
+            {
+                this["TimeoutManagerAddress"] = value;
             }
         }
 
