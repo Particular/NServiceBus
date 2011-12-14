@@ -164,12 +164,15 @@ namespace NServiceBus
         /// <summary>
         /// The action used to set the header in the <see cref="SetHeader"/> method.
         /// </summary>
-        public static Action<object, string, string> SetHeaderAction { get; set; }
+        public static Action<object, string, string> SetHeaderAction = (x, y, z) =>
+                                                                           {
+                                                                               //default to no-op to avoid getting in the way of unittesting
+                                                                           };
 
         /// <summary>
         /// The action used to get the header value in the <see cref="GetHeader"/> method.
         /// </summary>
-        public static Func<object, string, string> GetHeaderAction { get; set; }
+        public static Func<object, string, string> GetHeaderAction = (x, y) => "No header get header action was defined, please spicify one using ExtensionMethods.GetHeaderAction = ...";
 
         /// <summary>
         /// The action used to get all the headers for a message.
