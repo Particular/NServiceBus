@@ -627,12 +627,12 @@ task UpdatePackages{
 		if($PackageIds -ne "")
 		{
 			write-host "Doing an unsafe update of" $PackageIds 
-			exec{&$nugetExec update $packageconfig -RepositoryPath packages -Id $PackageIds}
+			&$nugetExec update $packageconfig -RepositoryPath packages -Id $PackageIds
 		}
 		else
 		{	
 			write-host "Doing a safe update of all packages" $PackageIds 
-			exec{&$nugetExec update -Safe $packageconfig -RepositoryPath packages}
+			&$nugetExec update -Safe $packageconfig -RepositoryPath packages
 		}
 	}
 }
