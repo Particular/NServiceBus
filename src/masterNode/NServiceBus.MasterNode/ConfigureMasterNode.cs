@@ -1,4 +1,7 @@
-﻿namespace NServiceBus
+﻿using System;
+using System.Configuration;
+
+namespace NServiceBus
 {
     using Config;
 
@@ -15,7 +18,7 @@
             return isMasterNode;
         }
 
-        public static string GetMasterNode(this Configure config)
+        private static string GetMasterNode(this Configure config)
         {
             var section = Configure.GetConfigSection<MasterNodeConfig>();
             if (section != null)
@@ -31,9 +34,16 @@
             if (string.IsNullOrWhiteSpace(masterNode))
                 return Address.Parse(Configure.EndpointName);
 
-            return new Address(Configure.EndpointName,GetMasterNode(config));
-        }
+            ValidateHostName(masterNode);
 
+            return new Address(Configure.EndpointName, masterNode);
+        }
+        
+        private static void ValidateHostName(string hostName)
+        {
+            if (Uri.CheckHostName(hostName) == UriHostNameType.Unknown)
+                throw new ConfigurationErrorsException(string.Format("The 'Node' entry in MasterNodeConfig section of the configuration file: '{0}' is not a valid DNS name.", hostName));
+        }
 
         static bool isMasterNode;
     }
