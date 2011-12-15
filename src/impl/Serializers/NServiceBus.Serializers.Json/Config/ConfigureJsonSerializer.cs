@@ -1,7 +1,6 @@
 using System.Linq;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Serializers.Json;
 
 namespace NServiceBus
