@@ -19,7 +19,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
 
             CurrentSessionContext.Bind(session);
 
-            session.BeginTransaction();
+            session.BeginTransaction(GetIsolationLevel());
         }
 
         void IMessageModule.HandleEndMessage()
@@ -28,20 +28,13 @@ namespace NServiceBus.SagaPersisters.NHibernate
 
             var session = CurrentSessionContext.Unbind(SessionFactory);
 
-            try
+            using (session)
+            using (session.Transaction)
             {
-              try
-              {
+                if (!session.Transaction.IsActive)
+                    return;
+
                 session.Transaction.Commit();
-              }
-              finally
-              {
-                session.Transaction.Dispose();
-              }
-            }
-            finally
-            {
-              session.Dispose();
             }
         }
 
@@ -54,21 +47,13 @@ namespace NServiceBus.SagaPersisters.NHibernate
 
             var session = CurrentSessionContext.Unbind(SessionFactory);
 
-            try
+            using (session)
+            using (session.Transaction)
             {
-              try
-              {
-                if (session.Transaction.IsActive)
-                  session.Transaction.Rollback();
-              }
-              finally
-              {
-                session.Transaction.Dispose();
-              }
-            }
-            finally
-            {
-              session.Dispose();
+                if (!session.Transaction.IsActive)
+                    return;
+
+                session.Transaction.Rollback();
             }
         }
 
@@ -76,5 +61,31 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// Injected NHibernate session factory.
         /// </summary>
         public ISessionFactory SessionFactory { get; set; }
+
+        private System.Data.IsolationLevel GetIsolationLevel()
+        {
+            if (Transaction.Current == null)
+                return System.Data.IsolationLevel.Unspecified;
+
+            switch (Transaction.Current.IsolationLevel)
+            {
+                case IsolationLevel.Chaos:
+                    return System.Data.IsolationLevel.Chaos;
+                case IsolationLevel.ReadCommitted:
+                    return System.Data.IsolationLevel.ReadCommitted;
+                case IsolationLevel.ReadUncommitted:
+                    return System.Data.IsolationLevel.ReadUncommitted;
+                case IsolationLevel.RepeatableRead:
+                    return System.Data.IsolationLevel.RepeatableRead;
+                case IsolationLevel.Serializable:
+                    return System.Data.IsolationLevel.Serializable;
+                case IsolationLevel.Snapshot:
+                    return System.Data.IsolationLevel.Snapshot;
+                case IsolationLevel.Unspecified:
+                    return System.Data.IsolationLevel.Unspecified;
+                default:
+                    return System.Data.IsolationLevel.Unspecified;
+            }
+        }
     }
 }
