@@ -34,8 +34,9 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -62,13 +63,11 @@
   <ItemGroup>
     <Compile Include="BsonMessageSerializer.cs" />
     <Compile Include="Config\ConfigureJsonSerializer.cs" />
-    <Compile Include="Internal\MessageJsonConverter.cs" />
+    <Compile Include="Internal\MessageContractResolver.cs" />
+    <Compile Include="Internal\MessageSerializationBinder.cs" />
     <Compile Include="JsonMessageSerializer.cs" />
     <Compile Include="JsonMessageSerializerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Known issues.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
