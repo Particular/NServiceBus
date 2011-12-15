@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using Gateway.Receiving;
     using Gateway.Sending;
+    using Unicast;
 
     public class GatewayBootstrapper : IWantToRunWhenTheBusStarts
     {
