@@ -36,7 +36,7 @@ task default -depends PrepareAndReleaseNServiceBus
 
 task CreatePackages {
 	
-	import-module $baseDir\NuGet\packit.psm1
+	import-module $toolsDir\NuGet\packit.psm1
 	Write-Output "Loading the module for packing.............."
 	$packit.push_to_nuget = $UploadPackage 
 	

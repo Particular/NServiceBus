@@ -1,4 +1,0 @@
-reg add hklm\software\microsoft\.netframework /v OnlyUseLatestCLR /t REG_DWORD /d 1
-reg add hklm\software\wow6432node\microsoft\.netframework /v OnlyUseLatestCLR /t REG_DWORD /d 1
-Copy-Item .\powershell_ise.exe.config $PSHOME
-Rename-Item ./RunOnce.ps1 NeverRunMeAgain.txt
