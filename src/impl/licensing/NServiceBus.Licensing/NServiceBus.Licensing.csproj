@@ -35,10 +35,6 @@
       <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Rhino.Licensing">
-      <HintPath>..\..\..\..\lib\Rhino.Licensing\Rhino.Licensing.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -53,6 +49,10 @@
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Raven.Database, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\RavenDB.1.0.573\server\Raven.Database.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
