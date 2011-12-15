@@ -17,20 +17,25 @@ namespace NServiceBus
     {
         public static Address GatewayInputAddress { get; private set; }
 
-        public static Configure Gateway(this Configure config)
+        /// <summary>
+        /// Configuring to run the Gateway. By default Gateway will use RavenPersistence (see GatewayDefaults class).
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure RunGateway(this Configure config)
         {
-            return Gateway(config, typeof(InMemoryPersistence));
+            return SetupGateway(config);
         }
 
-        public static Configure GatewayWithInMemoryPersistence(this Configure config)
+        public static Configure RunGatewayWithInMemoryPersistence(this Configure config)
         {
-            return Gateway(config, typeof(InMemoryPersistence));
+            return RunGateway(config, typeof(InMemoryPersistence));
         }
-        public static Configure GatewayWithRavenPersistence(this Configure config)
+        public static Configure RunGatewayWithRavenPersistence(this Configure config)
         {
-            return Gateway(config, typeof(RavenDBPersistence));
+            return RunGateway(config, typeof(RavenDBPersistence));
         }
-        public static Configure Gateway(this Configure config, Type persistence)
+        public static Configure RunGateway(this Configure config, Type persistence)
         {
             config.Configurer.ConfigureComponent(persistence, DependencyLifecycle.SingleInstance);
 

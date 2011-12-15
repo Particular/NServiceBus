@@ -74,6 +74,9 @@
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Persistence.Raven">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Persistence.Raven.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
     </Reference>

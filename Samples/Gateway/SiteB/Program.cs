@@ -19,12 +19,9 @@ namespace SiteB
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()
-                .Gateway()
+                .RunGateway()
                 .CreateBus()
                 .Start();
-;
-
-
            
             Console.WriteLine("Waiting for price updates from the headquarter - press any key to exit");
 
