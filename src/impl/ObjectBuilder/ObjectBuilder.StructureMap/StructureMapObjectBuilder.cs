@@ -151,7 +151,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         private static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
         {
-            return t.GetInterfaces().Where(x => (!x.IsGenericType));
+            return t.GetInterfaces().Where(x=>x.FullName != null && !x.FullName.StartsWith("System."));
         }
 
     }

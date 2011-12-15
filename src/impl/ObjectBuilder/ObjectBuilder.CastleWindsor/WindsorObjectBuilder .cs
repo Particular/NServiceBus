@@ -154,7 +154,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         {
 
             return t.GetInterfaces()
-                .Where(x => !x.IsGenericType && x.FullName != null && !x.FullName.StartsWith("System."))
+                .Where(x => x.FullName != null && !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
         }
         

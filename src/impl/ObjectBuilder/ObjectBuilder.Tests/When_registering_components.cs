@@ -4,6 +4,9 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using NServiceBus.ObjectBuilder.Unity;
 
     [TestFixture]
@@ -106,13 +109,69 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
             }
-            , typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder));
+            , typeof(UnityObjectBuilder));
 
 
+        }
+
+        [Test]
+        public void Generic_interfaces_should_be_registered()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(ComponentWithGenericInterface), DependencyLifecycle.InstancePerCall);
+
+                Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
+            }
+            , typeof(UnityObjectBuilder));
+        }
+
+        [Test,Ignore("Not sure that we should enforce this")]
+        public void System_interfaces_should_not_be_autoregistered()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(ComponentWithSystemInterface), DependencyLifecycle.InstancePerCall);
+
+                Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));
+                Assert.False(builder.HasComponent(typeof(IDisposable)));
+            }
+            , typeof(UnityObjectBuilder));
         }
     }
 
     public class ComponentWithMultipleInterfaces : ISomeInterface, ISomeOtherInterface, IYetAnotherInterface
+    {
+    }
+
+    public class ComponentWithGenericInterface : ISomeGenericInterface<string>
+    {
+    }
+
+    public class ComponentWithSystemInterface : IGrouping<string, string>,IDisposable
+    {
+        public IEnumerator<string> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public string Key
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public interface ISomeGenericInterface<T>
     {
     }
 
