@@ -10,8 +10,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance.AsMasterNode()
-                .UseTimeoutManagerWithInMemoryPersistence()
-                .GatewayWithInMemoryPersistence();
+                .RunTimeoutManagerWithInMemoryPersistence()
+                .RunGatewayWithInMemoryPersistence();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.InMemorySagaPersister();

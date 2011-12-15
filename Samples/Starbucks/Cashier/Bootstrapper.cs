@@ -25,7 +25,7 @@ namespace Cashier
                 .StructureMapBuilder(ObjectFactory.Container)
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
-                .UseTimeoutManagerWithInMemoryPersistence() // Otherwise it uses RavenTimeoutPersister
+                .RunTimeoutManagerWithInMemoryPersistence()
                 // For sagas
                 .Sagas()
                 .InMemorySagaPersister()

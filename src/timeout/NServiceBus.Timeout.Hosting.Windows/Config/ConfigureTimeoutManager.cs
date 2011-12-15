@@ -8,12 +8,12 @@
     {
         public static bool TimeoutManagerEnabled { get; private set; }
 
-        public static Configure UseTimeoutManager(this Configure config)
+        public static Configure RunTimeoutManager(this Configure config)
         {
             return SetupTimeoutManager(config);
         }
 
-        public static Configure UseTimeoutManagerWithInMemoryPersistence(this Configure config)
+        public static Configure RunTimeoutManagerWithInMemoryPersistence(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.SingleInstance);
 

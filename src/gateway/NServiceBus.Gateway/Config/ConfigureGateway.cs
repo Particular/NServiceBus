@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.Linq;
@@ -12,27 +12,30 @@
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
-    using Raven.Client;
 
-
-    public static class GatewayConfiguration
+    public static class ConfigureGateway
     {
         public static Address GatewayInputAddress { get; private set; }
 
-        public static Configure Gateway(this Configure config)
+        /// <summary>
+        /// Configuring to run the Gateway. By default Gateway will use RavenPersistence (see GatewayDefaults class).
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure RunGateway(this Configure config)
         {
-            return Gateway(config, typeof(InMemoryPersistence));
+            return SetupGateway(config);
         }
 
-        public static Configure GatewayWithInMemoryPersistence(this Configure config)
+        public static Configure RunGatewayWithInMemoryPersistence(this Configure config)
         {
-            return Gateway(config, typeof(InMemoryPersistence));
+            return RunGateway(config, typeof(InMemoryPersistence));
         }
-        public static Configure GatewayWithRavenPersistence(this Configure config)
+        public static Configure RunGatewayWithRavenPersistence(this Configure config)
         {
-            return Gateway(config, typeof(RavenDBPersistence));
+            return RunGateway(config, typeof(RavenDBPersistence));
         }
-        public static Configure Gateway(this Configure config, Type persistence)
+        public static Configure RunGateway(this Configure config, Type persistence)
         {
             config.Configurer.ConfigureComponent(persistence, DependencyLifecycle.SingleInstance);
 
@@ -71,9 +74,9 @@
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
-           
+
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
-            
+
             if (configSection != null && configSection.GetChannels().Any())
                 config.Configurer.ConfigureComponent<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
             else

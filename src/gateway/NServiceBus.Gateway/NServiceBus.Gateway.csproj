@@ -136,6 +136,7 @@
     <Compile Include="Channels\Http\IHttpResponder.cs" />
     <Compile Include="Config\GatewayBootstrapper.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="Config\GatewayDefaults.cs" />
     <Compile Include="Installation\Installer.cs" />
     <Compile Include="Persistence\Raven\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\RavenDBPersistence.cs" />
@@ -160,7 +161,7 @@
     <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
     <Compile Include="Routing\Sites\ConfigurationBasedSiteRouter.cs" />
-    <Compile Include="Config\GatewayConfiguration.cs" />
+    <Compile Include="Config\ConfigureGateway.cs" />
     <Compile Include="Routing\IRouteMessagesToSites.cs" />
     <Compile Include="Routing\Sites\KeyPrefixConventionSiteRouter.cs" />
     <Compile Include="Routing\Sites\LegacySiteRouter.cs" />
