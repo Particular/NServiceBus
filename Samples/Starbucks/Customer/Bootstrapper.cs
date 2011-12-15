@@ -25,7 +25,7 @@ namespace Customer
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
-                .UseTimeoutManagerWithInMemoryPersistence() // Otherwise it uses RavenTimeoutPersister
+                .RunTimeoutManagerWithInMemoryPersistence()
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()

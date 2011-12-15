@@ -8,7 +8,7 @@ namespace OrderService
     {
         public void Init()
         {
-            Configure.Instance.UseTimeoutManager();
+            Configure.Instance.RunTimeoutManager();
         }
     }
 }
