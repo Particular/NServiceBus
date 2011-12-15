@@ -17,12 +17,13 @@ $buildBase = "$baseDir\build"
 $outDir =  "$buildBase\output"
 $coreOnly =  "$buildBase\coreonly"
 $libDir = "$baseDir\lib" 
-$releaseDir = "$baseDir\release"
 $artifactsDir = "$baseDir\artifacts"
 $toolsDir = "$baseDir\tools"
 $nunitexec = "packages\NUnit.2.5.10.11092\tools\nunit-console.exe"
 $nugetExec = "$toolsDir\NuGet\NuGet.exe"
 $zipExec = "$toolsDir\zip\7za.exe"
+$ilMergeKey = "$baseDir\src\NServiceBus.snk"
+$ilMergeExclude = "$toolsDir\IlMerge\ilmerge.exclude"
 $script:architecture = "x86"
 $script:ilmergeTargetFramework = ""
 $script:msBuildTargetFramework = ""	
@@ -34,7 +35,7 @@ $script:releaseVersion = ""
 
 task default -depends PrepareAndReleaseNServiceBus
 
-task CreatePackages {
+task CreatePackages -depends PrepareRelease  {
 	
 	import-module $toolsDir\NuGet\packit.psm1
 	Write-Output "Loading the module for packing.............."
@@ -198,10 +199,8 @@ task CompileMain -depends Init, GeneateCommonAssemblyInfo {
 	$assemblies +=	dir $buildBase\nservicebus\NServiceBus.dll
 	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
 
-	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
-
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
+	Ilmerge  $ilMergeKey $coreOnly "NServiceBus" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCore-OnlyMergeLog.txt" $ilMergeExclude
 }
 
 task CompileCore -depends CompileMain, InitEnvironment { 
@@ -220,8 +219,7 @@ task CompileCore -depends CompileMain, InitEnvironment {
 	cd $baseDir
 	
 	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
-	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
 	
 	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll	-Exclude **Tests.dll
 	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll -Exclude **Tests.dll
@@ -238,9 +236,8 @@ task CompileCore -depends CompileMain, InitEnvironment {
 	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.SpellChecker.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.Spatial.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\nservicebus.core\BouncyCastle.Crypto.dll -Exclude **Tests.dll
-	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
-	
+
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
 }
 
 task CompileContainers -depends InitEnvironment {
@@ -280,9 +277,9 @@ task CompileNHibernate -depends InitEnvironment {
 	
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge  $ilMergeKey $coreOnly "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateCore-OnlyMergeLog.txt"  $ilMergeExclude
+	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
 	
 }
 
@@ -301,9 +298,9 @@ task CompileAzure -depends InitEnvironment {
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
 	
-	Ilmerge "NServiceBus.snk" $coreOnly "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureCore-OnlyMergeLog.txt"  $ilMergeExclude
 	
-	Ilmerge "NServiceBus.snk" $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
 	
 }
 
@@ -324,9 +321,7 @@ task CompileHosts  -depends InitEnvironment {
 		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
 	
 	echo "Merging NServiceBus.Host....."	
-	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
-	
-
+	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 }
 
 task CompileHosts32  -depends InitEnvironment {		
@@ -344,9 +339,8 @@ task CompileHosts32  -depends InitEnvironment {
 		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
 	
 	echo "Merging NServiceBus.Host32....."	
-	Ilmerge "NServiceBus.snk" $outDir\host\ "NServiceBus.Host32" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-
+	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
 }
 
 task CompileAzureHosts  -depends InitEnvironment {
@@ -373,7 +367,7 @@ task Test{
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 }
 
-task CompileTools -depends InitEnvironment{
+task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils"
 	
 	$toolsDirs | % {				
@@ -405,16 +399,15 @@ task CompileTools -depends InitEnvironment{
 	$assemblies = @("$buildBase\testing\NServiceBus.Testing.dll", "$buildBase\testing\Rhino.Mocks.dll");
 	
 	echo "Merging NServiceBus.Testing"	
-	Ilmerge "NServiceBus.snk" $outDir\testing "NServiceBus.Testing" $assemblies "dll"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
 	
-	
+	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
 	"$buildBase\nservicebus.core\NServiceBus.Utils.Reflection.dll")
 	
 	echo "merging XsdGenerator"	
-	Ilmerge "NServiceBus.snk" $buildBase\tools "XsdGenerator" $assemblies "exe"  $script:ilmergeTargetFramework "/internalize:$baseDir\ilmerge.exclude"
+	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
 task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
@@ -491,8 +484,8 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	
 	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
 	
-	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseDir\samples  -ErrorAction SilentlyContinue 
-	cd $releaseDir\samples 
+	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
+	cd $releaseRoot\samples 
 	
 	dir -recurse -include ('bin', 'obj') |ForEach-Object {
 	write-host deleting $_ 
@@ -630,13 +623,17 @@ task PrepareAndReleaseNServiceBusWithoutSamples -depends PrepareReleaseWithoutSa
 task ZipOutput {
 	
 	echo "Cleaning the Release Artifacts before ziping"
-	$packagingArtifacts = "$releaseDir\PackagingArtifacts"
-	$packageOutPutDir = "$releaseDir\packages"
+	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
+	$packageOutPutDir = "$releaseRoot\packages"
 	
 	if(Test-Path -Path $packagingArtifacts ){
 		Delete-Directory $packagingArtifacts
 	}
+	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
+	Copy-Item -Force -Recurse $releaseDir\packages "$releaseRoot\packages"  -ErrorAction SilentlyContinue  
 	
+	Delete-Directory $releaseDir
+			
 	if((Test-Path -Path $packageOutPutDir) -and ($UploadPackage) ){
         Delete-Directory $packageOutPutDir
 	}
@@ -650,7 +647,7 @@ task ZipOutput {
 	
 	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
 	echo "Ziping artifacts directory for releasing"
-	exec { &$zipExec a -tzip $archive $releaseDir\** }
+	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 }
 
 task UpdatePackages{
@@ -737,9 +734,9 @@ function IsWow64{
     }
 }
   
-function Ilmerge($key, $directory, $name, $assemblies, $extension, $ilmergeTargetframework, $logfilename){    
+function Ilmerge($key, $directory, $name, $assemblies, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
     new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
-    exec { lib\ilmerge.exe /keyfile:$key /out:"$directory\temp_merge\$name.$extension" $assemblies $ilmergeTargetframework $logfilename}
+    exec { lib\ilmerge.exe /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies}
     Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
     Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
 }
