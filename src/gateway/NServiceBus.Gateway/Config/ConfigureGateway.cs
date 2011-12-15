@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.Linq;
@@ -12,10 +12,8 @@
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
-    using Raven.Client;
 
-
-    public static class GatewayConfiguration
+    public static class ConfigureGateway
     {
         public static Address GatewayInputAddress { get; private set; }
 
@@ -71,9 +69,9 @@
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
-           
+
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
-            
+
             if (configSection != null && configSection.GetChannels().Any())
                 config.Configurer.ConfigureComponent<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
             else

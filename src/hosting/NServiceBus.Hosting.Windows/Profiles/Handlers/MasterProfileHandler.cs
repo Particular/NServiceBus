@@ -8,8 +8,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         {
             Configure.Instance.AsMasterNode()
                 .RunDistributor()
-                .Gateway()
-                .UseTimeoutManagerWithInMemoryPersistence();
+                .RunGateway()
+                .RunTimeoutManager();
         }
     }
 }
