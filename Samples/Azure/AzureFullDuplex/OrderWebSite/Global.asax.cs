@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using MyMessages;
 using log4net;
 using NServiceBus;
 using NServiceBus.Config;
@@ -12,13 +13,13 @@ namespace OrderWebSite
     {
         public static IBus Bus;
         public static IList<MyMessages.Order> Orders;
-        private static IStartableBus _configure;
 
         private static readonly Lazy<IBus> StartBus = new Lazy<IBus>(ConfigureNServiceBus);
 
         private static IBus ConfigureNServiceBus()
         {
             var bus = Configure.WithWeb()
+                  .DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m))
                   .DefaultBuilder()
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()

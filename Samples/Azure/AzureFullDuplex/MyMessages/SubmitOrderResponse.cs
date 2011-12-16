@@ -1,10 +1,9 @@
 using System;
-using NServiceBus;
 
 namespace MyMessages
 {
     [Serializable]
-    public class SubmitOrderResponse : IMessage
+    public class SubmitOrderResponse : IDefineMessages
     {
         public Order Order{ get; set; }
     }
