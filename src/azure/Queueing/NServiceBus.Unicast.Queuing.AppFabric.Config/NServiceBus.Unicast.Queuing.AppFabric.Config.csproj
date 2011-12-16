@@ -60,8 +60,8 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AppFabricQueueConfig.cs" />
-    <Compile Include="ConfigureAppFabricMessageQueue.cs" />
+    <Compile Include="AzureServiceBusQueueConfig.cs" />
+    <Compile Include="ConfigureAzureServiceBusMessageQueue.cs" />
     <Compile Include="IndividualQueueConfigurationSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

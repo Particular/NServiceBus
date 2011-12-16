@@ -19,7 +19,7 @@ namespace NServiceBus.Config
             if (RoleEnvironment.IsAvailable)
                 index = ParseIndexFrom(RoleEnvironment.CurrentRoleInstance.Id);
 
-            var queueConfig = config as AppFabricQueueConfig;
+            var queueConfig = config as AzureServiceBusQueueConfig;
             if (queueConfig != null && queueConfig.QueueName != null && RoleEnvironment.IsAvailable)
             {
                 var individualQueueName = ParseQueueNameFrom(queueConfig.QueueName)

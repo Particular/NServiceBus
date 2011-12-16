@@ -111,11 +111,11 @@
     <Compile Include="Profiles\Handler\DevelopmentProfileHandler.cs" />
     <Compile Include="Profiles\Handler\OnAzureStorageProfileHandler.cs" />
     <Compile Include="Profiles\Handler\OnSqlAzureProfileHandler.cs" />
-    <Compile Include="Profiles\Handler\WithAppFabricQueuesProfileHandler.cs" />
+    <Compile Include="Profiles\Handler\WithAzureServiceBusQueuesProfileHandler.cs" />
     <Compile Include="Profiles\Handler\WithStorageQueuesProfileHandler.cs" />
     <Compile Include="Profiles\OnAzureTableStorage.cs" />
     <Compile Include="Profiles\OnSqlAzure.cs" />
-    <Compile Include="Profiles\WithAppFabricQueues.cs" />
+    <Compile Include="Profiles\WithAzureServiceBusQueues.cs" />
     <Compile Include="Profiles\WithAzureStorageQueues.cs" />
     <Compile Include="RoleHost\Entrypoint.cs" />
     <Compile Include="DynamicHost\DynamicHostController.cs" />

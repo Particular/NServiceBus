@@ -1,7 +1,7 @@
 using System.Transactions;
 using Microsoft.ServiceBus.Messaging;
 
-namespace NServiceBus.Unicast.Queuing.AppFabric
+namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
     public class SendResourceManager : IEnlistmentNotification
     {
