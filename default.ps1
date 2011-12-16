@@ -183,8 +183,6 @@ task Init -depends Clean, InitEnvironment, InstallDependentPackages, DetectOpera
 	$currentDirectory = Resolve-Path .
 	
 	echo "Current Directory: $currentDirectory" 
-
-	Copy-Item "$libDir\sqlite\*.*"  "$libDir\sqlite\$script:architecture" -Force	
  }
   
 task CompileMain -depends Init, GeneateCommonAssemblyInfo { 
