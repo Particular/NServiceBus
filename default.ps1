@@ -13,6 +13,8 @@ $baseDir  = resolve-path .
 $releaseRoot = "$baseDir\Release"
 $releaseDir = "$releaseRoot\net40"
 $binariesDir = "$baseDir\binaries"
+$coreOnlyDir = "$baseDir\core-only"
+$coreOnlyBinariesDir = "$coreOnlyDir\binaries"
 $buildBase = "$baseDir\build"
 $outDir =  "$buildBase\output"
 $coreOnly =  "$buildBase\coreonly"
@@ -147,6 +149,11 @@ task Clean{
 		Delete-Directory $binariesDir
 		
 	}
+	
+	if(Test-Path $coreOnlyDir){
+		Delete-Directory $coreOnlyDir
+		
+	}
 }
 
 task InitEnvironment{
@@ -198,7 +205,7 @@ task CompileMain -depends Init, GeneateCommonAssemblyInfo {
 	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
-	Ilmerge  $ilMergeKey $coreOnly "NServiceBus" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCore-OnlyMergeLog.txt" $ilMergeExclude
+	
 }
 
 task CompileCore -depends CompileMain, InitEnvironment { 
@@ -274,9 +281,7 @@ task CompileNHibernate -depends InitEnvironment {
 #	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 	
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
-	
-	
-	Ilmerge  $ilMergeKey $coreOnly "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateCore-OnlyMergeLog.txt"  $ilMergeExclude
+
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
 	
 }
@@ -295,9 +300,6 @@ task CompileAzure -depends InitEnvironment {
 	
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
-	
-	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureCore-OnlyMergeLog.txt"  $ilMergeExclude
-	
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
 	
 }
@@ -413,31 +415,69 @@ task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, Compi
 		Delete-Directory "binaries"
 	}
 	Create-Directory $binariesDir;
-	
+	Create-Directory $coreOnlyDir
+	Create-Directory $coreOnlyBinariesDir
 	Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.dll $coreOnlyBinariesDir -Force;
+	Copy-Item $outDir\NServiceBus.NHibernate.dll $coreOnlyBinariesDir -Force;
+	Copy-Item $outDir\NServiceBus.Azure.dll $coreOnlyBinariesDir -Force;
+	Copy-Item $coreOnly\NServiceBus*.* $coreOnlyBinariesDir -Force;
+	
 	Copy-Item $outDir\host\*.* $binariesDir -Force;
+	Copy-Item $outDir\host\*.* $coreOnlyBinariesDir -Force;
+	
 	Copy-Item $outDir\testing\*.* $binariesDir -Force;
+	Copy-Item $outDir\testing\*.* $coreOnlyBinariesDir -Force;
 	
 	Copy-Item $libDir\log4net.dll $binariesDir -Force;
 	
 	
 	Create-Directory "$binariesDir\containers\autofac"
+	Create-Directory "$coreOnlyBinariesDir\containers\autofac"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $coreOnlyBinariesDir\containers\autofac -Force;
 	
 	Create-Directory "$binariesDir\containers\castle"
+	Create-Directory "$coreOnlyBinariesDir\containers\castle"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $coreOnlyBinariesDir\containers\castle -Force;
 	
 	Create-Directory "$binariesDir\containers\structuremap"
+	Create-Directory "$coreOnlyBinariesDir\containers\structuremap"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $coreOnlyBinariesDir\containers\structuremap -Force;
 	
 	Create-Directory "$binariesDir\containers\spring"
+	Create-Directory "$coreOnlyBinariesDir\containers\spring"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $coreOnlyBinariesDir\containers\spring -Force;
 			
 	Create-Directory "$binariesDir\containers\unity"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force;		
+	Create-Directory "$coreOnlyBinariesDir\containers\unity"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $coreOnlyBinariesDir\containers\unity -Force;		
 		
 	Create-Directory "$binariesDir\containers\ninject"
+	Create-Directory "$coreOnlyBinariesDir\containers\ninject"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $coreOnlyBinariesDir\containers\ninject -Force;	
+	
+	Create-Directory $coreOnlyDir\dependencies\
+	Copy-Item $buildBase\nservicebus.core\antlr3*.dll $coreOnlyDir\dependencies\	-Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\common.logging.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\common.logging.log4net.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Interop.MSMQ.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\AutoFac.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Raven*.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll, Raven.Client.Debug.dll, Raven.Client.MvcIntegration.dll
+	Copy-Item $buildBase\nservicebus.core\NLog.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\rhino.licensing.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Newtonsoft.Json.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\ICSharpCode.NRefactory.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Esent.Interop.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Lucene.Net.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Lucene.Net.Contrib.SpellChecker.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\Lucene.Net.Contrib.Spatial.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
+	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
 task CompileSamples -depends InitEnvironment, PrepareBinaries {
@@ -468,6 +508,7 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 
 	 
 	Copy-Item -Force "$baseDir\*.txt" $releaseRoot  -ErrorAction SilentlyContinue
+	Copy-Item -Force "$baseDir\*.txt" $coreOnlyDir  -ErrorAction SilentlyContinue
 	Copy-Item -Force "$baseDir\RunMeFirst.bat" $releaseRoot -ErrorAction  SilentlyContinue
 	Copy-Item -Force "$baseDir\RunMeFirst.ps1" $releaseRoot -ErrorAction  SilentlyContinue
 	
@@ -481,6 +522,7 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	cd $baseDir
 	
 	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
+	Copy-Item -Force -Recurse "$baseDir\docs" $coreOnlyDir\docs -ErrorAction SilentlyContinue
 	
 	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
 	cd $releaseRoot\samples 
@@ -492,25 +534,6 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	cd $baseDir
 	
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
-	
-
-#		<if test="${include.dependencies != 'true'}">
-#			<copy todir="${release.dir}\dependencies" flatten="true">
-#				<fileset basedir="${trunk.dir}" >
-#					<include name="${core.build.dir}\antlr*.dll" />
-#					<include name="${core.build.dir}\common.logging.dll"/>
-#					<include name="${lib.dir}\common.logging.log4net.dll"/>
-#					<include name="${core.build.dir}\Interop.MSMQ.dll" />
-#					<include name="${core.build.dir}\AutoFac.dll"/>
-#					<include name="${core.build.dir}\Spring.Core.dll" />
-#					<include name="${core.build.dir}\NHibernate*.dll" />
-#					<include name="${core.build.dir}\FluentNHibernate.dll" />
-#					<include name="${core.build.dir}\Iesi.Collections.dll" />
-#					<include name="${core.build.dir}\LinFu*.dll" />
-#					<exclude name="${core.build.dir}\**Tests.dll" />
-#				</fileset>
-#			</copy>
-#		</if>
 }
 
 task PrepareReleaseWithoutSamples -depends PrepareBinaries, Test{
@@ -541,25 +564,6 @@ task PrepareReleaseWithoutSamples -depends PrepareBinaries, Test{
 	
 	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
-	
-
-#		<if test="${include.dependencies != 'true'}">
-#			<copy todir="${release.dir}\dependencies" flatten="true">
-#				<fileset basedir="${trunk.dir}" >
-#					<include name="${core.build.dir}\antlr*.dll" />
-#					<include name="${core.build.dir}\common.logging.dll"/>
-#					<include name="${lib.dir}\common.logging.log4net.dll"/>
-#					<include name="${core.build.dir}\Interop.MSMQ.dll" />
-#					<include name="${core.build.dir}\AutoFac.dll"/>
-#					<include name="${core.build.dir}\Spring.Core.dll" />
-#					<include name="${core.build.dir}\NHibernate*.dll" />
-#					<include name="${core.build.dir}\FluentNHibernate.dll" />
-#					<include name="${core.build.dir}\Iesi.Collections.dll" />
-#					<include name="${core.build.dir}\LinFu*.dll" />
-#					<exclude name="${core.build.dir}\**Tests.dll" />
-#				</fileset>
-#			</copy>
-#		</if>
 }
 
 <#
@@ -644,8 +648,12 @@ task ZipOutput {
     Create-Directory $artifactsDir
 	
 	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
+	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
+	if($PreRelease -eq "-build"){
+		exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
+	}
 }
 
 task UpdatePackages{
