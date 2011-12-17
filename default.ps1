@@ -278,7 +278,7 @@ task CompileNHibernate -depends InitEnvironment {
 	
 	$testAssemblies = dir $buildBase\NServiceBus.NHibernate\**Tests.dll
 	
-#	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 	
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 
