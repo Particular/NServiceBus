@@ -22,3 +22,4 @@ lib/sqlite/System.Data.SQLite.dll
 Samples/DataBus/storage
 packages
 PrecompiledWeb
+core-only
