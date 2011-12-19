@@ -71,7 +71,20 @@ namespace NServiceBus.Saga
         /// Bus object used for retrieving the sender endpoint which caused this saga to start.
         /// Necessary for <see cref="ReplyToOriginator" />.
         /// </summary>
-        public IBus Bus { get; set; }
+        public IBus Bus
+        {
+            get
+            {
+                if (bus == null)
+                    throw new InvalidOperationException("No IBus instance availble, please configure one and also verify that you're not defining your own Bus property in your saga since that hides the one in the base class");
+
+                return bus;
+            }
+
+            set { bus = value; }
+        }
+
+        IBus bus;
 
         /// <summary>
         /// Object used to configure mapping between saga properties and message properties
@@ -109,7 +122,7 @@ namespace NServiceBus.Saga
         {
             object toSend = timeoutMessage;
 
-            if(!toSend.IsMessage())
+            if (!toSend.IsMessage())
                 toSend = new TimeoutMessage(within, Data, toSend);
 
             toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
@@ -119,7 +132,7 @@ namespace NServiceBus.Saga
             else
                 Bus.Defer(within, toSend);
         }
-     
+
         /// <summary>
         /// Sends the given messages using the bus to the endpoint that caused this saga to start.
         /// </summary>
