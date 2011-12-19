@@ -87,27 +87,17 @@ namespace NServiceBus.Hosting.Windows
                                                                    x.SetDisplayName(arguments.DisplayName != null ? arguments.DisplayName.Value : displayName);
                                                                    x.SetServiceName(serviceName);
                                                                    x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service for " + displayName);
-                                                                   x.DependencyOnMsmq();
 
                                                                    var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
                                                                    serviceCommandLine += " /serviceName:\"" + serviceName + "\"";
 
                                                                    x.SetServiceCommandLine(serviceCommandLine);
 
-                                                                   if (arguments.DependsOn != null)
-                                                                   {
-                                                                       var dependencies = arguments.DependsOn.Value.Split(',');
-
-                                                                       foreach (var dependency in dependencies)
-                                                                       {
-                                                                           if (dependency.ToUpper() == KnownServiceNames.Msmq)
-                                                                           {
-                                                                               continue;
-                                                                           }
-
+                                                                   if (arguments.DependsOn == null)
+                                                                       x.DependencyOnMsmq();
+                                                                   else
+                                                                       foreach (var dependency in arguments.DependsOn.Value.Split(','))
                                                                            x.DependsOn(dependency);
-                                                                       }
-                                                                   }
                                                                });
 
             Runner.Host(cfg, args);
