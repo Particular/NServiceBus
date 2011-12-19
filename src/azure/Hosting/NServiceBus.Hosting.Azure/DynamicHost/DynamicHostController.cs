@@ -7,6 +7,8 @@ using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting
 {
+    using Installation;
+
     public class DynamicHostController : IHost
     {
         private readonly IConfigureThisEndpoint specifier;
@@ -101,6 +103,11 @@ namespace NServiceBus.Hosting
 
             if (runner != null)
                 runner.Stop(runningServices);
+        }
+
+        public void Install<TEnvironment>() where TEnvironment : IEnvironment
+        {
+            //todo -yves
         }
 
         public void UpdatedEndpoints(object sender, EndpointsEventArgs e)

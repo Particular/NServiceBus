@@ -40,5 +40,14 @@ namespace NServiceBus.Hosting.Windows
         }
 
 
+        /// <summary>
+        /// Performs installations
+        /// </summary>
+        public void Install()
+        {
+            genericHost.Install<Installation.Environments.Windows>();
+            
+        }
+
     }
 }

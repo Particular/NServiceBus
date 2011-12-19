@@ -1,5 +1,7 @@
 namespace NServiceBus.Hosting
 {
+    using Installation;
+
     /// <summary>
     /// Identifies a host
     /// </summary>
@@ -14,5 +16,11 @@ namespace NServiceBus.Hosting
         /// Does shutdown work.
         /// </summary>
         void Stop();
+
+
+        /// <summary>
+        /// Performs nessesary installation
+        /// </summary>
+        void Install<TEnvironment>() where TEnvironment : IEnvironment;
     }
 }

@@ -13,13 +13,14 @@ using Topshelf.Internal;
 namespace NServiceBus.Hosting.Windows
 {
     using System.Diagnostics;
+    using Installers;
 
     /// <summary>
     /// Entry point to the process.
     /// </summary>
     public class Program
     {
-        private static void Main(string[] args)
+        static void Main(string[] args)
         {
             Parser.Args commandLineArguments = Parser.ParseArgs(args);
             var arguments = new HostArguments(commandLineArguments);
@@ -31,7 +32,7 @@ namespace NServiceBus.Hosting.Windows
                 return;
             }
 
-            Type endpointConfigurationType = GetEndpointConfigurationType(arguments);
+            var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
 
@@ -52,6 +53,11 @@ namespace NServiceBus.Hosting.Windows
             args = args.Concat(new[] {endpointName}).ToArray();
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
+
+            if (commandLineArguments.Install)
+            {
+                WindowsInstaller.Install(args,endpointConfigurationType,endpointName,endpointConfigurationFile);
+            }
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
                                                                {
@@ -115,7 +121,7 @@ namespace NServiceBus.Hosting.Windows
             return string.Format("{0}.{1}.{2}",fileVersion.FileMajorPart,fileVersion.FileMinorPart,fileVersion.FileBuildPart);
         }
 
-        private static void DisplayHelpContent()
+        static void DisplayHelpContent()
         {
             try
             {
@@ -134,13 +140,13 @@ namespace NServiceBus.Hosting.Windows
             }
         }
 
-        private static void SetHostServiceLocatorArgs(string[] args)
+        static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
             HostServiceLocator.EndpointName = args.Last();
         }
 
-        private static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
+        static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
         {
             var constructor = type.GetConstructor(Type.EmptyTypes);
 
@@ -148,7 +154,7 @@ namespace NServiceBus.Hosting.Windows
                 throw new InvalidOperationException("Endpoint configuration type needs to have a default constructor: " + type.FullName);
         }
 
-        private static string GetEndpointConfigurationFile(Type endpointConfigurationType)
+        static string GetEndpointConfigurationFile(Type endpointConfigurationType)
         {
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
@@ -174,7 +180,7 @@ namespace NServiceBus.Hosting.Windows
             return endpointName;
         }
 
-        private static Type GetEndpointConfigurationType(HostArguments arguments)
+        static Type GetEndpointConfigurationType(HostArguments arguments)
         {
             if (arguments.EndpointConfigurationType != null)
             {
@@ -206,7 +212,7 @@ namespace NServiceBus.Hosting.Windows
             return endpoints.First();
         }
 
-        private static IEnumerable<Type> ScanAssembliesForEndpoints()
+        static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
             foreach (var assembly in AssemblyScanner.GetScannableAssemblies())
                 foreach (Type type in assembly.GetTypes().Where(
@@ -218,7 +224,7 @@ namespace NServiceBus.Hosting.Windows
                 }
         }
 
-        private static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
+        static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
