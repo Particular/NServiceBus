@@ -64,7 +64,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Event which indicates that message processing has started.
         /// </summary>
-        public event EventHandler StartedMessageProcessing;
+        public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
 
         /// <summary>
         /// Event which indicates that message processing has completed.
@@ -236,7 +236,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             _messageId = m.Id;
 
-	        var exceptionFromStartedMessageHandling = OnStartedMessageProcessing();
+	        var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
             if (IsTransactional)
             {
@@ -381,12 +381,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             _needToAbort = true;
         }
 
-        private Exception OnStartedMessageProcessing()
+        private Exception OnStartedMessageProcessing(TransportMessage msg)
         {
             try
             {
                 if (StartedMessageProcessing != null)
-                    StartedMessageProcessing(this, null);
+                    StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(msg));
             }
             catch (Exception e)
             {

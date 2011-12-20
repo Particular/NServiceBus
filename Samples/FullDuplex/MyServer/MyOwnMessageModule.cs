@@ -23,8 +23,9 @@ namespace MyServer
 
         void LogMessage(string message)
         {
-            Console.WriteLine(string.Format("MyOwnMessageModule({0}) - {1}", GetHashCode(), message));
+            Console.WriteLine(string.Format("MyOwnMessageModule({0}) - MessageID: {1}", GetHashCode(), Bus.CurrentMessageContext.Id));
         }
 
+        public IBus Bus { get; set; }
     }
 }

@@ -16,28 +16,29 @@
             var messageModule = new StubMessageModule();
             bool beginCalled = false;
 
+            var receivedMessage = Helpers.Helpers.EmptyTransportMessage();
+
             messageModule.OnBegin = () =>
                                         {
                                             Assert.False(endCalled);
                                             beginCalled = true;
+                                            Assert.AreEqual( bus.CurrentMessageContext.Id, receivedMessage.Id);  
                                         };
 
             messageModule.OnEnd = () =>
             {
                 Assert.True(beginCalled);
                 endCalled = true;
+                Assert.AreEqual(bus.CurrentMessageContext.Id, receivedMessage.Id);
             };
             FuncBuilder.Register<IMessageModule>(()=>messageModule);
 
 
-            ReceiveMessage(Helpers.Helpers.EmptyTransportMessage());
+            ReceiveMessage(receivedMessage);
 
             Assert.True(beginCalled);
             Assert.True(endCalled);
         }
-
-
-
     }
 
     [TestFixture]

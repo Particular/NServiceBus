@@ -1089,8 +1089,6 @@ namespace NServiceBus.Unicast
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
-            _messageBeingHandled = msg;
-
             var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
 
             try
@@ -1235,8 +1233,10 @@ namespace NServiceBus.Unicast
             });
         }
 
-        void TransportStartedMessageProcessing(object sender, EventArgs e)
+        void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
+            _messageBeingHandled = e.Message;
+
             modules = Builder.BuildAll<IMessageModule>().ToList();
 
             modules.ForEach(module =>

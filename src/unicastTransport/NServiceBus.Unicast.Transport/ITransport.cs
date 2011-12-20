@@ -46,7 +46,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Raised when a message is available but before <see cref="TransportMessageReceived"/> is raised.
         /// </summary>
-	    event EventHandler StartedMessageProcessing;
+        event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
 
         /// <summary>
         /// Raised after message processing was completed, even in case of an exception in message processing.

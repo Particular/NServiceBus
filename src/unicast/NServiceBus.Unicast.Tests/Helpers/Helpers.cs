@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Tests.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -10,9 +11,13 @@ namespace NServiceBus.Unicast.Tests.Helpers
     {
         public static TransportMessage EmptyTransportMessage()
         {
+            var id = Guid.NewGuid().ToString();
+
             return new TransportMessage
                        {
-                           Headers = new Dictionary<string, string>()
+                           Headers = new Dictionary<string, string>(),
+                           Id = id,
+                           IdForCorrelation = id
                        };
         }
 
