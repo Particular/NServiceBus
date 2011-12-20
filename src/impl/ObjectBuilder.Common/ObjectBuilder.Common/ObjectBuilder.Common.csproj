@@ -65,9 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="CommonObjectBuilder.cs" />
     <Compile Include="ComponentConfig.cs" />
     <Compile Include="IContainer.cs" />

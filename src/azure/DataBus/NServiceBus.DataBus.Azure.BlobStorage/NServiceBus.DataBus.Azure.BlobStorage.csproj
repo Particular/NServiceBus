@@ -57,9 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="BlobStorageDataBus.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="Config\AzureDataBusConfig.cs" />

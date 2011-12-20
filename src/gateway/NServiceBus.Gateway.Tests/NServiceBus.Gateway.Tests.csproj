@@ -134,9 +134,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Config\When_routing_using_the_configuration_source.cs" />
     <Compile Include="FakeDispatcherSettings.cs" />
     <Compile Include="FakeMessageSender.cs" />

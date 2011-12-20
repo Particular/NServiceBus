@@ -71,9 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Installers\WindowsInstaller.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\WindowsInstallerRunner.cs" />

@@ -78,9 +78,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="AutofacObjectBuilder.cs" />
     <Compile Include="Config\ConfigureAutofacBuilder.cs" />
     <Compile Include="Internal\ContainerExtensions.cs" />

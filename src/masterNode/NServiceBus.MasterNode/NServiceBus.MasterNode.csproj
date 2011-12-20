@@ -45,9 +45,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="ConfigureMasterNode.cs" />
     <Compile Include="MasterNodeConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

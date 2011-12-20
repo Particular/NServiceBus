@@ -57,9 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="AzureServiceBusQueueConfig.cs" />
     <Compile Include="ConfigureAzureServiceBusMessageQueue.cs" />
     <Compile Include="IndividualQueueConfigurationSource.cs" />

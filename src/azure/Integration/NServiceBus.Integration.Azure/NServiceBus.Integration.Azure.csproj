@@ -63,9 +63,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="AzureAppender.cs" />
     <Compile Include="AzureConfigurationSettings.cs" />
     <Compile Include="AzureConfigurationSource.cs" />

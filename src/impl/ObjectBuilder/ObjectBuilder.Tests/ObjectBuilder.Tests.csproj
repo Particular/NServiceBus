@@ -104,9 +104,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="BuilderFixture.cs" />
     <Compile Include="When_using_nested_containers.cs" />
     <Compile Include="When_building_components.cs" />

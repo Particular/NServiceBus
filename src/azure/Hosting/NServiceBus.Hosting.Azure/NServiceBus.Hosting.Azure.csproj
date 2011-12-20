@@ -96,9 +96,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="DynamicHost\DynamicHostControllerConfig.cs" />
     <Compile Include="DynamicHost\DynamicEndpointLoader.cs" />
     <Compile Include="DynamicHost\DynamicEndpointProvisioner.cs" />

@@ -55,9 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

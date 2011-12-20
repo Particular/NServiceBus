@@ -106,9 +106,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Config\ConfigureDistributor.cs" />
     <Compile Include="Installers\ControlQueueInstaller.cs" />
     <Compile Include="DistributorBootstrapper.cs" />

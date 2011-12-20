@@ -55,9 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="..\..\ObjectBuilder\ObjectBuilder.Autofac\AutofacObjectBuilder.cs">
       <Link>AutofacObjectBuilder.cs</Link>
     </Compile>

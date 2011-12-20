@@ -55,9 +55,7 @@
     <Compile Include="CertificateUtilities.cs" />
     <Compile Include="ClaimManager.cs" />
     <Compile Include="ConfigureClaimFlow.cs" />
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

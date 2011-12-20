@@ -46,9 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Attributes\TableNameAttribute.cs" />
     <Compile Include="SagaModelMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

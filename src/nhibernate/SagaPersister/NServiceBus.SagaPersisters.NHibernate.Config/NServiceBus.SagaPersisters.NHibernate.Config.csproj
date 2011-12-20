@@ -55,9 +55,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="ConfigureNHibernateSagaPersister.cs" />
     <Compile Include="Internal\SessionFactoryBuilder.cs" />
     <Compile Include="Internal\SQLiteConfiguration.cs" />

@@ -14,6 +14,7 @@ $releaseRoot = "$baseDir\Release"
 $releaseDir = "$releaseRoot\net40"
 $binariesDir = "$baseDir\binaries"
 $coreOnlyDir = "$baseDir\core-only"
+$srcDir = "$baseDir\src"
 $coreOnlyBinariesDir = "$coreOnlyDir\binaries"
 $buildBase = "$baseDir\build"
 $outDir =  "$buildBase\output"
@@ -24,7 +25,7 @@ $toolsDir = "$baseDir\tools"
 $nunitexec = "packages\NUnit.2.5.10.11092\tools\nunit-console.exe"
 $nugetExec = "$toolsDir\NuGet\NuGet.exe"
 $zipExec = "$toolsDir\zip\7za.exe"
-$ilMergeKey = "$baseDir\src\NServiceBus.snk"
+$ilMergeKey = "$srcDir\NServiceBus.snk"
 $ilMergeExclude = "$toolsDir\IlMerge\ilmerge.exclude"
 $script:architecture = "x86"
 $script:ilmergeTargetFramework = ""
@@ -194,9 +195,9 @@ task Init -depends Clean, InitEnvironment, InstallDependentPackages, DetectOpera
 	echo "Current Directory: $currentDirectory" 
  }
   
-task CompileMain -depends Init, GeneateCommonAssemblyInfo { 
+task CompileMain -depends Init, GenerateAssemblyInfo { 
  	
- 	$solutions = dir "$baseDir\src\core\*.sln"
+ 	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" }
@@ -215,7 +216,7 @@ task CompileCore -depends CompileMain, InitEnvironment {
      $coreDirs = "unicastTransport", "faults", "utils", "ObjectBuilder", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "timeout", "impl\licensing"
 	
 	$coreDirs | % {
-		$solutionDir = Resolve-Path "$baseDir\src\$_"
+		$solutionDir = Resolve-Path "$srcDir\$_"
 		cd 	$solutionDir
 	 	$solutions = dir "*.sln"
 		$solutions | % {
@@ -249,7 +250,7 @@ task CompileCore -depends CompileMain, InitEnvironment {
 
 task CompileContainers -depends InitEnvironment {
 
-	$solutions = dir "$baseDir\src\impl\ObjectBuilder\*.sln"
+	$solutions = dir "$srcDir\impl\ObjectBuilder\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" }		
@@ -263,7 +264,7 @@ task CompileContainers -depends InitEnvironment {
 
 task CompileWebServicesIntegration -depends  InitEnvironment{
 
-	$solutions = dir "$baseDir\src\integration\WebServices\*.sln"
+	$solutions = dir "$srcDir\integration\WebServices\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" }		
@@ -272,7 +273,7 @@ task CompileWebServicesIntegration -depends  InitEnvironment{
 
 task CompileNHibernate -depends InitEnvironment {
 
-	$solutions = dir "$baseDir\src\nhibernate\*.sln"
+	$solutions = dir "$srcDir\nhibernate\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" }		
@@ -290,7 +291,7 @@ task CompileNHibernate -depends InitEnvironment {
 
 task CompileAzure -depends InitEnvironment {
 
-	$solutions = dir "$baseDir\src\azure\*.sln"
+	$solutions = dir "$srcDir\azure\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" }		
@@ -313,7 +314,7 @@ task CompileHosts  -depends InitEnvironment {
 		Delete-Directory "$buildBase\hosting"
 	}
 	Create-Directory "$buildBase\hosting"
-	$solutions = dir "$baseDir\src\hosting\*.sln"
+	$solutions = dir "$srcDir\hosting\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting\" }		
@@ -327,7 +328,7 @@ task CompileHosts  -depends InitEnvironment {
 }
 
 task CompileHosts32  -depends InitEnvironment {		
-	$solutions = dir "$baseDir\src\hosting\*.sln"
+	$solutions = dir "$srcDir\hosting\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		
@@ -347,7 +348,7 @@ task CompileHosts32  -depends InitEnvironment {
 
 task CompileAzureHosts  -depends InitEnvironment {
 
-	$solutions = dir "$baseDir\src\azure\Hosting\*.sln"
+	$solutions = dir "$srcDir\azure\Hosting\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\"}
@@ -373,7 +374,7 @@ task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils"
 	
 	$toolsDirs | % {				
-	 	$solutions = dir "$baseDir\src\$_\*.sln"
+	 	$solutions = dir "$srcDir\$_\*.sln"
 		$currentOutDir = "$buildBase\$_\"
 		$solutions | % {
 			$solutionFile = $_.FullName
@@ -580,7 +581,7 @@ task DetectOperatingSystemArchitecture {
     echo "Machine Architecture is " + $script:architecture
 }
   
-task GeneateCommonAssemblyInfo -depends InstallDependentPackages {
+task GenerateAssemblyInfo -depends InstallDependentPackages {
 	if($env:BUILD_NUMBER -ne $null) {
     	$BuildNumber = $env:BUILD_NUMBER
 	}
@@ -595,9 +596,92 @@ task GeneateCommonAssemblyInfo -depends InstallDependentPackages {
 	
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
 	
-	Generate-Assembly-Info true "release" "The most popular open-source service bus for .net" "NServiceBus" "NServiceBus" "Copyright � NServiceBus 2007-2011" $asmVersion $fileVersion $infoVersion "$baseDir\src\CommonAssemblyInfo.cs" 
- }
- 
+	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
+	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
+
+	foreach($projectFile in $projectFiles) {
+
+		$projectDir = [System.IO.Path]::GetDirectoryName($projectFile)
+		$projectName = [System.IO.Path]::GetFileName($projectDir)
+		$asmInfo = [System.IO.Path]::Combine($projectDir, [System.IO.Path]::Combine("Properties", "AssemblyInfo.cs"))
+		
+		$assemblyTitle = gc $asmInfo | select-string -pattern "AssemblyTitle"
+		
+		if($assemblyTitle -ne $null){
+			$assemblyTitle = $assemblyTitle.ToString()
+			if($assemblyTitle -ne ""){
+				$assemblyTitle = $assemblyTitle.Replace('[assembly: AssemblyTitle("', '') 
+				$assemblyTitle = $assemblyTitle.Replace('")]', '') 
+				$assemblyTitle = $assemblyTitle.Trim()
+				
+			}
+		}
+		else{
+			$assemblyTitle = ""	
+		}
+		
+		$assemblyDescription = gc $asmInfo | select-string -pattern "AssemblyDescription" 
+		if($assemblyDescription -ne $null){
+			$assemblyDescription = $assemblyDescription.ToString()
+			if($assemblyDescription -ne ""){
+				$assemblyDescription = $assemblyDescription.Replace('[assembly: AssemblyDescription("', '') 
+				$assemblyDescription = $assemblyDescription.Replace('")]', '') 
+				$assemblyDescription = $assemblyDescription.Trim()
+			}
+		}
+		else{
+			$assemblyDescription = ""
+		}
+		
+		
+		$assemblyProduct =  gc $asmInfo | select-string -pattern "AssemblyProduct" 
+		
+		if($assemblyProduct -ne $null){
+			$assemblyProduct = $assemblyProduct.ToString()
+			if($assemblyProduct -ne ""){
+				$assemblyProduct = $assemblyProduct.Replace('[assembly: AssemblyProduct("', '') 
+				$assemblyProduct = $assemblyProduct.Replace('")]', '') 
+				$assemblyProduct = $assemblyProduct.Trim()
+			}
+		}
+		else{
+			$assemblyProduct = "NServiceBus"
+		}
+		
+		$internalsVisibleTo = gc $asmInfo | select-string -pattern "InternalsVisibleTo" 
+		
+		if($internalsVisibleTo -ne $null){
+			$internalsVisibleTo = $internalsVisibleTo.ToString()
+			if($internalsVisibleTo -ne ""){
+				$internalsVisibleTo = $internalsVisibleTo.Replace('[assembly: InternalsVisibleTo("', '') 
+				$internalsVisibleTo = $internalsVisibleTo.Replace('")]', '') 
+				$internalsVisibleTo = $internalsVisibleTo.Trim()
+			}
+		}
+		else{
+			$assemblyProduct = "NServiceBus"
+		}
+		
+		$notclsCompliant = @("NServiceBus.Config.UnitTests", "NServiceBus.Installation.Windows", "NServiceBus.Serializers.Json.Tests", 
+		"NServiceBus.Unicast.Queuing.Ftp", "NServiceBus.Persistence.Raven.Tests", "ObjectBuilder.Tests", "NServiceBus.Testing.Tests")
+
+		$clsCompliant = (($projectDir.ToString().StartsWith("$srcDir")) -and ([System.Array]::IndexOf($notclsCompliant, $projectName) -eq -1)).ToString().ToLower()
+		
+		Generate-Assembly-Info $assemblyTitle `
+		$assemblyDescription  `
+		$clsCompliant `
+		$internalsVisibleTo `
+		"release" `
+		"NServiceBus" `
+		$assemblyProduct `
+		"Copyright � NServiceBus 2007-2011" `
+		$asmVersion `
+		$fileVersion `
+		$infoVersion `
+		$asmInfo 
+ 	}
+}
+
 task InstallDependentPackages {
  	dir -recurse -include ('packages.config') |ForEach-Object {
 	$packageconfig = [io.path]::Combine($_.directory,$_.name)

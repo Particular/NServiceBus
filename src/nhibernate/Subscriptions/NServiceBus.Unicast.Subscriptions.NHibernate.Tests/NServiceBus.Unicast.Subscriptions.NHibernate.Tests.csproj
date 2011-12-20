@@ -84,9 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Config\When_configuring_the_subscription_storage.cs" />
     <Compile Include="InMemoryDBFixture.cs" />
     <Compile Include="TestData.cs" />

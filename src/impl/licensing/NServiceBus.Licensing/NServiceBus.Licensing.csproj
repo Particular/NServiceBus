@@ -61,9 +61,7 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="LicenseAttributeKeys.cs" />

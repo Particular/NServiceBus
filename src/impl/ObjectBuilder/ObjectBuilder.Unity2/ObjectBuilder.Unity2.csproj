@@ -56,9 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="AutowireEnabledInjectionProperty.cs" />
     <Compile Include="ConfigureComponentAdapter.cs" />
     <Compile Include="Config\ConfigureUnityBuilder.cs" />

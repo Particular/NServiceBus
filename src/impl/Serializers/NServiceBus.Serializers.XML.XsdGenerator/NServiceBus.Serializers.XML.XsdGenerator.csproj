@@ -68,9 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="ComplexType.cs" />
     <Compile Include="ComplexTypeWriter.cs" />
     <Compile Include="Element.cs" />

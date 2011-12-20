@@ -63,10 +63,12 @@ function IsWow64{
         return $false
     }
 }
-  
+ 
+ $ilMergeExec = ".\tools\IlMerge\ilmerge.exe"
 function Ilmerge($key, $directory, $name, $assemblies, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
+	
     new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
-    exec { lib\ilmerge.exe /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies}
+    &$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies
     Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
     Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
 }
@@ -74,28 +76,31 @@ function Ilmerge($key, $directory, $name, $assemblies, $extension, $ilmergeTarge
 function Generate-Assembly-Info{
 
 param(
+	[string]$assemblyTitle,
+	[string]$assemblyDescription,
 	[string]$clsCompliant = "true",
+	[string]$internalsVisibleTo = "",
 	[string]$configuration, 
-	[string]$description, 
 	[string]$company, 
 	[string]$product, 
 	[string]$copyright, 
 	[string]$version,
 	[string]$fileVersion,
-	[string]$infoVersion,
+	[string]$infoVersion,	
 	[string]$file = $(throw "file is a required parameter.")
 )
 	if($infoVersion -eq ""){
 		$infoVersion = $fileVersion
 	}
 	
-
-  $asmInfo = "using System;
+	$asmInfo = "using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Runtime.CompilerServices;
 
-
+[assembly: AssemblyTitle(""$assemblyTitle"")]
+[assembly: AssemblyDescription(""$assemblyDescription"")]
 [assembly: AssemblyVersion(""$version"")]
 [assembly: AssemblyFileVersion(""$fileVersion"")]
 [assembly: AssemblyCopyright(""$copyright"")]
@@ -103,9 +108,20 @@ using System.Security;
 [assembly: AssemblyCompany(""$company"")]
 [assembly: AssemblyConfiguration(""$configuration"")]
 [assembly: AssemblyInformationalVersion(""$infoVersion"")]
-[assembly: ComVisible(false)]
-[assembly: CLSCompliantAttribute(true)]
+[assembly: ComVisible(false)]		
 "
+	
+	if($clsCompliant.ToLower() -eq "true"){
+		 $asmInfo += "[assembly: CLSCompliantAttribute($clsCompliant)]
+"
+	} 
+	
+	if($internalsVisibleTo -ne ""){
+		$asmInfo += "[assembly: InternalsVisibleTo(""$internalsVisibleTo"")]
+"	
+	}
+	
+	
 
 	$dir = [System.IO.Path]::GetDirectoryName($file)
 	

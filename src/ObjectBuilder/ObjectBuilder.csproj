@@ -61,9 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="ComponentCallModelEnum.cs" />
     <Compile Include="DependencyLifecycle.cs" />
     <Compile Include="IBuilder.cs" />

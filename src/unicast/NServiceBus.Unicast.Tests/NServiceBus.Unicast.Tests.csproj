@@ -85,9 +85,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
+    
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
