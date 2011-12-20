@@ -48,7 +48,7 @@ namespace NServiceBus.Distributor.Config
             if (msmqTransport == null)
             {
                 Logger.Warn(
-                    "No transport configuration found so the distributor will default to one thread, for production scenarious you would wan to adjust this setting");
+                    "No transport configuration found so the distributor will default to one thread, for production scenarious you would want to adjust this setting");
             }
             else
             {

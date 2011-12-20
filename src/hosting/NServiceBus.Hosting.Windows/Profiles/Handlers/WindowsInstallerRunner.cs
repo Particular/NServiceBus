@@ -3,7 +3,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     using Config;
 
     /// <summary>
-    /// Responsible for runnign the installers if nessesary
+    /// Responsible for running the installers if necessary
     /// </summary>
     public class WindowsInstallerRunner:IWantToRunWhenConfigurationIsComplete
     {
