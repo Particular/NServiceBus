@@ -226,6 +226,12 @@ namespace NServiceBus
         /// </summary>
         public const string SagaId = "NServiceBus.SagaId";
 
+        /// <summary>
+        /// Header telling the timeout manager to clear previous timeouts
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
+
 
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.

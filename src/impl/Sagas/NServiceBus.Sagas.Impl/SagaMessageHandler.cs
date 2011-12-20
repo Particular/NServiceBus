@@ -8,6 +8,7 @@ using NServiceBus.Saga;
 namespace NServiceBus.Sagas.Impl
 {
     using System.Linq;
+    using Unicast;
 
     /// <summary>
     /// A message handler central to the saga infrastructure.
@@ -17,7 +18,7 @@ namespace NServiceBus.Sagas.Impl
         /// <summary>
         /// Used to notify timeout manager of sagas that have completed.
         /// </summary>
-        public IBus Bus { get; set; }
+        public IUnicastBus Bus { get; set; }
 
         /// <summary>
         /// Handles a message.
@@ -96,7 +97,7 @@ namespace NServiceBus.Sagas.Impl
             if (entitiesHandled.Count == 0)
             {
                 logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", message.GetType().FullName, Bus.CurrentMessageContext.Id);
-                foreach (var handler in NServiceBus.Configure.Instance.Builder.BuildAll<IHandleSagaNotFound>())
+                foreach (var handler in Builder.BuildAll<IHandleSagaNotFound>())
                 {
                     logger.DebugFormat("Invoking SagaNotFoundHandler: {0}", handler.GetType().FullName);
                     handler.Handle(message);
@@ -109,7 +110,7 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="message">The message being processed</param>
         /// <returns></returns>
-        public bool NeedToHandle(object message)
+        bool NeedToHandle(object message)
         {
             if (message.IsTimeoutMessage())
             {
@@ -131,20 +132,19 @@ namespace NServiceBus.Sagas.Impl
         /// Generates a new id for a saga.
         /// </summary>
         /// <returns></returns>
-        public virtual Guid GenerateSagaId()
+        Guid GenerateSagaId()
         {
             return GuidCombGenerator.Generate();
         }
 
-        #region helper methods
-
+      
         /// <summary>
         /// Asks the given finder to find the saga entity using the given message.
         /// </summary>
         /// <param name="finder"></param>
         /// <param name="message"></param>
         /// <returns>The saga entity if found, otherwise null.</returns>
-        private static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)
+        static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)
         {
             MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
 
@@ -161,7 +161,7 @@ namespace NServiceBus.Sagas.Impl
         /// <param name="saga"></param>
         /// <param name="message"></param>
         /// <param name="sagaIsPersistent"></param>
-        protected virtual void HaveSagaHandleMessage(ISaga saga, object message, bool sagaIsPersistent)
+        void HaveSagaHandleMessage(ISaga saga, object message, bool sagaIsPersistent)
         {
             if (message.IsTimeoutMessage())
                 DispatchTimeoutMessageToSaga(saga, message);
@@ -206,20 +206,15 @@ namespace NServiceBus.Sagas.Impl
             methodInfo.Invoke(saga, new[] { message });
         }
 
-        /// <summary>
-        /// Notifies the timeout manager of the saga's completion by sending a timeout message.
-        /// </summary>
-        /// <param name="saga"></param>
-        protected virtual void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
+        void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            //use bus.Defer just to get the address to the timeoutmanager
-            Bus.Defer(TimeSpan.FromSeconds(10), new TimeoutMessage(saga.Entity, true));
+            Bus.ClearTimeoutsFor(saga.Entity.Id);
         }
 
         /// <summary>
         /// Logs that a saga has completed.
         /// </summary>
-        protected virtual void LogIfSagaIsFinished(ISaga saga)
+        void LogIfSagaIsFinished(ISaga saga)
         {
             if (saga.Completed)
                 logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
@@ -230,7 +225,7 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="saga">The saga on which to call the handle method.</param>
         /// <param name="message">The message to pass to the handle method.</param>
-        protected virtual void CallHandleMethodOnSaga(object saga, object message)
+        void CallHandleMethodOnSaga(object saga, object message)
         {
             var method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
 
@@ -238,44 +233,12 @@ namespace NServiceBus.Sagas.Impl
                 method.Invoke(saga, new [] { message });
         }
 
-        #endregion
+        
+        public IBuilder Builder { get; set; }
 
-        #region config info
+        public ISagaPersister Persister { get; set; }
 
-        /// <summary>
-        /// Gets/sets the builder that will be used for instantiating sagas.
-        /// </summary>
-        public virtual IBuilder Builder { get; set; }
-
-        /// <summary>
-        /// Gets/sets the object used to persist and retrieve sagas.
-        /// </summary>
-        public virtual ISagaPersister Persister { get; set; }
-
-        #endregion
-
-        /// <summary>
-        /// Object used to log information.
-        /// </summary>
-        protected readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
-    }
-
-    public static class MessageExtensions
-    {
-        public static bool IsTimeoutMessage(this object message)
-        {
-            return !string.IsNullOrEmpty(message.GetHeader(Headers.Expire)) && !string.IsNullOrEmpty(message.GetHeader(Headers.SagaId));
-        }
-
-        public static bool TimeoutHasExpired(this object message)
-        {
-            var tm = message as TimeoutMessage;
-            if (tm != null)
-                return !tm.HasNotExpired();
-
-            return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(Headers.Expire));
-        }
-
-
+        
+        readonly ILog logger = LogManager.GetLogger(typeof(SagaMessageHandler));
     }
 }

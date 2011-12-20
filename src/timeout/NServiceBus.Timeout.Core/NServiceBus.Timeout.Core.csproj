@@ -58,7 +58,6 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Headers.cs" />
     <Compile Include="IManageTimeouts.cs" />
     <Compile Include="IPersistTimeouts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -61,6 +61,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Timeout.Core">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Timeout.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Utils.Reflection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.Reflection.dll</HintPath>
@@ -82,6 +92,7 @@
     <Compile Include="Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="Finders\NullSagaFinder.cs" />
+    <Compile Include="MessageExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Finders\PropertySagaFinder.cs" />
     <Compile Include="ReplyingToNullOriginatorDispatcher.cs" />

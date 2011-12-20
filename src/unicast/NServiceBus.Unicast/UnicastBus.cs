@@ -120,6 +120,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler<MessagesEventArgs> MessagesSent;
 
+        public void ClearTimeoutsFor(Guid sagaId)
+        {
+            var controlMessage = ControlMessage.Create();
+
+            controlMessage.Headers[Headers.SagaId] = sagaId.ToString();
+            controlMessage.Headers[Headers.ClearTimeouts] = true.ToString();
+
+            MessageSender.Send(controlMessage, TimeoutManagerAddress);
+        }
+
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Gets and sets an <see cref="ISubscriptionStorage"/> implementation to

@@ -22,5 +22,11 @@ namespace NServiceBus.Unicast
         /// Event raised when the bus sends multiple messages across the wire.
         /// </summary>
         event EventHandler<MessagesEventArgs> MessagesSent;
+
+        /// <summary>
+        /// Clears any existing timeouts for the given saga
+        /// </summary>
+        /// <param name="sagaId"></param>
+        void ClearTimeoutsFor(Guid sagaId);
     }
 }
