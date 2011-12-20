@@ -44,7 +44,7 @@ function IsWow64{
         [Environment]::OSVersion.Version.Major -ge 1 -or 
         [Environment]::OSVersion.Version.Major -ge 6)
     {
-		#AddType
+		AddType
         $process = [System.Diagnostics.Process]::GetCurrentProcess()
         
         $wow64Process = $false
