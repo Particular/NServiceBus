@@ -1,4 +1,6 @@
-﻿using NServiceBus.Hosting.Profiles;
+﻿using System;
+using System.Collections.Generic;
+using NServiceBus.Hosting.Profiles;
 
 namespace NServiceBus
 {
@@ -56,5 +58,16 @@ namespace NServiceBus
         /// This property will be set by the infrastructure.
         /// </summary>
         IConfigureThisEndpoint Config { get; set; }
+    }
+    /// <summary>
+    /// Implementors will recieve by <see cref="ProfileManager" /> the list of active Profiles. 
+    /// Implementors must implement <see cref="IHandleProfile"/>.
+    /// </summary>
+    public interface IWantTheListOfActiveProfiles
+    {
+        /// <summary>
+        /// ActiveProfiles list will be set by the infrastructure.
+        /// </summary>
+        IEnumerable<Type> ActiveProfiles { get; set; }
     }
 }

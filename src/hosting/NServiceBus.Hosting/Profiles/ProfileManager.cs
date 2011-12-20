@@ -110,7 +110,11 @@ namespace NServiceBus.Hosting.Profiles
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
             {
-                profileHandlers.Add(Activator.CreateInstance(h) as IHandleProfile);
+                var profileHandler = Activator.CreateInstance(h) as IHandleProfile;
+                if (profileHandler is IWantTheListOfActiveProfiles)
+                    ((IWantTheListOfActiveProfiles) profileHandler).ActiveProfiles = activeProfiles;
+
+                profileHandlers.Add(profileHandler);
                 Logger.Debug("Activating profile handler: " + h.AssemblyQualifiedName);
             }
 
