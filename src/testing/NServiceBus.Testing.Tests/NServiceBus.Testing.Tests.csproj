@@ -49,6 +49,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
