@@ -33,6 +33,7 @@ namespace NServiceBus.Unicast.Config
                 .ConfigureProperty(p=>p.MasterNodeAddress, config.GetMasterNodeAddress())
                 .ConfigureProperty(p=>p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
 
+
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
@@ -79,6 +80,7 @@ namespace NServiceBus.Unicast.Config
             if (unicastConfig != null)
             {
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
                 foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
                 {

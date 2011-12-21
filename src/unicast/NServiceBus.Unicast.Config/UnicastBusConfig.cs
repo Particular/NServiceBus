@@ -3,6 +3,8 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    using System;
+
     /// <summary>
     /// A configuration section for UnicastBus specific settings.
     /// </summary>
@@ -65,6 +67,23 @@ namespace NServiceBus.Config
             set
             {
                 this["ForwardReceivedMessagesTo"] = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets/sets the time to be received set on forwarded messages
+        /// </summary>
+        [ConfigurationProperty("TimeToBeReceivedOnForwardedMessages", IsRequired = false)]
+        public TimeSpan TimeToBeReceivedOnForwardedMessages
+        {
+            get
+            {
+                return (TimeSpan)this["TimeToBeReceivedOnForwardedMessages"];
+            }
+            set
+            {
+                this["TimeToBeReceivedOnForwardedMessages"] = value;
             }
         }
 

@@ -189,6 +189,12 @@ namespace NServiceBus.Unicast
         public string ForwardReceivedMessagesTo { get; set; }
 
         /// <summary>
+        /// The TTR to set on forwarded messages. 
+        /// </summary>
+        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        
+
+        /// <summary>
         /// Should be used by administrator, not programmer.
         /// Sets the message types associated with the bus.
         /// </summary>
@@ -776,7 +782,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The address this bus will use as it's main input
         /// </summary>
-        public  Address InputAddress
+        public Address InputAddress
         {
             get
             {
@@ -1259,24 +1265,24 @@ namespace NServiceBus.Unicast
         /// <param name="m">The message to forward</param>
         private void ForwardMessageIfNecessary(TransportMessage m)
         {
-            if (ForwardReceivedMessagesTo != null)
-            {
-                var toSend = new TransportMessage
-                                 {
-                                     Body = m.Body,
-                                     CorrelationId = m.CorrelationId,
-                                     Headers = m.Headers,
-                                     Id = m.Id,
-                                     IdForCorrelation = m.IdForCorrelation,
-                                     MessageIntent = m.MessageIntent,
-                                     Recoverable = m.Recoverable,
-                                     ReplyToAddress = Address.Local,
-                                     TimeSent = m.TimeSent,
-                                     TimeToBeReceived = m.TimeToBeReceived
-                                 };
+            if (ForwardReceivedMessagesTo == null)
+                return;
 
-                MessageSender.Send(toSend, ForwardReceivedMessagesTo);
-            }
+            var toSend = new TransportMessage
+                             {
+                                 Body = m.Body,
+                                 CorrelationId = m.CorrelationId,
+                                 Headers = m.Headers,
+                                 Id = m.Id,
+                                 IdForCorrelation = m.IdForCorrelation,
+                                 MessageIntent = m.MessageIntent,
+                                 Recoverable = m.Recoverable,
+                                 ReplyToAddress = Address.Local,
+                                 TimeSent = m.TimeSent,
+                                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
+                             };
+
+            MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
 
         /// <summary>
@@ -1508,7 +1514,7 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 return Address.Undefined;
 
-            
+
             return GetAddressForMessageType(messages[0].GetType());
         }
 

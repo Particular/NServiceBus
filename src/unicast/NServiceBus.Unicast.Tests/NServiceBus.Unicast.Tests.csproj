@@ -81,12 +81,13 @@
       <HintPath>..\..\..\lib\Rhino.Mocks\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="AutoSubscriptions.cs" />
+    <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
     <Compile Include="DeferedMessages.cs" />
@@ -104,9 +105,12 @@
     <Compile Include="SendOnlyMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitOfWork.cs" />
-    <Compile Include="When_creating_message_types.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Config\NServiceBus.Unicast.Config.csproj">
+      <Project>{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}</Project>
+      <Name>NServiceBus.Unicast.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
       <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
       <Name>NServiceBus.Unicast.Subscriptions</Name>
@@ -115,6 +119,9 @@
       <Project>{EB2C42A2-70FD-4469-959B-C577470B001B}</Project>
       <Name>NServiceBus.Unicast</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
