@@ -592,8 +592,15 @@ task GenerateAssemblyInfo -depends InstallDependentPackages {
 	$infoVersion = $ProductVersion+ ".0" + $PreRelease + $BuildNumber 
 	$script:releaseVersion = $infoVersion
 	
-	$script:packageVersion = $infoVersion;
-	
+	#Temporarily removed the PreRelease prefix ('-build') from the package version for CI packages to maintain compatibility with the existing versioning scheme
+	#We will remove this as soon as we until we consolidate the CI and regular packages
+	if($PackageNameSuffix -eq "-CI") {
+		$script:packageVersion = $ProductVersion+ ".0" + $BuildNumber
+	}
+	else {
+		$script:packageVersion = $infoVersion
+	}
+		
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
 	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
