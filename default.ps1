@@ -595,7 +595,7 @@ task GenerateAssemblyInfo -depends InstallDependentPackages {
 	#Temporarily removed the PreRelease prefix ('-build') from the package version for CI packages to maintain compatibility with the existing versioning scheme
 	#We will remove this as soon as we until we consolidate the CI and regular packages
 	if($PackageNameSuffix -eq "-CI") {
-		$script:packageVersion = $ProductVersion+ ".0" + $BuildNumber
+		$script:packageVersion = $ProductVersion + $BuildNumber
 	}
 	else {
 		$script:packageVersion = $infoVersion
