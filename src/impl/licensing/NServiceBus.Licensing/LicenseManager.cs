@@ -53,7 +53,7 @@ namespace NServiceBus.Licensing
             }
             catch (LicenseFileNotFoundException)
             {
-                Logger.Warn("This application requires a valid license to run.");
+                Logger.Warn("No valid license file was found. The host will be limited to 1 worker thread.");
             }
 
             UpdateCpuCores(allowedCpuCores);

@@ -52,7 +52,7 @@ namespace NServiceBus.Licensing
         {
             if (!File.Exists(_licensePath))
             {
-                Logger.WarnFormat("Could not find license file: {0}", _licensePath);
+                Logger.InfoFormat("Could not find license file: {0}", _licensePath);
                 throw new LicenseFileNotFoundException();
             }
             
