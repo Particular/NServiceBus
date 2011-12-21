@@ -662,7 +662,7 @@ task GenerateAssemblyInfo -depends InstallDependentPackages {
 			$assemblyProduct = "NServiceBus"
 		}
 		
-		$notclsCompliant = @("NServiceBus.Config.UnitTests", "NServiceBus.Installation.Windows", "NServiceBus.Serializers.Json.Tests", 
+		$notclsCompliant = @("NServiceBus.Config.UnitTests", "NServiceBus.Serializers.Json.Tests", 
 		"NServiceBus.Unicast.Queuing.Ftp", "NServiceBus.Persistence.Raven.Tests", "ObjectBuilder.Tests", "NServiceBus.Testing.Tests")
 
 		$clsCompliant = (($projectDir.ToString().StartsWith("$srcDir")) -and ([System.Array]::IndexOf($notclsCompliant, $projectName) -eq -1)).ToString().ToLower()
