@@ -1,10 +1,11 @@
 ﻿using System.Security.Principal;
-using NServiceBus.Config;
 using NServiceBus.Installation;
 using NServiceBus.Utils;
 
 namespace NServiceBus.Unicast.Queuing.Msmq.Config
 {
+    using NServiceBus.Config;
+
     class Installer : INeedToInstallSomething<Installation.Environments.Windows>
     {
         public void Install(WindowsIdentity identity)

@@ -29,10 +29,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
             return (_locQueue.Count > 0);
         }
 
-        public void Init(string inputqueue, bool transactional)
-        {
-            this.SetupReceiveService();
-        }
 
         public void Init(Address address, bool transactional)
         {
@@ -47,11 +43,7 @@ namespace NServiceBus.Unicast.Queuing.Ftp
             }
         }
 
-        public void Send(TransportMessage message, string destination)
-        {
-            Send(message, Address.Parse(destination));
-        }
-
+       
         public void Send(TransportMessage message, Address address)
         {
             Stream bitStream = null;

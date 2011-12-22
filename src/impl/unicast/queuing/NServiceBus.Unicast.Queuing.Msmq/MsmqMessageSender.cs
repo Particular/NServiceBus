@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Messaging;
 using System.Transactions;
 using System.Xml.Serialization;
@@ -12,11 +9,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 {
     public class MsmqMessageSender : ISendMessages
     {
-        void ISendMessages.Send(TransportMessage message, string destination)
-        {
-            ((ISendMessages)this).Send(message, Address.Parse(destination));
-        }
-
         void ISendMessages.Send(TransportMessage message, Address address)
         {
             var queuePath = MsmqUtilities.GetFullPath(address);

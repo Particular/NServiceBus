@@ -105,7 +105,7 @@
 
             notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
 
-            if (!string.IsNullOrEmpty(addressOfAuditStore))
+            if (addressOfAuditStore != null && addressOfAuditStore != Address.Undefined)
                 messageSender.Send(transportMessage, addressOfAuditStore);
         }
 
@@ -115,7 +115,7 @@
             return channelManager.GetDefaultChannel().ToString();
         }
 
-        string addressOfAuditStore;
+        Address addressOfAuditStore;
         readonly IBuilder builder;
         readonly IMangageReceiveChannels channelManager;
         readonly IMessageNotifier notifier;

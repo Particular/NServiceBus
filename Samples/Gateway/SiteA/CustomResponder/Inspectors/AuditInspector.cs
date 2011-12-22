@@ -14,7 +14,7 @@ namespace SiteA.CustomResponder.Inspectors
 
         public string GetStatusAsHtml()
         {
-            if (string.IsNullOrEmpty(bus.ForwardReceivedMessagesTo))
+            if (bus.ForwardReceivedMessagesTo == null)
                 return "Audit is turned off";
 
             return string.Format("Endpoint sending audit messages to: " + bus.ForwardReceivedMessagesTo);

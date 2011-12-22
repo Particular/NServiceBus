@@ -24,9 +24,9 @@
             get { return null; }
         }
 
-        public string AddressOfAuditStore
+        public Address AddressOfAuditStore
         {
-            get { return null; }
+            get { return Address.Undefined; }
         }
     }
 }

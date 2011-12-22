@@ -191,7 +191,7 @@ namespace NServiceBus.Unicast
         /// device. The server software will have this field set to the address
         /// of the real server.
         /// </summary>
-        public string ForwardReceivedMessagesTo { get; set; }
+        public Address ForwardReceivedMessagesTo { get; set; }
 
         /// <summary>
         /// The TTR to set on forwarded messages. 
@@ -490,7 +490,7 @@ namespace NServiceBus.Unicast
 
         void IBus.ForwardCurrentMessageTo(string destination)
         {
-            MessageSender.Send(_messageBeingHandled, destination);
+            MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
         }
 
         /// <summary>
@@ -1270,7 +1270,7 @@ namespace NServiceBus.Unicast
         /// <param name="m">The message to forward</param>
         private void ForwardMessageIfNecessary(TransportMessage m)
         {
-            if (ForwardReceivedMessagesTo == null)
+            if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
                 return;
 
             var toSend = new TransportMessage

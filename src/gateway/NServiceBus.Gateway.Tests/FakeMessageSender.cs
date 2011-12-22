@@ -12,11 +12,6 @@
             messageReceived = new ManualResetEvent(false);
         }
 
-        void ISendMessages.Send(TransportMessage message, string destination)
-        {
-            ((ISendMessages)this).Send(message, Address.Parse(destination));
-        }
-
         void ISendMessages.Send(TransportMessage message, Address address)
         {
             details = new SendDetails

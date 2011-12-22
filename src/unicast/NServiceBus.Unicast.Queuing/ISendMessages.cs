@@ -8,13 +8,6 @@ namespace NServiceBus.Unicast.Queuing
     public interface ISendMessages
     {
         /// <summary>
-        /// Sends the given message to the destination.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="destination"></param>
-        void Send(TransportMessage message, string destination);
-
-        /// <summary>
         /// Sends the given message to the address.
         /// </summary>
         /// <param name="message"></param>

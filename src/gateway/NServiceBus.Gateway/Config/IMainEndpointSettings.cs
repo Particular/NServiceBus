@@ -9,6 +9,6 @@
         int NumberOfWorkerThreads { get;}
         int MaxRetries { get;}
         IManageMessageFailures FailureManager { get;}
-        string AddressOfAuditStore { get; }
+        Address AddressOfAuditStore { get; }
     }
 }

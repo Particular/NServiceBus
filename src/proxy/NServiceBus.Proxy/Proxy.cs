@@ -12,8 +12,6 @@ namespace NServiceBus.Proxy
 
     public class Proxy
     {
-        #region config
-
         public ISubscriptionStorage Subscribers { get; set; }
 
         private ITransport externalTransport;
@@ -44,33 +42,13 @@ namespace NServiceBus.Proxy
 
         public IProxyDataStorage Storage { private get; set; }
 
-        public string RemoteServer
-        {
-            get { return remoteServer; }
-            set
-            {
-                var arr = value.Split('@');
-
-                var queue = arr[0];
-                var machine = Environment.MachineName;
-
-                if (arr.Length == 2)
-                    if (arr[1] != "." && arr[1].ToLower() != "localhost")
-                        machine = arr[1];
-
-                remoteServer = queue + "@" + machine;
-            }
-        }
-
-        private string remoteServer;
+        public Address RemoteServer{ get; set; }
 
         public Address ExternalAddress { get; set; }
 
         public Address InternalAddress { get; set; }
 
-        #endregion
-
-
+      
         public void Start()
         {
             Storage.Init();
@@ -91,7 +69,7 @@ namespace NServiceBus.Proxy
 
                 var subs = Subscribers.GetSubscriberAddressesForMessage(types.Select(s=> new MessageType(s)));
 
-                Logger.Debug("Received notification from " + remoteServer + ".");
+                Logger.Debug("Received notification from " + RemoteServer + ".");
 
                 foreach(var s in subs)
                     InternalMessageSender.Send(e.Message, s);
@@ -108,7 +86,7 @@ namespace NServiceBus.Proxy
 
                 e.Message.CorrelationId = data.CorrelationId;
 
-                Logger.Debug("Received response from " + remoteServer + ".");
+                Logger.Debug("Received response from " + RemoteServer + ".");
 
                 InternalMessageSender.Send(e.Message, data.ClientAddress);
             }
@@ -119,7 +97,7 @@ namespace NServiceBus.Proxy
             if (UnicastBus.HandledSubscriptionMessage(e.Message, Subscribers, null))
             {
                 e.Message.ReplyToAddress = ExternalAddress;
-                ExternalMessageSender.Send(e.Message, remoteServer);
+                ExternalMessageSender.Send(e.Message, RemoteServer);
 
                 Logger.Debug("Received subscription message.");
                 return;
@@ -134,21 +112,19 @@ namespace NServiceBus.Proxy
 
             Storage.Save(data);
 
-            Logger.Debug("Forwarding request to " + remoteServer + ".");
+            Logger.Debug("Forwarding request to " + RemoteServer + ".");
 
             e.Message.IdForCorrelation = data.Id;
             e.Message.ReplyToAddress = ExternalAddress;
 
-            ExternalMessageSender.Send(e.Message, remoteServer);
-
-            return;
+            ExternalMessageSender.Send(e.Message, RemoteServer);
         }
 
-        private static string GenerateId()
+        static string GenerateId()
         {
             return Guid.NewGuid() + "\\0";
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (Proxy));
+        static readonly ILog Logger = LogManager.GetLogger(typeof (Proxy));
     }
 }

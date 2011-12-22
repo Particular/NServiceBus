@@ -53,7 +53,7 @@ namespace NServiceBus.Gateway.Config
             }
         }
 
-        public string AddressOfAuditStore
+        public Address AddressOfAuditStore
         {
             get
             {

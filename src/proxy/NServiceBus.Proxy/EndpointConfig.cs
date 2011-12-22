@@ -41,7 +41,7 @@ namespace NServiceBus.Proxy
                 .ConfigureProperty(x => x.StorageQueue, "NServiceBus_Proxy_Storage");
 
             configure.Configurer.ConfigureComponent<Proxy>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(x => x.RemoteServer, remoteServer);
+                .ConfigureProperty(x => x.RemoteServer, Address.Parse(remoteServer));
             Logger.Info("Proxy configured for remoteserver: " +  remoteServer);
 
             var proxy = configure.Builder.Build<Proxy>();

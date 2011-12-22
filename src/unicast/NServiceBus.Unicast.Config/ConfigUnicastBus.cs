@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Config
         /// A map of which message types (belonging to the given assemblies) are owned 
         /// by which endpoint.
         /// </summary>
-        protected IDictionary<Type,Address> typesToEndpoints = new Dictionary<Type, Address>();
+        protected IDictionary<Type, Address> typesToEndpoints = new Dictionary<Type, Address>();
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
@@ -30,8 +30,8 @@ namespace NServiceBus.Unicast.Config
             Builder = config.Builder;
             Configurer = config.Configurer;
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p=>p.MasterNodeAddress, config.GetMasterNodeAddress())
-                .ConfigureProperty(p=>p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
+                .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress())
+                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
 
 
             ConfigureSubscriptionAuthorization();
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast.Config
         {
             if (unicastConfig != null)
             {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, unicastConfig.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
                 busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
                 foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
@@ -108,7 +108,7 @@ namespace NServiceBus.Unicast.Config
                     {
                         throw new ArgumentException("Problem loading message assembly: " + mapping.Messages, ex);
                     }
-                    
+
                 }
             }
 
@@ -258,7 +258,7 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
             return this;
         }
-        
+
         /// <summary>
         /// Instructs the bus not to automatically subscribe sagas to messages that
         /// it has handlers for (given those messages belong to a different endpoint).
