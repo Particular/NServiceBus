@@ -258,7 +258,19 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
             return this;
         }
-
+        
+        /// <summary>
+        /// Instructs the bus not to automatically subscribe sagas to messages that
+        /// it has handlers for (given those messages belong to a different endpoint).
+        /// 
+        /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus DoNotAutoSubscribeSagas()
+        {
+            busConfig.ConfigureProperty(b => b.DoNotAutoSubscribeSagas, true);
+            return this;
+        }
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>

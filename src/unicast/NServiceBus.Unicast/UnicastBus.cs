@@ -54,6 +54,11 @@ namespace NServiceBus.Unicast
             set { autoSubscribe = value; }
         }
 
+        /// <summary>
+        /// True if the sagas shouldn't be autosubscribed
+        /// </summary>
+        public bool DoNotAutoSubscribeSagas { get; set; }
+
         private bool disableMessageHandling;
 
         /// <summary>
@@ -1409,14 +1414,12 @@ namespace NServiceBus.Unicast
         /// Evaluates a type and loads it if it implements IMessageHander{T}.
         /// </summary>
         /// <param name="t">The type to evaluate.</param>
-        private void IfTypeIsMessageHandlerThenLoad(Type t)
+        void IfTypeIsMessageHandlerThenLoad(Type t)
         {
             if (t.IsAbstract)
                 return;
 
-            var skipHandlerRegistration = false;
-            if (typeof(ISaga).IsAssignableFrom(t))
-                skipHandlerRegistration = true;
+            var skipHandlerRegistration = DoNotAutoSubscribeSagas && typeof(ISaga).IsAssignableFrom(t);
 
             foreach (var messageType in GetMessageTypesIfIsMessageHandler(t))
             {
@@ -1429,13 +1432,13 @@ namespace NServiceBus.Unicast
                 if (!(handlerList[t].Contains(messageType)))
                 {
                     handlerList[t].Add(messageType);
-                    Log.Debug(string.Format("Associated '{0}' message with '{1}' handler", messageType, t));
+                    Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, t);
                 }
 
                 if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(t))
                     handlerToMessageTypeToHandleMethodMap.Add(t, new Dictionary<Type, MethodInfo>());
 
-                MethodInfo h = GetMessageHandler(t, messageType);
+                var h = GetMessageHandler(t, messageType);
 
                 if (!(handlerToMessageTypeToHandleMethodMap[t].ContainsKey(messageType)))
                     handlerToMessageTypeToHandleMethodMap[t].Add(messageType, h);
