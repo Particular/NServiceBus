@@ -14,7 +14,7 @@
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="Diagnostics.Level" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.InputQueue" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>
@@ -34,7 +34,7 @@
       <Setting name="Diagnostics.Level" />
       <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.InputQueue" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>

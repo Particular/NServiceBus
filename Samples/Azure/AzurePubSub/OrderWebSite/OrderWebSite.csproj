@@ -101,6 +101,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigOverride.cs" />
     <Compile Include="Default.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
       <DependentUpon>Default.aspx</DependentUpon>
