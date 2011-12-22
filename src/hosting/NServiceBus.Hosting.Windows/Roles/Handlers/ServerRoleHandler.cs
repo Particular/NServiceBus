@@ -3,6 +3,8 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
+    using Unicast.Queuing;
+
     /// <summary>
     /// Handles configuration related to the server role
     /// </summary>
@@ -15,9 +17,11 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
+            if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
+                Configure.Instance.MsmqTransport();
+
             return Configure.Instance
                 .Sagas()
-                .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
                 .UnicastBus()
