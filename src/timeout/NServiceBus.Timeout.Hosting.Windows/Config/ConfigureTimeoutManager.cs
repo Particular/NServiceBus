@@ -33,6 +33,27 @@
             return config;
         }
 
+        /// <summary>
+        /// Use the in memory timeout persister implementation.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseInMemoryTimeoutPersister(this Configure config)
+        {
+            config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
+        /// <summary>
+        /// Use the Raven timeout persister implementation.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseRavenTimeoutPersister(this Configure config)
+        {
+            config.Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
+
         public static Address TimeoutManagerAddress { get; set; }
 
     }

@@ -26,15 +26,21 @@ namespace NServiceBus.Hosting.Profiles
         /// <param name="specifier"></param>
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
-        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args,IEnumerable<Type> defaultProfiles)
+        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles)
         {
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
+            var profiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower())));
 
-            activeProfiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower())));
+            if (profiles.Count() == 0)
+                profiles = defaultProfiles.ToList().ConvertAll(p => p);
 
-            if (activeProfiles.Count() == 0)
-                activeProfiles = defaultProfiles;
+            var implements = new List<Type>(profiles);
+            foreach (var interfaces in profiles.Select(p => p.GetInterfaces()))
+            {
+                implements.AddRange(interfaces.Where(t => (typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile)) && !profiles.Contains(t)));
+            }
+            activeProfiles = implements;
         }
 
         /// <summary>
@@ -87,7 +93,7 @@ namespace NServiceBus.Hosting.Profiles
         }
 
         /// <summary>
-        /// Activates the profilehandlers that handle the previously identified active profiles. 
+        /// Activates the profile handlers that handle the previously identified active profiles. 
         /// </summary>
         /// <returns></returns>
         public void ActivateProfileHandlers()
@@ -102,9 +108,7 @@ namespace NServiceBus.Hosting.Profiles
                 {
                     var p = type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile));
                     if (p != null)
-                        foreach(var ap in activeProfiles)
-                            if (p.IsAssignableFrom(ap))
-                                activeHandlers.Add(type);
+                        activeHandlers.AddRange(from ap in activeProfiles where (p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
                 }
 
             var profileHandlers = new List<IHandleProfile>();
@@ -123,7 +127,6 @@ namespace NServiceBus.Hosting.Profiles
 
             profileHandlers.ForEach(hp => hp.ProfileActivated());
         }
-
 
         private static IEnumerable<Type> GetProfilesFrom(IEnumerable<Assembly> assembliesToScan)
         {

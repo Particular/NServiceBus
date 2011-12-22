@@ -42,6 +42,26 @@ namespace NServiceBus
             return SetupGateway(config);
         }
 
+        /// <summary>
+        /// Use the in memory messages persistence by the gateway.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseInMemoryGatewayPersister(this Configure config)
+        {
+            config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
+        /// <summary>
+        /// Use RavenDB messages persistence by the gateway.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseRavenGatewayPersister(this Configure config)
+        {
+            config.Configurer.ConfigureComponent<RavenDBPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
 
         static Configure SetupGateway(this Configure config)
         {

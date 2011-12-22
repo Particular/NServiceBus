@@ -1,17 +1,27 @@
-﻿using NServiceBus.Faults;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Saga;
 using NServiceBus.Unicast.Subscriptions;
 
+
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+    
+    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig, IWantTheListOfActiveProfiles
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance.AsMasterNode()
-                .RunTimeoutManagerWithInMemoryPersistence()
-                .RunGatewayWithInMemoryPersistence();
+            if (ActiveProfiles.Contains(typeof(Timeout)))
+                Configure.Instance.UseInMemoryTimeoutPersister();
+
+            if (ActiveProfiles.Contains(typeof(Gateway)))
+                Configure.Instance.UseInMemoryGatewayPersister();
+
+            Configure.Instance.AsMasterNode();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.InMemorySagaPersister();
@@ -27,5 +37,6 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         }
 
         public IConfigureThisEndpoint Config { get; set; }
+        public IEnumerable<Type> ActiveProfiles { get; set; }
     }
 }
