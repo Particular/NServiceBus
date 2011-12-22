@@ -58,7 +58,7 @@ task CreatePackages -depends PrepareRelease  {
 	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{log4net="1.2.10"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
+	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
 	#endregion
 	
     #region Packing NServiceBus.Host
