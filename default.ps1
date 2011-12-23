@@ -7,6 +7,14 @@
 	$TargetFramework = "net-4.0"
 	$UploadPackage = $false;
 	$PackageIds = ""
+	
+}
+
+echo "Generate Local $script:GenerateAssemblyInfoOnLocal"
+
+if(($env:BUILD_NUMBER -ne $null) -or ($script:GenerateAssemblyInfoOnLocal)){ 
+    	$script:generateAssemblyInfoDependency = "Init", "GenerateAssemblyInfo"	
+	
 }
 
 $baseDir  = resolve-path .
@@ -35,6 +43,7 @@ $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
 $script:packageVersion = "3.0.0-local"
 $script:releaseVersion = ""
+$script:generateAssemblyInfoDependency = "Init"
 
 include $toolsDir\psake\buildutils.ps1
 
@@ -170,7 +179,7 @@ task InitEnvironment{
 			
 			$script:msBuild = $netfxCurrent + "\msbuild.exe"
 			
-			echo ".Net 4.0 build requested - " + $script:msBuild 
+			echo ".Net 4.0 build requested - $script:msBuild" 
 
 			$script:ilmergeTargetFramework  = "/targetplatform:v4," + $netfxCurrent
 			
@@ -184,9 +193,9 @@ task InitEnvironment{
 	}
 }
 
-task Init -depends Clean, InitEnvironment, InstallDependentPackages, DetectOperatingSystemArchitecture {
+task Init -depends InitEnvironment, Clean, InstallDependentPackages, DetectOperatingSystemArchitecture {
    	
-	echo "Creating build directory at the follwing path " + $buildBase
+	echo "Creating build directory at the follwing path $buildBase"
 	Delete-Directory $buildBase
 	Create-Directory $buildBase
 	
@@ -195,9 +204,9 @@ task Init -depends Clean, InitEnvironment, InstallDependentPackages, DetectOpera
 	echo "Current Directory: $currentDirectory" 
  }
   
-task CompileMain -depends Init, GenerateAssemblyInfo { 
- 	
- 	$solutions = dir "$srcDir\core\*.sln"
+task CompileMain -depends $script:generateAssemblyInfoDependency -description "A build script CompileMain " { 
+
+	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" }
@@ -211,7 +220,7 @@ task CompileMain -depends Init, GenerateAssemblyInfo {
 	
 }
 
-task CompileCore -depends CompileMain, InitEnvironment { 
+task CompileCore -depends InitEnvironment { 
 
      $coreDirs = "unicastTransport", "faults", "utils", "ObjectBuilder", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "timeout", "impl\licensing"
 	
@@ -578,7 +587,7 @@ task DetectOperatingSystemArchitecture {
 	{
 		$script:architecture = "x64"
 	}
-    echo "Machine Architecture is " + $script:architecture
+    echo "Machine Architecture is $script:architecture"
 }
   
 task GenerateAssemblyInfo -depends InstallDependentPackages {
@@ -689,12 +698,18 @@ task GenerateAssemblyInfo -depends InstallDependentPackages {
 }
 
 task InstallDependentPackages {
- 	dir -recurse -include ('packages.config') |ForEach-Object {
-	$packageconfig = [io.path]::Combine($_.directory,$_.name)
+	cd "$baseDir\packages"
+	$files =  dir -Exclude *.config
+	cd $baseDir
+	$installDependentPackages = ((($files -ne $null) -and ($files.count -gt 0)) -eq $false)
+	if($installDependentPackages){
+	 	dir -recurse -include ('packages.config') |ForEach-Object {
+		$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
-	write-host $packageconfig 
+		write-host $packageconfig 
 
-	 exec{ &$nugetExec install $packageconfig -o packages } 
+		 exec{ &$nugetExec install $packageconfig -o packages } 
+		}
 	}
  }
 
