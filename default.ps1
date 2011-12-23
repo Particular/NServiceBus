@@ -10,13 +10,6 @@
 	
 }
 
-echo "Generate Local $script:GenerateAssemblyInfoOnLocal"
-
-if(($env:BUILD_NUMBER -ne $null) -or ($script:GenerateAssemblyInfoOnLocal)){ 
-    	$script:generateAssemblyInfoDependency = "Init", "GenerateAssemblyInfo"	
-	
-}
-
 $baseDir  = resolve-path .
 $releaseRoot = "$baseDir\Release"
 $releaseDir = "$releaseRoot\net40"
@@ -43,107 +36,10 @@ $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
 $script:packageVersion = "3.0.0-local"
 $script:releaseVersion = ""
-$script:generateAssemblyInfoDependency = "Init"
 
 include $toolsDir\psake\buildutils.ps1
 
-task default -depends PrepareAndReleaseNServiceBus
-
-task CreatePackages -depends PrepareRelease  {
-	
-	import-module $toolsDir\NuGet\packit.psm1
-	Write-Output "Loading the module for packing.............."
-	$packit.push_to_nuget = $UploadPackage 
-	
-	
-	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
-	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
-	$packit.packageOutPutDir = "$baseDir\release\packages"
-
-	$packit.targeted_Frameworks = "net40";
-
-
-	#region Packing NServiceBus
-	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
-	
-	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
-	#endregion
-	
-    #region Packing NServiceBus.Host
-	$packageName = "NServiceBus.Host" + $PackageNameSuffix
-	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
-	#endregion
-
-	#region Packing NServiceBus.Host32
-	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
-	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
-	#endregion
-	
-	#region Packing NServiceBus.Testing
-	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
-	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll"
-	#endregion
-	
-	#region Packing NServiceBus.Integration.WebServices
-	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
-	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll"
-	#endregion
-
-	#region Packing NServiceBus.Autofac
-	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
-	$packit.package_description = "The Autofac Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.5.2.830"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
-	#endregion
-		
-	#region Packing NServiceBus.CastleWindsor
-	$packageName = "NServiceBus.CastleWindsor" + $PackageNameSuffix
-	$packit.package_description = "The CastleWindsor Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Castle.Core"="3.0.0.2001";"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.StructureMap
-	$packageName = "NServiceBus.StructureMap" + $PackageNameSuffix
-	$packit.package_description = "The StructureMap Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"structuremap"="2.6.3"} "" @{".\release\net40\binaries\containers\StructureMap\*.*"="lib\net40"}
-	#endregion		
-	
-	#region Packing NServiceBus.Unity
-	$packageName = "NServiceBus.Unity" + $PackageNameSuffix
-	$packit.package_description = "The Unity Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"CommonServiceLocator"="1.0";"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.Ninject
-	$packageName = "NServiceBus.Ninject" + $PackageNameSuffix
-	$packit.package_description = "The Ninject Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Ninject"="2.2.1.4";"Ninject.Extensions.ChildKernel"="2.2.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.Spring
-	$packageName = "NServiceBus.Spring" + $PackageNameSuffix
-	$packit.package_description = "The Spring Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Common.Logging"="2.0.0";"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
-	#endregion	
-	
-	#region Packing NServiceBus.NHibernate
-	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
-	$packit.package_description = "The NHibernate for the NServicebus"
-	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
-	#endregion	
-		
-	#region Packing NServiceBus.Azure
-	$packageName = "NServiceBus.Azure" + $PackageNameSuffix
-	$packit.package_description = "The Azure for the NServicebus"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
-	#endregion	
-		
-	remove-module packit
- }
+task default -depends ReleaseNServiceBus
  
 task Clean{
 
@@ -204,7 +100,7 @@ task Init -depends InitEnvironment, Clean, InstallDependentPackages, DetectOpera
 	echo "Current Directory: $currentDirectory" 
  }
   
-task CompileMain -depends $script:generateAssemblyInfoDependency -description "A build script CompileMain " { 
+task CompileMain -depends InitEnvironment -description "A build script CompileMain " { 
 
 	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
@@ -364,21 +260,6 @@ task CompileAzureHosts  -depends InitEnvironment {
 	}
 }
 
-task Test{
-	
-	if(Test-Path $buildBase\test-reports){
-		Delete-Directory $buildBase\test-reports
-	}
-	
-	Create-Directory $buildBase\test-reports 
-	
-	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
-}
-
 task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils"
 	
@@ -422,7 +303,30 @@ task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
-task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
+task Test{
+	
+	if(Test-Path $buildBase\test-reports){
+		Delete-Directory $buildBase\test-reports
+	}
+	
+	Create-Directory $buildBase\test-reports 
+	
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
+}
+
+task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test  {
+	Prepare-Binaries
+}
+
+task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
+	Prepare-Binaries
+}
+
+function Prepare-Binaries{
 	if(Test-Path $binariesDir){
 		Delete-Directory "binaries"
 	}
@@ -492,7 +396,10 @@ task PrepareBinaries -depends CompileMain, CompileCore, CompileContainers, Compi
 	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
-task CompileSamples -depends InitEnvironment, PrepareBinaries {
+
+task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, PrepareBinaries {}
+
+task CompileSamples -depends InitEnvironment {
 
 	$samplesDirs = "AsyncPages", "AsyncPagesMvc3", "FullDuplex", "PubSub", "Manufacturing", "GenericHost", "Versioning", "WcfIntegration", "Starbucks", "SendOnlyEndpoint", "DataBus", "Azure\AzureBlobStorageDataBus", "Distributor"
 	
@@ -506,7 +413,9 @@ task CompileSamples -depends InitEnvironment, PrepareBinaries {
 
 }
 
-task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
+task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples {}  
+
+task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples {
 	
 	if(Test-Path $releaseRoot){
 		Delete-Directory $releaseRoot	
@@ -548,7 +457,103 @@ task PrepareRelease -depends PrepareBinaries, Test, CompileSamples {
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
 
-task PrepareReleaseWithoutSamples -depends PrepareBinaries, Test{
+task CreatePackages -depends PrepareRelease  {
+	
+	import-module $toolsDir\NuGet\packit.psm1
+	Write-Output "Loading the module for packing.............."
+	$packit.push_to_nuget = $UploadPackage 
+	
+	
+	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
+	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
+	$packit.packageOutPutDir = "$baseDir\release\packages"
+
+	$packit.targeted_Frameworks = "net40";
+
+
+	#region Packing NServiceBus
+	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
+	
+	$packit.package_description = "The most popular open-source service bus for .net"
+	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
+	#endregion
+	
+    #region Packing NServiceBus.Host
+	$packageName = "NServiceBus.Host" + $PackageNameSuffix
+	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
+	#endregion
+
+	#region Packing NServiceBus.Host32
+	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
+	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
+	#endregion
+	
+	#region Packing NServiceBus.Testing
+	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
+	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll"
+	#endregion
+	
+	#region Packing NServiceBus.Integration.WebServices
+	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
+	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll"
+	#endregion
+
+	#region Packing NServiceBus.Autofac
+	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
+	$packit.package_description = "The Autofac Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.5.2.830"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
+	#endregion
+		
+	#region Packing NServiceBus.CastleWindsor
+	$packageName = "NServiceBus.CastleWindsor" + $PackageNameSuffix
+	$packit.package_description = "The CastleWindsor Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"Castle.Core"="3.0.0.2001";"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
+	#endregion
+	
+	#region Packing NServiceBus.StructureMap
+	$packageName = "NServiceBus.StructureMap" + $PackageNameSuffix
+	$packit.package_description = "The StructureMap Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"structuremap"="2.6.3"} "" @{".\release\net40\binaries\containers\StructureMap\*.*"="lib\net40"}
+	#endregion		
+	
+	#region Packing NServiceBus.Unity
+	$packageName = "NServiceBus.Unity" + $PackageNameSuffix
+	$packit.package_description = "The Unity Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"CommonServiceLocator"="1.0";"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
+	#endregion
+	
+	#region Packing NServiceBus.Ninject
+	$packageName = "NServiceBus.Ninject" + $PackageNameSuffix
+	$packit.package_description = "The Ninject Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"Ninject"="2.2.1.4";"Ninject.Extensions.ChildKernel"="2.2.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
+	#endregion
+	
+	#region Packing NServiceBus.Spring
+	$packageName = "NServiceBus.Spring" + $PackageNameSuffix
+	$packit.package_description = "The Spring Container for the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{"Common.Logging"="2.0.0";"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
+	#endregion	
+	
+	#region Packing NServiceBus.NHibernate
+	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
+	$packit.package_description = "The NHibernate for the NServicebus"
+	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
+	#endregion	
+		
+	#region Packing NServiceBus.Azure
+	$packageName = "NServiceBus.Azure" + $PackageNameSuffix
+	$packit.package_description = "The Azure for the NServicebus"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
+	#endregion	
+		
+	remove-module packit
+ }
+
+task PrepareReleaseWithoutSamples -depends PrepareBinaries {
 	
 	if(Test-Path $releaseRoot){
 		Delete-Directory $releaseRoot	
@@ -578,10 +583,6 @@ task PrepareReleaseWithoutSamples -depends PrepareBinaries, Test{
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
 
-<#
-This will detect whether the current Operating System is running as a 32-bit or 64-bit Operating System regardless of whether this is a 32-bit or 
-64-bit process.
-#>
 task DetectOperatingSystemArchitecture {
 	if (IsWow64 -eq $true)
 	{
@@ -590,7 +591,7 @@ task DetectOperatingSystemArchitecture {
     echo "Machine Architecture is $script:architecture"
 }
   
-task GenerateAssemblyInfo -depends InstallDependentPackages {
+task GenerateAssemblyInfo {
 	if($env:BUILD_NUMBER -ne $null) {
     	$BuildNumber = $env:BUILD_NUMBER
 	}
@@ -713,21 +714,17 @@ task InstallDependentPackages {
 	}
  }
 
-task PrepareAndReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput{
+task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput{
     if(Test-Path -Path $releaseDir)
 	{
         del -Path $releaseDir -Force -recurse
 	}	
 	echo "Release completed for NServiceBus." + $script:releaseVersion 
+	
+	Stop-Process -Name "nunit-agent.exe" -ErrorAction SilentlyContinue -Force
+	Stop-Process -Name "nunit-console.exe" -ErrorAction SilentlyContinue -Force
 }
 
-task PrepareAndReleaseNServiceBusWithoutSamples -depends PrepareReleaseWithoutSamples, CreatePackages, ZipOutput{
-    if(Test-Path -Path $releaseDir)
-	{
-        del -Path $releaseDir -Force -recurse
-	}	
-	echo "Release completed for NServiceBus without samples." + $script:releaseVersion 
-}
 <#Ziping artifacts directory for releasing#>
 task ZipOutput {
 	

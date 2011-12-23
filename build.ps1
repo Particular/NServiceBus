@@ -12,13 +12,14 @@ param(
 if($taskList -eq $null){
 	$taskList = @("PrepareBinaries")
 }
-$script:GenerateAssemblyInfoOnLocal = $genAsmInfo
 
 Import-Module .\tools\psake\psake.psm1 -ErrorAction SilentlyContinue
 
 if($desc){
-Invoke-psake .\default.ps1 -docs
+	Invoke-psake .\default.ps1 -docs
 }
-Invoke-psake .\default.ps1 -taskList $taskList  -properties $properties
+else{
 
+	Invoke-psake .\default.ps1 -taskList $taskList  -properties $properties
+}
 Remove-Module psake -ErrorAction SilentlyContinue
