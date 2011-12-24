@@ -39,12 +39,10 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public T Get<T>(string property, object value) where T : ISagaEntity
         {
-            var luceneQuery = string.Format("{0}:{1}", property, value);
-
             using (var session = OpenSession())
             {
                 return session.Advanced.LuceneQuery<T>()
-                .Where(luceneQuery).FirstOrDefault();
+                .WhereEquals(property, value).FirstOrDefault();
             }
         }
 
