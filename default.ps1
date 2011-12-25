@@ -113,14 +113,14 @@ task CompileMain -depends InitEnvironment -description "A build script CompileMa
 	$assemblies +=	dir $buildBase\nservicebus\NServiceBus.dll
 	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
 
-	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "" "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
 	
 }
 
 task CompileCore -depends InitEnvironment { 
 
-     $coreDirs = "unicastTransport", "faults", "utils", "ObjectBuilder", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "timeout", "impl\licensing"
-	
+    $coreDirs = "unicastTransport", "faults", "utils", "ObjectBuilder", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "timeout", "impl\licensing"
+	 	
 	$coreDirs | % {
 		$solutionDir = Resolve-Path "$srcDir\$_"
 		cd 	$solutionDir
@@ -132,8 +132,16 @@ task CompileCore -depends InitEnvironment {
 	}
 	cd $baseDir
 	
+	$solutions = dir "$srcDir\AttributeAssemblies\*.sln"
+	$solutions | % {
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\attributeAssemblies\" }
+	}
+	
+	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Core.dll"
+	
 	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
-	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
+	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
 	
 	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll	-Exclude **Tests.dll
 	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll -Exclude **Tests.dll
@@ -151,7 +159,7 @@ task CompileCore -depends InitEnvironment {
 	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.Spatial.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\nservicebus.core\BouncyCastle.Crypto.dll -Exclude **Tests.dll
 
-	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
 }
 
 task CompileContainers -depends InitEnvironment {
@@ -191,7 +199,7 @@ task CompileNHibernate -depends InitEnvironment {
 	
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 
-	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
+	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
 	
 }
 
@@ -209,7 +217,7 @@ task CompileAzure -depends InitEnvironment {
 	
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
-	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies "" "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
 	
 }
 
@@ -230,7 +238,7 @@ task CompileHosts  -depends InitEnvironment {
 		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
 	
 	echo "Merging NServiceBus.Host....."	
-	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 }
 
 task CompileHosts32  -depends InitEnvironment {		
@@ -249,7 +257,7 @@ task CompileHosts32  -depends InitEnvironment {
 	
 	echo "Merging NServiceBus.Host32....."	
 	
-	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
 }
 
 task CompileAzureHosts  -depends InitEnvironment {
@@ -294,14 +302,14 @@ task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	
 	echo "Merging NServiceBus.Testing"	
 	
-	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
 	"$buildBase\nservicebus.core\NServiceBus.Utils.Reflection.dll")
 	
 	echo "merging XsdGenerator"	
-	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "" "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
 task Test{

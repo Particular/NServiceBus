@@ -65,10 +65,16 @@ function IsWow64{
 }
  
  $ilMergeExec = ".\tools\IlMerge\ilmerge.exe"
-function Ilmerge($key, $directory, $name, $assemblies, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
+function Ilmerge($key, $directory, $name, $assemblies, $attributeAssembly, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
 	
     new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
-    &$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies
+	
+	if($attributeAssembly -ne ""){
+    	&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath /attr:$attributeAssembly $ilmergeTargetframework $assemblies
+	}
+	else{
+		&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies
+	}
     Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
     Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
 }
