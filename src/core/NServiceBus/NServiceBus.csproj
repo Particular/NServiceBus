@@ -16,7 +16,7 @@
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>

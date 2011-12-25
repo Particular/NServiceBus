@@ -7,6 +7,7 @@
 	$TargetFramework = "net-4.0"
 	$UploadPackage = $false;
 	$PackageIds = ""
+	$DownloadDependentPackages = $false
 	
 }
 
@@ -702,7 +703,10 @@ task InstallDependentPackages {
 	cd "$baseDir\packages"
 	$files =  dir -Exclude *.config
 	cd $baseDir
-	$installDependentPackages = ((($files -ne $null) -and ($files.count -gt 0)) -eq $false)
+	$installDependentPackages = $DownloadDependentPackages;
+	if($installDependentPackages -eq $false){
+		$installDependentPackages = ((($files -ne $null) -and ($files.count -gt 0)) -eq $false)
+	}
 	if($installDependentPackages){
 	 	dir -recurse -include ('packages.config') |ForEach-Object {
 		$packageconfig = [io.path]::Combine($_.directory,$_.name)
