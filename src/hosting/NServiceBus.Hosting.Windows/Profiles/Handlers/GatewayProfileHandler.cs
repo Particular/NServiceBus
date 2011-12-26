@@ -7,7 +7,6 @@
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance.RunGateway();
-            WindowsInstallerRunner.RunInstallers = true;
         }
 
         public IConfigureThisEndpoint Config { get; set; }

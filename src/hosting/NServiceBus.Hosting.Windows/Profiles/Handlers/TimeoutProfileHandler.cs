@@ -7,7 +7,6 @@
         void IHandleProfile.ProfileActivated()
         {
             Configure.Instance.RunTimeoutManager();
-            WindowsInstallerRunner.RunInstallers = true;
         }
 
         public IConfigureThisEndpoint Config { get; set; }
