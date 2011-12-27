@@ -280,9 +280,6 @@ namespace NServiceBus.Unicast.Config
             if (t.IsAbstract)
                 return false;
 
-            if (typeof(ISaga).IsAssignableFrom(t))
-                return false;
-
             return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);
         }
 

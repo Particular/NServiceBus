@@ -813,7 +813,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        private IEnumerable<Type> GetEventsToAutoSubscribe()
+        IEnumerable<Type> GetEventsToAutoSubscribe()
         {
             return GetMessageTypesHandledOnThisEndpoint()
                 .Where(t =>
@@ -821,7 +821,7 @@ namespace NServiceBus.Unicast
                     messageTypeToDestinationLookup[t] != Address.Undefined);
         }
 
-        private void AssertHasLocalAddress()
+        void AssertHasLocalAddress()
         {
             if (Address.Local == null)
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
@@ -996,6 +996,17 @@ namespace NServiceBus.Unicast
         {
             foreach (var messageHandlerType in GetHandlerTypes(messageType))
             {
+                //this is a bit of a hack until we refactor the saga infrastructure to make use of the regular pipeline instead
+                // The following needs to be done:
+                // 1. Create a "MessageHandlerFactory" abstraction so that sagas can be wrapped in a saga factory that finds/creates the saga instance
+                // 2. Register that factory for saga message handlers + messages with a sagaId in the headers
+                // 3. Call the regular Handle() method on that wrapper when a message comes in (then the current catch all sagamessagehandler can be removed)
+                if (typeof(ISaga).IsAssignableFrom(messageHandlerType))
+                {
+                    Log.Debug("This is a saga messagehandler and it will be called by the generic saga message handler. There for no direct dispatch is performed for: " + messageHandlerType.Name);
+                    continue;
+                }
+
                 try
                 {
                     Log.Debug("Activating: " + messageHandlerType.Name);
