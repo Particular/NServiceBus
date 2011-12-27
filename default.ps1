@@ -767,9 +767,8 @@ task ZipOutput {
 	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
-	if($PreRelease -eq "-build"){
-		exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
-	}
+	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
+	
 }
 
 task UpdatePackages{
