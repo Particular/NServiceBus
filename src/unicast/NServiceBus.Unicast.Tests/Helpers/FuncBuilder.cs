@@ -15,7 +15,12 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public void Register<T>(Func<object> func)
         {
-            funcs.Add(new Tuple<Type, Func<object>>(typeof(T), func));
+            Register(typeof(T),func);
+        }
+
+        public void Register(Type t,Func<object> func)
+        {
+            funcs.Add(new Tuple<Type, Func<object>>(t, func));
         }
 
         public object Build(Type typeToBuild)

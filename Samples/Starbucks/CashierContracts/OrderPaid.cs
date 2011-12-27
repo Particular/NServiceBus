@@ -4,11 +4,11 @@ using NServiceBus;
 namespace CashierContracts
 {
     [Serializable]
-    public class PaymentCompleteMessage : IMessage
+    public class OrderPaid : IMessage
     {
         public Guid OrderId { get; private set; }
 
-        public PaymentCompleteMessage(Guid orderId)
+        public OrderPaid(Guid orderId)
         {
             OrderId = orderId;
         }

@@ -16,14 +16,16 @@ namespace Barista
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            using(var messageSubscriptions = ObjectFactory.GetInstance<IMessageSubscriptions>())
-            {
-                messageSubscriptions.Subscribe();
+            var startupDialog = ObjectFactory.GetInstance<IStarbucksBaristaView>();
+            startupDialog.Start();
+           
+            //using(var messageSubscriptions = ObjectFactory.GetInstance<IMessageSubscriptions>())
+            //{
+            //    messageSubscriptions.Subscribe();
             
-                var startupDialog = ObjectFactory.GetInstance<IStarbucksBaristaView>();
-                startupDialog.Start();
-            }
+            //    var startupDialog = ObjectFactory.GetInstance<IStarbucksBaristaView>();
+            //    startupDialog.Start();
+            //}
         }
     }
 }

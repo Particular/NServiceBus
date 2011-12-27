@@ -11,8 +11,8 @@ namespace Barista
                 .Singleton()
                 .Use<StarbucksBarista>();
 
-            For<IMessageSubscriptions>()
-                .Use<MessageSubscriptions>();
+//            For<IMessageSubscriptions>()
+  //              .Use<MessageSubscriptions>();
         }
     }
 }

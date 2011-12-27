@@ -20,7 +20,8 @@ namespace NServiceBus.Unicast.Config
         /// A map of which message types (belonging to the given assemblies) are owned 
         /// by which endpoint.
         /// </summary>
-        protected IDictionary<Type, Address> typesToEndpoints = new Dictionary<Type, Address>();
+        readonly IDictionary<Type, Address> typesToEndpoints = new Dictionary<Type, Address>();
+
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
@@ -43,7 +44,7 @@ namespace NServiceBus.Unicast.Config
             RegisterMessageOwnersAndBusAddress();
         }
 
-        private void RegisterMessageModules()
+        void RegisterMessageModules()
         {
             TypesToScan
                 .Where(t => typeof(IMessageModule).IsAssignableFrom(t) && !t.IsInterface)
@@ -51,17 +52,15 @@ namespace NServiceBus.Unicast.Config
                 .ForEach(type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
 
-        private void ConfigureSubscriptionAuthorization()
+        void ConfigureSubscriptionAuthorization()
         {
-            Type authType =
-                TypesToScan.Where(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface).
-                    FirstOrDefault();
+            var authType = TypesToScan.FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
 
             if (authType != null)
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
 
-        private void RegisterLocalMessages()
+        void RegisterLocalMessages()
         {
             TypesToScan
                 .Where(t => t.IsMessageType())
@@ -69,13 +68,13 @@ namespace NServiceBus.Unicast.Config
                 .ForEach(t => typesToEndpoints[t] = Address.Undefined);
         }
 
-        private void RegisterMessageOwnersAndBusAddress()
+        void RegisterMessageOwnersAndBusAddress()
         {
             var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
             ConfigureBusProperties(unicastBusConfig);
         }
 
-        private void ConfigureBusProperties(UnicastBusConfig unicastConfig)
+        void ConfigureBusProperties(UnicastBusConfig unicastConfig)
         {
             if (unicastConfig != null)
             {
@@ -120,7 +119,7 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Used to configure the bus.
         /// </summary>
-        protected IComponentConfig<UnicastBus> busConfig;
+        IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
         /// Loads all message handler assemblies in the runtime directory.
@@ -186,7 +185,7 @@ namespace NServiceBus.Unicast.Config
             return LoadMessageHandlers(order.Types);
         }
 
-        private ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> orderedTypes)
+        ConfigUnicastBus LoadMessageHandlers(IEnumerable<Type> orderedTypes)
         {
             LoadMessageHandlersCalled = true;
             var types = new List<Type>(TypesToScan);
@@ -206,7 +205,7 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="types"></param>
         /// <returns></returns>
-        protected ConfigUnicastBus ConfigureMessageHandlersIn(IEnumerable<Type> types)
+        ConfigUnicastBus ConfigureMessageHandlersIn(IEnumerable<Type> types)
         {
             var handlers = new List<Type>();
 
@@ -276,18 +275,15 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsMessageHandler(Type t)
+        static bool IsMessageHandler(Type t)
         {
             if (t.IsAbstract)
-                return false;
-
-            if (typeof(ISaga).IsAssignableFrom(t))
                 return false;
 
             return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);
         }
 
-        private static bool TypeSpecifiesMessageHandlerOrdering(Type t)
+        static bool TypeSpecifiesMessageHandlerOrdering(Type t)
         {
             return typeof(ISpecifyMessageHandlerOrdering).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface;
         }
@@ -297,7 +293,7 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static Type GetMessageTypeFromMessageHandler(Type t)
+        static Type GetMessageTypeFromMessageHandler(Type t)
         {
             if (t.IsGenericType)
             {
@@ -313,7 +309,7 @@ namespace NServiceBus.Unicast.Config
             return null;
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
 
         internal bool LoadMessageHandlersCalled { get; private set; }
 
