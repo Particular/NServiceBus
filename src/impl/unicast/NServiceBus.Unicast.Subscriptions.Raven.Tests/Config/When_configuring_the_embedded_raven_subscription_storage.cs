@@ -16,10 +16,12 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
         [TestFixtureSetUp]
         public void SetUp()
         {
+            Configure.GetEndpointNameAction = () => "Endpoint";
+
             var config = Configure.With(new[] { GetType().Assembly })
                 .DefaultBuilder()
                 .EmbeddedRavenSubscriptionStorage();
-
+            
             subscriptionStorage = config.Builder.Build<RavenSubscriptionStorage>();
         }
 

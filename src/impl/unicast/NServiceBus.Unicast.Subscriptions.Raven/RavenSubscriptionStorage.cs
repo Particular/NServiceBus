@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Raven.Client;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven
 {
-    using global::Raven.Abstractions.Exceptions;
-
     public class RavenSubscriptionStorage : ISubscriptionStorage
     {
         public IDocumentStore Store { get; set; }
 
-        public string Endpoint { get; set; }
+        public string Database { get; set; }
 
         public void Init()
         {
@@ -18,70 +17,88 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
         void ISubscriptionStorage.Subscribe(Address client, IEnumerable<MessageType> messageTypes)
         {
-            var subscriptions = messageTypes.Select(m => new Subscription
-            {
-                Id = Subscription.FormatId(Endpoint, m, client.ToString()),
-                MessageType = m,
-                Client = client
-            }).ToList();
-
-            try
-            {
-                using (var session = OpenSession())
-                {
-                    session.Advanced.UseOptimisticConcurrency = true;
-                    subscriptions.ForEach(session.Store);
-                    session.SaveChanges();
-                }
-            }
-            catch (ConcurrencyException ex)
-            {
-
-            }
-        }
-
-       
-
-        void ISubscriptionStorage.Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
-        {
-            var ids = messageTypes
-                .Select(m => Subscription.FormatId(Endpoint, m, client.ToString()))
-                .ToList();
+            var messageTypeLookup = messageTypes.ToDictionary(Subscription.FormatId);
 
             using (var session = OpenSession())
             {
-                ids.ForEach(id => session.Advanced.DatabaseCommands.Delete(id, null));
+                session.Advanced.UseOptimisticConcurrency = true;
+
+                var existingSubscriptions = GetSubscriptions(messageTypeLookup.Values, session).ToLookup(m => m.Id);
+
+                var newAndExistingSubscriptions = messageTypeLookup
+                    .Select(id => existingSubscriptions[id.Key].SingleOrDefault() ?? StoreNewSubscription(session, id.Key, id.Value))
+                    .Where(subscription => !subscription.Clients.Any(c => c == client)).ToArray();
+
+                foreach (var subscription in newAndExistingSubscriptions)
+                {
+                    subscription.Clients.Add(client);
+                }
 
                 session.SaveChanges();
             }
         }
 
+        void ISubscriptionStorage.Unsubscribe(Address client, IEnumerable<MessageType> messageTypes)
+        {
+            using (var session = OpenSession())
+            {
+                session.Advanced.UseOptimisticConcurrency = true;
+
+                var subscriptions = GetSubscriptions(messageTypes, session);
+                
+                foreach (var subscription in subscriptions)
+                {
+                    subscription.Clients.Remove(client);
+                }
+
+                session.SaveChanges();
+            }
+        }
+        
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             using (var session = OpenSession())
             {
-                return messageTypes.SelectMany(m => GetSubscribersForMessage(session, m))
-                                .Where(s => messageTypes.Contains(s.MessageType))
-                                    .Select(s => s.Client)
-                                    .ToList()
-                                    .Distinct();
-            }
-        }
+                var subscriptions = GetSubscriptions(messageTypes, session);
+                var clients = subscriptions
+                    .SelectMany(s => s.Clients)
+                    .Distinct();
 
-        IEnumerable<Subscription> GetSubscribersForMessage(IDocumentSession session, MessageType messageType)
-        {
-            return session.Query<Subscription>()
-                .Customize(c => c.WaitForNonStaleResults())
-                .Where(s => s.MessageType == messageType);
+                return clients;
+            }
         }
 
         IDocumentSession OpenSession()
         {
-            if(string.IsNullOrEmpty(Endpoint))
-            return Store.OpenSession();
+            var session = string.IsNullOrEmpty(Database) ?
+                Store.OpenSession() :
+                Store.OpenSession(Database);
 
+            session.Advanced.AllowNonAuthoritiveInformation = false;
 
-            return Store.OpenSession(Endpoint);
+            return session;
+        }
+
+        static IEnumerable<Subscription> GetSubscriptions(IEnumerable<MessageType> messageTypes, IDocumentSession session)
+        {
+            var ids = messageTypes
+                .Select(Subscription.FormatId)
+                .ToArray();
+
+            var subscriptions = session
+                .Load<Subscription>(ids)
+                .Where(s => s != null)
+                .ToArray();
+            
+            return subscriptions;
+        }
+
+        static Subscription StoreNewSubscription(IDocumentSession session, string id, MessageType messageType)
+        {
+            var subscription = new Subscription { Clients = new List<Address>(), Id = id, MessageType = messageType };
+            session.Store(subscription);
+
+            return subscription;
         }
     }
 }

@@ -104,7 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureRavenSubscriptionStorage.cs" />
-    <Compile Include="Indexes\SubscriptionsByMessageType.cs" />
     <Compile Include="LambdaComparer.cs" />
     <Compile Include="RavenSubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

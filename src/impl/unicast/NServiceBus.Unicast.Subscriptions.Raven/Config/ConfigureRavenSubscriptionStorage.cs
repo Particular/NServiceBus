@@ -45,7 +45,7 @@ namespace NServiceBus
 
             config.Configurer.ConfigureComponent<RavenSubscriptionStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.Store, store)
-                .ConfigureProperty(x => x.Endpoint, endpoint);
+                .ConfigureProperty(x => x.Database, endpoint);
 
             return config;
         }

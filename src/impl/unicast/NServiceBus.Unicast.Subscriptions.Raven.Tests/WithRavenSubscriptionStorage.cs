@@ -1,5 +1,4 @@
-﻿using System.IO;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Raven.Client;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
@@ -18,7 +17,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
            
             store.Initialize();
 
-            storage = new RavenSubscriptionStorage { Store = store, Endpoint = "SubscriptionEndpoint"};
+            storage = new RavenSubscriptionStorage { Store = store, Database = "" };
             storage.Init();
         }
 
