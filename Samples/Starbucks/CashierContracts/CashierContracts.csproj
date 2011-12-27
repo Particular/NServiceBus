@@ -44,9 +44,9 @@
   <ItemGroup>
     <Compile Include="DrinkSize.cs" />
     <Compile Include="NewOrderMessage.cs" />
-    <Compile Include="PaymentCompleteMessage.cs" />
+    <Compile Include="OrderPaid.cs" />
     <Compile Include="PaymentMessage.cs" />
-    <Compile Include="PrepareOrderMessage.cs" />
+    <Compile Include="OrderPlaced.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -37,7 +37,7 @@ namespace Cashier
             Data.CustomerName = message.CustomerName;
             Data.Amount = CalculateAmountAccordingTo(message.DrinkSize);
 
-            Bus.Publish(new PrepareOrderMessage(Data.CustomerName, Data.Drink, Data.DrinkSize, Data.OrderId));
+            Bus.Publish(new OrderPlaced(Data.CustomerName, Data.Drink, Data.DrinkSize, Data.OrderId));
             Bus.Reply(new PaymentRequestMessage(Data.Amount, message.CustomerName, message.OrderId));
         }
 
@@ -48,7 +48,7 @@ namespace Cashier
                 var viewData = new ReceivedFullPaymentView(Data.CustomerName, Data.Drink, Data.DrinkSize);
                 _view.ReceivedFullPayment(viewData);
 
-                Bus.Publish(new PaymentCompleteMessage(Data.OrderId));
+                Bus.Publish(new OrderPaid(Data.OrderId));
             }
             else if(message.Amount == 0)
             {

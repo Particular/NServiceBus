@@ -8,8 +8,8 @@ using NServiceBus.Saga;
 namespace Barista
 {
     public class BaristaMessageHandler : Saga<BaristaSagaData>,
-                                         IAmStartedByMessages<PrepareOrderMessage>,
-                                         IHandleMessages<PaymentCompleteMessage>
+                                         IAmStartedByMessages<OrderPlaced>,
+                                         IHandleMessages<OrderPaid>
     {
         private readonly IStarbucksBaristaView _view;
 
@@ -23,11 +23,11 @@ namespace Barista
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<PrepareOrderMessage>(s => s.OrderId, m => m.OrderId);
-            ConfigureMapping<PaymentCompleteMessage>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<OrderPlaced>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<OrderPaid>(s => s.OrderId, m => m.OrderId);
         }
 
-        public void Handle(PrepareOrderMessage message)
+        public void Handle(OrderPlaced message)
         {
             var viewData = new PrepareOrderView(message.CustomerName, message.Drink, message.DrinkSize);
             _view.PrepareOrder(viewData);
@@ -49,7 +49,7 @@ namespace Barista
             DeliverOrder();
         }
 
-        public void Handle(PaymentCompleteMessage message)
+        public void Handle(OrderPaid message)
         {
             Data.OrderIsPaid = true;
             DeliverOrder();
