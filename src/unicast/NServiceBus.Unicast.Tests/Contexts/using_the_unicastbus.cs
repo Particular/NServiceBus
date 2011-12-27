@@ -89,8 +89,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
 
 
-        protected void RegisterMessageHandlerType<T>()
+        protected void RegisterMessageHandlerType<T>() where T : new()
         {
+            FuncBuilder.Register<T>(()=> new T());
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
         }
         protected void RegisterOwnedMessageType<T>()
