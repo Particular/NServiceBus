@@ -14,6 +14,7 @@ namespace HR.Host
                 .MsmqTransport()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
+                    .InMemorySubscriptionStorage()
                 .UnicastBus()
                     .ImpersonateSender(false)
                     .LoadMessageHandlers()
