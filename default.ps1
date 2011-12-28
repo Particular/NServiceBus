@@ -481,8 +481,7 @@ task CreatePackages -depends PrepareRelease  {
 
 
 	#region Packing NServiceBus
-	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 
-	
+	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 	
 	$packit.package_description = "The most popular open-source service bus for .net"
 	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
 	#endregion
@@ -503,6 +502,18 @@ task CreatePackages -depends PrepareRelease  {
 	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
 	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
 	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll"
+	#endregion
+	
+	#region Packing NServiceBus.Tools
+	$runMeFirstFileContent = ".\msmqutils\runner.exe %1"
+	$runMeFirstFile = "$releaseRoot\tools\RunMeFirst.bat"
+	Write-Output $runMeFirstFileContent > $runMeFirstFile
+	
+	$packageName = "NServiceBus.Tools" + $PackageNameSuffix
+	$packit.package_description = "The tools to configure the nservicebus"
+	invoke-packit $packageName $script:packageVersion @{} "" @{".\release\tools\msmqutils\*.*"="tools\msmqutils";".\release\tools\*.*"="tools"}
+	
+	Remove-Item -Force $runMeFirstFile -ErrorAction SilentlyContinue
 	#endregion
 	
 	#region Packing NServiceBus.Integration.WebServices
@@ -580,7 +591,7 @@ task PrepareReleaseWithoutSamples -depends PrepareBinaries {
 	Copy-Item -Force "$baseDir\RunMeFirst.ps1" $releaseRoot -ErrorAction  SilentlyContinue
 	
 	Copy-Item -Force -Recurse "$buildBase\tools" $releaseRoot\tools -ErrorAction SilentlyContinue
-	
+
 	cd $releaseRoot\tools
 	dir -recurse -include ('*.xml', '*.pdb') |ForEach-Object {
 	write-host deleting $_ 
