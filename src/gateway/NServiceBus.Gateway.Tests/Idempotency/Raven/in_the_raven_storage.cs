@@ -24,7 +24,7 @@
             
             store.Initialize();
 
-            ravenPersister = new RavenDBPersistence(store);
+            ravenPersister = new RavenDbPersistence(store);
         }
 
         [TearDown]
@@ -50,7 +50,7 @@
         {
             using (var session = store.OpenSession())
             {
-                var messageStored = session.Load<GatewayMessage>(RavenDBPersistence.EscapeClientId(clientId));
+                var messageStored = session.Load<GatewayMessage>(RavenDbPersistence.EscapeClientId(clientId));
 
                 return new TestMessage
                 {

@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
 using NServiceBus.Saga;
-using Raven.Client;
 
 namespace NServiceBus.SagaPersisters.Raven
 {
+    using global::Raven.Client;
+
     public class RavenSagaPersister : ISagaPersister
     {
         public IDocumentStore Store { get; set; }
-
-        public string Database { get; set; }
 
         public void Save(ISagaEntity saga)
         {
@@ -57,10 +56,7 @@ namespace NServiceBus.SagaPersisters.Raven
 
         IDocumentSession OpenSession()
         {
-            if (string.IsNullOrEmpty(Database))
-                return Store.OpenSession();
-
-            return Store.OpenSession(Database);
+            return Store.OpenSession();
         }
     }
 }

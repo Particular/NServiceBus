@@ -24,17 +24,17 @@ namespace NServiceBus
 
         public static Configure RavenPersistence(this Configure config)
         {
-            var connectionStringEntry = ConfigurationManager.ConnectionStrings["RavenDB"];
+            var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
-            //use exsiting config if we can find one
+            //use exisiting config if we can find one
             if (connectionStringEntry != null)
-                return RavenPersistence(config,"RavenDB");
+                return RavenPersistence(config, "NServiceBus.Persistence");
 
             var store = new DocumentStore
             {
                 Url = RavenPersistenceConstants.DefaultUrl,
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DefaultDatabase = Configure.EndpointName
+                DefaultDatabase = databaseNamingConvention()
             };
 
             return RavenPersistence(config, store);
@@ -42,7 +42,19 @@ namespace NServiceBus
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
-            return RavenPersistence(config, connectionStringName, Configure.EndpointName);
+
+            var connectionStringEntry = ConfigurationManager.ConnectionStrings[connectionStringName];
+
+            if(connectionStringEntry == null)
+                throw new ConfigurationErrorsException(string.Format("No connection string named {0} was found",connectionStringName));
+
+            string database = null;
+
+            if (!connectionStringEntry.ConnectionString.Contains("DefaultDatabase"))
+                database = databaseNamingConvention();
+            
+
+            return RavenPersistence(config, connectionStringName, database);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -51,8 +63,10 @@ namespace NServiceBus
             {
                 ConnectionStringName = connectionStringName,
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DefaultDatabase = database
             };
+
+            if (!string.IsNullOrEmpty(database))
+                store.DefaultDatabase = database;
 
             return RavenPersistence(config, store);
         }
@@ -70,6 +84,16 @@ namespace NServiceBus
 
             return config;
         }
+
+
+        public static Configure DefineRavenDatabaseNamingConvention(this Configure config,Func<string> convention)
+        {
+            databaseNamingConvention = convention;
+
+            return config;
+        }
+        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
+
 
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {

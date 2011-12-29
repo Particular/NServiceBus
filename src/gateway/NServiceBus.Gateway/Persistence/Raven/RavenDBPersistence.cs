@@ -7,11 +7,11 @@
     using global::Raven.Client;
     using Persistence;
 
-    public class RavenDBPersistence : IPersistMessages
+    public class RavenDbPersistence : IPersistMessages
     {
         readonly IDocumentStore store;
 
-        public RavenDBPersistence(IDocumentStore store)
+        public RavenDbPersistence(IDocumentStore store)
         {
             this.store = store;
         }
@@ -32,10 +32,6 @@
             {
                 session.Advanced.UseOptimisticConcurrency = true;
                 session.Store(gatewayMessage);
-
-                //todo
-                //documentSession.Advanced.DatabaseCommands.PutAttachment("calls/" + message.CallId, null, mp3, new Raven.Json.Linq.RavenJObject());
-                //var attachment = session.Advanced.DatabaseCommands.GetAttachment(id);
 
                 try
                 {

@@ -33,7 +33,7 @@ namespace NServiceBus
         }
         public static Configure RunGatewayWithRavenPersistence(this Configure config)
         {
-            return RunGateway(config, typeof(RavenDBPersistence));
+            return RunGateway(config, typeof(RavenDbPersistence));
         }
         public static Configure RunGateway(this Configure config, Type persistence)
         {
@@ -59,7 +59,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure UseRavenGatewayPersister(this Configure config)
         {
-            config.Configurer.ConfigureComponent<RavenDBPersistence>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.SingleInstance);
             return config;
         }
 

@@ -17,8 +17,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
                 if (!Configurer.HasComponent<IDocumentStore>())
                     Configure.Instance.RavenPersistence();
                 
-                Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(p => p.Database, Configure.EndpointName);
+                Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall);
             }
         }
     }

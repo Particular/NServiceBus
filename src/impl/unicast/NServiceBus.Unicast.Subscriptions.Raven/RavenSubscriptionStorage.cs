@@ -9,8 +9,6 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
     {
         public IDocumentStore Store { get; set; }
 
-        public string Database { get; set; }
-
         public void Init()
         {
         }
@@ -70,9 +68,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
         IDocumentSession OpenSession()
         {
-            var session = string.IsNullOrEmpty(Database) ?
-                Store.OpenSession() :
-                Store.OpenSession(Database);
+            var session = Store.OpenSession();
 
             session.Advanced.AllowNonAuthoritiveInformation = false;
 

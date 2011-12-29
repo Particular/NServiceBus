@@ -36,7 +36,8 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void It_should_configure_to_use_the_endpointname_as_the_database()
         {
-            Assert.AreEqual("MyEndpoint", persister.Database);
+            var actual = persister.Store as DocumentStore;
+            Assert.AreEqual("MyEndpoint", actual.DefaultDatabase);
         }
     }
 }

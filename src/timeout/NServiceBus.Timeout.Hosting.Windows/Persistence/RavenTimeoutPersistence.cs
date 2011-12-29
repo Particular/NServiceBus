@@ -44,12 +44,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         IDocumentSession OpenSession()
         {
-            if (string.IsNullOrEmpty(Database))
-                return store.OpenSession();
-
-            return store.OpenSession(Database);
+            return store.OpenSession();
         }
-
-        public string Database { get; set; }
     }
 }

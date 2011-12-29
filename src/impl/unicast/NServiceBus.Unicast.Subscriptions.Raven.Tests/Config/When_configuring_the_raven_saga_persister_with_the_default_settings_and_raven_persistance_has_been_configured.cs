@@ -38,7 +38,8 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
         [Test]
         public void It_should_configure_to_use_the_calling_assembly_name_as_the_endpoint()
         {
-            Assert.AreEqual("MyEndpoint", subscriptionStorage.Database);
+            var actual = subscriptionStorage.Store as DocumentStore;
+            Assert.AreEqual("MyEndpoint", actual.DefaultDatabase);
         }
     }
 }

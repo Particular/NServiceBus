@@ -20,7 +20,7 @@ namespace NServiceBus
             {
                 if (!Configurer.HasComponent<IDocumentStore>())
                     Configure.Instance.RavenPersistence();
-                Configurer.ConfigureComponent<RavenDBPersistence>(DependencyLifecycle.InstancePerCall);
+                Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.InstancePerCall);
             }
                     
         }
