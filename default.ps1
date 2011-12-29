@@ -212,12 +212,12 @@ task CompileAzure -depends InitEnvironment {
 	}
 	
 	$testAssemblies = dir $buildBase\azure\NServiceBus.Azure\**Tests.dll
-	
+	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
 #	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 	
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
-	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies "" "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
 	
 }
 
