@@ -9,9 +9,13 @@ param(
     [switch]$desc = $false
   )
 
-if($taskList -eq $null){
+if(($taskList -eq $null) -or ($args -eq $null)){
 	$taskList = @("PrepareBinaries")
 }
+elseif($taskList.Count -le 0){
+	$taskList = @("PrepareBinaries")
+}
+
 
 Import-Module .\tools\psake\psake.psm1 -ErrorAction SilentlyContinue
 
