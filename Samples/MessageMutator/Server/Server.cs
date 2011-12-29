@@ -11,8 +11,6 @@ namespace Server
     {
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<MultiplierMutator>(
-                DependencyLifecycle.InstancePerCall);
             Configure.Instance.Configurer.ConfigureComponent<CompressionMutator>(
                 DependencyLifecycle.InstancePerCall);
         }
