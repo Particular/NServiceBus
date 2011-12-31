@@ -2,7 +2,7 @@
 {
     using NServiceBus.Hosting.Profiles;
 
-    internal class TimeoutProfileHandler : IHandleProfile<Timeout>, IWantTheEndpointConfig
+    internal class TimeoutProfileHandler : IHandleProfile<StartTimeoutManager>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
