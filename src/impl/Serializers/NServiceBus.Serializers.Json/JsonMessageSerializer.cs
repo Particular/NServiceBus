@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json
     protected override JsonWriter CreateJsonWriter(Stream stream)
     {
       var streamWriter = new StreamWriter(stream, Encoding.UTF8);
-      return new JsonTextWriter(streamWriter) { Formatting = Formatting.Indented };
+      return new JsonTextWriter(streamWriter) { Formatting = Formatting.None };
     }
 
     protected override JsonReader CreateJsonReader(Stream stream)
