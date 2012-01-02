@@ -15,16 +15,17 @@ namespace NServiceBus.Serializers.Json.Internal
 
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            var mappedType = _messageMapper.GetMappedTypeFor(serializedType);
-            assemblyName = mappedType.Assembly.GetName().Name;
-            typeName = mappedType.FullName;
+            var mappedType = _messageMapper.GetMappedTypeFor(serializedType) ?? serializedType;
+
+            assemblyName = null;
+            typeName = mappedType.AssemblyQualifiedName;
         }
 
         public override Type BindToType(string assemblyName, string typeName)
         {
-            string resolvedTypeName = typeName + ", " + assemblyName;
-
-            return Type.GetType(resolvedTypeName, true);
+          throw new NotImplementedException();
+          //string resolvedTypeName = typeName + ", " + assemblyName;
+          //return Type.GetType(resolvedTypeName, true);
         }
     }
 }
