@@ -70,7 +70,7 @@ namespace NServiceBus.MessageHeaders
                 bus.MessagesSent +=
                             (s2, a2) =>
                             {
-                                if (a2.Messages != null)
+                                if (a2.Messages != null && messageHeaders != null)
                                     foreach (var msg in a2.Messages)
                                         messageHeaders.Remove(msg);
                             };
