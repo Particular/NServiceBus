@@ -117,7 +117,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public string GetNewTypeName(Type t)
         {
-            return t.Namespace + "." + SUFFIX + t.Name;
+            return t.FullName + SUFFIX;
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        private static readonly string SUFFIX = ".__Impl";
+        private static readonly string SUFFIX = "__impl";
         private static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
         private static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
         private static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
