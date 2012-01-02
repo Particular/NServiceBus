@@ -109,9 +109,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
+    <Compile Include="EnclosedMessageTypesMutator.cs" />
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageContext.cs" />

@@ -31,11 +31,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
-        /// <summary>
-        /// Header entry key indicating the types of messages contained.
-        /// </summary>
-        public const string EnclosedMessageTypes = "EnclosedMessageTypes";
-
         private const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
 
         #region config properties
@@ -347,7 +342,7 @@ namespace NServiceBus.Unicast
             var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t)))
                 .ToList();
 
-            if (subscribers.Count() == 0)
+            if (!subscribers.Any())
                 if (NoSubscribersForMessage != null)
                     NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
 
@@ -641,7 +636,6 @@ namespace NServiceBus.Unicast
 
             var result = new List<string>();
 
-            messages[0].SetHeader(EnclosedMessageTypes, SerializeEnclosedMessageTypes(messages));
             var toSend = new TransportMessage { CorrelationId = correlationId, MessageIntent = messageIntent };
 
             MapTransportMessageFor(messages, toSend);
@@ -682,37 +676,9 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        /// <summary>
-        /// Takes the given message types and serializes them for inclusion in the EnclosedMessageTypes header.
-        /// </summary>
-        /// <param name="messages"></param>
-        /// <returns></returns>
-        public static string SerializeEnclosedMessageTypes(object[] messages)
-        {
-            var types = GetFullTypes(messages);
+      
 
-            var sBuilder = new StringBuilder("<MessageTypes>");
-            types.ForEach(type => sBuilder.Append("<s>" + type.AssemblyQualifiedName + "</s>"));
-            sBuilder.Append("</MessageTypes>");
-
-            return sBuilder.ToString();
-        }
-
-        /// <summary>
-        /// Takes the serialized form of EnclosedMessageTypes and returns a list of string types.
-        /// </summary>
-        /// <param name="serialized"></param>
-        /// <returns></returns>
-        public static IList<string> DeserializeEnclosedMessageTypes(string serialized)
-        {
-            string temp = serialized.Replace("<MessageTypes><s>", "");
-            temp = temp.Replace("</s></MessageTypes>", "");
-            string[] arr = temp.Split(new[] { "</s><s>" }, StringSplitOptions.RemoveEmptyEntries);
-
-            return new List<string>(arr);
-        }
-
-        private static List<Type> GetFullTypes(IEnumerable<object> messages)
+        static List<Type> GetFullTypes(IEnumerable<object> messages)
         {
             var types = new List<Type>();
 

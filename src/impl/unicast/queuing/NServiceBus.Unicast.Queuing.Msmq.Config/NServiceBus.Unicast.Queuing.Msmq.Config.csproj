@@ -49,6 +49,10 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.MessageMutator, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
@@ -78,7 +82,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
     <Compile Include="Installer.cs" />
     <Compile Include="MsmqMessageQueueConfig.cs" />

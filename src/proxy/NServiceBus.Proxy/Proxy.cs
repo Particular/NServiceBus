@@ -60,12 +60,11 @@ namespace NServiceBus.Proxy
         {
             if (e.Message.MessageIntent == MessageIntentEnum.Publish)
             {
-                string val = null;
-                foreach (var header in e.Message.Headers)
-                    if (header.Key == UnicastBus.EnclosedMessageTypes)
-                        val = header.Value;
+                if(!e.Message.Headers.ContainsKey(EnclosedMessageTypesMutator.EnclosedMessageTypes))
+                    throw new InvalidOperationException("Enclosed message type header was not found in message");
 
-                var types = UnicastBus.DeserializeEnclosedMessageTypes(val);
+
+                var types = e.Message.Headers[EnclosedMessageTypesMutator.EnclosedMessageTypes].Split(';');
 
                 var subs = Subscribers.GetSubscriberAddressesForMessage(types.Select(s=> new MessageType(s)));
 
