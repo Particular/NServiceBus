@@ -36,7 +36,8 @@ namespace NServiceBus.Timeout.Core
                                    Destination = message.ReplyToAddress,
                                    SagaId = sagaId,
                                    State = message.Body,
-                                   Time = DateTime.Parse(message.Headers[Headers.Expire])
+                                   Time = DateTime.Parse(message.Headers[Headers.Expire]),
+                                   CorrelationId = message.CorrelationId
                                };
 
                 Manager.PushTimeout(data);

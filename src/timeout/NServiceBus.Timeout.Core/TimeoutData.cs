@@ -27,5 +27,10 @@
         /// The time at which the saga ID expired.
         /// </summary>
         public DateTime Time { get; set; }
+
+        /// <summary>
+        /// We store the correlation id in order to preserve it across timeouts
+        /// </summary>
+        public string CorrelationId { get; set; }
     }
 }

@@ -50,13 +50,14 @@
                                            Headers = new Dictionary<string, string>(),
                                            Recoverable = true,
                                            MessageIntent = MessageIntentEnum.Send,
+                                           CorrelationId = timeoutData.CorrelationId,
                                            Body = timeoutData.State
                                        };
 
-            transportMessage.Headers[NServiceBus.Headers.Expire] = timeoutData.Time.ToString();
+            transportMessage.Headers[Headers.Expire] = timeoutData.Time.ToString();
 
             if(timeoutData.SagaId != Guid.Empty)
-                transportMessage.Headers[NServiceBus.Headers.SagaId] = timeoutData.SagaId.ToString();
+                transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
 
             return transportMessage;
         }
