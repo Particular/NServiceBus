@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Unicast
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using Config;
     using MessageMutator;
     using Transport;
@@ -43,8 +41,7 @@
 
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<EnclosedMessageTypesMutator>(
-                DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<EnclosedMessageTypesMutator>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

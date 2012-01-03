@@ -54,6 +54,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
+            
+            
 
             unicastBus = new UnicastBus
             {
@@ -69,6 +71,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
             };
             bus = unicastBus;
+
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CorrelationIdMutator{Bus = bus});
+            FuncBuilder.Register<IBus>(() => bus);
+            
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
 
         }

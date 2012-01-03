@@ -25,7 +25,19 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public object Build(Type typeToBuild)
         {
-            return funcs.First(f => f.Item1 == typeToBuild).Item2();
+            var obj = funcs.First(f => f.Item1 == typeToBuild).Item2();
+
+            //enable property injection
+            obj.GetType().GetProperties()
+                .Select(p=>p.PropertyType)
+                .Intersect(funcs.Select(f=>f.Item1)).ToList()
+                .ForEach(propertyTypeToSet=>
+                             {
+                                 obj.GetType().GetProperties().First(p=>p.PropertyType == propertyTypeToSet)
+                                     .SetValue(obj, Build(propertyTypeToSet), null);
+                             });
+
+            return obj;
         }
 
         public IBuilder CreateChildBuilder()

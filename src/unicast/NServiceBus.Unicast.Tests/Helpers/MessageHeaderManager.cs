@@ -2,8 +2,8 @@ namespace NServiceBus.Unicast.Tests.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Transport;
+    using MessageMutator;
+    using Transport;
 
     public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {
@@ -11,13 +11,15 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
             foreach (var staticHeader in staticHeaders.Keys)
             {
-                transportMessage.Headers.Add(staticHeader,staticHeaders[staticHeader]);
+                transportMessage.Headers.Add(staticHeader, staticHeaders[staticHeader]);
             }
 
-            if (messageHeaders != null)
-                if (messageHeaders.ContainsKey(messages[0]))
-                    foreach (var key in messageHeaders[messages[0]].Keys)
-                        transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
+            if (messageHeaders == null)
+                return;
+
+            if (messageHeaders.ContainsKey(messages[0]))
+                foreach (var key in messageHeaders[messages[0]].Keys)
+                    transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
 
             messageHeaders.Clear();
         }
