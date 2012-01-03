@@ -192,7 +192,7 @@ namespace NServiceBus.Unicast
         /// The TTR to set on forwarded messages. 
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-        
+
 
         /// <summary>
         /// Should be used by administrator, not programmer.
@@ -676,7 +676,7 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-      
+
 
         static List<Type> GetFullTypes(IEnumerable<object> messages)
         {
@@ -1032,7 +1032,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="msg">The message to evaluate.</param>
         /// <param name="messages">The logical messages in the transport message.</param>
-        private void HandleCorellatedMessage(TransportMessage msg, object[] messages)
+        void HandleCorellatedMessage(TransportMessage msg, object[] messages)
         {
             if (msg.CorrelationId == null)
                 return;
@@ -1045,14 +1045,15 @@ namespace NServiceBus.Unicast
                 messageIdToAsyncResultLookup.Remove(msg.CorrelationId);
             }
 
-            if (busAsyncResult != null)
-                if (msg.IsControlMessage())
-                {
-                    if (msg.Headers.ContainsKey(ReturnMessageErrorCodeHeader))
-                        busAsyncResult.Complete(int.Parse(msg.Headers[ReturnMessageErrorCodeHeader]), null);
-                    else
-                        busAsyncResult.Complete(int.MinValue, messages);
-                }
+            if (busAsyncResult == null)
+                return;
+
+            var statusCode = int.MinValue;
+
+            if (msg.IsControlMessage() && msg.Headers.ContainsKey(ReturnMessageErrorCodeHeader))
+                statusCode = int.Parse(msg.Headers[ReturnMessageErrorCodeHeader]);
+
+            busAsyncResult.Complete(statusCode, messages);
         }
 
         /// <summary>
