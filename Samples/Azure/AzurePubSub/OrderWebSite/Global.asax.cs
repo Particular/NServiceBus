@@ -13,13 +13,21 @@ namespace OrderWebSite
     {
 		public static IBus Bus;
 		public static IList<MyMessages.Order> Orders;
-    	private static IStartableBus _configure;
-
+    	
 		private static readonly Lazy<IBus> StartBus = new Lazy<IBus>(ConfigureNServiceBus);
 		
 		private static IBus ConfigureNServiceBus()
 		{
-			var bus = _configure
+            var bus = Configure.WithWeb()
+                .DefaultBuilder()
+                .AzureConfigurationSource()
+                .AzureMessageQueue()
+                    .JsonSerializer()
+                    .QueuePerInstance()
+                .UnicastBus()
+                    .LoadMessageHandlers()
+                    .IsTransactional(true)
+                .CreateBus()
 				.Start();
 
 			bus.Send(new LoadOrdersMessage());
@@ -30,18 +38,6 @@ namespace OrderWebSite
     	protected void Application_Start(object sender, EventArgs e)
         {
 			Orders = new List<MyMessages.Order>();
-
-    		_configure = Configure.WithWeb()
-    			.DefaultBuilder()
-    			//.Log4Net(new AzureAppender())
-    			.AzureConfigurationSource()
-    			.AzureMessageQueue()
-    			    .JsonSerializer()
-                    .QueuePerInstance()
-    			.UnicastBus()
-    			    .LoadMessageHandlers()
-    			    .IsTransactional(true)
-				.CreateBus();
 		}
 
 		protected void Application_BeginRequest(object sender, EventArgs e)

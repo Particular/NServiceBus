@@ -22,9 +22,6 @@ namespace NServiceBus
             {
                 queueClient = CloudStorageAccount.Parse(configSection.ConnectionString).CreateCloudQueueClient();
                 Address.OverrideDefaultMachine(configSection.ConnectionString);
-
-                if (configSection.QueuePerInstance)
-                    Configure.Instance.CustomConfigurationSource(new IndividualQueueConfigurationSource(Configure.ConfigurationSource));
             }
             else
             {
@@ -47,7 +44,9 @@ namespace NServiceBus
 
             if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))
             {
-                Configure.Instance.DefineEndpointName(configSection.QueueName);
+                Configure.Instance.DefineEndpointName(configSection.QueuePerInstance
+                                                          ? QueueIndividualizer.Individualize(configSection.QueueName)
+                                                          : configSection.QueueName);
             }
             else if (RoleEnvironment.IsAvailable)
             {
@@ -118,9 +117,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure QueuePerInstance(this Configure config)
         {
-            if(! (Configure.ConfigurationSource is IndividualQueueConfigurationSource))
-                Configure.Instance.CustomConfigurationSource(new IndividualQueueConfigurationSource(Configure.ConfigurationSource));
-
+            Configure.Instance.DefineEndpointName(QueueIndividualizer.Individualize(Configure.EndpointName));
+            Address.InitializeLocalAddress(Configure.EndpointName);
             return config;
         }
     }

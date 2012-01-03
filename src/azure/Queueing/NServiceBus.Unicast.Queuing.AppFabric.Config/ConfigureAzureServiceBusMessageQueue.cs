@@ -17,9 +17,6 @@ namespace NServiceBus
 
             if (configSection == null)
                 throw new ConfigurationErrorsException("No AzureServiceBusQueueConfig configuration section found");
-
-            if (configSection.QueuePerInstance)
-                Configure.Instance.CustomConfigurationSource(new IndividualQueueConfigurationSource(Configure.ConfigurationSource));
     
             var credentials = TokenProvider.CreateSharedSecretTokenProvider(configSection.IssuerName, configSection.IssuerKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri("sb", configSection.ServiceNamespace, string.Empty);
@@ -43,7 +40,9 @@ namespace NServiceBus
 
             if (!string.IsNullOrEmpty(configSection.QueueName))
             {
-                Configure.Instance.DefineEndpointName(configSection.QueueName);
+                Configure.Instance.DefineEndpointName(configSection.QueuePerInstance
+                                                          ? QueueIndividualizer.Individualize(configSection.QueueName)
+                                                          : configSection.QueueName);
             }
             else if (RoleEnvironment.IsAvailable)
             {

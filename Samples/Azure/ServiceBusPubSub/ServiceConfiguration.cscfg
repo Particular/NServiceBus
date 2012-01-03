@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
   <Role name="OrderWebSite">
-    <Instances count="1" />
+    <Instances count="2" />
     <ConfigurationSettings>
       <Setting name="AzureServiceBusQueueConfig.IssuerKey" value="yourkey" />
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
