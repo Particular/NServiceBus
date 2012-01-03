@@ -36,7 +36,7 @@
       <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
-      <Setting name="NServiceBus.Profile" />
+      <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />

@@ -9,7 +9,7 @@
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-      <Setting name="UnicastBusConfig.LocalAddress" value="websiteinputqueue" />
+      <Setting name="AzureQueueConfig.QueueName" value="websiteinputqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
@@ -20,10 +20,10 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureDatabusConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="UnicastBusConfig.LocalAddress" value="serviceinputqueue" />
+      <Setting name="AzureQueueConfig.QueueName" value="serviceinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />

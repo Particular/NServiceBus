@@ -1,4 +1,5 @@
 using Microsoft.WindowsAzure.ServiceRuntime;
+using NServiceBus.Config;
 using NServiceBus.Config.Conventions;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Integration.Azure;
@@ -16,7 +17,7 @@ namespace NServiceBus.Hosting.Azure
     /// </summary>
     public class RoleEntryPoint : Microsoft.WindowsAzure.ServiceRuntime.RoleEntryPoint
     {
-        private const string ProfileSetting = "NServiceBus.Profile";
+        private const string ProfileSetting = "AzureProfileConfig.Profiles";
         private IHost host;
         private readonly ManualResetEvent waitForStop = new ManualResetEvent(false);
         private bool doNotReturnFromRun = true;
@@ -43,6 +44,7 @@ namespace NServiceBus.Hosting.Azure
 
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointConfigurationType);
             var requestedProfiles = requestedProfileSetting.Split(' ');
+            requestedProfiles = AddProfilesFromConfiguration(requestedProfiles);
 
             if (specifier is AsA_Host)
             {
@@ -50,6 +52,7 @@ namespace NServiceBus.Hosting.Azure
             }
             else
             {
+
                 //var endpointName = "Put somethingt smart here Yves"; // wonder if I live up to the expectations :)
                 var endpointName = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Role.Name : GetType().Name;
                 host = new GenericHost(specifier, requestedProfiles, new[] { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
@@ -139,6 +142,21 @@ namespace NServiceBus.Hosting.Azure
                     );
 
             }
+        }
+
+        private static string[] AddProfilesFromConfiguration(IEnumerable<string> args)
+        {
+            var list = new List<string>(args);
+
+            var configSection = Configure.GetConfigSection<AzureProfileConfig>();
+
+            if (configSection != null)
+            {
+                var configuredProfiles = configSection.Profiles.Split(',');
+                Array.ForEach(configuredProfiles, s => list.Add(s.Trim()));
+            }
+
+            return list.ToArray();
         }
     }
 }

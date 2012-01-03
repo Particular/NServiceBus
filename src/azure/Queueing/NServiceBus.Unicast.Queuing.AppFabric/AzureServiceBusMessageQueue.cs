@@ -20,15 +20,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const long DefaultDefaultMessageTimeToLive =  92233720368547;
         public const bool DefaultEnableDeadLetteringOnMessageExpiration = false;
         public const int DefaultDuplicateDetectionHistoryTimeWindow = 600000;
-        public const int DefaultMaxDeliveryCount = 5;
+        public const int DefaultMaxDeliveryCount = 6;
         public const bool DefaultEnableBatchedOperations = false;
         public const bool DefaultQueuePerInstance = false;
 
         private readonly Dictionary<string, QueueClient> senders = new Dictionary<string, QueueClient>();
         private static readonly object SenderLock = new Object();
 
-        private readonly MessagingFactory factory;
-        private readonly NamespaceManager namespaceClient;
+        
         private bool useTransactions;
         private QueueClient queueClient;
         private string queueName;
@@ -43,12 +42,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public int MaxDeliveryCount { get; set; }
         public bool EnableBatchedOperations { get; set; }
 
-        public AzureServiceBusMessageQueue(MessagingFactory factory, NamespaceManager namespaceClient)
-        {
-            this.factory = factory;
-            this.namespaceClient = namespaceClient;
-        }
-        
+        public MessagingFactory Factory { get; set; }
+        public NamespaceManager NamespaceClient { get; set; }
+
         public void Init(string address, bool transactional)
         {
             Init(Address.Parse(address), transactional);
@@ -72,14 +68,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                                            EnableBatchedOperations = EnableBatchedOperations
                                       };
 
-                namespaceClient.CreateQueue(description);
+                NamespaceClient.CreateQueue(description);
             }
             catch (MessagingEntityAlreadyExistsException)
             {
                 // the queue already exists, which is ok
             }
 
-            queueClient = factory.CreateQueueClient(queueName, ReceiveMode.PeekLock);
+            queueClient = Factory.CreateQueueClient(queueName, ReceiveMode.PeekLock);
             
             useTransactions = transactional;
         }
@@ -134,7 +130,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     {
                             try
                             {
-                                sender = factory.CreateQueueClient(destination);
+                                sender = Factory.CreateQueueClient(destination);
                                 senders[destination] = sender;
                             }
                             catch (MessagingEntityNotFoundException)

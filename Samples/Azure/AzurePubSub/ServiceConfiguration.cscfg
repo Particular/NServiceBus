@@ -27,7 +27,7 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="orderserviceinputqueue" />
       
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Diagnostics.Level" value="Error" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />

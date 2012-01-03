@@ -14,7 +14,7 @@
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="Diagnostics.Level" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="UnicastBusConfig.LocalAddress" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>
@@ -27,10 +27,10 @@
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureDatabusConfig.ConnectionString" />
-      <Setting name="NServiceBus.Profile" />
+      <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="Diagnostics.ConnectionString" />
       <Setting name="Diagnostics.Level" />
-      <Setting name="UnicastBusConfig.LocalAddress" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />

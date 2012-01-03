@@ -96,7 +96,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
+    <Compile Include="AzureProfileConfig.cs" />
     <Compile Include="DynamicHost\DynamicHostControllerConfig.cs" />
     <Compile Include="DynamicHost\DynamicEndpointLoader.cs" />
     <Compile Include="DynamicHost\DynamicEndpointProvisioner.cs" />

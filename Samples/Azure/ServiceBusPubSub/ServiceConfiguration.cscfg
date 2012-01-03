@@ -24,7 +24,7 @@
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
 
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
 
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
             

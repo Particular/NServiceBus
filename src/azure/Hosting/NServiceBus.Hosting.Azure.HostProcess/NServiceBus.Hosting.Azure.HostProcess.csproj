@@ -71,9 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Arguments\HostArguments.cs" />
-    <Compile Include="AzureHostConfig.cs" />
     <Compile Include="HostServiceLocator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

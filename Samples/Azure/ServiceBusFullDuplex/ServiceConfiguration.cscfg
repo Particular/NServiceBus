@@ -22,7 +22,7 @@
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
       
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Development NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />      
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />

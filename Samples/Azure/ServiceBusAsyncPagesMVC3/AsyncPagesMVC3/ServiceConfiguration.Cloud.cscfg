@@ -20,7 +20,7 @@
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="workerinputqueue" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="NServiceBus.Profile" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />

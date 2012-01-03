@@ -5,6 +5,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
 {
     public class TimeoutDataEntity : TableServiceEntity
     {
+        public TimeoutDataEntity(){}
+
         public TimeoutDataEntity(string partitionKey, string rowKey)
             : base(partitionKey, rowKey)
         {
@@ -29,5 +31,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
         /// The time at which the saga ID expired.
         /// </summary>
         public DateTime Time { get; set; }
+
+        /// <summary>
+        /// The correlation id
+        /// </summary>
+        public string CorrelationId { get; set; }
     }
 }

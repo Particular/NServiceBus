@@ -38,8 +38,8 @@ namespace Barista
             Data.OrderId = message.OrderId;
             Data.Size = message.DrinkSize;
 
-            RequestTimeout(TimeSpan.FromMinutes(1), null);
-            
+            RequestUtcTimeout(TimeSpan.FromMinutes(1), new TimeoutMessage(TimeSpan.FromMinutes(1), Data, null));
+                        
             for(var i=0; i<10; i++)
             {
                 Thread.Sleep(1000);

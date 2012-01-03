@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Services.Client;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
-using Newtonsoft.Json;
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
@@ -27,7 +24,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                         Destination = Address.Parse(c.Destination),
                         SagaId = c.SagaId,
                         State = Deserialize(c.StateAddress),
-                        Time = c.Time
+                        Time = c.Time,
+                        CorrelationId = c.CorrelationId
                     });
         }
 
@@ -42,7 +40,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                                           Destination = timeout.Destination.ToString(),
                                           SagaId = timeout.SagaId,
                                           StateAddress = stateAddress,
-                                          Time = timeout.Time
+                                          Time = timeout.Time,
+                                          CorrelationId = timeout.CorrelationId
                                       });
             context.SaveChanges(SaveChangesOptions.ReplaceOnUpdate);
         }
@@ -109,35 +108,17 @@ namespace NServiceBus.Timeout.Hosting.Azure
             container.CreateIfNotExist();
         }
 
-        private string Serialize(object state, string hash)
+        private string Serialize(byte[] state, string hash)
         {
-            using (var stream = new MemoryStream())
-            {
-                 var streamWriter = new StreamWriter(stream, Encoding.UTF8);
-                 var writer = new JsonTextWriter(streamWriter) { Formatting = Formatting.Indented };
-                 var serializer = CreateJsonSerializer();
-                 serializer.Serialize(writer, state);
-
-                var blob = container.GetBlockBlobReference(hash);
-                blob.UploadFromStream(stream);
-            }
+            var blob = container.GetBlockBlobReference(hash);
+            blob.UploadByteArray(state);
             return hash;
         }
 
         private byte[] Deserialize(string stateAddress)
         {
             var blob = container.GetBlockBlobReference(stateAddress);
-            using (var stream = new MemoryStream())
-            {
-                blob.DownloadToStream(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-
-                var streamReader = new StreamReader(stream, Encoding.UTF8);
-                var reader = new JsonTextReader(streamReader);
-                var serializer = CreateJsonSerializer();
-                //return serializer.Deserialize(reader);
-                return new byte[0];//fix this one Yves!!
-            }
+            return blob.DownloadByteArray();
         }
 
         private void RemoveSerializedState(string stateAddress)
@@ -146,18 +127,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             blob.DeleteIfExists();
         }
 
-        private JsonSerializer CreateJsonSerializer()
-        {
-            var serializerSettings = new JsonSerializerSettings
-            {
-                TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                TypeNameHandling = TypeNameHandling.Objects
-            };
-            
-            return JsonSerializer.Create(serializerSettings);
-        }
-
-        private string Hash(TimeoutData timeout)
+        private static string Hash(TimeoutData timeout)
         {
             var s = timeout.SagaId + timeout.Destination.ToString() + timeout.Time.Ticks;
             var sha1 = SHA1.Create();

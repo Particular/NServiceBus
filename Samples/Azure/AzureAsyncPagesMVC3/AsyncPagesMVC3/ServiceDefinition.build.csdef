@@ -39,7 +39,7 @@
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
-      <Setting name="NServiceBus.Profile" />
+      <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />

@@ -26,13 +26,13 @@
       <Import moduleName="RemoteForwarder" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="NServiceBus.Profile" />
+      <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="DynamicHostControllerConfig.ConnectionString" />
       <Setting name="DynamicHostControllerConfig.AutoUpdate" />
       <Setting name="DynamicHostControllerConfig.UpdateInterval" />
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="UnicastBusConfig.LocalAddress" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
     </ConfigurationSettings>
@@ -40,4 +40,9 @@
       <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />
     </LocalResources>
   </WebRole>
+  <WorkerRole name="Worker" vmsize="Small">
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+  </WorkerRole>
 </ServiceDefinition>

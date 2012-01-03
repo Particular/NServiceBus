@@ -23,7 +23,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public const bool DefaultQueuePerInstance = false;
 
         private CloudQueue queue;
-        private readonly CloudQueueClient client;
         private int timeToDelayNextPeek;
         private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
         private readonly Dictionary<string, CloudQueueClient> destinationQueueClients = new Dictionary<string, CloudQueueClient>(); 
@@ -59,9 +58,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
         /// </summary>
         public IMessageSerializer MessageSerializer { get; set; }
 
-        public AzureMessageQueue(CloudQueueClient client)
+        public CloudQueueClient Client { get; set; }
+
+        public AzureMessageQueue()
         {
-            this.client = client;
             MessageInvisibleTime = DefaultMessageInvisibleTime;
             PeekInterval = DefaultPeekInterval;
             MaximumWaitTimeWhenIdle = DefaultMaximumWaitTimeWhenIdle;
@@ -76,7 +76,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
-            queue = client.GetQueueReference(SanitizeQueueName(address.Queue));
+            queue = Client.GetQueueReference(SanitizeQueueName(address.Queue));
             queue.CreateIfNotExist();
 
 			if (PurgeOnStartup)
@@ -90,7 +90,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, Address address)
         {
-            var sendClient = GetClientForConnectionString(address.Machine) ?? client;
+            var sendClient = GetClientForConnectionString(address.Machine) ?? Client;
 
             var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Queue));
 
@@ -267,7 +267,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void CreateQueue(string queueName)
         {
-            client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
+            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
         }
 
         private string SanitizeQueueName(string queueName)

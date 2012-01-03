@@ -94,12 +94,12 @@ namespace NServiceBus.Integration.Azure
 
                 DiagnosticMonitor.Start(cloudStorageAccount, configuration);
             }
-            else
+            /*else
             {
                 ConfigureDiagnostics(configuration);
 
                 roleInstanceDiagnosticManager.SetCurrentConfiguration(configuration);
-            }
+            }*/
             
         }
 

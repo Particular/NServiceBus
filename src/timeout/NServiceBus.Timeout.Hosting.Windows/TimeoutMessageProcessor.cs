@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Timeout.Hosting.Windows
+﻿using NServiceBus.Unicast.Queuing;
+
+namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Config;
@@ -12,17 +14,21 @@
     public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts,IDisposable 
     {
         public TransactionalTransport MainTransport { get; set; }
-        
+
         public IBuilder Builder { get; set; }
+
+        public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
 
         public void Run()
         {
             if (!ConfigureTimeoutManager.TimeoutManagerEnabled)
                 return;
 
+            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
+
             inputTransport = new TransactionalTransport
             {
-                MessageReceiver = new MsmqMessageReceiver(),
+                MessageReceiver = messageReceiver,
                 IsTransactional = true,
                 NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                 MaxRetries = MainTransport.MaxRetries,

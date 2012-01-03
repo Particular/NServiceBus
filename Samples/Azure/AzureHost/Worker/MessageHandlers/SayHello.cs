@@ -15,7 +15,7 @@ namespace Worker.MessageHandlers
         public void Handle(SayHelloTo message)
         {
             var hello = bus.CreateInstance<Hello>();
-            hello.Text = "Hello " + message.Name + " mmmmmmmmmmmmmm";
+            hello.Text = "Hello " + message.Name + " !!!!!!!!!!!!!!!!!!!!";
             bus.Reply(hello);
         }
     }

@@ -33,9 +33,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             nativeQueue.Clear();
 
 
-            queue = new AzureMessageQueue(client)
+            queue = new AzureMessageQueue
                         {
-                            PurgeOnStartup = PurgeOnStartup
+                            PurgeOnStartup = PurgeOnStartup,
+                            Client = client
                         };
 
             queue.Init(QueueName,true);

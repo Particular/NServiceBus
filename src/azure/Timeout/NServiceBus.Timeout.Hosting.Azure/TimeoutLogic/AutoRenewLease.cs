@@ -9,10 +9,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
     {
         public bool HasLease { get { return leaseId != null; } }
 
-        private CloudBlob blob;
-        private string leaseId;
+        private readonly CloudBlob blob;
+        private readonly string leaseId;
         private Thread renewalThread;
-        private bool disposed = false;
+        private bool disposed;
 
         public AutoRenewLease(CloudBlob blob)
         {
