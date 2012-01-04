@@ -2,7 +2,7 @@
 {
     using Hosting.Profiles;
     
-    internal class GatewayProfileHandler : IHandleProfile<StartGateway>, IWantTheEndpointConfig
+    internal class GatewayProfileHandler : IHandleProfile<RunGateway>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {

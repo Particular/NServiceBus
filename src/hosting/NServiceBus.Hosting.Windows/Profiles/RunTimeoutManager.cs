@@ -3,7 +3,7 @@
     /// <summary>
     /// Indicates that this node will have a Timeout manager
     /// </summary>
-    public interface StartTimeoutManager : IProfile
+    public interface RunTimeoutManager : IProfile
     {
     }
 }

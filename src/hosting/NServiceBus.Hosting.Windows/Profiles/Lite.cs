@@ -3,7 +3,7 @@
     /// <summary>
     /// Indicates that the lightest weight infrastructure should be used.
     /// </summary>
-    public class Lite : StartTimeoutManager, StartGateway
+    public class Lite : RunTimeoutManager
     {
     }
 }

@@ -19,7 +19,8 @@ namespace SiteB
                 .XmlSerializer()
                 .MsmqTransport()
                 .UnicastBus()
-                .RunGateway()
+                .RunGateway()//this line configures the gateway.
+                .UseInMemoryGatewayPersister() //this tells nservicebus to use Raven to store messages ids for deduplication. If omitted RavenDB will be used by default
                 .CreateBus()
                 .Start();
            

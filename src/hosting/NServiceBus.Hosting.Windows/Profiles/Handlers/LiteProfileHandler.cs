@@ -15,10 +15,10 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            if (ActiveProfiles.Contains(typeof(StartTimeoutManager)))
+            if (ActiveProfiles.Contains(typeof(RunTimeoutManager)))
                 Configure.Instance.UseInMemoryTimeoutPersister();
 
-            if (ActiveProfiles.Contains(typeof(StartGateway)))
+            if (ActiveProfiles.Contains(typeof(RunGateway)))
                 Configure.Instance.UseInMemoryGatewayPersister();
 
             Configure.Instance.AsMasterNode();
