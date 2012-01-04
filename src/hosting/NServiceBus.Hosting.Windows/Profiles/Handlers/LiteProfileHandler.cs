@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
@@ -15,8 +14,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            if (ActiveProfiles.Contains(typeof(RunTimeoutManager)))
-                Configure.Instance.UseInMemoryTimeoutPersister();
+            Configure.Instance.DefaultToInMemoryTimeoutPersistence();
 
             if (ActiveProfiles.Contains(typeof(RunGateway)))
                 Configure.Instance.UseInMemoryGatewayPersister();

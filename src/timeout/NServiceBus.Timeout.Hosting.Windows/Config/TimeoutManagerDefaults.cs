@@ -1,24 +1,18 @@
 namespace NServiceBus.Timeout.Hosting.Windows.Config
 {
+    using System;
     using NServiceBus.Config;
-    using ObjectBuilder;
     using Core;
-    using Persistence;
-    using Raven.Client;
-     
 
-    class TimeoutManagerDefaults : IWantToRunWhenConfigurationIsComplete
+
+    public class TimeoutManagerDefaults : IWantToRunWhenConfigurationIsComplete
     {
-        public IConfigureComponents Configurer { get; set; }
+        public static Action DefaultPersistence = () => Configure.Instance.UseRavenTimeoutPersister();
+
         public void Run()
         {
-            if (ConfigureTimeoutManager.TimeoutManagerEnabled && !Configurer.HasComponent<IPersistTimeouts>())
-            {
-                if (!Configurer.HasComponent<IDocumentStore>())
-                    Configure.Instance.RavenPersistence();
-                
-                Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.InstancePerCall);
-            }
+            if (Configure.Instance.IsTimeoutManagerEnabled() && !Configure.Instance.Configurer.HasComponent<IPersistTimeouts>())
+                DefaultPersistence();
         }
     }
 }
