@@ -12,6 +12,7 @@ namespace NServiceBus
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
+    using Raven.Client;
 
     public static class ConfigureGateway
     {
@@ -52,6 +53,18 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
             return config;
         }
+
+        /// <summary>
+        /// Sets the default persistence to inmemory
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure DefaultToInMemoryGatewayPerstence(this Configure config)
+        {
+            GatewayDefaults.DefaultPersistence = () => UseInMemoryGatewayPersister(config);
+
+            return config;
+        }
         /// <summary>
         /// Use RavenDB messages persistence by the gateway.
         /// </summary>
@@ -59,6 +72,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure UseRavenGatewayPersister(this Configure config)
         {
+            if (!config.Configurer.HasComponent<IDocumentStore>())
+                config.RavenPersistence();
+
             config.Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.SingleInstance);
             return config;
         }

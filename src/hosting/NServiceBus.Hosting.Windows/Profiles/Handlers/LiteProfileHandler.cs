@@ -10,16 +10,13 @@ using NServiceBus.Unicast.Subscriptions;
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     
-    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig, IWantTheListOfActiveProfiles
+    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance.DefaultToInMemoryTimeoutPersistence();
-
-            if (ActiveProfiles.Contains(typeof(RunGateway)))
-                Configure.Instance.UseInMemoryGatewayPersister();
-
-            Configure.Instance.AsMasterNode();
+            Configure.Instance.AsMasterNode()
+                .DefaultToInMemoryTimeoutPersistence()
+                .DefaultToInMemoryGatewayPerstence();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
                 Configure.Instance.InMemorySagaPersister();
@@ -35,6 +32,5 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         }
 
         public IConfigureThisEndpoint Config { get; set; }
-        public IEnumerable<Type> ActiveProfiles { get; set; }
     }
 }

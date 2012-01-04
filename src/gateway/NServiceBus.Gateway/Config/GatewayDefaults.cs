@@ -1,28 +1,20 @@
-
-namespace NServiceBus
+namespace NServiceBus.Gateway.Config
 {
-    using ObjectBuilder;
-    using Config;
-    using Gateway.Persistence;
-    using Gateway.Persistence.Raven;
-    using Gateway.Sending;
-    using Raven.Client;
+    using System;
+    using NServiceBus.Config;
+    using Persistence;
+    using Sending;
 
-    class GatewayDefaults : IWantToRunWhenConfigurationIsComplete
+    public class GatewayDefaults : IWantToRunWhenConfigurationIsComplete
     {
-        public IConfigureComponents Configurer { get; set; }
+        public static Action DefaultPersistence = () => Configure.Instance.UseRavenGatewayPersister();
+
         public void Run()
         {
-			if (!Configurer.HasComponent<GatewaySender>())
+            if (!Configure.Instance.Configurer.HasComponent<GatewaySender>() || Configure.Instance.Configurer.HasComponent<IPersistMessages>())
                 return;
-				
-            if (!Configurer.HasComponent<IPersistMessages>())
-            {
-                if (!Configurer.HasComponent<IDocumentStore>())
-                    Configure.Instance.RavenPersistence();
-                Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.InstancePerCall);
-            }
-                    
+
+            DefaultPersistence();
         }
     }
 }
