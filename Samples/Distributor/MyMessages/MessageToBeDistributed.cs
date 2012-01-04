@@ -2,7 +2,7 @@
 {
     using NServiceBus;
 
-    public class MessageToBeDistributed:ICommand
+    public class MessageToBeDistributed : ICommand
     {
     }
 }

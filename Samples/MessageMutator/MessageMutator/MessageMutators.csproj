@@ -41,7 +41,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompressionMutator.cs" />
+    <Compile Include="CompressionMutatorForASingleProperty.cs" />
+    <Compile Include="TransportMessageCompressionMutator.cs" />
     <Compile Include="MultiplierMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
