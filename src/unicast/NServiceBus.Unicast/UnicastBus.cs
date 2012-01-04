@@ -1261,10 +1261,10 @@ namespace NServiceBus.Unicast
                                  MessageIntent = m.MessageIntent,
                                  Recoverable = m.Recoverable,
                                  ReplyToAddress = Address.Local,
-                                 TimeSent = m.TimeSent,
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
             toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
+            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
