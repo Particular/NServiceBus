@@ -1264,6 +1264,7 @@ namespace NServiceBus.Unicast
                                  TimeSent = m.TimeSent,
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
+            toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
