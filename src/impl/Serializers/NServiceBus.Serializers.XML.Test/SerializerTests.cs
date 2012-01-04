@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
@@ -21,6 +22,29 @@ namespace NServiceBus.Serializers.XML.Test
         private int numberOfIterations = 100;
 
         [Test]
+        public void TestMultipleInterfacesDupolicatedPropery()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<IThird>();
+            var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
+
+            var count = 0; 
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] {msgBeforeSerialization}, stream);
+                stream.Position = 0;
+                
+                var reader = XmlReader.Create(stream);
+
+                while (reader.Read())
+                    if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "FirstName"))
+                            count++;
+            }
+            Assert.AreEqual(count, 1);
+        }
+        
+        
+        [Test]
         public void Generic_properties_should_be_supported()
         {
 
@@ -34,7 +58,8 @@ namespace NServiceBus.Serializers.XML.Test
 
 
         }
-
+        
+        
         [Test]
         public void Culture()
         {

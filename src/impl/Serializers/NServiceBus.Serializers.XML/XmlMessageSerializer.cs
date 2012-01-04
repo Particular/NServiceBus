@@ -195,7 +195,13 @@ namespace NServiceBus.Serializers.XML
 
             if (t.IsInterface)
                 foreach (Type interfaceType in t.GetInterfaces())
-                    result.AddRange(GetAllPropertiesForType(interfaceType, false));
+                {
+                    var properties = GetAllPropertiesForType(interfaceType, false);
+                    foreach (var propertyInfo in properties.Where(propertyInfo => !result.Contains(propertyInfo)))
+                    {
+                        result.Add(propertyInfo);
+                    }
+                }
 
             return result;
         }
