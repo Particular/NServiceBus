@@ -1,5 +1,6 @@
 namespace NServiceBus.Timeout.Core
 {
+    using System.Globalization;
     using Config;
     using MessageMutator;
     using Saga;
@@ -12,10 +13,10 @@ namespace NServiceBus.Timeout.Core
 
             if (timeoutMessage != null)
             {
-                message.SetHeader(Headers.Expire, timeoutMessage.Expires.ToString());
+                message.SetHeader(Headers.Expire, timeoutMessage.Expires.ToWireFormattedString());
 
                 if (timeoutMessage.ClearTimeout)
-                    message.SetHeader(Headers.ClearTimeouts, true.ToString());
+                    message.SetHeader(Headers.ClearTimeouts, true.ToString(CultureInfo.InvariantCulture));
             }
 
             return message;

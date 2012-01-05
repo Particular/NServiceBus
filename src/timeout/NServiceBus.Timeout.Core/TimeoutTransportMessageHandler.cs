@@ -11,7 +11,6 @@ namespace NServiceBus.Timeout.Core
 
         public void Handle(TransportMessage message)
         {
-           
             var sagaId = Guid.Empty;
 
             if (message.Headers.ContainsKey(Headers.SagaId))
@@ -36,7 +35,7 @@ namespace NServiceBus.Timeout.Core
                                    Destination = message.ReplyToAddress,
                                    SagaId = sagaId,
                                    State = message.Body,
-                                   Time = DateTime.Parse(message.Headers[Headers.Expire]),
+                                   Time = message.Headers[Headers.Expire].ToUtcDateTime(),
                                    CorrelationId = message.CorrelationId
                                };
 

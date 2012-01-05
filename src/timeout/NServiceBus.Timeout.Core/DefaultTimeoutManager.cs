@@ -32,13 +32,14 @@
         void IManageTimeouts.PopTimeout()
         {
             var pair = new KeyValuePair<DateTime, List<TimeoutData>>(DateTime.MinValue, null);
+            var now = DateTime.UtcNow;
 
             lock (data)
             {
                 if (data.Count > 0)
                 {
                     var next = data.ElementAt(0);
-                    if (next.Key - DateTime.UtcNow < duration)
+                    if (next.Key - now < duration)
                     {
                         pair = next;
                         data.Remove(pair.Key);
@@ -54,8 +55,8 @@
                 return;
             }
 
-            if (pair.Key > DateTime.UtcNow)
-                Thread.Sleep(pair.Key - DateTime.UtcNow);
+            if (pair.Key > now)
+                Thread.Sleep(pair.Key - now);
 
             pair.Value.ForEach(OnSagaTimedOut);
         }

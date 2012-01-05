@@ -95,9 +95,6 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Utils">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -126,6 +123,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\utils\NServiceBus.Utils.csproj">
+      <Project>{2616579A-202F-48F6-8A7F-6A6AA9288CA7}</Project>
+      <Name>NServiceBus.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Queuing\NServiceBus.Unicast.Queuing.csproj">
       <Project>{04E1CE2E-C0F5-492B-BF5B-C7E9DABE92F7}</Project>
       <Name>NServiceBus.Unicast.Queuing</Name>

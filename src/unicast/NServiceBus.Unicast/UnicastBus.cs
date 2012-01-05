@@ -576,7 +576,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            messages.First().SetHeader(Headers.Expire, processAt.ToUniversalTime().ToString());
+            messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
 
             return ((IBus)this).Send(TimeoutManagerAddress, messages);
         }
@@ -1266,8 +1266,8 @@ namespace NServiceBus.Unicast
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
             toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
-            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToWireFormat();
-            toSend.Headers["NServiceBus.TimeProcessed"] = DateTime.Now.ToWireFormat();
+            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToWireFormattedString();
+            toSend.Headers["NServiceBus.TimeProcessed"] = DateTime.Now.ToWireFormattedString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }

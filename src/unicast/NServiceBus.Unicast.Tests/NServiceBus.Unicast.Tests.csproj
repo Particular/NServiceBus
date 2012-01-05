@@ -108,6 +108,10 @@
     <Compile Include="UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\utils\NServiceBus.Utils.csproj">
+      <Project>{2616579A-202F-48F6-8A7F-6A6AA9288CA7}</Project>
+      <Name>NServiceBus.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Config\NServiceBus.Unicast.Config.csproj">
       <Project>{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}</Project>
       <Name>NServiceBus.Unicast.Config</Name>
