@@ -14,45 +14,33 @@ namespace MessageMutators
 
         public object MutateOutgoing(object message)
         {
-            var createProductCommand = message as CreateProductCommand;
-            if (createProductCommand == null)
-                return message;
-
-            ValidateProductCommand(createProductCommand);
-            
-            return createProductCommand;
+            ValidateDataAnnotations(message);
+            return message;
         }
-
-        
 
         public object MutateIncoming(object message)
         {
-            var createProductCommand = message as CreateProductCommand;
-            if (createProductCommand == null)
-                return message;
-
-            ValidateProductCommand(createProductCommand);
-
-            return createProductCommand;
+            ValidateDataAnnotations(message);
+            return message;
         }
         
-        private static void ValidateProductCommand(CreateProductCommand createProductCommand)
+        private static void ValidateDataAnnotations(Object message)
         {
-            var context = new ValidationContext(createProductCommand, null, null);
+            var context = new ValidationContext(message, null, null);
             var results = new List<ValidationResult>();
 
-            var isValid = Validator.TryValidateObject(createProductCommand, context, results, true);
+            var isValid = Validator.TryValidateObject(message, context, results, true);
 
             if (isValid)
             {
-                Logger.Info("Validation succeeded for message: " + createProductCommand.ToString());
+                Logger.Info("Validation succeeded for message: " + message.ToString());
                 return;
             }
 
             var errorMessage = new StringBuilder();
             errorMessage.Append(
                 string.Format("Validation failed for message {0}, with the following error/s: " + Environment.NewLine,
-                              createProductCommand.ToString()));
+                              message.ToString()));
 
             foreach (var validationResult in results)
                 errorMessage.Append(validationResult.ErrorMessage + Environment.NewLine);

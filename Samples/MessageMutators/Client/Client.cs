@@ -1,22 +1,10 @@
 ﻿using System;
-using MessageMutators;
 using NServiceBus;
 using Messages;
 
 namespace Client
 {
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Client {}
-
-    public class ConfigureMutators : IWantCustomInitialization
-    {
-        public void Init()
-        {
-            Configure.Instance.Configurer.ConfigureComponent<ValidationMessageMutator>(
-                DependencyLifecycle.InstancePerCall);
-            Configure.Instance.Configurer.ConfigureComponent<TransportMessageCompressionMutator>(
-                DependencyLifecycle.InstancePerCall);
-        }
-    }
 
     public class Runner : IWantToRunAtStartup
     {

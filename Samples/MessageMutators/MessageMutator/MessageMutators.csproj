@@ -41,11 +41,15 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Host">
+      <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HookMyMessageMutators.cs" />
     <Compile Include="ValidationMessageMutator.cs" />
     <Compile Include="TransportMessageCompressionMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
