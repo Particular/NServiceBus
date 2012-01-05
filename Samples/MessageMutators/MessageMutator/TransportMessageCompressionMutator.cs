@@ -1,20 +1,18 @@
 ﻿using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using Messages;
 using NServiceBus.MessageMutator;
 using NServiceBus.Unicast.Transport;
+using log4net;
 
 namespace MessageMutators
 {
     public class TransportMessageCompressionMutator : IMutateTransportMessages
     {
+        private static readonly ILog Logger = LogManager.GetLogger("TransportMessageCompressionMutator");
 
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            // Do the compression on MessageWithByteArray[] only
-            if (messages.Any(message => message as MessageWithByteArray == null))
-                return;
+            Logger.Info("transportMessage.Body size before compression: " + transportMessage.Body.Length);
             
             var mStream = new MemoryStream(transportMessage.Body);
             var outStream = new MemoryStream();
@@ -27,13 +25,13 @@ namespace MessageMutators
             // otherwise, not all the compressed message will be copied.
             transportMessage.Body = outStream.ToArray();
             transportMessage.Headers["IWasCompressed"] = "true";
+            Logger.Info("transportMessage.Body size after compression: " + transportMessage.Body.Length);
         }
 
         public void MutateIncoming(TransportMessage transportMessage)
         {
-            if (!transportMessage.Headers.ContainsKey("IWasCompressed"))
+            if (!transportMessage.Headers.ContainsKey("IWasCompressed")) 
                 return;
-
             using (var bigStream = new GZipStream(new MemoryStream(transportMessage.Body), CompressionMode.Decompress))
             {
                 var bigStreamOut = new MemoryStream();

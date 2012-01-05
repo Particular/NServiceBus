@@ -410,7 +410,7 @@ task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, Prep
 
 task CompileSamples -depends InitEnvironment {
 
-	$samplesDirs = "AsyncPages", "AsyncPagesMvc3", "FullDuplex", "PubSub", "Manufacturing", "GenericHost", "Versioning", "WcfIntegration", "Starbucks", "SendOnlyEndpoint", "DataBus", "Azure\AzureBlobStorageDataBus", "Distributor"
+	$samplesDirs = "MessageMutators", "AsyncPages", "AsyncPagesMvc3", "FullDuplex", "PubSub", "Manufacturing", "GenericHost", "Versioning", "WcfIntegration", "Starbucks", "SendOnlyEndpoint", "DataBus", "Azure\AzureBlobStorageDataBus", "Distributor"
 	
 	$samplesDirs | % {				
 	 	$solutions = dir "$baseDir\Samples\$_\*.sln"
