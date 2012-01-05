@@ -409,18 +409,17 @@ function Prepare-Binaries{
 task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, PrepareBinaries {}
 
 task CompileSamples -depends InitEnvironment {
-
-	$samplesDirs = "MessageMutators", "AsyncPages", "AsyncPagesMvc3", "FullDuplex", "PubSub", "Manufacturing", "GenericHost", "Versioning", "WcfIntegration", "Starbucks", "SendOnlyEndpoint", "DataBus", "Azure\AzureBlobStorageDataBus", "Distributor"
-	
-	$samplesDirs | % {				
-	 	$solutions = dir "$baseDir\Samples\$_\*.sln"
+	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
+						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln")
+	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
 		$solutions | % {
-			$solutionFile = $_.FullName
-			exec {&$script:msBuild $solutionFile}
+			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
+				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
+				$solutionFile = $_.FullName
+				exec {&$script:msBuild $solutionFile}
+			}
 		}
 	}
-
-}
 
 task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples {}  
 
@@ -509,11 +508,18 @@ task CreatePackages -depends PrepareRelease  {
 	$runMeFirstFile = "$releaseRoot\tools\RunMeFirst.bat"
 	Write-Output $runMeFirstFileContent > $runMeFirstFile
 	
+	$installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
+    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe diretly in Package Manager Console`"
+"
+	$installPs1File = "$releaseRoot\tools\init.ps1"
+	$installPs1Content > $installPs1File
 	$packageName = "NServiceBus.Tools" + $PackageNameSuffix
 	$packit.package_description = "The tools to configure the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{} "" @{".\release\tools\msmqutils\*.*"="tools\msmqutils";".\release\tools\*.*"="tools"}
+	invoke-packit $packageName $script:packageVersion @{} "" @{".\release\tools\msmqutils\*.*"="tools\msmqutils";
+															   ".\release\tools\*.dll"="tools";".\release\tools\*.*"="tools";}
 	
 	Remove-Item -Force $runMeFirstFile -ErrorAction SilentlyContinue
+	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
 	#endregion
 	
 	#region Packing NServiceBus.Integration.WebServices
