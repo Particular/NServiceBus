@@ -85,7 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
+    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DtcUtil.cs" />
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="MsmqInstallation.cs" />

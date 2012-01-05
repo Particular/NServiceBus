@@ -21,6 +21,8 @@ using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
+    using System.Globalization;
+
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
@@ -872,8 +874,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public void HandleMessage(IBuilder builder, TransportMessage m)
         {
-            ForwardMessageIfNecessary(m);
-
             var messages = new object[0];
 
             if (!m.IsControlMessage())
@@ -912,6 +912,8 @@ namespace NServiceBus.Unicast
                     DispatchMessageToHandlersBasedOnType(
                         builder, messageToHandle, messageToHandle.GetType());
             }
+
+            ForwardMessageIfNecessary(m);
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
@@ -1264,7 +1266,8 @@ namespace NServiceBus.Unicast
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
             toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
-            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToString();
+            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToWireFormat();
+            toSend.Headers["NServiceBus.TimeProcessed"] = DateTime.Now.ToWireFormat();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }

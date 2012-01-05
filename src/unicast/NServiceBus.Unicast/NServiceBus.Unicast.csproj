@@ -95,6 +95,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Utils">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
