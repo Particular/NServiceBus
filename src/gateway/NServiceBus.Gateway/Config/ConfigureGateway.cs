@@ -59,7 +59,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure DefaultToInMemoryGatewayPerstence(this Configure config)
+        public static Configure DefaultToInMemoryGatewayPersistence(this Configure config)
         {
             GatewayDefaults.DefaultPersistence = () => UseInMemoryGatewayPersister(config);
 
