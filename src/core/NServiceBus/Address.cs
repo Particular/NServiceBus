@@ -180,11 +180,23 @@ namespace NServiceBus
         /// </summary>
         public string Machine { get; private set; }
 
+        /// <summary>
+        /// Overloading for the == for the class Address
+        /// </summary>
+        /// <param name="left">Left hand side of == operator</param>
+        /// <param name="right">Right hand side of == operator</param>
+        /// <returns>true if the LHS is equal to RHS</returns>
         public static bool operator ==(Address left, Address right)
         {
             return Equals(left, right);
         }
 
+        /// <summary>
+        /// Overloading for the != for the class Address
+        /// </summary>
+        /// <param name="left">Left hand side of != operator</param>
+        /// <param name="right">Right hand side of != operator</param>
+        /// <returns>true if the LHS is not equal to RHS</returns>
         public static bool operator !=(Address left, Address right)
         {
             return !Equals(left, right);
@@ -205,6 +217,11 @@ namespace NServiceBus
             return Equals((Address)obj);
         }
 
+        /// <summary>
+        /// Check this is equal to other Address
+        /// </summary>
+        /// <param name="other">refrence addressed to be checked with this</param>
+        /// <returns>true if this is equal to other</returns>
         public bool Equals(Address other)
         {
             if (ReferenceEquals(null, other)) return false;
