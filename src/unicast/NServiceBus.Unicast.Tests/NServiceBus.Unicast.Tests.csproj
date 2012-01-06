@@ -90,6 +90,7 @@
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
+    <Compile Include="Timing.cs" />
     <Compile Include="Receiving.cs" />
     <Compile Include="DeferedMessages.cs" />
     <Compile Include="Helpers\FakeSubscriptionStorage.cs" />

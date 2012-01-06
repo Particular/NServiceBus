@@ -119,6 +119,7 @@
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
+    <Compile Include="Timing\ProcessingStatistics.cs" />
     <Compile Include="UnicastBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

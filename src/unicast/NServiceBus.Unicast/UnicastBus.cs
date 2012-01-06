@@ -928,9 +928,6 @@ namespace NServiceBus.Unicast
                     DispatchMessageToHandlersBasedOnType(
                         builder, messageToHandle, messageToHandle.GetType());
             }
-
-            ForwardMessageIfNecessary(m);
-
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
@@ -1133,6 +1130,7 @@ namespace NServiceBus.Unicast
 
                 unitsOfWork.ForEach(uow => uow.End());
 
+                ForwardMessageIfNecessary(msg);
             }
             catch (Exception ex)
             {
@@ -1282,8 +1280,6 @@ namespace NServiceBus.Unicast
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
             toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
-            toSend.Headers["NServiceBus.OriginalTimeSent"] = m.TimeSent.ToWireFormattedString();
-            toSend.Headers["NServiceBus.TimeProcessed"] = DateTime.Now.ToWireFormattedString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
