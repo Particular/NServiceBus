@@ -17,7 +17,7 @@
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers["NServiceBus.TimeSent"] = DateTime.Now.ToWireFormattedString();
+            transportMessage.Headers[Headers.TimeSent] = DateTime.UtcNow.ToWireFormattedString();
         }
 
         public void Init()

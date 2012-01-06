@@ -67,7 +67,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Gets/sets the time that the message was sent by the source machine.
         /// </summary>
-        [Obsolete("Use the 'TimeSent' header instead.", true)]
+        [Obsolete("Use the 'TimeSent' header instead.")]
         public DateTime TimeSent { get; set; }
 
         /// <summary>
