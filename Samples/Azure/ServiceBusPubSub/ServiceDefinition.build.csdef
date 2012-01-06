@@ -30,6 +30,9 @@
     <Endpoints>
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
     </Endpoints>
+    <Imports>
+      <Import moduleName="RemoteAccess" />
+    </Imports>
   </WebRole>
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
@@ -44,5 +47,9 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
+    <Imports>
+      <Import moduleName="RemoteAccess" />
+      <Import moduleName="RemoteForwarder" />
+    </Imports>
   </WorkerRole>
 </ServiceDefinition>

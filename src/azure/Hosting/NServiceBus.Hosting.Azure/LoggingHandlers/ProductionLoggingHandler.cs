@@ -9,5 +9,7 @@
         {
             // startup logging is handled outside nsb by wadcfg file
         }
+
+       
     }
 }

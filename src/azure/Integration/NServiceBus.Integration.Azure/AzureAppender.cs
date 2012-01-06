@@ -12,20 +12,11 @@ namespace NServiceBus.Integration.Azure
 {
     public sealed class AzureAppender : AppenderSkeleton
     {
-        // new keys to integrate better with azure sdk 1.3 and up
         private const string ConnectionStringKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
         private const string LevelKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.Level";
         private const string LayoutKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.Layout";
         private const string ScheduledTransferPeriodKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ScheduledTransferPeriod";
         private const string EventLogsKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.EventLogs";
-
-        // ols keys to remain backward compatible
-        private const string OldConnectionStringKey = "Diagnostics.ConnectionString";
-        private const string OldLevelKey = "Diagnostics.Level";
-        private const string OldLayoutKey = "Diagnostics.Layout";
-        private const string OldScheduledTransferPeriodKey = "Diagnostics.ScheduledTransferPeriod";
-        private const string OldEventLogsKey = "Diagnostics.EventLogs";
-
 
         public AzureAppender() : this(true)
         {
@@ -49,9 +40,24 @@ namespace NServiceBus.Integration.Azure
         {
             var logString = RenderLoggingEvent(loggingEvent);
 
-            Trace.WriteLine(logString);
+            if (loggingEvent.Level == log4net.Core.Level.Critical || loggingEvent.Level == log4net.Core.Level.Error || loggingEvent.Level == log4net.Core.Level.Emergency || loggingEvent.Level == log4net.Core.Level.Fatal || loggingEvent.Level == log4net.Core.Level.Severe)
+            {
+                Trace.TraceError(logString);
+            }
+            else if (loggingEvent.Level == log4net.Core.Level.Warn || loggingEvent.Level == log4net.Core.Level.Alert)
+            {
+                Trace.TraceWarning(logString);
+            }
+            else if (loggingEvent.Level == log4net.Core.Level.Info)
+            {
+                Trace.TraceInformation(logString);
+            }
+            else
+            {
+                Trace.WriteLine(logString);
+            }
         }
-
+        
         public override void ActivateOptions()
         {
             ConfigureThreshold();
@@ -63,8 +69,6 @@ namespace NServiceBus.Integration.Azure
 
         private void ConfigureThreshold()
         {
-            if (!InitializeDiagnostics) return;
-
             var rootRepository = (Hierarchy)log4net.LogManager.GetRepository();
             Threshold = rootRepository.LevelMap[Level];
         }
@@ -94,13 +98,6 @@ namespace NServiceBus.Integration.Azure
 
                 DiagnosticMonitor.Start(cloudStorageAccount, configuration);
             }
-            /*else
-            {
-                ConfigureDiagnostics(configuration);
-
-                roleInstanceDiagnosticManager.SetCurrentConfiguration(configuration);
-            }*/
-            
         }
 
         private void ConfigureDiagnostics(DiagnosticMonitorConfiguration configuration)
@@ -112,7 +109,6 @@ namespace NServiceBus.Integration.Azure
 
             ConfigureWindowsEventLogsToBeTransferred(configuration);
         }
-
 
         private void ScheduleTransfer(DiagnosticMonitorConfiguration dmc)
         {
@@ -134,15 +130,7 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                try
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(ConnectionStringKey);
-                }
-                catch (Exception)
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(OldConnectionStringKey);
-                }
-
+                return RoleEnvironment.GetConfigurationSettingValue(ConnectionStringKey);
             }
             catch (Exception)
             {
@@ -155,19 +143,11 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                try
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(LevelKey);
-                }
-                catch (Exception)
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(OldLevelKey);
-                }
-                
+               return RoleEnvironment.GetConfigurationSettingValue(LevelKey);
             }
             catch (Exception)
             {
-                return "Error";
+                return "Warn";
             }
         }
 
@@ -175,14 +155,7 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                try
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(LayoutKey);
-                }
-                catch (Exception)
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(OldLayoutKey);
-                }
+               return RoleEnvironment.GetConfigurationSettingValue(LayoutKey);
             }
             catch (Exception)
             {
@@ -194,18 +167,11 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                try
-                {
-                    return int.Parse(RoleEnvironment.GetConfigurationSettingValue(ScheduledTransferPeriodKey));
-                }
-                catch (Exception)
-                {
-                    return int.Parse(RoleEnvironment.GetConfigurationSettingValue(OldScheduledTransferPeriodKey));
-                }
+              return int.Parse(RoleEnvironment.GetConfigurationSettingValue(ScheduledTransferPeriodKey));
             }
             catch (Exception)
             {
-                return 5;
+                return 10;
             }
         }
 
@@ -213,20 +179,14 @@ namespace NServiceBus.Integration.Azure
         {
             try
             {
-                try
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(EventLogsKey);
-                }
-                catch (Exception)
-                {
-                    return RoleEnvironment.GetConfigurationSettingValue(OldEventLogsKey);
-                }
+                return RoleEnvironment.GetConfigurationSettingValue(EventLogsKey);
             }
             catch (Exception)
             {
                 return "Application!*;System!*";
             }
         }
+
     }
 }
 
