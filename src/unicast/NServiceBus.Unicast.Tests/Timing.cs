@@ -2,7 +2,9 @@
 {
     using Contexts;
     using NUnit.Framework;
+    using Rhino.Mocks;
     using Timing;
+    using Transport;
     using UnitOfWork;
 
     [TestFixture]
@@ -21,6 +23,19 @@
 
             Assert.True(bus.CurrentMessageContext.Headers.ContainsKey("NServiceBus.ProcessingStarted"));
             Assert.True(bus.CurrentMessageContext.Headers.ContainsKey("NServiceBus.ProcessingEnded"));
+        }
+    }
+
+    [TestFixture]
+    public class When_sending_a_message_with_timing_turned_on : using_the_unicastbus
+    {
+        [Test]
+        public void Should_set_the_time_sent_header()
+        {
+            RegisterMessageType<CommandMessage>();
+
+            bus.Send(new CommandMessage());
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey("NServiceBus.TimeSent")), Arg<Address>.Is.Anything));
         }
     }
 }

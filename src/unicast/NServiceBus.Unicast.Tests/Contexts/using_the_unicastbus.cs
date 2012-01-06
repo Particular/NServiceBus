@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
+    using Timing;
     using Transport;
     using UnitOfWork;
 
@@ -54,6 +55,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             
             
 
