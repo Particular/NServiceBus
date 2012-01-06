@@ -116,14 +116,44 @@ namespace NServiceBus.Testing
 
         /// <summary>
         /// Specify a test for a message handler while supplying the instance to
-        /// test - useful if you use constructor-based dependency injection.
+        /// test - injects the bus into a public property (if it exists).
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static Handler<T> Handler<T>(T handler)
         {
+            var mocks = new MockRepository();
+            var bus = MockTheBus(mocks);
+
+            var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
+            if (prop != null)
+                prop.SetValue(handler, bus, null);
+
+            return Handler(handler, mocks, bus);
+        }
+
+        /// <summary>
+        /// Specify a test for a message handler specifying a callback to create
+        /// the handler and getting an instance of the bus passed in.
+        /// Useful for handlers based on constructor injection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="handlerCreationCallback"></param>
+        /// <returns></returns>
+        public static Handler<T> Handler<T>(Func<IBus, T> handlerCreationCallback)
+        {
+            var mocks = new MockRepository();
+            var bus = MockTheBus(mocks);
+
+            var handler = handlerCreationCallback.Invoke(bus);
+
+            return Handler(handler, mocks, bus);
+        }
+
+        private static Handler<T> Handler<T>(T handler, MockRepository mocks, IBus bus)
+        {
             bool isHandler = false;
-            foreach(var i in handler.GetType().GetInterfaces())
+            foreach (var i in handler.GetType().GetInterfaces())
             {
                 var args = i.GetGenericArguments();
                 if (args.Length == 1)
@@ -134,13 +164,6 @@ namespace NServiceBus.Testing
 
             if (!isHandler)
                 throw new ArgumentException("The handler object given does not implement IMessageHandler<T>.", "handler");
-
-            var mocks = new MockRepository();
-            var bus = MockTheBus(mocks);
-
-            var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
-            if (prop != null)
-                prop.SetValue(handler, bus, null);
 
             var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
@@ -208,6 +231,11 @@ namespace NServiceBus.Testing
     /// </summary>
     public class TestConfigurationSource:IConfigurationSource
     {
+        /// <summary>
+        /// Returns null for all types of T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T GetConfiguration<T>() where T : class, new()
         {
             return null;

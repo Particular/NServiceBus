@@ -243,7 +243,7 @@ namespace NServiceBus.Testing
         /// Verifies that the saga is setting the specified timeout
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
-        /// <param name="validateExpiry"></param>
+        /// <param name="validateState"></param>
         /// <returns></returns>
         public Saga<T> ExpectTimeoutToBeSetWithState<TMessage>(Func<TMessage, bool> validateState = null)
         {
