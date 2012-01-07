@@ -9,7 +9,7 @@ namespace NServiceBus.Persistence.Raven.Tests
     [TestFixture]
     public class When_configuring_persistence_to_use_an_embedded_raven_instance
     {
-        TransactionalStorage storage;
+        //TransactionalStorage storage;
         IDocumentStore store;
 
         [TestFixtureSetUp]

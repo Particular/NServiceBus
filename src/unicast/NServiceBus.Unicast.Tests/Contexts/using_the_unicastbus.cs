@@ -130,7 +130,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     public class using_the_unicastbus : using_a_configured_unicastbus
     {
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
             StartBus();
         }

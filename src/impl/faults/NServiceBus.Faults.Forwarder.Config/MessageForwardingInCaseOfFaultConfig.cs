@@ -2,6 +2,9 @@
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// Message Forwarding In Case Of Fault Config
+    /// </summary>
     public class MessageForwardingInCaseOfFaultConfig : ConfigurationSection
     {
         /// <summary>

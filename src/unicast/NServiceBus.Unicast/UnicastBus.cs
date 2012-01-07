@@ -122,6 +122,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler<MessagesEventArgs> MessagesSent;
 
+        /// <summary>
+        /// Clear Timeouts For the saga
+        /// </summary>
+        /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
         public void ClearTimeoutsFor(Guid sagaId)
         {
             var controlMessage = ControlMessage.Create();
@@ -569,11 +573,23 @@ namespace NServiceBus.Unicast
             return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
         }
 
+        /// <summary>
+        /// Defer
+        /// </summary>
+        /// <param name="delay">Delay</param>
+        /// <param name="messages">Messages</param>
+        /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return Defer(DateTime.UtcNow + delay, messages);
         }
 
+        /// <summary>
+        /// Defer
+        /// </summary>
+        /// <param name="processAt">processAt</param>
+        /// <param name="messages">messages</param>
+        /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
             messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());

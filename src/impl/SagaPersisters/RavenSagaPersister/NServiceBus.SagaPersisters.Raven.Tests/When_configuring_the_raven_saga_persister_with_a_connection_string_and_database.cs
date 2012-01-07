@@ -8,7 +8,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
     {
         RavenSagaPersister persister;
         string connectionStringName;
-        string database;
+        //string database;
 
         [TestFixtureSetUp]
         public void SetUp()

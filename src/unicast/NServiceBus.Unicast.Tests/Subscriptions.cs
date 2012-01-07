@@ -10,8 +10,11 @@ namespace NServiceBus.Unicast.Tests
     public class When_subscribing_to_messages : using_the_unicastbus
     {
         readonly Address addressToOwnerOfTestMessage = new Address("TestMessageOwner", "localhost");
+        /// <summary>
+        /// Set Up
+        /// </summary>
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
             unicastBus.RegisterMessageType(typeof(TestMessage), addressToOwnerOfTestMessage);
         }

@@ -35,6 +35,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
         public event EventHandler FinishedMessageProcessing;
+
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
 
         public void FakeMessageBeeingProcessed(TransportMessage transportMessage)
@@ -46,7 +47,15 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public void FakeMessageBeeingPassedToTheFaultManager(TransportMessage transportMessage)
         {
-            StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(transportMessage));
+            try
+            {
+                StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(transportMessage));
+            }
+            catch(Exception ex)
+            {
+                if (FailedMessageProcessing != null)
+                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(ex));
+            }
             FinishedMessageProcessing(this, new EventArgs());
         }
     }

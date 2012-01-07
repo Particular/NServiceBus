@@ -38,7 +38,9 @@
             return string.Join(";", types.Concat(interfaces).Distinct().Select(t=>t.AssemblyQualifiedName));
         }
 
-
+        /// <summary>
+        /// Initializes 
+        /// </summary>
         public void Init()
         {
             Configure.Instance.Configurer.ConfigureComponent<EnclosedMessageTypesMutator>(DependencyLifecycle.InstancePerCall);

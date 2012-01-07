@@ -75,6 +75,10 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public Version Version { get; private set; }
 
+        /// <summary>
+        /// Overriden to append Version along with Type Name
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return TypeName + ", Version=" + Version;
@@ -92,6 +96,11 @@ namespace NServiceBus.Unicast.Subscriptions
             return Equals(other.TypeName, TypeName) && other.Version.Major == Version.Major;
         }
 
+        /// <summary>
+        /// Equality, only Type is same
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -100,6 +109,10 @@ namespace NServiceBus.Unicast.Subscriptions
             return Equals((MessageType) obj);
         }
 
+        /// <summary>
+        /// Gets Hash Code
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked
