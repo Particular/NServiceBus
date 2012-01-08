@@ -25,8 +25,15 @@
 
             ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
 
-            listener.Start();
-
+            try
+            {
+                listener.Start();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin priviliges",address),ex);
+            }
+           
             new Thread(HttpServer).Start();
         }
 
