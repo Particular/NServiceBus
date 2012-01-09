@@ -264,6 +264,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
+        public bool AllowSubscribeToSelf { get; set; }
+
         #endregion
 
         #region IUnicastBus Members
@@ -802,7 +804,7 @@ namespace NServiceBus.Unicast
             return GetMessageTypesHandledOnThisEndpoint()
                 .Where(t =>
                     !t.IsCommandType() &&
-                    messageTypeToDestinationLookup[t] != Address.Undefined);
+                    (AllowSubscribeToSelf || messageTypeToDestinationLookup[t] != Address.Undefined));
         }
 
         void AssertHasLocalAddress()
@@ -1601,6 +1603,8 @@ namespace NServiceBus.Unicast
         private readonly object startLocker = new object();
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
+        
+
         #endregion
     }
 
