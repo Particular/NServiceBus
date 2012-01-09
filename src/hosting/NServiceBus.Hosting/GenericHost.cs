@@ -49,6 +49,9 @@ namespace NServiceBus.Hosting
 
         public void Install<TEnvironment>() where TEnvironment : IEnvironment
         {
+            // When installing as windows service (/install), run infrastructure installers
+            Installer<TEnvironment>.RunInfrastructureInstallers = true;
+
             PerformConfiguration();
             Configure.Instance.ForInstallationOn<TEnvironment>().Install();
         }
@@ -93,7 +96,7 @@ namespace NServiceBus.Hosting
                 }
                 catch (NullReferenceException ex)
                 {
-                    throw new NullReferenceException("NServiceBus has detected a null reference in your initalization code." +
+                    throw new NullReferenceException("NServiceBus has detected a null reference in your initialization code." +
                                                      " This could be due to trying to use NServiceBus.Configure before it was ready." +
                                                      " One possible solution is to inherit from IWantCustomInitialization in a different class" +
                                                      " than the one that inherits from IConfigureThisEndpoint, and put your code there.",
