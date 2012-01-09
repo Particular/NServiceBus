@@ -17,11 +17,15 @@ namespace NServiceBus
 
             if (configSection == null)
                 throw new ConfigurationErrorsException("No AzureServiceBusQueueConfig configuration section found");
-    
+
+            Address.InitializeAddressMode(AddressMode.Remote);
+
             var credentials = TokenProvider.CreateSharedSecretTokenProvider(configSection.IssuerName, configSection.IssuerKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri("sb", configSection.ServiceNamespace, string.Empty);
             var namespaceClient = new NamespaceManager(serviceUri, credentials);
             var factory = MessagingFactory.Create(serviceUri, credentials);
+
+            Address.OverrideDefaultMachine(serviceUri.ToString());
 
             config.Configurer.RegisterSingleton<NamespaceManager>(namespaceClient); 
             config.Configurer.RegisterSingleton<MessagingFactory>(factory);
