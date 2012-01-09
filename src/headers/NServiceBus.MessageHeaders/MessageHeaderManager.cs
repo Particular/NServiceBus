@@ -6,6 +6,9 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.MessageHeaders
 {
+    /// <summary>
+    /// Message Header Manager
+    /// </summary>
     public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
@@ -19,6 +22,12 @@ namespace NServiceBus.MessageHeaders
                         transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
         }
 
+        /// <summary>
+        /// Gets the Header for the Message
+        /// </summary>
+        /// <param name="message">message for which Headers to be find</param>
+        /// <param name="key">Key</param>
+        /// <returns></returns>
         public string GetHeader(object message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
@@ -39,6 +48,12 @@ namespace NServiceBus.MessageHeaders
             return null;
         }
 
+        /// <summary>
+        /// Sets the Header for the Message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public void SetHeader(object message, string key, string value)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
@@ -56,11 +71,18 @@ namespace NServiceBus.MessageHeaders
                 messageHeaders[message][key] = value;
         }
 
+        /// <summary>
+        /// Gets Static Outgoing Headers
+        /// </summary>
+        /// <returns></returns>
         public IDictionary<string, string> GetStaticOutgoingHeaders()
         {
             return staticOutgoingHeaders;
         }
 
+        /// <summary>
+        /// Bus
+        /// </summary>
         public IUnicastBus Bus
         {
             get { return bus; }

@@ -57,7 +57,7 @@ namespace NServiceBus
             return new Installer<T>(identity);
         }
     }
-
+    
     /// <summary>
     /// Resolves objects who implement INeedToInstall and invokes them for the given environment.
     /// Assumes that implementors have already been registered in the container.
@@ -72,19 +72,50 @@ namespace NServiceBus
 
         private WindowsIdentity winIdentity;
 
+        public static bool RunInfrastructureInstallers { get; set; }
+
+        private static bool installedInfrastructureInstallers = false;
+        private static bool installedOthersInstallers = false;
+
         /// <summary>
         /// Invokes all installers for the given environment.
         /// </summary>
         public void Install()
         {
-            NServiceBus.Configure.Instance.Initialize();
+            Configure.Instance.Initialize();
+            
+            if(RunInfrastructureInstallers)
+                InstallInfrastructureInstallers();
+            
+            InstallOtherInstallers();
+        }
+
+        /// <summary>
+        /// Invokes only Infrastructure installers for the given environment.
+        /// </summary>
+        private void InstallInfrastructureInstallers()
+        {
+            if (installedInfrastructureInstallers)
+                return;
 
             GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
                 .ForEach(t => ((INeedToInstallInfrastructure)Activator.CreateInstance(t)).Install(winIdentity));
+            installedInfrastructureInstallers = true;
+        }
+
+        /// <summary>
+        /// Invokes only 'Something' - other than infrastructure,  installers for the given environment.
+        /// </summary>
+        private void InstallOtherInstallers()
+        {
+            if (installedOthersInstallers)
+                return;
 
             GetInstallers<T>(typeof(INeedToInstallSomething<>))
                 .ForEach(t => ((INeedToInstallSomething)Activator.CreateInstance(t)).Install(winIdentity));
+            installedOthersInstallers = true;
         }
+
 
         private static List<Type> GetInstallers<TEnvtype>(Type openGenericInstallType) where TEnvtype : IEnvironment
         {

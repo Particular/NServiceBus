@@ -26,6 +26,9 @@
                 transportMessage.CorrelationId = Bus.CurrentMessageContext.Id;
         }
 
+        /// <summary>
+        /// Initializes 
+        /// </summary>
         public void Init()
         {
             Configure.Instance.Configurer.ConfigureComponent<CorrelationIdMutator>(DependencyLifecycle.InstancePerCall);

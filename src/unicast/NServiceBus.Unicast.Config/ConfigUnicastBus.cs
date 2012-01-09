@@ -270,6 +270,8 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.DoNotAutoSubscribeSagas, true);
             return this;
         }
+
+       
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
@@ -312,6 +314,5 @@ namespace NServiceBus.Unicast.Config
         static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
 
         internal bool LoadMessageHandlersCalled { get; private set; }
-
     }
 }

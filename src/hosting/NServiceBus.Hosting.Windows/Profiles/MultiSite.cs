@@ -3,7 +3,7 @@
     /// <summary>
     /// Indicates that this node has a Gateway access to it.
     /// </summary>
-    public interface RunGateway : IProfile
+    public interface MultiSite : IProfile
     {
     }
 }

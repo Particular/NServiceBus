@@ -218,8 +218,8 @@ namespace NServiceBus.Hosting.Windows
         {
             if (endpointConfigurationTypes.Count() == 0)
             {
-                throw new InvalidOperationException("No endpoint configuration found in scanned assemlies. " +
-                                                    "This usually happens when NServiceBus fails to load your assembly contaning IConfigureThisEndpoint." +
+                throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
+                                                    "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
                                                     " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
                                                     "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }

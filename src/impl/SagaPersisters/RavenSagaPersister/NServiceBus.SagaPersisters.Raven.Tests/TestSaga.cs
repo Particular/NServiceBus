@@ -30,6 +30,11 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         {
             return this.EqualTo(obj, (x, y) => x.Id == y.Id);
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     public class PolymorpicProperty : PolymorpicPropertyBase
@@ -39,6 +44,11 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         public override bool Equals(object obj)
         {
             return this.EqualTo(obj, (x, y) => x.Id == y.Id && x.SomeInt == y.SomeInt);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -62,6 +72,11 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
             return this.EqualTo(obj, (x, y) =>
                 x.Property == y.Property &&
                 x.AnotherProperty == y.AnotherProperty);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 

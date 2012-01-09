@@ -234,8 +234,14 @@ namespace NServiceBus.Sagas.Impl
         }
 
         
+        /// <summary>
+        /// Get or Set Builder for Saga Message Handler
+        /// </summary>
         public IBuilder Builder { get; set; }
 
+        /// <summary>
+        /// Get or Set Saga Persister
+        /// </summary>
         public ISagaPersister Persister { get; set; }
 
         

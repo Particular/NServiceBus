@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
+    using Timing;
     using Transport;
     using UnitOfWork;
 
@@ -54,6 +55,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             
             
 
@@ -130,7 +132,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     public class using_the_unicastbus : using_a_configured_unicastbus
     {
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
             StartBus();
         }
