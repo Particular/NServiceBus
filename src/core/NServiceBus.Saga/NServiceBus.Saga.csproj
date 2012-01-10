@@ -64,7 +64,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="HasCompleted.cs" />
     <Compile Include="IConfigurable.cs" />
     <Compile Include="IConfigureHowToFindSagaWithMessage.cs" />
@@ -84,6 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga.cs" />
     <Compile Include="TimeoutMessage.cs" />
+    <Compile Include="UniqueAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">

@@ -122,6 +122,8 @@
   <ItemGroup>
     <Compile Include="EqualityExtensions.cs" />
     <Compile Include="Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
+    <Compile Include="Raven_saga_persistence_concern.cs" />
+    <Compile Include="SagaWithUniqueProperty.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_completing_a_saga_with_the_raven_persister.cs" />
     <Compile Include="When_configuring_the_raven_saga_persister_with_a_connection_string.cs" />
@@ -135,6 +137,9 @@
     <Compile Include="When_persisting_a_saga_entity_with_a_date_time_property.cs" />
     <Compile Include="When_persisting_a_saga_entity_with_related_entities.cs" />
     <Compile Include="When_persisting_a_saga_entity_with_inherited_property.cs" />
+    <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
+    <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating.cs" />
     <Compile Include="WithRavenDbServer.cs" />
   </ItemGroup>
   <ItemGroup>
