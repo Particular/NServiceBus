@@ -68,6 +68,9 @@
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.UnitOfWork">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
+    </Reference>
     <Reference Include="Raven.Abstractions">
       <HintPath>..\..\..\..\..\packages\RavenDB.1.0.573\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
@@ -108,6 +111,8 @@
     <Compile Include="Config\ConfigureRavenPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenPersistenceConstants.cs" />
+    <Compile Include="RavenSessionFactory.cs" />
+    <Compile Include="RavenUnitofWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

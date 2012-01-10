@@ -21,11 +21,15 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                             UniqueString = "whatever"
                         };
 
-            SagaPersister.Save(saga1);
-            saga1 = SagaPersister.Get<SagaWithUniqueProperty>(saga1.Id);
-            saga1.UniqueString = "whatever2";
-            SagaPersister.Update(saga1);
-            SagaPersister.Save(saga2);
+            WithASagaPersistenceUnitOfWork(p => p.Save(saga1));
+            WithASagaPersistenceUnitOfWork(p =>
+            {
+                saga1 = p.Get<SagaWithUniqueProperty>(saga1.Id);
+                saga1.UniqueString = "whatever2";
+                p.Update(saga1);
+            });
+
+            WithASagaPersistenceUnitOfWork(p => p.Save(saga2));
         }
     }
 }

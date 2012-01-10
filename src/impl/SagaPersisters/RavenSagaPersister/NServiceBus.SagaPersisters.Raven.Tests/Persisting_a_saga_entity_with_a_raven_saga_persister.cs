@@ -12,7 +12,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         protected TestSaga savedEntity;
 
         [TestFixtureSetUp]
-        public void Setup()
+        public override void Setup()
         {
             base.Setup();
 
@@ -20,9 +20,9 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
 
             SetupEntity(entity);
 
-            SagaPersister.Save(entity);
-
-            savedEntity = SagaPersister.Get<TestSaga>(entity.Id);
+            WithASagaPersistenceUnitOfWork(p => p.Save(entity));
+            
+            WithASagaPersistenceUnitOfWork(p => savedEntity = p.Get<TestSaga>(entity.Id));
         }
         
         public abstract void SetupEntity(TestSaga saga);

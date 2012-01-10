@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using NServiceBus.Persistence.Raven;
 using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.Raven
@@ -8,81 +9,52 @@ namespace NServiceBus.SagaPersisters.Raven
 
     public class RavenSagaPersister : ISagaPersister
     {
-        public IDocumentStore Store { get; set; }
+        readonly RavenSessionFactory sessionFactory;
+
+        protected IDocumentSession Session { get { return sessionFactory.Session; } }
+
+        public RavenSagaPersister(RavenSessionFactory sessionFactory)
+        {
+            this.sessionFactory = sessionFactory;
+        }
 
         public void Save(ISagaEntity saga)
         {
-            using (var session = OpenSession())
-            {
-                SaveSaga(session, saga);
-                session.SaveChanges();
-            }
+            StoreUniqueProperty(saga);
+            Session.Store(saga);
         }
-        
+
         public void Update(ISagaEntity saga)
         {
-            using (var session = OpenSession())
-            {
-                DeleteUniquePropertyEntityIfExists(session, saga);
-                StoreUniqueProperty(session, saga);
-                
-                //We don't actually store the saga again, since raven is tracking the entity
-                //SaveSaga(session, saga);
-                
-                session.SaveChanges();
-            }
+            //Don't store entity since raven tracks the entity
+            DeleteUniquePropertyEntityIfExists(saga);
+            StoreUniqueProperty(saga);
         }
 
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            using (var session = OpenSession())
+            try
             {
-                try
-                {
-                    return session.Load<T>(sagaId);
-                }
-                catch (InvalidCastException)
-                {
-                    return default(T);
-                }
+                return Session.Load<T>(sagaId);
+            }
+            catch (InvalidCastException)
+            {
+                return default(T);
             }
         }
 
         public T Get<T>(string property, object value) where T : ISagaEntity
         {
-            using (var session = OpenSession())
-            {
-                return session.Advanced.LuceneQuery<T>()
-                    .WhereEquals(property, value)
-                    .WaitForNonStaleResults()
-                    .FirstOrDefault();
-            }
+            return Session.Advanced.LuceneQuery<T>()
+                .WhereEquals(property, value)
+                .WaitForNonStaleResults()
+                .FirstOrDefault();
         }
 
         public void Complete(ISagaEntity saga)
         {
-            using (var session = OpenSession())
-            {
-                DeleteUniquePropertyEntityIfExists(session, saga);
-                session.Advanced.DatabaseCommands.Delete(Store.Conventions.FindTypeTagName(saga.GetType()) + "/" + saga.Id, null);
-                session.SaveChanges();
-            }
-        }
-
-        IDocumentSession OpenSession()
-        {
-            var session = Store.OpenSession();
-
-            session.Advanced.AllowNonAuthoritiveInformation = false;
-            session.Advanced.UseOptimisticConcurrency = true;
-
-            return session;
-        }
-
-        void SaveSaga(IDocumentSession session, ISagaEntity saga)
-        {
-            StoreUniqueProperty(session, saga);
-            session.Store(saga);
+                DeleteUniquePropertyEntityIfExists(saga);
+                Session.Advanced.DatabaseCommands.Delete(sessionFactory.Store.Conventions.FindTypeTagName(saga.GetType()) + "/" + saga.Id, null);
         }
         
         static UniqueProperty GetUniqueProperty(ISagaEntity saga)
@@ -94,26 +66,26 @@ namespace NServiceBus.SagaPersisters.Raven
             return uniqueProperty;
         }
 
-        private void StoreUniqueProperty(IDocumentSession session, ISagaEntity saga)
+        private void StoreUniqueProperty(ISagaEntity saga)
         {
             var uniqueProperty = GetUniqueProperty(saga);
-
+            
             if (uniqueProperty != null)
-                session.Store(uniqueProperty);
+                Session.Store(uniqueProperty);
         }
 
-        private void DeleteUniquePropertyEntityIfExists(IDocumentSession session, ISagaEntity saga)
+        private void DeleteUniquePropertyEntityIfExists(ISagaEntity saga)
         {
             var uniqueProperty = GetUniqueProperty(saga);
 
             if (uniqueProperty == null) return;
 
-            var persistedUniqueProperty = session.Query<UniqueProperty>()
+            var persistedUniqueProperty = Session.Query<UniqueProperty>()
                 .Customize(x => x.WaitForNonStaleResults())
                 .SingleOrDefault(p => p.SagaId == saga.Id);
 
             if (persistedUniqueProperty != null)
-                session.Delete(persistedUniqueProperty);
+                Session.Delete(persistedUniqueProperty);
         }
     }
 }

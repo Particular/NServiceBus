@@ -21,8 +21,8 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                             UniqueString = "whatever"
                         };
 
-            SagaPersister.Save(saga1);
-            Assert.Throws<ConcurrencyException>(() => SagaPersister.Save(saga2));
+            WithASagaPersistenceUnitOfWork(p => p.Save(saga1));
+            Assert.Throws<ConcurrencyException>(() => WithASagaPersistenceUnitOfWork(p => p.Save(saga2)));
         }
     }
 }

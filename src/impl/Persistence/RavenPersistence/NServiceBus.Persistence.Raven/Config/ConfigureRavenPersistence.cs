@@ -81,6 +81,9 @@ namespace NServiceBus
             store.Initialize();
 
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
+            
+            config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.InstancePerUnitOfWork);
+            config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }
