@@ -40,7 +40,10 @@ namespace NServiceBus.Licensing
 
         public int AllowedCores
         {
-            get { return LicenseAttributes[LicenseAttributeKeys.AllowedCores].CastWithDefault(0); }
+            get
+            {
+                return LicenseAttributes.ContainsKey(LicenseAttributeKeys.AllowedCores) ? LicenseAttributes[LicenseAttributeKeys.AllowedCores].CastWithDefault(0) : 1024;
+            }
         }
 
         public bool ViolatesAllowedCores
@@ -66,6 +69,6 @@ namespace NServiceBus.Licensing
 
         private string _inMemoryLicense;
         private readonly string _licensePath;
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
+        private static new readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
     }
 }
