@@ -10,37 +10,38 @@ namespace Client
     {
         public void Run()
         {
-            Console.Write("Press 's' to send a valid message, press 'e' to send a failed message. To exit, Ctrl + C\n" );
+            Console.WriteLine("Press 's' to send a valid message, press 'e' to send a failed message. To exit, 'q'\n" );
 
-            string key;
+            string cmd;
 
-            while ((key = Console.ReadLine()) != null)
+            while ((cmd = Console.ReadKey().Key.ToString().ToLower()) != "q")
             {
-                if (key == "s" || key == "S")
+                switch(cmd)
                 {
-                    Bus.Send<CreateProductCommand>(m =>
-                    {
-                        m.ProductId = "XJ128";
-                        m.ProductName= "Milk";
-                        m.ListPrice = 4;
-                        m.SellEndDate = new DateTime(2012, 1, 3);
-                        // 7MB. MSMQ should throw an exception, but it will not since the buffer will be compressed 
-                        // before it reaches MSMQ.
-                        m.Image = new byte[1024 * 1024 * 7];
-                    });
-                }
-                if (key == "e" || key == "E")
-                {
-                    Bus.Send<CreateProductCommand>(m =>
-                    {
-                        m.ProductId = "XJ128";
-                        m.ProductName = "Milk Milk Milk Milk Milk";
-                        m.ListPrice = 15;
-                        m.SellEndDate = new DateTime(2011, 1, 3);
-                        // 7MB. MSMQ should throw an exception, but it will not since the buffer will be compressed 
-                        // before it reaches MSMQ.
-                        m.Image = new byte[1024 * 1024 * 7];
-                    });
+                    case "s":
+                        Bus.Send<CreateProductCommand>(m =>
+                        {
+                            m.ProductId = "XJ128";
+                            m.ProductName= "Milk";
+                            m.ListPrice = 4;
+                            m.SellEndDate = new DateTime(2012, 1, 3);
+                            // 7MB. MSMQ should throw an exception, but it will not since the buffer will be compressed 
+                            // before it reaches MSMQ.
+                            m.Image = new byte[1024 * 1024 * 7];
+                        });
+                        break;
+                    case "e":
+                        Bus.Send<CreateProductCommand>(m =>
+                        {
+                            m.ProductId = "XJ128";
+                            m.ProductName = "Milk Milk Milk Milk Milk";
+                            m.ListPrice = 15;
+                            m.SellEndDate = new DateTime(2011, 1, 3);
+                            // 7MB. MSMQ should throw an exception, but it will not since the buffer will be compressed 
+                            // before it reaches MSMQ.
+                            m.Image = new byte[1024 * 1024 * 7];
+                        });
+                        break;
                 }
             }
         }
