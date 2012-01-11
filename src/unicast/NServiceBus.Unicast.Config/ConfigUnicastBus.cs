@@ -270,8 +270,16 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.DoNotAutoSubscribeSagas, true);
             return this;
         }
+        /// <summary>
+        /// Allow the bus to subscribe to itself
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus AllowSubscribeToSelf()
+        {
+            busConfig.ConfigureProperty(b => b.AllowSubscribeToSelf, true);
+            return this;
+        }
 
-       
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
