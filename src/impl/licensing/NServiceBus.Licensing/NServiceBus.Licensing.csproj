@@ -50,6 +50,14 @@
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Transactional">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Raven.Database, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\RavenDB.1.0.573\server\Raven.Database.dll</HintPath>
@@ -61,7 +69,6 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="LicenseAttributeKeys.cs" />

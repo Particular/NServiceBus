@@ -36,7 +36,7 @@ namespace NServiceBus.Licensing
                 }
                 else
                 {
-                    Logger.WarnFormat("You are allowed to run on {0} CPU cores.", Validator.AllowedCores);
+                    Logger.InfoFormat("You are allowed to run on {0} CPU cores.", Validator.AllowedCores);
                     allowedCpuCores = Validator.AllowedCores;
                 }
 
