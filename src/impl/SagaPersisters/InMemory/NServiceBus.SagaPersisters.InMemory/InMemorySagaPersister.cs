@@ -37,13 +37,14 @@ namespace NServiceBus.SagaPersisters.InMemory
 
         T ISagaPersister.Get<T>(Guid sagaId)
         {
-            ISagaEntity result;
             lock(syncRoot)
             {
+                ISagaEntity result;
                 data.TryGetValue(sagaId, out result);
+                if((result != null) && (result is T))
+                    return (T)result;
             }
-
-            return (T)result;
+            return default(T);
         }
 
         void ISagaPersister.Save(ISagaEntity saga)
