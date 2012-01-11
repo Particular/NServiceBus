@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.DataBus.Config
 {
@@ -9,8 +8,8 @@ namespace NServiceBus.DataBus.Config
 	{
 		public void Init()
 		{
-			dataBusPropertyFound = Configure.TypesToScan
-				.Where(t => typeof(IMessage).IsAssignableFrom(t))
+		    dataBusPropertyFound = Configure.TypesToScan
+		        .Where(t => t.IsMessageType())
 				.SelectMany(messageType => messageType.GetProperties())
 				.Any(t => typeof(IDataBusProperty).IsAssignableFrom(t.PropertyType));
 
