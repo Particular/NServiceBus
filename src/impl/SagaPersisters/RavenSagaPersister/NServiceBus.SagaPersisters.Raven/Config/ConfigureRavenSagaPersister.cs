@@ -10,7 +10,7 @@
             if (!config.Configurer.HasComponent<IDocumentStore>())
                 config.RavenPersistence();
 
-            config.Configurer.ConfigureComponent<RavenSagaPersister>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<RavenSagaPersister>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }

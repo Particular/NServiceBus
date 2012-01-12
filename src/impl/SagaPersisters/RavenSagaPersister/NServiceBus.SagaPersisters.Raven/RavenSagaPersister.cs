@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NServiceBus.Persistence.Raven;
 using NServiceBus.Saga;
 
@@ -10,6 +12,8 @@ namespace NServiceBus.SagaPersisters.Raven
     public class RavenSagaPersister : ISagaPersister
     {
         readonly RavenSessionFactory sessionFactory;
+        readonly MethodInfo getSagaWithUniquePropertyMethod = 
+            typeof(RavenSagaPersister).GetMethod("GetSagaWithUniqueProperty", BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any, new[] { typeof(KeyValuePair<string, object>) }, null);
 
         protected IDocumentSession Session { get { return sessionFactory.Session; } }
 
@@ -20,15 +24,14 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public void Save(ISagaEntity saga)
         {
-            StoreUniqueProperty(saga);
+            ValidateUniqueProperties(saga);
             Session.Store(saga);
         }
 
         public void Update(ISagaEntity saga)
         {
-            //Don't store entity since raven tracks the entity
-            DeleteUniquePropertyEntityIfExists(saga);
-            StoreUniqueProperty(saga);
+            //Do not re-save saga entity, since raven is tracking the entity
+            ValidateUniqueProperties(saga);
         }
 
         public T Get<T>(Guid sagaId) where T : ISagaEntity
@@ -53,39 +56,32 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public void Complete(ISagaEntity saga)
         {
-                DeleteUniquePropertyEntityIfExists(saga);
-                Session.Advanced.DatabaseCommands.Delete(sessionFactory.Store.Conventions.FindTypeTagName(saga.GetType()) + "/" + saga.Id, null);
+            Session.Advanced.DatabaseCommands.Delete(sessionFactory.Store.Conventions.FindTypeTagName(saga.GetType()) + "/" + saga.Id, null);
         }
-        
-        static UniqueProperty GetUniqueProperty(ISagaEntity saga)
+
+        protected void ValidateUniqueProperties(ISagaEntity saga)
         {
-            var uniqueProperty = UniqueAttribute.GetUniqueProperties(saga)
-                .Select(prop => new UniqueProperty(saga, prop))
+            var uniqueProperties = UniqueAttribute.GetUniqueProperties(saga.GetType())
+                .ToDictionary(p => p.Name, p => p.GetValue(saga, null));
+
+            if (uniqueProperties.Count == 0) return;
+
+            var uniqueProperty = uniqueProperties.First();
+
+            var genericQuery = getSagaWithUniquePropertyMethod.MakeGenericMethod(saga.GetType());
+            var sagaId = (Guid)genericQuery.Invoke(this, new object[] { uniqueProperty });
+
+            if (sagaId != Guid.Empty && sagaId != saga.Id)
+                throw new InvalidOperationException(string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", sagaId, uniqueProperty.Key, uniqueProperty.Value));
+        }
+
+        protected Guid GetSagaWithUniqueProperty<T>(KeyValuePair<string, object> uniqueProperty) where T : ISagaEntity
+        {
+            return Session.Advanced.LuceneQuery<T>()
+                .WhereEquals(uniqueProperty.Key, uniqueProperty.Value)
+                .WaitForNonStaleResults()
+                .Select(s => s.Id)
                 .FirstOrDefault();
-
-            return uniqueProperty;
-        }
-
-        private void StoreUniqueProperty(ISagaEntity saga)
-        {
-            var uniqueProperty = GetUniqueProperty(saga);
-            
-            if (uniqueProperty != null)
-                Session.Store(uniqueProperty);
-        }
-
-        private void DeleteUniquePropertyEntityIfExists(ISagaEntity saga)
-        {
-            var uniqueProperty = GetUniqueProperty(saga);
-
-            if (uniqueProperty == null) return;
-
-            var persistedUniqueProperty = Session.Query<UniqueProperty>()
-                .Customize(x => x.WaitForNonStaleResults())
-                .SingleOrDefault(p => p.SagaId == saga.Id);
-
-            if (persistedUniqueProperty != null)
-                Session.Delete(persistedUniqueProperty);
         }
     }
 }

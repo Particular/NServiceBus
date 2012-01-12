@@ -22,7 +22,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                         };
 
             WithASagaPersistenceUnitOfWork(p => p.Save(saga1));
-            Assert.Throws<ConcurrencyException>(() => WithASagaPersistenceUnitOfWork(p => p.Save(saga2)));
+            Assert.Throws<InvalidOperationException>(() => WithASagaPersistenceUnitOfWork(p => p.Save(saga2)));
         }
     }
 }

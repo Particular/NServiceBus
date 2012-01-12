@@ -103,7 +103,6 @@
     <Compile Include="Config\ConfigureRavenSagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenSagaPersister.cs" />
-    <Compile Include="UniqueProperty.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Persistence\RavenPersistence\NServiceBus.Persistence.Raven\NServiceBus.Persistence.Raven.csproj">
