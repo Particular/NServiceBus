@@ -38,7 +38,7 @@ namespace NServiceBus.Sagas.Impl
             var entitiesHandled = new List<ISagaEntity>();
             var sagaTypesHandled = new List<Type>();
 
-            foreach (IFinder finder in Configure.GetFindersFor(message))
+            foreach (var finder in GetFindersFor(message))
             {
                 ISaga saga;
                 bool sagaEntityIsPersistent = true;
@@ -103,6 +103,11 @@ namespace NServiceBus.Sagas.Impl
                     handler.Handle(message);
                 }
             }
+        }
+
+        IEnumerable<IFinder> GetFindersFor(object message)
+        {
+            return Configure.GetFindersFor(message).Select(t => Builder.Build(t) as IFinder);
         }
 
         /// <summary>

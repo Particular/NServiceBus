@@ -16,8 +16,7 @@ namespace NServiceBus.Sagas.Impl
         #region setup
 
         private IConfigureComponents configurer;
-        private static IBuilder _builderStatic;
-
+       
         private Configure()
         {
         }
@@ -30,8 +29,6 @@ namespace NServiceBus.Sagas.Impl
         /// <returns></returns>
         public static Configure With(IConfigureComponents configurer, IBuilder builder)
         {
-            _builderStatic = builder;
-
             configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
             configurer.ConfigureComponent<SagaIdEnricher>(DependencyLifecycle.InstancePerCall);
 
@@ -264,25 +261,21 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        public static IEnumerable<IFinder> GetFindersFor(object m)
+        public static IEnumerable<Type> GetFindersFor(object m)
         {
-            var result = new List<IFinder>();
-
             foreach(Type finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
             {
                 IDictionary<Type, MethodInfo> messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
                 if (messageToMethodInfo.ContainsKey(m.GetType()))
                 {
-                    result.Add(_builderStatic.Build(finderType) as IFinder);
+                    yield return finderType;
                     continue;
                 }
 
                 foreach(Type messageType in messageToMethodInfo.Keys)
                     if (messageType.IsAssignableFrom(m.GetType()))
-                        result.Add(_builderStatic.Build(finderType) as IFinder);
+                        yield return finderType;
             }
-
-            return result;
         }
 
         /// <summary>
