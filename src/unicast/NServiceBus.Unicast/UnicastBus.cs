@@ -462,6 +462,7 @@ namespace NServiceBus.Unicast
 
         void IBus.Reply(params object[] messages)
         {
+            AssertIsValidForReply(messages.ToList());
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
@@ -828,6 +829,13 @@ namespace NServiceBus.Unicast
             if (!messageType.IsCommandType() && !messageType.IsEventType())
                 Log.Debug("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
+        static void AssertIsValidForReply(IEnumerable<object> messages)
+        {
+            if (messages.Any(m=>m.IsCommand()))
+                throw new InvalidOperationException(
+                    "Reply is not supported for Commands. They should be be sent to their logical owner using bus.Send");
+        }
+        
         static void AssertIsValidForPubSub(Type messageType)
         {
             if (messageType.IsCommandType())

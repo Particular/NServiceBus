@@ -47,6 +47,37 @@
         }
     }
 
+
+    [TestFixture]
+    public class When_replying_with_a_command : using_the_unicastbus
+    {
+        [Test]
+        public void Should_not_be_allowed()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+
+            RegisterMessageType<EventMessage>();
+            RegisterMessageType<CommandMessage>();
+            RegisterMessageHandlerType<HandlerThatRepliesWithACommand>();
+
+            ReceiveMessage(receivedMessage);
+
+
+            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Anything));
+        }
+    }
+
+
+    class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>
+    {
+        public IBus Bus { get; set; }
+
+        public void Handle(EventMessage message)
+        {
+            Bus.Reply(new CommandMessage());
+        }
+    }
+    
     class HandlerThatSendsAMessage : IHandleMessages<EventMessage>
     {
         public IBus Bus { get; set; }
