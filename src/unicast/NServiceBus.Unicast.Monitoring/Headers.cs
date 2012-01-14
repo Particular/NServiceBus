@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Timing
+namespace NServiceBus.Unicast.Monitoring
 {
     /// <summary>
     /// Timing related headers
@@ -19,5 +19,16 @@ namespace NServiceBus.Unicast.Timing
         /// The time this message was sent from the client
         /// </summary>
         public const string TimeSent = "NServiceBus.TimeSent";
+
+
+        /// <summary>
+        /// Id of the message that caused this message to be sent
+        /// </summary>
+        public const string RelatedTo = "NServiceBus.RelatedTo";
+
+        /// <summary>
+        /// Header entry key indicating the types of messages contained.
+        /// </summary>
+        public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
     }
 }

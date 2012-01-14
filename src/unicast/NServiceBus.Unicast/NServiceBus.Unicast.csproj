@@ -111,18 +111,12 @@
   <ItemGroup>
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
-    <Compile Include="CorrelationIdMutator.cs" />
-    <Compile Include="EnclosedMessageTypesMutator.cs" />
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
-    <Compile Include="Timing\CriticalTimePerformanceCounter.cs" />
-    <Compile Include="Timing\Headers.cs" />
-    <Compile Include="Timing\ProcessingStatistics.cs" />
-    <Compile Include="Timing\SentTimeMutator.cs" />
     <Compile Include="UnicastBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Unicast.Timing
+﻿namespace NServiceBus.Unicast.Monitoring
 {
     using System;
-    using Config;
     using MessageMutator;
+    using NServiceBus.Config;
     using Transport;
 
     /// <summary>

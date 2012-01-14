@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using Contexts;
+    using Monitoring;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Timing;
     using Transport;
     using UnitOfWork;
 

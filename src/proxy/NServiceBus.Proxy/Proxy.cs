@@ -8,6 +8,7 @@ using NServiceBus.Unicast;
 namespace NServiceBus.Proxy
 {
     using System.Linq;
+    using Unicast.Monitoring;
     using MessageType = Unicast.Subscriptions.MessageType;
 
     public class Proxy
@@ -60,11 +61,11 @@ namespace NServiceBus.Proxy
         {
             if (e.Message.MessageIntent == MessageIntentEnum.Publish)
             {
-                if(!e.Message.Headers.ContainsKey(EnclosedMessageTypesMutator.EnclosedMessageTypes))
+                if(!e.Message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
                     throw new InvalidOperationException("Enclosed message type header was not found in message");
 
 
-                var types = e.Message.Headers[EnclosedMessageTypesMutator.EnclosedMessageTypes].Split(';');
+                var types = e.Message.Headers[Headers.EnclosedMessageTypes].Split(';');
 
                 var subs = Subscribers.GetSubscriberAddressesForMessage(types.Select(s=> new MessageType(s)));
 

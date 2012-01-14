@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Unicast
+﻿namespace NServiceBus.Unicast.Monitoring
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Config;
     using MessageMutator;
+    using NServiceBus.Config;
     using Transport;
 
     /// <summary>
@@ -12,12 +12,6 @@
     public class EnclosedMessageTypesMutator : IMutateOutgoingTransportMessages,INeedInitialization
     {
         /// <summary>
-        /// Header entry key indicating the types of messages contained.
-        /// </summary>
-        public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
-
-
-        /// <summary>
         /// Sets the header to a ; separated list of message types carried in this message
         /// </summary>
         /// <param name="messages"></param>
@@ -25,7 +19,7 @@
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if(messages.Any())
-                transportMessage.Headers[EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
+                transportMessage.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
         }
 
         static string SerializeEnclosedMessageTypes(IEnumerable<object> messages)

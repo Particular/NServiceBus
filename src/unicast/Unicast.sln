@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Utils", "..\utils\NServiceBus.Utils.csproj", "{2616579A-202F-48F6-8A7F-6A6AA9288CA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Monitoring", "NServiceBus.Unicast.Monitoring\NServiceBus.Unicast.Monitoring.csproj", "{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{2616579A-202F-48F6-8A7F-6A6AA9288CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2616579A-202F-48F6-8A7F-6A6AA9288CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2616579A-202F-48F6-8A7F-6A6AA9288CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

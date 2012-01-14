@@ -117,6 +117,10 @@
       <Project>{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}</Project>
       <Name>NServiceBus.Unicast.Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Unicast.Monitoring\NServiceBus.Unicast.Monitoring.csproj">
+      <Project>{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}</Project>
+      <Name>NServiceBus.Unicast.Monitoring</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
       <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
       <Name>NServiceBus.Unicast.Subscriptions</Name>

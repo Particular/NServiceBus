@@ -32,7 +32,7 @@
     public class When_sending_messages_from_a_messagehandler : using_the_unicastbus
     {
         [Test]
-        public void Should_set_the_correlation_id_to_the_current_message()
+        public void Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
 
@@ -43,7 +43,7 @@
             ReceiveMessage(receivedMessage);
 
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.CorrelationId == receivedMessage.IdForCorrelation), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Monitoring.Headers.RelatedTo] == receivedMessage.IdForCorrelation), Arg<Address>.Is.Anything));
         }
     }
 

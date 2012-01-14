@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.Unicast.Config
+﻿namespace NServiceBus.Unicast.Monitoring
 {
+    using Config;
     using NServiceBus.Config;
-    using Timing;
 
     /// <summary>
     /// Initializes the peformcecounters if they are enabled

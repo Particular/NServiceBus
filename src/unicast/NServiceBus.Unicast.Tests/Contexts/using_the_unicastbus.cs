@@ -6,11 +6,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Faults;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
+    using Monitoring;
     using NUnit.Framework;
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
-    using Timing;
     using Transport;
     using UnitOfWork;
 
@@ -74,7 +74,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             };
             bus = unicastBus;
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CorrelationIdMutator{Bus = bus});
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator{Bus = bus});
             FuncBuilder.Register<IBus>(() => bus);
             
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
