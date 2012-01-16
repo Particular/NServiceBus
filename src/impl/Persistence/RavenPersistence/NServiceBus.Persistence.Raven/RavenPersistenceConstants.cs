@@ -8,7 +8,7 @@ namespace NServiceBus.Persistence.Raven
 
     public static class RavenPersistenceConstants
     {
-        public const string DefaultDataDirectory = @".\NServiceBusData";
+        public const int DefaultPort = 8080;
         public static string DefaultUrl
         {
             get
@@ -18,7 +18,7 @@ namespace NServiceBus.Persistence.Raven
                 if (string.IsNullOrEmpty(masterNode))
                     masterNode = "localhost";
 
-                return string.Format("http://{0}:8080", masterNode);
+                return string.Format("http://{0}:{1}", masterNode, DefaultPort);
             }
         }
 

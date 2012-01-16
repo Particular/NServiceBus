@@ -6,22 +6,11 @@ namespace NServiceBus
 {
     using System.Configuration;
     using Persistence.Raven;
+    using Persistence.Raven.Installation;
     using Saga;
-    using global::Raven.Client.Embedded;
 
     public static class ConfigureRavenPersistence
     {
-        public static Configure EmbeddedRavenPersistence(this Configure config)
-        {
-            var store = new EmbeddableDocumentStore
-            {
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DataDirectory = RavenPersistenceConstants.DefaultDataDirectory
-            };
-
-            return RavenPersistence(config, store);
-        }
-
         public static Configure RavenPersistence(this Configure config)
         {
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
@@ -36,6 +25,10 @@ namespace NServiceBus
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
                 DefaultDatabase = databaseNamingConvention()
             };
+
+            //if we have no master node we should have our own local ravendb
+            if (string.IsNullOrEmpty(config.GetMasterNode()))
+                config.InstallRavenIfNeeded();
 
             return RavenPersistence(config, store);
         }
@@ -88,7 +81,38 @@ namespace NServiceBus
             return config;
         }
 
+        public static Configure DisableRavenInstall(this Configure config)
+        {
+            ravenInstallEnabled = false;
 
+            return config;
+        }
+
+
+        public static Configure InstallRavenIfNeeded(this Configure config)
+        {
+            installRavenIfNeeded = true;
+
+            return config;
+        }
+
+        public static bool ShouldInstallRavenIfNeeded(this Configure config)
+        {
+            return installRavenIfNeeded;
+        }
+
+        static bool installRavenIfNeeded;
+
+
+
+        public static bool RavenInstallEnabled(this Configure config)
+        {
+            return ravenInstallEnabled;
+        }
+        
+        static bool ravenInstallEnabled = true;
+        
+        
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config,Func<string> convention)
         {
             databaseNamingConvention = convention;

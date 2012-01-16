@@ -143,21 +143,16 @@ task CompileCore -depends InitEnvironment {
 	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
 	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
 	
-	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll	-Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\AutoFac.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Raven*.dll -Exclude **Tests.dll, Raven.Client.Debug.dll, Raven.Client.MvcIntegration.dll
-	$assemblies += dir $buildBase\nservicebus.core\NLog.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\ICSharpCode.NRefactory.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Esent.Interop.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.SpellChecker.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\Lucene.Net.Contrib.Spatial.dll -Exclude **Tests.dll
-	$assemblies += dir $buildBase\nservicebus.core\BouncyCastle.Crypto.dll -Exclude **Tests.dll
+	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll
+	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
+	$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
+	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll
+	$assemblies += dir $buildBase\nservicebus.core\AutoFac.dll
+	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
+	$assemblies += dir $buildBase\nservicebus.core\Raven.Abstractions.dll
+	$assemblies += dir $buildBase\nservicebus.core\Raven.Client.Lightweight.dll
+	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll
+	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
 }
