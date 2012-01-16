@@ -3,7 +3,7 @@ using NServiceBus.DataBus.Config;
 using NServiceBus.DataBus.Tests;
 using NUnit.Framework;
 
-namespace NServiceBus.Databus.Tests
+namespace NServiceBus.DataBus.Tests
 {
 	using ObjectBuilder;
 
