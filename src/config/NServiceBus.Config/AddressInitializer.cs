@@ -5,6 +5,9 @@
     /// </summary>
     public class AddressInitializer:IWantToRunBeforeConfiguration
     {
+        /// <summary>
+        /// Initialize the local address
+        /// </summary>
         public void Init()
         {
             if(Address.Local == null)

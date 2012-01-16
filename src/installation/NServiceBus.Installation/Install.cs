@@ -12,6 +12,9 @@ namespace NServiceBus
     /// </summary>
     public static class Install
     {
+        /// <summary>
+        /// Test Method for Intsallation
+        /// </summary>
         public static void Test()
         {
             Configure.With().ForInstallationOn<IEnvironment>();
@@ -65,6 +68,10 @@ namespace NServiceBus
     /// <typeparam name="T">The environment for which the installers should be invoked.</typeparam>
     public class Installer<T> where T : IEnvironment
     {
+        /// <summary>
+        /// Initializes a new instnace of the Installer
+        /// </summary>
+        /// <param name="identity">WindowsIdentity</param>
         public Installer(WindowsIdentity identity)
         {
             winIdentity = identity;
@@ -72,6 +79,9 @@ namespace NServiceBus
 
         private WindowsIdentity winIdentity;
 
+        /// <summary>
+        /// Gets or sets RunInfrastructureInstallers 
+        /// </summary>
         public static bool RunInfrastructureInstallers { get; set; }
 
         private static bool installedInfrastructureInstallers = false;

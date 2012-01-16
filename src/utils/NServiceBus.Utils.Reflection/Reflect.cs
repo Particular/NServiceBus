@@ -85,6 +85,10 @@ namespace NServiceBus.Utils.Reflection
             return ((MethodCallExpression)lambda.Body).Method;
         }
 
+        /// <summary>
+        /// Returns a MemberInfo for an expression containing a call to a property.
+        /// </summary>
+        /// <returns></returns>
         protected static MemberInfo GetMemberInfo(Expression member)
         {
             return GetMemberInfo(member, false);
@@ -190,12 +194,10 @@ namespace NServiceBus.Utils.Reflection
         }
 
         /// <summary>
-        /// Gets the property represented by the lambda expression.
-        /// If <see cref="checkForSingleDot"/> is true, then the property expression is checked to see that
-        /// only a single dot is present.
+        /// Gets the property represented by the lambda expression.        
         /// </summary>
         /// <param name="property"></param>
-        /// <param name="checkForSingleDot"></param>
+        /// <param name="checkForSingleDot">If checkForSingleDot is true, then the property expression is checked to see that only a single dot is present.</param>
         /// <returns></returns>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
         {

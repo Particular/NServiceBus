@@ -165,8 +165,15 @@ task CompileContainers -depends InitEnvironment {
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" }		
 	}
 	
+	if(Test-Path "$buildBase\output\containers"){
+		Delete-Directory "$buildBase\output\containers"
+	}	
 	Create-Directory "$buildBase\output\containers"
 	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $buildBase\output\containers -Force
+	
+	if(Test-Path "$coreOnly\containers"){
+		Delete-Directory "$coreOnly\containers"
+	}
 	Create-Directory $coreOnly\containers
 	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $coreOnly\containers -Force
 }

@@ -15,14 +15,52 @@ using System.Reflection.Emit;
 
 namespace NServiceBus.Utils.Reflection
 {
+    /// <summary>
+    /// Late Bound Method
+    /// </summary>
+    /// <param name="target">Target object</param>
+    /// <param name="arguments">Arguments</param>
+    /// <returns></returns>
     public delegate object LateBoundMethod(object target, object[] arguments);
+
+    /// <summary>
+    /// Late Bound Property
+    /// </summary>
+    /// <param name="target">Target Object</param>
+    /// <returns></returns>
     public delegate object LateBoundProperty(object target);
+
+    /// <summary>
+    /// Late Bound Field
+    /// </summary>
+    /// <param name="target">Target Objects </param>
+    /// <returns></returns>
     public delegate object LateBoundField(object target);
+
+    /// <summary>
+    /// Late Bound Field Set
+    /// </summary>
+    /// <param name="target">Target Object</param>
+    /// <param name="value"></param>
     public delegate void LateBoundFieldSet(object target, object value);
+
+    /// <summary>
+    /// Late Bound Property Set
+    /// </summary>
+    /// <param name="target">Target Object</param>
+    /// <param name="value"></param>
     public delegate void LateBoundPropertySet(object target, object value);
 
+    /// <summary>
+    /// Delegate Factory
+    /// </summary>
 	public static class DelegateFactory
 	{
+        /// <summary>
+        /// Create Late Bound methods
+        /// </summary>
+        /// <param name="method">MethodInfo</param>
+        /// <returns>LateBoundMethod</returns>
 		public static LateBoundMethod Create(MethodInfo method)
 		{
 			ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
@@ -41,6 +79,11 @@ namespace NServiceBus.Utils.Reflection
 			return lambda.Compile();
 		}
 
+        /// <summary>
+        /// Creates LateBoundProperty
+        /// </summary>
+        /// <param name="property">PropertyInfo</param>
+        /// <returns>LateBoundProperty</returns>
         public static LateBoundProperty Create(PropertyInfo property)
         {
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
@@ -55,6 +98,11 @@ namespace NServiceBus.Utils.Reflection
             return lambda.Compile();
         }
 
+        /// <summary>
+        /// LateBoundField
+        /// </summary>
+        /// <param name="field">FieldInfo</param>
+        /// <returns></returns>
         public static LateBoundField Create(FieldInfo field)
         {
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
@@ -69,6 +117,11 @@ namespace NServiceBus.Utils.Reflection
             return lambda.Compile();
         }
 
+        /// <summary>
+        /// Create filed set 
+        /// </summary>
+        /// <param name="field">FieldInfo</param>
+        /// <returns>LateBoundFieldSet</returns>
         public static LateBoundFieldSet CreateSet(FieldInfo field)
         {
             var sourceType = field.DeclaringType;
@@ -87,6 +140,11 @@ namespace NServiceBus.Utils.Reflection
             return callback;
         }
 
+        /// <summary>
+        /// Creates Property Set 
+        /// </summary>
+        /// <param name="property">PropertyInfo</param>
+        /// <returns>LateBoundPropertySet</returns>
         public static LateBoundPropertySet CreateSet(PropertyInfo property)
         {
             var method = new DynamicMethod("Set" + property.Name, null, new[] { typeof(object), typeof(object) }, true);

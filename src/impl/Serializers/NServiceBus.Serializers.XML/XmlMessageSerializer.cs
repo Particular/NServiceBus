@@ -25,7 +25,7 @@ namespace NServiceBus.Serializers.XML
         readonly IMessageMapper mapper;
         IList<Type> messageTypes;
 
-        
+
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -35,8 +35,8 @@ namespace NServiceBus.Serializers.XML
             set { nameSpace = value; }
         }
 
-        
-       
+
+
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
@@ -52,7 +52,7 @@ namespace NServiceBus.Serializers.XML
             {
                 if (t.IsArray)
                     typesToCreateForArrays[t] = typeof(List<>).MakeGenericType(t.GetElementType());
-                
+
 
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g);
@@ -106,7 +106,7 @@ namespace NServiceBus.Serializers.XML
                 if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args) == t)
                 {
                     InitType(args[0]);
-                    
+
                     if (!args[0].GetGenericArguments().Any())
                         return;
                 }
@@ -508,7 +508,7 @@ namespace NServiceBus.Serializers.XML
                 if (n.ChildNodes[0] is XmlWhitespace)
                     return Activator.CreateInstance(type);
 
-                 throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
+                throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
 
             }
 
@@ -550,7 +550,7 @@ namespace NServiceBus.Serializers.XML
 
                 return result;
             }
-            
+
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
                 bool isArray = type.IsArray;
@@ -586,7 +586,7 @@ namespace NServiceBus.Serializers.XML
                         if (isArray)
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
 #if !NET35
-                        if(isISet)
+                        if (isISet)
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
 #endif
                     }
@@ -914,6 +914,10 @@ namespace NServiceBus.Serializers.XML
 
         private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
 
+        /// <summary>
+        /// Initializes an instace of a NServiceBus.Serializers.XML.XmlMessageSerializer
+        /// </summary>
+        /// <param name="mapper">Message Mapper</param>
         public XmlMessageSerializer(IMessageMapper mapper)
         {
             this.mapper = mapper;
@@ -934,7 +938,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (Type t in messageTypes)
                 InitType(t);
-             
+
         }
 
         string nameSpace = "http://tempuri.net";

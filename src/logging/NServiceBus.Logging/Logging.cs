@@ -2,6 +2,9 @@ using System.Configuration;
 
 namespace NServiceBus.Config
 {
+    /// <summary>
+    /// Logging ConfigurationSection
+    /// </summary>
     public class Logging : ConfigurationSection
     {
         /// <summary>

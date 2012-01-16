@@ -28,7 +28,7 @@ namespace NServiceBus.Licensing
                 catch (Exception ex)
                 {
                     _inMemoryLicense = value;
-                    Logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
+                    logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace NServiceBus.Licensing
         {
             if (!File.Exists(_licensePath))
             {
-                Logger.InfoFormat("Could not find license file: {0}", _licensePath);
+                logger.InfoFormat("Could not find license file: {0}", _licensePath);
                 throw new LicenseFileNotFoundException();
             }
             
@@ -69,6 +69,6 @@ namespace NServiceBus.Licensing
 
         private string _inMemoryLicense;
         private readonly string _licensePath;
-        private static new readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
+        private static readonly ILog logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
     }
 }

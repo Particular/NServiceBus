@@ -2,9 +2,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 {
     using System.Collections.Generic;
     using global::NHibernate.Cfg;
-
+    
+    /// <summary>
+    /// SQLite Configuration
+    /// </summary>
     public static class SQLiteConfiguration
     {
+        /// <summary>
+        /// SQLite Configuration In Memory
+        /// </summary>
+        /// <returns></returns>
         public static IDictionary<string, string> InMemory()
         {
             var cfg = Base();
@@ -14,7 +21,11 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
             return cfg;
         }
-
+        /// <summary>
+        /// SQLite Configuration In File
+        /// </summary>
+        /// <param name="filename">File Name</param>
+        /// <returns></returns>
         public static IDictionary<string, string> UsingFile(string filename)
         {
             var cfg = Base();

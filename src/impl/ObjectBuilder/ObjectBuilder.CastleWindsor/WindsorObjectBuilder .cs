@@ -61,6 +61,10 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             Dispose(true);
         }
 
+        /// <summary>
+        /// Implements dispose
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing || disposed)

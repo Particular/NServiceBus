@@ -264,6 +264,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
+        /// <summary>
+        /// Gets or Set AllowSubscribeToSelf 
+        /// </summary>
         public bool AllowSubscribeToSelf { get; set; }
 
         #endregion
