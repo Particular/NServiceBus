@@ -9,7 +9,20 @@ namespace NServiceBus.Persistence.Raven
     public static class RavenPersistenceConstants
     {
         public const string DefaultDataDirectory = @".\NServiceBusData";
-        public const string DefaultUrl = "http://localhost:8080";
+        public static string DefaultUrl
+        {
+            get
+            {
+                var masterNode = Configure.Instance.GetMasterNode();
+
+                if (string.IsNullOrEmpty(masterNode))
+                    masterNode = "localhost";
+
+                return string.Format("http://{0}:8080", masterNode);
+            }
+        }
+
+
         public static Guid DefaultResourceManagerId
         {
             get

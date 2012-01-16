@@ -18,7 +18,7 @@ namespace NServiceBus
             return isMasterNode;
         }
 
-        private static string GetMasterNode(this Configure config)
+        public static string GetMasterNode(this Configure config)
         {
             var section = Configure.GetConfigSection<MasterNodeConfig>();
             if (section != null)

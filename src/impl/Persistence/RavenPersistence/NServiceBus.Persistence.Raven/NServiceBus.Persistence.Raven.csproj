@@ -65,6 +65,9 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.MasterNode">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
