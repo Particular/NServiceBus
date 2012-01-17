@@ -10,14 +10,21 @@
     using NServiceBus.Installation;
     using NServiceBus.Installation.Environments;
 
-    public class RavenDBInstaller : INeedToInstallSomething<Windows>
+    public class RavenDBInstaller : INeedToInstallInfrastructure<Windows>
     {
         public void Install(WindowsIdentity identity)
         {
-            if (!Configure.Instance.InstallRavenDB())
+            if (!InstallEnabled)
                 return;
 
-            var installPath = Configure.Instance.RavenInstallPath();
+            var installPath = RavenInstallPath;
+
+            if (Directory.Exists(installPath))
+                return;
+
+            //Check if the port is available, if so let the installer setup raven if its beeing run
+            if(!RavenHelpers.EnsureCanListenToWhenInNonAdminContext(RavenPersistenceConstants.DefaultPort))
+                return;
 
             if (!Directory.Exists(installPath))
                 Directory.CreateDirectory(installPath);
@@ -75,5 +82,29 @@
             else
                 Console.WriteLine("NServiceBus.Persistence service started");
         }
+
+        static RavenDBInstaller()
+        {
+            InstallEnabled = true;
+        }
+
+        public static bool InstallEnabled { get; set; }
+
+        static string ravenInstallPath;
+        const string InstallDirectory = "NServiceBus.Persistence";
+
+        public static string RavenInstallPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ravenInstallPath))
+                    ravenInstallPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), InstallDirectory);
+
+                return ravenInstallPath;
+            }
+            set { ravenInstallPath = value; }
+        }
+
+        
     }
 }

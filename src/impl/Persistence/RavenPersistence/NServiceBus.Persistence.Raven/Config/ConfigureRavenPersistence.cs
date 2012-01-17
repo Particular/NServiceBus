@@ -27,8 +27,7 @@ namespace NServiceBus
             };
 
             //if we have no master node we should have our own local ravendb
-            if (string.IsNullOrEmpty(config.GetMasterNode()))
-                config.InstallRavenIfNeeded();
+            installRavenIfNeeded = string.IsNullOrEmpty(config.GetMasterNode());
 
             return RavenPersistence(config, store);
         }
@@ -78,6 +77,9 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.InstancePerUnitOfWork);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerUnitOfWork);
 
+
+            RavenDBInstaller.InstallEnabled = installRavenIfNeeded && ravenInstallEnabled;
+
             return config;
         }
 
@@ -96,20 +98,10 @@ namespace NServiceBus
             return config;
         }
 
-        public static bool ShouldInstallRavenIfNeeded(this Configure config)
-        {
-            return installRavenIfNeeded;
-        }
-
+    
         static bool installRavenIfNeeded;
 
 
-
-        public static bool RavenInstallEnabled(this Configure config)
-        {
-            return ravenInstallEnabled;
-        }
-        
         static bool ravenInstallEnabled = true;
         
         
