@@ -31,7 +31,7 @@ namespace NServiceBus.Testing
         public void ExpectSend<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
-                () => ExpectCallToSend(
+                () => ExpectCallToSend<TMessage>(
                           delegate(object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
@@ -80,7 +80,7 @@ namespace NServiceBus.Testing
         public void ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
-                () => ExpectCallToSendLocal(
+                () => ExpectCallToSendLocal<TMessage>(
                           delegate(object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
@@ -118,7 +118,7 @@ namespace NServiceBus.Testing
         public void ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
-                () => ExpectCallToSend(
+                () => ExpectCallToSend<TMessage>(
                           delegate(string destination, object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
@@ -142,7 +142,7 @@ namespace NServiceBus.Testing
         public void ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check)
         {
             Delegate d = new HandleMessageDelegate(
-                () => ExpectCallToSend(
+                () => ExpectCallToSend<TMessage>(
                           delegate(string destination, string correlationId, object[] msgs)
                               {
                                   foreach (TMessage msg in msgs)
@@ -190,7 +190,7 @@ namespace NServiceBus.Testing
 		public void ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
 		{
 			Delegate d = new HandleMessageDelegate(
-				() => DoNotExpectCallToPublish(
+				() => DoNotExpectCallToPublish<TMessage>(
 						  delegate(TMessage[] msgs)
 						  {
 							  foreach (TMessage msg in msgs)
@@ -295,42 +295,31 @@ namespace NServiceBus.Testing
                 .Callback(callback);
         }
 
-        private void ExpectCallToSendLocal(BusSendDelegate callback)
+        private void ExpectCallToSendLocal<T>(BusSendDelegate callback)
         {
-            object[] messages = null;
-
-            Expect.Call(() => bus.SendLocal(messages))
+            Expect.Call(() => bus.SendLocal(Arg<T>.Is.Anything))
                 .IgnoreArguments().Return(null)
                 .Callback(callback);
         }
 
-        private void ExpectCallToSend(BusSendDelegate callback)
+        private void ExpectCallToSend<T>(BusSendDelegate callback)
         {
-            object[] messages = null;
-
-            Expect.Call(() => bus.Send(messages))
+            Expect.Call(() => bus.Send(Arg<T>.Is.Anything))
                 .IgnoreArguments().Return(null)
                 .Callback(callback);
         }
 
-        private void ExpectCallToSend(BusSendWithDestinationDelegate callback)
+        private void ExpectCallToSend<T>(BusSendWithDestinationDelegate callback)
         {
-            object[] messages = null;
-            string destination = null;
-
-            Expect.Call(() => bus.Send(destination, messages))
+            Expect.Call(() => bus.Send(Arg<string>.Is.NotNull, Arg<T>.Is.Anything))
                 .IgnoreArguments().Return(null)
                 .Callback(callback);
         }
 
-        private void ExpectCallToSend(BusSendWithDestinationAndCorrelationIdDelegate callback)
+        private void ExpectCallToSend<T>(BusSendWithDestinationAndCorrelationIdDelegate callback)
         {
-            object[] messages = null;
-            string destination = null;
-            string correlationId = null;
-
-            Expect.Call(() => bus.Send(destination, correlationId, messages))
-                .IgnoreArguments()
+            Expect.Call(() => bus.Send(Arg<string>.Is.NotNull, Arg<string>.Is.NotNull, Arg<T>.Is.Anything))
+                .IgnoreArguments().Return(null)
                 .Callback(callback);
         }
 
@@ -345,9 +334,7 @@ namespace NServiceBus.Testing
 
 		private void DoNotExpectCallToPublish<T>(BusPublishDelegate<T> callback)
 		{
-			T[] messages = null;
-
-			bus.Stub(b => bus.Publish(messages))
+            bus.Stub(b => bus.Publish(Arg<T>.Is.Anything))
 				.IgnoreArguments()
 				.Callback(callback)
 				.Throw(
