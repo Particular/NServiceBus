@@ -17,6 +17,9 @@ namespace NServiceBus.Hosting
     /// </summary>
     public class GenericHost : IHost
     {
+        /// <summary>
+        /// Creats and strts the bus as per the configuration
+        /// </summary>
         public void Start()
         {
             try
@@ -40,13 +43,19 @@ namespace NServiceBus.Hosting
             }
         }
 
-
+        /// <summary>
+        /// Finilize
+        /// </summary>
         public void Stop()
         {
             configManager.Shutdown();
             wcfManager.Shutdown();
         }
 
+        /// <summary>
+        /// When installing as windows service (/install), run infrastructure installers
+        /// </summary>
+        /// <typeparam name="TEnvironment"></typeparam>
         public void Install<TEnvironment>() where TEnvironment : IEnvironment
         {
             // When installing as windows service (/install), run infrastructure installers

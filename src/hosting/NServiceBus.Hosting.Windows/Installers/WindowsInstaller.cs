@@ -3,9 +3,18 @@
     using System;
     using System.Linq;
     using System.Collections.Generic;
-
+    /// <summary>
+    /// Windos Instllaer for NService Bus Host
+    /// </summary>
     public class WindowsInstaller
     {
+        /// <summary>
+        /// Installs 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="endpointConfig"></param>
+        /// <param name="endpointName"></param>
+        /// <param name="configFile"></param>
    
         public static void Install(IEnumerable<string> args, Type endpointConfig, string endpointName, string configFile)
         {
@@ -23,7 +32,9 @@
         }
 
 
-
+        /// <summary>
+        /// Run Install
+        /// </summary>
         static void RunInstall()
         {
             Console.WriteLine("Executing the NServiceBus installers");

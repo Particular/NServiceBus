@@ -49,7 +49,7 @@ namespace NServiceBus.Hosting.Profiles
         /// <returns></returns>
         public IConfigureLogging GetLoggingConfigurer()
         {
-            return GetImplementor<IConfigureLogging>(typeof (IConfigureLoggingForProfile<>));
+            return GetImplementor<IConfigureLogging>(typeof(IConfigureLoggingForProfile<>));
         }
 
         private T GetImplementor<T>(Type openGenericType) where T : class
@@ -81,7 +81,7 @@ namespace NServiceBus.Hosting.Profiles
         {
             if (profile == typeof(object) || profile == null) return null;
 
-            foreach(var o in options)
+            foreach (var o in options)
             {
                 var p = o.GetGenericallyContainedType(openGenericType, typeof(IProfile));
                 if (p == profile)
@@ -98,7 +98,7 @@ namespace NServiceBus.Hosting.Profiles
         /// <returns></returns>
         public void ActivateProfileHandlers()
         {
-            foreach(var p in activeProfiles)
+            foreach (var p in activeProfiles)
                 Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
 
             var activeHandlers = new List<Type>();
@@ -106,7 +106,7 @@ namespace NServiceBus.Hosting.Profiles
             foreach (var assembly in assembliesToScan)
                 foreach (var type in assembly.GetTypes())
                 {
-                    var p = type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile));
+                    var p = type.GetGenericallyContainedType(typeof(IHandleProfile<>), typeof(IProfile));
                     if (p != null)
                         activeHandlers.AddRange(from ap in activeProfiles where (p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
                 }
@@ -116,7 +116,7 @@ namespace NServiceBus.Hosting.Profiles
             {
                 var profileHandler = Activator.CreateInstance(h) as IHandleProfile;
                 if (profileHandler is IWantTheListOfActiveProfiles)
-                    ((IWantTheListOfActiveProfiles) profileHandler).ActiveProfiles = activeProfiles;
+                    ((IWantTheListOfActiveProfiles)profileHandler).ActiveProfiles = activeProfiles;
 
                 profileHandlers.Add(profileHandler);
                 Logger.Debug("Activating profile handler: " + h.AssemblyQualifiedName);
@@ -150,7 +150,10 @@ namespace NServiceBus.Hosting.Profiles
         /// The profile manager
         /// </summary>
         public static ProfileManager ProfileManager { get; set; }
-
+        
+        /// <summary>
+        /// Initialize
+        /// </summary>
         public void Init()
         {
             if (ProfileManager != null)
