@@ -45,7 +45,7 @@ namespace Client
                                                                });
                         }
                         //Just to allow the sample to keep running.
-                        catch (Exception exception){}
+                        catch{}
                         break;
                 }
             }

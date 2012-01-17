@@ -70,9 +70,6 @@
     <Reference Include="NServiceBus.ObjectBuilder.StructureMap">
       <HintPath>..\..\..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Timeout.Core">
-      <HintPath>..\..\..\..\build\azure\timeout\NServiceBus.Timeout.Core.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Timeout.Hosting.Azure">
       <HintPath>..\..\..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll</HintPath>
     </Reference>
