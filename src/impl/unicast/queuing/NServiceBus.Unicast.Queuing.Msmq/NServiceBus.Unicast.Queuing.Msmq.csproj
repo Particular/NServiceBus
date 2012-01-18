@@ -42,6 +42,9 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Faults">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
@@ -66,7 +69,6 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="MsmqMessageReceiver.cs" />
     <Compile Include="MsmqMessageSender.cs" />

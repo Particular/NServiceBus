@@ -45,12 +45,11 @@ namespace NServiceBus.Faults.Forwarder
                 var qnfEx = ex as QueueNotFoundException;
 
                 if(qnfEx != null)
-                    Logger.FatalFormat("Could not forward failed message to error queue '{0}' as it could not be found. Process will now exit.", qnfEx.Queue);
+                    Logger.FatalFormat("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
                 else
-                    Logger.FatalFormat("Could not forward failed message to error queue, reason: {0}  Process will now exit.", ex.ToString());
-                
-                Thread.Sleep(10000); // so that user can see on their screen the problem
-                Process.GetCurrentProcess().Kill();
+                    Logger.FatalFormat("Could not forward failed message to error queue, reason: {0}.", ex.ToString());
+
+                Configure.Instance.OnCriticalError(ex);
             }
             
         }

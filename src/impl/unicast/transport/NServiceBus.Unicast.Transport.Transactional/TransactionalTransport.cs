@@ -274,27 +274,34 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private bool HandledMaxRetries(TransportMessage message)
         {
             string messageId = message.Id;
+            try
+            {
+                failuresPerMessageLocker.EnterReadLock();
 
-            failuresPerMessageLocker.EnterReadLock();
+                if (failuresPerMessage.ContainsKey(messageId) &&
+                    (failuresPerMessage[messageId] >= maxRetries))
+                {
+                    failuresPerMessageLocker.ExitReadLock();
+                    failuresPerMessageLocker.EnterWriteLock();
 
-            if (failuresPerMessage.ContainsKey(messageId) &&
-                   (failuresPerMessage[messageId] >= maxRetries))
+                    var ex = exceptionsForMessages[messageId];
+                    FailureManager.ProcessingAlwaysFailsForMessage(message, ex);
+
+                    failuresPerMessage.Remove(messageId);
+                    exceptionsForMessages.Remove(messageId);
+
+                    failuresPerMessageLocker.ExitWriteLock();
+
+                    return true;
+                }
+                return false;
+            }
+            catch { } //intentionally swallow exceptions here
+            finally
             {
                 failuresPerMessageLocker.ExitReadLock();
-                failuresPerMessageLocker.EnterWriteLock();
-
-                var ex = exceptionsForMessages[messageId];
-                FailureManager.ProcessingAlwaysFailsForMessage(message, ex);
-
-                failuresPerMessage.Remove(messageId);
-                exceptionsForMessages.Remove(messageId);
-
-                failuresPerMessageLocker.ExitWriteLock();
-
-                return true;
+                
             }
-
-            failuresPerMessageLocker.ExitReadLock();
             return false;
         }
 
@@ -342,9 +349,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 return MessageReceiver.HasMessage();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException objectDisposedException)
             {
-                Logger.Fatal("Message receiver has been disposed. Cannot continue operation. Please restart this process.");
+                Logger.Fatal("Message receiver has been disposed. Cannot continue operation.");
+                Configure.Instance.OnCriticalError(objectDisposedException);
                 return false;
             }
             catch (Exception e)
@@ -361,9 +369,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 return MessageReceiver.Receive();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException objectDisposedException)
             {
-                Logger.Fatal("Message receiver has been disposed. Cannot continue operation. Please restart this process.");
+                Logger.Fatal("Message receiver has been disposed. Cannot continue operation.");
+                Configure.Instance.OnCriticalError(objectDisposedException);
                 return null;
             }
             catch(Exception e)

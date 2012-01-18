@@ -1,4 +1,8 @@
 using System;
+using System.Diagnostics;
+using System.Threading;
+using NServiceBus.Config.Conventions;
+using log4net;
 
 namespace NServiceBus.Hosting.Windows
 {
@@ -21,6 +25,16 @@ namespace NServiceBus.Hosting.Windows
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) }, endpointName);
+
+            Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
+        }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindowsHost));
+        private void OnCriticalError(Exception exception)
+        {
+            Logger.Fatal(exception);
+            Thread.Sleep(10000); // so that user can see on their screen the problem
+            Process.GetCurrentProcess().Kill();
         }
 
         /// <summary>

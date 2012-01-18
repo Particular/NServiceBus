@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Messaging;
 using System.Security.Principal;
-using System.Threading;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
 using Common.Logging;
@@ -58,19 +57,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
-                    Thread.Sleep(10000); //long enough for someone to notice
-                    Process.GetCurrentProcess().Kill();
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
+                    Configure.Instance.OnCriticalError(mqe);
                 }
 
                 throw;
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException objectDisposedException)
             {
                 Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                Thread.Sleep(10000); //long enough for someone to notice
-                Process.GetCurrentProcess().Kill();
-
+                Configure.Instance.OnCriticalError(objectDisposedException);
                 throw;
             }
         }
@@ -92,9 +88,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. NServiceBus will now exit.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
-                    Thread.Sleep(10000); //long enough for someone to notice
-                    Process.GetCurrentProcess().Kill();
+                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
+                    Configure.Instance.OnCriticalError(mqe);
                 }
 
                 throw;
