@@ -43,7 +43,7 @@ namespace NServiceBus
                 endpointName = "NServiceBus";
 
 
-            Queue = cfg != null ? cfg.Queue : Address.Parse(endpointName).SubScope("subscriptions");
+            Queue = cfg != null ? Address.Parse(cfg.Queue): Address.Parse(endpointName).SubScope("subscriptions");
 
             var storageConfig = config.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance);
             storageConfig.ConfigureProperty(s => s.Queue, Queue);

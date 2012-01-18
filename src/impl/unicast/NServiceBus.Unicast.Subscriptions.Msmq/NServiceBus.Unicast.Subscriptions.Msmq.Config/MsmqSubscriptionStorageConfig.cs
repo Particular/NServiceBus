@@ -12,15 +12,15 @@ namespace NServiceBus.Config
         /// Use the "queue@machine" convention.
         /// </summary>
         [ConfigurationProperty("Queue", IsRequired = true)]
-        public Address Queue
+        public string Queue
         {
             get
             {
-                return Address.Parse(this["Queue"] as string);
+                return this["Queue"] as string;
             }
             set
             {
-                this["Queue"] = value.ToString();
+                this["Queue"] = value;
             }
         }
     }
