@@ -21,8 +21,6 @@ namespace OrderService.Tests
         Guid partnerId;
         string purchaseOrderNumber;
         List<Messages.IOrderLine> orderLines;
-        NServiceBus.Testing.Saga<OrderSaga> saga;
-        Guid sagaId;
 
         #endregion
 
@@ -30,8 +28,6 @@ namespace OrderService.Tests
         public void Setup()
         {
             Test.Initialize();
-            sagaId = Guid.NewGuid();
-            saga = Test.Saga<OrderSaga>(sagaId);            
 
             partnerAddress = "partner";
             productId = Guid.NewGuid();
@@ -44,8 +40,9 @@ namespace OrderService.Tests
 
         [Test]
         public void OrderSagaTest()
-        {           
-            saga.WhenReceivesMessageFrom(partnerAddress)
+        {
+            Guid sagaId = Guid.NewGuid();
+            Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
@@ -62,7 +59,8 @@ namespace OrderService.Tests
         {
             object state = null;
 
-            saga.WhenReceivesMessageFrom(partnerAddress)
+            Guid sagaId = Guid.NewGuid();
+            Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
