@@ -19,6 +19,8 @@ namespace NServiceBus.Testing
             m = mocks;
             bus = b;
             this.messageCreator = messageCreator;
+            // Extension method needs the message creator to be set to enable the 'IList.Add' extension to work
+            ExtensionMethods.MessageCreator = messageCreator;
             messageTypes = types;
         }
 
