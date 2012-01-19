@@ -7,6 +7,7 @@ namespace ObjectBuilder.Tests
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using NServiceBus.ObjectBuilder.Spring;
     using NServiceBus.ObjectBuilder.Unity;
 
     [TestFixture]
@@ -15,13 +16,28 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
+           
             ForAllBuilders((builder) =>
                                      {
                                          builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
                                          builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-
-                                         Assert.AreEqual(builder.BuildAll(typeof(DuplicateClass)).Count(), 1);
+            
+                                         Assert.AreEqual(1,builder.BuildAll(typeof(DuplicateClass)).Count());
                                      });
+        }
+
+
+        [Test]
+        public void A_registration_should_be_allowed_to_be_updated()
+        {
+         
+            ForAllBuilders((builder) =>
+            {
+                builder.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
+                builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
+
+                Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
+            }, typeof(SpringObjectBuilder), typeof(UnityObjectBuilder));
         }
 
 

@@ -120,6 +120,14 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
+            var registration = container.Kernel.GetAssignableHandlers(lookupType).Select(x => x.ComponentModel).FirstOrDefault();
+
+            if (registration != null)
+            {
+                registration.ExtendedProperties["instance"] = instance;
+                return;
+            }
+
             container.Register(Component.For(lookupType).Named(lookupType.Name).Instance(instance));
         }
 

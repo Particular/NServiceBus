@@ -179,9 +179,14 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            this.propertyHeuristic.RegisteredTypes.Add(lookupType);
+            if (propertyHeuristic.RegisteredTypes.Contains(lookupType))
+            {
+                kernel.Rebind(lookupType).ToConstant(instance);
+                return;
+            }
+            propertyHeuristic.RegisteredTypes.Add(lookupType);
 			
-            this.kernel.Bind(lookupType).ToConstant(instance);
+            kernel.Bind(lookupType).ToConstant(instance);
         }
 
         /// <summary>

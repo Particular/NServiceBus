@@ -5,7 +5,9 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
+    using NServiceBus.ObjectBuilder.Unity;
 
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
@@ -24,7 +26,7 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
+            typeof(UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
 
         }
@@ -41,8 +43,35 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
             typeof(SpringObjectBuilder),
-            typeof(NServiceBus.ObjectBuilder.Unity.UnityObjectBuilder),
-            //typeof(NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder),
+            typeof(UnityObjectBuilder),
+            typeof(NinjectObjectBuilder));
+           
+        }
+
+        [Test]
+        public void Should_be_able_to_reregister_a_component_locally()
+        {
+            
+            ForAllBuilders(builder =>
+            {
+                var singletonInMainContainer = new SingletonComponent();
+                builder.RegisterSingleton(typeof(ISingletonComponent), singletonInMainContainer);
+
+                var nestedContainer = builder.BuildChildContainer();
+
+                Assert.IsInstanceOf<SingletonComponent>(builder.Build(typeof(ISingletonComponent)));
+                
+                var singletonInNestedContainer = new AnotherSingletonComponent();
+
+                nestedContainer.RegisterSingleton(typeof(ISingletonComponent), singletonInNestedContainer);
+
+                Assert.IsInstanceOf<SingletonComponent>(builder.Build(typeof(ISingletonComponent)));
+                Assert.IsInstanceOf<AnotherSingletonComponent>(nestedContainer.Build(typeof(ISingletonComponent)));
+                
+            },
+            typeof(SpringObjectBuilder),
+            typeof(WindsorObjectBuilder),
+            typeof(UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
         }
     }
@@ -57,6 +86,16 @@ namespace ObjectBuilder.Tests
     }
 
     public class SingletonComponent : ISingletonComponent, IDisposable
+    {
+        public static bool DisposeCalled;
+
+        public void Dispose()
+        {
+            DisposeCalled = true;
+        }
+    }
+
+    public class AnotherSingletonComponent : ISingletonComponent, IDisposable
     {
         public static bool DisposeCalled;
 
