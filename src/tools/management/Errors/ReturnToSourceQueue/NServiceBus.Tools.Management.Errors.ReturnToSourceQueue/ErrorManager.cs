@@ -1,3 +1,5 @@
+using NServiceBus.Unicast.Transport;
+
 namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 {
     using System;
@@ -51,13 +53,13 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                     var tm = MsmqUtilities.Convert(message);
 
-                    if (!tm.Headers.ContainsKey(Faults.HeaderKeys.FailedQ))
+                    if (!tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
                     {
                         Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
                         return;
                     }
 
-                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(tm.Headers[Faults.HeaderKeys.FailedQ]))))
+                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
                         q.Send(message, MessageQueueTransactionType.Automatic);
 
                     Console.WriteLine("Success.");
@@ -73,9 +75,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         {
                             var tm = MsmqUtilities.Convert(m);
 
-                            if (tm.Headers.ContainsKey(Faults.HeaderKeys.OriginalId))
+                            if (tm.Headers.ContainsKey(TransportHeaderKeys.OriginalId))
                             {
-                                if (messageId != tm.Headers[Faults.HeaderKeys.OriginalId])
+                                if (messageId != tm.Headers[TransportHeaderKeys.OriginalId])
                                     continue;
 
                                 Console.WriteLine("Found message - going to return to queue.");
@@ -84,7 +86,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                                 {
                                     using (var q = new MessageQueue(
                                                 MsmqUtilities.GetFullPath(
-                                                    Address.Parse(tm.Headers[Faults.HeaderKeys.FailedQ]))))
+                                                    Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
                                         q.Send(m, MessageQueueTransactionType.Automatic);
 
                                     queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,

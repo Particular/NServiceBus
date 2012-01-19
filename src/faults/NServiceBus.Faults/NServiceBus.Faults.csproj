@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigureCriticalErrorAction.cs" />
-    <Compile Include="HeaderKeys.cs" />
+    <Compile Include="FaultsHeaderKeys.cs" />
     <Compile Include="IManageMessageFailures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

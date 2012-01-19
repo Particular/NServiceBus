@@ -193,8 +193,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         private static string GetRealId(IDictionary<string, string> headers)
         {
-            if (headers.ContainsKey(Faults.HeaderKeys.OriginalId))
-                return headers[Faults.HeaderKeys.OriginalId];
+            if (headers.ContainsKey(TransportHeaderKeys.OriginalId))
+                return headers[TransportHeaderKeys.OriginalId];
 
             return null;
         }

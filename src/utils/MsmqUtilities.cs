@@ -353,19 +353,10 @@ namespace NServiceBus.Utils
                         result.Headers.Add(pair.Key, pair.Value);
             }
 
-            result.Id = GetRealId(result.Headers) ?? result.Id;
-
-            result.IdForCorrelation = GetIdForCorrelation(result.Headers) ?? result.Id;
+            result.Id = result.GetOriginalId();
+            result.IdForCorrelation = result.GetIdForCorrelation();
 
             return result;
-        }
-
-        private static string GetRealId(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(Faults.HeaderKeys.OriginalId))
-                return headers[Faults.HeaderKeys.OriginalId];
-
-            return null;
         }
 
         /// <summary>
@@ -392,11 +383,11 @@ namespace NServiceBus.Utils
             if (message.Headers == null)
                 message.Headers = new Dictionary<string, string>();
 
-            if (!message.Headers.ContainsKey(IDFORCORRELATION))
-                message.Headers.Add(IDFORCORRELATION, null);
+            if (!message.Headers.ContainsKey(TransportHeaderKeys.IdForCorrelation))
+                message.Headers.Add(TransportHeaderKeys.IdForCorrelation, null);
 
-            if (String.IsNullOrEmpty(message.Headers[IDFORCORRELATION]))
-                message.Headers[IDFORCORRELATION] = message.IdForCorrelation;
+            if (String.IsNullOrEmpty(message.Headers[TransportHeaderKeys.IdForCorrelation]))
+                message.Headers[TransportHeaderKeys.IdForCorrelation] = message.IdForCorrelation;
 
             using (var stream = new MemoryStream())
             {
@@ -409,20 +400,11 @@ namespace NServiceBus.Utils
             return result;
         }
 
-        private static string GetIdForCorrelation(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(IDFORCORRELATION))
-                return headers[IDFORCORRELATION];
-
-            return null;
-        }
-
         private const string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
         private const string PRIVATE = "\\private$\\";
-        private const string IDFORCORRELATION = "CorrId";
 
         private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
 

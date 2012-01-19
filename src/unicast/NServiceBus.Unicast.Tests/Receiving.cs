@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Unicast.Tests
+﻿using System;
+
+namespace NServiceBus.Unicast.Tests
 {
     using Contexts;
     using NUnit.Framework;
@@ -27,6 +29,26 @@
      
     }
 
+    [TestFixture]
+    public class When_receiving_a_message_with_an_original_Id : using_the_unicastbus
+    {
+        [Test]
+        public void Should_use_the_original_id_as_message_id()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+            var originalId = Guid.NewGuid();
+            receivedMessage.Headers[TransportHeaderKeys.OriginalId] = originalId.ToString();
+
+            // Receiving a message (into the pipeline)
+            RegisterMessageType<EventMessage>();
+            RegisterMessageHandlerType<CheckMesageIdHandler>();
+            ReceiveMessage(receivedMessage);
+            
+            receivedMessage.Id = receivedMessage.GetOriginalId();
+            
+            Assert.AreEqual(receivedMessage.Id, originalId.ToString());
+        }
+    }
 
     [TestFixture]
     public class When_sending_messages_from_a_messagehandler : using_the_unicastbus
@@ -87,6 +109,17 @@
             Bus.Send(new CommandMessage());
         }
     }
+
+    class CheckMesageIdHandler : IHandleMessages<EventMessage>
+    {
+        public static bool Called;
+
+        public void Handle(EventMessage message)
+        {
+            Called = true;
+        }
+    }
+
     class Handler1:IHandleMessages<EventMessage>
     {
         public static bool Called;
