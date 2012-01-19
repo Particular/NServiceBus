@@ -56,6 +56,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             subscriptionStorage = new FakeSubscriptionStorage();
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
+            FuncBuilder.Register<DefaultDispatcherFactory>(()=>new DefaultDispatcherFactory());
             
             
 
@@ -101,6 +102,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             FuncBuilder.Register<T>(()=> new T());
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
+            
+            if(unicastBus.MessageDispatcherFactories == null)
+                unicastBus.MessageDispatcherFactories = new Dictionary<Type, Type>();
+
+            unicastBus.MessageDispatcherFactories[typeof (T)] = typeof (DefaultDispatcherFactory);
         }
         protected void RegisterOwnedMessageType<T>()
         {

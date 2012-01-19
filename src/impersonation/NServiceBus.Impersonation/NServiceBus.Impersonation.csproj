@@ -47,6 +47,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Unicast">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Config">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Config.dll</HintPath>
       <Private>False</Private>
@@ -64,7 +67,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="ImpersonationManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

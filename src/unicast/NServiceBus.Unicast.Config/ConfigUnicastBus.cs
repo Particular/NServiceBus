@@ -217,7 +217,28 @@ namespace NServiceBus.Unicast.Config
 
             busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
 
+            var messageDispatcherFactories = GetDispatcherFactories(handlers);
+
+            //configure the message dispatcher for each handler
+            busConfig.ConfigureProperty(b => b.MessageDispatcherFactories, messageDispatcherFactories);
+
+            Configurer.ConfigureComponent(defaultDispatcherFactory, DependencyLifecycle.InstancePerUnitOfWork);
+
             return this;
+        }
+
+        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers)
+        {
+            var result = new Dictionary<Type, Type>();
+
+            foreach (var handler in handlers)
+            {
+                if (typeof(ISaga).IsAssignableFrom(handler))
+                    result.Add(handler, defaultDispatcherFactory); //todo
+                else
+                    result.Add(handler, defaultDispatcherFactory);
+            }
+            return result;
         }
 
         /// <summary>
@@ -279,6 +300,18 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.AllowSubscribeToSelf, true);
             return this;
         }
+
+        /// <summary>
+        /// Allow the bus to subscribe to itself
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus DefaultDispatcherFactory<T>() where T:IMessageDispatcherFactory
+        {
+            defaultDispatcherFactory = typeof (T);
+            return this;
+        }
+
+        Type defaultDispatcherFactory = typeof(DefaultDispatcherFactory);
 
         /// <summary>
         /// Returns true if the given type is a message handler.

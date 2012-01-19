@@ -59,6 +59,7 @@
       <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -111,6 +112,8 @@
   <ItemGroup>
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
+    <Compile Include="DefaultDispatcherFactory.cs" />
+    <Compile Include="IMessageDispatcherFactory.cs" />
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageContext.cs" />

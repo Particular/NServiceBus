@@ -834,11 +834,11 @@ namespace NServiceBus.Unicast
         }
         static void AssertIsValidForReply(IEnumerable<object> messages)
         {
-            if (messages.Any(m=>m.IsCommand()))
+            if (messages.Any(m => m.IsCommand()))
                 throw new InvalidOperationException(
                     "Reply is not supported for Commands. They should be be sent to their logical owner using bus.Send");
         }
-        
+
         static void AssertIsValidForPubSub(Type messageType)
         {
             if (messageType.IsCommandType())
@@ -986,28 +986,23 @@ namespace NServiceBus.Unicast
         /// this prevents the message from being further dispatched.
         /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
         /// </remarks>
-        private void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle, Type messageType)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle, Type messageType)
         {
             foreach (var messageHandlerType in GetHandlerTypes(messageType))
             {
-                //this is a bit of a hack until we refactor the saga infrastructure to make use of the regular pipeline instead
-                // The following needs to be done:
-                // 1. Create a "MessageHandlerFactory" abstraction so that sagas can be wrapped in a saga factory that finds/creates the saga instance
-                // 2. Register that factory for saga message handlers + messages with a sagaId in the headers
-                // 3. Call the regular Handle() method on that wrapper when a message comes in (then the current catch all sagamessagehandler can be removed)
-                if (typeof(ISaga).IsAssignableFrom(messageHandlerType))
-                {
-                    Log.Debug("This is a saga messagehandler and it will be called by the generic saga message handler. There for no direct dispatch is performed for: " + messageHandlerType.Name);
-                    continue;
-                }
-
                 try
                 {
-                    Log.Debug("Activating: " + messageHandlerType.Name);
+                    var messageHandlerTypeToInvoke = messageHandlerType;
 
-                    builder.BuildAndDispatch(messageHandlerType, GetAction(toHandle));
+                    var factory = GetDispatcherFactoryFor(messageHandlerTypeToInvoke,builder);
 
-                    Log.Debug(messageHandlerType.Name + " Done.");
+                    var dispatchers = factory.GetDispatcher(messageHandlerTypeToInvoke, builder, toHandle).ToList();
+
+                    dispatchers.ForEach(dispatcher =>
+                                            {
+                                                Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, messageHandlerTypeToInvoke);
+                                                dispatcher();
+                                            });
 
                     if (_doNotContinueDispatchingCurrentMessageToHandlers)
                     {
@@ -1025,7 +1020,30 @@ namespace NServiceBus.Unicast
             }
         }
 
-        private Action<object> GetAction<T>(T message)
+        IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
+        {
+            Type factoryType;
+
+            MessageDispatcherFactories.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
+
+            if (factoryType == null)
+                throw new InvalidOperationException("No dispatcher factory type configured for messagehandler " + messageHandlerTypeToInvoke);
+
+            var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
+
+            if(factory == null)
+                throw new InvalidOperationException(string.Format("Registered dispatcher factory {0} for type {1} does not implement IMessageDispatcherFactory",factoryType,messageHandlerTypeToInvoke));
+
+            return factory;
+        }
+
+        /// <summary>
+        /// The list of message dispatcher factories to use
+        /// </summary>
+        public IDictionary<Type, Type> MessageDispatcherFactories { get; set; }
+
+        //todo move
+        private Action<object> GetDefaultDispatcher<T>(T message)
         {
             return (o =>
                 {
@@ -1614,7 +1632,7 @@ namespace NServiceBus.Unicast
         private readonly object startLocker = new object();
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
-        
+
 
         #endregion
     }
