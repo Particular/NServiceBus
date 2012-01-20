@@ -287,28 +287,6 @@ namespace NServiceBus.Sagas.Impl
             return SagaTypeToSagaEntityTypeLookup.Values;
         }
 
-        /// <summary>
-        /// Gets a reference to the generic "Handle" method on the given saga
-        /// for the given message type using a hashtable lookup rather than reflection.
-        /// </summary>
-        /// <param name="saga"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static MethodInfo GetHandleMethodForSagaAndMessage(object saga, object message)
-        {
-            IDictionary<Type, MethodInfo> lookup;
-            SagaTypeToHandleMethodLookup.TryGetValue(saga.GetType(), out lookup);
-
-            if (lookup == null)
-                return null;
-
-            foreach (Type messageType in lookup.Keys)
-                if (messageType.IsAssignableFrom(message.GetType()))
-                    return lookup[messageType];
-
-            return null;
-        }
-
         #endregion
 
         #region helper methods

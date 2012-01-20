@@ -72,7 +72,7 @@
 
                                          saga.Entity = sagaEntity;
 
-                                         CallHandleMethodOnSaga(saga, message);
+                                         HandlerInvocationCache.Invoke(saga, message);
 
                                          if (!saga.Completed)
                                          {
@@ -140,15 +140,6 @@
             if (saga.Completed)
                 logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
         }
-
-        void CallHandleMethodOnSaga(object saga, object message)
-        {
-            var method = Configure.GetHandleMethodForSagaAndMessage(saga, message);
-
-            if (method != null)
-                method.Invoke(saga, new[] { message });
-        }
-
 
         /// <summary>
         /// Get or Set Saga Persister
