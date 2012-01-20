@@ -119,15 +119,10 @@ namespace NServiceBus.ObjectBuilder.Common
 
         IBuilder IBuilder.CreateChildBuilder()
         {
-            var builder= new CommonObjectBuilder
+            return new CommonObjectBuilder
             {
                 Container = Container.BuildChildContainer()
             };
-
-            //re-wire the container to use the new child builder when resolving a IBuilder 
-            builder.Container.RegisterSingleton(typeof(IBuilder),builder);
-
-            return builder;
         }
 
         void IDisposable.Dispose()
