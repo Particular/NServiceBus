@@ -796,6 +796,14 @@ namespace NServiceBus.Unicast
 
             foreach (var messageType in GetEventsToAutoSubscribe())
             {
+                var otherHandlersThanSagas = GetHandlerTypes(messageType).Any(t => !typeof(ISaga).IsAssignableFrom(t));
+
+                if(DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
+                {
+                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off");
+                    continue;
+                }
+
                 Subscribe(messageType);
 
                 if (!messageType.IsEventType())
@@ -1444,13 +1452,9 @@ namespace NServiceBus.Unicast
             if (t.IsAbstract)
                 return;
 
-            var skipHandlerRegistration = DoNotAutoSubscribeSagas && typeof(ISaga).IsAssignableFrom(t);
 
             foreach (var messageType in GetMessageTypesIfIsMessageHandler(t))
             {
-                if (skipHandlerRegistration)
-                    continue;
-
                 if (!handlerList.ContainsKey(t))
                     handlerList.Add(t, new List<Type>());
 

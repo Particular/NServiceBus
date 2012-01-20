@@ -71,7 +71,8 @@
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
             StartBus();
-
+            unicastBus.DoNotAutoSubscribeSagas = false;
+      
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
         }
     }
