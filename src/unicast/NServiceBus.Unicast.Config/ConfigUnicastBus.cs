@@ -217,26 +217,42 @@ namespace NServiceBus.Unicast.Config
 
             busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
 
-            var messageDispatcherFactories = GetDispatcherFactories(handlers);
+
+            var availableDispatcherFactories = TypesToScan
+              .Where(
+                  factory =>
+                  !factory.IsInterface && typeof(IMessageDispatcherFactory).IsAssignableFrom(factory))
+              .ToList();
+
+            var dispatcherMappings = GetDispatcherFactories(handlers, availableDispatcherFactories);
 
             //configure the message dispatcher for each handler
-            busConfig.ConfigureProperty(b => b.MessageDispatcherFactories, messageDispatcherFactories);
+            busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
 
-            Configurer.ConfigureComponent(defaultDispatcherFactory, DependencyLifecycle.InstancePerUnitOfWork);
-
+            availableDispatcherFactories.ToList().ForEach(factory=> Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
+            
             return this;
         }
 
-        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers)
+        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers,IEnumerable<Type> messageDispatcherFactories)
         {
             var result = new Dictionary<Type, Type>();
 
+            var customFactories = messageDispatcherFactories
+                .Where(t=>t!= defaultDispatcherFactory)
+                .Select(t => (IMessageDispatcherFactory) Activator.CreateInstance(t)).ToList();
+
+
             foreach (var handler in handlers)
             {
-                if (typeof(ISaga).IsAssignableFrom(handler))
-                    result.Add(handler, defaultDispatcherFactory); //todo
-                else
-                    result.Add(handler, defaultDispatcherFactory);
+                var factory = customFactories.FirstOrDefault(f => f.CanDispatch(handler));
+
+                var factoryTypeToUse = defaultDispatcherFactory;
+
+                if (factory != null)
+                    factoryTypeToUse = factory.GetType();
+
+                result.Add(handler, factoryTypeToUse);
             }
             return result;
         }
@@ -305,9 +321,9 @@ namespace NServiceBus.Unicast.Config
         /// Allow the bus to subscribe to itself
         /// </summary>
         /// <returns></returns>
-        public ConfigUnicastBus DefaultDispatcherFactory<T>() where T:IMessageDispatcherFactory
+        public ConfigUnicastBus DefaultDispatcherFactory<T>() where T : IMessageDispatcherFactory
         {
-            defaultDispatcherFactory = typeof (T);
+            defaultDispatcherFactory = typeof(T);
             return this;
         }
 

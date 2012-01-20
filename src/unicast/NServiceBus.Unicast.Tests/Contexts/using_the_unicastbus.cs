@@ -103,10 +103,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<T>(()=> new T());
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
             
-            if(unicastBus.MessageDispatcherFactories == null)
-                unicastBus.MessageDispatcherFactories = new Dictionary<Type, Type>();
+            if(unicastBus.MessageDispatcherMappings == null)
+                unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
 
-            unicastBus.MessageDispatcherFactories[typeof (T)] = typeof (DefaultDispatcherFactory);
+            unicastBus.MessageDispatcherMappings[typeof (T)] = typeof (DefaultDispatcherFactory);
         }
         protected void RegisterOwnedMessageType<T>()
         {

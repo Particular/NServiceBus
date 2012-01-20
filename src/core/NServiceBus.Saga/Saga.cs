@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace NServiceBus.Saga
 {
+    using System.Linq;
+
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
     /// To handle more message types, implement <see cref="IMessageHandler{T}"/>
@@ -11,7 +13,7 @@ namespace NServiceBus.Saga
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
-    public abstract class Saga<T> : IConfigurable, ISaga<T> where T : ISagaEntity
+    public abstract class Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage>, IHandleMessages<ITimeoutState> where T : ISagaEntity
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -172,6 +174,24 @@ namespace NServiceBus.Saga
         /// <param name="state">The object passed as the "withState" parameter to RequestTimeout.</param>
         public virtual void Timeout(object state)
         {
+        }
+
+        public void Handle(TimeoutMessage message)
+        {
+            Timeout(message.State);
+        }
+
+        public void Handle(ITimeoutState message)
+        {
+            var messageType = message.GetType();
+
+            // search for the timeout method using reflection
+            var methodInfo = GetType().GetMethod("Timeout", new[] { messageType });
+
+            if (methodInfo == null || methodInfo.GetParameters().First().ParameterType != messageType)
+                throw new InvalidOperationException(string.Format("Timeout arrived with state {0}, but no method with signature void Timeout({0}). Please implement IHandleTimeouts<{0}> on your {1} class", messageType, GetType()));
+
+            methodInfo.Invoke(this, new[] { message });
         }
     }
 }

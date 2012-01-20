@@ -808,7 +808,7 @@ namespace NServiceBus.Unicast
             return GetMessageTypesHandledOnThisEndpoint()
                 .Where(t =>
                     !t.IsCommandType() &&
-                    (AllowSubscribeToSelf || messageTypeToDestinationLookup[t] != Address.Undefined));
+                    (AllowSubscribeToSelf || (messageTypeToDestinationLookup.ContainsKey(t) && messageTypeToDestinationLookup[t] != Address.Undefined)));
         }
 
         void AssertHasLocalAddress()
@@ -998,10 +998,10 @@ namespace NServiceBus.Unicast
 
                     var dispatchers = factory.GetDispatcher(messageHandlerTypeToInvoke, builder, toHandle).ToList();
 
-                    dispatchers.ForEach(dispatcher =>
+                    dispatchers.ForEach(dispatch =>
                                             {
                                                 Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, messageHandlerTypeToInvoke);
-                                                dispatcher();
+                                                dispatch();
                                             });
 
                     if (_doNotContinueDispatchingCurrentMessageToHandlers)
@@ -1024,7 +1024,7 @@ namespace NServiceBus.Unicast
         {
             Type factoryType;
 
-            MessageDispatcherFactories.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
+            MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
                 throw new InvalidOperationException("No dispatcher factory type configured for messagehandler " + messageHandlerTypeToInvoke);
@@ -1040,7 +1040,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The list of message dispatcher factories to use
         /// </summary>
-        public IDictionary<Type, Type> MessageDispatcherFactories { get; set; }
+        public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         //todo move
         private Action<object> GetDefaultDispatcher<T>(T message)

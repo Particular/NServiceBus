@@ -17,5 +17,12 @@ namespace NServiceBus.Unicast
         /// <param name="toHandle"></param>
         /// <returns></returns>
         IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object toHandle);
+
+        /// <summary>
+        /// Returns true if the factory is able to dispatch this type
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        bool CanDispatch(Type handler);
     }
 }

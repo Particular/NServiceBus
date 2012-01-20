@@ -81,7 +81,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureHowToFindSagaWithMessageDispatcher.cs">
@@ -94,8 +93,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Finders\PropertySagaFinder.cs" />
     <Compile Include="ReplyingToNullOriginatorDispatcher.cs" />
+    <Compile Include="SagaDispatcherFactory.cs" />
     <Compile Include="SagaIdEnricher.cs" />
-    <Compile Include="SagaMessageHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
