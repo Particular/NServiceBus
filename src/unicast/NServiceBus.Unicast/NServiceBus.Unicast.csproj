@@ -113,6 +113,7 @@
     <Compile Include="BusAsyncResult.cs" />
     <Compile Include="Callback.cs" />
     <Compile Include="DefaultDispatcherFactory.cs" />
+    <Compile Include="HandlerInvocationCache.cs" />
     <Compile Include="IMessageDispatcherFactory.cs" />
     <Compile Include="IUnicastBus.cs" />
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />

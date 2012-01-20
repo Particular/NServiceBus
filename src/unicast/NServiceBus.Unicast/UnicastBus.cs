@@ -946,12 +946,16 @@ namespace NServiceBus.Unicast
                 }
 
                 if (canDispatch)
-                    DispatchMessageToHandlersBasedOnType(
-                        builder, messageToHandle, messageToHandle.GetType());
+                {
+                    var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle);
+
+                    LogPipelineInfo(messageToHandle, handlers);
+                }
             }
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
+      
         static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
         {
             var mutators = builder.BuildAll<IMutateIncomingMessages>();
@@ -994,38 +998,43 @@ namespace NServiceBus.Unicast
         /// this prevents the message from being further dispatched.
         /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
         /// </remarks>
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle, Type messageType)
+        IEnumerable<Type> DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle)
         {
-            foreach (var messageHandlerType in GetHandlerTypes(messageType))
+            var messageType = toHandle.GetType();
+            var invokedHandlers = new List<Type>();
+
+            foreach (var handlerType in GetHandlerTypes(messageType))
             {
                 try
                 {
-                    var messageHandlerTypeToInvoke = messageHandlerType;
+                    var handlerTypeToInvoke = handlerType;
 
-                    var factory = GetDispatcherFactoryFor(messageHandlerTypeToInvoke,builder);
+                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke,builder);
 
-                    var dispatchers = factory.GetDispatcher(messageHandlerTypeToInvoke, builder, toHandle).ToList();
+                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
 
                     dispatchers.ForEach(dispatch =>
                                             {
-                                                Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, messageHandlerTypeToInvoke);
+                                                Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, handlerTypeToInvoke);
                                                 dispatch();
                                             });
 
+                    invokedHandlers.Add(handlerTypeToInvoke);
                     if (_doNotContinueDispatchingCurrentMessageToHandlers)
                     {
                         _doNotContinueDispatchingCurrentMessageToHandlers = false;
-                        return;
+                        break;
                     }
                 }
                 catch (Exception e)
                 {
                     var innerEx = GetInnermostException(e);
-                    Log.Warn(messageHandlerType.Name + " failed handling message.", GetInnermostException(innerEx));
+                    Log.Warn(handlerType.Name + " failed handling message.", GetInnermostException(innerEx));
 
                     throw new TransportMessageHandlingFailedException(innerEx);
                 }
             }
+            return invokedHandlers;
         }
 
         IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
@@ -1050,18 +1059,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
-        //todo move
-        private Action<object> GetDefaultDispatcher<T>(T message)
-        {
-            return (o =>
-                {
-                    var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[o.GetType()];
-                    foreach (var messageType in messageTypesToMethods.Keys)
-                        if (messageType.IsAssignableFrom(message.GetType()))
-                            messageTypesToMethods[messageType].Invoke(o, new object[] { message });
-                }
-            );
-        }
 
         /// <summary>
         /// Gets the inner most exception from an exception stack.
@@ -1446,43 +1443,26 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Evaluates a type and loads it if it implements IMessageHander{T}.
         /// </summary>
-        /// <param name="t">The type to evaluate.</param>
-        void IfTypeIsMessageHandlerThenLoad(Type t)
+        /// <param name="handler">The type to evaluate.</param>
+        void IfTypeIsMessageHandlerThenLoad(Type handler)
         {
-            if (t.IsAbstract)
+            if (handler.IsAbstract)
                 return;
 
 
-            foreach (var messageType in GetMessageTypesIfIsMessageHandler(t))
+            foreach (var messageType in GetMessageTypesIfIsMessageHandler(handler))
             {
-                if (!handlerList.ContainsKey(t))
-                    handlerList.Add(t, new List<Type>());
+                if (!handlerList.ContainsKey(handler))
+                    handlerList.Add(handler, new List<Type>());
 
-                if (!(handlerList[t].Contains(messageType)))
+                if (!(handlerList[handler].Contains(messageType)))
                 {
-                    handlerList[t].Add(messageType);
-                    Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, t);
+                    handlerList[handler].Add(messageType);
+                    Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, handler);
                 }
 
-                if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(t))
-                    handlerToMessageTypeToHandleMethodMap.Add(t, new Dictionary<Type, MethodInfo>());
-
-                var h = GetMessageHandler(t, messageType);
-
-                if (!(handlerToMessageTypeToHandleMethodMap[t].ContainsKey(messageType)))
-                    handlerToMessageTypeToHandleMethodMap[t].Add(messageType, h);
+                HandlerInvocationCache.CacheMethodForHandler(handler,messageType);
             }
-        }
-
-        private static MethodInfo GetMessageHandler(Type targetType, Type messageType)
-        {
-            var method = targetType.GetMethod("Handle", new[] { messageType });
-            if (method != null) return method;
-
-            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-            return targetType.GetInterfaceMap(handlerType)
-            .TargetMethods
-            .FirstOrDefault();
         }
 
 
@@ -1590,6 +1570,14 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
 
+        void LogPipelineInfo(object messageToHandle, IEnumerable<Type> handlers)
+        {
+            var messageType = messageToHandle.GetType();
+
+            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName]= string.Join(";", handlers.Select(t => t.FullName));
+        }
+
+
         #endregion
 
         #region Fields
@@ -1613,7 +1601,6 @@ namespace NServiceBus.Unicast
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
-        private readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
         private readonly IList<Type> recoverableMessageTypes = new List<Type>();
 
         private readonly IDictionary<Type, TimeSpan> timeToBeReceivedPerMessageType = new Dictionary<Type, TimeSpan>();
