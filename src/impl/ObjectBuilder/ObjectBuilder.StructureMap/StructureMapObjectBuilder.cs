@@ -124,8 +124,9 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-
-            container.Inject(lookupType, instance);
+            container.Configure(x => x.For(lookupType)
+                .Singleton()
+                .Use(instance));
             PluginCache.AddFilledType(lookupType);
         }
 
