@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using NHibernate;
@@ -46,7 +47,7 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 
           var mapping = new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-          HackIdIntoMapping(mapping);
+          ApplyConventions(mapping);
 
           nhibernateConfiguration.AddMapping(mapping.Compile());
 
@@ -68,7 +69,7 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
           }
         }
 
-        private static void HackIdIntoMapping(SagaModelMapper hbmMapping)
+        private static void ApplyConventions(SagaModelMapper hbmMapping)
         {
           var hbmIdField = typeof(global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -91,6 +92,11 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
           hbmMapping.Mapper.AfterMapManyToOne += (mi, type, map) => MapIdColumns(map, type.LocalMember);
           hbmMapping.Mapper.AfterMapBag += (mi, type, map) => map.Key(km => MapIdColumns(km, type.LocalMember));
           hbmMapping.Mapper.AfterMapJoinedSubclass += (mi, type, map) => map.Key(km => MapIdColumns(km, type.BaseType));
+
+          hbmMapping.Mapper.BeforeMapProperty += (mi, type, map) => {
+             var info = type.LocalMember as PropertyInfo;
+             if (info != null && info.PropertyType == typeof(DateTime)) map.Type<UtcDateTimeUserType>();
+          };
         }
 
         private static void MapIdColumns(IColumnsMapper map, MemberInfo type)
@@ -107,7 +113,6 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 
         private static void ApplyDefaultsTo(Configuration configuration)
         {
-
           configuration.SetProperty("current_session_context_class", typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
         }
     }
