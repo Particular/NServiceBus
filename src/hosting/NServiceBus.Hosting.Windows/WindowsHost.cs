@@ -29,10 +29,11 @@ namespace NServiceBus.Hosting.Windows
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindowsHost));
-        private void OnCriticalError(Exception exception)
+        /// <summary>
+        /// Windows hosting behavior when critical error occurs is suicide.
+        /// </summary>
+        private void OnCriticalError()
         {
-            Logger.Fatal(exception);
             Thread.Sleep(10000); // so that user can see on their screen the problem
             Process.GetCurrentProcess().Kill();
         }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.Logging;
+using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus
 {
@@ -9,18 +9,17 @@ namespace NServiceBus
     public static class ConfigureCriticalErrorAction
     {
         /// <summary>
-        /// The function is used to get the OnCriticalError behavior
+        /// Set default behavior to zeroing the number of receiving worker threads.
         /// </summary>
-        private static Action<Exception> onCriticalErrorAction = exception =>
-            Logger.FatalFormat("Exception {0} occurred, exception message: {1}.", exception.GetType(), exception.Message);
-
+        private static Action onCriticalErrorAction = () => Configure.Instance.Builder.Build<ITransport>().ChangeNumberOfWorkerThreads(0);
+            
         /// <summary>
         /// Sets the function to be used when critical error occurs
         /// </summary>
         /// <param name="config"></param>
         /// <param name="onCriticalError"></param>
         /// <returns></returns>
-        public static Configure DefineCriticalErrorAction(this Configure config, Action<Exception> onCriticalError)
+        public static Configure DefineCriticalErrorAction(this Configure config, Action onCriticalError)
         {
             onCriticalErrorAction = onCriticalError;
             return config;
@@ -29,14 +28,11 @@ namespace NServiceBus
         /// Execute the configured Critical error action
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="ex"></param>
         /// <returns></returns>
-        public static Configure OnCriticalError(this Configure config, Exception ex)
+        public static Configure OnCriticalError(this Configure config)
         {
-            onCriticalErrorAction(ex);
+            onCriticalErrorAction();
             return config;
         }
-        
-        static readonly ILog Logger = LogManager.GetLogger("ConfigureCriticalErrorAction");
     }
 }

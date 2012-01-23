@@ -286,7 +286,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
                     var ex = exceptionsForMessages[messageId];
                     FailureManager.ProcessingAlwaysFailsForMessage(message, ex);
-
                     failuresPerMessage.Remove(messageId);
                     exceptionsForMessages.Remove(messageId);
 
@@ -296,11 +295,16 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 }
                 return false;
             }
-            catch { } //intentionally swallow exceptions here
+            catch (Exception exception)
+            {
+                if ((exception as InvalidOperationException) != null)
+                {
+                    Configure.Instance.OnCriticalError();
+                }
+            }
             finally
             {
                 failuresPerMessageLocker.ExitReadLock();
-                
             }
             return false;
         }
@@ -349,10 +353,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 return MessageReceiver.HasMessage();
             }
-            catch (ObjectDisposedException objectDisposedException)
+            catch (InvalidOperationException)
             {
-                Logger.Fatal("Message receiver has been disposed. Cannot continue operation.");
-                Configure.Instance.OnCriticalError(objectDisposedException);
+                Configure.Instance.OnCriticalError();
                 return false;
             }
             catch (Exception e)
@@ -369,13 +372,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 return MessageReceiver.Receive();
             }
-            catch (ObjectDisposedException objectDisposedException)
+            catch (InvalidOperationException)
             {
-                Logger.Fatal("Message receiver has been disposed. Cannot continue operation.");
-                Configure.Instance.OnCriticalError(objectDisposedException);
+                Configure.Instance.OnCriticalError();
                 return null;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error("Error in receiving messages.", e);
                 return null;

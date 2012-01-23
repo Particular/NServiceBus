@@ -1,7 +1,4 @@
-﻿
-using System.Diagnostics;
-using System.Threading;
-using Common.Logging;
+﻿using Common.Logging;
 
 namespace NServiceBus.Faults.Forwarder
 {
@@ -40,16 +37,16 @@ namespace NServiceBus.Faults.Forwarder
             {
                 sender.Send(message, ErrorQueue);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                var qnfEx = ex as QueueNotFoundException;
-
-                if(qnfEx != null)
-                    Logger.FatalFormat("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
+                var qnfEx = exception as QueueNotFoundException;
+                string errorMessage;
+                if (qnfEx != null)
+                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
                 else
-                    Logger.FatalFormat("Could not forward failed message to error queue, reason: {0}.", ex.ToString());
-
-                Configure.Instance.OnCriticalError(ex);
+                    errorMessage = string.Format("Could not forward failed message to error queue, reason: {0}.", exception.ToString());
+                Logger.Fatal(errorMessage);
+                throw new InvalidOperationException(errorMessage, exception);
             }
             
         }

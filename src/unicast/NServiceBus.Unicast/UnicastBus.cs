@@ -980,7 +980,15 @@ namespace NServiceBus.Unicast
             }
             catch (Exception e)
             {
-                FailureManager.SerializationFailedForMessage(m, e);
+                try
+                {
+                    FailureManager.SerializationFailedForMessage(m, e);
+                }
+                catch (Exception exception)
+                {
+                    Configure.Instance.OnCriticalError();
+                }
+
                 return null;
             }
         }

@@ -41,6 +41,9 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>

@@ -54,21 +54,37 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     return false;
-
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+                string errorMessage;
+                switch(mqe.MessageQueueErrorCode)
                 {
-                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
-                    Configure.Instance.OnCriticalError(mqe);
+                    case MessageQueueErrorCode.AccessDenied:
+                        errorMessage = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. Exception: [{2}]",
+                            myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user", mqe);
+                        break;
+                    
+                    case MessageQueueErrorCode.QueueNotFound:
+                        errorMessage = string.Format("Queue was not found while peeking queue. Exception: [{0}]", mqe);
+                        break;
+                    
+                    default:
+                        errorMessage = string.Format("Error while while peeking queue: [{0}], exception: [{1}]", myQueue.QueueName, mqe);        
+                        break;
                 }
-
-                throw;
+                Logger.Fatal(errorMessage);
+                throw new InvalidOperationException(errorMessage, mqe);
             }
             catch (ObjectDisposedException objectDisposedException)
             {
-                Logger.Fatal("Queue has been disposed. Cannot continue operation. Please restart this process.");
-                Configure.Instance.OnCriticalError(objectDisposedException);
+                var errorMessage = string.Format("Queue has been disposed. Cannot continue operation. Please restart this process. Exception: {0}", objectDisposedException);
+                Logger.Fatal(errorMessage);
+                throw new InvalidOperationException(errorMessage, objectDisposedException);
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal(e);
                 throw;
             }
+
         }
 
         public TransportMessage Receive()
@@ -88,8 +104,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    Logger.Fatal(string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user"));
-                    Configure.Instance.OnCriticalError(mqe);
+                    string errorException = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user");
+                    Logger.Fatal(errorException);
+                    throw new InvalidOperationException(errorException, mqe);
                 }
 
                 throw;
