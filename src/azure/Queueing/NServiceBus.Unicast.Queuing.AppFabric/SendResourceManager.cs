@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using System.Transactions;
 using Microsoft.ServiceBus.Messaging;
 
@@ -21,8 +23,15 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public void Commit(Enlistment enlistment)
         {
-            sender.Send(message);
-            
+            try
+            {
+                sender.Send(message);
+            }
+            catch (ServerBusyException)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                sender.Send(message);
+            }
             enlistment.Done();
         }
 

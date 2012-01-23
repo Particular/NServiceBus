@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using System.Transactions;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -87,7 +88,17 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public TransportMessage Receive()
         {
-            BrokeredMessage message = queueClient.Receive();
+            BrokeredMessage message;
+
+            try{
+                message= queueClient.Receive(TimeSpan.FromSeconds(30));
+            }
+            catch (ServerBusyException)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                message = queueClient.Receive(TimeSpan.FromSeconds(30));
+            }
+
             if(message != null)
             {
                 var rawMessage = message.GetBody<byte[]>();
@@ -147,10 +158,24 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             var brokeredMessage = new BrokeredMessage(rawMessage);
 
             if (Transaction.Current == null)
-                sender.Send(brokeredMessage);
+                Send(brokeredMessage, sender);
             else
                 Transaction.Current.EnlistVolatile(new SendResourceManager(sender, brokeredMessage), EnlistmentOptions.None);
            
+        }
+
+        private static void Send(BrokeredMessage brokeredMessage, QueueClient sender)
+        {
+            try
+            {
+                sender.Send(brokeredMessage);
+            }
+            catch (ServerBusyException)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                sender.Send(brokeredMessage);
+            }
+            
         }
 
         private static byte[] SerializeMessage(TransportMessage message)
