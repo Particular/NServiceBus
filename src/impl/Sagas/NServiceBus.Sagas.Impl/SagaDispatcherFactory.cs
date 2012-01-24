@@ -65,7 +65,7 @@
                     sagaType = Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType());
                 }
 
-                if (typeof(ISaga).IsAssignableFrom(sagaType))
+                if (messageHandlerType.IsAssignableFrom(sagaType))
                     yield return () =>
                                      {
                                          var saga = (ISaga)builder.Build(sagaType);
