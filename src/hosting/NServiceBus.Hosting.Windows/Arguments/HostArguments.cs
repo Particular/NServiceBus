@@ -17,8 +17,11 @@ namespace NServiceBus.Hosting.Windows.Arguments
             StartManually = GetArgument(arguments, "startManually");
             Username = GetArgument(arguments, "username");
             Password = GetArgument(arguments, "password");
+            SideBySide = GetArgument(arguments, "sideBySide");
+            EndpointName = GetArgument(arguments, "endpointName");
         }
 
+        public IArgument SideBySide{ get; set; }
         public IArgument Help { get; set; }
         public IArgument ServiceName { get; set; }
         public IArgument DisplayName { get; set; }
@@ -28,6 +31,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
         public IArgument StartManually { get; set; }
         public IArgument Username { get; set; }
         public IArgument Password { get; set; }
+        public IArgument EndpointName { get; set; }
 
         private static IArgument GetArgument(Parser.Args arguments, string key)
         {

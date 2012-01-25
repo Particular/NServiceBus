@@ -38,25 +38,32 @@ namespace NServiceBus.Hosting.Windows
 
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
-          
-            var endpointName = GetEndpointName(endpointConfigurationType);
-            var endpointVersion = GetEndpointVersion(endpointConfigurationType);
 
-            if (arguments.ServiceName != null)
-                endpointName = arguments.ServiceName.Value;
+            var endpointName = GetEndpointName(endpointConfigurationType, arguments);
+            var endpointVersion = GetEndpointVersion(endpointConfigurationType);
 
             var serviceName = endpointName;
 
+            if (arguments.ServiceName != null)
+                serviceName = arguments.ServiceName.Value;
+
             var displayName = serviceName + "-" + endpointVersion;
 
+            if (arguments.SideBySide != null)
+            {
+                serviceName += "-" + endpointVersion;
+
+                displayName += " (SideBySide)";
+            }
+
             //add the endpoint name so that the new appdomain can get it
-            args = args.Concat(new[] {endpointName}).ToArray();
+            args = args.Concat(new[] { endpointName }).ToArray();
 
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
 
             if (commandLineArguments.Install)
             {
-                WindowsInstaller.Install(args,endpointConfigurationType,endpointName,endpointConfigurationFile);
+                WindowsInstaller.Install(args, endpointConfigurationType, endpointName, endpointConfigurationFile);
             }
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
@@ -90,6 +97,7 @@ namespace NServiceBus.Hosting.Windows
 
                                                                    var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
                                                                    serviceCommandLine += " /serviceName:\"" + serviceName + "\"";
+                                                                   serviceCommandLine += " /endpointName:\"" + endpointName + "\"";
 
                                                                    x.SetServiceCommandLine(serviceCommandLine);
 
@@ -105,10 +113,10 @@ namespace NServiceBus.Hosting.Windows
 
         static string GetEndpointVersion(Type endpointConfigurationType)
         {
-            var fileVersion = FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,endpointConfigurationType.Assembly.ManifestModule.Name));
-          
+            var fileVersion = FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name));
+
             //build a semver compliant version
-            return string.Format("{0}.{1}.{2}",fileVersion.FileMajorPart,fileVersion.FileMinorPart,fileVersion.FileBuildPart);
+            return string.Format("{0}.{1}.{2}", fileVersion.FileMajorPart, fileVersion.FileMinorPart, fileVersion.FileBuildPart);
         }
 
         static void DisplayHelpContent()
@@ -153,20 +161,26 @@ namespace NServiceBus.Hosting.Windows
         /// Gives a string which serves to identify the endpoint.
         /// </summary>
         /// <param name="endpointConfigurationType"></param>
+        /// <param name="arguments"> </param>
         /// <returns></returns>
-        static string GetEndpointName(Type endpointConfigurationType)
-        {  
+        static string GetEndpointName(Type endpointConfigurationType, HostArguments arguments)
+        {
             var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
             var endpointName = endpointConfiguration.GetType().Namespace;
+            
+            if (arguments.ServiceName != null)
+                endpointName = arguments.ServiceName.Value;
 
             var arr = endpointConfiguration.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
-
             if (arr.Length == 1)
                 endpointName = (arr[0] as EndpointNameAttribute).Name;
 
             if (endpointConfiguration is INameThisEndpoint)
                 endpointName = (endpointConfiguration as INameThisEndpoint).GetName();
-            
+
+            if (arguments.EndpointName != null)
+                endpointName = arguments.EndpointName.Value;
+
             return endpointName;
         }
 
