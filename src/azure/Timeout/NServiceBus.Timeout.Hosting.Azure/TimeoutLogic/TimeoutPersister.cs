@@ -34,7 +34,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
         {
             var stateAddress = Serialize(timeout.State, Hash(timeout));
 
-            context.AttachTo(ServiceContext.TimeoutDataEntityTableName,
+            context.AddObject(ServiceContext.TimeoutDataEntityTableName,
                                   new TimeoutDataEntity("TimeoutData", stateAddress)
                                       {
                                           Destination = timeout.Destination.ToString(),
@@ -43,7 +43,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                                           Time = timeout.Time,
                                           CorrelationId = timeout.CorrelationId
                                       });
-            context.SaveChanges(SaveChangesOptions.ReplaceOnUpdate);
+            
+            context.SaveChanges();
         }
 
 
