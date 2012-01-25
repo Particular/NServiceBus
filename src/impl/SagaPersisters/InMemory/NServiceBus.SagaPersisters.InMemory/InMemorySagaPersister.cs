@@ -10,7 +10,6 @@ namespace NServiceBus.SagaPersisters.InMemory
     /// </summary>
     public class InMemorySagaPersister : ISagaPersister
     {
-        
         void ISagaPersister.Complete(ISagaEntity saga)
         {
             lock(syncRoot)
@@ -51,15 +50,44 @@ namespace NServiceBus.SagaPersisters.InMemory
         {
             lock(syncRoot)
             {
+                ValidateUniqueProperties(saga);
                 data[saga.Id] = saga;
             }
         }
-
+        
         void ISagaPersister.Update(ISagaEntity saga)
         {
             ((ISagaPersister)this).Save(saga);
         }
+        
+        private void ValidateUniqueProperties(ISagaEntity saga)
+        {
+            var uniqueProperties = UniqueAttribute.GetUniqueProperties(saga.GetType());
+            if (!uniqueProperties.Any()) return;
 
+            var sagasFromSameType = from s in data
+                                    where
+                                        ((s.Value as ISagaEntity).GetType() == saga.GetType() && (s.Key != saga.Id))
+                                    select s.Value;
+
+            foreach (var storedSaga in sagasFromSameType)
+                foreach (var uniqueProperty in uniqueProperties)
+                {
+                    if (uniqueProperty.CanRead)
+                    {
+                        var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
+                        var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga, null);
+                        if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
+                            throw new
+                                InvalidOperationException(
+                                string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", storedSaga.Id, uniqueProperty.ToString(), storedSagaPropertyValue));
+                    }
+                }
+        }
+
+
+
+        
         private readonly IDictionary<Guid, ISagaEntity> data = new Dictionary<Guid, ISagaEntity>();
         private readonly object syncRoot = new object();
     }
