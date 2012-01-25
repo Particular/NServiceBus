@@ -103,7 +103,7 @@ namespace NServiceBus
         /// <summary>
         /// Invokes only Infrastructure installers for the given environment.
         /// </summary>
-        private void InstallInfrastructureInstallers()
+        public void InstallInfrastructureInstallers()
         {
             if (installedInfrastructureInstallers)
                 return;

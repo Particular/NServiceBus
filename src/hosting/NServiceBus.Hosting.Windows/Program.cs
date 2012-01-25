@@ -13,6 +13,7 @@ using Topshelf.Internal;
 namespace NServiceBus.Hosting.Windows
 {
     using System.Diagnostics;
+    using System.Security.Principal;
     using Installers;
 
     /// <summary>
@@ -31,6 +32,14 @@ namespace NServiceBus.Hosting.Windows
 
                 return;
             }
+
+            if (arguments.InstallInfrastructure != null)
+            {
+                InstallInfrastructure();
+
+                return;
+            }
+
 
             var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
@@ -109,6 +118,14 @@ namespace NServiceBus.Hosting.Windows
                                                                });
 
             Runner.Host(cfg, args);
+        }
+
+        static void InstallInfrastructure()
+        {
+            Configure.With(AllAssemblies.Except("NServiceBus.Host32.exe"));
+
+            var installer = new Installer<Installation.Environments.Windows>(WindowsIdentity.GetCurrent());
+            installer.InstallInfrastructureInstallers();
         }
 
         static string GetEndpointVersion(Type endpointConfigurationType)
