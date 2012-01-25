@@ -50,7 +50,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Config\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="InMemorySagaPersister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

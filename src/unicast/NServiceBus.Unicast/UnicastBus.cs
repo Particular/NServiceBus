@@ -1582,7 +1582,7 @@ namespace NServiceBus.Unicast
         {
             var messageType = messageToHandle.GetType();
 
-            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName]= string.Join(";", handlers.Select(t => t.FullName));
+            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName]= string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
 
 

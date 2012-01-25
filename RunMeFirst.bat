@@ -1,1 +1,1 @@
-.\tools\msmqutils\runner.exe %1
+.\binaries\NServiceBus.Host.exe /installInfrastructure

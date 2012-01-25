@@ -61,9 +61,4 @@
 
         static WindowsHost host;
     }
-
-    //class Remove:IConfigureThisEndpoint,AsA_Server
-    //{}
-
-
 }
