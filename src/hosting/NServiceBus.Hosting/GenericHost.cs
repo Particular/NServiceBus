@@ -18,7 +18,7 @@ namespace NServiceBus.Hosting
     public class GenericHost : IHost
     {
         /// <summary>
-        /// Creats and strts the bus as per the configuration
+        /// Creates and starts the bus as per the configuration
         /// </summary>
         public void Start()
         {

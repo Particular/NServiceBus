@@ -1,3 +1,7 @@
+using System.Configuration;
+using System.Linq;
+using System.Net;
+
 namespace NServiceBus
 {
     using System;
@@ -18,7 +22,7 @@ namespace NServiceBus
         public static Configure RunDistributor(this Configure config)
         {
             if (!config.IsConfiguredAsMasterNode())
-                throw new InvalidOperationException("This endpoint needs to be configured as a master node in order to run the distributor");
+                throw new InvalidOperationException("This endpoint needs to be configured as a master node in order to run the distributor");   
 
             distributorEnabled = true;
             distributorShouldRunOnThisEndpoint = true;
@@ -26,14 +30,57 @@ namespace NServiceBus
             return config;
         }
 
-
+        /// <summary>
+        /// Enlist Worker with Master node defined in the config.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Configure EnlistWithDistributor(this Configure config)
         {
             distributorEnabled = true;
+            if (config.IsConfiguredAsMasterNode())
+                throw new InvalidOperationException("Worker endpoint should not be configured as a master node.");
+
+            ValidateMasterNodeConfigurationForWorker(config);
 
             return config;
         }
 
+        private static void ValidateMasterNodeConfigurationForWorker(Configure config)
+        {
+            var masterNodeName = config.GetMasterNode();
+
+            if (masterNodeName == null)
+                throw new ConfigurationErrorsException(
+                    "When defining Worker profile, 'MasterNodeConfig' section must be defined and the 'Node' entry should point to a valid, non local, host name.");
+
+            if (string.IsNullOrWhiteSpace(masterNodeName))
+                throw new ConfigurationErrorsException(
+                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name.", masterNodeName));
+
+            if (IsLocalIpAddress(masterNodeName))
+                throw new ConfigurationErrorsException(
+                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name. [{0}] points to a local host address.",
+                        masterNodeName));
+        }
+
+        private static bool IsLocalIpAddress(string hostName)
+        {
+            if (string.IsNullOrWhiteSpace(hostName)) return true;
+            try
+            {
+                var hostIPs = Dns.GetHostAddresses(hostName);
+                var localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+
+                if (hostIPs.Any(hostIp => (IPAddress.IsLoopback(hostIp) || (localIPs.Contains(hostIp)))))
+                    return true;
+            }
+            catch
+            {
+                return false;
+            }
+            return false;
+        }
         static bool distributorEnabled;
         static bool distributorShouldRunOnThisEndpoint;
     }
