@@ -14,12 +14,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
     {
         #region config info
 
-		/// <summary>
-		/// Sets whether or not the transport is transactional.
-		/// </summary>
+        /// <summary>
+        /// Sets whether or not the transport is transactional.
+        /// </summary>
         public bool IsTransactional { get; set; }
 
-	    private int maxRetries = 5;
+        private int maxRetries = 5;
 
         /// <summary>
         /// Sets the maximum number of times a message will be retried
@@ -30,10 +30,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Default value is 5.
         /// </remarks>
         public int MaxRetries
-	    {
+        {
             get { return maxRetries; }
-	        set { maxRetries = value; }
-	    }
+            set { maxRetries = value; }
+        }
 
         /// <summary>
         /// Property for getting/setting the period of time when the transaction times out.
@@ -103,9 +103,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private int numberOfWorkerThreads = 1;
 
 
-		/// <summary>
-		/// Event raised when a message has been received in the input queue.
-		/// </summary>
+        /// <summary>
+        /// Event raised when a message has been received in the input queue.
+        /// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// stopping or starting worker threads as needed.
         /// </summary>
         /// <param name="targetNumberOfWorkerThreads"></param>
-	    public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
+        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
             lock (workerThreads)
             {
@@ -147,8 +147,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void ITransport.Start(Address address)
         {
-            MessageReceiver.Init(address,IsTransactional);
-            
+            MessageReceiver.Init(address, IsTransactional);
+
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
         }
@@ -176,21 +176,21 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-		/// <summary>
-		/// Waits for a message to become available on the input queue
-		/// and then receives it.
-		/// </summary>
-		/// <remarks>
-		/// If the queue is transactional the receive operation will be wrapped in a 
-		/// transaction.
-		/// </remarks>
+        /// <summary>
+        /// Waits for a message to become available on the input queue
+        /// and then receives it.
+        /// </summary>
+        /// <remarks>
+        /// If the queue is transactional the receive operation will be wrapped in a 
+        /// transaction.
+        /// </remarks>
         private void Process()
         {
             if (!HasMessage())
                 return;
 
-		    _needToAbort = false;
-		    _messageId = string.Empty;
+            _needToAbort = false;
+            _messageId = string.Empty;
 
             try
             {
@@ -206,7 +206,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 //in case AbortHandlingCurrentMessage was called
                 return; //don't increment failures, we want this message kept around.
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var originalException = e;
 
@@ -214,7 +214,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     originalException = ((TransportMessageHandlingFailedException)e).OriginalException;
 
                 if (IsTransactional)
-                {                
+                {
                     IncrementFailuresForMessage(_messageId, originalException);
                 }
 
@@ -222,21 +222,21 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-	    /// <summary>
-		/// Receives a message from the input queue.
-		/// </summary>
-		/// <remarks>
-		/// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
-		/// </remarks>
+        /// <summary>
+        /// Receives a message from the input queue.
+        /// </summary>
+        /// <remarks>
+        /// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
+        /// </remarks>
         public void ProcessMessage()
         {
-	        var m = Receive();
+            var m = Receive();
             if (m == null)
                 return;
 
             _messageId = m.Id;
 
-	        var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
+            var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
             if (IsTransactional)
             {
@@ -255,7 +255,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             //care about failures here
             var exceptionFromMessageHandling = OnTransportMessageReceived(m);
-            
+
             //and here
             var exceptionFromMessageModules = OnFinishedMessageProcessing();
 
@@ -274,79 +274,80 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private bool HandledMaxRetries(TransportMessage message)
         {
             string messageId = message.Id;
-            try
-            {
-                failuresPerMessageLocker.EnterReadLock();
+            failuresPerMessageLocker.EnterReadLock();
 
-                if (failuresPerMessage.ContainsKey(messageId) &&
-                    (failuresPerMessage[messageId] >= maxRetries))
-                {
-                    failuresPerMessageLocker.ExitReadLock();
-                    failuresPerMessageLocker.EnterWriteLock();
-
-                    var ex = exceptionsForMessages[messageId];
-                    FailureManager.ProcessingAlwaysFailsForMessage(message, ex);
-                    failuresPerMessage.Remove(messageId);
-                    exceptionsForMessages.Remove(messageId);
-
-                    failuresPerMessageLocker.ExitWriteLock();
-
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception exception)
-            {
-                if ((exception as InvalidOperationException) != null)
-                {
-                    Configure.Instance.OnCriticalError();
-                }
-            }
-            finally
+            if (failuresPerMessage.ContainsKey(messageId) &&
+                (failuresPerMessage[messageId] >= maxRetries))
             {
                 failuresPerMessageLocker.ExitReadLock();
+                failuresPerMessageLocker.EnterWriteLock();
+
+                var ex = exceptionsForMessages[messageId];
+                InvokeFaultManager(message, ex);
+                failuresPerMessage.Remove(messageId);
+                exceptionsForMessages.Remove(messageId);
+
+                failuresPerMessageLocker.ExitWriteLock();
+
+                return true;
             }
+
+            failuresPerMessageLocker.ExitReadLock();
             return false;
         }
 
-	    private void ClearFailuresForMessage(string messageId)
-	    {
-	        failuresPerMessageLocker.EnterReadLock();
-	        if (failuresPerMessage.ContainsKey(messageId))
-	        {
-	            failuresPerMessageLocker.ExitReadLock();
-	            failuresPerMessageLocker.EnterWriteLock();
+        void InvokeFaultManager(TransportMessage message, Exception exception)
+        {
+            try
+            {
+                FailureManager.ProcessingAlwaysFailsForMessage(message, exception);
+            }
+            catch (Exception ex)
+            {
+                Logger.FatalFormat("Fault manager failed to process the failed message {0}", ex, message);
+                Configure.Instance.OnCriticalError();
+            }
 
-	            failuresPerMessage.Remove(messageId);
-	            exceptionsForMessages.Remove(messageId);
-	            
-                failuresPerMessageLocker.ExitWriteLock();
-	        }
-	        else
-	            failuresPerMessageLocker.ExitReadLock();
-	    }
+        }
 
-	    private void IncrementFailuresForMessage(string messageId, Exception e)
-	    {
-	        try
-	        {
+        private void ClearFailuresForMessage(string messageId)
+        {
+            failuresPerMessageLocker.EnterReadLock();
+            if (failuresPerMessage.ContainsKey(messageId))
+            {
+                failuresPerMessageLocker.ExitReadLock();
                 failuresPerMessageLocker.EnterWriteLock();
-                
+
+                failuresPerMessage.Remove(messageId);
+                exceptionsForMessages.Remove(messageId);
+
+                failuresPerMessageLocker.ExitWriteLock();
+            }
+            else
+                failuresPerMessageLocker.ExitReadLock();
+        }
+
+        private void IncrementFailuresForMessage(string messageId, Exception e)
+        {
+            try
+            {
+                failuresPerMessageLocker.EnterWriteLock();
+
                 if (!failuresPerMessage.ContainsKey(messageId))
-	                failuresPerMessage[messageId] = 1;
-	            else
-	                failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
+                    failuresPerMessage[messageId] = 1;
+                else
+                    failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
 
                 exceptionsForMessages[messageId] = e;
-	        }
-            catch{} //intentionally swallow exceptions here
-	        finally
-	        {
-	            failuresPerMessageLocker.ExitWriteLock();
-	        }
-	    }
+            }
+            catch { } //intentionally swallow exceptions here
+            finally
+            {
+                failuresPerMessageLocker.ExitWriteLock();
+            }
+        }
 
-	    [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
+        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
         private bool HasMessage()
         {
             try
@@ -387,7 +388,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Causes the processing of the current message to be aborted.
         /// </summary>
-	    public void AbortHandlingCurrentMessage()
+        public void AbortHandlingCurrentMessage()
         {
             _needToAbort = true;
         }
@@ -468,27 +469,28 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Accessed by multiple threads - lock using failuresPerMessageLocker.
         /// </summary>
-	    private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
+        private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
 
         /// <summary>
         /// Accessed by multiple threads, manage together with failuresPerMessage.
         /// </summary>
         private readonly IDictionary<string, Exception> exceptionsForMessages = new Dictionary<string, Exception>();
 
-	    [ThreadStatic] 
+        [ThreadStatic]
         private static volatile bool _needToAbort;
 
-	    [ThreadStatic] private static volatile string _messageId;
+        [ThreadStatic]
+        private static volatile string _messageId;
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (TransactionalTransport));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
 
         #endregion
 
         #region IDisposable Members
 
-		/// <summary>
-		/// Stops all worker threads.
-		/// </summary>
+        /// <summary>
+        /// Stops all worker threads.
+        /// </summary>
         public void Dispose()
         {
             lock (workerThreads)
