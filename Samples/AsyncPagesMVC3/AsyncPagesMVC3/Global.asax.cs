@@ -36,7 +36,6 @@ namespace AsyncPagesMVC3
            
             // NServiceBus configuration
             Configure.WithWeb()
-                .AsMasterNode()
                 .DefaultBuilder()
                 .ForMvc()
                 .Log4Net()
