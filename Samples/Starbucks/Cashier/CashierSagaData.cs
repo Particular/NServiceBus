@@ -14,6 +14,8 @@ namespace Cashier
         public virtual String CustomerName { get; set; }
         public virtual String Drink { get; set; }
         public virtual DrinkSize DrinkSize { get; set; }
+        
+        [Unique]
         public virtual Guid OrderId { get; set; }
     }
 }
