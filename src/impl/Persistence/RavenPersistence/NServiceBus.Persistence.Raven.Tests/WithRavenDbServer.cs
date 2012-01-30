@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Raven.Database.Config;
 using Raven.Database.Extensions;
-using Raven.Server;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
@@ -13,17 +12,6 @@ namespace NServiceBus.Persistence.Raven.Tests
         protected const string DbDirectory = @".\TestDb\";
         protected const string DbName = DbDirectory + @"DocDb.esb";
 
-        protected RavenDbServer GetNewServer()
-        {
-            return
-                new RavenDbServer(new RavenConfiguration
-                {
-                    Port = 8080,
-                    RunInMemory = true,
-                    DataDirectory = "Data",
-                    AnonymousUserAccessMode = AnonymousUserAccessMode.All
-                });
-        }
         
         public WithRavenDbServer()
         {

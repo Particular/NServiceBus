@@ -14,18 +14,15 @@ namespace NServiceBus.Persistence.Raven.Tests
         [TestFixtureSetUp]
         public void SetUp()
         {
-            using (var server = GetNewServer())
-            {
-                connectionStringName = "Raven";
-                database = "CustomDatabase";
+            connectionStringName = "Raven";
+            database = "CustomDatabase";
 
-                var config = Configure.With(new[] {GetType().Assembly})
-                    .DefineEndpointName("UnitTests")
-                    .DefaultBuilder()
-                    .RavenPersistence(connectionStringName, database);
+            var config = Configure.With(new[] { GetType().Assembly })
+                .DefineEndpointName("UnitTests")
+                .DefaultBuilder()
+                .RavenPersistence(connectionStringName, database);
 
-                store = config.Builder.Build<IDocumentStore>() as DocumentStore;
-            }
+            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
         }
 
         [Test]
@@ -50,31 +47,28 @@ namespace NServiceBus.Persistence.Raven.Tests
     [TestFixture]
     public class When_configuring_the_raven_saga_persister_with_a_connection_string_that_has_a_default_database_set : WithRavenDbServer
     {
-       string connectionStringName;
+        string connectionStringName;
 
         DocumentStore store;
 
         [TestFixtureSetUp]
         public void SetUp()
         {
-            using (var server = GetNewServer())
-            {
-                connectionStringName = "RavenWithDefaultDBSet";
-              
-                var config = Configure.With(new[] { GetType().Assembly })
-                    .DefineEndpointName("UnitTests")
-                    .DefaultBuilder()
-                    .RavenPersistence(connectionStringName);
+            connectionStringName = "RavenWithDefaultDBSet";
 
-                store = config.Builder.Build<IDocumentStore>() as DocumentStore;
-            }
+            var config = Configure.With(new[] { GetType().Assembly })
+                .DefineEndpointName("UnitTests")
+                .DefaultBuilder()
+                .RavenPersistence(connectionStringName);
+
+            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
         }
 
 
         [Test]
         public void It_should_use_the_default_database_of_the_store()
         {
-            Assert.AreEqual("MyDB",store.DefaultDatabase);
+            Assert.AreEqual("MyDB", store.DefaultDatabase);
         }
     }
 }

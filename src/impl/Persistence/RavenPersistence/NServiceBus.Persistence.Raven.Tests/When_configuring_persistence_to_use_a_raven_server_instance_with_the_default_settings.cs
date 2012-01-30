@@ -12,15 +12,12 @@ namespace NServiceBus.Persistence.Raven.Tests
         [TestFixtureSetUp]
         public void SetUp()
         {
-            using (var server = GetNewServer())
-            {
-                var config = Configure.With(new[] { GetType().Assembly })
-                    .DefineEndpointName("UnitTests")
-                    .DefaultBuilder()
-                    .RavenPersistence();
+            var config = Configure.With(new[] { GetType().Assembly })
+                .DefineEndpointName("UnitTests")
+                .DefaultBuilder()
+                .RavenPersistence();
 
-                store = config.Builder.Build<IDocumentStore>() as DocumentStore;
-            }
+            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
         }
 
         [Test]

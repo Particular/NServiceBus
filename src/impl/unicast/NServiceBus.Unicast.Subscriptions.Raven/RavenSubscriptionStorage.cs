@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
         {
             var session = Store.OpenSession();
 
-            session.Advanced.AllowNonAuthoritiveInformation = false;
+            session.Advanced.AllowNonAuthoritativeInformation = false;
 
             return session;
         }

@@ -5,7 +5,7 @@ using Raven.Client.Document;
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
 {
     [TestFixture]
-    public class When_configuring_the_raven_saga_persister_with_the_default_settings_and_raven_persistance_has_been_configured : WithRavenDbServer
+    public class When_configuring_the_raven_saga_persister_with_the_default_settings_and_raven_persistance_has_been_configured
     {
         RavenSubscriptionStorage subscriptionStorage;
         IDocumentStore store;
@@ -13,19 +13,17 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
         [TestFixtureSetUp]
         public void SetUp()
         {
-            using (var server = GetNewServer())
-            {
-                var config = Configure.With(new[] {GetType().Assembly})
-                    .DefineEndpointName("MyEndpoint")
-                    .DefaultBuilder()
-                    .RavenPersistence();
+            var config = Configure.With(new[] { GetType().Assembly })
+                .DefineEndpointName("MyEndpoint")
+                .DefaultBuilder()
+                .RavenPersistence();
 
-                store = config.Builder.Build<IDocumentStore>();
+            store = config.Builder.Build<IDocumentStore>();
 
-                config = config.RavenSubscriptionStorage();
+            config = config.RavenSubscriptionStorage();
 
-                subscriptionStorage = config.Builder.Build<RavenSubscriptionStorage>();
-            }
+            subscriptionStorage = config.Builder.Build<RavenSubscriptionStorage>();
+
         }
 
         [Test]
