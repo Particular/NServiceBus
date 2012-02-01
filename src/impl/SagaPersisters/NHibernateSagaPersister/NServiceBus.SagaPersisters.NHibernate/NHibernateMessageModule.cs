@@ -26,6 +26,10 @@ namespace NServiceBus.SagaPersisters.NHibernate
         {
             if (SessionFactory == null) return;
 
+            // HandleEndMessage can be called before HandleBeginMessage in case of an error, so check for the existence of a session first.
+            if (!CurrentSessionContext.HasBind(SessionFactory))
+              return;
+
             var session = CurrentSessionContext.Unbind(SessionFactory);
 
             using (session)
@@ -50,10 +54,12 @@ namespace NServiceBus.SagaPersisters.NHibernate
             using (session)
             using (session.Transaction)
             {
-                if (!session.Transaction.IsActive)
-                    return;
+                // HandleError is run outside of the DTC transaction so calling rollback here is pointless.
 
-                session.Transaction.Rollback();
+                //if (!session.Transaction.IsActive)
+                //    return;
+
+                //session.Transaction.Rollback();
             }
         }
 
