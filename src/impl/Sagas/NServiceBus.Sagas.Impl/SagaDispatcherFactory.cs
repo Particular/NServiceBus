@@ -14,6 +14,13 @@
     /// </summary>
     public class SagaDispatcherFactory : IMessageDispatcherFactory
     {
+        /// <summary>
+        /// Get Dispatcher
+        /// </summary>
+        /// <param name="messageHandlerType">Type of the message Handler</param>
+        /// <param name="builder">Builder</param>
+        /// <param name="message">Message</param>
+        /// <returns>Saga Dispatcher</returns>
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
         {
             if (message.IsTimeoutMessage() && !message.TimeoutHasExpired())
@@ -110,6 +117,11 @@
                                  };
         }
 
+        /// <summary>
+        /// Dispatcher factory filters on handler type
+        /// </summary>
+        /// <param name="handler">handler</param>
+        /// <returns>returns true if can be dispatched</returns>
         public bool CanDispatch(Type handler)
         {
             return typeof(ISaga).IsAssignableFrom(handler);
