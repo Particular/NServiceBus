@@ -176,11 +176,19 @@ namespace NServiceBus.Saga
         {
         }
 
+        /// <summary>
+        /// Message handler for Timeout Message 
+        /// </summary>
+        /// <param name="message">Timeout Message</param>
         public void Handle(TimeoutMessage message)
         {
             Timeout(message.State);
         }
 
+        /// <summary>
+        /// Message handler for Timeout State 
+        /// </summary>
+        /// <param name="message">Timeout State</param>
         public void Handle(ITimeoutState message)
         {
             var messageType = message.GetType();
