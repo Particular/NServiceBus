@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using NServiceBus;
 using Orders.Messages;
 using log4net;
@@ -16,13 +15,10 @@ namespace Orders.Handler
             Logger.InfoFormat("Sent Ok status for orderId [{0}].", placeOrder.OrderId);
 
             // Process Order...
+            Logger.Info("Processing received order....");
             Thread.Sleep(3000);
-
-            var orderPlaced = new OrderPlaced()
-            {
-                OrderId = placeOrder.OrderId,
-            };
-            Bus.Publish(orderPlaced);
+            
+            Bus.Publish<OrderPlaced>(m => m.OrderId = placeOrder.OrderId);
             Logger.InfoFormat("Sent Order placed event for orderId [{0}].", placeOrder.OrderId);
         }
         public static readonly ILog Logger = LogManager.GetLogger("ProcessOrderCommandHandler");
