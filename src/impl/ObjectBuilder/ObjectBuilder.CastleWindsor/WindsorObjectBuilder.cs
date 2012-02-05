@@ -128,7 +128,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
             }
 
-            container.Register(Component.For(lookupType).Named(lookupType.Name).Instance(instance));
+            container.Register(Component.For(lookupType).Named(lookupType.AssemblyQualifiedName).Instance(instance));
         }
 
         object IContainer.Build(Type typeToBuild)
