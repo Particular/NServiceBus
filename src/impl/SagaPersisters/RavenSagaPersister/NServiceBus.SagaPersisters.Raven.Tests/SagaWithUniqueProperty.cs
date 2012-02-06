@@ -13,5 +13,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
 
         [Unique]
         public virtual string UniqueString { get; set; }
+
+        public string NonUniqueString { get; set; }
     }
 }
