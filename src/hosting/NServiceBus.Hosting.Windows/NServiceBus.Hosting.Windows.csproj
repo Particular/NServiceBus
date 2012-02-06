@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
+    <Compile Include="Profiles\Distributor.cs" />
     <Compile Include="Profiles\MultiSite.cs" />
     <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />

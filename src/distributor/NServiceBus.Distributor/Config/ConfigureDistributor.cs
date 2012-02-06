@@ -12,13 +12,24 @@ namespace NServiceBus
         {
             return distributorEnabled;
         }
-
-
         public static bool DistributorConfiguredToRunOnThisEndpoint(this Configure config)
         {
             return distributorEnabled && distributorShouldRunOnThisEndpoint;
         }
-
+        /// <summary>
+        /// Return whether a Worker should be running in the Distributor endpoint.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static bool WorkerShouldRunOnDistributorEndpoint(this Configure config)
+        {
+            return !workerShouldNotRunOnDistributorEndpoint;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Configure RunDistributor(this Configure config)
         {
             if (!config.IsConfiguredAsMasterNode())
@@ -29,6 +40,19 @@ namespace NServiceBus
 
             return config;
         }
+        /// <summary>
+        /// Starting the Distributor without a worker running on its endpoint
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
+        {
+            config.RunDistributor();
+            workerShouldNotRunOnDistributorEndpoint = true;
+
+            return config;
+        }
+
 
         /// <summary>
         /// Enlist Worker with Master node defined in the config.
@@ -56,7 +80,7 @@ namespace NServiceBus
 
             if (string.IsNullOrWhiteSpace(masterNodeName))
                 throw new ConfigurationErrorsException(
-                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name.", masterNodeName));
+                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name: [{0}].", masterNodeName));
 
             if (IsLocalIpAddress(masterNodeName))
                 throw new ConfigurationErrorsException(
@@ -83,5 +107,6 @@ namespace NServiceBus
         }
         static bool distributorEnabled;
         static bool distributorShouldRunOnThisEndpoint;
+        static bool workerShouldNotRunOnDistributorEndpoint;
     }
 }

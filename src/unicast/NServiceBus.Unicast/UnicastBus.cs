@@ -756,9 +756,9 @@ namespace NServiceBus.Unicast
 
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
-
-                transport.Start(InputAddress);
-
+                
+                if (!DoNotStartTransport)
+                    transport.Start(InputAddress);
 
                 if (autoSubscribe)
                 {
@@ -773,6 +773,11 @@ namespace NServiceBus.Unicast
 
             return this;
         }
+
+        /// <summary>
+        /// Allow disabling the unicast bus.
+        /// </summary>
+        public bool DoNotStartTransport { get; set; }
 
         /// <summary>
         /// The address this bus will use as it's main input
