@@ -1,16 +1,17 @@
-﻿using System.Security.Principal;
-using NServiceBus.Installation;
-using NServiceBus.Utils;
-
-namespace NServiceBus.Unicast.Queuing.Msmq.Config
+﻿namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
 {
+    using System.Security.Principal;
+    using Installation;
+    using Utils;
     using NServiceBus.Config;
 
-    class Installer : INeedToInstallSomething<Installation.Environments.Windows>
+    public class EndpointInputQueueInstaller : INeedToInstallSomething<Installation.Environments.Windows>
     {
+        public static bool Enabled { get; set; }
+
         public void Install(WindowsIdentity identity)
         {
-            if (!ConfigureMsmqMessageQueue.Selected)
+            if (!Enabled)
                 return;
 
             MsmqUtilities.CreateQueueIfNecessary(Address.Local, identity.Name);

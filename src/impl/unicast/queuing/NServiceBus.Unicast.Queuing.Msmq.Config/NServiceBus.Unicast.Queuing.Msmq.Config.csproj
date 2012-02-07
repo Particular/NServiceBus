@@ -83,7 +83,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
-    <Compile Include="Installer.cs" />
+    <Compile Include="Installers\EndpointInputQueueInstaller.cs" />
+    <Compile Include="Installers\MsmqInfrastructureInstaller.cs" />
     <Compile Include="MsmqMessageQueueConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
