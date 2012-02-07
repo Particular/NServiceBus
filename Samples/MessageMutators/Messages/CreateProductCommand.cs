@@ -15,10 +15,26 @@ namespace Messages
         [Range(1, 5)]
         public decimal ListPrice { get; set; }
 
-        [Range(typeof(DateTime), "1/1/2012", "15/1/2012", ErrorMessage = "Value for {0} must be between {1} and {2}")]
+        /// <summary>
+        /// Custom Range Attribute for Date to avoid the problem with date format
+        /// </summary>
+        internal class DateRageAttribute : RangeAttribute
+        {
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            public DateRageAttribute() :
+                base(typeof(DateTime), (new DateTime(2012, 1, 1)).ToString(), (new DateTime(2012, 1, 15)).ToString())
+            {
+
+            }
+        }
+
+        [DateRageAttribute(ErrorMessage = "Value for {0} must be between {1} and {2}")]
         public DateTime SellEndDate { get; set; }
 
         public byte[] Image { get; set; }
+
         public override string ToString()
         {
             return string.Format(
