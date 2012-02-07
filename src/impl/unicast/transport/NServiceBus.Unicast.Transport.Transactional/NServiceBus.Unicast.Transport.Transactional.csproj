@@ -44,6 +44,12 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Installation.Windows">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
       <Private>False</Private>
@@ -62,8 +68,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
+    <Compile Include="Installers\DtcInstaller.cs" />
     <Compile Include="TransactionalTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
