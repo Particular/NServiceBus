@@ -25,9 +25,11 @@ namespace AsyncPagesMVC3.Controllers
             if (!int.TryParse(textField, out number))
                 return;
             
-            AsyncManager.OutstandingOperations.Increment();
             var command = new Command { Id = number };
-            Bus.Send(command).Register(SimpleCommandCallback, this);
+            Bus.Send(command).Register<int>(status=>
+                                           {
+                                               AsyncManager.Parameters["errorCode"] = Enum.GetName(typeof(ErrorCodes), status);
+                                           });
         }
 
         public ActionResult IndexCompleted(string errorCode)
@@ -35,13 +37,6 @@ namespace AsyncPagesMVC3.Controllers
             ViewBag.Title = "SendAsync"; 
             ViewBag.ResponseText = errorCode; 
             return View("Index");
-        }
-
-        private void SimpleCommandCallback(IAsyncResult asyncResult)
-        {
-            var result = asyncResult.AsyncState as CompletionResult;
-            AsyncManager.Parameters["errorCode"] = Enum.GetName(typeof(ErrorCodes), result.ErrorCode);
-            AsyncManager.OutstandingOperations.Decrement();
         }
     }
 }
