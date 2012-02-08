@@ -110,10 +110,10 @@ namespace NServiceBus.Hosting
                 }
             }
 
-            if (Configure.Instance == null)
+            if (!Configure.WithHasBeenCalled())
                 Configure.With();
 
-            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+            if (!Configure.BuilderIsConfigured())
                 Configure.Instance.DefaultBuilder();
 
             roleManager.ConfigureBusForEndpoint(specifier);

@@ -37,6 +37,15 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// True if any of the Configure.With() has been called
+        /// </summary>
+        /// <returns></returns>
+        public static bool WithHasBeenCalled()
+        {
+            return instance != null;
+        }
+
+        /// <summary>
         /// Event raised when configuration is complete
         /// </summary>
         public static event Action ConfigurationComplete;
@@ -57,6 +66,24 @@ namespace NServiceBus
             }
             set { builder = value; }
         }
+
+        /// <summary>
+        /// True if a builder has been defined
+        /// </summary>
+        /// <returns></returns>
+        public static bool BuilderIsConfigured()
+        {
+            if (!WithHasBeenCalled())
+                return false;
+
+            return Instance.HasBuilder();
+        }
+
+        bool HasBuilder()
+        {
+            return builder != null && configurer != null;
+        }
+
 
         IBuilder builder;
 
@@ -94,13 +121,13 @@ namespace NServiceBus
             set
             {
                 configurer = value;
-                ContainerHasBeenSet();
+                WireUpConfigSectionOverrides();
             }
         }
 
         private IConfigureComponents configurer;
 
-        private void ContainerHasBeenSet()
+        void WireUpConfigSectionOverrides()
         {
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
