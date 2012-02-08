@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using NServiceBus;
 
-namespace AsyncPagesMVC3.InjectionConfiguration
+namespace NServiceBus.Integration.Mvc
 {
-    public static class ConfigureMvc3
+    using System.Linq;
+    using System.Web.Mvc;
+
+    public static class ConfigureMvcDependecyInjection
     {
         public static Configure ForMvc(this Configure configure)
         {
@@ -24,7 +24,6 @@ namespace AsyncPagesMVC3.InjectionConfiguration
             // Set the MVC dependency resolver to use our resolver
             DependencyResolver.SetResolver(new NServiceBusDependencyResolverAdapter(configure.Builder));
 
-            // Required by the fluent configuration semantics
             return configure;
         }
     }

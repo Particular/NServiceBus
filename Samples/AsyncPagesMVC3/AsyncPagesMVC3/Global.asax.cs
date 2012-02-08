@@ -1,12 +1,10 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
-using AsyncPagesMVC3.InjectionConfiguration;
 using NServiceBus;
 
 namespace AsyncPagesMVC3
 {
-    // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
-    // visit http://go.microsoft.com/?LinkId=9394801
+    using NServiceBus.Integration.Mvc;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -37,12 +35,12 @@ namespace AsyncPagesMVC3
             // NServiceBus configuration
             Configure.WithWeb()
                 .DefaultBuilder()
+                .XmlSerializer()
                 .ForMvc()
                 .Log4Net()
-                .XmlSerializer()
                 .MsmqTransport()
                     .IsTransactional(false)
-                    .PurgeOnStartup(false)
+                    .PurgeOnStartup(true)
                 .UnicastBus()
                     .ImpersonateSender(false)
                 .CreateBus()

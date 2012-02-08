@@ -56,13 +56,10 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SendAsyncController.cs" />
-    <Compile Include="InjectionConfiguration\ConfigureMvc3.cs" />
     <Compile Include="Controllers\SendAndBlockController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="InjectionConfiguration\NServiceBusControllerActivator.cs" />
-    <Compile Include="InjectionConfiguration\NServiceBusDependencyResolverAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
