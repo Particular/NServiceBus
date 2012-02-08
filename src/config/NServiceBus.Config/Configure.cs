@@ -29,7 +29,11 @@ namespace NServiceBus
         /// </summary>
         public static Configure Instance
         {
-            get { return instance; }
+            get
+            {
+                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
+                return instance;
+            }
         }
 
         /// <summary>
@@ -41,9 +45,22 @@ namespace NServiceBus
         /// Gets/sets the builder.
         /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>
-        public IBuilder Builder { get; set; }
+        public IBuilder Builder
+        {
+            get
+            {
+                if (builder == null)
+                    throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
 
-        private static bool initialized { get; set; }
+                return builder;
+                
+            }
+            set { builder = value; }
+        }
+
+        IBuilder builder;
+
+        static bool initialized { get; set; }
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
@@ -67,7 +84,13 @@ namespace NServiceBus
         /// </summary>
         public IConfigureComponents Configurer
         {
-            get { return configurer; }
+            get
+            {
+                if (configurer == null)
+                    throw new InvalidOperationException("You can't access Configure.Instance.Configurer before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
+
+                return configurer;
+            }
             set
             {
                 configurer = value;
