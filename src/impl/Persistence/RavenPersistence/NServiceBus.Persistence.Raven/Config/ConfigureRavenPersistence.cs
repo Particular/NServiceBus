@@ -52,8 +52,8 @@ namespace NServiceBus
         {
             var store = new DocumentStore
             {
-                ConnectionStringName = connectionStringName,
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                ConnectionStringName = connectionStringName,
             };
 
             if (!string.IsNullOrEmpty(database))
