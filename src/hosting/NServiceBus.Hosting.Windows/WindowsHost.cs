@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using NServiceBus.Config.Conventions;
-using log4net;
 
 namespace NServiceBus.Hosting.Windows
 {
@@ -12,6 +10,8 @@ namespace NServiceBus.Hosting.Windows
     public class WindowsHost : MarshalByRefObject
     {
         private readonly GenericHost genericHost;
+        private readonly bool? runOtherInstallers;
+        private readonly bool? runInfrastructureInstallers;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
@@ -20,14 +20,22 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="endpointType"></param>
         /// <param name="args"></param>
         /// <param name="endpointName"></param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName)
+        /// <param name="runOtherInstallers"></param>
+        /// <param name="runInfrastructureInstallers"></param>
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool? runOtherInstallers, bool? runInfrastructureInstallers)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
             genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) }, endpointName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
+            
+            if (runOtherInstallers != null)
+                this.runOtherInstallers = runOtherInstallers;
+            if (runInfrastructureInstallers != null)
+                this.runInfrastructureInstallers = runInfrastructureInstallers;
         }
+
 
         /// <summary>
         /// Windows hosting behavior when critical error occurs is suicide.
@@ -60,8 +68,12 @@ namespace NServiceBus.Hosting.Windows
         /// </summary>
         public void Install()
         {
+            if(runOtherInstallers.GetValueOrDefault())
+                Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
+            if (runInfrastructureInstallers.GetValueOrDefault())
+                Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = true;
+
             genericHost.Install<Installation.Environments.Windows>();
-            
         }
 
     }

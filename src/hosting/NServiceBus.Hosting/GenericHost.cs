@@ -58,9 +58,6 @@ namespace NServiceBus.Hosting
         /// <typeparam name="TEnvironment"></typeparam>
         public void Install<TEnvironment>() where TEnvironment : IEnvironment
         {
-            // When installing as windows service (/install), run infrastructure installers
-            Installer<TEnvironment>.RunInfrastructureInstallers = true;
-
             PerformConfiguration();
             Configure.Instance.ForInstallationOn<TEnvironment>().Install();
         }

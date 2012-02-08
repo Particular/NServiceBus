@@ -33,20 +33,23 @@ namespace NServiceBus.Hosting.Windows
                 return;
             }
 
-            if (arguments.InstallInfrastructure != null)
-            {
-                InstallInfrastructure();
+            var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
+            if (endpointConfigurationType == null)
+            {
+                if (arguments.InstallInfrastructure == null)
+                    throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
+                        "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
+                        " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
+                        "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
+                
+                Console.WriteLine("Running infrastructure installers and exiting (ignoring other command line parameters if exist).");
+                InstallInfrastructure();
                 return;
             }
 
-
-            var endpointConfigurationType = GetEndpointConfigurationType(arguments);
-
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
-
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
-
 
             var endpointName = GetEndpointName(endpointConfigurationType, arguments);
             var endpointVersion = GetEndpointVersion(endpointConfigurationType);
@@ -67,13 +70,12 @@ namespace NServiceBus.Hosting.Windows
 
             //add the endpoint name so that the new appdomain can get it
             args = args.Concat(new[] { endpointName }).ToArray();
-
+            
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
-
-            if (commandLineArguments.Install)
-            {
-                WindowsInstaller.Install(args, endpointConfigurationType, endpointName, endpointConfigurationFile);
-            }
+            if ((commandLineArguments.Install) || (arguments.InstallInfrastructure != null))
+                WindowsInstaller.Install(args, endpointConfigurationType, endpointName, endpointConfigurationFile, 
+                    commandLineArguments.Install, arguments.InstallInfrastructure != null);
+                    
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
                                                                {
@@ -227,8 +229,10 @@ namespace NServiceBus.Hosting.Windows
             }
 
             IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
-
-            ValidateEndpoints(endpoints);
+            AssertThatNotMoreThanOneEndpointIsDefined(endpoints);
+            
+            if ((endpoints.Count() == 0))
+                return null;
 
             return endpoints.First();
         }
@@ -245,16 +249,9 @@ namespace NServiceBus.Hosting.Windows
                 }
         }
 
-        static void ValidateEndpoints(IEnumerable<Type> endpointConfigurationTypes)
+        
+        static void AssertThatNotMoreThanOneEndpointIsDefined(IEnumerable<Type> endpointConfigurationTypes)
         {
-            if (endpointConfigurationTypes.Count() == 0)
-            {
-                throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
-                                                    "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
-                                                    " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
-                                                    "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
-            }
-
             if (endpointConfigurationTypes.Count() > 1)
             {
                 throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints. " +

@@ -13,7 +13,7 @@ namespace NServiceBus
     public static class Install
     {
         /// <summary>
-        /// Test Method for Intsallation
+        /// Test Method for Installation
         /// </summary>
         public static void Test()
         {
@@ -69,7 +69,7 @@ namespace NServiceBus
     public class Installer<T> where T : IEnvironment
     {
         /// <summary>
-        /// Initializes a new instnace of the Installer
+        /// Initializes a new instance of the Installer
         /// </summary>
         /// <param name="identity">WindowsIdentity</param>
         public Installer(WindowsIdentity identity)
@@ -83,21 +83,26 @@ namespace NServiceBus
         /// Gets or sets RunInfrastructureInstallers 
         /// </summary>
         public static bool RunInfrastructureInstallers { get; set; }
+        /// <summary>
+        /// Gets or sets RunOtherInstallers 
+        /// </summary>
+        public static bool RunOtherInstallers { private get; set; }
 
         private static bool installedInfrastructureInstallers = false;
         private static bool installedOthersInstallers = false;
 
         /// <summary>
-        /// Invokes all installers for the given environment.
+        /// Invokes installers for the given environment
         /// </summary>
         public void Install()
         {
             Configure.Instance.Initialize();
-            
+
             if(RunInfrastructureInstallers)
                 InstallInfrastructureInstallers();
             
-            InstallOtherInstallers();
+            if(RunOtherInstallers)            
+                InstallOtherInstallers();
         }
 
         /// <summary>
