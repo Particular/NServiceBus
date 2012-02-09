@@ -35,7 +35,7 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            return Get<T>("Id", sagaId);
+            return Session.Load<T>(sagaId);
         }
 
         public T Get<T>(string property, object value) where T : ISagaEntity
@@ -66,7 +66,7 @@ namespace NServiceBus.SagaPersisters.Raven
             if (!uniqueProperty.HasValue) return;
 
             var item = Session.Query<SagaUniqueIdentity>()
-                .Customize(c => c.WaitForNonStaleResults(TimeSpan.FromSeconds(1)))
+                .Customize(c => c.WaitForNonStaleResults(TimeSpan.FromMinutes(1)))
                 .SingleOrDefault(i => i.SagaId == saga.Id);
 
             if(item == null)
