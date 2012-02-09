@@ -68,6 +68,10 @@ namespace NServiceBus
     /// <typeparam name="T">The environment for which the installers should be invoked.</typeparam>
     public class Installer<T> where T : IEnvironment
     {
+        static Installer()
+        {
+            RunOtherInstallers = true;
+        }
         /// <summary>
         /// Initializes a new instance of the Installer
         /// </summary>
