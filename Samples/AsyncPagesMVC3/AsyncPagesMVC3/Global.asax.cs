@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace AsyncPagesMVC3
 {
-    using NServiceBus.Integration.Mvc;
+    using Injection;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -35,6 +35,7 @@ namespace AsyncPagesMVC3
             // NServiceBus configuration
             Configure.WithWeb()
                 .DefaultBuilder()
+                .ForMvc()
                 .XmlSerializer()
                 .Log4Net()
                 .MsmqTransport()

@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Integration.Mvc
+﻿namespace AsyncPagesMVC3.Injection
 {
     using System;
     using System.Web.Mvc;
     using System.Web.Routing;
-  
 
     public class NServiceBusControllerActivator : IControllerActivator
     {

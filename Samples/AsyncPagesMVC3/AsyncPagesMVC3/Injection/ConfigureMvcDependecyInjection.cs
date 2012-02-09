@@ -1,12 +1,11 @@
-﻿using System;
-
-namespace NServiceBus.Integration.Mvc
+﻿namespace AsyncPagesMVC3.Injection
 {
+    using System;
     using System.Linq;
     using System.Web.Mvc;
-    using Config;
+    using NServiceBus;
 
-    static class ConfigureMvcDependecyInjection
+    public static class ConfigureMvcDependecyInjection
     {
         public static Configure ForMvc(this Configure configure)
         {
@@ -26,14 +25,6 @@ namespace NServiceBus.Integration.Mvc
             DependencyResolver.SetResolver(new NServiceBusDependencyResolverAdapter(configure.Builder));
 
             return configure;
-        }
-    }
-
-    public class MvcBootstrapper:INeedInitialization
-    {
-        public void Init()
-        {
-            Configure.Instance.ForMvc();
         }
     }
 }

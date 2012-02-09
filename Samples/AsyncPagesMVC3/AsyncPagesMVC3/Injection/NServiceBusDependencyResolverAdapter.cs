@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.Integration.Mvc
+﻿namespace AsyncPagesMVC3.Injection
 {
     using System;
     using System.Collections.Generic;
     using System.Web.Mvc;
-    using ObjectBuilder;
+    using NServiceBus;
+    using NServiceBus.ObjectBuilder;
 
     public class NServiceBusDependencyResolverAdapter : IDependencyResolver
     {
