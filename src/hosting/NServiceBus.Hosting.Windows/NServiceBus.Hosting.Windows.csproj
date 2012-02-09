@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
+    <Compile Include="Profiles\Distributor.cs" />
     <Compile Include="Profiles\MultiSite.cs" />
     <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
@@ -86,9 +88,6 @@
     <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
     <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
     <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
-    <Compile Include="Profiles\Handlers\InstallDtcProfileHandler.cs" />
-    <Compile Include="Profiles\Handlers\InstallMsmqProfileHandler.cs" />
-    <Compile Include="Profiles\Handlers\InstallPerformanceCountersProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
@@ -96,9 +95,6 @@
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
     <Compile Include="WindowsHost.cs" />
-    <Compile Include="Profiles\InstallDtc.cs" />
-    <Compile Include="Profiles\InstallMsmq.cs" />
-    <Compile Include="Profiles\InstallPerformanceCounters.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
     <Compile Include="Profiles\PerformanceCounters.cs" />

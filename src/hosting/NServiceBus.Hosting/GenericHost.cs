@@ -58,9 +58,6 @@ namespace NServiceBus.Hosting
         /// <typeparam name="TEnvironment"></typeparam>
         public void Install<TEnvironment>() where TEnvironment : IEnvironment
         {
-            // When installing as windows service (/install), run infrastructure installers
-            Installer<TEnvironment>.RunInfrastructureInstallers = true;
-
             PerformConfiguration();
             Configure.Instance.ForInstallationOn<TEnvironment>().Install();
         }
@@ -113,10 +110,10 @@ namespace NServiceBus.Hosting
                 }
             }
 
-            if (Configure.Instance == null)
+            if (!Configure.WithHasBeenCalled())
                 Configure.With();
 
-            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+            if (!Configure.BuilderIsConfigured())
                 Configure.Instance.DefaultBuilder();
 
             roleManager.ConfigureBusForEndpoint(specifier);

@@ -22,7 +22,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config)
         {
-            if (config.Configurer == null)
+            if (!Configure.BuilderIsConfigured())
             {
                 SetXmlSerializerAsDefault.UseXmlSerializer = true;
                 return config;

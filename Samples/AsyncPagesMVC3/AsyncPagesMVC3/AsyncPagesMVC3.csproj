@@ -44,6 +44,9 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Integration.Mvc">
+      <HintPath>..\..\..\binaries\NServiceBus.Integration.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
@@ -56,13 +59,13 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SendAsyncController.cs" />
-    <Compile Include="InjectionConfiguration\ConfigureMvc3.cs" />
     <Compile Include="Controllers\SendAndBlockController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="InjectionConfiguration\NServiceBusControllerActivator.cs" />
-    <Compile Include="InjectionConfiguration\NServiceBusDependencyResolverAdapter.cs" />
+    <Compile Include="Injection\ConfigureMvcDependecyInjection.cs" />
+    <Compile Include="Injection\NServiceBusControllerActivator.cs" />
+    <Compile Include="Injection\NServiceBusDependencyResolverAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

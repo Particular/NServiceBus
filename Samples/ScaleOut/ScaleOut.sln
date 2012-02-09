@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.Messages", "Orders.Messages\Orders.Messages.csproj", "{162BEDCA-6C44-43B3-B2C1-83994BFFC094}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.Sender", "Orders.Sender\Orders.Sender.csproj", "{F39CFA0C-1D1F-475E-9BFB-8FF42E758F2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.Handler", "Orders.Handler\Orders.Handler.csproj", "{BB947AD4-907C-4B0A-826E-24C59B7CFC06}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{162BEDCA-6C44-43B3-B2C1-83994BFFC094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{162BEDCA-6C44-43B3-B2C1-83994BFFC094}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{162BEDCA-6C44-43B3-B2C1-83994BFFC094}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{162BEDCA-6C44-43B3-B2C1-83994BFFC094}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F39CFA0C-1D1F-475E-9BFB-8FF42E758F2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F39CFA0C-1D1F-475E-9BFB-8FF42E758F2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F39CFA0C-1D1F-475E-9BFB-8FF42E758F2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F39CFA0C-1D1F-475E-9BFB-8FF42E758F2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB947AD4-907C-4B0A-826E-24C59B7CFC06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB947AD4-907C-4B0A-826E-24C59B7CFC06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB947AD4-907C-4B0A-826E-24C59B7CFC06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB947AD4-907C-4B0A-826E-24C59B7CFC06}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

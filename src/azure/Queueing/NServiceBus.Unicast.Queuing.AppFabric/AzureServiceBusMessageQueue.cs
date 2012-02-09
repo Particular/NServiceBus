@@ -24,6 +24,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const int DefaultMaxDeliveryCount = 6;
         public const bool DefaultEnableBatchedOperations = false;
         public const bool DefaultQueuePerInstance = false;
+        public const int DefaultBackoffTimeInSeconds = 10;
 
         private readonly Dictionary<string, QueueClient> senders = new Dictionary<string, QueueClient>();
         private static readonly object SenderLock = new Object();
@@ -88,15 +89,19 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public TransportMessage Receive()
         {
-            BrokeredMessage message;
+            BrokeredMessage message = null;
 
             try{
                 message= queueClient.Receive(TimeSpan.FromSeconds(30));
             }
+            // back off when we're being throttled
             catch (ServerBusyException)
             {
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-                message = queueClient.Receive(TimeSpan.FromSeconds(30));
+                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds)); 
+            }
+            catch(MessagingException)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
             }
 
             if(message != null)
@@ -170,9 +175,17 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 sender.Send(brokeredMessage);
             }
+            // back off when we're being throttled
             catch (ServerBusyException)
             {
-                Thread.Sleep(TimeSpan.FromSeconds(10));
+                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
+
+                sender.Send(brokeredMessage);
+            }
+            catch (MessagingException)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
+
                 sender.Send(brokeredMessage);
             }
             

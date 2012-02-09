@@ -28,7 +28,7 @@ namespace NServiceBus.Persistence.Raven
         IDocumentSession OpenSession()
         {
             var s = Store.OpenSession();
-            s.Advanced.AllowNonAuthoritiveInformation = false;
+            s.Advanced.AllowNonAuthoritativeInformation = false;
             s.Advanced.UseOptimisticConcurrency = true;
 
             return s;

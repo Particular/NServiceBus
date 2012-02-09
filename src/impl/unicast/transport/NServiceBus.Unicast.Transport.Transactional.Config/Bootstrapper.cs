@@ -5,6 +5,8 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
+    using Installers;
+
     public class Bootstrapper : INeedInitialization
     {
         static Bootstrapper()
@@ -39,6 +41,9 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             }
 
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
+
+            DtcInstaller.IsEnabled = IsTransactional;
+
         }
 
         public static bool IsTransactional { get; set; }

@@ -12,6 +12,8 @@ namespace Barista
 
         public virtual String CustomerName { get; set; }
         public virtual String Drink { get; set; }
+
+        [Unique]
         public virtual Guid OrderId { get; set; }
         public virtual DrinkSize Size { get; set; }
         public virtual Boolean OrderIsReady { get; set; }

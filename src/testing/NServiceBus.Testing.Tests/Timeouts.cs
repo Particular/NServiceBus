@@ -55,7 +55,7 @@
                                                        {
                                                            SomeProperty = "Test"
                                                        });
-            RequestUtcTimeout(TimeSpan.FromDays(1), new MyOtherTimeout());
+            RequestUtcTimeout<MyOtherTimeout>(TimeSpan.FromDays(1));
         }
         public void Timeout(MyTimeout state)
         {

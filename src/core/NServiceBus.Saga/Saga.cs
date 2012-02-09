@@ -102,12 +102,23 @@ namespace NServiceBus.Saga
         /// </summary>
         public bool Completed { get; private set; }
 
+
         /// <summary>
-        /// Request for a timeout to occure at the given time
+        /// Request for a timeout to occur at the given time
+        /// </summary>
+        /// <param name="at"></param>
+        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at) where TTimeoutmessageType : new()
+        {
+            TTimeoutmessageType m = new TTimeoutmessageType();
+            RequestUtcTimeout(at,m);
+        }
+
+        /// <summary>
+        /// Request for a timeout to occur at the given time
         /// </summary>
         /// <param name="at"></param>
         /// <param name="timeoutMessage"></param>
-        protected void RequestUtcTimeout<TTIMEOUTMESSAGETYPE>(DateTime at, TTIMEOUTMESSAGETYPE timeoutMessage)
+        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at, TTimeoutmessageType timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
@@ -119,8 +130,19 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give timespan
         /// </summary>
         /// <param name="within"></param>
+        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within) where TTimeoutmessageType : new()
+        {
+            var m = new TTimeoutmessageType();
+
+            RequestUtcTimeout(within,m );
+        }
+
+        /// <summary>
+        /// Request for a timeout to occur within the give timespan
+        /// </summary>
+        /// <param name="within"></param>
         /// <param name="timeoutMessage"></param>
-        protected void RequestUtcTimeout<TTIMEOUTMESSAGETYPE>(TimeSpan within, TTIMEOUTMESSAGETYPE timeoutMessage)
+        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
         {
             object toSend = timeoutMessage;
 
@@ -176,11 +198,19 @@ namespace NServiceBus.Saga
         {
         }
 
+        /// <summary>
+        /// Message handler for Timeout Message 
+        /// </summary>
+        /// <param name="message">Timeout Message</param>
         public void Handle(TimeoutMessage message)
         {
             Timeout(message.State);
         }
 
+        /// <summary>
+        /// Message handler for Timeout State 
+        /// </summary>
+        /// <param name="message">Timeout State</param>
         public void Handle(ITimeoutState message)
         {
             var messageType = message.GetType();
