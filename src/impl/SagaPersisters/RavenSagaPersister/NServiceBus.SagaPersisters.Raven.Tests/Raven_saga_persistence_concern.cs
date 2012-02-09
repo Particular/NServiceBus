@@ -19,7 +19,6 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
             var conventions = new RavenConventions();
 
             store.Conventions.FindTypeTagName = conventions.FindTypeTagName;
-            store.Conventions.FindIdentityProperty = conventions.FindIdentityProperty;
 
             store.Initialize();
         }

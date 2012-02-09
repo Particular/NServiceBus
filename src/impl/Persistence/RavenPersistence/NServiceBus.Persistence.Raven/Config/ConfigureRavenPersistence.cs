@@ -70,7 +70,6 @@ namespace NServiceBus
             var conventions = new RavenConventions();
 
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
-            store.Conventions.FindIdentityProperty = conventions.FindIdentityProperty;
 
             store.Initialize();
 
