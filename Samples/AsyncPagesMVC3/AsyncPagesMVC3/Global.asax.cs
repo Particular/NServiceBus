@@ -36,7 +36,6 @@ namespace AsyncPagesMVC3
             Configure.WithWeb()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .ForMvc()
                 .Log4Net()
                 .MsmqTransport()
                     .IsTransactional(false)

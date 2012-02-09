@@ -4,8 +4,9 @@ namespace NServiceBus.Integration.Mvc
 {
     using System.Linq;
     using System.Web.Mvc;
+    using Config;
 
-    public static class ConfigureMvcDependecyInjection
+    static class ConfigureMvcDependecyInjection
     {
         public static Configure ForMvc(this Configure configure)
         {
@@ -25,6 +26,14 @@ namespace NServiceBus.Integration.Mvc
             DependencyResolver.SetResolver(new NServiceBusDependencyResolverAdapter(configure.Builder));
 
             return configure;
+        }
+    }
+
+    public class MvcBootstrapper:INeedInitialization
+    {
+        public void Init()
+        {
+            Configure.Instance.ForMvc();
         }
     }
 }

@@ -187,6 +187,15 @@ task CompileWebServicesIntegration -depends  InitEnvironment{
 	}
 }
 
+task CompileMvcIntegration -depends  InitEnvironment{
+
+	$solutions = dir "$srcDir\integration\Mvc\*.sln"
+	$solutions | % {
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" }		
+	}
+}
+
 task CompileNHibernate -depends InitEnvironment {
 
 	$solutions = dir "$srcDir\nhibernate\*.sln"
@@ -329,11 +338,11 @@ task Test{
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
 }
 
-task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test  {
+task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileMvcIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test  {
 	Prepare-Binaries
 }
 
-task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
+task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileMvcIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
 	Prepare-Binaries
 }
 
@@ -528,6 +537,12 @@ task CreatePackages -depends PrepareRelease  {
 	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
 	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
 	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll"
+	#endregion
+
+	#region Packing NServiceBus.Integration.Mvc
+	$packageName = "NServiceBus.Integration.Mvc" + $PackageNameSuffix
+	$packit.package_description = "The Mvc Integration for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.Mvc.dll"
 	#endregion
 
 	#region Packing NServiceBus.Autofac
