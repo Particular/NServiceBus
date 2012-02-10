@@ -48,10 +48,10 @@ namespace NServiceBus.Hosting
                 }
             }
 
-            if (Configure.Instance == null)
+            if (!Configure.WithHasBeenCalled())
                 Configure.With(GetType().Assembly);
 
-            if (Configure.Instance.Configurer == null || Configure.Instance.Builder == null)
+            if (!Configure.BuilderIsConfigured())
                 Configure.Instance.DefaultBuilder();
 
             Configure.Instance.AzureConfigurationSource();

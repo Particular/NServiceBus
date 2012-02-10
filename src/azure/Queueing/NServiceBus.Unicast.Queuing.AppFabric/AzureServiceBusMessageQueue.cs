@@ -99,10 +99,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds)); 
             }
-            catch(MessagingException)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
-            }
 
             if(message != null)
             {
@@ -159,36 +155,40 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
             message.Id = Guid.NewGuid().ToString();
             var rawMessage = SerializeMessage(message);
-
-            var brokeredMessage = new BrokeredMessage(rawMessage);
-
+            
             if (Transaction.Current == null)
-                Send(brokeredMessage, sender);
+                Send(rawMessage, sender);
             else
-                Transaction.Current.EnlistVolatile(new SendResourceManager(sender, brokeredMessage), EnlistmentOptions.None);
+                Transaction.Current.EnlistVolatile(new SendResourceManager(() => Send(rawMessage, sender)), EnlistmentOptions.None);
            
         }
 
-        private static void Send(BrokeredMessage brokeredMessage, QueueClient sender)
+        private void Send(Byte[] rawMessage, QueueClient sender)
         {
-            try
-            {
-                sender.Send(brokeredMessage);
-            }
-            // back off when we're being throttled
-            catch (ServerBusyException)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
+            var numRetries = 0;
+            var sent = false;
 
-				throw;
-            }
-            catch (MessagingException)
+            while(!sent)
             {
-                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
+                try
+                {
+                    var brokeredMessage = new BrokeredMessage(rawMessage);
 
-				throw;
+                    sender.Send(brokeredMessage);
+
+                    sent = true;
+                }
+                    // back off when we're being throttled
+                catch (ServerBusyException)
+                {
+                    numRetries++;
+
+                    if (numRetries >= MaxDeliveryCount) throw;
+
+                    Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
+                }
             }
-            
+
         }
 
         private static byte[] SerializeMessage(TransportMessage message)
