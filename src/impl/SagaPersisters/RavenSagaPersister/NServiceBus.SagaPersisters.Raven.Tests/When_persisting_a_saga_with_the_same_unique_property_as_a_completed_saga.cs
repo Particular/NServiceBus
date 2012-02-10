@@ -21,10 +21,9 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                 UniqueString = "whatever"
             };
 
-            WithASagaPersistenceUnitOfWork(p => p.Save(saga1));
-            WithASagaPersistenceUnitOfWork(p => p.Complete(saga1));
-
-            WithASagaPersistenceUnitOfWork(p => p.Save(saga2));
+            SaveSaga(saga1);
+            CompleteSaga<SagaWithUniqueProperty>(saga1.Id);
+            SaveSaga(saga2);
         }
     }
 }

@@ -29,7 +29,20 @@ namespace NServiceBus
         /// </summary>
         public static Configure Instance
         {
-            get { return instance; }
+            get
+            {
+                //we can't check for null here since that would break the way we do extension methods (the must be on a instance)
+                return instance;
+            }
+        }
+
+        /// <summary>
+        /// True if any of the Configure.With() has been called
+        /// </summary>
+        /// <returns></returns>
+        public static bool WithHasBeenCalled()
+        {
+            return instance != null;
         }
 
         /// <summary>
@@ -41,9 +54,40 @@ namespace NServiceBus
         /// Gets/sets the builder.
         /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>
-        public IBuilder Builder { get; set; }
+        public IBuilder Builder
+        {
+            get
+            {
+                if (builder == null)
+                    throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
 
-        private static bool initialized { get; set; }
+                return builder;
+                
+            }
+            set { builder = value; }
+        }
+
+        /// <summary>
+        /// True if a builder has been defined
+        /// </summary>
+        /// <returns></returns>
+        public static bool BuilderIsConfigured()
+        {
+            if (!WithHasBeenCalled())
+                return false;
+
+            return Instance.HasBuilder();
+        }
+
+        bool HasBuilder()
+        {
+            return builder != null && configurer != null;
+        }
+
+
+        IBuilder builder;
+
+        static bool initialized { get; set; }
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
@@ -67,17 +111,23 @@ namespace NServiceBus
         /// </summary>
         public IConfigureComponents Configurer
         {
-            get { return configurer; }
+            get
+            {
+                if (configurer == null)
+                    throw new InvalidOperationException("You can't access Configure.Instance.Configurer before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
+
+                return configurer;
+            }
             set
             {
                 configurer = value;
-                ContainerHasBeenSet();
+                WireUpConfigSectionOverrides();
             }
         }
 
         private IConfigureComponents configurer;
 
-        private void ContainerHasBeenSet()
+        void WireUpConfigSectionOverrides()
         {
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))

@@ -28,7 +28,7 @@ namespace NServiceBus.Hosting.Windows
         protected override object DoGetInstance(Type serviceType, string key)
         {
             var endpoint = Type.GetType(key,true);
-            return new WindowsHost(endpoint, Args, EndpointName);
+            return new WindowsHost(endpoint, Args, EndpointName, null, null);
         }
 
         /// <summary>

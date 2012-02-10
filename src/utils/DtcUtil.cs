@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ServiceProcess;
-using Common.Logging;
 using Microsoft.Win32;
 
 namespace NServiceBus.Utils
@@ -22,25 +21,25 @@ namespace NServiceBus.Utils
 
             ProcessUtil.ChangeServiceStatus(Controller, ServiceControllerStatus.Running, Controller.Start);
 
-            Logger.Debug("DTC is good.");
+            Console.WriteLine("DTC is good.");
         }
 
         private static bool DoesSecurityConfigurationRequireRestart()
         {
-            Logger.Debug("Checking that DTC is configured correctly.");
+            Console.WriteLine("Checking that DTC is configured correctly.");
 
             if (DoesSecurityConfigurationRequireRestart(false))
             {
-                Logger.Debug("DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
+                Console.WriteLine("DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
 
                 DoesSecurityConfigurationRequireRestart(true);
 
-                Logger.Debug("DTC configuration fixed.");
+                Console.WriteLine("DTC configuration fixed.");
 
                 return true;
             }
 
-            Logger.Debug("DTC is configured correctly.");
+            Console.WriteLine("DTC is configured correctly.");
             return false;
         }
 
@@ -65,7 +64,5 @@ namespace NServiceBus.Utils
 
         private static readonly ServiceController Controller = new ServiceController { ServiceName = "MSDTC", MachineName = "." };
         private static readonly List<string> RegValues = new List<string>(new[] {"NetworkDtcAccess", "NetworkDtcAccessOutbound", "NetworkDtcAccessTransactions", "XaTransactions"});
-
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Utils");
     }
 }

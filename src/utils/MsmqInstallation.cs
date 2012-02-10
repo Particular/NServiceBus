@@ -59,20 +59,20 @@ namespace NServiceBus.Utils
 
         private static void InstallMsmqIfNecessary()
         {
-            Logger.Debug("Checking if MSMQ is installed.");
+            Console.WriteLine("Checking if MSMQ is installed.");
             if (IsMsmqInstalled())
             {
-                Logger.Debug("MSMQ is installed.");
-                Logger.Debug("Checking that only needed components are active.");
+                Console.WriteLine("MSMQ is installed.");
+                Console.WriteLine("Checking that only needed components are active.");
 
                 if (IsInstallationGood())
                 {
-                    Logger.Debug("Installation is good.");
+                    Console.WriteLine("Installation is good.");
                     return;
                 }
 
-                Logger.Debug("Installation isn't good.");
-                Logger.Debug("Going to re-install MSMQ. A reboot may be required.");
+                Console.WriteLine("Installation isn't good.");
+                Console.WriteLine("Going to re-install MSMQ. A reboot may be required.");
 
                 PerformFunctionDependingOnOS(
                     () => Process.Start(OcSetup, VistaOcSetupParams + Uninstall),
@@ -80,20 +80,20 @@ namespace NServiceBus.Utils
                     InstallMsmqOnXpOrServer2003
                 );
 
-                Logger.Debug("Installation of MSMQ successful.");
+                Console.WriteLine("Installation of MSMQ successful.");
 
                 return;
             }
 
-            Logger.Debug("MSMQ is not installed. Going to install.");
+            Console.WriteLine("MSMQ is not installed. Going to install.");
 
             PerformFunctionDependingOnOS(
                 () => Process.Start(OcSetup, VistaOcSetupParams),
                 () => Process.Start(OcSetup, Server2008OcSetupParams),
                 InstallMsmqOnXpOrServer2003
                 );
-            
-            Logger.Debug("Installation of MSMQ successful.");
+
+            Console.WriteLine("Installation of MSMQ successful.");
         }
         
         private static void PerformFunctionDependingOnOS(Func<Process> vistaFunc, Func<Process> server2008Func, Func<Process> xpAndServer2003Func)
@@ -120,13 +120,13 @@ namespace NServiceBus.Utils
 
                 default:
 
-                    Logger.Warn("OS not supported.");
+                    Console.WriteLine("OS not supported.");
                     break;
             }
 
             if (process == null) return;
 
-            Logger.Debug("Waiting for process to complete.");
+            Console.WriteLine("Waiting for process to complete.");
             process.WaitForExit();
         }
 
@@ -134,7 +134,7 @@ namespace NServiceBus.Utils
         {
             var p = Path.GetTempFileName();
 
-            Logger.Debug("Creating installation instruction file.");
+            Console.WriteLine("Creating installation instruction file.");
 
             using (var sw = File.CreateText(p))
             {
@@ -157,8 +157,8 @@ namespace NServiceBus.Utils
                 sw.Flush();
             }
 
-            Logger.Debug("Installation instruction file created.");
-            Logger.Debug("Invoking MSMQ installation.");
+            Console.WriteLine("Installation instruction file created.");
+            Console.WriteLine("Invoking MSMQ installation.");
 
             return Process.Start("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
         }
@@ -194,13 +194,13 @@ namespace NServiceBus.Utils
             {
                 if (UndesirableMsmqComponentsXp.Contains(i))
                 {
-                    Logger.Warn("Undesirable MSMQ component installed: " + i);
+                    Console.WriteLine("Undesirable MSMQ component installed: " + i);
                     return false;
                 }
 
                 if (UndesirableMsmqComponentsV4.Contains(i))
                 {
-                    Logger.Warn("Undesirable MSMQ component installed: " + i);
+                    Console.WriteLine("Undesirable MSMQ component installed: " + i);
                     return false;
                 }
 
@@ -260,7 +260,5 @@ namespace NServiceBus.Utils
         const string Uninstall = " /uninstall";
         const string Server2008OcSetupParams = "MSMQ-Server /passive";
         const string VistaOcSetupParams = "MSMQ-Container;" + Server2008OcSetupParams;
-
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Utils");
     }
 }

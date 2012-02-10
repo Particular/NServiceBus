@@ -1,3 +1,5 @@
+using NServiceBus.Saga;
+
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
     using System;
@@ -9,12 +11,12 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void Should_delete_the_saga()
         {
-            var saga = new TestSaga { Id = Guid.NewGuid() };
+            var sagaId = Guid.NewGuid();
 
-            WithASagaPersistenceUnitOfWork(p => p.Save(saga));
-            WithASagaPersistenceUnitOfWork(p => Assert.NotNull(p.Get<TestSaga>(saga.Id)));
-            WithASagaPersistenceUnitOfWork(p => p.Complete(saga));
-            WithASagaPersistenceUnitOfWork(p => Assert.Null(p.Get<TestSaga>(saga.Id)));
+            SaveSaga(new TestSaga { Id = sagaId });
+            CompleteSaga<TestSaga>(sagaId);
+
+            WithASagaPersistenceUnitOfWork(p => Assert.Null(p.Get<TestSaga>(sagaId)));
         }
     }
 }

@@ -4,6 +4,8 @@ using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus
 {
+    using Unicast.Queuing.Msmq.Config.Installers;
+
     public static class ConfigureMsmqMessageQueue
     {
         /// <summary>
@@ -37,6 +39,9 @@ namespace NServiceBus
             }
             config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, useDeadLetterQueue);
             config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, useJournalQueue);
+
+            EndpointInputQueueInstaller.Enabled = true;
+            MsmqInfrastructureInstaller.Enabled = true;
 
             return config;
         }

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web.Mvc;
-using NServiceBus.ObjectBuilder;
-
-namespace AsyncPagesMVC3.InjectionConfiguration
+﻿namespace AsyncPagesMVC3.Injection
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Web.Mvc;
+    using NServiceBus;
+    using NServiceBus.ObjectBuilder;
+
     public class NServiceBusDependencyResolverAdapter : IDependencyResolver
     {
-        private IBuilder builder;
+        readonly IBuilder builder;
  
         public NServiceBusDependencyResolverAdapter(IBuilder builder)
         {
@@ -16,7 +17,7 @@ namespace AsyncPagesMVC3.InjectionConfiguration
         
         public object GetService(Type serviceType)
         {
-            if (NServiceBus.Configure.Instance.Configurer.HasComponent(serviceType))
+            if (Configure.Instance.Configurer.HasComponent(serviceType))
                 return builder.Build(serviceType);
             else
                 return null;

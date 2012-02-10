@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Configuration;
     using Persistence.Raven;
     using Persistence.Raven.Installation;
-    using Saga;
 
     public static class ConfigureRavenPersistence
     {
@@ -37,14 +36,14 @@ namespace NServiceBus
 
             var connectionStringEntry = ConfigurationManager.ConnectionStrings[connectionStringName];
 
-            if(connectionStringEntry == null)
-                throw new ConfigurationErrorsException(string.Format("No connection string named {0} was found",connectionStringName));
+            if (connectionStringEntry == null)
+                throw new ConfigurationErrorsException(string.Format("No connection string named {0} was found", connectionStringName));
 
             string database = null;
 
             if (!connectionStringEntry.ConnectionString.Contains("DefaultDatabase"))
                 database = databaseNamingConvention();
-            
+
 
             return RavenPersistence(config, connectionStringName, database);
         }
@@ -53,8 +52,8 @@ namespace NServiceBus
         {
             var store = new DocumentStore
             {
-                ConnectionStringName = connectionStringName,
                 ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                ConnectionStringName = connectionStringName,
             };
 
             if (!string.IsNullOrEmpty(database))
@@ -68,16 +67,17 @@ namespace NServiceBus
             if (config == null) throw new ArgumentNullException("config");
             if (store == null) throw new ArgumentNullException("store");
 
-            store.Conventions.FindTypeTagName = tagNameConvention;
+            var conventions = new RavenConventions();
+
+            store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
 
             store.Initialize();
 
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
-            
+
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.InstancePerUnitOfWork);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerUnitOfWork);
-
-
+            
             RavenDBInstaller.InstallEnabled = installRavenIfNeeded && ravenInstallEnabled;
 
             return config;
@@ -97,36 +97,28 @@ namespace NServiceBus
 
             return config;
         }
-
-    
+        
         static bool installRavenIfNeeded;
 
 
         static bool ravenInstallEnabled = true;
-        
-        
-        public static Configure DefineRavenDatabaseNamingConvention(this Configure config,Func<string> convention)
+
+
+        public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
             databaseNamingConvention = convention;
 
             return config;
         }
-        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
 
+        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
+        
 
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {
             tagNameConvention = convention;
         }
 
-        static Func<Type, string> tagNameConvention = t=>
-                                                          {
-                                                              var tagName = t.Name;
-                                                              
-                                                              if (typeof(ISagaEntity).IsAssignableFrom(t))
-                                                                  tagName= tagName.Replace("Data", "");
-                                                              
-                                                              return tagName;
-                                                          };
+        static Func<Type, string> tagNameConvention;
     }
 }

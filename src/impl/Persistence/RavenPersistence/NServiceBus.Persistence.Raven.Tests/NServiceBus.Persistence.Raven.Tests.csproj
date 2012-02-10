@@ -31,25 +31,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AsyncCtpLibrary">
+    <Reference Include="AsyncCtpLibrary, Version=1.0.4107.18181, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\AsyncCtpLibrary.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="Esent.Interop">
+    <Reference Include="Esent.Interop, Version=1.7.0.0, Culture=neutral, PublicKeyToken=8dd49bbdae3f61af, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Esent.Interop.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.NRefactory">
+    <Reference Include="ICSharpCode.NRefactory, Version=3.0.0.3800, Culture=neutral, PublicKeyToken=efe927acf176eea2, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
     </Reference>
-    <Reference Include="Lucene.Net">
+    <Reference Include="Lucene.Net, Version=2.9.4.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Lucene.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Lucene.Net.Contrib.Spatial">
+    <Reference Include="Lucene.Net.Contrib.Spatial, Version=2.9.1.2, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Lucene.Net.Contrib.Spatial.dll</HintPath>
     </Reference>
-    <Reference Include="Lucene.Net.Contrib.SpellChecker">
+    <Reference Include="Lucene.Net.Contrib.SpellChecker, Version=2.9.2.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Lucene.Net.Contrib.SpellChecker.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -81,34 +81,32 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
+    <Reference Include="Raven.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Debug">
-      <HintPath>..\..\..\..\..\packages\RavenDB.1.0.616\lib\net40\Raven.Client.Debug.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Embedded">
+    <Reference Include="Raven.Client.Embedded, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight">
+    <Reference Include="Raven.Client.Lightweight, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.MvcIntegration">
+    <Reference Include="Raven.Client.MvcIntegration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Client.MvcIntegration.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Database">
+    <Reference Include="Raven.Database, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Munin">
+    <Reference Include="Raven.Munin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=974fec519e29970d, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Munin.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Storage.Esent">
+    <Reference Include="Raven.Storage.Esent, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Storage.Esent.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Storage.Managed">
+    <Reference Include="Raven.Storage.Managed, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Raven.Storage.Managed.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

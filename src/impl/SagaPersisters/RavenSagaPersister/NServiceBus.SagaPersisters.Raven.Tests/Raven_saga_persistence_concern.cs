@@ -1,5 +1,6 @@
 using System;
 using NServiceBus.Persistence.Raven;
+using NServiceBus.Saga;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Embedded;
@@ -14,6 +15,11 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         public virtual void Setup()
         {
             store = new EmbeddableDocumentStore { RunInMemory = true, DataDirectory = Guid.NewGuid().ToString() };
+
+            var conventions = new RavenConventions();
+
+            store.Conventions.FindTypeTagName = conventions.FindTypeTagName;
+
             store.Initialize();
         }
 
@@ -25,6 +31,32 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                 action(sagaPersister);
                 sessionFactory.Session.SaveChanges();
             }
+        }
+
+        protected void SaveSaga<T>(T saga) where T : ISagaEntity
+        {
+            WithASagaPersistenceUnitOfWork(p => p.Save(saga));
+        }
+
+        protected void CompleteSaga<T>(Guid sagaId) where T : ISagaEntity
+        {
+            WithASagaPersistenceUnitOfWork(p =>
+                                           {
+                                               var saga = p.Get<T>(sagaId);
+                                               Assert.NotNull(saga, "Could not complete saga. Saga not found");
+                                               p.Complete(saga);
+                                           });
+        }
+
+        protected void UpdateSaga<T>(Guid sagaId, Action<T> update) where T : ISagaEntity
+        {
+            WithASagaPersistenceUnitOfWork(p =>
+            {
+                var saga = p.Get<T>(sagaId);
+                Assert.NotNull(saga, "Could not update saga. Saga not found");
+                update(saga);
+                p.Update(saga);
+            });
         }
     }
 }

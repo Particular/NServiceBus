@@ -6,6 +6,8 @@ using System.Web.Mvc;
 
 namespace NServiceBus.Unicast
 {
+    using System.Web.Mvc.Async;
+
     /// <summary>
     /// Implementation of the ICallback interface for the unicast bus/
     /// </summary>
@@ -97,9 +99,8 @@ namespace NServiceBus.Unicast
                 var am = (synchronizer as AsyncController).AsyncManager;
                 am.OutstandingOperations.Increment();
 
-                (this as ICallback).Register(GetCallbackInvocationActionFrom(callback), null);
+                (this as ICallback).Register(GetMvcCallbackInvocationActionFrom(callback,am), null);
 
-                am.OutstandingOperations.Decrement();
                 return;
             }
 
@@ -114,20 +115,31 @@ namespace NServiceBus.Unicast
             }
         }
 
-        #endregion
-
-        private static AsyncCallback GetCallbackInvocationActionFrom<T>(Action<T> callback)
+        static AsyncCallback GetMvcCallbackInvocationActionFrom<T>(Action<T> callback, AsyncManager am)
         {
             return asyncResult =>
-                       {
-                           var cr = asyncResult.AsyncState as CompletionResult;
-                           if (cr == null) return;
+            {
+                HandleAsyncResult(callback, asyncResult);
+                am.OutstandingOperations.Decrement();
+            };
+        }
 
-                           if (typeof (T) == typeof (int))
-                               (callback as Action<int>).Invoke(cr.ErrorCode);
-                           else
-                               callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
-                       };
+        #endregion
+
+        static AsyncCallback GetCallbackInvocationActionFrom<T>(Action<T> callback)
+        {
+            return asyncResult => HandleAsyncResult(callback, asyncResult);
+        }
+
+        static void HandleAsyncResult<T>(Action<T> callback, IAsyncResult asyncResult)
+        {
+            var cr = asyncResult.AsyncState as CompletionResult;
+            if (cr == null) return;
+
+            if (typeof (T) == typeof (int))
+                (callback as Action<int>).Invoke(cr.ErrorCode);
+            else
+                callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
         }
     }
 

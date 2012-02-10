@@ -12,6 +12,36 @@ namespace NServiceBus.Saga
     public class UniqueAttribute : Attribute
     {
         /// <summary>
+        /// Gets a single property that is marked with the UniqueAttribute for a saga entity
+        /// </summary>
+        /// <param name="type">The type to evaluate</param>
+        /// <returns>A PropertyInfo of the property marked with a UniqAttribute or null if not used</returns>
+        public static PropertyInfo GetUniqueProperty(Type type)
+        {
+            var properties = GetUniqueProperties(type);
+
+            if (properties.Count() > 1)
+                throw new InvalidOperationException(
+                    string.Format("More than one UniqueAttribute property was found on the type '{0}'. However, only one property is supported.", type.FullName));
+
+            return properties.SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Gets a single property that is marked with the UniqueAttribute for a saga entity
+        /// </summary>
+        /// <param name="entity">A saga entity</param>
+        /// <returns>A PropertyInfo of the property marked with a UniqAttribute or null if not used</returns>
+        public static KeyValuePair<string, object>? GetUniqueProperty(ISagaEntity entity)
+        {
+            var prop = GetUniqueProperty(entity.GetType());
+
+            return prop != null ? 
+                new KeyValuePair<string, object>(prop.Name, prop.GetValue(entity, null)) : 
+                (KeyValuePair<string, object>?) null;
+        }
+
+        /// <summary>
         /// Gets all the properties that are marked with the UniqueAttribute for a saga entity
         /// </summary>
         /// <param name="entity">A saga entity</param>

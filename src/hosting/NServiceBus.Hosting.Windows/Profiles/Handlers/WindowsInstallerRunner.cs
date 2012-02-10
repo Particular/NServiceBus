@@ -20,13 +20,16 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         /// </summary>
         public void Run()
         {
+            if ((!RunInstallers) && (!RunInfrastructureInstallers)) 
+                return;
+            
+            if(RunInfrastructureInstallers)
+                Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = RunInfrastructureInstallers;
+
             if (RunInstallers)
-            {
-                // if RunInfrastructureInstallers was set to true, don't override it (it must be the /install that set it).
-                if((!Installer<Installation.Environments.Windows>.RunInfrastructureInstallers) && (RunInfrastructureInstallers))
-                    Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = RunInfrastructureInstallers;
-                Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
-            }
+                Installer<Installation.Environments.Windows>.RunOtherInstallers = RunInstallers;
+
+            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
         }
     }
 }
