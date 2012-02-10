@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using Rhino.Mocks;
@@ -32,16 +33,7 @@ namespace NServiceBus.Testing
         {
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend<TMessage>(
-                          delegate(object[] msgs)
-                              {
-                                  foreach (TMessage msg in msgs)
-                                      if (!check(msg))
-                                          return false;
-
-                                  return true;
-                              }
-                          )
-                );
+                    msgs => msgs.All(msg => msg is TMessage) && msgs.OfType<TMessage>().All(msg => check(msg))));
 
             delegates.Add(d);
         }
@@ -245,6 +237,36 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the object does not send any messages of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public void ExpectNotSendLocal<TMessage>(SendPredicate<TMessage> check)
+        {
+            Delegate d = new HandleMessageDelegate(
+                () => DoNotExpectCallToSendLocal<TMessage>(
+                    msgs => msgs.All(msg => msg is TMessage) && msgs.OfType<TMessage>().All(msg => check(msg))));
+
+            delegates.Add(d);
+        }
+
+        /// <summary>
+        /// Check that the object does not send any messages of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public void ExpectNotSend<TMessage>(SendPredicate<TMessage> check)
+        {
+            Delegate d = new HandleMessageDelegate(
+                () => DoNotExpectCallToSend<TMessage>(
+                    msgs => msgs.All(msg => msg is TMessage) && msgs.OfType<TMessage>().All(msg => check(msg))));
+
+            delegates.Add(d);
+        }
+        
+        /// <summary>
         /// Uses the given delegate to invoke the object, checking all the expectations previously set up,
         /// and then clearing them for continued testing.
         /// </summary>
@@ -352,6 +374,26 @@ namespace NServiceBus.Testing
         {
             Expect.Call(() => bus.HandleCurrentMessageLater())
                 .IgnoreArguments();
+        }
+
+        private void DoNotExpectCallToSend<T>(BusSendDelegate callback)
+        {
+            bus.Stub(b => bus.Send(Arg<T>.Is.Anything))
+                .IgnoreArguments()
+                .Callback(callback)
+                .Throw(
+                    new ExpectationViolationException(string.Format("Did not expect a call to Send<{0}> matching predicate {1}",
+                                                                    typeof(T).FullName, callback)));
+        }
+
+        private void DoNotExpectCallToSendLocal<T>(BusSendDelegate callback)
+        {
+            bus.Stub(b => bus.SendLocal(Arg<T>.Is.Anything))
+                .IgnoreArguments()
+                .Callback(callback)
+                .Throw(
+                    new ExpectationViolationException(string.Format("Did not expect a call to SendLocal<{0}> matching predicate {1}",
+                                                                    typeof(T).FullName, callback)));
         }
 
         /// <summary>

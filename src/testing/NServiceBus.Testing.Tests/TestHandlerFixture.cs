@@ -145,7 +145,75 @@ namespace NServiceBus.Testing.Tests
 				.OnMessage<TestMessage>(m => { });
 		}
 
-		[Test]
+        [Test]
+        public void ShouldPassExpectSendIfSending()
+        {
+            Test.Handler<SendingHandler<Send1>>()
+                .ExpectSend<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectSendIfNotSending()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectSend<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectSendIfSendingWithoutMatch()
+        {
+            Test.Handler<SendingHandler<Publish1>>()
+                .ExpectSend<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        public void ShouldPassExpectNotSendIfNotSending()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectNotSend<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectNotSendIfSending()
+        {
+            Test.Handler<SendingHandler<Send1>>()
+                .ExpectNotSend<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        public void ShouldPassExpectNotSendLocalIfNotSendingLocal()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectNotSendLocal<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectNotSendLocalIfSendingLocal()
+        {
+            Test.Handler<SendingLocalHandler<Send1>>()
+                .ExpectNotSendLocal<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+
+        [Test]
+        public void ShouldPassExpectNotSendLocalIfSendingLocalWithoutMatch()
+        {
+            Test.Handler<SendingLocalHandler<Publish1>>()
+                .ExpectNotSendLocal<Send1>(m => true)
+                .OnMessage<TestMessage>(m => { });
+        }
+        
+        [Test]
 		[ExpectedException]
 		public void ShouldFailExpectPublishIfPublishWrongMessageType()
 		{
@@ -171,10 +239,51 @@ namespace NServiceBus.Testing.Tests
 		{
 			string Data { get; set; }
 		}
-		public interface Publish2 : IMessage
+
+        public interface Send1 : IMessage
+        {
+            string Data { get; set; }
+        }
+        
+        public interface Publish2 : IMessage
 		{
 			string Data { get; set; }
 		}
+
+        public class SendingHandler<TSend> : IHandleMessages<TestMessage>
+            where TSend : IMessage
+        {
+            public IBus Bus { get; set; }
+            public Action<TSend> ModifyPublish { get; set; }
+
+            public SendingHandler()
+            {
+                ModifyPublish = m => { };
+            }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.Send(ModifyPublish);
+            }
+        }
+
+        public class SendingLocalHandler<TSend> : IHandleMessages<TestMessage>
+            where TSend : IMessage
+        {
+            public IBus Bus { get; set; }
+            public Action<TSend> ModifyPublish { get; set; }
+
+            public SendingLocalHandler()
+            {
+                ModifyPublish = m => { };
+            }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.SendLocal(ModifyPublish);
+            }
+        }
+
 		public class PublishingHandler<TPublish> : IHandleMessages<TestMessage>
 			where TPublish : IMessage
 		{
@@ -191,7 +300,8 @@ namespace NServiceBus.Testing.Tests
 				Bus.Publish(ModifyPublish);
 			}
 		}
-		public class PublishingHandler<TPublish1, TPublish2> : IHandleMessages<TestMessage>
+		
+        public class PublishingHandler<TPublish1, TPublish2> : IHandleMessages<TestMessage>
 			where TPublish1 : IMessage
 			where TPublish2 : IMessage
 		{
