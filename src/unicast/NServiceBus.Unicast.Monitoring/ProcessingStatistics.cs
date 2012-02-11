@@ -19,6 +19,12 @@
         /// </summary>
         public CriticalTimePerformanceCounter CriticalTimeCounter { get; set; }
 
+
+        /// <summary>
+        /// Counter that displays the estimated time left to a SLA breach
+        /// </summary>
+        public EstimatedTimeToSLABreachCalculator EstimatedTimeToSLABreachCalculator { get; set; }
+
         public void Begin()
         {
             Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTime.UtcNow.ToWireFormattedString();
@@ -30,8 +36,20 @@
 
             Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = now.ToWireFormattedString();
 
-            if (CriticalTimeCounter != null && Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
-                CriticalTimeCounter.Update(Bus.CurrentMessageContext.Headers[Headers.TimeSent].ToUtcDateTime(), now);
+            if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
+                UpdateCounters(Bus.CurrentMessageContext.Headers[Headers.TimeSent].ToUtcDateTime(), now);
+            
+                
+        }
+
+        void UpdateCounters(DateTime timeSent, DateTime timeProcessed)
+        {
+            if(CriticalTimeCounter != null)
+                CriticalTimeCounter.Update(timeSent,timeProcessed);
+
+
+            if (EstimatedTimeToSLABreachCalculator != null)
+                EstimatedTimeToSLABreachCalculator.Update(timeSent, timeProcessed);
         }
 
         public void Init()

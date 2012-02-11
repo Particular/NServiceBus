@@ -1,10 +1,9 @@
-﻿namespace NServiceBus.Unicast.Config
+﻿namespace NServiceBus.Unicast.Monitoring
 {
     using System.Security.Principal;
     using Installation;
     using Installation.Environments;
     using Utils;
-
 
     /// <summary>
     /// Performs installation of the performance counters 

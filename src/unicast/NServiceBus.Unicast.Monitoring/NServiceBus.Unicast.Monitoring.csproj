@@ -37,6 +37,14 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Installation, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Installation.Windows, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>
@@ -54,10 +62,13 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\MonitoringConfig.cs" />
     <Compile Include="CriticalTimePerformanceCounter.cs" />
     <Compile Include="EnclosedMessageTypesMutator.cs" />
+    <Compile Include="EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="PerformanceCounterInitializer.cs" />
+    <Compile Include="PerformanceCounterInstaller.cs" />
     <Compile Include="ProcessingStatistics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelatedToMessageMutator.cs" />

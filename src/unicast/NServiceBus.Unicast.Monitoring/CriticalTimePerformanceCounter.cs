@@ -25,17 +25,11 @@
         /// <summary>
         /// Verified that the counter exists
         /// </summary>
-        public void Initialize()
+        public void Initialize(PerformanceCounter cnt)
         {
-            try
-            {
-                counter = new PerformanceCounter(CategoryName, CounterName, Configure.EndpointName, false);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("NServiceBus performance counters not set up correctly. Running this process with the flag NServiceBus.InstallPerformanceCounters once should rectify this problem.", e);
-            }
+            counter = cnt;
 
+            
             timer = new Timer(ClearPerfCounter, null, 0, 2000);
         }
 
@@ -47,9 +41,7 @@
             if (delta > maxDelta)
                 counter.RawValue = 0;
         }
-        const string CategoryName = "NServiceBus";
-        const string CounterName = "Critical Time";
-
+      
         PerformanceCounter counter;
 
         Timer timer;

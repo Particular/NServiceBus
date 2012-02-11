@@ -37,28 +37,6 @@ namespace NServiceBus
             return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
         }
 
-        /// <summary>
-        /// Enables the NServiceBus specific performance counters
-        /// </summary>
-        /// <returns></returns>
-        public static Configure EnablePerformanceCounters(this Configure config)
-        {
-            performanceCountersEnabled = true;
-            return config;
-        }
-
-        /// <summary>
-        /// True id performance counters are enabled
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public static bool PerformanceCountersEnabled(this Configure config)
-        {
-            return performanceCountersEnabled;
-        }
-
-        static bool performanceCountersEnabled;
-
         internal static ConfigUnicastBus Instance { get; private set; }
     }
 

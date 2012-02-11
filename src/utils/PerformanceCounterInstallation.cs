@@ -16,8 +16,7 @@ namespace NServiceBus.Utils
             Logger.Debug("Starting installation of PerformanceCounters ");
 
             var categoryName = "NServiceBus";
-            var counterName = "Critical Time";
-
+          
             if (PerformanceCounterCategory.Exists(categoryName))
             {
                 Logger.Warn("Category " + categoryName + " already exist, going to delete first");
@@ -27,9 +26,11 @@ namespace NServiceBus.Utils
 
             var data = new CounterCreationDataCollection();
 
-            var c1 = new CounterCreationData(counterName, "Age of the oldest message in the queue",
-                                             PerformanceCounterType.NumberOfItems32);
-            data.Add(c1);
+            data.Add(new CounterCreationData("Critical Time", "Age of the oldest message in the queue",
+                                             PerformanceCounterType.NumberOfItems32));
+
+            data.Add(new CounterCreationData("Time left to SLA breach", "Seconds until SLA breached",
+                                            PerformanceCounterType.NumberOfItems32));
 
             PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
                                               PerformanceCounterCategoryType.MultiInstance, data);

@@ -100,7 +100,6 @@
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="MessageEndpointMapping.cs" />
     <Compile Include="MessageEndpointMappingCollection.cs" />
-    <Compile Include="PerformanceCounterInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartupRunners.cs" />
     <Compile Include="UnicastBusConfig.cs" />

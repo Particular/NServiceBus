@@ -31,6 +31,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder = new FuncBuilder();
         protected Address MasterNodeAddress;
+        protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
 
         [SetUp]
         public void SetUp()
@@ -57,6 +58,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<DefaultDispatcherFactory>(()=>new DefaultDispatcherFactory());
+            FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             
             
 
