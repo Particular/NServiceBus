@@ -9,7 +9,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
 {
     public abstract class Raven_saga_persistence_concern
     {
-        IDocumentStore store;
+        protected IDocumentStore store;
 
         [TestFixtureSetUp]
         public virtual void Setup()

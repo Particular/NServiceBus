@@ -12,6 +12,8 @@ namespace NServiceBus.SagaPersisters.Raven
 
     public class RavenSagaPersister : ISagaPersister
     {
+        public const string UniqueValueMetadataKey = "NServiceBus-UniqueValue";
+        
         readonly RavenSessionFactory sessionFactory;
 
         protected IDocumentSession Session { get { return sessionFactory.Session; } }
@@ -29,8 +31,32 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public void Update(ISagaEntity saga)
         {
-            //Do not re-save saga entity, since raven is tracking the entity
+            var p = UniqueAttribute.GetUniqueProperty(saga);
+
+            if (!p.HasValue)
+                return;
+            
+            var uniqueProperty = p.Value;
+
+            var metadata = Session.Advanced.GetMetadataFor(saga);
+
+            //if the user just added the unique property to a saga with existing data we need to set it
+            if (!metadata.ContainsKey(UniqueValueMetadataKey))
+            {
+                StoreUniqueProperty(saga);
+                return;
+            }
+
+            var storedvalue = metadata[UniqueValueMetadataKey].ToString();
+
+            var currentValue = uniqueProperty.Value.ToString();
+
+            if (currentValue == storedvalue)
+                return;
+
+            DeleteUniqueProperty(saga, new KeyValuePair<string, object>(uniqueProperty.Key,storedvalue));
             StoreUniqueProperty(saga);
+
         }
 
         public T Get<T>(Guid sagaId) where T : ISagaEntity
@@ -56,40 +82,35 @@ namespace NServiceBus.SagaPersisters.Raven
         public void Complete(ISagaEntity saga)
         {
             Session.Delete(saga);
-            DeleteUniqueProperty(saga);
+
+            var uniqueProperty = UniqueAttribute.GetUniqueProperty(saga);
+
+            if (!uniqueProperty.HasValue) 
+                return;
+
+            DeleteUniqueProperty(saga, uniqueProperty.Value);
         }
-        
+
         void StoreUniqueProperty(ISagaEntity saga)
         {
             var uniqueProperty = UniqueAttribute.GetUniqueProperty(saga);
 
             if (!uniqueProperty.HasValue) return;
 
-            var item = Session.Query<SagaUniqueIdentity>()
-                .Customize(c => c.WaitForNonStaleResults(TimeSpan.FromMinutes(1)))
-                .SingleOrDefault(i => i.SagaId == saga.Id);
+            var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty.Value);
+            Session.Store(new SagaUniqueIdentity { Id = id, SagaId = saga.Id, UniqueValue = uniqueProperty.Value.Value });
 
-            if(item == null)
-            {
-                var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty.Value);
-                Session.Store(new SagaUniqueIdentity { Id = id, SagaId = saga.Id, UniqueValue = uniqueProperty.Value.Value});
-                return;
-            }
-
-            if (item.SagaId != saga.Id)
-                throw new InvalidOperationException(string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", saga.Id, uniqueProperty.Value.Key, uniqueProperty.Value.Value));
-
-            if (item.SagaId == saga.Id && !item.UniqueValue.Equals(uniqueProperty.Value.Value))
-                throw new InvalidOperationException("Cannot store a saga. The Raven saga persister does not support updating the value of unique properties");
+            SetUniqueValueMetadata(saga, uniqueProperty.Value);
         }
 
-        void DeleteUniqueProperty(ISagaEntity saga)
+        void SetUniqueValueMetadata(ISagaEntity saga, KeyValuePair<string, object> uniqueProperty)
         {
-            var uniqueProperty = UniqueAttribute.GetUniqueProperty(saga);
+            Session.Advanced.GetMetadataFor(saga)[UniqueValueMetadataKey] = uniqueProperty.Value.ToString();
+        }
 
-            if (!uniqueProperty.HasValue) return;
-
-            var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty.Value);
+        void DeleteUniqueProperty(ISagaEntity saga, KeyValuePair<string, object> uniqueProperty)
+        {
+            var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty);
 
             Session.Advanced.DatabaseCommands.Delete(id, null);
         }
