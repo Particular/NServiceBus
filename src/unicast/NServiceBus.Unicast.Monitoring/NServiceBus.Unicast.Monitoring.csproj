@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonitoringConfig.cs" />
-    <Compile Include="CriticalTimePerformanceCounter.cs" />
+    <Compile Include="CriticalTimeCalculator.cs" />
     <Compile Include="EnclosedMessageTypesMutator.cs" />
     <Compile Include="EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Headers.cs" />

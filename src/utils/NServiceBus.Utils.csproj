@@ -93,7 +93,6 @@
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="MsmqInstallation.cs" />
     <Compile Include="MsmqUtilities.cs" />
-    <Compile Include="PerformanceCounterInstallation.cs" />
     <Compile Include="ProcessUtil.cs" />
     <Compile Include="TransactionWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -7,18 +7,21 @@
     /// <summary>
     /// Performance counter for the critical time
     /// </summary>
-    public class CriticalTimePerformanceCounter
+    public class CriticalTimeCalculator
     {
         /// <summary>
         /// Updates the counter based on the passed times
         /// </summary>
-        /// <param name="timeSent"></param>
+        /// <param name="sent"> </param>
+        /// <param name="processingStarted"></param>
         /// <param name="processingEnded"></param>
-        public void Update(DateTime timeSent, DateTime processingEnded)
+        public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
-            counter.RawValue = Convert.ToInt32((processingEnded - timeSent).TotalSeconds);
+            counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);
 
             timeOfLastCounter = processingEnded;
+
+            maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
         }
 
 
@@ -46,6 +49,6 @@
 
         Timer timer;
         DateTime timeOfLastCounter;
-        readonly TimeSpan maxDelta = TimeSpan.FromSeconds(2);
+        TimeSpan maxDelta = TimeSpan.FromSeconds(2);
     }
 }

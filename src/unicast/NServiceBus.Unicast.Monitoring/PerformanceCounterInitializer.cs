@@ -21,20 +21,13 @@
 
         static void SetupCriticalTimePerformanceCounter()
         {
-            var criticalTimeCounter = new CriticalTimePerformanceCounter();
+            var criticalTimeCalculator = new CriticalTimeCalculator();
 
-            PerformanceCounter counter;
-            try
-            {
-                counter = new PerformanceCounter(CategoryName, "Critical Time", Configure.EndpointName, false);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("NServiceBus performance counter for Critical Time not set up correctly. Please run the NServiceBus infrastructure installers to rectify this problem.",e);
-            }
-            criticalTimeCounter.Initialize(counter);
+            var criticalTimeCounter = InstantiateCounter("Critical Time");
 
-            Configure.Instance.Configurer.RegisterSingleton<CriticalTimePerformanceCounter>(criticalTimeCounter);
+            criticalTimeCalculator.Initialize(criticalTimeCounter);
+
+            Configure.Instance.Configurer.RegisterSingleton<CriticalTimeCalculator>(criticalTimeCalculator);
         }
 
         static void SetupSLABreachCounter()
@@ -47,24 +40,35 @@
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
 
 
-            PerformanceCounter slaBreachCounter;
-            try
-            {
-                slaBreachCounter = new PerformanceCounter(CategoryName, "Time left to SLA breach", Configure.EndpointName, false);
+            var slaBreachCounter = InstantiateCounter("SLA violation countdown");
 
-                //access the counter type to force a exception to be thrown if the counter doesn't exists
-                var t = slaBreachCounter.CounterType;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("NServiceBus performance counter for Time to SLA breach not set up correctly. Please run the NServiceBus infrastructure installers to rectify this problem.",e);
-            }
-
-            timeToSLABreachCalculator.SetCounterAction = d => slaBreachCounter.RawValue = Convert.ToInt32(d);
+            timeToSLABreachCalculator.SetCounterAction = d =>
+                                                             {
+                                                                 slaBreachCounter.RawValue = Convert.ToInt32(Math.Min(d, Int32.MaxValue));
+                                                             };
 
             timeToSLABreachCalculator.Initialize(endpointSla);
 
             Configure.Instance.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
+        }
+
+        static PerformanceCounter InstantiateCounter(string counterName)
+        {
+            PerformanceCounter counter;
+            try
+            {
+                counter = new PerformanceCounter(CategoryName, counterName, Configure.EndpointName, false);
+
+                //access the counter type to force a exception to be thrown if the counter doesn't exists
+                var t = counter.CounterType;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    string.Format("NServiceBus performance counter for {0} not set up correctly. Please run the NServiceBus infrastructure installers to rectify this problem.",counterName),
+                    e);
+            }
+            return counter;
         }
 
         const string CategoryName = "NServiceBus";

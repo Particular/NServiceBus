@@ -17,7 +17,7 @@
         /// <summary>
         /// Performance counter for critcal time. 
         /// </summary>
-        public CriticalTimePerformanceCounter CriticalTimeCounter { get; set; }
+        public CriticalTimeCalculator CriticalTimeCounter { get; set; }
 
 
         /// <summary>
@@ -37,19 +37,19 @@
             Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = now.ToWireFormattedString();
 
             if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
-                UpdateCounters(Bus.CurrentMessageContext.Headers[Headers.TimeSent].ToUtcDateTime(), now);
+                UpdateCounters(Bus.CurrentMessageContext.Headers[Headers.TimeSent].ToUtcDateTime(), Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted].ToUtcDateTime(), now);
             
                 
         }
 
-        void UpdateCounters(DateTime timeSent, DateTime timeProcessed)
+        void UpdateCounters(DateTime timeSent, DateTime processingStarted, DateTime processingEnded)
         {
             if(CriticalTimeCounter != null)
-                CriticalTimeCounter.Update(timeSent,timeProcessed);
+                CriticalTimeCounter.Update(timeSent, processingStarted,processingEnded);
 
 
             if (EstimatedTimeToSLABreachCalculator != null)
-                EstimatedTimeToSLABreachCalculator.Update(timeSent, timeProcessed);
+                EstimatedTimeToSLABreachCalculator.Update(timeSent, processingStarted, processingEnded);
         }
 
         public void Init()

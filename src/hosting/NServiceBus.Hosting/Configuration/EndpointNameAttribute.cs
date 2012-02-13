@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NServiceBus.Hosting
+namespace NServiceBus
 {
     /// <summary>
     /// Used to specify the name of the current endpoint.
