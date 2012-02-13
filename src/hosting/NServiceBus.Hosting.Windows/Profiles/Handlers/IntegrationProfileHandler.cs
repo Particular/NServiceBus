@@ -24,7 +24,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 
             if (Config is AsA_Publisher && !Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
             {
-                if ((ActiveProfiles.Contains(typeof (Worker))) || (ActiveProfiles.Contains(typeof (Distributor))))
+                if ((ActiveProfiles.Contains(typeof(Master))) ||  (ActiveProfiles.Contains(typeof(Worker))) || (ActiveProfiles.Contains(typeof(Distributor))))
                     Configure.Instance.RavenSubscriptionStorage();
                 else
                     Configure.Instance.MsmqSubscriptionStorage();

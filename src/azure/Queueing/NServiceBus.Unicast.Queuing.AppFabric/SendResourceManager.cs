@@ -1,19 +1,15 @@
 using System;
-using System.Threading;
 using System.Transactions;
-using Microsoft.ServiceBus.Messaging;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
     public class SendResourceManager : IEnlistmentNotification
     {
-        private readonly QueueClient sender;
-        private readonly BrokeredMessage message;
+        private readonly Action onCommit;
 
-        public SendResourceManager(QueueClient sender, BrokeredMessage message)
+        public SendResourceManager(Action onCommit )
         {
-            this.sender = sender;
-            this.message = message;
+            this.onCommit = onCommit;
         }
 
         public void Prepare(PreparingEnlistment preparingEnlistment)
@@ -23,15 +19,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public void Commit(Enlistment enlistment)
         {
-            try
-            {
-                sender.Send(message);
-            }
-            catch (ServerBusyException)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-                sender.Send(message);
-            }
+            onCommit();
             enlistment.Done();
         }
 

@@ -82,6 +82,18 @@ namespace NServiceBus.Testing
             helper.ExpectSend(check);
             return this;
         }
+        
+        /// <summary>
+        /// Check that the saga does not send a message of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotSend<TMessage>(SendPredicate<TMessage> check)
+        {
+            helper.ExpectNotSend(check);
+            return this;
+        }
 
         /// <summary>
         /// Check that the saga replies with the given message type complying with the given predicate.
@@ -105,6 +117,18 @@ namespace NServiceBus.Testing
         public Handler<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
             helper.ExpectSendLocal(check);
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the saga does not send a message type to its local queue that complies with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotSendLocal<TMessage>(SendPredicate<TMessage> check)
+        {
+            helper.ExpectNotSendLocal(check);
             return this;
         }
 

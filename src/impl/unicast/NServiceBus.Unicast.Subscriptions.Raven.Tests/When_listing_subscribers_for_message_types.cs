@@ -5,6 +5,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
 {
+    using global::Raven.Client.Document;
+
     [TestFixture]
     public class When_listing_subscribers_for_message_types : WithRavenSubscriptionStorage
     {
@@ -32,6 +34,19 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
             var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(ISomeInterface)), new MessageType(typeof(ISomeInterface2)), new MessageType(typeof(ISomeInterface3)) });
 
             Assert.AreEqual(1, subscriptionsForMessageType.Count());
+        }
+    }
+
+
+    [TestFixture]
+    public class When_listing_subscribers_for_a_non_existing_message_type : WithRavenSubscriptionStorage
+    {
+        [Test]
+        public void No_subscribers_should_be_returned()
+        {
+            var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(MessageTypes.MessageA);
+
+            Assert.AreEqual(0, subscriptionsForMessageType.Count());
         }
     }
 }
