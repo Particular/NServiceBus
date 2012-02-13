@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
                 session.Advanced.UseOptimisticConcurrency = true;
 
                 var subscriptions = GetSubscriptions(messageTypes, session);
-                
+
                 foreach (var subscription in subscriptions)
                 {
                     subscription.Clients.Remove(client);
@@ -52,7 +52,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
                 session.SaveChanges();
             }
         }
-        
+
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             using (var session = OpenSession())
@@ -81,12 +81,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
                 .Select(Subscription.FormatId)
                 .ToArray();
 
-            var subscriptions = session
-                .Load<Subscription>(ids)
-                .Where(s => s != null)
-                .ToArray();
-            
-            return subscriptions;
+            return ids.Select(session.Load<Subscription>).Where(s => s != null);
         }
 
         static Subscription StoreNewSubscription(IDocumentSession session, string id, MessageType messageType)
