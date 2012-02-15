@@ -8,8 +8,7 @@ namespace NServiceBus.Licensing
     {
         public void Run()
         {
-            var license = Configure.Instance.Builder.Build<LicenseManager>();
-            var validated = license.Validate();
+            var validated = Configure.Instance.HasValidLicense();
 
             if (!validated)
             {

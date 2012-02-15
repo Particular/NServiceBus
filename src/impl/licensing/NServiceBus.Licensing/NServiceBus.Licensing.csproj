@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ConfigureLicensing.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="LicenseAttributeKeys.cs" />
     <Compile Include="LicenseDescriptor.cs" />
