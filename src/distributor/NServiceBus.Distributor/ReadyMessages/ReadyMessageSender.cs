@@ -44,7 +44,7 @@
         }
         private static void CheckForValidLicense()
         {
-            gif(!Configure.Instance.HasValidLicense() && !IsLocal())
+            if(!Configure.Instance.HasValidLicense() && !IsLocal())
                 Logger.Error("In accordance with NServiceBus licensing agreement, when running your worker from a different machine than your Distributor, a valid license should exist on both endpoints. Please go to http://nservicebus.com/License.aspx to obtain a valid license.");
         }
 
