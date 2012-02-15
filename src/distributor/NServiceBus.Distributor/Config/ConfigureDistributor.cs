@@ -88,7 +88,7 @@ namespace NServiceBus
                         masterNodeName));
         }
 
-        private static bool IsLocalIpAddress(string hostName)
+        internal static bool IsLocalIpAddress(string hostName)
         {
             if (string.IsNullOrWhiteSpace(hostName)) return true;
             try

@@ -57,6 +57,9 @@
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Licensing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
       <Private>False</Private>
@@ -106,7 +109,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Config\ConfigureDistributor.cs" />
     <Compile Include="Installers\ControlQueueInstaller.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
