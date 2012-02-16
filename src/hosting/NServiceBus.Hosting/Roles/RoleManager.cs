@@ -50,9 +50,18 @@ namespace NServiceBus.Hosting.Roles
                 var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
 
                 config = roleConfigurer.ConfigureRole(specifier);
-
                 Logger.Info("Role " + roleType + " configured");
+                foreach (var markerProfile in GetMarkerRoles(specifier.GetType(), roleType))
+                    Logger.Info("Role " + roleType + " is marked.");
             }
+        }
+
+        private IEnumerable<string> GetMarkerRoles(Type configuredEndpoint, Type roleType)
+        {
+            return (from markerProfile in configuredEndpoint.GetInterfaces() 
+                    where markerProfile != roleType 
+                    where (markerProfile != typeof (IRole)) && (markerProfile.GetInterface(typeof (IRole).ToString()) != null) 
+                    select markerProfile.ToString()).ToList();
         }
     }
 
