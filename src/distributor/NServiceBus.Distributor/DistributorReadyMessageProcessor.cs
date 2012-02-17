@@ -27,7 +27,7 @@
                 IsTransactional = true,
                 FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
-                MaxRetries = 1,
+                MaxRetries = 5,
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
             };
 
