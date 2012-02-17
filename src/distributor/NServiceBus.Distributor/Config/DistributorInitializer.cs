@@ -22,7 +22,7 @@ namespace NServiceBus.Distributor.Config
 
             config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                 DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.StorageQueue, masterNodeAddress.SubScope("distributor.storage"));
+                .ConfigureProperty(r => r.StorageQueueAddress, masterNodeAddress.SubScope("distributor.storage"));
 
             var numberOfWorkerThreads = GetNumberOfWorkerThreads();
 
