@@ -575,7 +575,9 @@ task CreatePackages -depends PrepareRelease  {
 	#region Packing NServiceBus.Azure
 	$packageName = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "The Azure for the NServicebus"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0"} "binaries\NServiceBus.Azure.dll"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0";"WindowsAzure.ServiceBus"="1.5.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll" @{"lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll"="lib"; 
+	"lib\azure\Microsoft.WindowsAzure.Diagnostics.dll"="lib"; "lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll"="lib";
+	"lib\NHibernate.Drivers.Azure.TableStorage.dll"="lib"}
 	#endregion	
 		
 	remove-module packit
