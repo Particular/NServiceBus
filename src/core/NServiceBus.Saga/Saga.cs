@@ -146,7 +146,7 @@ namespace NServiceBus.Saga
         {
             object toSend = timeoutMessage;
 
-            if (!toSend.IsMessage())
+            if (!typeof(TTimeoutmessageType).IsMessageType())
                 toSend = new TimeoutMessage(within, Data, toSend);
 
             toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
