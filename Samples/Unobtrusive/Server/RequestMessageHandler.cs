@@ -6,18 +6,13 @@
 
     public class RequestMessageHandler : IHandleMessages<Request>
     {
-        readonly IBus bus;
-
-        public RequestMessageHandler(IBus bus)
-        {
-            this.bus = bus;
-        }
+        public IBus Bus { get; set; }
 
         public void Handle(Request message)
         {
             Console.WriteLine("Request received with id:" + message.RequestId);
 
-            bus.Reply(new Response
+            Bus.Reply(new Response
                           {
                               ResponseId = message.RequestId
                           });
