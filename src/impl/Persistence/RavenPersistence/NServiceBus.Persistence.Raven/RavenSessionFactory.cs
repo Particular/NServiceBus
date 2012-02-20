@@ -33,5 +33,11 @@ namespace NServiceBus.Persistence.Raven
 
             return s;
         }
+
+        public void SaveChanges()
+        {
+            if (session != null)
+                session.SaveChanges();
+        }
     }
 }
