@@ -20,7 +20,7 @@ namespace NServiceBus.Persistence.Raven
         {
             if (ex != null) return;
 
-            sessionFactory.Session.SaveChanges();
+            sessionFactory.SaveChanges();
         }
     }
 }
