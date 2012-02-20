@@ -295,7 +295,7 @@ namespace NServiceBus.Testing
 
         public void ExpectDefer<T>(Func<TimeSpan,object[],bool> func)
         {
-            Expect.Call(() => bus.Defer(TimeSpan.FromDays(1),null))
+            Expect.Call(() => bus.Defer(Arg<TimeSpan>.Is.Anything, Arg<T>.Is.Anything))
                 .IgnoreArguments().Return(null)
                 .Callback(func);
         }
