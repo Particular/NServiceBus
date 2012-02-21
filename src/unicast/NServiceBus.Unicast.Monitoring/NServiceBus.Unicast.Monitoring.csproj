@@ -73,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelatedToMessageMutator.cs" />
     <Compile Include="SentTimeMutator.cs" />
+    <Compile Include="VersionMutator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\utils\NServiceBus.Utils.csproj">
