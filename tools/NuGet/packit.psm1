@@ -3,8 +3,8 @@ $script:packit = @{}
 $script:packit.push_to_nuget = $false      # Set the variable to true to push the package to NuGet galary.
 
 $script:packit.default_package = "NServiceBus"
-$script:packit.package_owners = "Udi Dahan, Andreas Ohlund, Matt Burton, Jonathan Oliver et al"
-$script:packit.package_authors = "Udi Dahan, Andreas Ohlund, Matt Burton, Jonathan Oliver et al"
+$script:packit.package_owners = "Udi Dahan, Andreas Ohlund, Jonathan Matheus, Jonathan Oliver et al"
+$script:packit.package_authors = "Udi Dahan, Andreas Ohlund, Jonathan Matheus, Jonathan Oliver et al"
 $script:packit.package_description = "The most popular open-source service bus for .net"
 $script:packit.package_language = "en-US"
 $script:packit.package_licenseUrl = "http://nservicebus.com/license.aspx"
