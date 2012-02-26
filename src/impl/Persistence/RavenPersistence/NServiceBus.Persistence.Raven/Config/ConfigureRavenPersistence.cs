@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Raven.Client;
 using Raven.Client.Document;
 
@@ -16,7 +17,7 @@ namespace NServiceBus
 
             //use exisiting config if we can find one
             if (connectionStringEntry != null)
-                return RavenPersistence(config, "NServiceBus.Persistence");
+                return RavenPersistenceWithConnectionString(config, connectionStringEntry.ConnectionString, null);
 
             var store = new DocumentStore
             {
@@ -33,32 +34,62 @@ namespace NServiceBus
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
+            var connectionStringEntry = GetRavenConnectionString(connectionStringName);
+            return RavenPersistenceWithConnectionString(config, connectionStringEntry, null);
+        }
+        
+        public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
+        {
+            var connectionString = GetRavenConnectionString(connectionStringName);
+            return RavenPersistenceWithConnectionString(config, connectionString, database);
+        }
 
+        public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
+        {
+            var connectionString = GetRavenConnectionString(getConnectionString);
+            return RavenPersistenceWithConnectionString(config, connectionString, null);
+        }
+        
+        public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
+        {
+            var connectionString = GetRavenConnectionString(getConnectionString);
+            return RavenPersistenceWithConnectionString(config, connectionString, database);
+        }
+
+        static string GetRavenConnectionString(Func<string> getConnectionString)
+        {
+            var connectionString = getConnectionString();
+
+            if (connectionString == null)
+                throw new ConfigurationErrorsException("Cannot configure Raven Persister. No connection string was found");
+
+            return connectionString;
+        }
+
+        static string GetRavenConnectionString(string connectionStringName)
+        {
             var connectionStringEntry = ConfigurationManager.ConnectionStrings[connectionStringName];
 
             if (connectionStringEntry == null)
-                throw new ConfigurationErrorsException(string.Format("No connection string named {0} was found", connectionStringName));
-
-            string database = null;
-
-            if (!connectionStringEntry.ConnectionString.Contains("DefaultDatabase"))
-                database = databaseNamingConvention();
-
-
-            return RavenPersistence(config, connectionStringName, database);
+                throw new ConfigurationErrorsException(string.Format("Cannot configure Raven Persister. No connection string named {0} was found",
+                                                                     connectionStringName));
+            return connectionStringEntry.ConnectionString;
         }
-
-        public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
+        
+        static Configure RavenPersistenceWithConnectionString(Configure config, string connectionStringValue, string database)
         {
             var store = new DocumentStore
             {
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                ConnectionStringName = connectionStringName,
+                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId
             };
+
+            store.ParseConnectionString(connectionStringValue);
 
             if (!string.IsNullOrEmpty(database))
                 store.DefaultDatabase = database;
-
+            else if (!connectionStringValue.Contains("DefaultDatabase"))
+                store.DefaultDatabase = databaseNamingConvention();
+            
             return RavenPersistence(config, store);
         }
 
@@ -89,8 +120,7 @@ namespace NServiceBus
 
             return config;
         }
-
-
+        
         public static Configure InstallRavenIfNeeded(this Configure config)
         {
             installRavenIfNeeded = true;

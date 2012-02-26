@@ -120,6 +120,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database.cs" />
+    <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda.cs" />
+    <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda_and_database.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_that_does_not_exist.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="WithRavenDbServer.cs" />
