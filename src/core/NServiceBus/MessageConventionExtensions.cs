@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using log4net;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -10,6 +12,7 @@
     /// </summary>
     public static class MessageConventionExtensions
     {
+        static ILog Logger = LogManager.GetLogger("NServiceBus");
         /// <summary>
         /// Returns true if the given object is a message.
         /// </summary>
@@ -27,7 +30,15 @@
         /// <returns></returns>
         public static bool IsMessageType(this Type t)
         {
-            return MessagesConventionCache.ApplyConvention(t,type => IsMessageTypeAction(type) || IsCommandTypeAction(type) || IsEventTypeAction(type));
+            try
+            {
+                return MessagesConventionCache.ApplyConvention(t, type => IsMessageTypeAction(type) || IsCommandTypeAction(type) || IsEventTypeAction(type));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate Message convention: " + ex);           
+                throw;
+            }
         }
 
         /// <summary>
@@ -37,7 +48,8 @@
         /// <returns></returns>
         public static bool IsCommand(this object o)
         {
-            return o.GetType().IsCommandType();
+                return o.GetType().IsCommandType();
+
         }
 
         /// <summary>
@@ -47,7 +59,15 @@
         /// <returns></returns>
         public static bool IsCommandType(this Type t)
         {
-            return CommandsConventionCache.ApplyConvention(t, type => IsCommandTypeAction(type));
+            try
+            {
+                return CommandsConventionCache.ApplyConvention(t, type => IsCommandTypeAction(type));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate Command convention: " + ex);
+                throw;
+            }
         }
 
 
@@ -58,8 +78,17 @@
         /// <returns></returns>
         public static bool IsEncryptedProperty(this PropertyInfo property)
         {
-            //the message mutator will cache the whole message so we don't need to cache here
-            return IsEncryptedPropertyAction(property);
+            try
+            {
+                //the message mutator will cache the whole message so we don't need to cache here
+                return IsEncryptedPropertyAction(property);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate Encrypted Property convention: " + ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -79,7 +108,16 @@
         /// <returns></returns>
         public static bool IsEventType(this Type t)
         {
-            return EventsConventionCache.ApplyConvention(t, type => IsEventTypeAction(type));
+            try
+            {
+                return EventsConventionCache.ApplyConvention(t, type => IsEventTypeAction(type));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate Event convention: " + ex);
+                throw;
+            }
+
         }
         /// <summary>
         /// The function used to determine whether a type is a message type.
