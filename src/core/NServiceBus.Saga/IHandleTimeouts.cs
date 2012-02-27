@@ -4,7 +4,7 @@ namespace NServiceBus.Saga
     /// Tells the infrastructure that the user wants to handle a timeout of T
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHandleTimeouts<T>
+    public interface IHandleTimeouts<T> where T: ITimeoutState
     {
         /// <summary>
         /// Called when the timout has expired

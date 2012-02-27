@@ -72,12 +72,12 @@
     {
     }
 
-    internal class MyTimeout:IMessage
+    internal class MyTimeout:ITimeoutState
     {
         public string SomeProperty { get; set; }
     }
 
-    internal class MyOtherTimeout : IMessage
+    internal class MyOtherTimeout : ITimeoutState
     {
     }
 
