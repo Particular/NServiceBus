@@ -9,9 +9,9 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        private readonly GenericHost genericHost;
-        private readonly bool? runOtherInstallers;
-        private readonly bool? runInfrastructureInstallers;
+        readonly GenericHost genericHost;
+        readonly bool runOtherInstallers;
+        readonly bool runInfrastructureInstallers;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
@@ -22,18 +22,18 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="endpointName"></param>
         /// <param name="runOtherInstallers"></param>
         /// <param name="runInfrastructureInstallers"></param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool? runOtherInstallers, bool? runInfrastructureInstallers)
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, bool runInfrastructureInstallers)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Lite) }, endpointName);
+            genericHost = new GenericHost(specifier, args, new[] { typeof(Production) }, endpointName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
-            
-            if (runOtherInstallers != null)
-                this.runOtherInstallers = runOtherInstallers;
-            if (runInfrastructureInstallers != null)
-                this.runInfrastructureInstallers = runInfrastructureInstallers;
+
+            if (runOtherInstallers || Debugger.IsAttached)
+                this.runOtherInstallers = true;
+
+            this.runInfrastructureInstallers = runInfrastructureInstallers;
         }
 
 
@@ -68,9 +68,9 @@ namespace NServiceBus.Hosting.Windows
         /// </summary>
         public void Install()
         {
-            if(runOtherInstallers.GetValueOrDefault())
+            if (runOtherInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
-            if (runInfrastructureInstallers.GetValueOrDefault())
+            if (runInfrastructureInstallers)
                 Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = true;
 
             genericHost.Install<Installation.Environments.Windows>();

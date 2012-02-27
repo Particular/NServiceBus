@@ -2,6 +2,10 @@
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
+    using System;
+    using System.Runtime.InteropServices;
+    using log4net.Core;
+
     /// <summary>
     /// Handles logging configuration for the production profile
     /// </summary>
@@ -9,7 +13,7 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            NServiceBus.SetLoggingLibrary.Log4Net<RollingFileAppender>(null,
+            SetLoggingLibrary.Log4Net<RollingFileAppender>(null,
                 a =>
                 {
                     a.CountDirection = 1;
@@ -22,6 +26,21 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
                     a.File = "logfile";
                     a.AppendToFile = true;
                 });
+
+            if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
+                return;
+
+            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null,
+              a =>
+              {
+                  LiteLoggingHandler.PrepareColors(a);
+                  a.Threshold = Level.Info;
+              }
+          );
         }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(int nStdHandle);
+        const int STD_OUTPUT_HANDLE = -11;
     }
 }

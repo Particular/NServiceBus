@@ -1,5 +1,6 @@
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using System.Diagnostics;
     using Config;
 
     /// <summary>
@@ -20,6 +21,9 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         /// </summary>
         public void Run()
         {
+            if (Debugger.IsAttached)
+                RunInstallers = true;
+
             if ((!RunInstallers) && (!RunInfrastructureInstallers)) 
                 return;
             
@@ -27,7 +31,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
                 Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = RunInfrastructureInstallers;
 
             if (RunInstallers)
-                Installer<Installation.Environments.Windows>.RunOtherInstallers = RunInstallers;
+                Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
 
             Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
         }

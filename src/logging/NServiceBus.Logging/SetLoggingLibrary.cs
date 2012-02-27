@@ -63,7 +63,7 @@ namespace NServiceBus
             }
 
             if (appender.Threshold == null)
-                appender.Threshold = Level.Debug;
+                appender.Threshold = Level.Info;
 
             appender.ActivateOptions();
 
@@ -92,5 +92,6 @@ namespace NServiceBus
 
             config();
         }
+
     }
 }
