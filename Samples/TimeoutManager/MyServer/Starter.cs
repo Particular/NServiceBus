@@ -12,6 +12,7 @@ namespace MyServer
         public void Run()
         {
             Console.WriteLine("Press 'S' to start the saga");
+            Console.WriteLine("Press 'T' to start the saga in multi tennant mode");
             Console.WriteLine("Press 'D' to defer a message 10 seconds");
             Console.WriteLine("To exit, press Ctrl + C");
 
@@ -23,6 +24,11 @@ namespace MyServer
                 {
                     case "s":
                         StartSaga();
+                        break;
+
+                    case "t":
+                        //make sure that the database exists!
+                        StartSaga("MyApp.Tennants.Acme");
                         break;
 
                     case "d":
@@ -38,12 +44,17 @@ namespace MyServer
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds")); 
         }
 
-        void StartSaga()
+        void StartSaga(string tennant = "")
         {
-            Bus.SendLocal(new StartSagaMessage
+            var message = new StartSagaMessage
                               {
                                   OrderId = Guid.NewGuid()
-                              });
+                              };
+            if (!string.IsNullOrEmpty(tennant))            
+                message.SetHeader("tennant", tennant);
+            
+                
+            Bus.SendLocal(message);
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
         }
 

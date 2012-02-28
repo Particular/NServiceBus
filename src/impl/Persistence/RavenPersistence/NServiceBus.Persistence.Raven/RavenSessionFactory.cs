@@ -9,6 +9,8 @@ namespace NServiceBus.Persistence.Raven
 
         public IDocumentStore Store { get; private set; }
 
+        public IBus Bus { get; set; }
+
         public IDocumentSession Session
         {
             get { return session ?? (session = OpenSession()); }
@@ -16,7 +18,7 @@ namespace NServiceBus.Persistence.Raven
         
         public RavenSessionFactory(IDocumentStore store)
         {
-            this.Store = store;
+            Store = store;
         }
 
         public void Dispose()
@@ -27,11 +29,19 @@ namespace NServiceBus.Persistence.Raven
 
         IDocumentSession OpenSession()
         {
-            var s = Store.OpenSession();
-            s.Advanced.AllowNonAuthoritativeInformation = false;
-            s.Advanced.UseOptimisticConcurrency = true;
+            var databaseName = GetDatabaseName(Bus.CurrentMessageContext);
 
-            return s;
+            IDocumentSession documentSession;
+
+            if (string.IsNullOrEmpty(databaseName))
+                documentSession = Store.OpenSession();
+            else
+                documentSession = Store.OpenSession(databaseName);
+
+            documentSession.Advanced.AllowNonAuthoritativeInformation = false;
+            documentSession.Advanced.UseOptimisticConcurrency = true;
+
+            return documentSession;
         }
 
         public void SaveChanges()
@@ -39,5 +49,7 @@ namespace NServiceBus.Persistence.Raven
             if (session != null)
                 session.SaveChanges();
         }
+
+        public static Func<IMessageContext,string> GetDatabaseName = (context) => "";
     }
 }
