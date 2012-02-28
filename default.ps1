@@ -488,15 +488,41 @@ task CreatePackages -depends PrepareRelease  {
 	#endregion
 	
     #region Packing NServiceBus.Host
+	
+	$appConfigTranformContent = "<?xml version=`"1.0`"?>
+<configuration>
+  <configSections>
+    <section name=`"MessageForwardingInCaseOfFaultConfig`" type=`"NServiceBus.Config.MessageForwardingInCaseOfFaultConfig, NServiceBus.Core`" />
+   </configSections>
+  <MessageForwardingInCaseOfFaultConfig ErrorQueue=`"error`"/>
+</configuration>
+"
+	$installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
+    echo `"`$installPath, `$toolsPath, `$package, `$project`"
+"
+	$appConfigTranformFile = "$releaseRoot\content\app.config.transform"
+	$installPs1File = "$releaseRoot\tools\install.ps1"
+	Create-Directory "$releaseRoot\content"
+	Write-Output $appConfigTranformContent > $appConfigTranformFile	
+
+	Write-Output $installPs1Content > $installPs1File	
+	
 	$packageName = "NServiceBus.Host" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40";
+																									 ".\release\content\*.*"="content"; 
+																									 ".\release\tools\install.ps1*"="tools"}
 	#endregion
 
 	#region Packing NServiceBus.Host32
 	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";
+																										".\release\content\*.*"="content"
+																										".\release\tools\install.ps1*"="tools"}
+	Remove-Item -Force $appConfigTranformFile -ErrorAction SilentlyContinue
+	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
+	Delete-Directory "$releaseRoot\content"
 	#endregion
 	
 	#region Packing NServiceBus.Testing
