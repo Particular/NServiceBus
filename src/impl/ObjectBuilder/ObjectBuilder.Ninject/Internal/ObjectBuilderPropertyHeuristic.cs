@@ -55,7 +55,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
         {
             var propertyInfo = member as PropertyInfo;
 
-            if (propertyInfo == null)
+            if (propertyInfo == null || propertyInfo.GetSetMethod(Settings.InjectNonPublic) == null)
             {
                 return false;
             }
