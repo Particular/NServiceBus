@@ -56,6 +56,13 @@ namespace NServiceBus
             return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
+        public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
+        {
+            RavenSessionFactory.GetDatabaseName = convention;
+
+            return config;
+        }
+
         static string GetRavenConnectionString(Func<string> getConnectionString)
         {
             var connectionString = getConnectionString();
