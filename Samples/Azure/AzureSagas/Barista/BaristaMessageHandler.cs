@@ -71,6 +71,7 @@ namespace Barista
             MarkAsComplete();
         }
 
+        [Obsolete("Should be refactored to use the new timeout support",false)]
         public override void Timeout(object state)
         {
            if (!Data.OrderIsReady || !Data.OrderIsPaid)

@@ -194,6 +194,7 @@ namespace NServiceBus.Saga
         /// Notifies that the timeout it previously requested occurred.
         /// </summary>
         /// <param name="state">The object passed as the "withState" parameter to RequestTimeout.</param>
+        [Obsolete("2.6 style timeouts has been replaced. Please implement IHandleTimeouts<T> instead",false)]
         public virtual void Timeout(object state)
         {
         }
