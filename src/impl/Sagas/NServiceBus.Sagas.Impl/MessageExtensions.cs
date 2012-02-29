@@ -29,8 +29,15 @@ namespace NServiceBus.Sagas.Impl
             var tm = message as TimeoutMessage;
             if (tm != null)
                 return !tm.HasNotExpired();
-
-            return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(Headers.Expire));
+            try
+            {
+                return DateTime.UtcNow >= message.GetHeader(Headers.Expire).ToUtcDateTime();
+            }
+            catch (Exception)
+            {
+                //for backwards compatibility
+                return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(Headers.Expire));
+            }
         }
 
 

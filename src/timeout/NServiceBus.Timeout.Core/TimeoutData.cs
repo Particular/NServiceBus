@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Timeout.Core
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus;
 
     /// <summary>
@@ -32,5 +33,10 @@
         /// We store the correlation id in order to preserve it across timeouts
         /// </summary>
         public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// Store the headers to preserve them across timeouts
+        /// </summary>
+        public Dictionary<string, string> Headers { get; set; }
     }
 }

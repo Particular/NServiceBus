@@ -54,10 +54,19 @@
                                            Body = timeoutData.State
                                        };
 
-            transportMessage.Headers[Headers.Expire] = timeoutData.Time.ToString();
+            if(timeoutData.Headers != null)
+            {
+                transportMessage.Headers = timeoutData.Headers;
+            }
+            else
+            {
+                //we do this to be backwards compatible, this can be removed when going to 3.1.X
+                transportMessage.Headers[Headers.Expire] = timeoutData.Time.ToWireFormattedString();
 
-            if(timeoutData.SagaId != Guid.Empty)
-                transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
+                if (timeoutData.SagaId != Guid.Empty)
+                    transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
+    
+            }
 
             return transportMessage;
         }
