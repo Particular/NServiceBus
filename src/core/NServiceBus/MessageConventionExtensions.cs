@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using System.Linq;
+using log4net;
 
 namespace NServiceBus
 {
@@ -12,7 +13,7 @@ namespace NServiceBus
     /// </summary>
     public static class MessageConventionExtensions
     {
-        static ILog Logger = LogManager.GetLogger("NServiceBus");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
         /// <summary>
         /// Returns true if the given object is a message.
         /// </summary>
@@ -32,7 +33,10 @@ namespace NServiceBus
         {
             try
             {
-                return MessagesConventionCache.ApplyConvention(t, type => IsMessageTypeAction(type) || IsCommandTypeAction(type) || IsEventTypeAction(type));
+                return MessagesConventionCache.ApplyConvention(t,
+                                                               type =>
+                                                               IsMessageTypeAction(type) || IsCommandTypeAction(type) ||
+                                                               IsEventTypeAction(type) || (IsInSystemConventionList(type)));
             }
             catch (Exception ex)
             {
@@ -41,6 +45,19 @@ namespace NServiceBus
             }
         }
 
+        private static bool IsInSystemConventionList(this Type t)
+        {
+            return IsSystemMessageActions.Any(isSystemMessageAction => SystemMessagesConventionCache.ApplyConvention(t, isSystemMessageAction));
+        }
+        /// <summary>
+        /// Add system message convention
+        /// </summary>
+        /// <param name="definesMessageType">Function to define system message convention</param>
+        public static void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
+        {
+            if(!IsSystemMessageActions.Contains(definesMessageType))
+                IsSystemMessageActions.Add(definesMessageType);
+        }
         /// <summary>
         /// Returns true if the given object is a command.
         /// </summary>
@@ -119,6 +136,9 @@ namespace NServiceBus
             }
 
         }
+
+
+
         /// <summary>
         /// The function used to determine whether a type is a message type.
         /// </summary>
@@ -144,11 +164,15 @@ namespace NServiceBus
         /// </summary>
         public static Func<PropertyInfo, bool> IsEncryptedPropertyAction = property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType);
 
-
+       /// <summary>
+       /// Contains list of System messages' conventions
+       /// </summary>
+        public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> EventsConventionCache = new ConventionCache<Type>();
+        static readonly ConventionCache<Type> SystemMessagesConventionCache = new ConventionCache<Type>();
 
     }
 

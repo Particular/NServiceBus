@@ -7,6 +7,7 @@ namespace NServiceBus.Sagas.Impl
     using System.Reflection;
     using Saga;
     using Common.Logging;
+    using NServiceBus.Config.Conventions;
 
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
@@ -31,6 +32,11 @@ namespace NServiceBus.Sagas.Impl
         {
             configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
             configurer.ConfigureComponent<SagaIdEnricher>(DependencyLifecycle.InstancePerCall);
+            
+            //Defining ITimeoutState and TimeoutMessage as valid system messages
+            NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => typeof (ITimeoutState).IsAssignableFrom(t) || t == typeof(TimeoutMessage));
+            //NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => t == typeof(TimeoutMessage));
+            //NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => typeof(ITimeoutState).IsAssignableFrom(t));
 
             return new Configure { configurer = configurer };
         }

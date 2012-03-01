@@ -78,13 +78,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="AddressInitializer.cs" />
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Conventions\MessageConventions.cs" />
+    <Compile Include="Conventions\SystemMessageConventions.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunWhenConfigurationIsComplete.cs" />

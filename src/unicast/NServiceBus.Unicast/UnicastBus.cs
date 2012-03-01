@@ -675,7 +675,7 @@ namespace NServiceBus.Unicast
                     throw new ConfigurationException("The destination queue '" + destination +
                                                          "' could not be found. You may have misconfigured the destination for this kind of message (" +
                                                         messages[0].GetType().FullName +
-                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file." +
+                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
                                                          "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
                                                         , ex);
                 }
