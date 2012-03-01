@@ -100,6 +100,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 numberOfWorkerThreads = value;
             }
         }
+
+        /// <summary>
+        /// If set to true the transaction scope will be supressed to avoid the use of DTC
+        /// </summary>
+        public bool SupressDTC { get; set; }
+
         private int numberOfWorkerThreads = 1;
 
 
@@ -195,9 +201,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
             try
             {
                 if (IsTransactional)
-                    new TransactionWrapper().RunInTransaction(ProcessMessage, IsolationLevel, TransactionTimeout);
+                    new TransactionWrapper().RunInTransaction(ReceiveMessage, IsolationLevel, TransactionTimeout);
                 else
-                    ProcessMessage();
+                    ReceiveMessage();
 
                 ClearFailuresForMessage(_messageId);
             }
@@ -228,12 +234,25 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <remarks>
         /// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
         /// </remarks>
-        public void ProcessMessage()
+        public void ReceiveMessage()
         {
             var m = Receive();
             if (m == null)
                 return;
 
+            if(SupressDTC)
+            {
+                using(new TransactionScope(TransactionScopeOption.Suppress))
+                    ProcessMessage(m);
+            }
+            else
+            {
+                ProcessMessage(m);     
+            }
+        }
+
+        void ProcessMessage(TransportMessage m)
+        {
             _messageId = m.Id;
 
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);

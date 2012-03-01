@@ -60,6 +60,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvancedTransactionalConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
