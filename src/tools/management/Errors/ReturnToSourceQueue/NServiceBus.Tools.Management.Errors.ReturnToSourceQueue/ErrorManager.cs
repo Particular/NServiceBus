@@ -14,6 +14,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         private MessageQueue queue;
         private static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
 
+        /// <summary>
+        /// Constant taken from V2.6: 
+        /// https://github.com/NServiceBus/NServiceBus/blob/v2.5/src/impl/unicast/NServiceBus.Unicast.Msmq/MsmqTransport.cs
+        /// </summary>
+        private const string FAILEDQUEUE = "FailedQ";
+
         public virtual Address InputQueue
         {
             set
@@ -52,15 +58,24 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
 
                     var tm = MsmqUtilities.Convert(message);
-
-                    if (!tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
+                    string failedQ;
+                    if( tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
+                        failedQ = tm.Headers[Faults.FaultsHeaderKeys.FailedQ];
+                    else // try to bring failedQ from label, v2.6 style.
                     {
-                        Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
-                        return;
+                        failedQ = GetFailedQueueFromLabel(message);
+                        if(!string.IsNullOrEmpty(failedQ))
+                            message.Label = GetLabelWithoutFailedQueue(message);
                     }
 
-                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
-                        q.Send(message, MessageQueueTransactionType.Automatic);
+                    if(string.IsNullOrEmpty(failedQ))
+                    {
+                        Console.WriteLine("ERROR: Message does not have a header (or label) indicating from which queue it came. Cannot be automatically returned to queue.");
+                        return;
+                    }
+                    
+                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
+                            q.Send(message, MessageQueueTransactionType.Automatic);
 
                     Console.WriteLine("Success.");
                     scope.Complete();
@@ -104,6 +119,47 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// For compatibility with V2.6:
+        /// Gets the label of the message stripping out the failed queue.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public static string GetLabelWithoutFailedQueue(Message m)
+        {
+            if (string.IsNullOrEmpty(m.Label))
+                return string.Empty;
+            
+            if (!m.Label.Contains(FAILEDQUEUE))
+                return m.Label;
+
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
+            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
+            endIndex += FAILEDQUEUE.Length + 3;
+
+            return m.Label.Remove(startIndex, endIndex - startIndex);
+        }
+        /// <summary>
+        /// For compatibility with V2.6:
+        /// Returns the queue whose process failed processing the given message
+        /// by accessing the label of the message.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public static string GetFailedQueueFromLabel(Message m)
+        {
+            if (m.Label == null)
+                return null;
+
+            if (!m.Label.Contains(FAILEDQUEUE))
+                return null;
+
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
+            var count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
+
+            return m.Label.Substring(startIndex, count);
         }
     }
 }
