@@ -73,10 +73,6 @@
       <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
       <Name>Messages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MyMessages\MyMessages.csproj">
-      <Project>{69DECA9F-544C-4C17-B8D1-92E05240CD25}</Project>
-      <Name>MyMessages</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

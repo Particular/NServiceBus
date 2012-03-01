@@ -4,7 +4,6 @@ namespace Client
     using Commands;
     using Messages;
     using NServiceBus;
-    using MyMessages;
 
     class CommandSender:IWantToRunAtStartup
     {
