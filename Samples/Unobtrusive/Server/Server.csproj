@@ -50,11 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CatchAllMessageHandler.cs" />
+    <Compile Include="DeferredMessageHandler.cs" />
     <Compile Include="RequestMessageHandler.cs" />
     <Compile Include="EventPublisher.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyCommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saga\MyTimeOutState.cs" />
+    <Compile Include="Saga\SimpleSaga.cs" />
+    <Compile Include="Saga\SimpleSagaData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -73,6 +77,10 @@
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
       <Name>Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MyMessages\MyMessages.csproj">
+      <Project>{69DECA9F-544C-4C17-B8D1-92E05240CD25}</Project>
+      <Name>MyMessages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

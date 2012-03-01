@@ -4,6 +4,7 @@ namespace Client
     using Commands;
     using Messages;
     using NServiceBus;
+    using MyMessages;
 
     class CommandSender:IWantToRunAtStartup
     {
@@ -13,6 +14,9 @@ namespace Client
         {
             Console.WriteLine("Press 'C' to send a command");
             Console.WriteLine("Press 'R' to send a request");
+            Console.WriteLine("Press 'D' to send a deferred message");
+            Console.WriteLine("Press 'S' to start the saga");
+            
             Console.WriteLine("To exit, press Ctrl + C");
 
             string cmd;
@@ -27,10 +31,36 @@ namespace Client
                     case "r":
                         SendRequest();
                         break;
+                    case "d":
+                        DeferMessage();
+                        break;
+                    case "s":
+                        StartSaga();
+                        break;
+
+
                 }
             }
         }
 
+        void StartSaga(string tennant = "")
+        {
+            var message = new StartSagaMessage
+            {
+                OrderId = Guid.NewGuid()
+            };
+            if (!string.IsNullOrEmpty(tennant))
+                message.SetHeader("tennant", tennant);
+
+
+            Bus.Send(message);
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"));
+        }
+        void DeferMessage()
+        {
+            Bus.Defer(TimeSpan.FromSeconds(10), new DeferredMessage());
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds"));
+        }
         void SendRequest()
         {
             var requestId = Guid.NewGuid();
