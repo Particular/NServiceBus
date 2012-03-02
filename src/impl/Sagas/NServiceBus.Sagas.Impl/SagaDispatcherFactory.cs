@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Common.Logging;
+    using Finders;
     using ObjectBuilder;
     using Saga;
     using Unicast;
@@ -129,7 +130,27 @@
 
         IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)
         {
-            return Configure.GetFindersFor(message).Select(t => builder.Build(t) as IFinder);
+            var sagaTypeName = message.GetHeader("NServiceBus.SagaDataType");
+            var sagaId = message.GetHeader(Headers.SagaId);
+
+            Type sagaType = null;
+
+            if(!string.IsNullOrEmpty(sagaTypeName))
+                sagaType = Type.GetType(sagaTypeName);
+
+            if (sagaType == null || string.IsNullOrEmpty(sagaId))
+            {
+                var finders= Configure.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+
+                if(logger.IsDebugEnabled)
+                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}",string.Join(";", finders.Select(t=>t.GetType().Name)), message.GetType());
+
+                return finders;
+            }
+                
+            logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaType,sagaId);
+
+            return new List<IFinder> { builder.Build(typeof (HeaderSagaIdFinder<>).MakeGenericType(sagaType)) as IFinder };
         }
 
         static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)
