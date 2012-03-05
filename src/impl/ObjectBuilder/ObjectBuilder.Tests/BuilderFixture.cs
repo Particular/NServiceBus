@@ -56,8 +56,9 @@ namespace ObjectBuilder.Tests
                                      new UnityObjectBuilder(),
                                      new SpringObjectBuilder(),
                                      new NinjectObjectBuilder(),
-                                     //new NServiceBus.ObjectBuilder.Unity2.UnityObjectBuilder()
                                  };
+
+            DefaultInstances.Clear();
 
             var inilialize = InitializeBuilder();
 

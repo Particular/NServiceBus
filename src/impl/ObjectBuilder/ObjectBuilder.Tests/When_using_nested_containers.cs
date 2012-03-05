@@ -19,14 +19,13 @@ namespace ObjectBuilder.Tests
             ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-
+            
                 using (var nestedContainer = builder.BuildChildContainer())
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
 
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
-            typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
+            typeof(SpringObjectBuilder));
 
         }
 
@@ -42,9 +41,7 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
             typeof(NinjectObjectBuilder));
-
         }
 
        
@@ -65,8 +62,7 @@ namespace ObjectBuilder.Tests
                 Console.WriteLine(ObjectFactory.WhatDoIHave());
                 Assert.False(SingletonComponent.DisposeCalled);
             },
-            typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder));
+            typeof(SpringObjectBuilder));
         }
     }
 

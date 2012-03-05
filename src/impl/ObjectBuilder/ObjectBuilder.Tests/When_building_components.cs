@@ -7,6 +7,7 @@ using NUnit.Framework;
 namespace ObjectBuilder.Tests
 {
     using NServiceBus;
+    using NServiceBus.ObjectBuilder.CastleWindsor;
 
     [TestFixture]
     public class When_building_components:BuilderFixture
@@ -23,6 +24,14 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders((builder) =>
                Assert.AreNotEqual(builder.Build(typeof(SinglecallComponent)),builder.Build(typeof(SinglecallComponent))));
+        }
+
+        [Test]
+        public void UoW_components_should_resolve_from_main_container()
+        {
+            ForAllBuilders((builder) =>
+               Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent)))
+               , typeof(WindsorObjectBuilder));
         }
 
         [Test]
@@ -55,6 +64,7 @@ namespace ObjectBuilder.Tests
                        {
                            config.Configure(typeof(SingletonComponent),DependencyLifecycle.SingleInstance);
                            config.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
+                           config.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
                        };
         }
 

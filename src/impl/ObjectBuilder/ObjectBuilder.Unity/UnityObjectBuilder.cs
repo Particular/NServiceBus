@@ -13,7 +13,6 @@ namespace NServiceBus.ObjectBuilder.Unity
         /// </summary>
         private readonly IUnityContainer container;
 
-        private readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
 
         private bool disposed;
 
@@ -68,7 +67,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public object Build(Type typeToBuild)
         {
-            if (!typesWithDefaultInstances.Contains(typeToBuild))
+            if (!DefaultInstances.Contains(typeToBuild))
                 throw new ArgumentException(typeToBuild + " is not registered in the container");
 
             return container.Resolve(typeToBuild);
@@ -76,7 +75,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            if (typesWithDefaultInstances.Contains(typeToBuild))
+            if (DefaultInstances.Contains(typeToBuild))
             {
                 yield return container.Resolve(typeToBuild);
                 foreach (var component in container.ResolveAll(typeToBuild))
@@ -99,14 +98,14 @@ namespace NServiceBus.ObjectBuilder.Unity
 
                 foreach (Type t in interfaces)
                 {
-                    if (typesWithDefaultInstances.Contains(t))
+                    if (DefaultInstances.Contains(t))
                     {
                         container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle));
                     }
                     else
                     {
                         container.RegisterType(t, concreteComponent, GetLifetimeManager(dependencyLifecycle));
-                        typesWithDefaultInstances.Add(t);
+                        DefaultInstances.Add(t);
                     }
                 }
             }
@@ -157,9 +156,29 @@ namespace NServiceBus.ObjectBuilder.Unity
                 case DependencyLifecycle.SingleInstance:
                     return new ContainerControlledLifetimeManager();
                 case DependencyLifecycle.InstancePerUnitOfWork:
-                    return new TransientLifetimeManager();
+                    return new ContainerControlledLifetimeManager();
             }
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
+        }
+    }
+
+    public static class DefaultInstances
+    {
+        static readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
+
+        public static bool Contains(Type type)
+        {
+            return typesWithDefaultInstances.Contains(type);
+        }
+
+        public static void Add(Type type)
+        {
+            typesWithDefaultInstances.Add(type);
+        }
+
+        public static void Clear()
+        {
+            typesWithDefaultInstances.Clear();
         }
     }
 }
