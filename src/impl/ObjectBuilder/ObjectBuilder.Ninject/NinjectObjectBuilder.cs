@@ -101,7 +101,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <returns>A new child container.</returns>
         public IContainer BuildChildContainer()
         {
-            return new NinjectObjectBuilder(new ChildKernel(this.kernel));
+            return new NinjectObjectBuilder(new ChildKernel(this.kernel,new NinjectSettings{LoadExtensions = false}));
         }
 
         /// <summary>

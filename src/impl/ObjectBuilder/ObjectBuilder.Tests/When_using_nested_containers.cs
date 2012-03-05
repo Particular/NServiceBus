@@ -5,8 +5,6 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
-    using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Unity;
     using StructureMap;
@@ -28,8 +26,7 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
-            typeof(NinjectObjectBuilder));
+            typeof(UnityObjectBuilder));
 
         }
 
@@ -50,33 +47,7 @@ namespace ObjectBuilder.Tests
 
         }
 
-        [Test]
-        public void Should_be_able_to_reregister_a_component_locally()
-        {
-
-            ForAllBuilders(builder =>
-            {
-                var singletonInMainContainer = new SingletonComponent();
-                builder.RegisterSingleton(typeof(ISingletonComponent), singletonInMainContainer);
-
-                var nestedContainer = builder.BuildChildContainer();
-
-                Assert.IsInstanceOf<SingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-
-                var singletonInNestedContainer = new AnotherSingletonComponent();
-
-                nestedContainer.RegisterSingleton(typeof(ISingletonComponent), singletonInNestedContainer);
-
-                Assert.IsInstanceOf<SingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-                Assert.IsInstanceOf<AnotherSingletonComponent>(nestedContainer.Build(typeof(ISingletonComponent)));
-
-            },
-            typeof(SpringObjectBuilder),
-            typeof(WindsorObjectBuilder),
-            typeof(UnityObjectBuilder),
-            typeof(NinjectObjectBuilder));
-        }
-
+       
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
@@ -95,8 +66,7 @@ namespace ObjectBuilder.Tests
                 Assert.False(SingletonComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder),
-            typeof(UnityObjectBuilder),
-            typeof(NinjectObjectBuilder));
+            typeof(UnityObjectBuilder));
         }
     }
 
