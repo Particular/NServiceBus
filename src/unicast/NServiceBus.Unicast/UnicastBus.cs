@@ -21,6 +21,7 @@ using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
 {
+    using System.Diagnostics;
     using System.Globalization;
 
     /// <summary>
@@ -952,7 +953,17 @@ namespace NServiceBus.Unicast
 
                 if (canDispatch)
                 {
-                    var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle);
+                    var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
+
+                    if(!handlers.Any())
+                    {
+                        var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
+                        
+                        if(Debugger.IsAttached)
+                            throw new InvalidOperationException(warning);
+                        
+                        Log.WarnFormat(warning);
+                    }
 
                     LogPipelineInfo(messageToHandle, handlers);
                 }
@@ -1213,7 +1224,7 @@ namespace NServiceBus.Unicast
 
                                   Log.Warn(warning);
 
-                                  if (Log.IsDebugEnabled) // only under debug, so that we don't expose ourselves to a denial of service
+                                  if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service
                                       throw new InvalidOperationException(warning);  // and cause message to go to error queue by throwing an exception
                               };
 
