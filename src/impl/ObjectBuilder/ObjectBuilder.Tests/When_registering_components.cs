@@ -91,7 +91,7 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.EnumDependency, SomeEnum.X);
                 Assert.AreEqual(component.SimpleDependency, 1);
                 Assert.AreEqual(component.StringDependency, "Test");
-                Assert.NotNull(component.ConcreteDependecy, "Concrete classed should be property injected");
+                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
             }, typeof(UnityObjectBuilder));
 
@@ -211,7 +211,8 @@ namespace ObjectBuilder.Tests
         public int SimpleDependency { get; set; }
         public string StringDependency { get; set; }
         public ISomeInterface InterfaceDependency { get; set; }
-        public SomeClass ConcreteDependecy { get; set; }
+        public SomeClass ConcreteDependency { get; set; }
+        public SomeClass ConcreteDependencyWithPrivateSet { get; private set; }
     }
 
     public class SomeClass : ISomeInterface
