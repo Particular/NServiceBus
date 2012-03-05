@@ -121,6 +121,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
+            DefaultInstances.Add(lookupType);
             container.RegisterInstance(lookupType, instance);
         }
 

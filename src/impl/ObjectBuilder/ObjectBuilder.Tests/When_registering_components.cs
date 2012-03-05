@@ -51,7 +51,7 @@ namespace ObjectBuilder.Tests
                 builder.RegisterSingleton(typeof(SingletonComponent), singleton);
                 Assert.AreEqual(builder.Build(typeof(SingletonComponent)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingletonComponent)), singleton);
-            }, typeof(UnityObjectBuilder));
+            });
         }
 
         [Test]
