@@ -93,6 +93,8 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.StringDependency, "Test");
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
+                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
+                
             });
 
         }
@@ -212,7 +214,10 @@ namespace ObjectBuilder.Tests
         public string StringDependency { get; set; }
         public ISomeInterface InterfaceDependency { get; set; }
         public SomeClass ConcreteDependency { get; set; }
+        public SomeClass ConcreteDependencyWithSetOnly { set { concreteDependencyWithSetOnly = value; } }
         public SomeClass ConcreteDependencyWithPrivateSet { get; private set; }
+
+        public SomeClass concreteDependencyWithSetOnly;
     }
 
     public class SomeClass : ISomeInterface

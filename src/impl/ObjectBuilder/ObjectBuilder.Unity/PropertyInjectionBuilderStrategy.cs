@@ -31,17 +31,17 @@ namespace NServiceBus.ObjectBuilder.Unity
             var type = context.BuildKey.Type;
             if (!type.FullName.StartsWith("Microsoft.Practices"))
             {
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(context.BuildKey.Type);
+                var properties = type.GetProperties();
 
               
-                foreach (PropertyDescriptor property in properties)
+                foreach (var property in properties)
                 {
-                    if (!property.PropertyType.IsPublic)
-                        return;
+                    if (!property.CanWrite)
+                        continue;
 
                     if (_unityContainer.IsRegistered(property.PropertyType))
                     {
-                        property.SetValue(context.Existing, _unityContainer.Resolve(property.PropertyType));
+                        property.SetValue(context.Existing, _unityContainer.Resolve(property.PropertyType),null);
                     }
 
                     if(configuredProperties.ContainsKey(type))
@@ -49,7 +49,7 @@ namespace NServiceBus.ObjectBuilder.Unity
                         var p = configuredProperties[type].FirstOrDefault(t => t.Item1 == property.Name);
 
                         if(p != null)
-                            property.SetValue(context.Existing, p.Item2);
+                            property.SetValue(context.Existing, p.Item2,null);
                     }
                 }
             }
