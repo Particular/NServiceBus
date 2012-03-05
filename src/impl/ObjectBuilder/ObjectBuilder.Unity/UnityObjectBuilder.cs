@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Practices.Unity;
-using NServiceBus.ObjectBuilder.Common;
 
 namespace NServiceBus.ObjectBuilder.Unity
 {
+    using IContainer = Common.IContainer;
+
     public class UnityObjectBuilder : IContainer
     {
         /// <summary>
@@ -31,11 +32,18 @@ namespace NServiceBus.ObjectBuilder.Unity
         public UnityObjectBuilder(IUnityContainer container)
         {
             this.container = container;
-            var autowireContainerExtension = this.container.Configure<FullAutowireContainerExtension>();
-            if (autowireContainerExtension == null)
+            //var autowireContainerExtension = this.container.Configure<FullAutowireContainerExtension>();
+            //if (autowireContainerExtension == null)
+            //{
+            //    this.container.AddNewExtension<FullAutowireContainerExtension>();
+            //}
+
+            var propertyInjectionExtension = this.container.Configure<PropertyInjectionContainerExtension>();
+            if (propertyInjectionExtension == null)
             {
-                this.container.AddNewExtension<FullAutowireContainerExtension>();
+                this.container.AddNewExtension<PropertyInjectionContainerExtension>();
             }
+
         }
 
         /// <summary>
@@ -87,36 +95,30 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public void Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
-            ConfigureComponentAdapter config =
-               container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
-                  FirstOrDefault();
-            if (config == null)
-            {
-                IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
-                config = new ConfigureComponentAdapter(container, concreteComponent);
-                container.RegisterInstance(Guid.NewGuid().ToString(), config);
+            if (HasComponent(concreteComponent))
+                return;
 
-                foreach (Type t in interfaces)
+            IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
+
+      
+            foreach (Type t in interfaces)
+            {
+                if (DefaultInstances.Contains(t))
                 {
-                    if (DefaultInstances.Contains(t))
-                    {
-                        container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle));
-                    }
-                    else
-                    {
-                        container.RegisterType(t, concreteComponent, GetLifetimeManager(dependencyLifecycle));
-                        DefaultInstances.Add(t);
-                    }
+                    container.RegisterType(t, concreteComponent, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle));
+                }
+                else
+                {
+                    container.RegisterType(t, concreteComponent, GetLifetimeManager(dependencyLifecycle));
+                    DefaultInstances.Add(t);
                 }
             }
+
         }
 
         public void ConfigureProperty(Type concreteComponent, string property, object value)
         {
-            ConfigureComponentAdapter config =
-               container.ResolveAll<ConfigureComponentAdapter>().Where(x => x.ConfiguredType == concreteComponent).
-                  First();
-            config.ConfigureProperty(property, value);
+            PropertyInjectionBuilderStrategy.SetPropertyValue(concreteComponent, property, value);
         }
 
         public void RegisterSingleton(Type lookupType, object instance)
@@ -127,7 +129,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public bool HasComponent(Type componentType)
         {
-            return container.ResolveAll<ConfigureComponentAdapter>().Any(x => x.ConfiguredType == componentType);
+            return container.IsRegistered(componentType);
         }
 
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
@@ -137,15 +139,9 @@ namespace NServiceBus.ObjectBuilder.Unity
                 return new List<Type>();
             }
 
-            var result = new List<Type>(t.GetInterfaces());
+            var result = new List<Type>(t.GetInterfaces().Where(x => x.FullName != null && !x.FullName.StartsWith("System.")));
             result.Add(t);
-
-            foreach (Type interfaceType in t.GetInterfaces())
-            {
-                result.AddRange(GetAllServiceTypesFor(interfaceType));
-            }
-
-            return result.Distinct();
+            return result;
         }
 
         private static LifetimeManager GetLifetimeManager(DependencyLifecycle dependencyLifecycle)

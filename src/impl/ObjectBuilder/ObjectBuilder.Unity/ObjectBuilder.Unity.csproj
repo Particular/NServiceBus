@@ -75,13 +75,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
-    <Compile Include="AutowireEnabledInjectionProperty.cs" />
-    <Compile Include="ConfigureComponentAdapter.cs" />
     <Compile Include="Config\ConfigureUnityBuilder.cs" />
-    <Compile Include="FullAutowireContainerExtension.cs" />
-    <Compile Include="FullAutowirePropertySelectorPolicy.cs" />
-    <Compile Include="OptionalFixedTypeResolverPolicy.cs" />
+    <Compile Include="PropertyInjectionBuilderStrategy.cs" />
     <Compile Include="UnityObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -37,7 +37,7 @@ namespace ObjectBuilder.Tests
                 builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
                 Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-            }, typeof(SpringObjectBuilder), typeof(UnityObjectBuilder));
+            }, typeof(SpringObjectBuilder));
         }
 
 
@@ -70,7 +70,7 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
-            }, typeof(UnityObjectBuilder));
+            });
 
         }
 
@@ -93,7 +93,7 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(component.StringDependency, "Test");
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-            }, typeof(UnityObjectBuilder));
+            });
 
         }
 
@@ -125,7 +125,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
             }
-            , typeof(UnityObjectBuilder));
+            );
 
 
         }
@@ -139,7 +139,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
             }
-            , typeof(UnityObjectBuilder));
+            );
         }
 
         [Test,Ignore("Not sure that we should enforce this")]
@@ -152,7 +152,7 @@ namespace ObjectBuilder.Tests
                 Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));
                 Assert.False(builder.HasComponent(typeof(IDisposable)));
             }
-            , typeof(UnityObjectBuilder));
+            );
         }
     }
 
