@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
@@ -206,18 +207,56 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <param name="propBuilder"></param>
         private void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
         {
-            var classConstructorInfo = customAttribute.GetType().GetConstructor(new Type[] { });
-            if (classConstructorInfo == null)
-            {
-                Logger.Warn(string.Format("Ignoring attribute '{0}' on property {1}.{2} as it has no parameterless .ctor.", customAttribute.GetType(), propBuilder.DeclaringType.Name, propBuilder.Name));
-                return;
-            }
-
-            var customAttributeBuilder = new CustomAttributeBuilder(classConstructorInfo,
-                                                                            new object[] { });
-            propBuilder.SetCustomAttribute(customAttributeBuilder);
+            var customAttributeBuilder = BuildCustomAttribute(customAttribute);
+            if (customAttributeBuilder != null)
+                propBuilder.SetCustomAttribute(customAttributeBuilder);
         }
 
+        private static CustomAttributeBuilder BuildCustomAttribute(object customAttribute)
+        {
+            ConstructorInfo longestCtor = null;
+            // Get constructor with the largest number of parameters
+            foreach (ConstructorInfo cInfo in customAttribute.GetType().GetConstructors().
+                Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
+                longestCtor = cInfo;
+
+            if (longestCtor == null)
+                return null;
+
+            // For each constructor parameter, get corresponding (by name similarity) property and get its value
+            var args = new object[longestCtor.GetParameters().Length];
+            int pos = 0;
+            foreach (var attrPropInfo in longestCtor.GetParameters().
+                Select(consParamInfo => customAttribute.GetType().GetProperty(consParamInfo.Name,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)))
+            {
+                if (attrPropInfo != null)
+                    args[pos] = attrPropInfo.GetValue(customAttribute, null);
+                else
+                    args[pos] = null;
+                ++pos;
+            }
+            
+            var propList = new List<PropertyInfo>();
+            var propValueList = new List<object>();
+            foreach (var attrPropInfo in customAttribute.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!attrPropInfo.CanWrite)
+                    continue;
+                object defaultValue = null;
+                var defaultAttrs = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
+                if (defaultAttrs.Length > 0)
+                {
+                    defaultValue = ((DefaultValueAttribute)defaultAttrs[0]).Value;
+                }
+                var value = attrPropInfo.GetValue(customAttribute, null);
+                if (value == defaultValue)
+                    continue;
+                propList.Add(attrPropInfo);
+                propValueList.Add(value);
+            }
+            return new CustomAttributeBuilder(longestCtor, args, propList.ToArray(), propValueList.ToArray());
+        }
         /// <summary>
         /// Returns all properties on the given type, going up the inheritance
         /// hierarchy.
