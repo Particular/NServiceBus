@@ -498,6 +498,29 @@ task CreatePackages -depends PrepareRelease  {
 </configuration>
 "
     $installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
+	
+	`$directoryName  = [system.io.Path]::GetDirectoryName(`$project.FullName)	
+	`$appConfigFile = `$directoryName + `"\App.config`"
+	if((Test-Path -Path `$appConfigFile) -eq `$true){
+		[xml] `$appConfig = Get-Content `$appConfigFile
+		`$selectedNodes = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig`" -Xml `$appConfig
+		if(`$selectedNodes -ne `$null){
+			`$selectedNodes.Count
+			if(`$selectedNodes.Count -gt 1){
+				`$selectedNode = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
+				`$appConfig | select-xml -xpath `"/configuration`" | % {`$_.node.removechild(`$selectedNode.node)}
+				}
+			}
+        `$writerSettings = new-object System.Xml.XmlWriterSettings
+  		`$writerSettings.OmitXmlDeclaration = `$true
+  		`$writerSettings.NewLineOnAttributes = `$true
+ 		`$writerSettings.Indent = `$true			
+		`$writer = [System.Xml.XmlWriter]::Create(`$appConfigFile, `$writerSettings)
+		`$appConfig.WriteTo(`$writer)
+		`$writer.Flush()
+		`$writer.Close()
+	}
+	
 if(`$Host.Version.Major -gt 1)
 {  
 	[xml] `$prjXml = Get-Content `$project.FullName
@@ -548,13 +571,17 @@ else{
 	
 	$packageName = "NServiceBus.Host" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40";
+																									 ".\release\content\*.*"="content";
+																									  ".\release\tools\install.ps1*"="tools"}
 	#endregion
 
 	#region Packing NServiceBus.Host32
 	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";
+																									 ".\release\content\*.*"="content";
+																									  ".\release\tools\install.ps1*"="tools"}
 	Remove-Item -Force $appConfigTranformFile -ErrorAction SilentlyContinue
 	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
 	Delete-Directory "$releaseRoot\content"
