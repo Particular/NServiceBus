@@ -44,7 +44,7 @@ namespace NServiceBus.Hosting
         }
 
         /// <summary>
-        /// Finilize
+        /// Finalize
         /// </summary>
         public void Stop()
         {
