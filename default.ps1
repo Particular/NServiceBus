@@ -548,17 +548,13 @@ else{
 	
 	$packageName = "NServiceBus.Host" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40";
-																									 ".\release\content\*.*"="content"; 
-																									 ".\release\tools\install.ps1*"="tools"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40"}
 	#endregion
 
 	#region Packing NServiceBus.Host32
 	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
 	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";
-																										".\release\content\*.*"="content"
-																										".\release\tools\install.ps1*"="tools"}
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
 	Remove-Item -Force $appConfigTranformFile -ErrorAction SilentlyContinue
 	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
 	Delete-Directory "$releaseRoot\content"
