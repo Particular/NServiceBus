@@ -510,7 +510,7 @@ task CreatePackages -depends PrepareRelease  {
 				`$selectedNode = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
 				`$appConfig | select-xml -xpath `"/configuration`" | % {`$_.node.removechild(`$selectedNode.node)}
 				`$writerSettings = new-object System.Xml.XmlWriterSettings
-				`$writerSettings.OmitXmlDeclaration = `$true
+				`$writerSettings.OmitXmlDeclaration = `$false
 				`$writerSettings.NewLineOnAttributes = `$false
 				`$writerSettings.Indent = `$true			
 				`$writer = [System.Xml.XmlWriter]::Create(`$appConfigFile, `$writerSettings)
