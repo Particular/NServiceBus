@@ -509,16 +509,16 @@ task CreatePackages -depends PrepareRelease  {
 			if(`$selectedNodes.Count -gt 1){
 				`$selectedNode = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
 				`$appConfig | select-xml -xpath `"/configuration`" | % {`$_.node.removechild(`$selectedNode.node)}
-				}
+				`$writerSettings = new-object System.Xml.XmlWriterSettings
+				`$writerSettings.OmitXmlDeclaration = `$true
+				`$writerSettings.NewLineOnAttributes = `$false
+				`$writerSettings.Indent = `$true			
+				`$writer = [System.Xml.XmlWriter]::Create(`$appConfigFile, `$writerSettings)
+				`$appConfig.WriteTo(`$writer)
+				`$writer.Flush()
+				`$writer.Close()
 			}
-        `$writerSettings = new-object System.Xml.XmlWriterSettings
-  		`$writerSettings.OmitXmlDeclaration = `$true
-  		`$writerSettings.NewLineOnAttributes = `$true
- 		`$writerSettings.Indent = `$true			
-		`$writer = [System.Xml.XmlWriter]::Create(`$appConfigFile, `$writerSettings)
-		`$appConfig.WriteTo(`$writer)
-		`$writer.Flush()
-		`$writer.Close()
+		}
 	}
 	
 if(`$Host.Version.Major -gt 1)
