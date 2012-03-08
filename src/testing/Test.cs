@@ -9,6 +9,7 @@ using Rhino.Mocks;
 namespace NServiceBus.Testing
 {
     using Config.ConfigurationSource;
+    using DataBus;
     using Unicast.Queuing;
     using Unicast.Transport;
 
@@ -179,6 +180,7 @@ namespace NServiceBus.Testing
             Configure.Instance.Configurer.RegisterSingleton<IUnicastBus>(bus);
             Configure.Instance.Configurer.RegisterSingleton<ITransport>(mocks.Stub<ITransport>());
             Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(mocks.Stub<ISendMessages>());
+            Configure.Instance.Configurer.RegisterSingleton<IDataBus>(mocks.Stub<IDataBus>());
 
             bus.Replay(); // to neutralize any event subscriptions by rest of NSB
             
