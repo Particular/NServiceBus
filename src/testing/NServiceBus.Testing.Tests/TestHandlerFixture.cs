@@ -230,6 +230,15 @@ namespace NServiceBus.Testing.Tests
 				.OnMessage<TestMessage>(m => { });
 		}
 
+        [Test]
+        public void ShouldSupportDataBusProperties()
+        {
+            Test.Handler<DataBusMessageHandler>()
+                .ExpectNotPublish<Publish2>(m => true)
+                .OnMessage<MessageWithDataBusProperty>(m => { });
+        }
+
+
         public class EmptyHandler : IHandleMessages<TestMessage>
         {
             public void Handle(TestMessage message) {}
@@ -362,5 +371,20 @@ namespace NServiceBus.Testing.Tests
 
     }
 
-    public interface TestMessage : IMessage { }
+    public class DataBusMessageHandler:IHandleMessages<MessageWithDataBusProperty>
+    {
+        public void Handle(MessageWithDataBusProperty message)
+        {
+            
+        }
+    }
+
+    public interface TestMessage : IMessage
+    {
+    }
+
+    public class MessageWithDataBusProperty : IMessage
+    {
+        public DataBusProperty<byte[]> ALargeByteArray { get; set; }
+    }
 }
