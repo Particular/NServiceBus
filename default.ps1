@@ -487,6 +487,12 @@ task CreatePackages -depends PrepareRelease  {
 	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
 	#endregion
 	
+	#region Packing NServiceBus.Interfaces
+	$packageName = "NServiceBus.Interfaces" + $PackageNameSuffix 	
+	$packit.package_description = "The Interfaces for NServiceBus Implementation"
+	invoke-packit $packageName $script:packageVersion @{} "binaries\NServiceBus.dll" @{} 
+	#endregion
+	
     #region Packing NServiceBus.Host
 	
 	$appConfigTranformContent = "<?xml version=`"1.0`"?>
