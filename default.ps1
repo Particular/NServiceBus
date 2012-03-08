@@ -721,18 +721,26 @@ task GenerateAssemblyInfo {
 	}
 	Write-Output "Build Number: $BuildNumber"
 	
-	$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
 	$asmVersion =  $ProductVersion + ".0.0"
-	$infoVersion = $ProductVersion+ ".0" + $PreRelease + $BuildNumber 
+
+	if($PreRelease -eq "") {
+		$fileVersion = $ProductVersion + "." + $BuildNumber + ".0" 
+		$infoVersion = $fileVersion
+		$script:packageVersion = $ProductVersion + "." + $BuildNumber
+	}
+	else {
+		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
+		$infoVersion = $ProductVersion+ ".0" + $PreRelease + $BuildNumber 
+		$script:packageVersion = $infoVersion
+	}
+	
+	
 	$script:releaseVersion = $infoVersion
 	
 	#Temporarily removed the PreRelease prefix ('-build') from the package version for CI packages to maintain compatibility with the existing versioning scheme
 	#We will remove this as soon as we until we consolidate the CI and regular packages
 	if($PackageNameSuffix -eq "-CI") {
 		$script:packageVersion = $ProductVersion + "." + $BuildNumber
-	}
-	else {
-		$script:packageVersion = $infoVersion
 	}
 		
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
