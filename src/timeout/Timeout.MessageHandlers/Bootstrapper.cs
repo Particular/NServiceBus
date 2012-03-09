@@ -19,17 +19,9 @@ namespace Timeout.MessageHandlers
             Manager.Init(TimeSpan.FromMilliseconds(100));
 
             Manager.SagaTimedOut +=
-                (o, e) =>
-                    {
-                        using (var scope = new TransactionScope(TransactionScopeOption.Required))
-                        {
-                            Bus.Send(e.Destination,
+                (o, e) => Bus.Send(e.Destination,
                                      new TimeoutMessage {SagaId = e.SagaId, Expires = DateTime.MinValue, State = e.State});
                             
-                            scope.Complete();
-                        }
-                    };
-
             thread = new Thread(Poll);
             thread.Start();
         }

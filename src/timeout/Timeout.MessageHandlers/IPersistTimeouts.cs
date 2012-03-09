@@ -11,7 +11,7 @@ namespace Timeout.MessageHandlers
 
         void Add(TimeoutData timeout);
 
-        void Remove(TimeoutData timeout);
+        bool Remove(TimeoutData timeout);
 
         void ClearAll(Guid sagaId);
     }

@@ -70,25 +70,38 @@ namespace Timeout.MessageHandlers
             sagaToMessageLookup[timeout.SagaId].Add(timeout);
         }
 
-        void IPersistTimeouts.Remove(TimeoutData timeout)
+        bool IPersistTimeouts.Remove(TimeoutData timeout)
         {
             lock (sagaToMessageLookup)
-                if (sagaToMessageLookup.ContainsKey(timeout.SagaId))
-                {
-                    var existing = sagaToMessageLookup[timeout.SagaId];
-                    foreach(var td in existing.ToArray())
-                        if (td.Time == timeout.Time)
-                        {
-                            try
-                            {
-                                storageQueue.ReceiveById(td.MessageId, MessageQueueTransactionType.Automatic);
-                            }
-                            catch (InvalidOperationException) //msg ID not in queue
-                            { }
+            {
+                if (!sagaToMessageLookup.ContainsKey(timeout.SagaId))
+                    return false;
 
-                            sagaToMessageLookup[timeout.SagaId].Remove(td);
-                        }
+                var existing = sagaToMessageLookup[timeout.SagaId];
+
+                TimeoutData selected = null;
+                foreach (var td in existing.ToArray())
+                    if (td.Time == timeout.Time)
+                        selected = td;
+
+                bool result = true;
+                if (selected != null)
+                {
+                    try
+                    {
+                        storageQueue.ReceiveById(selected.MessageId, MessageQueueTransactionType.Automatic);
+                    }
+                    catch (InvalidOperationException) //msg ID not in queue
+                    {
+                        result = false;
+                    }
+                    finally
+                    {
+                        sagaToMessageLookup[timeout.SagaId].Remove(selected);
+                    }
                 }
+                return result;
+            }            
         }
 
         void IPersistTimeouts.ClearAll(Guid sagaId)

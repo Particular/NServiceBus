@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 
 namespace Timeout.MessageHandlers
 {
@@ -49,23 +50,12 @@ namespace Timeout.MessageHandlers
             var pair = new KeyValuePair<DateTime, List<TimeoutData>>(DateTime.MinValue, null);
 
             lock (data)
-            {
                 if (data.Count > 0)
                 {
                     var next = data.ElementAt(0);
                     if (next.Key - DateTime.UtcNow < duration)
-                    {
                         pair = next;
-                        data.Remove(pair.Key);
-
-                        pair.Value.ForEach(td =>
-                            {
-                                sagaLookup.Remove(td.SagaId);
-                                Persister.Remove(td);
-                            });
-                    }
                 }
-            }
 
             if (pair.Key == DateTime.MinValue)
             {
@@ -76,7 +66,22 @@ namespace Timeout.MessageHandlers
             if (pair.Key > DateTime.UtcNow)
                 Thread.Sleep(pair.Key - DateTime.UtcNow);
 
-            pair.Value.ForEach(OnSagaTimedOut);
+            using (var scope = new TransactionScope(TransactionScopeOption.Required))
+            {
+                pair.Value.ForEach(td =>
+                {
+                    if (Persister.Remove(td))
+                        OnSagaTimedOut(td);
+                });
+
+                scope.Complete();
+            }
+
+            lock (data)
+            {
+                data.Remove(pair.Key);
+                pair.Value.ForEach(td => sagaLookup.Remove(td.SagaId));
+            }
         }
 
         public void ClearTimeout(Guid sagaId)
