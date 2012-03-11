@@ -39,6 +39,7 @@
                 TimeoutManager.PushTimeout(td));
 
             thread = new Thread(Poll);
+            thread.IsBackground = true;
             thread.Start();
         }
 
