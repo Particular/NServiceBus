@@ -15,27 +15,19 @@ namespace NServiceBus.Timeout.Core
         /// <param name="message"></param>
         public object MutateOutgoing(object message)
         {
-            PromoteHeaders(message);
-
-            return message;
-        }
-
-   
-        void PromoteHeaders(object message)
-        {
             var timeoutMessage = message as TimeoutMessage;
 
             if (timeoutMessage == null)
-                return;
+                return message;
 
-            Bus.CurrentMessageContext.Headers[Headers.SagaId] = timeoutMessage.SagaId.ToString();
-            Bus.CurrentMessageContext.Headers[Headers.Expire] = timeoutMessage.Expires.ToWireFormattedString();
+            message.SetHeader(Headers.SagaId, timeoutMessage.SagaId.ToString());
+            message.SetHeader(Headers.Expire,timeoutMessage.Expires.ToWireFormattedString());
 
             if (timeoutMessage.ClearTimeout)
-                Bus.CurrentMessageContext.Headers[Headers.ClearTimeouts] = true.ToString(CultureInfo.InvariantCulture);
+                message.SetHeader(Headers.ClearTimeouts,true.ToString(CultureInfo.InvariantCulture));
 
+            return message;
         }
-
 
         /// <summary>
         /// We set the values for incoming messages as well so that we are backwards compatible with 2.6 timeouts
@@ -44,7 +36,16 @@ namespace NServiceBus.Timeout.Core
         /// <returns></returns>
         public object MutateIncoming(object message)
         {
-            PromoteHeaders(message);
+            var timeoutMessage = message as TimeoutMessage;
+
+            if (timeoutMessage == null)
+                return message;
+
+            Bus.CurrentMessageContext.Headers[Headers.SagaId] = timeoutMessage.SagaId.ToString();
+            Bus.CurrentMessageContext.Headers[Headers.Expire] = timeoutMessage.Expires.ToWireFormattedString();
+
+            if (timeoutMessage.ClearTimeout)
+                Bus.CurrentMessageContext.Headers[Headers.ClearTimeouts] = true.ToString(CultureInfo.InvariantCulture);
 
             return message;
         }
