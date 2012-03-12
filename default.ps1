@@ -272,7 +272,7 @@ task CompileAzureHosts  -depends InitEnvironment {
 }
 
 task CompileTools -depends InitEnvironment, CompileAzureHosts{
-	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils"
+	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\"
 	
 	$toolsDirs | % {				
 	 	$solutions = dir "$srcDir\$_\*.sln"
