@@ -150,7 +150,7 @@ namespace NServiceBus.Saga
                 toSend = new TimeoutMessage(within, Data, toSend);
 
             toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
-            toSend.SetHeader("NServiceBus.SagaDataType", GetType().BaseType.GetGenericArguments().First().AssemblyQualifiedName);
+            toSend.SetHeader("NServiceBus.SagaDataType", Data.GetType().AssemblyQualifiedName);
             if (within <= TimeSpan.Zero)
                 Bus.SendLocal(toSend);
             else
