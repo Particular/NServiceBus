@@ -42,13 +42,14 @@ namespace OrderService.Tests
         public void OrderSagaTest()
         {
             var sagaId = Guid.NewGuid();
+            var order = CreateRequest();
 
             Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
-                .ExpectSend<TimeoutMessage>(m => m.SagaId == sagaId)
-            .When(os => os.Handle(CreateRequest()))
+                .ExpectTimeoutToBeSetWithState<TimeoutMessage>(tm => tm.State == "state")
+            .When(os => os.Handle(order))
 
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Accepted))
@@ -65,7 +66,7 @@ namespace OrderService.Tests
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<IRequestOrderAuthorizationMessage>(Check)
-                .ExpectSend<TimeoutMessage>(m => { state = m.State; return m.SagaId == sagaId; })
+                .ExpectTimeoutToBeSetWithState<TimeoutMessage>(tm => true)
             .When(os => os.Handle(CreateRequest()))
 
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))

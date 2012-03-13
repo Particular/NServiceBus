@@ -53,6 +53,13 @@ namespace NServiceBus.Testing
                 .DefaultBuilder()
                 .XmlSerializer()
                 .InMemoryFaultManagement();
+
+            messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
+            if (messageCreator == null)
+                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
+
+            ExtensionMethods.MessageCreator = messageCreator;
+
         }
 
         /// <summary>
@@ -189,10 +196,7 @@ namespace NServiceBus.Testing
             Configure.Instance.CreateBus();
 
             Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
-            messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
-            if (messageCreator == null)
-                throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
-
+          
             bus.BackToRecord(); // to get ready for testing
             starter.BackToRecord();
             return bus;
