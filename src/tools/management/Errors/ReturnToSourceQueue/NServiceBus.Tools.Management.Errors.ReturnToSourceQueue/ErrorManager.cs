@@ -13,7 +13,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         private const string NoMessageFoundErrorFormat = "INFO: No message found with ID '{0}'. Going to check headers of all messages for one with that original ID.";
         private MessageQueue queue;
         private static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
-
+        public bool ClusteredQueue { get; set; }
         /// <summary>
         /// Constant taken from V2.6: 
         /// https://github.com/NServiceBus/NServiceBus/blob/v2.5/src/impl/unicast/NServiceBus.Unicast.Msmq/MsmqTransport.cs
@@ -27,7 +27,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                 var path = MsmqUtilities.GetFullPath(value);
                 var q = new MessageQueue(path);
 
-                if (!q.Transactional)
+                if ((!ClusteredQueue) && (!q.Transactional))
                     throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
 
                 queue = q;
