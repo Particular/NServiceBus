@@ -23,6 +23,11 @@
         /// <summary>
         /// Unsubscribe
         /// </summary>
-        Unsubscribe
+        Unsubscribe,
+
+        /// <summary>
+        /// Unsubscribe place holder for V2.6
+        /// </summary>
+        UnsubscribeForBackwardCompatability
     }
 }
