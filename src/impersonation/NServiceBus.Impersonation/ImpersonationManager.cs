@@ -1,9 +1,7 @@
 ﻿using System.Security.Principal;
 using System.Threading;
 using NServiceBus.Config;
-using NServiceBus.Impersonation;
 using NServiceBus.MessageMutator;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Unicast.Transport;
 
@@ -16,27 +14,36 @@ namespace NServiceBus.Impersonation
     {
         void INeedInitialization.Init()
         {
-            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<ImpersonationManager>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<ImpersonationManager>(DependencyLifecycle.SingleInstance);
 
             Configure.ConfigurationComplete +=
                 () =>
-                    {
-                        Configure.Instance.Builder.Build<ITransport>().TransportMessageReceived +=
-                            Transport_TransportMessageReceived;
-                    };
+                {
+                    Configure.Instance.Builder.Build<ITransport>().TransportMessageReceived +=
+                        Transport_TransportMessageReceived;
+                };
         }
 
         static void Transport_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (ConfigureImpersonation.Impersonate)
-                if (e.Message.Headers.ContainsKey(WindowsIdentityName))
-                    Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(e.Message.Headers[WindowsIdentityName]), new string[0]);
+            if (!ConfigureImpersonation.Impersonate)
+                return;
+
+            if (!e.Message.Headers.ContainsKey(WindowsIdentityName))
+                return;
+
+            var name = e.Message.Headers[WindowsIdentityName];
+
+            if (name == null)
+                return;
+
+            Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(name), new string[0]);
         }
 
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-			if (transportMessage.Headers.ContainsKey(WindowsIdentityName))
-				transportMessage.Headers.Remove(WindowsIdentityName);
+            if (transportMessage.Headers.ContainsKey(WindowsIdentityName))
+                transportMessage.Headers.Remove(WindowsIdentityName);
 
             transportMessage.Headers.Add(WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
         }
@@ -52,14 +59,14 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureImpersonation
     {
-		/// <summary>
+        /// <summary>
         /// Impersonate by default, otherwise this configuration would not be backward compatible
         /// </summary>
-		static ConfigureImpersonation()
-		{
-			Impersonate = true;
-		}
-		
+        static ConfigureImpersonation()
+        {
+            Impersonate = true;
+        }
+
         /// <summary>
         /// Instructs the bus to run the processing of messages being handled
         /// under the permissions of the sender of the message.
