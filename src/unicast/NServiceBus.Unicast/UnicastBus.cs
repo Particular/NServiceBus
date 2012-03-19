@@ -338,7 +338,7 @@ namespace NServiceBus.Unicast
         /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
-            MessagingConventionsRules.AssertIsValidForPubSub(typeof(T));
+            MessagingBestPractices.AssertIsValidForPubSub(typeof(T));
 
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
@@ -405,7 +405,7 @@ namespace NServiceBus.Unicast
         /// <param name="condition">The condition under which to receive the message.</param>
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
-            MessagingConventionsRules.AssertIsValidForPubSub(messageType);
+            MessagingBestPractices.AssertIsValidForPubSub(messageType);
             AssertBusIsStarted();
             AssertHasLocalAddress();
 
@@ -443,7 +443,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
-            MessagingConventionsRules.AssertIsValidForPubSub(messageType);
+            MessagingBestPractices.AssertIsValidForPubSub(messageType);
             AssertBusIsStarted();
             AssertHasLocalAddress();
 
@@ -464,7 +464,7 @@ namespace NServiceBus.Unicast
 
         void IBus.Reply(params object[] messages)
         {
-            MessagingConventionsRules.AssertIsValidForReply(messages.ToList());
+            MessagingBestPractices.AssertIsValidForReply(messages.ToList());
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
@@ -645,7 +645,7 @@ namespace NServiceBus.Unicast
         private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             messages.ToList()
-                        .ForEach(message => MessagingConventionsRules.AssertIsValidForSend(message.GetType(), messageIntent));
+                        .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
 
             addresses.ToList()
                 .ForEach(address =>

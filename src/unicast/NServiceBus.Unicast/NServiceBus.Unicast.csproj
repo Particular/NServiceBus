@@ -119,7 +119,7 @@
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="MessageEventArgs.cs" />
-    <Compile Include="MessagingConventionsRules.cs" />
+    <Compile Include="MessagingBestPractices.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionsManager.cs" />
     <Compile Include="UnicastBus.cs" />

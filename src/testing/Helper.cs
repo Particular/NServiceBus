@@ -33,7 +33,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectSend<TMessage>(SendPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
+            MessagingBestPractices.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
 
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend<TMessage>(
@@ -50,7 +50,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectReply<TMessage>(SendPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForReply(typeof(TMessage));
+            MessagingBestPractices.AssertIsValidForReply(typeof(TMessage));
             
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToReply(
@@ -77,7 +77,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
+            MessagingBestPractices.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
 
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSendLocal<TMessage>(
@@ -117,7 +117,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
+            MessagingBestPractices.AssertIsValidForSend(typeof(TMessage), MessageIntentEnum.Send);
 
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend<TMessage>(
@@ -143,7 +143,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForReply(typeof(TMessage));
+            MessagingBestPractices.AssertIsValidForReply(typeof(TMessage));
 
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToSend<TMessage>(
@@ -169,7 +169,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public void ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
         {
-            MessagingConventionsRules.AssertIsValidForPubSub(typeof(TMessage));
+            MessagingBestPractices.AssertIsValidForPubSub(typeof(TMessage));
 
             Delegate d = new HandleMessageDelegate(
                 () => ExpectCallToPublish(

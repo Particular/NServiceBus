@@ -9,7 +9,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Enforce messaging rules
     /// </summary>
-    public class MessagingConventionsRules
+    public class MessagingBestPractices
     {
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used within the Bus.Send.
@@ -21,9 +21,6 @@ namespace NServiceBus.Unicast
             if (messageType.IsEventType() && messageIntent != MessageIntentEnum.Publish)
                 throw new InvalidOperationException(
                     "Events can have multiple recipient so they should be published");
-
-            if (!messageType.IsCommandType() && !messageType.IsEventType())
-                Log.Info("You are using a basic message to send a request, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
 
         /// <summary>
@@ -60,6 +57,6 @@ namespace NServiceBus.Unicast
                 Log.Info("You are using a basic message to do pub/sub, consider implementing the more specific ICommand and IEvent interfaces to help NServiceBus to enforce messaging best practices for you");
         }
 
-        private readonly static ILog Log = LogManager.GetLogger(typeof(MessagingConventionsRules));
+        private readonly static ILog Log = LogManager.GetLogger(typeof(MessagingBestPractices));
     }
 }
