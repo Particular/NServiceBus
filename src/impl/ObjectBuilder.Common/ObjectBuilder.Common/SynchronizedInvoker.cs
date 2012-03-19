@@ -7,7 +7,7 @@ namespace NServiceBus.ObjectBuilder.Common
     /// Invokes methods and actions within a synchronization domain.
     /// </summary>
     [Synchronization(SynchronizationAttribute.REQUIRED)]
-    public class SynchronizedInvoker
+    public class SynchronizedInvoker : ContextBoundObject
     {
         /// <summary>
         /// The container used to instantiate components.
