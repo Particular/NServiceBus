@@ -23,10 +23,7 @@
             var someState = new Random().Next(10);
 
             LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
-            RequestUtcTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
-                                                        {
-                                                            SomeValue = someState
-                                                        });
+            RequestUtcTimeout<MyTimeOutState>(TimeSpan.FromSeconds(10),t=>t.SomeValue = someState);
         }
 
         public override void ConfigureHowToFindSaga()

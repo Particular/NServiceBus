@@ -10,7 +10,7 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            Test.Initialize(typeof(MyTimeout));
+            Test.Initialize();
         }
 
         [Test]

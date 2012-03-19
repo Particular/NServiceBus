@@ -105,7 +105,7 @@ namespace NServiceBus.Testing
 
             saga.Bus = bus;
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
+            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType() || typeof(ITimeoutState).IsAssignableFrom(t)).ToList();
 
             return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
         }

@@ -107,11 +107,21 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur at the given time
         /// </summary>
         /// <param name="at"></param>
-        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at) where TTimeoutmessageType : new()
+        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at)
         {
-            TTimeoutmessageType m = new TTimeoutmessageType();
-            RequestUtcTimeout(at,m);
+            RequestUtcTimeout(at, Bus.CreateInstance<TTimeoutmessageType>());
         }
+
+        /// <summary>
+        /// Request for a timeout to occur at the given time
+        /// </summary>
+        /// <param name="at"></param>
+        /// <param name="action"></param>
+        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at, Action<TTimeoutmessageType> action)
+        {
+            RequestUtcTimeout(at, Bus.CreateInstance(action));
+        }
+
 
         /// <summary>
         /// Request for a timeout to occur at the given time
@@ -130,11 +140,19 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give timespan
         /// </summary>
         /// <param name="within"></param>
-        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within) where TTimeoutmessageType : new()
+        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within)
         {
-            var m = new TTimeoutmessageType();
+            RequestUtcTimeout(within, Bus.CreateInstance<TTimeoutmessageType>());
+        }
 
-            RequestUtcTimeout(within,m );
+        /// <summary>
+        /// Request for a timeout to occur within the give timespan
+        /// </summary>
+        /// <param name="within"></param>
+        /// <param name="action"> </param>
+        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within,Action<TTimeoutmessageType> action)
+        {
+            RequestUtcTimeout(within, Bus.CreateInstance(action));
         }
 
         /// <summary>
