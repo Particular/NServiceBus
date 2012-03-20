@@ -159,7 +159,10 @@ namespace NServiceBus
         /// <summary>
         /// The object used to see whether headers requested are for the handled message.
         /// </summary>
-        public static object CurrentMessageBeingHandled { get; set; }
+        public static object CurrentMessageBeingHandled { get { return currentMessageBeingHandled; } set { currentMessageBeingHandled = value; } }
+
+        [ThreadStatic]
+        static object currentMessageBeingHandled;
 
         /// <summary>
         /// The action used to set the header in the <see cref="SetHeader"/> method.
