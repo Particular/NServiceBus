@@ -59,6 +59,9 @@
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
@@ -67,9 +70,6 @@
     </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.UnitOfWork.NHibernate">
-      <HintPath>..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate\bin\Debug\NServiceBus.UnitOfWork.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
@@ -93,7 +93,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="MySaga.cs" />
     <Compile Include="TestSaga.cs" />
@@ -107,6 +106,10 @@
     <Compile Include="When_persisting_sagas_on_transactional_endpoints.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate\NServiceBus.UnitOfWork.NHibernate.csproj">
+      <Project>{6A731C25-84D8-42AC-BDC4-618432B87257}</Project>
+      <Name>NServiceBus.UnitOfWork.NHibernate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.SagaPersisters.NHibernate.AutoPersistence\NServiceBus.SagaPersisters.NHibernate.AutoPersistence.csproj">
       <Project>{B19F49E5-7059-4C18-91E7-D35DA4398D0C}</Project>
       <Name>NServiceBus.SagaPersisters.NHibernate.AutoPersistence</Name>

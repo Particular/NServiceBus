@@ -24,6 +24,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual TestComponent TestComponent { get; set; }
 
         public virtual PolymorpicPropertyBase PolymorpicRelatedProperty { get; set; }
+
+        public virtual int[] ArrayOfInts { get; set; }
+        public virtual int[] ArrayOfStrings { get; set; }
     }
 
     public class PolymorpicProperty : PolymorpicPropertyBase
