@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers["NServiceBus.Version"] = NServiceBusVersion;
+            transportMessage.Headers[NServiceBus.Headers.NServiceBusVersion] = NServiceBusVersion;
         }
 
         /// <summary>
