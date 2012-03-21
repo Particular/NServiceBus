@@ -117,6 +117,16 @@ task CompileMain -depends InitEnvironment -description "A build script CompileMa
 	
 }
 
+task TestMain -depends CompileMain {
+
+	if((Test-Path -Path $buildBase\test-reports) -eq $false){
+		Create-Directory $buildBase\test-reports 
+	}
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\nservicebus\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
+}
+
 task CompileCore -depends InitEnvironment { 
 
     $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "impl\licensing", "distributor", "gateway", "timeout"
@@ -157,6 +167,16 @@ task CompileCore -depends InitEnvironment {
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
 }
 
+task TestCore  -depends CompileCore {
+	
+	if((Test-Path -Path $buildBase\test-reports) -eq $false){
+		Create-Directory $buildBase\test-reports 
+	}	
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
+}
+
 task CompileContainers -depends InitEnvironment {
 
 	$solutions = dir "$srcDir\impl\ObjectBuilder\*.sln"
@@ -178,6 +198,16 @@ task CompileContainers -depends InitEnvironment {
 	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $coreOnly\containers -Force
 }
 
+task TestContainers  -depends CompileContainers {
+	
+	if((Test-Path -Path $buildBase\test-reports) -eq $false){
+		Create-Directory $buildBase\test-reports 
+	}	
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
+}
+
 task CompileWebServicesIntegration -depends  InitEnvironment{
 
 	$solutions = dir "$srcDir\integration\WebServices\*.sln"
@@ -194,15 +224,18 @@ task CompileNHibernate -depends InitEnvironment {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" }		
 	}
-	
-	$testAssemblies = dir $buildBase\NServiceBus.NHibernate\**Tests.dll
-	
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
-	
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
-
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
-	
+}
+
+task TestNHibernate  -depends CompileNHibernate {
+
+	if((Test-Path -Path $buildBase\test-reports) -eq $false){
+		Create-Directory $buildBase\test-reports 
+	}	
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\NServiceBus.NHibernate\**Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
 task CompileAzure -depends InitEnvironment {
@@ -212,15 +245,21 @@ task CompileAzure -depends InitEnvironment {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" }		
 	}
-	
-	$testAssemblies = dir $buildBase\azure\NServiceBus.Azure\**Tests.dll
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
-#	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
-	
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
 	
+}
+
+task TestAzure  -depends CompileAzure {
+
+	if((Test-Path -Path $buildBase\test-reports) -eq $false){
+		Create-Directory $buildBase\test-reports 
+	}	
+	$testAssemblies = @()
+	$testAssemblies +=  dir $buildBase\azure\NServiceBus.Azure\**Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
 task CompileHosts  -depends InitEnvironment {
@@ -314,19 +353,7 @@ task CompileTools -depends InitEnvironment, CompileAzureHosts{
 	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "" "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
-task Test{
-	
-	if(Test-Path $buildBase\test-reports){
-		Delete-Directory $buildBase\test-reports
-	}
-	
-	Create-Directory $buildBase\test-reports 
-	
-	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-	$testAssemblies +=  dir $buildBase\containers\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
-
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework} 
+task Test -depends TestMain, TestCore, TestContainers, TestNHibernate <#, TestAzure #>   {	
 }
 
 task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test  {
