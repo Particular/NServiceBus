@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
       _sagaEntites = typesToScan.Where(t => typeof(ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
 
       _entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntites, typesToScan);
+
+      Mapper.IsEntity((type, b) => _entityTypes.Contains(type));
+      Mapper.IsArray((info, b) => false);
+      Mapper.IsBag((info, b) =>
+                     {
+                       var memberType = info.GetPropertyOrFieldType();
+                       return typeof (IEnumerable).IsAssignableFrom(memberType) &&
+                              !(memberType == typeof (string) || memberType == typeof (byte[]) || memberType.IsArray);
+                     });
 
       Mapper.BeforeMapClass += ApplyClassConvention;
       Mapper.BeforeMapJoinedSubclass += ApplySubClassConvention;
