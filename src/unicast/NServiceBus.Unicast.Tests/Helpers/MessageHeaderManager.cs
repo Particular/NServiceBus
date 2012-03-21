@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
             if (messageHeaders == null)
                 return;
 
-            if (messageHeaders.ContainsKey(messages[0]))
+            if ((messages != null) && (messages.Length > 0) && (messageHeaders.ContainsKey(messages[0])))
                 foreach (var key in messageHeaders[messages[0]].Keys)
                     transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
 

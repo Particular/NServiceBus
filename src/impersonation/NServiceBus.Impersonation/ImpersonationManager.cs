@@ -29,10 +29,10 @@ namespace NServiceBus.Impersonation
             if (!ConfigureImpersonation.Impersonate)
                 return;
 
-            if (!e.Message.Headers.ContainsKey(WindowsIdentityName))
+            if (!e.Message.Headers.ContainsKey(Headers.WindowsIdentityName))
                 return;
 
-            var name = e.Message.Headers[WindowsIdentityName];
+            var name = e.Message.Headers[Headers.WindowsIdentityName];
 
             if (name == null)
                 return;
@@ -42,13 +42,12 @@ namespace NServiceBus.Impersonation
 
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if (transportMessage.Headers.ContainsKey(WindowsIdentityName))
-                transportMessage.Headers.Remove(WindowsIdentityName);
 
-            transportMessage.Headers.Add(WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
+            if (transportMessage.Headers.ContainsKey(Headers.WindowsIdentityName))
+                transportMessage.Headers.Remove(Headers.WindowsIdentityName);
+
+            transportMessage.Headers.Add(Headers.WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
         }
-
-        private const string WindowsIdentityName = "WinIdName";
     }
 }
 

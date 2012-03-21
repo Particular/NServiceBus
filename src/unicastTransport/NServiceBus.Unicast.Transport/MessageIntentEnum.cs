@@ -5,29 +5,29 @@
     ///</summary>
     public enum MessageIntentEnum
     {
+        /// <summary>
+        /// Initialization - Here just for compatibility with NServiceBus V2.6
+        /// </summary>
+        Init = 0,
+        
         ///<summary>
         /// Regular point-to-point send
         ///</summary>
-        Send,
+        Send = 1,
 
         ///<summary>
         /// Publish, not a regular point-to-point send
         ///</summary>
-        Publish,
+        Publish = 2,
 
         /// <summary>
         /// Subscribe
         /// </summary>
-        Subscribe,
+        Subscribe = 3,
 
         /// <summary>
         /// Unsubscribe
         /// </summary>
-        Unsubscribe,
-
-        /// <summary>
-        /// Unsubscribe place holder for V2.6
-        /// </summary>
-        UnsubscribeForBackwardCompatability
+        Unsubscribe = 4,
     }
 }

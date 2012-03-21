@@ -425,7 +425,7 @@ namespace NServiceBus.Unicast
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-
+            InvokeOutgoingTransportMessagesMutators(new object[]{}, subscriptionMessage);
             MessageSender.Send(subscriptionMessage, destination);
         }
 
@@ -459,7 +459,9 @@ namespace NServiceBus.Unicast
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
-
+            
+            InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
+            
             MessageSender.Send(subscriptionMessage, destination);
         }
 
@@ -1359,13 +1361,7 @@ namespace NServiceBus.Unicast
             MessageSerializer.Serialize(messages, ms);
             result.Body = ms.ToArray();
 
-            var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
-            if (mutators != null)
-                foreach (var mutator in mutators)
-                {
-                    Log.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
-                    mutator.MutateOutgoing(messages, result);
-                }
+            InvokeOutgoingTransportMessagesMutators(messages, result);
 
             if (PropogateReturnAddressOnSend)
                 result.ReplyToAddress = Address.Local;
@@ -1386,6 +1382,17 @@ namespace NServiceBus.Unicast
             result.TimeToBeReceived = timeToBeReceived;
 
             return result;
+        }
+
+        private void InvokeOutgoingTransportMessagesMutators(object[] messages, TransportMessage result)
+        {
+            var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
+            if (mutators != null)
+                foreach (var mutator in mutators)
+                {
+                    Log.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
+                    mutator.MutateOutgoing(messages, result);
+                }
         }
 
         IEnumerable<object> ApplyOutgoingMessageMutatorsTo(IEnumerable<object> messages)
