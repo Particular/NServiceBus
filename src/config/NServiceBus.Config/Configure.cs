@@ -202,7 +202,9 @@ namespace NServiceBus
                     try
                     {
                         types.AddRange(a.GetTypes()
-                            .Where(t => t.FullName == null || !defaultTypeExclusions.Any(exclusion => t.FullName.ToLower().StartsWith(exclusion))));
+                            .Where(t => !t.IsValueType &&
+                                        (t.FullName == null || 
+                                                !defaultTypeExclusions.Any(exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
                     }
                     catch (ReflectionTypeLoadException e)
                     {
