@@ -338,8 +338,6 @@ namespace NServiceBus.Unicast
         /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
-            MessagingBestPractices.AssertIsValidForPubSub(typeof(T));
-
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
@@ -348,6 +346,9 @@ namespace NServiceBus.Unicast
                 Publish(CreateInstance<T>(m => { }));
                 return;
             }
+
+            MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
+
             var fullTypes = GetFullTypes(messages as object[]);
             var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t)))
                 .ToList();
