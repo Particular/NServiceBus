@@ -820,10 +820,18 @@ namespace NServiceBus.Unicast
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            return GetMessageTypesHandledOnThisEndpoint()
-                .Where(t =>
-                    !t.IsCommandType() &&
-                    (AllowSubscribeToSelf || (messageTypeToDestinationLookup.ContainsKey(t) && messageTypeToDestinationLookup[t] != Address.Undefined)));
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t =>!t.IsCommandType()).ToList();
+
+            if(AllowSubscribeToSelf)
+                return eventsHandled;
+
+            var eventsWithRouting = messageTypeToDestinationLookup
+                .Where(route => route.Value != Address.Undefined &&
+                                eventsHandled.Any(t => t.IsAssignableFrom(route.Key)))
+                .Select(route=>route.Key)
+                .ToList();
+
+            return eventsWithRouting;
         }
 
         void AssertHasLocalAddress()

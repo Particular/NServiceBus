@@ -84,7 +84,43 @@
             throw new NotImplementedException();
         }
     }
-    
+
+
+    [TestFixture]
+    public class When_autosubscribing_a_saga_that_handles_a_superclass_event : using_a_configured_unicastbus
+    {
+        [Test]
+        public void Should_autosubscribe_the_saga_messagehandler()
+        {
+
+            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+
+            RegisterMessageType<EventWithParent>(eventEndpointAddress);
+            RegisterMessageHandlerType<MySagaThatReactsOnASuperClassEvent>();
+
+            StartBus();
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
+        }
+    }
+    public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaData>, IAmStartedByMessages<EventMessageBase>
+    {
+        public void Handle(EventMessageBase message)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class EventMessageBase:IMessage
+    {
+        
+    }
+
+    public class EventWithParent : EventMessageBase
+    {
+
+    }
+
+
     public class MySagaData:ISagaEntity
     {
         public Guid Id { get; set; }
