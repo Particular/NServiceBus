@@ -1,7 +1,7 @@
 ﻿properties {
 	$ProductVersion = "3.0"
 	$BuildNumber = "0";
-	$PatchVersion = "0"
+	$PatchVersion = "1"
 	$PreRelease = "-build"	
 	$PackageNameSuffix = ""
 	$TargetFramework = "net-4.0"
@@ -757,7 +757,7 @@ task GenerateAssemblyInfo {
 	}
 	else {
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $ProductVersion+ ".0" + $PreRelease + $BuildNumber 
+		$infoVersion = $ProductVersion+ "." + $PatchVersion + $PreRelease + $BuildNumber 
 		$script:packageVersion = $infoVersion
 	}
 	
