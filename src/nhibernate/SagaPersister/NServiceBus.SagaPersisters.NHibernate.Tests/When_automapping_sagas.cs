@@ -128,6 +128,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
           Assert.AreEqual(global::NHibernate.NHibernateUtil.Serializable.GetType(), p.Type.GetType());
         }
+
+        [Test]
+        public void Array_of_dates_should_be_mapped_as_serializable()
+        {
+          var p = persisterForTestSaga.EntityMetamodel.Properties.SingleOrDefault(x => x.Name == "ArrayOfDates");
+          Assert.IsNotNull(p);
+
+          Assert.AreEqual(global::NHibernate.NHibernateUtil.Serializable.GetType(), p.Type.GetType());
+        }
     }
 
     public static class SessionFactoryExtensions
