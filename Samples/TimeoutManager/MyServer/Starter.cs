@@ -40,8 +40,11 @@ namespace MyServer
 
         void DeferMessage()
         {
-            Bus.Defer(TimeSpan.FromSeconds(10), new DeferredMessage());
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds")); 
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sending a message to be processed at a later time"));
+            Bus.SendLocal(new DeferredMessage
+                              {
+                                  ProcessAt = DateTime.Now.AddSeconds(10)
+                              });
         }
 
         void StartSaga(string tennant = "")

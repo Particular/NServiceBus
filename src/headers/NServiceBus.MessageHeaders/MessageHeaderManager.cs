@@ -59,9 +59,6 @@ namespace NServiceBus.MessageHeaders
             if (message == null)
                 throw new InvalidOperationException("Cannot set headers on a null object");
          
-            if (message == ExtensionMethods.CurrentMessageBeingHandled)
-                throw new InvalidOperationException("Cannot change headers on the message being processed.");
-            
             if (messageHeaders == null)
                 messageHeaders = new Dictionary<object, IDictionary<string, string>>();
 
