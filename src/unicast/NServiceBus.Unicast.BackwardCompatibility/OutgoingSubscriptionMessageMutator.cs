@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading;
 using Common.Logging;
 using NServiceBus.Config;
 using NServiceBus.MessageMutator;
@@ -11,7 +10,7 @@ namespace NServiceBus.Unicast.BackwardCompatibility
     /// <summary>
     /// Allow for a V3.X subscriber to subscribe/unsubscribe to a V2.6 publisher
     /// </summary>
-    public class MutateTransportOutgoingSubscriptionMessages : IMutateOutgoingTransportMessages, INeedInitialization
+    public class OutgoingSubscriptionMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// Allow for a V3.X subscriber to subscribe/unsubscribe to a V2.6 publisher
@@ -23,26 +22,32 @@ namespace NServiceBus.Unicast.BackwardCompatibility
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if ((transportMessage.IsControlMessage() && 
-                ((transportMessage.MessageIntent == MessageIntentEnum.Subscribe) || (transportMessage.MessageIntent == MessageIntentEnum.Unsubscribe))))
+                ((transportMessage.MessageIntent == MessageIntentEnum.Subscribe) ||
+                (transportMessage.MessageIntent == MessageIntentEnum.Unsubscribe) ||
+                (transportMessage.MessageIntent == MessageIntentEnum.Send))))
             {
                 var stream = new MemoryStream();
-                MessageSerializer.Serialize(new object[]  { new CompletionMessage() }, stream);
+                var completionMessage = new CompletionMessage();
+                if (transportMessage.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
+                    completionMessage.ErrorCode = int.Parse(transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader]);
+
+                MessageSerializer.Serialize(new object[]  { completionMessage }, stream);
                 transportMessage.Body = stream.ToArray();
                 Log.Debug("Added Completion message and sending message intent: " + transportMessage.MessageIntent);
             }
         }
 
         /// <summary>
-        /// Register the MutateTransportOutgoingSubscriptionMessages mutator
+        /// Register the OutgoingSubscriptionMessageMutator mutator
         /// </summary>
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<MutateTransportOutgoingSubscriptionMessages>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<OutgoingSubscriptionMessageMutator>(DependencyLifecycle.InstancePerCall);
         }
         /// <summary>
         /// Gets or sets the message serializer
         /// </summary>
         public IMessageSerializer MessageSerializer { get; set; }
-        private readonly static ILog Log = LogManager.GetLogger(typeof(MutateTransportOutgoingSubscriptionMessages));
+        private readonly static ILog Log = LogManager.GetLogger(typeof(OutgoingSubscriptionMessageMutator));
     }
 }

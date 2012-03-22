@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Helper for creating controll messages
+    /// Helper for creating control messages
     /// </summary>
     public static class ControlMessage
     {
@@ -20,15 +20,10 @@
                                            Recoverable = true,
                                            MessageIntent = MessageIntentEnum.Send
                                        };
-            transportMessage.Headers.Add(ControlMessageHeader, true.ToString());
+            transportMessage.Headers.Add(Headers.ControlMessageHeader, true.ToString());
 
             return transportMessage;
         }
-
-        /// <summary>
-        /// Header which tells that this transportmessage is a controll message
-        /// </summary>
-        public static string ControlMessageHeader = "NServiceBus.ControlMessage";
     }
 
     /// <summary>
@@ -37,14 +32,14 @@
     public static class TransportMessageExtensions
     {
         /// <summary>
-        /// True if the transportmessage is a control message
+        /// True if the transport message is a control message
         /// </summary>
         /// <param name="transportMessage"></param>
         /// <returns></returns>
         public static bool IsControlMessage(this TransportMessage transportMessage)
         {
             return transportMessage.Headers != null &&
-                   transportMessage.Headers.ContainsKey(ControlMessage.ControlMessageHeader);
+                   transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader);
         }
 
     }

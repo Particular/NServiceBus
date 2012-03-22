@@ -32,8 +32,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
-        private const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
-
         #region config properties
 
         private bool autoSubscribe = true;
@@ -480,10 +478,12 @@ namespace NServiceBus.Unicast
         {
             var returnMessage = ControlMessage.Create();
 
-            returnMessage.Headers[ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
+            returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
             returnMessage.MessageIntent = MessageIntentEnum.Send;
 
+            InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
+            
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
@@ -1111,8 +1111,8 @@ namespace NServiceBus.Unicast
 
             var statusCode = int.MinValue;
 
-            if (msg.IsControlMessage() && msg.Headers.ContainsKey(ReturnMessageErrorCodeHeader))
-                statusCode = int.Parse(msg.Headers[ReturnMessageErrorCodeHeader]);
+            if (msg.IsControlMessage() && msg.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
+                statusCode = int.Parse(msg.Headers[Headers.ReturnMessageErrorCodeHeader]);
 
             busAsyncResult.Complete(statusCode, messages);
         }

@@ -67,5 +67,15 @@
         /// Header telling the NServiceBus Version (beginning NServiceBus V3.0.1).
         /// </summary>
         public const string NServiceBusVersion = "NServiceBus.Version";
+
+        /// <summary>
+        /// Used in a header when doing a callback (bus.return)
+        /// </summary>
+        public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
+        
+        /// <summary>
+        /// Header that tells if this transport message is a control message
+        /// </summary>
+        public const string ControlMessageHeader = "NServiceBus.ControlMessage";
     }
 }

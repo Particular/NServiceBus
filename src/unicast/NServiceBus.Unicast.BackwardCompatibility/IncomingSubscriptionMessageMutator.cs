@@ -5,10 +5,12 @@ using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Unicast.BackwardCompatibility 
 {
-    class MutateTransportIncomingSubscriptionMessages : IMutateIncomingTransportMessages, INeedInitialization
+    class IncomingSubscriptionMessageMutator : IMutateIncomingTransportMessages, INeedInitialization
     {
         /// <summary>
-        /// Re-Adjust V3.0.0 subscribe & UnSubscribe messages. Version 3.0.0 Subs/Unsubs/Publish  no NServiceBus.Version set it the headers.
+        /// Re-Adjust V3.0.0 subscribe and  unsubscribe messages. 
+        /// Version 3.0.0 subscribe and unsubscribe message have no NServiceBus.Version set it the headers.
+        /// Version 3.0.0 Send message have it with "3.0.0" set as value.
         /// Do nothing If it is  a V2.6 message (contains EnclosedMessageTypes key).
         /// </summary>
         /// <param name="transportMessage"></param>
@@ -24,14 +26,14 @@ namespace NServiceBus.Unicast.BackwardCompatibility
         }
 
         /// <summary>
-        /// Register the MutateTransportIncomingSubscriptionMessages mutator
+        /// Register the IncomingSubscriptionMessageMutator mutator
         /// </summary>
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<MutateTransportIncomingSubscriptionMessages>(DependencyLifecycle.InstancePerCall);
-            Log.Debug("Configured Transport Incoming Message Mutator: MutateTransportIncomingSubscriptionMessages");
+            Configure.Instance.Configurer.ConfigureComponent<IncomingSubscriptionMessageMutator>(DependencyLifecycle.InstancePerCall);
+            Log.Debug("Configured Transport Incoming Message Mutator: IncomingSubscriptionMessageMutator");
         }
 
-        private readonly static ILog Log = LogManager.GetLogger(typeof(MutateTransportIncomingSubscriptionMessages));
+        private readonly static ILog Log = LogManager.GetLogger(typeof(IncomingSubscriptionMessageMutator));
     }
 }

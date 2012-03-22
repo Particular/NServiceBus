@@ -1,5 +1,5 @@
 using System;
-// Completion message is used by a V3.X subsciber with a 2.6 publisher. 
+// Completion message is used by a V3.X subscriber with a 2.6 publisher. 
 // Do no change the namespace namespace
 
 namespace NServiceBus.Unicast.Transport

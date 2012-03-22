@@ -57,8 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompletionMessage.cs" />
-    <Compile Include="MutateTransportIncomingSubscriptionMessages.cs" />
-    <Compile Include="MutateTransportOutgoingSubscriptionMessages.cs" />
+    <Compile Include="IncomingReturnMessageMutator.cs" />
+    <Compile Include="IncomingSubscriptionMessageMutator.cs" />
+    <Compile Include="OutgoingSubscriptionMessageMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
