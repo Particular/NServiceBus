@@ -912,15 +912,19 @@ namespace NServiceBus.Unicast
                 }
             }
 
+            //apply mutators
+            messages = messages.Select(msg =>
+                                           {
+                                               //message mutators may need to assume that this has been set (eg. for the purposes of headers).
+                                               ExtensionMethods.CurrentMessageBeingHandled = msg;
+
+                                               return ApplyIncomingMessageMutatorsTo(builder, msg);
+                                           }).ToArray();
+
             HandleCorellatedMessage(m, messages);
 
-            foreach (var originalMessage in messages)
+            foreach (var messageToHandle in messages)
             {
-                //message mutators may need to assume that this has been set (eg. for the purposes of headers).
-                ExtensionMethods.CurrentMessageBeingHandled = originalMessage;
-
-                var messageToHandle = ApplyIncomingMessageMutatorsTo(builder, originalMessage);
-
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
                 var canDispatch = true;
