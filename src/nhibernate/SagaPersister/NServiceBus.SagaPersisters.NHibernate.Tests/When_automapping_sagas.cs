@@ -111,6 +111,23 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.AreEqual(persister.TableName,"MyDerivedTestTable");
         }
 
+        [Test]
+        public void Array_of_ints_should_be_mapped_as_serializable()
+        {
+          var p = persisterForTestSaga.EntityMetamodel.Properties.SingleOrDefault(x => x.Name == "ArrayOfInts");
+          Assert.IsNotNull(p);
+
+          Assert.AreEqual(global::NHibernate.NHibernateUtil.Serializable.GetType(), p.Type.GetType());
+        }
+
+        [Test]
+        public void Array_of_string_should_be_mapped_as_serializable()
+        {
+          var p = persisterForTestSaga.EntityMetamodel.Properties.SingleOrDefault(x => x.Name == "ArrayOfStrings");
+          Assert.IsNotNull(p);
+
+          Assert.AreEqual(global::NHibernate.NHibernateUtil.Serializable.GetType(), p.Type.GetType());
+        }
     }
 
     public static class SessionFactoryExtensions

@@ -41,14 +41,24 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
       foreach (var assembly in scannedAssemblies)
         nhibernateConfiguration.AddAssembly(assembly);
 
-      var mapping = new SagaModelMapper(_typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
+      var modelMapper = new SagaModelMapper(_typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-      nhibernateConfiguration.AddMapping(mapping.Compile());
+      var mapping = modelMapper.Compile();
+
+      //var serializer = new XmlSerializer(typeof (HbmMapping));
+      //using (var writer = XmlWriter.Create("sagamappings.xml", new XmlWriterSettings() { Indent = true}))
+      //serializer.Serialize(writer, mapping);
+
+      nhibernateConfiguration.AddMapping(mapping);
 
       ApplyDefaultsTo(nhibernateConfiguration);
 
       if (updateSchema)
         UpdateDatabaseSchemaUsing(nhibernateConfiguration);
+
+      //using (var writer = new StreamWriter("schema.sql"))
+      //  new SchemaExport(nhibernateConfiguration)
+      //    .Execute(s => writer.Write(s), true, false);
 
       try
       {
