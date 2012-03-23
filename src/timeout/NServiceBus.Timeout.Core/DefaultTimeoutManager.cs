@@ -10,7 +10,8 @@
     /// </summary>
     public class DefaultTimeoutManager : IManageTimeouts
     {
-        public event EventHandler<TimeoutData> SagaTimedOut;
+        public event EventHandler<TimeoutData> TimedOut;
+        public event EventHandler<TimeoutData> TimeOutCleared;
 
         void IManageTimeouts.Init(TimeSpan interval)
         {
@@ -25,7 +26,11 @@
                     data[timeout.Time] = new List<TimeoutData>();
 
                 data[timeout.Time].Add(timeout);
-                sagaLookup[timeout.SagaId] = timeout.Time;
+
+                List<DateTime> timeouts;
+                if (!sagaTimeouts.TryGetValue(timeout.SagaId, out timeouts))
+                    sagaTimeouts.Add(timeout.SagaId, timeouts = new List<DateTime>());
+                timeouts.Add(timeout.Time);
             }
         }
 
@@ -44,7 +49,19 @@
                         pair = next;
                         data.Remove(pair.Key);
 
-                        pair.Value.ForEach(td => sagaLookup.Remove(td.SagaId));
+                        pair.Value.ForEach(
+                            delegate(TimeoutData td)
+                                {
+                                    // remove this timeout entry from the sagaTimeouts list
+                                    var timeouts = sagaTimeouts[td.SagaId];
+                                    if (timeouts.Count > 1)
+                                    {
+                                        var index = timeouts.FindIndex(d => d == pair.Key);
+                                        timeouts.RemoveAt(index);
+                                    }
+                                    else
+                                        sagaTimeouts.Remove(td.SagaId);
+                                });
                     }
                 }
             }
@@ -58,41 +75,52 @@
             if (pair.Key > now)
                 Thread.Sleep(pair.Key - now);
 
-            pair.Value.ForEach(OnSagaTimedOut);
+            pair.Value.ForEach(OnTimedOut);
         }
 
-        void IManageTimeouts.ClearTimeout(Guid sagaId)
+        void IManageTimeouts.ClearTimeouts(Guid sagaId)
         {
-            lock(data)
+            var clearedTimeouts = new List<TimeoutData>();
+            lock (data)
             {
-                if (!sagaLookup.ContainsKey(sagaId))
+                List<DateTime> timeouts;
+                if (!sagaTimeouts.TryGetValue(sagaId, out timeouts))
                     return;
+                sagaTimeouts.Remove(sagaId);
 
-                var time = sagaLookup[sagaId];
+                foreach (var time in timeouts.Distinct())
+                {
+                    var list = data[time];
+                    clearedTimeouts.AddRange(list.Where(t => t.SagaId == sagaId));
+                    clearedTimeouts.ForEach(td => list.Remove(td));
 
-                sagaLookup.Remove(sagaId);
-                
-                if (!data.ContainsKey(time))
-                    return;
-
-                foreach (var td in data[time].ToArray())
-                    if (td.SagaId == sagaId)
-                        data[time].Remove(td);
-
-                if (data[time].Count == 0)
-                    data.Remove(time);
+                    if (list.Count == 0)
+                        data.Remove(time);
+                }
             }
+            clearedTimeouts.ForEach(OnTimeOutCleared);
         }
 
-        private void OnSagaTimedOut(TimeoutData timeoutData)
+        private void OnTimedOut(TimeoutData timeoutData)
         {
-            if (SagaTimedOut != null)
-                SagaTimedOut(null, timeoutData);
+            if (TimedOut != null)
+                TimedOut(null, timeoutData);
         }
 
-        private readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
-        private readonly Dictionary<Guid, DateTime> sagaLookup = new Dictionary<Guid, DateTime>();
+        private void OnTimeOutCleared(TimeoutData timeoutData)
+        {
+            if (TimeOutCleared != null)
+                TimeOutCleared(null, timeoutData);
+        }
 
-        private TimeSpan duration = TimeSpan.FromSeconds(1); 
+        private readonly SortedDictionary<DateTime, List<TimeoutData>> data =
+            new SortedDictionary<DateTime, List<TimeoutData>>();
+
+        /// <summary>
+        /// For each saga id, this dictionary contains a list of all DateTimes for which the given saga has requested a timeout
+        /// </summary>
+        private readonly Dictionary<Guid, List<DateTime>> sagaTimeouts = new Dictionary<Guid, List<DateTime>>();
+
+        private TimeSpan duration = TimeSpan.FromSeconds(1);
     }
 }

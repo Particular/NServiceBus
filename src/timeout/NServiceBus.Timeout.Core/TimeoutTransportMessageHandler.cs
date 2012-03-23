@@ -22,8 +22,7 @@ namespace NServiceBus.Timeout.Core
                 if(sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                Manager.ClearTimeout(sagaId);
-                Persister.Remove(sagaId);
+                Manager.ClearTimeouts(sagaId);
             }
             else
             {
@@ -32,6 +31,7 @@ namespace NServiceBus.Timeout.Core
                 
                 var data = new TimeoutData
                                {
+                                   Id = Guid.NewGuid(),
                                    Destination = message.ReplyToAddress,
                                    SagaId = sagaId,
                                    State = message.Body,
@@ -40,8 +40,8 @@ namespace NServiceBus.Timeout.Core
                                    Headers = message.Headers
                                };
 
-                Manager.PushTimeout(data);
                 Persister.Add(data);
+                Manager.PushTimeout(data);
             }
         }
     }

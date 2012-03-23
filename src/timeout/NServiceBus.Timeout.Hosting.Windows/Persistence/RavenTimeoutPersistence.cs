@@ -4,12 +4,13 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Collections.Generic;
     using Core;
     using Raven.Client;
-    using Raven.Client.Document;
     using Raven.Client.Linq;
+    using Raven.Abstractions.Commands;
+    using Raven.Client.Shard;
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
-        readonly IDocumentStore store;
+        private readonly IDocumentStore store;
 
         public RavenTimeoutPersistence(IDocumentStore store)
         {
@@ -22,6 +23,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 foreach (var item in session.Query<TimeoutData>())
                     yield return item;
         }
+
         public void Add(TimeoutData timeout)
         {
             using (var session = OpenSession())
@@ -30,19 +32,28 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 session.SaveChanges();
             }
         }
-        public void Remove(Guid sagaId)
+
+        public void RemoveTimeout(Guid timeoutId)
         {
             using (var session = OpenSession())
             {
-                var items = session.Query<TimeoutData>().Where(x => x.SagaId == sagaId);
-                foreach (var item in items)
-                    session.Delete(item);
+                try
+                {
+                    session.Advanced.Defer(new DeleteCommandData { Key = "TimeoutData/" + timeoutId });
+                }
+                catch (NotSupportedException)
+                {
+                    // 2012.03.23: Advanced.Defer is not yet supported by ShardedDocumentSession,
+                    // but will be in next version according to Oren Eini.
+                    var entity = session.Load<TimeoutData>("TimeoutData/" + timeoutId);
+                    session.Delete(entity);
+                }
 
                 session.SaveChanges();
             }
         }
 
-        IDocumentSession OpenSession()
+        private IDocumentSession OpenSession()
         {
             return store.OpenSession();
         }
