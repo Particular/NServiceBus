@@ -24,7 +24,7 @@
             manager = new DefaultTimeoutManager();
             manager.Init(interval);
 
-            manager.SagaTimedOut += (o, e) =>
+            manager.TimedOut += (o, e) =>
             {
                 sagaIds.Add(e.SagaId);
                 eventTime = e.Time;
@@ -49,7 +49,7 @@
         [Test]
         public void ClearWithoutPush()
         {
-            manager.ClearTimeout(Guid.NewGuid());
+            manager.ClearTimeouts(Guid.NewGuid());
         }
 
         [Test]
@@ -74,7 +74,7 @@
 
             manager.PushTimeout(new TimeoutData { SagaId = id, Time = time });
 
-            manager.ClearTimeout(id);
+            manager.ClearTimeouts(id);
 
             manager.PopTimeout();
             Assert.AreEqual(0, sagaIds.Count);
@@ -93,7 +93,7 @@
             Assert.AreEqual(2, sagaIds.Count);
             Assert.AreEqual(time, eventTime);
         }
-
+        
         [Test]
         public void TwoPushesForSameTimeThenClearThenPop()
         {
@@ -104,7 +104,7 @@
             manager.PushTimeout(new TimeoutData { SagaId = id1, Time = time });
             manager.PushTimeout(new TimeoutData { SagaId = id2, Time = time });
 
-            manager.ClearTimeout(id1);
+            manager.ClearTimeouts(id1);
 
             manager.PopTimeout();
 
@@ -151,6 +151,44 @@
             manager.PopTimeout();
 
             Assert.AreEqual(1, sagaIds.Count);
+        }
+
+        [Test]
+        public void TwoPushesFromSameSagaThenPopBoth()
+        {
+            var time1 = DateTime.UtcNow + timeout;
+            var time2 = time1 + timeout;
+
+            var sagaId = Guid.NewGuid();
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time1 });
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time2 });
+
+            manager.PopTimeout();
+
+            Assert.AreEqual(1, sagaIds.Count);
+            Assert.AreEqual(time1, eventTime);
+
+            sagaIds.Clear();
+
+            manager.PopTimeout();
+
+            Assert.AreEqual(1, sagaIds.Count);
+            Assert.AreEqual(time2, eventTime);
+        }
+
+        [Test]
+        public void TwoPushesFromSameSagaAndTimeThenPopBoth()
+        {
+            var time = DateTime.UtcNow + timeout;
+
+            var sagaId = Guid.NewGuid();
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time });
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time });
+
+            manager.PopTimeout();
+
+            Assert.AreEqual(2, sagaIds.Count);
+            Assert.AreEqual(time, eventTime);
         }
     }
 }

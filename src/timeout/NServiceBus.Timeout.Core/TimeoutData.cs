@@ -10,6 +10,11 @@
     public class TimeoutData : EventArgs
     {
         /// <summary>
+        /// The Id of the timeout. Assigned when timeout message arrives.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// The address of the client who requested the timeout.
         /// </summary>
         public Address Destination { get; set; }

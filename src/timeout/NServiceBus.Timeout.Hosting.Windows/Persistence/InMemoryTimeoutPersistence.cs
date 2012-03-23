@@ -7,7 +7,7 @@
 
     public class InMemoryTimeoutPersistence : IPersistTimeouts
     {
-        readonly IList<TimeoutData> storage = new List<TimeoutData>(); 
+        readonly List<TimeoutData> storage = new List<TimeoutData>(); 
 
         public IEnumerable<TimeoutData> GetAll()
         {
@@ -21,11 +21,10 @@
                 storage.Add(timeout);
         }
 
-        public void Remove(Guid sagaId)
+        public void RemoveTimeout(Guid timeoutId)
         {
             lock (storage)
-                storage.Where(t => t.SagaId == sagaId).ToList().ForEach(item => storage.Remove(item));
-
+                storage.RemoveAll(t => t.Id == timeoutId);
         }
     }
 }

@@ -9,31 +9,35 @@
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Transport;
+    using Common.Logging;
 
     public class TimeoutRunner : IWantToRunWhenTheBusStarts
     {
+        private ILog Logger = LogManager.GetLogger(typeof(TimeoutRunner));
+
         public IManageTimeouts TimeoutManager { get; set; }
 
         public IPersistTimeouts Persister { get; set; }
         public ISendMessages MessageSender { get; set; }
 
-        
         public void Run()
         {
             if (TimeoutManager == null)
                 return;
 
-            TimeoutManager.SagaTimedOut +=
-                (o, e) =>
-                {
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required))
-                    {
-                        MessageSender.Send(MapToTransportMessage(e), e.Destination);
-                        Persister.Remove(e.SagaId);
-
-                        scope.Complete();
-                    }
-                };
+            TimeoutManager.TimedOut += (o, e) =>
+                                           {
+                                               try
+                                               {
+                                                   OnTimeout(e, true);
+                                               }
+                                               catch(Exception ex)
+                                               {
+                                                   Logger.Error("Failed to handle timeout. Waiting 1 second before continuing.", ex);
+                                                   Thread.Sleep(TimeSpan.FromSeconds(1));
+                                               }
+                                           };
+            TimeoutManager.TimeOutCleared += (o, e) => OnTimeout(e, false);
 
             Persister.GetAll().ToList().ForEach(td =>
                 TimeoutManager.PushTimeout(td));
@@ -41,6 +45,28 @@
             thread = new Thread(Poll);
             thread.IsBackground = true;
             thread.Start();
+        }
+
+        private void OnTimeout(TimeoutData e, bool sendMessage)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeOption.Required))
+                {
+                    if (sendMessage)
+                        MessageSender.Send(MapToTransportMessage(e), e.Destination);
+                    Persister.RemoveTimeout(e.Id);
+
+                    scope.Complete();
+                }
+            }
+            catch
+            {
+                // in this case the change is not persisted, so we should return it back to the manager
+                // to avoid any inconsistency between persisted store and in-memory store.
+                TimeoutManager.PushTimeout(e);
+                throw;
+            }
         }
 
         TransportMessage MapToTransportMessage(TimeoutData timeoutData)
