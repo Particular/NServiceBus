@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
@@ -22,7 +22,7 @@ namespace NServiceBus.Serializers.XML.Test
         private int numberOfIterations = 100;
 
         [Test]
-        public void TestMultipleInterfacesDupolicatedPropery()
+        public void TestMultipleInterfacesDuplicatedPropery()
         {
             IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<IThird>();
@@ -197,6 +197,47 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
+        
+        [Test]
+        public void SerializeLists()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithList>();
+            var msg = mapper.CreateInstance<MessageWithList>();            
+
+            msg.Items = new List<MessageWithListItem> { new MessageWithListItem { Data = "Hello" } };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream);
+                var m = msgArray[0] as MessageWithList;
+                Assert.AreEqual("Hello", m.Items.First().Data);
+            }
+        }
+
+        [Test]
+        public void SerializeEmptyLists()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithList>();
+            var msg = mapper.CreateInstance<MessageWithList>();
+
+            msg.Items = new List<MessageWithListItem>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream);
+                var m = msgArray[0] as MessageWithList;
+                Assert.IsEmpty(m.Items);
+            }
+        }
+
 
         private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
         {
@@ -394,5 +435,15 @@ namespace NServiceBus.Serializers.XML.Test
     public class MessageWithDictionaryWithAnObjectAsValue
     {
         public Dictionary<string, object> Content { get; set; }
+    }
+
+    public class MessageWithListItem
+    {
+        public string Data { get; set; }
+    }
+
+    public class MessageWithList : IMessage
+    {
+        public List<MessageWithListItem> Items { get; set; }
     }
 }
