@@ -848,7 +848,7 @@ task GenerateAssemblyInfo {
 		"release" `
 		"NServiceBus" `
 		$assemblyProduct `
-		"Copyright � NServiceBus 2007-2011" `
+		"Copyright � NServiceBus 2007-2012" `
 		$asmVersion `
 		$fileVersion `
 		$infoVersion `
