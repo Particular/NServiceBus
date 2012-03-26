@@ -29,7 +29,7 @@
                     using (var scope = new TransactionScope(TransactionScopeOption.Required))
                     {
                         MessageSender.Send(MapToTransportMessage(e), e.Destination);
-                        Persister.Remove(e.SagaId);
+                        Persister.Remove(e);
 
                         scope.Complete();
                     }

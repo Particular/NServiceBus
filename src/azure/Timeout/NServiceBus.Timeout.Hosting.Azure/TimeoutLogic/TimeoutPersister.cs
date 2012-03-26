@@ -43,12 +43,21 @@ namespace NServiceBus.Timeout.Hosting.Azure
                                           Time = timeout.Time,
                                           CorrelationId = timeout.CorrelationId
                                       });
-            
+
             context.SaveChanges();
         }
 
+        public void Remove(TimeoutData timeout)
+        {
+            var timeoutDataEntity = context.TimeoutData.Single();
 
-        void IPersistTimeouts.Remove(Guid sagaId)
+            RemoveSerializedState(timeoutDataEntity.StateAddress);
+            context.DeleteObject(timeoutDataEntity);
+
+            context.SaveChanges();
+        }
+
+        public void ClearTimeoutsFor(Guid sagaId)
         {
             try
             {
@@ -67,7 +76,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             {
                 // make sure to add logging here
             }
-           
+
         }
 
         public bool CanSend(TimeoutData data)
@@ -78,7 +87,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                           select c).SingleOrDefault();
 
             if (result == null) return false;
-            
+
             var leaseBlob = container.GetBlockBlobReference(result.StateAddress);
 
             using (var lease = new AutoRenewLease(leaseBlob))
@@ -87,17 +96,17 @@ namespace NServiceBus.Timeout.Hosting.Azure
             }
         }
 
-        public string ConnectionString 
+        public string ConnectionString
         {
             get
             {
                 return connectionString;
-            } 
-            set 
-            { 
+            }
+            set
+            {
                 connectionString = value;
                 Init(connectionString);
-            } 
+            }
         }
 
         private void Init(string connectionstring)
@@ -141,10 +150,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
             }
             return hash.ToString();
         }
-        
+
         private string connectionString;
         private ServiceContext context;
         private CloudBlobContainer container;
-       
+
     }
 }
