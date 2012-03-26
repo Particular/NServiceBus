@@ -2,7 +2,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Core;
+    using Raven.Abstractions.Commands;
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Linq;
@@ -19,8 +21,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public IEnumerable<TimeoutData> GetAll()
         {
             using (var session = OpenSession())
-                foreach (var item in session.Query<TimeoutData>())
-                    yield return item;
+                return session.Query<TimeoutData>().ToList();
         }
         public void Add(TimeoutData timeout)
         {
@@ -30,7 +31,18 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 session.SaveChanges();
             }
         }
-        public void Remove(Guid sagaId)
+
+        public void Remove(TimeoutData timeout)
+        {
+            using (var session = OpenSession())
+            {
+                session.Advanced.Defer(new DeleteCommandData { Key = timeout.Id });
+                session.SaveChanges();
+            }
+
+        }
+
+        public void ClearTimeoutsFor(Guid sagaId)
         {
             using (var session = OpenSession())
             {
@@ -44,7 +56,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         IDocumentSession OpenSession()
         {
-            return store.OpenSession();
+            var session = store.OpenSession();
+
+            session.Advanced.AllowNonAuthoritativeInformation = false;
+
+            return session;
         }
     }
 }

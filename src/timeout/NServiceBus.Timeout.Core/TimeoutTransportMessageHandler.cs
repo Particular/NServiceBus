@@ -23,7 +23,7 @@ namespace NServiceBus.Timeout.Core
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
                 Manager.ClearTimeout(sagaId);
-                Persister.Remove(sagaId);
+                Persister.ClearTimeoutsFor(sagaId);
             }
             else
             {

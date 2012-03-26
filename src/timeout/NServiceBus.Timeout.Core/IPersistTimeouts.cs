@@ -9,6 +9,7 @@
 
         void Add(TimeoutData timeout);
 
-        void Remove(Guid sagaId);
+        void Remove(TimeoutData timeout);
+        void ClearTimeoutsFor(Guid sagaId);
     }
 }
