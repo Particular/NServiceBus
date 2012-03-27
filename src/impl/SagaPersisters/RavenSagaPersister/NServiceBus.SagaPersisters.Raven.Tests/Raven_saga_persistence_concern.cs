@@ -29,7 +29,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
             {
                 var sagaPersister = new RavenSagaPersister(sessionFactory);
                 action(sagaPersister);
-                sessionFactory.Session.SaveChanges();
+                sessionFactory.SaveChanges();
             }
         }
 
