@@ -33,11 +33,6 @@ namespace NServiceBus.Sagas.Impl
             configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
             configurer.ConfigureComponent<SagaIdEnricher>(DependencyLifecycle.InstancePerCall);
             
-            //Defining ITimeoutState and TimeoutMessage as valid system messages
-            NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => typeof (ITimeoutState).IsAssignableFrom(t) || t == typeof(TimeoutMessage));
-            //NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => t == typeof(TimeoutMessage));
-            //NServiceBus.Configure.Instance.DefiningSystemMessagesAs(t => typeof(ITimeoutState).IsAssignableFrom(t));
-
             return new Configure { configurer = configurer };
         }
 

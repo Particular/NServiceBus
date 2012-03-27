@@ -120,9 +120,22 @@ namespace NServiceBus
             }
             set
             {
+                bool invoke = configurer == null;
                 configurer = value;
                 WireUpConfigSectionOverrides();
+                if (invoke)
+                    InvokeBeforeConfigurationInitializers();
             }
+        }
+
+        private void InvokeBeforeConfigurationInitializers()
+        {
+            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+                .ToList().ForEach(t =>
+            {
+                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                ini.Init();
+            });
         }
 
         private IConfigureComponents configurer;
@@ -228,6 +241,7 @@ namespace NServiceBus
 
             TypesToScan = typesToScan;
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
+            
             return instance;
         }
 
@@ -268,13 +282,6 @@ namespace NServiceBus
 
             TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t =>
-                                      {
-                                          var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                                          ini.Init();
-                                      });
 
             TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>

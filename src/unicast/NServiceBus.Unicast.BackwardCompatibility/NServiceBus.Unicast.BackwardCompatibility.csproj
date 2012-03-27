@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompletionMessage.cs" />
+    <Compile Include="ConfigureBackwardCompatilibity.cs" />
     <Compile Include="IncomingReturnMessageMutator.cs" />
     <Compile Include="IncomingSubscriptionMessageMutator.cs" />
     <Compile Include="OutgoingSubscriptionMessageMutator.cs" />

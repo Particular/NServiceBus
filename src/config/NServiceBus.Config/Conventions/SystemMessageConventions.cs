@@ -12,7 +12,7 @@ namespace NServiceBus.Config.Conventions
         /// </summary>
         /// <param name="config"></param>
         /// <param name="definesMessageType"></param>
-        public static Configure DefiningSystemMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
+        public static Configure AddSystemMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
             MessageConventionExtensions.AddSystemMessagesConventions(definesMessageType);
             return config;

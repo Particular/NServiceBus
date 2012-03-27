@@ -47,8 +47,9 @@ namespace NServiceBus
 
         private static bool IsInSystemConventionList(this Type t)
         {
-            return IsSystemMessageActions.Any(isSystemMessageAction => SystemMessagesConventionCache.ApplyConvention(t, isSystemMessageAction));
+            return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }
+
         /// <summary>
         /// Add system message convention
         /// </summary>
@@ -134,7 +135,6 @@ namespace NServiceBus
                 Logger.Error("Failed to evaluate Event convention: " + ex);
                 throw;
             }
-
         }
 
 
@@ -172,8 +172,6 @@ namespace NServiceBus
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> EventsConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> SystemMessagesConventionCache = new ConventionCache<Type>();
-
     }
 
     class ConventionCache<T>
