@@ -60,8 +60,8 @@
         [TestFixtureSetUp]
         public void SetupContext()
         {
-            //store = new EmbeddableDocumentStore { RunInMemory = true };
-            store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "MyServer" };
+            store = new EmbeddableDocumentStore { RunInMemory = true };
+            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "MyServer" };
 
             store.Initialize();
 
