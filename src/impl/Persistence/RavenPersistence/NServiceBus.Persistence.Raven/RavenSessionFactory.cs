@@ -5,7 +5,8 @@ namespace NServiceBus.Persistence.Raven
 {
     public class RavenSessionFactory : IDisposable
     {
-        IDocumentSession session;
+        [ThreadStatic]
+        static IDocumentSession session;
 
         public IDocumentStore Store { get; private set; }
 
@@ -15,7 +16,7 @@ namespace NServiceBus.Persistence.Raven
         {
             get { return session ?? (session = OpenSession()); }
         }
-        
+
         public RavenSessionFactory(IDocumentStore store)
         {
             Store = store;
@@ -23,13 +24,21 @@ namespace NServiceBus.Persistence.Raven
 
         public void Dispose()
         {
-            if (session != null)
-                session.Dispose();
+            if (session == null)
+                return;
+
+            session.Dispose();
+            session = null;
         }
 
         IDocumentSession OpenSession()
         {
-            var databaseName = GetDatabaseName(Bus.CurrentMessageContext);
+            IMessageContext context = null;
+
+            if (Bus != null)
+                context = Bus.CurrentMessageContext;
+
+            var databaseName = GetDatabaseName(context);
 
             IDocumentSession documentSession;
 
@@ -50,6 +59,6 @@ namespace NServiceBus.Persistence.Raven
                 session.SaveChanges();
         }
 
-        public static Func<IMessageContext,string> GetDatabaseName = (context) => "";
+        public static Func<IMessageContext, string> GetDatabaseName = (context) => "";
     }
 }

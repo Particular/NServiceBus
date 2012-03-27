@@ -18,9 +18,10 @@ namespace NServiceBus.Persistence.Raven
 
         public void End(Exception ex)
         {
-            if (ex != null) return;
-
-            sessionFactory.SaveChanges();
+            if (ex == null)
+                sessionFactory.SaveChanges();
+            
+            sessionFactory.Dispose();
         }
     }
 }
