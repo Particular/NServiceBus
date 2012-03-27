@@ -1,11 +1,11 @@
 using System;
 // Completion message is used by a V3.X subscriber with a 2.6 publisher. 
-// Do no change the namespace namespace
+// Do no change the namespace
 
 namespace NServiceBus.Unicast.Transport
 {
 	/// <summary>
-	/// Used to subscribe to a V2.6 publisher.
+	/// Used for compatibility with 2.6 endpoints.
 	/// </summary>
     [Serializable]
     public class CompletionMessage : IMessage
