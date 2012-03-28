@@ -6,6 +6,7 @@
 	$PackageNameSuffix = ""
 	$TargetFramework = "net-4.0"
 	$UploadPackage = $false;
+	$NugetKey = ""
 	$PackageIds = ""
 	$DownloadDependentPackages = $false
 	
@@ -509,11 +510,15 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 }
 
 task CreatePackages -depends PrepareRelease  {
-	
+
+	if(($UploadPackage) -and ($NugetKey -eq "")){
+		throw "Could not find the NuGet access key Package Cannot be uploaded without access key"
+	}
+		
 	import-module $toolsDir\NuGet\packit.psm1
 	Write-Output "Loading the module for packing.............."
 	$packit.push_to_nuget = $UploadPackage 
-	
+	$packit.nugetKey  = $NugetKey
 	
 	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
 	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
