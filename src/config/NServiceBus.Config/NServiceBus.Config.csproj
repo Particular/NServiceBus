@@ -87,6 +87,7 @@
     <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="Conventions\SystemMessageConventions.cs" />
     <Compile Include="INeedInitialization.cs" />
+    <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Conventions\EndpointConventions.cs" />

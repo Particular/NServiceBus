@@ -280,15 +280,26 @@ namespace NServiceBus
             if (initialized)
                 return;
 
-            TypesToScan.Where(t => typeof(IWantToRunWhenConfigurationIsComplete).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            TypesToScan.Where(t => typeof(INeedInitialization).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t =>
-                                      {
-                                          var ini = (INeedInitialization)Activator.CreateInstance(t);
-                                          ini.Init();
-                                      });
+          
+            ForAllTypes<IWantToRunBeforeConfiguration>(t =>
+            {
+                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                ini.Init();
+            });
+
+            ForAllTypes<INeedInitialization>(t =>
+            {
+                var ini = (INeedInitialization)Activator.CreateInstance(t);
+                ini.Init();
+            });
+
+            ForAllTypes<IWantToRunBeforeConfigurationIsFinalized>(t =>
+            {
+                var ini = (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(t);
+                ini.Run();
+            });
 
             initialized = true;
 
@@ -297,6 +308,17 @@ namespace NServiceBus
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
                 .ToList().ForEach(o => o.Run());
+        }
+
+        /// <summary>
+        /// Applies the given action to all the scanned types that can be assigned to T 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        public void ForAllTypes<T>(Action<Type> action) where T : class
+        {
+            TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+              .ToList().ForEach(action);
         }
 
         /// <summary>

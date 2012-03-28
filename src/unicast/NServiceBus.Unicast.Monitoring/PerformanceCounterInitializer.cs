@@ -7,7 +7,7 @@
     /// <summary>
     /// Initializes the peformcecounters if they are enabled
     /// </summary>
-    public class PerformanceCounterInitializer : IWantToRunWhenConfigurationIsComplete
+    public class PerformanceCounterInitializer : IWantToRunBeforeConfigurationIsFinalized
     {
         public void Run()
         {

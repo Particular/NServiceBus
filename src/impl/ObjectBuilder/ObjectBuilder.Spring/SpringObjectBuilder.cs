@@ -74,8 +74,8 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
-            //if (initialized)
-            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            if (initialized)
+                throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
 
             typeHandleLookup[concreteComponent] = dependencyLifecycle;
 
@@ -87,8 +87,8 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
         {
-            //if (initialized)
-            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            if (initialized)
+                throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
 
             lock (componentProperties)
             {
@@ -104,8 +104,8 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            //if(initialized)
-            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            if(initialized)
+                throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
 
             ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }

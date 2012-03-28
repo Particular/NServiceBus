@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Config
     using Persistence;
     using Sending;
 
-    public class GatewayDefaults : IWantToRunWhenConfigurationIsComplete
+    public class GatewayDefaults : IWantToRunBeforeConfigurationIsFinalized
     {
         public static Action DefaultPersistence = () => Configure.Instance.UseRavenGatewayPersister();
 
