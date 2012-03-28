@@ -40,8 +40,8 @@ namespace NServiceBus.Timeout.Core
                                    Headers = message.Headers
                                };
 
-                Manager.PushTimeout(data);
                 Persister.Add(data);
+                Manager.PushTimeout(data);
             }
         }
     }
