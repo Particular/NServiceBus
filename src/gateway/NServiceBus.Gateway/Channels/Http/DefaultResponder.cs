@@ -16,7 +16,7 @@ namespace NServiceBus.Gateway.Channels.Http
         }
     }
 
-    public class SetDefaultResponder : IWantToRunWhenConfigurationIsComplete
+    public class SetDefaultResponder : IWantToRunBeforeConfigurationIsFinalized
     {
         public void Run()
         {

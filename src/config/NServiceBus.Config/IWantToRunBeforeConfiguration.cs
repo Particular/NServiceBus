@@ -6,7 +6,7 @@ namespace NServiceBus
     public interface IWantToRunBeforeConfiguration
     {
         /// <summary>
-        /// Invoked befor configuration starts
+        /// Invoked before configuration starts
         /// </summary>
         void Init();
     }

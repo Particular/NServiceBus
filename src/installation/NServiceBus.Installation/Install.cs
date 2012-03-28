@@ -46,10 +46,8 @@ namespace NServiceBus
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
 
-            Configure.TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && t.IsInterface == false)
-                .ToList().ForEach(t => config.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
             WindowsIdentity identity;
+           
             // Passing a token results in a duplicate identity exception in some cases, you can't compare tokens so this could
             // still happen but at least the explicit WindowsIdentity.GetCurrent().Token is avoided now.
             if (userToken.HasValue)
