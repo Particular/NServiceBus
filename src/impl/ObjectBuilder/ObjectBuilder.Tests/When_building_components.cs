@@ -10,20 +10,20 @@ namespace ObjectBuilder.Tests
     using NServiceBus.ObjectBuilder.CastleWindsor;
 
     [TestFixture]
-    public class When_building_components:BuilderFixture
+    public class When_building_components : BuilderFixture
     {
         [Test]
         public void Singleton_components_should_yield_the_same_instance()
         {
             ForAllBuilders((builder) =>
-               Assert.AreEqual(builder.Build(typeof(SingletonComponent)),builder.Build(typeof(SingletonComponent))));
+               Assert.AreEqual(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(SingletonComponent))));
         }
 
         [Test]
         public void Singlecall_components_should_yield_unique_instances()
         {
             ForAllBuilders((builder) =>
-               Assert.AreNotEqual(builder.Build(typeof(SinglecallComponent)),builder.Build(typeof(SinglecallComponent))));
+               Assert.AreNotEqual(builder.Build(typeof(SinglecallComponent)), builder.Build(typeof(SinglecallComponent))));
         }
 
         [Test]
@@ -37,32 +37,32 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Reguesting_an_unregistered_component_should_throw()
         {
-            
-            ForAllBuilders((builder)=> 
-                Assert.That(() => builder.Build(typeof (UnregisteredComponent)),
+
+            ForAllBuilders((builder) =>
+                Assert.That(() => builder.Build(typeof(UnregisteredComponent)),
                 Throws.Exception));
         }
 
         [Test]
         public void Should_be_able_to_build_components_registered_after_first_build()
         {
-            //first build call
-            ForAllBuilders(builder=>builder.Build(typeof(SingletonComponent)));
+            ForAllBuilders(builder =>
+                               {
+                                   builder.Build(typeof (SingletonComponent));
+                                   builder.Configure(typeof (UnregisteredComponent), DependencyLifecycle.SingleInstance);
 
-            //register new component
-            ForAllBuilders(builder=>builder.Configure(typeof(UnregisteredComponent), DependencyLifecycle.SingleInstance));
-
-            //should be able to build the newly registered component
-            ForAllBuilders((builder) =>
-               Assert.AreEqual(builder.Build(typeof(UnregisteredComponent)), builder.Build(typeof(UnregisteredComponent))), 
-               typeof(SpringObjectBuilder));
+                                   var unregisteredComponent = builder.Build(typeof(UnregisteredComponent)) as UnregisteredComponent;
+                                   Assert.NotNull(unregisteredComponent);
+                                   Assert.NotNull(unregisteredComponent.SingletonComponent);
+                               }
+               ,typeof(SpringObjectBuilder));
         }
 
         protected override Action<IContainer> InitializeBuilder()
         {
             return (config) =>
                        {
-                           config.Configure(typeof(SingletonComponent),DependencyLifecycle.SingleInstance);
+                           config.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
                            config.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
                            config.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
                        };
@@ -76,6 +76,7 @@ namespace ObjectBuilder.Tests
         }
         public class UnregisteredComponent
         {
+            public SingletonComponent SingletonComponent { get; set; }
         }
     }
 }

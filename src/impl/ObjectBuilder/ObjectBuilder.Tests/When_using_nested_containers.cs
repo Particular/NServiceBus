@@ -6,7 +6,6 @@ using NUnit.Framework;
 namespace ObjectBuilder.Tests
 {
     using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Unity;
     using StructureMap;
 
     [TestFixture]
