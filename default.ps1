@@ -308,6 +308,20 @@ task CompileAzureHosts  -depends InitEnvironment {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\"}
 	}
+	
+	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.dll",
+		"$buildBase\azure\Hosting\NServiceBus.Hosting.dll")
+	
+	echo "Merging NServiceBus.Azure.Hosting....."	
+	
+	Ilmerge $ilMergeKey $outDir "NServiceBus.Hosting.Azure" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
+	
+	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.HostProcess.exe",
+		"$buildBase\azure\Hosting\Magnum.dll", "$buildBase\azure\Hosting\Topshelf.dll")
+	
+	echo "Merging NServiceBus.Hosting.Azure.HostProcess.exe....."	
+	
+	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Hosting.Azure.HostProcess" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 }
 
 task CompileTools -depends InitEnvironment, CompileAzureHosts{
@@ -694,12 +708,24 @@ else{
 	#endregion	
 		
 	#region Packing NServiceBus.Azure
-	$packageName = "NServiceBus.Azure" + $PackageNameSuffix
-	$packit.package_description = "The Azure for the NServicebus"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "WindowsAzure.StorageClient.Library"="1.4";"Common.Logging"="2.0.0";"WindowsAzure.ServiceBus"="1.5.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll" @{"lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll"="lib"; 
-	"lib\azure\Microsoft.WindowsAzure.Diagnostics.dll"="lib"; "lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll"="lib";
-	"lib\NHibernate.Drivers.Azure.TableStorage.dll"="lib"}
+	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
+	$packit.package_description = "Azure support for NServicebus"
+	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll" @{"lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll"="lib"; 
+	"lib\azure\Microsoft.WindowsAzure.Diagnostics.dll"="lib"; "lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll"="lib"; "lib\azure\Microsoft.WindowsAzure.StorageClient.dll"="lib"; "lib\azure\Microsoft.ServiceBus.dll"="lib";
+	"lib\NHibernate.Drivers.Azure.TableStorage.dll"="lib";"lib\Ionic.Zip.dll"="lib"}
 	#endregion	
+	
+	#region Packing NServiceBus.Hosting.Azure
+	$packageNameHostingAzure = "NServiceBus.Hosting.Azure" + $PackageNameSuffix
+	$packit.package_description = "The Azure Host for NServicebus"
+	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll"
+	#endregion
+	
+	#region Packing NServiceBus.Hosting.Azure.HostProcess
+	$packageNameHostingAzureHostProcess = "NServiceBus.Hosting.Azure.HostProcess" + $PackageNameSuffix
+	$packit.package_description = "The process used when sharing an azure instance between multiple NServicebus endpoints"
+	invoke-packit $packageNameHostingAzureHostProcess $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.HostProcess.exe"
+	#endregion
 		
 	remove-module packit
  }
