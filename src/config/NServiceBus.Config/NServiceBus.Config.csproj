@@ -83,6 +83,7 @@
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
+    <Compile Include="ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="Conventions\SystemMessageConventions.cs" />
     <Compile Include="INeedInitialization.cs" />
