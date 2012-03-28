@@ -20,7 +20,7 @@ $script:packit.versionAssemblyName = $script:packit.binaries_Location + "\NServi
 $script:packit.packageOutPutDir = ".\packages"
 $script:packit.PackagingArtifactsRoot = ".\NuGet\PackagingArtifacts"
 $script:packit.nugetCommand = ".\tools\Nuget\NuGet.exe"
-$script:packit.nugetKey =     ".\tools\Nuget\NuGetKey.txt"
+$script:packit.nugetKey = ""
 
 Export-ModuleMember -Variable "packit"
 #endregion
@@ -29,17 +29,16 @@ $VesionPlaceHolder = "<version>"
 
 function DeletePackage($packageId , $ver )
 {
-	$keyfile = resolve-path $script:packit.nugetKey
-	$nugetExcec =  resolve-path $script:packit.nugetCommand
-	
-	if(-not (test-path $keyfile)) 
-	{
-  		throw "Could not find the NuGet access key at $keyfile."
-	}
-	
-	$key = get-content $keyfile
+	$key = $script:packit.nugetKey
 	$key = $key.Trim()
 	
+	if($key -eq "") 
+	{
+  		throw "Could not find the NuGet access key."
+	}
+	
+	$nugetExcec =  resolve-path $script:packit.nugetCommand
+		
 	write-host "Package to Delete:"
 	Write-Host $packageId + $ver
 	&$nugetExcec delete $packageId $ver $key 
@@ -50,18 +49,18 @@ Export-ModuleMember -Function "DeletePackage"
 
 function PushPackage($packageName)
 {
-	$keyfile = resolve-path $script:packit.nugetKey
+	$key = $script:packit.nugetKey
+	$key = $key.Trim()
+	
+	if($key -eq "") 
+	{
+  		throw "Could not find the NuGet access key."
+	}
+	
 	$packagespath = resolve-path $script:packit.packageOutPutDir
 	$nugetExcec =  resolve-path $script:packit.nugetCommand
-	if(-not (test-path $keyfile)) 
-	{
-  		throw "Could not find the NuGet access key at $keyfile."
-	}
+	
   	pushd $packagespath
- 
-  	# get our secret key.
-  	$key = get-content $keyfile
-	$key = $key.Trim()
  
   	# Find all the packages and display them for confirmation
   	$packages = dir $packageName
