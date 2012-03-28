@@ -10,8 +10,8 @@
         /// </summary>
         public void Init()
         {
-            if(Address.Local == null)
-                Address.InitializeLocalAddress(Configure.EndpointName);
+            if (Address.Local == null)
+                Address.InitializeLocalAddress(Advanced.ConfigureSettingLocalAddressNameAction.GetLocalAddressName());
         }
     }
 }
