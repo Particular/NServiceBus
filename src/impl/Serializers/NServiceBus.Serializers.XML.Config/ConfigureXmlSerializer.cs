@@ -1,7 +1,4 @@
-﻿using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
-using System.Linq;
-using NServiceBus.Serialization;
+﻿using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus
 {
@@ -9,6 +6,7 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.XML;
+    using Serializers.XML.Config;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -28,18 +26,8 @@ namespace NServiceBus
                 return config;
             }
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
-
-            var mapper = new MessageMapper();
-            mapper.Initialize(messageTypes);
-
-            config.Configurer.RegisterSingleton<IMessageMapper>(mapper);
-            config.Configurer.RegisterSingleton<IMessageCreator>(mapper);//todo - Modify the builders to auto register all types
-
-            var serializer = new XmlMessageSerializer(mapper);
-            serializer.Initialize(messageTypes);
-
-            config.Configurer.RegisterSingleton<IMessageSerializer>(serializer);
+            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
 
             return config;
         }
@@ -55,20 +43,9 @@ namespace NServiceBus
         {
             config.XmlSerializer();
 
-            config.Configurer.ConfigureProperty<Serializers.XML.XmlMessageSerializer>(x => x.Namespace, nameSpace);
+            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
 
             return config;
-        }
-    }
-
-    class SetXmlSerializerAsDefault : INeedInitialization
-    {
-        internal static bool UseXmlSerializer;
-
-        void INeedInitialization.Init()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>() || UseXmlSerializer)
-                Configure.Instance.XmlSerializer();
         }
     }
 }
