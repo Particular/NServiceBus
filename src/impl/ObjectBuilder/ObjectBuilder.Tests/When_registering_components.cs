@@ -7,6 +7,7 @@ namespace ObjectBuilder.Tests
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Spring;
     using NServiceBus.ObjectBuilder.Unity;
 
@@ -52,6 +53,29 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(builder.Build(typeof(SingletonComponent)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingletonComponent)), singleton);
             });
+        }
+
+        [Test]
+        public void Registering_the_same_singleton_for_different_interfaces_should_be_supported()
+        {
+            ForAllBuilders((builder) =>
+            {
+                var singleton = new SingletonThatImplementsToInterfaces();
+                builder.RegisterSingleton(typeof(ISingleton1), singleton);
+                builder.RegisterSingleton(typeof(ISingleton2), singleton);
+
+                builder.Configure(typeof(ComponentThatDependsOnMultiSingeltons), DependencyLifecycle.InstancePerCall);
+
+                var dep =
+                    builder.Build(typeof (ComponentThatDependsOnMultiSingeltons)) as
+                    ComponentThatDependsOnMultiSingeltons;
+
+                Assert.NotNull(dep.Singleton1); 
+                Assert.NotNull(dep.Singleton2);
+
+                Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
+                Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
+            },typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -132,6 +156,29 @@ namespace ObjectBuilder.Tests
 
         }
 
+
+        [Test]
+        public void Multiple_implementations_should_be_supported()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
+
+                Assert.NotNull(builder.Build(typeof(SomeClass)));
+                Assert.AreEqual(2, builder.BuildAll(typeof(ISomeInterface)).Count());
+
+                var childBuilder = builder.BuildChildContainer();
+                Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
+                Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
+
+            }
+            ,typeof(WindsorObjectBuilder));
+
+
+        }
+
+
         [Test]
         public void Generic_interfaces_should_be_registered()
         {
@@ -156,6 +203,24 @@ namespace ObjectBuilder.Tests
             }
             );
         }
+    }
+
+    public class ComponentThatDependsOnMultiSingeltons
+    {
+        public ISingleton1 Singleton1 { get; set; }
+        public ISingleton2 Singleton2 { get; set; }
+    }
+
+    public class SingletonThatImplementsToInterfaces : ISingleton2
+    {
+    }
+
+    public interface ISingleton2 : ISingleton1
+    {
+    }
+
+    public interface ISingleton1
+    {
     }
 
     public class ComponentWithMultipleInterfaces : ISomeInterface, ISomeOtherInterface, IYetAnotherInterface
@@ -221,6 +286,10 @@ namespace ObjectBuilder.Tests
     }
 
     public class SomeClass : ISomeInterface
+    {
+    }
+
+    public class SomeOtherClass : ISomeInterface
     {
     }
 

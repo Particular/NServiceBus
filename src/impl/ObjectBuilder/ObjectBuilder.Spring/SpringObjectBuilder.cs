@@ -9,6 +9,8 @@ using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
+    using System.Linq;
+
     /// <summary>
     /// Implementation of IBuilderInternal using the Spring Framework container
     /// </summary>
@@ -42,7 +44,9 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         IContainer IContainer.BuildChildContainer()
         {
-            return new SpringObjectBuilder(new GenericApplicationContext(context));
+            //return this until we can get the child containers to work properly
+            //return new SpringObjectBuilder(new GenericApplicationContext(context));
+            return this;
         }
 
         object IContainer.Build(Type typeToBuild)
@@ -70,15 +74,22 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
+            //if (initialized)
+            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+
             typeHandleLookup[concreteComponent] = dependencyLifecycle;
 
             lock (componentProperties)
                 if (!componentProperties.ContainsKey(concreteComponent))
                     componentProperties[concreteComponent] = new ComponentConfig();
+            
         }
 
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
         {
+            //if (initialized)
+            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+
             lock (componentProperties)
             {
                 ComponentConfig result;
@@ -93,6 +104,9 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
+            //if(initialized)
+            //    throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+
             ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
