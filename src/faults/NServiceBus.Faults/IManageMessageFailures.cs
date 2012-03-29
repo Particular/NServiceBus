@@ -21,5 +21,12 @@ namespace NServiceBus.Faults
         /// <param name="message"></param>
         /// <param name="e"></param>
         void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e);
+
+
+        /// <summary>
+        /// Initializes the fault manager
+        /// </summary>
+        /// <param name="address">The address of the message source</param>
+        void Init(Address address);
     }
 }

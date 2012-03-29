@@ -11,14 +11,19 @@ namespace NServiceBus.Faults.InMemory
     {
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            Logger.Error("Serialization failed for message with ID " + message.IdForCorrelation + ".", e);
+            logger.Error("Serialization failed for message with ID " + message.IdForCorrelation + ".", e);
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            Logger.Error("Message processing always fails for message with ID " + message.IdForCorrelation + ".", e);
+            logger.Error("Message processing always fails for message with ID " + message.IdForCorrelation + ".", e);
         }
 
-        private ILog Logger = LogManager.GetLogger(typeof(FaultManager));
+        public void Init(Address address)
+        {
+            
+        }
+
+        readonly ILog logger = LogManager.GetLogger(typeof(FaultManager));
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Gateway.Config
 {
     using Faults;
+    using ObjectBuilder;
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
@@ -10,6 +11,9 @@ namespace NServiceBus.Gateway.Config
     {
         readonly TransactionalTransport masterNodeTransport;
         readonly UnicastBus unicastBus;
+
+        public IBuilder Builder { get; set; }
+
 
         public MainEndpointSettings(TransactionalTransport masterNodeTransport,UnicastBus unicastBus)
         {
@@ -49,7 +53,7 @@ namespace NServiceBus.Gateway.Config
         {
             get
             {
-                return masterNodeTransport.FailureManager;
+                return Builder.Build(masterNodeTransport.FailureManager.GetType()) as IManageMessageFailures;
             }
         }
 
