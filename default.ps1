@@ -731,6 +731,52 @@ else{
 	invoke-packit $packageNameHostingAzureHostProcess $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.HostProcess.exe"
 	#endregion
 		
+    #region Packaging Core-Only
+        
+    # Assumptions about Core-Only users:
+    # - will most certainly love, if the app.config and the project file are just left untouched
+    # - will like to have pdbs included since these are not available on the symbol source (for core-only)
+    
+    # - consider mergin Interop.MSMQ and Rhino.Licensing.dll even for core-only
+    
+    $packit.push_to_nuget = $false # should never be available on the Nuget Gallery! - Instead use local feeds!
+    
+	$packit.framework_Isolated_Binaries_Loc = "$baseDir\core-only"
+	$packit.PackagingArtifactsRoot = "$baseDir\core-only\PackagingArtifacts"
+	$packit.packageOutPutDir = "$baseDir\core-only\packages"
+    
+    $coreDependencies = @{
+      log4net="[1.2.10]"; 
+      "Newtonsoft.Json"="[4.0.5]"; 
+      "RavenDB"="[1.0.616]"; 
+      "Common.Logging"="[2.0.0]";
+      "Common.Logging.Log4Net"="[2.0.1]";
+      "Autofac"="[2.5.2.830]";
+      "NLog"="[2.0.0.2000]" # is nuget just a dependency of RavenDB? if so, we can just drop it here...
+    }
+    
+    $coreOnlySuffix = "-CoreOnly"
+    
+    #region Packing NServiceBus
+	$packageNameNsbCoreOnly = "NServiceBus" + $coreOnlySuffix + $PackageNameSuffix 	
+	$packit.package_description = "The most popular open-source service bus for .net"
+	invoke-packit $packageNameNsbCoreOnly $script:packageVersion $coreDependencies "..\binaries\NServiceBus.dll", "..\binaries\NServiceBus.Core.dll", "..\binaries\NServiceBus.Core.pdb", "..\dependencies\Interop.MSMQ.dll", "..\dependencies\Rhino.Licensing.dll" @{} 
+	#endregion
+    
+    #region Packing NServiceBus.Host
+    $packageName = "NServiceBus.Host" + $coreOnlySuffix + $PackageNameSuffix
+	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsbCoreOnly=$script:packageVersion} "" @{".\core-only\binaries\NServiceBus.Host.*"="lib\net40"}
+	#endregion
+    
+    #region Packing NServiceBus.Host32
+    $packageName = "NServiceBus.Host32" + $coreOnlySuffix + $PackageNameSuffix
+	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
+	invoke-packit $packageName $script:packageVersion @{$packageNameNsbCoreOnly=$script:packageVersion} "" @{".\core-only\binaries\NServiceBus.Host32.*"="lib\net40\x86"}
+	#endregion
+    
+    #region
+	
 	remove-module packit
  }
 
