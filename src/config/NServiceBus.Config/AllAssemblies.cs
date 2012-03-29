@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Web;
 
@@ -9,29 +10,55 @@ namespace NServiceBus
     /// <summary>
     /// Class for specifying which assemblies not to load.
     /// </summary>
-    public class AllAssemblies : IEnumerable<Assembly>
+    public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
     {
         /// <summary>
-        /// Indicate that the given assembly is not to be used.
+        /// Indicate that assemblies matching the given expression are not to be used.
         /// Use the 'And' method to indicate other assemblies to be skipped.
         /// </summary>
-        /// <param name="assembly"></param>
+        /// <param name="assemblyExpression"><see cref="Configure.IsMatchingAssembly"/></param>
+        /// <seealso cref="Configure.IsMatchingAssembly"/>
         /// <returns></returns>
-        public static AllAssemblies Except(string assembly)
+        public static IExcludesBuilder Except(string assemblyExpression)
         {
-            return new AllAssemblies { assembliesToSkip = new List<string>(new[] { assembly })};
+            return new AllAssemblies { assembliesToExclude = new List<string>(new[] { assemblyExpression })};
         }
 
         /// <summary>
-        /// Indicate that the given assembly should not be used.
-        /// You can call this method multiple times.
+        /// Indicate that assemblies matching the given expression are to be used.
+        /// Use the 'And' method to indicate other assemblies to be included.
         /// </summary>
-        /// <param name="assembly"></param>
+        /// <param name="assemblyExpression"><see cref="Configure.IsMatchingAssembly"/></param>
+        /// <seealso cref="Configure.IsMatchingAssembly"/>
         /// <returns></returns>
-        public AllAssemblies And(string assembly)
+        public static IIncludesBuilder Matching(string assemblyExpression)
         {
-            if (!assembliesToSkip.Contains(assembly))
-                assembliesToSkip.Add(assembly);
+            return new AllAssemblies { assembliesToInclude = new List<string>(new[] { assemblyExpression }) };
+        }
+
+        IExcludesBuilder IExcludesBuilder.And(string assemblyExpression)
+        {
+            if (!assembliesToExclude.Contains(assemblyExpression))
+                assembliesToExclude.Add(assemblyExpression);
+
+            return this;
+        }
+
+        IExcludesBuilder IIncludesBuilder.Except(string assemblyExpression)
+        {
+            if (assembliesToExclude == null)
+                assembliesToExclude = new List<string>();
+
+            if (!assembliesToExclude.Contains(assemblyExpression))
+                assembliesToExclude.Add(assemblyExpression);
+
+            return this;
+        }
+
+        IIncludesBuilder IIncludesBuilder.And(string assemblyExpression)
+        {
+            if (!assembliesToInclude.Contains(assemblyExpression))
+                assembliesToInclude.Add(assemblyExpression);
 
             return this;
         }
@@ -42,7 +69,15 @@ namespace NServiceBus
         /// <returns></returns>
         public IEnumerator<Assembly> GetEnumerator()
         {
-            return Configure.GetAssembliesInDirectory(directory, assembliesToSkip.ToArray()).GetEnumerator();
+            Predicate<string> exclude = assembliesToExclude != null 
+                ? name => assembliesToExclude.Any(skip => Configure.IsMatchingAssembly(skip, name))
+                : (Predicate<string>) null;
+
+            Predicate<string> include = assembliesToInclude != null
+                ? name => assembliesToInclude.Any(skip => Configure.IsMatchingAssembly(skip, name))
+                : (Predicate<string>) null;
+
+            return Configure.FindAssemblies(directory, true, include, exclude).GetEnumerator();
         }
 
         /// <summary>
@@ -62,7 +97,8 @@ namespace NServiceBus
                 directory = AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        private List<string> assembliesToSkip;
+        private List<string> assembliesToExclude;
+        private List<string> assembliesToInclude;
         private readonly string directory;
     }
 }

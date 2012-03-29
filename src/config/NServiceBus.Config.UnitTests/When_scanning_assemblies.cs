@@ -39,5 +39,11 @@ namespace NServiceBus.Config.UnitTests
                 foundAssemblies.Any(a => a.FullName.ToLower().StartsWith("log4net")));
         }
 
+        [Test]
+        public void Should_exclude_raven()
+        {
+            Assert.False(
+                foundAssemblies.Any(a => a.FullName.ToLower().StartsWith("raven")));
+        }
     }
 }

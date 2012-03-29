@@ -120,22 +120,9 @@ namespace NServiceBus
             }
             set
             {
-                bool invoke = configurer == null;
                 configurer = value;
                 WireUpConfigSectionOverrides();
-                if (invoke)
-                    InvokeBeforeConfigurationInitializers();
             }
-        }
-
-        private void InvokeBeforeConfigurationInitializers()
-        {
-            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t =>
-            {
-                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                ini.Init();
-            });
         }
 
         private IConfigureComponents configurer;
@@ -241,7 +228,6 @@ namespace NServiceBus
 
             TypesToScan = typesToScan;
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
-            
             return instance;
         }
 
@@ -349,16 +335,68 @@ namespace NServiceBus
         /// Load and return all assemblies in the given directory except the given ones to exclude
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="assembliesToSkip"></param>
+        /// <param name="assembliesToSkip">The exclude must either be the full</param>
         /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.exe", assembliesToSkip))
+            Predicate<string> exclude = 
+                f => assembliesToSkip.Any(skip => destillLowerAssemblyName(skip) == f);
+
+            return FindAssemblies(path, false, null, exclude);
+        }
+
+        static string destillLowerAssemblyName(string assemblyOrFileName)
+        {
+            var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
+            if (lowerAssemblyName.EndsWith(".dll"))
+                lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
+            return lowerAssemblyName;
+        }
+
+
+        /// <summary>
+        /// Find and return all assemblies in the given directory and the current appdomain 
+        /// filtered to <paramref name="includeAssemblyNames"/>, if given, 
+        /// but except <paramref name="excludeAssemblyNames"/>
+        /// </summary>
+        /// <param name="path">Directory to search in.</param>
+        /// <param name="includeAppDomainAssemblies">Shortcut Assembly.Load by instead using yet loaded assemblies.</param>
+        /// <param name="includeAssemblyNames">All, if <c>null</c></param>
+        /// <param name="excludeAssemblyNames">None, if <c>null</c></param>
+        /// <returns></returns>
+        public static IEnumerable<Assembly> FindAssemblies(string path, bool includeAppDomainAssemblies, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
+        {
+            var possiblyChangedExcludePredicate = excludeAssemblyNames;
+            if (includeAppDomainAssemblies)
+            {
+                var yetLoadedMatchingAssemblies =
+                    (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                     where IsIncluded(assembly.GetName().Name, includeAssemblyNames, excludeAssemblyNames)
+                    select assembly).ToArray();
+
+                foreach (var a in yetLoadedMatchingAssemblies)
+                {
+                    yield return a;
+                }
+
+                Predicate<string> additionalExclude =
+                    name => yetLoadedMatchingAssemblies.Any(
+                        a => IsMatchingAssembly(a.GetName().Name, name));
+
+                if (possiblyChangedExcludePredicate != null)
+                    possiblyChangedExcludePredicate = name => additionalExclude(name) || excludeAssemblyNames(name);
+                else
+                {
+                    possiblyChangedExcludePredicate = additionalExclude;
+                }
+            }
+
+            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.exe", includeAssemblyNames, possiblyChangedExcludePredicate))
                 yield return a;
-            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", assembliesToSkip))
+            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", includeAssemblyNames, possiblyChangedExcludePredicate))
                 yield return a;
         }
-        
+
         /// <summary>
         /// Initialized the bus in send only mode
         /// </summary>
@@ -390,7 +428,7 @@ namespace NServiceBus
         public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
 
 
-        private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, params string[] assembliesToSkip)
+        private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
             var result = new List<Assembly>();
 
@@ -398,13 +436,10 @@ namespace NServiceBus
             {
                 try
                 {
-                    if (defaultAssemblyExclusions.Any(exclusion => file.Name.ToLower().StartsWith(exclusion)))
-                        continue;
-
-                    if (assembliesToSkip.Contains(file.Name, StringComparer.InvariantCultureIgnoreCase))
-                        continue;
-
-                    result.Add(Assembly.LoadFrom(file.FullName));
+                    if (IsIncluded(file.Name, includeAssemblyNames, excludeAssemblyNames))
+                    {
+                        result.Add(Assembly.LoadFrom(file.FullName));
+                    }
                 }
                 catch (BadImageFormatException bif)
                 {
@@ -423,6 +458,42 @@ namespace NServiceBus
             return result;
         }
 
+        private static bool IsIncluded(string assemblyNameOrFileName, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
+        {
+            
+            if (includeAssemblyNames != null 
+                && !includeAssemblyNames(assemblyNameOrFileName)
+                && !defaultAssemblyInclusionOverrides.Any(s => IsMatchingAssembly(s, assemblyNameOrFileName)))
+                return false;
+
+            if (defaultAssemblyExclusions.Any(exclusion => IsMatchingAssembly(exclusion, assemblyNameOrFileName)))
+                return false;
+
+            if (excludeAssemblyNames != null && excludeAssemblyNames(assemblyNameOrFileName))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check, if an assembly name matches the given expression.
+        /// </summary>
+        /// <param name="expression">
+        ///  <c>Wildcard.</c> matches 'Wildcard' and Assemblies starting with 'Wildcard.';
+        ///  <c>Exact</c> matches only "Exact". Casing is generally ignored.
+        /// </param>
+        /// <param name="actualNameOrFileName">The name or file name of the assembly.</param>
+        /// <returns></returns>
+        public static bool IsMatchingAssembly(string expression, string actualNameOrFileName)
+        {
+            if (destillLowerAssemblyName(actualNameOrFileName).StartsWith(expression.ToLower()))
+                return true;
+            if (destillLowerAssemblyName(expression).TrimEnd('.') == destillLowerAssemblyName(actualNameOrFileName))
+                return true;
+
+            return false;
+        }
+
         private static bool IsGenericConfigSource(Type t)
         {
             if (!t.IsGenericType)
@@ -430,14 +501,31 @@ namespace NServiceBus
 
             var args = t.GetGenericArguments();
             if (args.Length != 1)
-                return false;
+                return false;  
 
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
-        static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net." };
-        static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven.", "system.", "lucene.", "magnum." };
+
+        static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
+
+        static readonly IEnumerable<string> defaultAssemblyExclusions 
+            = new[]
+              {
+                  "system.", "nhibernate.", "log4net.",
+                  "nunit.", "rhino.licensing.", "raven.", "magnum.",
+                  "lucene.", "interop.", "nlog.", "newtonsoft.json.",
+                  "common.logging.", "topshelf."
+              };
+
+        private static readonly IEnumerable<string> defaultTypeExclusions
+            = new[]
+              {
+                  // partly the same as assembly exclusions, because they might get ilmerged
+                  "raven.", "system.", "lucene.", "magnum.", "topshelf.", 
+                  "newtonsoft.", "common.logging."
+              };
     }
 }
