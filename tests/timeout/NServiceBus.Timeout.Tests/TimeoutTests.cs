@@ -15,8 +15,8 @@
         private TimeSpan timeout;
         private TimeSpan interval;
 
-        [TestFixtureSetUp]
-        public void MainSetup()
+        [SetUp]
+        public void Setup()
         {
             timeout = TimeSpan.FromSeconds(1);
             interval = TimeSpan.FromSeconds(2);
@@ -29,14 +29,12 @@
                 sagaIds.Add(e.SagaId);
                 eventTime = e.Time;
             };
-        }
 
-        [SetUp]
-        public void Setup()
-        {
             sagaIds = new List<Guid>();
             eventTime = DateTime.MinValue;
         }
+
+
 
         [Test]
         public void PopWithoutPush()
@@ -53,12 +51,40 @@
         }
 
         [Test]
+        public void ClearWithPush()
+        {
+            var sagaId = Guid.NewGuid();
+            var time = DateTime.UtcNow + timeout;
+
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time });
+            manager.ClearTimeout(sagaId);
+
+            manager.PopTimeout();
+            Assert.AreEqual(0, sagaIds.Count);
+        }
+
+        [Test]
+        public void ClearWithTwoPushWitDifferentTime()
+        {
+            var sagaId = Guid.NewGuid();
+            var time = DateTime.UtcNow + timeout;
+
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time });
+            manager.PushTimeout(new TimeoutData { SagaId = sagaId, Time = time.AddSeconds(1) });
+            manager.ClearTimeout(sagaId);
+
+            manager.PopTimeout();
+            Assert.AreEqual(0, sagaIds.Count);
+        }
+
+
+        [Test]
         public void OnePushThenPop()
         {
             var id = Guid.NewGuid();
             var time = DateTime.UtcNow + timeout;
 
-            manager.PushTimeout(new TimeoutData {SagaId = id, Time = time});
+            manager.PushTimeout(new TimeoutData { SagaId = id, Time = time });
 
             manager.PopTimeout();
             Assert.AreEqual(1, sagaIds.Count);
@@ -121,7 +147,7 @@
 
             manager.PushTimeout(new TimeoutData { SagaId = Guid.NewGuid(), Time = time2 });
             manager.PushTimeout(new TimeoutData { SagaId = Guid.NewGuid(), Time = time1 });
-            
+
             manager.PopTimeout();
 
             Assert.AreEqual(1, sagaIds.Count);
