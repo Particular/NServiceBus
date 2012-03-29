@@ -679,7 +679,7 @@ else{
 	#region Packing NServiceBus.Autofac
 	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
 	$packit.package_description = "The Autofac Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.5.2.830"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.6.1.841"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
 	#endregion
 		
 	#region Packing NServiceBus.CastleWindsor

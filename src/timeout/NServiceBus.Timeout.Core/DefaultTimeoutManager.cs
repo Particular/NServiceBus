@@ -25,7 +25,6 @@
                     data[timeout.Time] = new List<TimeoutData>();
 
                 data[timeout.Time].Add(timeout);
-                sagaLookup[timeout.SagaId] = timeout.Time;
             }
         }
 
@@ -43,8 +42,6 @@
                     {
                         pair = next;
                         data.Remove(pair.Key);
-
-                        pair.Value.ForEach(td => sagaLookup.Remove(td.SagaId));
                     }
                 }
             }
@@ -65,34 +62,25 @@
         {
             lock(data)
             {
-                if (!sagaLookup.ContainsKey(sagaId))
-                    return;
+                data.Where(time => time.Value.Any(t => t.SagaId == sagaId)).ToList()
+                    .ForEach(time =>
+                                 {
+                                     time.Value.RemoveAll(t => t.SagaId == sagaId);
 
-                var time = sagaLookup[sagaId];
-
-                sagaLookup.Remove(sagaId);
-                
-                if (!data.ContainsKey(time))
-                    return;
-
-                foreach (var td in data[time].ToArray())
-                    if (td.SagaId == sagaId)
-                        data[time].Remove(td);
-
-                if (data[time].Count == 0)
-                    data.Remove(time);
+                                     if (!time.Value.Any())
+                                         data.Remove(time.Key);
+                                 });
             }
         }
 
-        private void OnSagaTimedOut(TimeoutData timeoutData)
+        void OnSagaTimedOut(TimeoutData timeoutData)
         {
             if (SagaTimedOut != null)
                 SagaTimedOut(null, timeoutData);
         }
 
-        private readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
-        private readonly Dictionary<Guid, DateTime> sagaLookup = new Dictionary<Guid, DateTime>();
+        readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
 
-        private TimeSpan duration = TimeSpan.FromSeconds(1); 
+        TimeSpan duration = TimeSpan.FromSeconds(1); 
     }
 }
