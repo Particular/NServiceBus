@@ -66,6 +66,56 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public T Get<T>(string property, object value) where T : ISagaEntity
         {
+            /*
+             * 'property' MUST be a UniqueProperty! If it isn't, the SCALAR result is just a best guess
+             * and provokes errors in race condition scenarios
+             * 
+             */
+
+            bool allowFindingSagasByNonUniquePropertiesForBackwardsCompatibility = false;
+            // ^ TODO: make this switch configurable and warn on startup, if it isn't set to false
+
+            bool isUniqueProperty = UniqueAttribute.GetUniqueProperties(typeof(T)).Any(p => p.Name == property);
+            // ^ TODO: this should be retrieved in a fast way (cached)
+            
+            if (!allowFindingSagasByNonUniquePropertiesForBackwardsCompatibility && !isUniqueProperty)
+            {
+                throw new ArgumentException("The property must be annotated with [Unique] in order to safely identify your saga");
+            }
+
+            if (isUniqueProperty)
+            {
+                // TODO: Compat issue? Actually somebody needs to create all the SagaUniqueIdentity-docs for old sagas, if the property "became unique" too late!
+
+                var lookupId = SagaUniqueIdentity.FormatId(typeof (T), new KeyValuePair<string, object>(property, value));
+
+                var lookup = Session
+                    .Include("SagaDocId")
+                    .Load<SagaUniqueIdentity>(lookupId);
+
+                if (lookup != null)
+                {
+                    // SagaUniqueIdentities stored by older versions may not have the SagaDocId... 
+                    T found = lookup.SagaDocId != null 
+                        ? Session.Load<T>(lookup.SagaDocId)
+                        : Get<T>(lookup.SagaId);
+
+                    /*
+                    * TODO: Even if MD5 collision is very unlikely, we could compare the <found-saga>.<property> with <value>. 
+                    * 
+                    * Than at least, a collision
+                    * could result in multiple saga-starts, but never
+                    * in high-jacking the wrong saga!!
+                    */
+
+                    return found;
+                }
+
+
+                return default(T);
+            }
+            
+            // it would have failed, if that wasn't allowed by config
             try
             {
                 return Session.Advanced.LuceneQuery<T>()
@@ -98,7 +148,14 @@ namespace NServiceBus.SagaPersisters.Raven
             if (!uniqueProperty.HasValue) return;
 
             var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty.Value);
-            Session.Store(new SagaUniqueIdentity { Id = id, SagaId = saga.Id, UniqueValue = uniqueProperty.Value.Value });
+            var sagaDocId = sessionFactory.Store.Conventions.FindFullDocumentKeyFromNonStringIdentifier(saga.Id, saga.GetType(), false);
+            Session.Store(new SagaUniqueIdentity
+            {
+                Id = id,
+                SagaId = saga.Id,
+                SagaDocId = sagaDocId,
+                UniqueValue = uniqueProperty.Value.Value
+            });
 
             SetUniqueValueMetadata(saga, uniqueProperty.Value);
         }
@@ -120,6 +177,12 @@ namespace NServiceBus.SagaPersisters.Raven
     {
         public string Id { get; set; }
         public Guid SagaId { get; set; }
+
+        /// <summary>
+        /// Property allowing Raven to include the SagaData document in one single same call.
+        /// </summary>
+        public string SagaDocId { get; set; }
+        
         public object UniqueValue { get; set; }
 
         public static string FormatId(Type sagaType, KeyValuePair<string, object> uniqueProperty)
