@@ -729,8 +729,8 @@ else{
 	#region Packing NServiceBus.Azure
 	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "Azure support for NServicebus"
-	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } ["binaries\NServiceBus.Azure.dll", "..\..\lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll", 
-	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll", "..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll"] @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
+	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll", "..\..\lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll", 
+	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll", "..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll" @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
 	#endregion	
 	
 	#region Packing NServiceBus.Hosting.Azure
