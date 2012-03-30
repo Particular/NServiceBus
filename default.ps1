@@ -736,7 +736,13 @@ else{
 	#region Packing NServiceBus.Hosting.Azure
 	$packageNameHostingAzure = "NServiceBus.Hosting.Azure" + $PackageNameSuffix
 	$packit.package_description = "The Azure Host for NServicebus"
-	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll" @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
+	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll" @{}
+	#endregion
+	
+	#region Packing NServiceBus.Hosting.Azure
+	$packageNameTimeoutHostingAzure = "NServiceBus.Timeout.Hosting.Azure" + $PackageNameSuffix
+	$packit.package_description = "The Azure Host for the timeout manager on NServicebus"
+	invoke-packit $packageNameTimeoutHostingAzure $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Timeout.Hosting.Azure.dll" @{}
 	#endregion
 	
 	#region Packing NServiceBus.Hosting.Azure.HostProcess
