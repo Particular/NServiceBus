@@ -730,13 +730,13 @@ else{
 	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "Azure support for NServicebus"
 	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll", "..\..\lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll", 
-	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll" @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
+	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll" 
 	#endregion	
 	
 	#region Packing NServiceBus.Hosting.Azure
 	$packageNameHostingAzure = "NServiceBus.Hosting.Azure" + $PackageNameSuffix
 	$packit.package_description = "The Azure Host for NServicebus"
-	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll"
+	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll" @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.Hosting.Azure.HostProcess
