@@ -314,8 +314,16 @@ task CompileAzureHosts  -depends InitEnvironment {
 		"$buildBase\azure\Hosting\NServiceBus.Hosting.dll")
 	
 	echo "Merging NServiceBus.Azure.Hosting....."	
-	
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Hosting.Azure" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
+	
+	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
+	$solutions | % {
+		$solutionFile = $_.FullName
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Timeout\"}
+	}
+	
+	echo "Copying NServiceBus.Timeout.Hosting.Azure....."	
+	Copy-Item $buildBase\azure\Timeout\NServiceBus.Timeout.Hosting.Azure.* $buildBase\output -Force
 	
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.HostProcess.sln"
 	$solutions | % {
@@ -331,8 +339,8 @@ task CompileAzureHosts  -depends InitEnvironment {
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Hosting.Azure.HostProcess" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 }
 
-task CompileTools -depends InitEnvironment, CompileAzureHosts{
-	$toolsDirs = "testing", "claims", "timeout", "azure\timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\"
+task CompileTools -depends InitEnvironment{
+	$toolsDirs = "testing", "claims", "timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\"
 	
 	$toolsDirs | % {				
 	 	$solutions = dir "$srcDir\$_\*.sln"
@@ -722,7 +730,7 @@ else{
 	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "Azure support for NServicebus"
 	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } ["binaries\NServiceBus.Azure.dll", "..\..\lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll", 
-	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll", "..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll"] @{}
+	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.WindowsAzure.StorageClient.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll", "..\..\build\azure\timeout\NServiceBus.Timeout.Hosting.Azure.dll"] @{"binaries\NServiceBus.Timeout.Hosting.Azure.dll"="lib\net40"}
 	#endregion	
 	
 	#region Packing NServiceBus.Hosting.Azure
