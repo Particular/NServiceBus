@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using log4net;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Helpers;
@@ -130,13 +131,18 @@ namespace NServiceBus.Hosting
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
         /// <param name="endpointName"></param>
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles, string endpointName)
+        /// <param name="scannableAssembliesFullName">Assemblies full name that were scanned.</param>
+        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
             Configure.GetEndpointNameAction = () => endpointName;
 
-            var assembliesToScan = AssemblyScanner.GetScannableAssemblies()
-                .ToList();
+            List<Assembly> assembliesToScan;
+            
+            if (scannableAssembliesFullName == null)
+                assembliesToScan = AssemblyScanner.GetScannableAssemblies().ToList();
+            else
+                assembliesToScan = scannableAssembliesFullName.Select(Assembly.Load).ToList();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
             ProfileActivator.ProfileManager = profileManager;

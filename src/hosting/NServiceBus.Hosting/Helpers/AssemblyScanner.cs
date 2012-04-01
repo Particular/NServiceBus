@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using NServiceBus.Utils.Reflection;
+using log4net;
 
 namespace NServiceBus.Hosting.Helpers
 {
@@ -22,8 +24,7 @@ namespace NServiceBus.Hosting.Helpers
         {
             var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories)
                 .Union(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.exe", SearchOption.AllDirectories));
-
-
+            
             foreach (var assemblyFile in assemblyFiles)
             {
                 Assembly assembly;
@@ -35,12 +36,26 @@ namespace NServiceBus.Hosting.Helpers
                     //will throw if assembly cant be loaded
                     assembly.GetTypes();
                 }
-
-                catch (Exception)
+                catch (BadImageFormatException bif)
                 {
+                    Console.Out.WriteLine("Could not load " + assemblyFile.FullName + 
+                        ". Consider using 'Configure.With(AllAssemblies.Except(\"" + assemblyFile.Name + "\"))' to tell NServiceBus not to load this file."
+                    + bif.Message);
                     continue;
                 }
-
+                catch (ReflectionTypeLoadException e)
+                {
+                    var sb = new StringBuilder();
+                    sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", assemblyFile.FullName, e));
+                    if (e.LoaderExceptions.Any())
+                    {
+                        sb.Append(Environment.NewLine + "Scanned type errors: ");
+                        foreach (var ex in e.LoaderExceptions)
+                            sb.Append(Environment.NewLine + ex.Message);
+                    }
+                    Console.Out.WriteLine(sb.ToString());
+                    continue;
+                }
                 yield return assembly;
             }
         }
