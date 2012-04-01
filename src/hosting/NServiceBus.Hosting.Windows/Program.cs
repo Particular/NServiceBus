@@ -21,6 +21,7 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class Program
     {
+        private static List<Assembly> scannableAssemblies;
         static void Main(string[] args)
         {
             Parser.Args commandLineArguments = Parser.ParseArgs(args);
@@ -32,7 +33,7 @@ namespace NServiceBus.Hosting.Windows
 
                 return;
             }
-
+            scannableAssemblies = AssemblyScanner.GetScannableAssemblies().ToList();
             var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
             if (endpointConfigurationType == null)
@@ -68,13 +69,18 @@ namespace NServiceBus.Hosting.Windows
                 displayName += " (SideBySide)";
             }
 
-            //add the endpoint name so that the new appdomain can get it
-            args = args.Concat(new[] { endpointName }).ToArray();
+            //Add the endpoint name so that the new appdomain can get it
+            args = args.Concat(new[] { "/endpointName:" + endpointName }).ToArray();
+
+            //Add the ScannedAssemblies name so that the new appdomain can get it
+            args = args.Concat(new[] { "/scannedassemblies:" + string.Join(";", scannableAssemblies.Select(s => s.ToString()).ToArray()) }).ToArray();
+
+            //Add the endpointConfigurationType name so that the new appdomain can get it
+            args = args.Concat(new[] { "/endpointConfigurationType:" + endpointConfigurationType.AssemblyQualifiedName}).ToArray();
             
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
             if ((commandLineArguments.Install) || (arguments.InstallInfrastructure != null))
-                WindowsInstaller.Install(args, endpointConfigurationType, endpointName, endpointConfigurationFile, 
-                    commandLineArguments.Install, arguments.InstallInfrastructure != null);
+                WindowsInstaller.Install(args, endpointConfigurationFile); 
                     
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
@@ -160,7 +166,6 @@ namespace NServiceBus.Hosting.Windows
         static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
-            HostServiceLocator.EndpointName = args.Last();
         }
 
         static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
@@ -239,7 +244,7 @@ namespace NServiceBus.Hosting.Windows
 
         static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            foreach (var assembly in AssemblyScanner.GetScannableAssemblies())
+            foreach (var assembly in scannableAssemblies)
                 foreach (Type type in assembly.GetTypes().Where(
                         t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
                         && t != typeof(IConfigureThisEndpoint)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Web;
 using Common.Logging;
 using NServiceBus.Config;
@@ -221,7 +221,15 @@ namespace NServiceBus
                     }
                     catch (ReflectionTypeLoadException e)
                     {
-                        Logger.WarnFormat("Could not scan assembly: {0}. The reason is: {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
+                        var sb = new StringBuilder();
+                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
+                        if (e.LoaderExceptions.Any())
+                        {
+                            sb.Append(Environment.NewLine + "Scanned type errors: ");
+                            foreach (var ex in e.LoaderExceptions)
+                                sb.Append(Environment.NewLine + ex.Message);
+                        }
+                        LogManager.GetLogger(typeof (Configure)).Error(sb.ToString());
                         return;//intentionally swallow exception
                     }
                 });
