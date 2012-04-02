@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NServiceBus.Utils.Reflection;
-using log4net;
 
 namespace NServiceBus.Hosting.Helpers
 {
