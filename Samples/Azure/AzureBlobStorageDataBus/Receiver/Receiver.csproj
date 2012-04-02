@@ -35,31 +35,31 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Common.Logging.2.0.0\lib\2.0\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Iesi.Collections">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\Iesi.Collections.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\..\..\..\binaries\log4net.dll</HintPath>
+      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
+      <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Azure">
-      <HintPath>..\..\..\..\build\output\NServiceBus.Azure.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.Azure.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.NHibernate">
-      <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NServiceBus.NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
