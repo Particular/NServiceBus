@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     if (address == null)
                         msg = "Failed to send message.";
                     else
-                        msg = string.Format("Failed to send message to address: {0}@{1}", address.Machine, address.Queue);
+                        msg = string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine);
 
                 throw new QueueNotFoundException(address, msg, ex);
             }
@@ -46,7 +46,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if(address == null)
                     throw new FailedToSendMessageException("Failed to send message.", ex);
                 else
-                    throw new FailedToSendMessageException(string.Format("Failed to send message to address: {0}@{1}", address.Machine,address.Queue),  ex);
+                    throw new FailedToSendMessageException(string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine),  ex);
             }
 
         }
