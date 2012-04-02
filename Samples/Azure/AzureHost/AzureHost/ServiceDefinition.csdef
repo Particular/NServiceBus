@@ -31,9 +31,4 @@
       <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />
     </LocalResources>
   </WebRole>
-  <WorkerRole name="Worker" vmsize="Small">
-    <Imports>
-      <Import moduleName="Diagnostics" />
-    </Imports>
-  </WorkerRole>
 </ServiceDefinition>
