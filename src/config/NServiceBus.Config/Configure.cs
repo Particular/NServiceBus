@@ -229,7 +229,7 @@ namespace NServiceBus
                             foreach (var ex in e.LoaderExceptions)
                                 sb.Append(Environment.NewLine + ex.Message);
                         }
-                        LogManager.GetLogger(typeof (Configure)).Error(sb.ToString());
+                        LogManager.GetLogger(typeof (Configure)).Warn(sb.ToString());
                         return;//intentionally swallow exception
                     }
                 });
