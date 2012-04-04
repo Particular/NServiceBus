@@ -70,13 +70,15 @@ namespace NServiceBus.Hosting.Windows
             }
 
             //Add the endpoint name so that the new appdomain can get it
-            args = args.Concat(new[] { "/endpointName:" + endpointName }).ToArray();
+            if (arguments.EndpointName == null)
+                args = args.Concat(new[] { "/endpointName:" + endpointName }).ToArray();
 
             //Add the ScannedAssemblies name so that the new appdomain can get it
             args = args.Concat(new[] { "/scannedassemblies:" + string.Join(";", scannableAssemblies.Select(s => s.ToString()).ToArray()) }).ToArray();
 
             //Add the endpointConfigurationType name so that the new appdomain can get it
-            args = args.Concat(new[] { "/endpointConfigurationType:" + endpointConfigurationType.AssemblyQualifiedName}).ToArray();
+            if (arguments.EndpointConfigurationType == null)
+                args = args.Concat(new[] { "/endpointConfigurationType:" + endpointConfigurationType.AssemblyQualifiedName }).ToArray();
             
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
             if ((commandLineArguments.Install) || (arguments.InstallInfrastructure != null))
