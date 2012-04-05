@@ -9,7 +9,7 @@ using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus
 {
-    using Common.Logging;
+    using NServiceBus.Logging;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister.

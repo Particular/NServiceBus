@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.MessageMutator;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;

@@ -52,8 +52,8 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>

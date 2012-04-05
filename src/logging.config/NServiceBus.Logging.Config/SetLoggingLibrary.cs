@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Specialized;
+using NServiceBus.Logging;
 using log4net.Appender;
 using log4net.Core;
 using System.Reflection;
@@ -78,8 +79,7 @@ namespace NServiceBus
         public static void Log4Net()
         {
             var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            Common.Logging.LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
+            LogManager.LoggerFactory = new Logging.Log4Net.LoggerFactory();
         }
 
         /// <summary>

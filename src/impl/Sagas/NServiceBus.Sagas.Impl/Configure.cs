@@ -1,4 +1,5 @@
 namespace NServiceBus.Sagas.Impl
+<<<<<<< HEAD
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +9,17 @@ namespace NServiceBus.Sagas.Impl
     using Saga;
     using Common.Logging;
 
+=======
+{
+    using System;
+    using System.Collections.Generic;
+    using Finders;
+    using ObjectBuilder;
+    using System.Reflection;
+    using Saga;
+    using NServiceBus.Logging;
+
+>>>>>>> Replaced common.logging with a nsb specific logging abstraction
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
     /// </summary>

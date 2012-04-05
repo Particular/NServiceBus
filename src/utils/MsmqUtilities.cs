@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Xml.Serialization;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Utils

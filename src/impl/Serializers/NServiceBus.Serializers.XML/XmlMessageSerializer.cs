@@ -9,7 +9,7 @@ using System.Xml;
 using NServiceBus.Serialization;
 using NServiceBus.MessageInterfaces;
 using System.Runtime.Serialization;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Utils.Reflection;
 using System.Xml.Serialization;
 

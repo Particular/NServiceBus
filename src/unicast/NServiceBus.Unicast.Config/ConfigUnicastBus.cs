@@ -1,6 +1,6 @@
 using System;
 using System.Configuration;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Config;
 using System.Collections.Generic;

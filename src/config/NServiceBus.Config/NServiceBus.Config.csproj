@@ -61,6 +61,10 @@
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=1.9.3.39473, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Common.Logging;
+using NServiceBus.Logging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Hosting

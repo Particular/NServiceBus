@@ -4,7 +4,7 @@ using System.Messaging;
 using System.Security.Principal;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {

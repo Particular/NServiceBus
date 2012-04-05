@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Common.Logging;
+using NServiceBus.Logging;
 using Rhino.Licensing;
 
 namespace NServiceBus.Licensing

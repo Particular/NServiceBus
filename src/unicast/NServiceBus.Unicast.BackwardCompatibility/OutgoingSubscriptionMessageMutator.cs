@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Config;
 using NServiceBus.MessageMutator;
 using NServiceBus.Serialization;

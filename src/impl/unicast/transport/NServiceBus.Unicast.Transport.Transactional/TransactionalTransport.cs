@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Transactions;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Faults;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Utils;

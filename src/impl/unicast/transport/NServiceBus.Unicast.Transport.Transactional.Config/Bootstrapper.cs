@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Transactions;
-using Common.Logging;
 using NServiceBus.Config;
+using NServiceBus.Logging;
 using NServiceBus.Licensing;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config

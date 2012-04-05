@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using NServiceBus.Logging;
 using NServiceBus.Utils;
 
 namespace NServiceBus.Faults.Forwarder

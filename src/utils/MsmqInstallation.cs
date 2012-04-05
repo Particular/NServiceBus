@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.ServiceProcess;
 using Microsoft.Win32;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Utils
 {

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Common.Logging;
 using Microsoft.WindowsAzure.StorageClient;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting
 {

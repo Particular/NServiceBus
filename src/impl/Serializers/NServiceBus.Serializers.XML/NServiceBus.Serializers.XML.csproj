@@ -53,9 +53,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+    <Reference Include="NServiceBus.Logging">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=1.9.0.28497, Culture=neutral, processorArchitecture=MSIL">

@@ -3,13 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C1B44A57-9231-49A7-8217-739514788A98}</ProjectGuid>
+    <ProjectGuid>{CF91119E-9F1C-435E-8086-A81A16E34AE3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Encryption.Rijndael.Config</RootNamespace>
-    <AssemblyName>NServiceBus.Encryption.Rijndael.Config</AssemblyName>
+    <RootNamespace>NServiceBus.Logging.Config</RootNamespace>
+    <AssemblyName>NServiceBus.Logging.Config</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,41 +31,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Logging">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Config">
-      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Encryption">
-      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Encryption.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder">
-      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
-    <Compile Include="ConfigureRijndaelEncryptionService.cs" />
-    <Compile Include="RijndaelEncryptionServiceConfig.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Encryption.Rijndael\NServiceBus.Encryption.Rijndael.csproj">
-      <Project>{BBA5F232-FD46-4A6D-AC16-02FA80BCBD92}</Project>
-      <Name>NServiceBus.Encryption.Rijndael</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <Compile Include="SetLoggingLibrary.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -75,7 +65,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</notused>
-  </PropertyGroup>
 </Project>

@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>

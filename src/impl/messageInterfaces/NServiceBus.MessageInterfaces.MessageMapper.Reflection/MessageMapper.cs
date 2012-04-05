@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Linq;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection

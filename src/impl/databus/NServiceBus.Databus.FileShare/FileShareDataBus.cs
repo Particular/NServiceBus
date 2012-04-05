@@ -2,7 +2,7 @@
 {
 	using System;
 	using System.IO;
-	using Common.Logging;
+	using NServiceBus.Logging;
 	using DataBus;
 
 	public class FileShareDataBus : IDataBus

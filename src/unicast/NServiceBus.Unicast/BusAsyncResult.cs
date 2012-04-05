@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast
 {
