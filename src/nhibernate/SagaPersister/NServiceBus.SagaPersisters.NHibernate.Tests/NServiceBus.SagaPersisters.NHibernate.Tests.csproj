@@ -106,6 +106,10 @@
     <Compile Include="When_persisting_sagas_on_transactional_endpoints.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate.Config\NServiceBus.UnitOfWork.NHibernate.Config.csproj">
+      <Project>{EC6FD140-4970-4414-A972-AE3D3576328E}</Project>
+      <Name>NServiceBus.UnitOfWork.NHibernate.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate\NServiceBus.UnitOfWork.NHibernate.csproj">
       <Project>{6A731C25-84D8-42AC-BDC4-618432B87257}</Project>
       <Name>NServiceBus.UnitOfWork.NHibernate</Name>
