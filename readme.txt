@@ -18,17 +18,14 @@ http://www.nservicebus.com/EULA.aspx
 = Building =
 ============
 
-In order to build the source, run the build.bat file.
+In order to build the source, run the build.ps1 powershell script.
 
-You'll find the built assemblies in /build/output.
-
-The satellite processes (distributor, timeout manager, and tools) will be in the adjacent directories.
+You'll find the built assemblies in /build/binaries.
 
 If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\Microsoft SDKs\Windows\v6.0A' directory and create the 'lib' subdirectory.
 
 If you see the build failing, check that you haven't put nServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
-If you want to build NServiceBus without any merged external dependencies please use the UnsupporterCoreOnlyBuild.bat
 
 ===========
 = Running =
@@ -76,7 +73,7 @@ http://www.gnu.org/licenses/lgpl-3.0.txt
 
 Iesi.Collections binaries are merged into NServiceBus allowed under the license terms found here:
 
-Copyright © 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
+Copyright ï¿½ 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
 
 Copied from http://www.codeproject.com/csharp/sets.asp#xx703510xx that was posted by JasonSmith 12:13 2 Jan '04
 
