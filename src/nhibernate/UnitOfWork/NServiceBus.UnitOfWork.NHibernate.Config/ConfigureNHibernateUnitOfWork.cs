@@ -15,6 +15,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateUnitOfWork(this Configure config)
         {
+            if (config.Configurer.HasComponent<UnitOfWorkManager>())
+                return config;
+
             config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance);
             return config;
         }
