@@ -36,6 +36,9 @@
 
             GatewayReturnInfo info;
 
+            if (transportMessage.CorrelationId == null)
+                return;
+
             if (!messageReturns.TryGetValue(transportMessage.CorrelationId, out info)) 
                 return;
 
