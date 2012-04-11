@@ -15,32 +15,31 @@ namespace NServiceBus.Hosting.Helpers
     public class AssemblyScanner
     {
         /// <summary>
-        /// Gets a list with assemblies that can be scanned
+        /// Gets a list of assemblies that can be scanned and a list of errors that occurred while scanning.
+        /// 
         /// </summary>
         /// <returns></returns>
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
-        public static IEnumerable<Assembly> GetScannableAssemblies()
+        public static AssemblyScannerResults GetScannableAssemblies()
         {
             var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories)
                 .Union(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.exe", SearchOption.AllDirectories));
-            
+            var results = new AssemblyScannerResults();
             foreach (var assemblyFile in assemblyFiles)
             {
-                Assembly assembly;
-
                 try
                 {
-                    assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                    Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
 
-                    //will throw if assembly cant be loaded
+                    //will throw if assembly cannot be loaded
                     assembly.GetTypes();
+                    results.Assemblies.Add(assembly);
                 }
                 catch (BadImageFormatException bif)
                 {
-                    Console.Out.WriteLine("Could not load " + assemblyFile.FullName + 
-                        ". Consider using 'Configure.With(AllAssemblies.Except(\"" + assemblyFile.Name + "\"))' to tell NServiceBus not to load this file."
-                    + bif.Message);
-                    continue;
+                    var error = new ErrorWhileScanningAssemblies(bif, "Could not load " + assemblyFile.FullName +
+                        ". Consider using 'Configure.With(AllAssemblies.Except(\"" + assemblyFile.Name + "\"))' to tell NServiceBus not to load this file.");
+                    results.Errors.Add(error);
                 }
                 catch (ReflectionTypeLoadException e)
                 {
@@ -52,11 +51,11 @@ namespace NServiceBus.Hosting.Helpers
                         foreach (var ex in e.LoaderExceptions)
                             sb.Append(Environment.NewLine + ex.Message);
                     }
-                    Console.Out.WriteLine(sb.ToString());
-                    continue;
+                    var error = new ErrorWhileScanningAssemblies(e, sb.ToString());
+                    results.Errors.Add(error);
                 }
-                yield return assembly;
             }
+            return results;
         }
     }
 
