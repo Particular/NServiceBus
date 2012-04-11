@@ -138,9 +138,9 @@ namespace NServiceBus.Hosting
             Configure.GetEndpointNameAction = () => endpointName;
 
             List<Assembly> assembliesToScan;
-            
+
             if (scannableAssembliesFullName == null)
-                assembliesToScan = AssemblyScanner.GetScannableAssemblies().ToList();
+                assembliesToScan = AssemblyScanner.GetScannableAssemblies().Assemblies;
             else
                 assembliesToScan = scannableAssembliesFullName.Select(Assembly.Load).ToList();
 
