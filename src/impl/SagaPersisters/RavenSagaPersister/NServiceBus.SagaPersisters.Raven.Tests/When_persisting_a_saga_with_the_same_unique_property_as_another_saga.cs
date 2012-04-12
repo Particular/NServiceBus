@@ -1,9 +1,10 @@
 using System;
 using NUnit.Framework;
-using Raven.Abstractions.Exceptions;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using Persistence.Raven;
+
     public class When_persisting_a_saga_with_the_same_unique_property_as_another_saga : Raven_saga_persistence_concern
     {
         [Test]
