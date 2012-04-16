@@ -43,7 +43,7 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends ReleaseNServiceBus
  
-task Clean{
+task Clean {
 
 	if(Test-Path $buildBase){
 		Delete-Directory $buildBase
@@ -66,7 +66,7 @@ task Clean{
 	}
 }
 
-task InitEnvironment{
+task InitEnvironment {
 
 	if($script:isEnvironmentInitialized -ne $true){
 		if ($TargetFramework -eq "net-4.0"){
@@ -115,10 +115,6 @@ task CompileMain -depends InitEnvironment -description "A build script CompileMa
 	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "" "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusMergeLog.txt"
-	echo "------------------------------NServiceBus Merge Log-----------------------"
-	echo $mergeLogContent
-	
 }
 
 task TestMain -depends CompileMain {
@@ -173,9 +169,6 @@ task CompileCore -depends InitEnvironment {
 	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusCoreMergeLog.txt"
-	echo "------------------------------NServiceBus Core Merge Log-----------------------"
-	echo $mergeLogContent
 }
 
 task TestCore  -depends CompileCore {
@@ -237,9 +230,6 @@ task CompileNHibernate -depends InitEnvironment {
 	}
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusNHibernateMergeLog.txt"
-	echo "------------------------------NServiceBus NHibernate Merge Log-----------------------"
-	echo $mergeLogContent
 }
 
 task TestNHibernate  -depends CompileNHibernate {
@@ -292,11 +282,7 @@ task CompileHosts  -depends InitEnvironment {
 	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
 		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
 	
-	echo "Merging NServiceBus.Host....."	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusHostMergeLog.txt"
-	echo "------------------------------NServiceBus Host Merge Log-----------------------"
-	echo $mergeLogContent
 }
 
 task CompileHosts32  -depends InitEnvironment {		
@@ -312,13 +298,7 @@ task CompileHosts32  -depends InitEnvironment {
 	
 	$assemblies = @("$buildBase\hosting32\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting32\NServiceBus.Hosting.dll",
 		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
-	
-	echo "Merging NServiceBus.Host32....."	
-	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusHostMerge32Log.txt"
-	echo "------------------------------NServiceBus Host32 Merge Log-----------------------"
-	echo $mergeLogContent
 }
 
 task CompileAzureHosts  -depends InitEnvironment {
@@ -332,11 +312,7 @@ task CompileAzureHosts  -depends InitEnvironment {
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.dll",
 		"$buildBase\azure\Hosting\NServiceBus.Hosting.dll")
 	
-	echo "Merging NServiceBus.Azure.Hosting....."	
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Hosting.Azure" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusAzureHostMergeLog.txt"
-	echo "------------------------------NServiceBus Azure Host Merge Log-----------------------"
-	echo $mergeLogContent
 	
 	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
 	$solutions | % {
@@ -356,12 +332,7 @@ task CompileAzureHosts  -depends InitEnvironment {
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.HostProcess.exe",
 		"$buildBase\azure\Hosting\Magnum.dll", "$buildBase\azure\Hosting\Topshelf.dll")
 	
-	echo "Merging NServiceBus.Hosting.Azure.HostProcess.exe....."	
-	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Hosting.Azure.HostProcess" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostProcessMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusAzureHostProcessMergeLog.txt"
-	echo "------------------------------NServiceBus Azure Host Process Merge Log-----------------------"
-	echo $mergeLogContent
 }
 
 task CompileTools -depends InitEnvironment{
@@ -395,17 +366,12 @@ task CompileTools -depends InitEnvironment{
 		
 	$assemblies = @("$buildBase\testing\NServiceBus.Testing.dll", "$buildBase\testing\Rhino.Mocks.dll");
 	
-	echo "Merging NServiceBus.Testing"		
 	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusTestingMergeLog.txt"
-	echo "------------------------------NServiceBus Testing Merge Log-----------------------"
-	echo $mergeLogContent
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
 	"$buildBase\nservicebus.core\NServiceBus.Utils.Reflection.dll")
 	
-	echo "merging XsdGenerator"	
 	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "" "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
@@ -963,8 +929,7 @@ task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput{
 	Stop-Process -Name "nunit-console.exe" -ErrorAction SilentlyContinue -Force
 }
 
-<#Ziping artifacts directory for releasing#>
-task ZipOutput {
+task ZipOutput -description "Ziping artifacts directory for releasing"  {
 	
 	echo "Cleaning the Release Artifacts before ziping"
 	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
@@ -997,7 +962,7 @@ task ZipOutput {
 	
 }
 
-task UpdatePackages{
+task UpdatePackages -description "Updates the packages in packages.config of all the solutions"  {
 	dir -recurse -include ('packages.config') |ForEach-Object {
 		$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
