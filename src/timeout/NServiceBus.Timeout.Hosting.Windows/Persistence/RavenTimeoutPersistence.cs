@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using Core;
     using Raven.Abstractions.Commands;
     using Raven.Client;
-    using Raven.Client.Document;
+    using log4net;
     using Raven.Client.Linq;
 
     public class RavenTimeoutPersistence : IPersistTimeouts
@@ -20,8 +20,26 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         public IEnumerable<TimeoutData> GetAll()
         {
-            using (var session = OpenSession())
-                return session.Query<TimeoutData>().ToList();
+            try 
+	        {
+                using (var session = OpenSession())
+                    return session.Query<TimeoutData>().ToList();
+		
+	        }
+	        catch (Exception)
+	        {
+                if ((store == null) || (string.IsNullOrWhiteSpace(store.Identifier)) || (string.IsNullOrWhiteSpace(store.Url)))
+                {
+                    Logger.Error("Exception occurred while trying to access Raven Database. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).");
+                    throw;
+                }
+
+                Logger.ErrorFormat(
+                    "Exception occurred while trying to access Raven Database: [{0}] at [{1}]. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).",
+                    store.Identifier, store.Url);
+		        
+                throw;
+	        }
         }
         public void Add(TimeoutData timeout)
         {
@@ -62,5 +80,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
             return session;
         }
+        static readonly ILog Logger = LogManager.GetLogger("RavenTimeoutPersistence");
     }
 }

@@ -446,7 +446,7 @@ namespace NServiceBus
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net.", "raven.server.",
-            "raven.client.", "raven.database", "raven.munin.", "raven.storage.", "raven.abstractions.", "lucene.net.", "bouncyCastle.crypto",
+            "raven.client.", "raven.database", "raven.munin.", "raven.storage.", "raven.abstractions.", "lucene.net.", "bouncycastle.crypto",
             "esent.interop.", "asyncctplibrary."};
         static readonly IEnumerable<string> defaultTypeExclusions = new[] { "raven.", "system.", "lucene.", "magnum." };
     }
