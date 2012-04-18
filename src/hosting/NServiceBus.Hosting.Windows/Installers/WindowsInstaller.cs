@@ -24,8 +24,6 @@ namespace NServiceBus.Hosting.Windows.Installers
                                                                                                                   ConfigurationFile = configFile,
                                                                                                                   AppDomainInitializer = DomainInitializer,
                                                                                                                   AppDomainInitializerArguments = args.ToArray()
-                                                                                                                  //AppDomainInitializerArguments = new[] { string.Join("#", args), endpointConfig.AssemblyQualifiedName}
-                                                                                                                  //AppDomainInitializerArguments = args.Concat(new[] {endpointConfig.AssemblyQualifiedName}).ToArray()
                                                                                                               });
 
             // Call the right config method in that appdomain.
