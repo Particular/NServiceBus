@@ -87,11 +87,15 @@ task InitEnvironment {
 			
 			$script:isEnvironmentInitialized = $true
 		}
-	
+	}
+	$binariesExists = Test-Path $binariesDir;
+	if($binariesExists -eq $false){	
+		Create-Directory $binariesDir
+		echo "created binaries"
 	}
 }
 
-task Init -depends InitEnvironment, Clean, InstallDependentPackages, DetectOperatingSystemArchitecture {
+task Init -depends Clean, InstallDependentPackages, DetectOperatingSystemArchitecture {
    	
 	echo "Creating build directory at the follwing path $buildBase"
 	Delete-Directory $buildBase
@@ -115,6 +119,11 @@ task CompileMain -depends InitEnvironment -description "A build script CompileMa
 	$assemblies  +=  dir $buildBase\nservicebus\NServiceBus*.dll -Exclude NServiceBus.dll, **Tests.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus" $assemblies "" "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusMergeLog.txt" $ilMergeExclude
+	
+	Copy-Item $outDir\NServiceBus.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.pdb $binariesDir -Force;
+	Copy-Item $libDir\log4net.dll $binariesDir -Force;
+
 }
 
 task TestMain -depends CompileMain {
@@ -153,10 +162,8 @@ task CompileCore -depends InitEnvironment {
 	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
 	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
 	
-	$mergeLogContent = Get-Content "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt"
-	echo "------------------------------NServiceBus Core Core-Only Merge Log-----------------------"
-	echo $mergeLogContent
-	
+	<#It's Possible to copy the NServiceBus.Core.dll to Core-Only but not done gain time on development build #>
+			
 	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll
 	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
 	$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
@@ -169,6 +176,10 @@ task CompileCore -depends InitEnvironment {
 	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\NServiceBus.Core.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.Core.pdb $binariesDir -Force;
+	
 }
 
 task TestCore  -depends CompileCore {
@@ -198,8 +209,30 @@ task CompileContainers -depends InitEnvironment {
 	if(Test-Path "$coreOnly\containers"){
 		Delete-Directory "$coreOnly\containers"
 	}
-	Create-Directory $coreOnly\containers
-	Copy-Item $buildBase\containers\NServiceBus.ObjectBuilder.**.* $coreOnly\containers -Force
+	
+	Create-Directory "$binariesDir\containers\autofac"
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
+		
+	Create-Directory "$binariesDir\containers\castle"	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
+	
+	
+	Create-Directory "$binariesDir\containers\structuremap"	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
+	
+	
+	Create-Directory "$binariesDir\containers\spring"	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
+	
+			
+	Create-Directory "$binariesDir\containers\unity"	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
+	
+		
+	Create-Directory "$binariesDir\containers\ninject"	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
+	
+	
 }
 
 task TestContainers  -depends CompileContainers {
@@ -212,13 +245,15 @@ task TestContainers  -depends CompileContainers {
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
-task CompileWebServicesIntegration -depends  InitEnvironment{
+task CompileWebServicesIntegration -depends  InitEnvironment {
 
 	$solutions = dir "$srcDir\integration\WebServices\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
 		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" }		
 	}
+	
+	Copy-Item $outDir\NServiceBus.Integration.*.* $binariesDir -Force;
 }
 
 task CompileNHibernate -depends InitEnvironment {
@@ -230,6 +265,9 @@ task CompileNHibernate -depends InitEnvironment {
 	}
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\NServiceBus.NHibernate.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.NHibernate.pdb $binariesDir -Force;
 }
 
 task TestNHibernate  -depends CompileNHibernate {
@@ -252,7 +290,11 @@ task CompileAzure -depends InitEnvironment {
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
 	$assemblies += dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**AppFabric**.dll -Exclude **Tests.dll
+	
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Azure" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\NServiceBus.Azure.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.Azure.pdb $binariesDir -Force;
 	
 }
 
@@ -283,6 +325,9 @@ task CompileHosts  -depends InitEnvironment {
 		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\host\NServiceBus.Host.exe $binariesDir -Force;
+	Copy-Item $outDir\host\NServiceBus.Host.pdb $binariesDir -Force;
 }
 
 task CompileHosts32  -depends InitEnvironment {		
@@ -298,7 +343,11 @@ task CompileHosts32  -depends InitEnvironment {
 	
 	$assemblies = @("$buildBase\hosting32\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting32\NServiceBus.Hosting.dll",
 		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
+	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\host\NServiceBus.Host32.exe $binariesDir -Force;
+	Copy-Item $outDir\host\NServiceBus.Host32.pdb $binariesDir -Force;
 }
 
 task CompileAzureHosts  -depends InitEnvironment {
@@ -313,6 +362,9 @@ task CompileAzureHosts  -depends InitEnvironment {
 		"$buildBase\azure\Hosting\NServiceBus.Hosting.dll")
 	
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Hosting.Azure" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\NServiceBus.Hosting.Azure.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.Hosting.Azure.pdb $binariesDir -Force;
 	
 	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
 	$solutions | % {
@@ -333,6 +385,9 @@ task CompileAzureHosts  -depends InitEnvironment {
 		"$buildBase\azure\Hosting\Magnum.dll", "$buildBase\azure\Hosting\Topshelf.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Hosting.Azure.HostProcess" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusAzureHostProcessMergeLog.txt"  $ilMergeExclude
+	
+	Copy-Item $outDir\host\NServiceBus.Hosting.Azure.HostProcess.exe $binariesDir -Force;
+	Copy-Item $outDir\host\NServiceBus.Hosting.Azure.HostProcess.pdb $binariesDir -Force;
 }
 
 task CompileTools -depends InitEnvironment{
@@ -368,6 +423,9 @@ task CompileTools -depends InitEnvironment{
 	
 	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
 	
+	Copy-Item $outDir\NServiceBus.Testing.dll $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus.Testing.pdb $binariesDir -Force;
+	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
 	"$buildBase\nservicebus.core\NServiceBus.Utils.Reflection.dll")
@@ -383,59 +441,63 @@ task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers,
 }
 
 task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools {
-	Prepare-Binaries
+	#Prepare-Binaries
 }
 
 function Prepare-Binaries{
-	if(Test-Path $binariesDir){
+	<#if(Test-Path $binariesDir){
 		Delete-Directory "binaries"
 	}
-	Create-Directory $binariesDir;
+	
+	Create-Directory $binariesDir#>
+	
 	Create-Directory $coreOnlyDir
 	Create-Directory $coreOnlyBinariesDir
-	Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
+	
+	#Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
+	
 	Copy-Item $outDir\NServiceBus.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $outDir\NServiceBus.NHibernate.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $outDir\NServiceBus.Azure.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $coreOnly\NServiceBus*.* $coreOnlyBinariesDir -Force;
 	
-	Copy-Item $outDir\host\*.* $binariesDir -Force;
+	#Copy-Item $outDir\host\*.* $binariesDir -Force;
 	Copy-Item $outDir\host\*.* $coreOnlyBinariesDir -Force;
 	
-	Copy-Item $outDir\testing\*.* $binariesDir -Force;
+	#Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	Copy-Item $outDir\testing\*.* $coreOnlyBinariesDir -Force;
 	
-	Copy-Item $libDir\log4net.dll $binariesDir -Force;
+	#Copy-Item $libDir\log4net.dll $binariesDir -Force;
 	
 	
-	Create-Directory "$binariesDir\containers\autofac"
+	#Create-Directory "$binariesDir\containers\autofac"
 	Create-Directory "$coreOnlyBinariesDir\containers\autofac"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $coreOnlyBinariesDir\containers\autofac -Force;
 	
-	Create-Directory "$binariesDir\containers\castle"
+	#Create-Directory "$binariesDir\containers\castle"
 	Create-Directory "$coreOnlyBinariesDir\containers\castle"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $coreOnlyBinariesDir\containers\castle -Force;
 	
-	Create-Directory "$binariesDir\containers\structuremap"
+	#Create-Directory "$binariesDir\containers\structuremap"
 	Create-Directory "$coreOnlyBinariesDir\containers\structuremap"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $coreOnlyBinariesDir\containers\structuremap -Force;
 	
-	Create-Directory "$binariesDir\containers\spring"
+	#Create-Directory "$binariesDir\containers\spring"
 	Create-Directory "$coreOnlyBinariesDir\containers\spring"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $coreOnlyBinariesDir\containers\spring -Force;
 			
-	Create-Directory "$binariesDir\containers\unity"
+	#Create-Directory "$binariesDir\containers\unity"
 	Create-Directory "$coreOnlyBinariesDir\containers\unity"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $coreOnlyBinariesDir\containers\unity -Force;		
 		
-	Create-Directory "$binariesDir\containers\ninject"
+	#Create-Directory "$binariesDir\containers\ninject"
 	Create-Directory "$coreOnlyBinariesDir\containers\ninject"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
+	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $coreOnlyBinariesDir\containers\ninject -Force;	
 	
 	Create-Directory $coreOnlyDir\dependencies\
