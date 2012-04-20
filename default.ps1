@@ -445,59 +445,59 @@ task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContain
 }
 
 function Prepare-Binaries{
-	<#if(Test-Path $binariesDir){
+	if(Test-Path $binariesDir){
 		Delete-Directory "binaries"
 	}
 	
-	Create-Directory $binariesDir#>
+	Create-Directory $binariesDir
 	
 	Create-Directory $coreOnlyDir
 	Create-Directory $coreOnlyBinariesDir
 	
-	#Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
+	Copy-Item $outDir\NServiceBus*.* $binariesDir -Force;
 	
 	Copy-Item $outDir\NServiceBus.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $outDir\NServiceBus.NHibernate.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $outDir\NServiceBus.Azure.dll $coreOnlyBinariesDir -Force;
 	Copy-Item $coreOnly\NServiceBus*.* $coreOnlyBinariesDir -Force;
 	
-	#Copy-Item $outDir\host\*.* $binariesDir -Force;
+	Copy-Item $outDir\host\*.* $binariesDir -Force;
 	Copy-Item $outDir\host\*.* $coreOnlyBinariesDir -Force;
 	
-	#Copy-Item $outDir\testing\*.* $binariesDir -Force;
+	Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	Copy-Item $outDir\testing\*.* $coreOnlyBinariesDir -Force;
 	
-	#Copy-Item $libDir\log4net.dll $binariesDir -Force;
+	Copy-Item $libDir\log4net.dll $binariesDir -Force;
 	
 	
-	#Create-Directory "$binariesDir\containers\autofac"
+	Create-Directory "$binariesDir\containers\autofac"
 	Create-Directory "$coreOnlyBinariesDir\containers\autofac"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $coreOnlyBinariesDir\containers\autofac -Force;
 	
-	#Create-Directory "$binariesDir\containers\castle"
+	Create-Directory "$binariesDir\containers\castle"
 	Create-Directory "$coreOnlyBinariesDir\containers\castle"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $coreOnlyBinariesDir\containers\castle -Force;
 	
-	#Create-Directory "$binariesDir\containers\structuremap"
+	Create-Directory "$binariesDir\containers\structuremap"
 	Create-Directory "$coreOnlyBinariesDir\containers\structuremap"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $coreOnlyBinariesDir\containers\structuremap -Force;
 	
-	#Create-Directory "$binariesDir\containers\spring"
+	Create-Directory "$binariesDir\containers\spring"
 	Create-Directory "$coreOnlyBinariesDir\containers\spring"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $coreOnlyBinariesDir\containers\spring -Force;
 			
-	#Create-Directory "$binariesDir\containers\unity"
+	Create-Directory "$binariesDir\containers\unity"
 	Create-Directory "$coreOnlyBinariesDir\containers\unity"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $coreOnlyBinariesDir\containers\unity -Force;		
 		
-	#Create-Directory "$binariesDir\containers\ninject"
+	Create-Directory "$binariesDir\containers\ninject"
 	Create-Directory "$coreOnlyBinariesDir\containers\ninject"
-	#Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $coreOnlyBinariesDir\containers\ninject -Force;	
 	
 	Create-Directory $coreOnlyDir\dependencies\
