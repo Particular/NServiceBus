@@ -423,8 +423,8 @@ task CompileTools -depends InitEnvironment{
 	
 	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
 	
-	Copy-Item $outDir\NServiceBus.Testing.dll $binariesDir -Force;
-	Copy-Item $outDir\NServiceBus.Testing.pdb $binariesDir -Force;
+	Copy-Item $outDir\testing\NServiceBus.Testing.dll $binariesDir -Force;
+	Copy-Item $outDir\testing\NServiceBus.Testing.pdb $binariesDir -Force;
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
