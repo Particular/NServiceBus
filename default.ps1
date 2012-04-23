@@ -41,7 +41,7 @@ $script:releaseVersion = ""
 
 include $toolsDir\psake\buildutils.ps1
 
-task default -depends ReleaseNServiceBus -description "Simply calls ReleaseNServiceBus task"
+task default -depends ReleaseNServiceBus -description "Invokes ReleaseNServiceBus task"
  
 task Clean -description "Cleans the eviorment for the build" {
 
@@ -66,7 +66,7 @@ task Clean -description "Cleans the eviorment for the build" {
 	}
 }
 
-task InitEnvironment -description "Initializes the enviorment for build" {
+task InitEnvironment -description "Initializes the environment for build" {
 
 	if($script:isEnvironmentInitialized -ne $true){
 		if ($TargetFramework -eq "net-4.0"){
@@ -106,7 +106,7 @@ task Init -depends Clean, InstallDependentPackages, DetectOperatingSystemArchite
 	echo "Current Directory: $currentDirectory" 
  }
   
-task CompileMain -depends InitEnvironment -description "Build NServiceBus.dll and keeps the output in \binaries" { 
+task CompileMain -depends InitEnvironment -description "Builds NServiceBus.dll and keeps the output in \binaries" { 
 
 	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
@@ -126,7 +126,7 @@ task CompileMain -depends InitEnvironment -description "Build NServiceBus.dll an
 
 }
 
-task TestMain -depends CompileMain -description "Build NServiceBus.dll, keeps the output in \binaries and unit test the same"{
+task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps the output in \binaries and unit tests the code responsible for NServiceBus.dll"{
 
 	if((Test-Path -Path $buildBase\test-reports) -eq $false){
 		Create-Directory $buildBase\test-reports 
@@ -136,7 +136,7 @@ task TestMain -depends CompileMain -description "Build NServiceBus.dll, keeps th
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
-task CompileCore -depends InitEnvironment -description "Build NServiceBus.Core.dll and keeps the output in \binaries" { 
+task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.dll and keeps the output in \binaries" { 
 
     $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "httpHeaders", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "impl\licensing", "distributor", "gateway", "timeout"
 	 	
@@ -182,7 +182,7 @@ task CompileCore -depends InitEnvironment -description "Build NServiceBus.Core.d
 	
 }
 
-task TestCore  -depends CompileCore -description "Build NServiceBus.Core.dll and keeps the output in \binaries and unit test the same" {
+task TestCore  -depends CompileCore -description "Builds NServiceBus.Core.dll, keeps the output in \binaries and unit tests the code responsible for NServiceBus.Core.dll" {
 	
 	if((Test-Path -Path $buildBase\test-reports) -eq $false){
 		Create-Directory $buildBase\test-reports 
@@ -210,6 +210,10 @@ task CompileContainers -depends InitEnvironment -description "Builds the contain
 		Delete-Directory "$coreOnly\containers"
 	}
 	
+	if(Test-Path "$binariesDir\containers"){
+		Delete-Directory "$binariesDir\containers"
+	}
+	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
 		
@@ -235,7 +239,7 @@ task CompileContainers -depends InitEnvironment -description "Builds the contain
 	
 }
 
-task TestContainers  -depends CompileContainers -description "Builds the container dlls for autofac, castle, ninject, spring, structuremap and MS unity and keeps the output in respective folders in binaries\containers and unit tests the same"  {
+task TestContainers  -depends CompileContainers -description "Builds the container dlls for autofac, castle, ninject, spring, structuremap and MS unity, keeps the output in respective folders in binaries\containers and unit tests the code responsible for each container assemblies"  {
 	
 	if((Test-Path -Path $buildBase\test-reports) -eq $false){
 		Create-Directory $buildBase\test-reports 
@@ -270,7 +274,7 @@ task CompileNHibernate -depends InitEnvironment -description "Builds NServiceBus
 	Copy-Item $outDir\NServiceBus.NHibernate.pdb $binariesDir -Force;
 }
 
-task TestNHibernate  -depends CompileNHibernate -description "Builds NServiceBus.NHibernate.dll, keeps the output in \binaries  and unit tests the same"  {
+task TestNHibernate  -depends CompileNHibernate -description "Builds NServiceBus.NHibernate.dll, keeps the output in \binaries  and unit tests the code responsible for NServiceBus.NHibernate.dll"  {
 
 	if((Test-Path -Path $buildBase\test-reports) -eq $false){
 		Create-Directory $buildBase\test-reports 
@@ -298,7 +302,7 @@ task CompileAzure -depends InitEnvironment -description "Builds NServiceBus.Azur
 	
 }
 
-task TestAzure  -depends CompileAzure -description "Builds NServiceBus.Azure.dll, keeps the output in \binaries and unit test the same" {
+task TestAzure  -depends CompileAzure -description "Builds NServiceBus.Azure.dll, keeps the output in \binaries and unit test the code responsible for NServiceBus.Azure.dll" {
 
 	if((Test-Path -Path $buildBase\test-reports) -eq $false){
 		Create-Directory $buildBase\test-reports 
@@ -350,7 +354,7 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	Copy-Item $outDir\host\NServiceBus.Host32.pdb $binariesDir -Force;
 }
 
-task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBus.Hosting.Azure.dll and NServiceBus.Hosting.Azure.HostProcess.exe and keeps the output in \binaries" {
+task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBus.Hosting.Azure.dll and NServiceBus.Hosting.Azure.HostProcess.exe and keeps the outputs in \binaries" {
 
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.sln"
 	$solutions | % {
@@ -390,7 +394,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	Copy-Item $outDir\host\NServiceBus.Hosting.Azure.HostProcess.pdb $binariesDir -Force;
 }
 
-task CompileTools -depends InitEnvironment -description "Builds the tools like XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe and unit tests the same."{
+task CompileTools -depends InitEnvironment -description "Builds the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe." {
 	$toolsDirs = "testing", "claims", "timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\"
 	
 	$toolsDirs | % {				
@@ -414,10 +418,6 @@ task CompileTools -depends InitEnvironment -description "Builds the tools like X
 	cd $buildBase\tools
 	Delete-Directory "management"
 	cd $baseDir
-	
-	
-	
-	exec {&$nunitexec "$buildBase\testing\NServiceBus.Testing.Tests.dll" $script:nunitTargetFramework} 
 		
 	$assemblies = @("$buildBase\testing\NServiceBus.Testing.dll", "$buildBase\testing\Rhino.Mocks.dll");
 	
@@ -433,14 +433,18 @@ task CompileTools -depends InitEnvironment -description "Builds the tools like X
 	Ilmerge $ilMergeKey $buildBase\tools "XsdGenerator" $assemblies "" "exe" $script:ilmergeTargetFramework "$buildBase\XsdGeneratorMergeLog.txt"  $ilMergeExclude
 }
 
-task Test -depends TestMain, TestCore, TestContainers, TestNHibernate <#, TestAzure #> -description "Builds and unit tests all the source which has unit tests"  {	
+task TestTools -depends CompileTools -description "Builds the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe and unit tests the code responsible for the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe " {
+	exec {&$nunitexec "$buildBase\testing\NServiceBus.Testing.Tests.dll" $script:nunitTargetFramework} 
+}
+
+task Test -depends TestMain, TestCore, TestContainers, TestNHibernate, TestTools <#, TestAzure #> -description "Builds and unit tests all the source which has unit tests"  {	
 }
 
 task PrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools, Test   -description "Builds all the source code in order, Runs thet unit tests and prepares the binaries and Core-only binaries" {
 	Prepare-Binaries
 }
 
-task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts, CompileTools -description "Builds All the source code, just prepare the binaries without testing it" {
+task JustPrepareBinaries -depends Init, CompileMain, CompileCore, CompileContainers, CompileWebServicesIntegration, CompileNHibernate, CompileHosts, CompileHosts32, CompileAzure, CompileAzureHosts -description "Builds All the source code, just prepare the binaries without testing it" {
 }
 
 function Prepare-Binaries{
@@ -517,7 +521,7 @@ function Prepare-Binaries{
 	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
-task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs thet unit tests and prepare the binaries and Core-only binaries" {}
+task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs the unit tests and prepare the binaries and Core-only binaries" {}
 
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
@@ -534,7 +538,7 @@ task CompileSamples -depends InitEnvironment -description "Compiles all the samp
 
 task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples -description "Compiles all the sample projects after compiling the full Sourc in order." {}  
 
-task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs thet unit tests, prepare the binaries and Core-only binaries, copiles all the sample projects and prepares for the relase aritifacts" {
+task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
 	
 	if(Test-Path $releaseRoot){
 		Delete-Directory $releaseRoot	
@@ -959,7 +963,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
  	}
 }
 
-task InstallDependentPackages -description "Installs dependent packages in the eviornment if required" {
+task InstallDependentPackages -description "Installs dependent packages in the environment if required" {
 	cd "$baseDir\packages"
 	$files =  dir -Exclude *.config
 	cd $baseDir
