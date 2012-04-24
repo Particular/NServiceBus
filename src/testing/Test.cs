@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast;
@@ -54,10 +55,13 @@ namespace NServiceBus.Testing
                 .XmlSerializer()
                 .InMemoryFaultManagement();
 
-            messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
-            if (messageCreator == null)
+            var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
+            if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
+            mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
+            
+            messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
 
         }
