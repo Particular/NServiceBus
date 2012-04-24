@@ -7,6 +7,8 @@ using Raven.Client.Embedded;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using global::Raven.Client.Document;
+
     public abstract class Raven_saga_persistence_concern
     {
         protected IDocumentStore store;
@@ -14,7 +16,13 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [TestFixtureSetUp]
         public virtual void Setup()
         {
-            store = new EmbeddableDocumentStore { RunInMemory = true, DataDirectory = Guid.NewGuid().ToString() };
+            //store = new EmbeddableDocumentStore { RunInMemory = true, DataDirectory = Guid.NewGuid().ToString() };
+            store = new DocumentStore
+                        {
+                            Url = "http://localhost:8080",
+                        };
+
+    
 
             var conventions = new RavenConventions();
 
