@@ -1,3 +1,5 @@
+using MyServer.Scheduling;
+
 namespace MyServer
 {
     using System;
@@ -14,6 +16,7 @@ namespace MyServer
             Console.WriteLine("Press 'S' to start the saga");
             Console.WriteLine("Press 'T' to start the saga in multi tenant mode");
             Console.WriteLine("Press 'D' to defer a message 10 seconds");
+            Console.WriteLine("Press 'R' to schedule a task");
             Console.WriteLine("To exit, press Ctrl + C");
 
             string cmd;
@@ -33,6 +36,10 @@ namespace MyServer
 
                     case "d":
                         DeferMessage();
+                        break;
+
+                    case "r":
+                        ScheduleTask();
                         break;
                 }
             }
@@ -61,6 +68,12 @@ namespace MyServer
             Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
         }
        
+        void ScheduleTask()
+        {            
+            // The actual scheduling is done in ScheduleATaskHandler
+            Bus.SendLocal(new ScheduleATask());
+        }
+
         public void Stop()
         {
         }
