@@ -8,10 +8,12 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void It_should_persist_successfully()
         {
+            var uniqueString = Guid.NewGuid().ToString();
+
             var saga1 = new SagaWithUniqueProperty()
                         {
                             Id = Guid.NewGuid(),
-                            UniqueString = "whatever",
+                            UniqueString = uniqueString,
                             NonUniqueString = "notUnique"
                         };
 
@@ -26,10 +28,14 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void It_should_set_the_attribute_and_allow_the_update()
         {
+            var uniqueString = Guid.NewGuid().ToString();
+
+            var anotherUniqueString = Guid.NewGuid().ToString();
+
             var saga1 = new SagaWithUniqueProperty()
             {
                 Id = Guid.NewGuid(),
-                UniqueString = "whatever",
+                UniqueString = uniqueString,
                 NonUniqueString = "notUnique"
             };
 
@@ -41,15 +47,15 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
                 session.Advanced.GetMetadataFor(saga1).Remove(RavenSagaPersister.UniqueValueMetadataKey);
                 session.SaveChanges();
             }
-             
-            UpdateSaga<SagaWithUniqueProperty>(saga1.Id, s => s.UniqueString = "whatever2");
+
+            UpdateSaga<SagaWithUniqueProperty>(saga1.Id, s => s.UniqueString = anotherUniqueString);
 
             string value;
 
             using (var session = store.OpenSession())
                 value = session.Advanced.GetMetadataFor(saga1)[RavenSagaPersister.UniqueValueMetadataKey].ToString();
 
-            Assert.AreEqual("whatever2",value);
+            Assert.AreEqual(anotherUniqueString, value);
 
         }
     }
@@ -60,10 +66,13 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void It_should_persist_successfully()
         {
+            var uniqueString = Guid.NewGuid().ToString();
+            var anotherUniqueString = Guid.NewGuid().ToString();
+
             var saga1 = new SagaWithoutUniqueProperties()
             {
                 Id = Guid.NewGuid(),
-                UniqueString = "whatever",
+                UniqueString = uniqueString,
                 NonUniqueString = "notUnique"
             };
 
@@ -72,7 +81,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
             UpdateSaga<SagaWithoutUniqueProperties>(saga1.Id, s =>
                                                              {
                                                                  s.NonUniqueString = "notUnique2";
-                                                                 s.UniqueString = "whatever2";
+                                                                 s.UniqueString = anotherUniqueString;
                                                              });
         }
     }
