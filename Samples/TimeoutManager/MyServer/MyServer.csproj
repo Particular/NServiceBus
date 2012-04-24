@@ -51,6 +51,10 @@
     <Compile Include="DeferedProcessing\DeferredMessage.cs" />
     <Compile Include="DeferedProcessing\DeferredMessageHandler.cs" />
     <Compile Include="Saga\MyTimeOutState.cs" />
+    <Compile Include="Scheduling\ScheduleATask.cs" />
+    <Compile Include="Scheduling\ScheduleATaskHandler.cs" />
+    <Compile Include="Scheduling\ScheduleATaskToRunAtStartUp.cs" />
+    <Compile Include="Scheduling\ScheduledTaskExecutedHandler.cs" />
     <Compile Include="Starter.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
