@@ -13,13 +13,13 @@
                 .DefaultBuilder()
                 //shows multi tenant operations of the sagas
                 .MessageToDatabaseMappingConvention(context =>
-                                                      {
-                                                          if (context.Headers.ContainsKey("tenant"))
-                                                              return context.Headers["tenant"];
+                                                        {
+                                                            if (context.Headers.ContainsKey("tenant"))
+                                                                return context.Headers["tenant"];
 
-                                                          return string.Empty;
-                                                      })
-                .RunTimeoutManager(); //will default to ravendb for storage
+                                                            return string.Empty;
+                                                        });
+
         }
     }
 
