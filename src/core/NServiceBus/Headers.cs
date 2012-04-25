@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
@@ -77,5 +79,26 @@
         /// Header that tells if this transport message is a control message
         /// </summary>
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
+
+        /// <summary>
+        /// Type of the saga that this message is targeted for
+        /// </summary>
+        public const string SagaType = "NServiceBus.SagaType";
+
+        /// <summary>
+        /// Type of the saga that sent this message
+        /// </summary>
+        [Obsolete("Only included for backwards compatibility with < 3.0.4, please use SagaType instead", false)]
+        public const string SagaEntityType = "NServiceBus.SagaDataType";
+
+        /// <summary>
+        /// Id of the saga that sent this message
+        /// </summary>
+        public const string OriginatingSagaId = "NServiceBus.OriginatingSagaId";
+
+        /// <summary>
+        /// Type of the saga that sent this message
+        /// </summary>
+        public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
     }
 }

@@ -17,6 +17,9 @@ namespace OrderService
         {
             ConfigureMapping<IOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
             ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            // Notice that we have no mappings for the OrderAuthorizationResponseMessage message. This is not needed since the HR
+            // endpoint will do a Bus.Reply and NServiceBus will then automatically correlate the reply back to
+            // the originating saga
         }
 
         public void Handle(IOrderMessage message)
@@ -37,7 +40,11 @@ namespace OrderService
                 ReplyToOriginator(status);
                 Bus.Publish(status);
 
-                Bus.Send<IRequestOrderAuthorizationMessage>(m => { m.SagaId = Data.Id; m.PartnerId = Data.PartnerId; m.OrderLines = Convert<Messages.IOrderLine, IOrderLine>(status.OrderLines); });
+                Bus.Send<RequestOrderAuthorizationMessage>(m =>
+                                                               {
+                                                                   m.PartnerId = Data.PartnerId; 
+                                                                   m.OrderLines = Convert<Messages.IOrderLine, IOrderLine>(status.OrderLines);
+                                                               });
 
                 RequestUtcTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
             }

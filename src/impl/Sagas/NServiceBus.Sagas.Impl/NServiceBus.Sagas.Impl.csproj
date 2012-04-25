@@ -71,6 +71,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Utils">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
     </Reference>
@@ -84,6 +87,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoCorrelateSagaOnReplyMutator.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureHowToFindSagaWithMessageDispatcher.cs">
@@ -94,11 +98,12 @@
     <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="Finders\NullSagaFinder.cs" />
     <Compile Include="MessageExtensions.cs" />
+    <Compile Include="OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Finders\PropertySagaFinder.cs" />
     <Compile Include="ReplyingToNullOriginatorDispatcher.cs" />
+    <Compile Include="SagaContext.cs" />
     <Compile Include="SagaDispatcherFactory.cs" />
-    <Compile Include="SagaIdEnricher.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

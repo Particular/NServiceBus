@@ -5,9 +5,9 @@ using System.Threading;
 
 namespace HR.MessageHandlers
 {
-    public class RequestOrderAuthorizationMessageHandler : IHandleMessages<IRequestOrderAuthorizationMessage>
+    public class RequestOrderAuthorizationMessageHandler : IHandleMessages<RequestOrderAuthorizationMessage>
     {
-        public void Handle(IRequestOrderAuthorizationMessage message)
+        public void Handle(RequestOrderAuthorizationMessage message)
         {
             Console.WriteLine("Recieved Message: " + message);
             Console.WriteLine("     PartnerId: " + message.PartnerId);
@@ -20,7 +20,13 @@ namespace HR.MessageHandlers
                     if (ol.Quantity > 50F)
                         Thread.Sleep(10000);
 
-            Bus.Reply<OrderAuthorizationResponseMessage>(m => { m.SagaId = message.SagaId; m.Success = true; m.OrderLines = message.OrderLines; });
+            // This will reply back to the order saga instance that sent us this message. NServiceBus is
+            // automatically doing the correlationF
+            Bus.Reply<OrderAuthorizationResponseMessage>(m =>
+                                                             {
+                                                                 m.Success = true; 
+                                                                 m.OrderLines = message.OrderLines;
+                                                             });
         }
 
         public IBus Bus { get; set; }

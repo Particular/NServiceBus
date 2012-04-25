@@ -31,7 +31,6 @@ namespace NServiceBus.Sagas.Impl
         public static Configure With(IConfigureComponents configurer, IBuilder builder)
         {
             configurer.ConfigureComponent<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
-            configurer.ConfigureComponent<SagaIdEnricher>(DependencyLifecycle.InstancePerCall);
             
             return new Configure { configurer = configurer };
         }
