@@ -600,12 +600,18 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
+            try
+            {
+                messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
 
-            return ((IBus)this).Send(TimeoutManagerAddress, messages);
+                return ((IBus)this).Send(TimeoutManagerAddress, messages);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
+                throw;
+            }
         }
-
-
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
