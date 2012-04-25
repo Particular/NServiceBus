@@ -379,7 +379,7 @@ namespace NServiceBus.Utils
                 result.IdForCorrelation = msmqMsg.Label.Substring(idStartIndex, idCount);
             }
 
-            if (msmqMsg.Label.Contains(Headers.WindowsIdentityName))
+            if (msmqMsg.Label.Contains(Headers.WindowsIdentityName) && !result.Headers.ContainsKey(Headers.WindowsIdentityName))
             {
                 int winStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.WindowsIdentityName)) + Headers.WindowsIdentityName.Length + 2;
                 int winCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.WindowsIdentityName)) - winStartIndex;
