@@ -7,7 +7,7 @@ namespace NServiceBus.Saga
 	/// </summary>
     [Serializable]
     [Recoverable]
-    public class TimeoutMessage : ISagaMessage
+    public class TimeoutMessage
     {
         /// <summary>
         /// Default constructor for serialization purposes.
