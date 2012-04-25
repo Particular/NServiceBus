@@ -8,15 +8,18 @@
 
     public static class ConfigureTimeoutManager
     {
-        public static bool TimeoutManagerEnabled { get; private set; }
+        private static bool timeoutManagerEnabled;
 
         public static bool IsTimeoutManagerEnabled(this Configure config)
         {
-            return TimeoutManagerEnabled;
+            return timeoutManagerEnabled;
         }
 
         public static Configure RunTimeoutManager(this Configure config)
         {
+            if(disabledTimeoutManagerCalledExplicitly)
+                return config; 
+            
             return SetupTimeoutManager(config);
         }
 
@@ -27,9 +30,9 @@
             return SetupTimeoutManager(config);
         }
 
-        static Configure SetupTimeoutManager(this Configure config)
+        private static Configure SetupTimeoutManager(this Configure config)
         {
-            TimeoutManagerEnabled = true;
+            timeoutManagerEnabled = true;
 
             TimeoutManagerAddress = config.GetTimeoutManagerAddress();
 
@@ -52,7 +55,7 @@
         }
 
         /// <summary>
-        /// Sets the default persitence to inmemory
+        /// Sets the default persistence to UseInMemoryTimeoutPersister
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
@@ -77,8 +80,18 @@
             return config;
         }
 
-
+        /// <summary>
+        /// As Timeout manager is turned on by default for server roles, use DisableTimeoutManager method to turn off Timeout manager
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static bool disabledTimeoutManagerCalledExplicitly;
+        public  static Configure DisableTimeoutManager(this Configure config)
+        {
+            timeoutManagerEnabled = false;
+            disabledTimeoutManagerCalledExplicitly = true;
+            return config;
+        }
         public static Address TimeoutManagerAddress { get; set; }
-
     }
 }

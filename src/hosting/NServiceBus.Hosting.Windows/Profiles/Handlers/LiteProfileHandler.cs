@@ -14,8 +14,11 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
+
+            if (Configure.Instance.IsTimeoutManagerEnabled())
+                Configure.Instance.DefaultToInMemoryTimeoutPersistence();
+            
             Configure.Instance.AsMasterNode()
-                .DefaultToInMemoryTimeoutPersistence()
                 .DefaultToInMemoryGatewayPersistence();
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
