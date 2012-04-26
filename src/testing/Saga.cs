@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NServiceBus.Saga;
-using System.Linq;
 
 namespace NServiceBus.Testing
 {

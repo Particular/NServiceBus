@@ -133,7 +133,17 @@ namespace NServiceBus.Saga
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
-            RequestUtcTimeout(at.ToUniversalTime() - DateTime.UtcNow, timeoutMessage);
+            object toSend = timeoutMessage;
+
+            if (!typeof(TTimeoutmessageType).IsMessageType())
+                toSend = new TimeoutMessage(at, Data, toSend);
+
+            SetHeaders(toSend);
+
+            if (at.ToUniversalTime() <= DateTime.UtcNow)
+                Bus.SendLocal(toSend);
+            else
+                Bus.Defer(at, toSend);
         }
 
         /// <summary>
@@ -167,13 +177,18 @@ namespace NServiceBus.Saga
             if (!typeof(TTimeoutmessageType).IsMessageType())
                 toSend = new TimeoutMessage(within, Data, toSend);
 
-            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
-            toSend.SetHeader(Headers.SagaType, this.GetType().AssemblyQualifiedName);
+            SetHeaders(toSend);
 
             if (within <= TimeSpan.Zero)
                 Bus.SendLocal(toSend);
             else
                 Bus.Defer(within, toSend);
+        }
+
+        private void SetHeaders(object toSend)
+        {
+            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
+            toSend.SetHeader(Headers.SagaType, this.GetType().AssemblyQualifiedName);
         }
 
         /// <summary>
