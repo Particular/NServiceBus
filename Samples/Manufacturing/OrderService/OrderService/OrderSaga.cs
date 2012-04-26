@@ -118,7 +118,7 @@ namespace OrderService
 
         private IOrderStatusChangedMessage GetStatus(OrderStatusEnum status, List<Messages.IOrderLine> lines)
         {
-            return Bus.CreateInstance<OrderStatusChangedMessage>(m =>
+            return Bus.CreateInstance<IOrderStatusChangedMessage>(m =>
             {
                 m.PurchaseOrderNumber = Data.PurchaseOrderNumber;
                 m.PartnerId = Data.PartnerId;
