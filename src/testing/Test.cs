@@ -59,7 +59,7 @@ namespace NServiceBus.Testing
             if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
+            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType() || typeof(ITimeoutState).IsAssignableFrom(t)));
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
@@ -104,14 +104,11 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
-            var mocks = new MockRepository();
-            var bus = MockTheBus(mocks);
+            var bus = new StubBus(messageCreator);
 
             saga.Bus = bus;
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType() || typeof(ITimeoutState).IsAssignableFrom(t)).ToList();
-
-            return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
+            return new Saga<T>(saga, bus);
         }
 
         /// <summary>
