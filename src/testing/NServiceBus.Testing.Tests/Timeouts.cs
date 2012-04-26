@@ -17,7 +17,7 @@
         public void Should_assert_30_style_timeouts_being_set()
         {
             Test.Saga<TimeoutSaga>()
-                .ExpectTimeoutToBeSet<MyTimeout>()
+                .ExpectTimeoutToBeSetIn<MyTimeout>()
                 .When(saga => saga.Handle(new StartMessage()));
         }
 
@@ -25,7 +25,7 @@
         public void Should_assert_30_style_timeouts_being_set_together_with_other_timeouts()
         {
             Test.Saga<TimeoutSaga>()
-                .ExpectTimeoutToBeSet<MyTimeout>()
+                .ExpectTimeoutToBeSetIn<MyTimeout>()
                 .When(saga => saga.Handle(new StartMessage()));
         }
 
@@ -33,7 +33,7 @@
         public void Should_assert_30_style_timeouts_being_set_with_the_correct_timespan()
         {
             Test.Saga<TimeoutSaga>()
-                .ExpectTimeoutToBeSet<MyTimeout>(expiresIn => expiresIn == TimeSpan.FromDays(1))
+                .ExpectTimeoutToBeSetIn<MyTimeout>((state, expiresIn) => expiresIn == TimeSpan.FromDays(1))
                 .When(saga => saga.Handle(new StartMessage()));
         }
 
@@ -41,7 +41,7 @@
         public void Should_assert_30_style_timeouts_being_set_with_the_correct_state()
         {
             Test.Saga<TimeoutSaga>()
-                .ExpectTimeoutToBeSetWithState<MyTimeout>(state => state.SomeProperty == "Test")
+                .ExpectTimeoutToBeSetIn<MyTimeout>((state, expiresIn) => state.SomeProperty == "Test")
                 .When(saga => saga.Handle(new StartMessage()));
         }
     }

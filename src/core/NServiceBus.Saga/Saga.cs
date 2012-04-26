@@ -196,8 +196,10 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor"></param>
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor)
         {
-            var message = Bus.CreateInstance(messageConstructor);
-            ReplyToOriginator(message);
+            if (messageConstructor != null)
+                ReplyToOriginator(Bus.CreateInstance(messageConstructor));
+            else
+                ReplyToOriginator(null);
         }
 
         /// <summary>
