@@ -240,6 +240,19 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Invokes the saga timeout passing in the last timeout state it sent
+        /// and then clears out all previous expectations.
+        /// </summary>
+        /// <returns></returns>
+        public Saga<T> WhenSagaTimesOut()
+        {
+            var state = bus.PopTimeout();
+            var method = saga.GetType().GetMethod("Timeout", new[] {state.GetType()});
+            
+            return When(s => method.Invoke(s, new[] {state}));
+        }
+
+        /// <summary>
         /// Asserts that the saga is either complete or not.
         /// </summary>
         /// <param name="complete"></param>

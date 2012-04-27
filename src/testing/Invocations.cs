@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace NServiceBus.Testing
@@ -17,30 +18,36 @@ namespace NServiceBus.Testing
         {
             var calls = invocations.Where(i => typeof(T) == i.GetType());
 
-            bool success = calls.Any(c => Validate(c as T));
+            bool success = calls.Any(c =>
+                                         {
+                                             var result = Validate(c as T);
+                                             if (!result)
+                                                 Trace.WriteLine("Check evaluated false for " + filter(GetType()));
+
+                                             return result;
+                                         });
 
             if ((!success && !Negate) || (Negate && success))
-            {
-                Func<Type, string> filter =
-                    t =>
-                        {
-                            var s = t.ToString().Replace("NServiceBus.Testing.", "").Replace("`1[", "<").Replace("`2[",
-                                                                                                                 "<");
-                            if (s.EndsWith("]"))
-                            {
-                                s = s.Substring(0, s.Length - 1);
-                                s += ">";
-                            }
-
-                            return s;
-                        };
-
                 throw new Exception(string.Format("{0} not fulfilled.\nCalls made:\n{1}",filter(GetType()), string.Join("\n", invocations.Select(i => filter(i.GetType())))));
-            }
         }
 
         protected abstract bool Validate(T invocation);
         protected bool Negate;
+
+        private readonly Func<Type, string> filter =
+                    t =>
+                    {
+                        var s = t.ToString().Replace("NServiceBus.Testing.", "").Replace("`1[", "<").Replace("`2[",
+                                                                                                             "<");
+                        if (s.EndsWith("]"))
+                        {
+                            s = s.Substring(0, s.Length - 1);
+                            s += ">";
+                        }
+
+                        return s;
+                    };
+
     }
 
     public class SingleMessageExpectedInvocation<INVOCATION, M> : ExpectedInvocation<INVOCATION> where INVOCATION : MessageInvocation<M>
