@@ -103,7 +103,7 @@ namespace NServiceBus.Testing.Tests
         public string OriginalMessageId { get; set; }
     }
 
-    public class StartsSaga : ICommand, ITimeoutState {}
+    public class StartsSaga : ICommand {}
     public class ResponseToOriginator : IMessage {}
     public interface Event : IEvent { }
     public class Command : ICommand {}
@@ -152,7 +152,7 @@ namespace NServiceBus.Testing.Tests
         }
     }
 
-    public class SubmitOrder : IMessage, ITimeoutState
+    public class SubmitOrder : IMessage
     {
         public Guid OrderId { get; set; }
         public Guid CustomerId { get; set; }

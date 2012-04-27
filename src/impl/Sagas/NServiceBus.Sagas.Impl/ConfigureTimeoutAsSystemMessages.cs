@@ -3,17 +3,32 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.Sagas.Impl
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
-    /// Defining ITimeoutState and TimeoutMessage as valid system messages
+    /// Defining TimeoutMessage and IHandleTimeouts<T> as valid system messages
     /// </summary>
     public class ConfigureTimeoutAsSystemMessages : IWantToRunBeforeConfiguration
     {
         /// <summary>
-        /// Defining ITimeoutState and TimeoutMessage as valid system messages
+        /// Defining TimeoutMessage and IHandleTimeouts<T> as valid system messages
         /// </summary>
         public void Init()
         {
-            NServiceBus.Configure.Instance.AddSystemMessagesAs(t => typeof (ITimeoutState).IsAssignableFrom(t) || t == typeof(TimeoutMessage));
+            var sagas = NServiceBus.Configure.TypesToScan.Where(Configure.IsSagaType).ToList();
+
+            NServiceBus.Configure.Instance.AddSystemMessagesAs(t =>
+                t == typeof(TimeoutMessage) ||
+                IsTypeATimeoutHandledByAnySaga(t, sagas));
+        }
+
+        bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
+        {
+            var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
+
+            return sagas.Any(timeoutHandler.IsAssignableFrom);
         }
     }
 }

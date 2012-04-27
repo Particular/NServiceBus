@@ -59,7 +59,7 @@ namespace NServiceBus.Testing
             if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType() || typeof(ITimeoutState).IsAssignableFrom(t)));
+            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType()));
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
