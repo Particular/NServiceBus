@@ -13,11 +13,18 @@ namespace NServiceBus.Testing
 
         private readonly List<ActualInvocation> ActualInvocations = new List<ActualInvocation>();
 
+        private TimeoutManager timeoutManager = new TimeoutManager();
+
         public void ValidateAndReset(IEnumerable<IExpectedInvocation> expectedInvocations)
         {
             expectedInvocations.ToList().ForEach(e => e.Validate(ActualInvocations.ToArray()));
 
             ActualInvocations.Clear();
+        }
+
+        public object PopTimeout()
+        {
+            return timeoutManager.Pop();
         }
 
         public StubBus(IMessageCreator creator)
@@ -152,20 +159,12 @@ namespace NServiceBus.Testing
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            if (messages.Length == 1)
-                if (messages[0] is TimeoutMessage)
-                    return ProcessInvocation<TimeSpan>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delay } }, (messages[0] as TimeoutMessage).State);
-
-            return ProcessInvocation<TimeSpan>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delay } }, messages);
+            return ProcessDefer<TimeSpan>(delay, messages);
         }
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            if (messages.Length == 1)
-                if (messages[0] is TimeoutMessage)
-                    return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", processAt } }, (messages[0] as TimeoutMessage).State);
-
-            return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", processAt } }, messages);
+            return ProcessDefer<DateTime>(processAt, messages);
         }
 
         public void Reply(params object[] messages)
@@ -267,6 +266,22 @@ namespace NServiceBus.Testing
                 return message.GetType().GetInterface(message.GetType().Name.Replace("__impl", ""));
 
             return message.GetType();
+        }
+
+        private ICallback ProcessDefer<T>(object delayOrProcessAt, params object[] messages)
+        {
+            if (messages.Length == 1)
+                if (messages[0] is TimeoutMessage)
+                {
+                    timeoutManager.Push(delayOrProcessAt, (messages[0] as TimeoutMessage).State);
+
+                    return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>),
+                                                       new Dictionary<string, object> { { "Value", delayOrProcessAt } },
+                                                       (messages[0] as TimeoutMessage).State);
+                }
+
+            timeoutManager.Push(delayOrProcessAt, messages[0]);
+            return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delayOrProcessAt } }, messages);
         }
     }
 }
