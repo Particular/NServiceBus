@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Tests
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Saga;
     using Transport;
 
     [TestFixture]
@@ -25,10 +26,74 @@ namespace NServiceBus.Unicast.Tests
             Assert.True(Handler1.Called);
             Assert.True(Handler2.Called);
         }
-
-     
     }
 
+    [TestFixture]
+    public class When_handling_a_timeout_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_invoke_the_timeout_handler()
+        {
+            MessageConventionExtensions.IsMessageTypeAction = type => type == typeof (TimeoutState);
+
+            var receivedMessage = Helpers.Helpers.Serialize(new TimeoutState());
+
+            RegisterMessageType<TimeoutState>();
+            RegisterMessageHandlerType<TimeoutHandler>();
+            
+            ReceiveMessage(receivedMessage);
+
+
+            Assert.True(TimeoutHandler.Called);
+        }
+    }
+
+    [TestFixture]
+    public class When_receiving_any_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_invoke_the_registered_catch_all_handler_using_a_object_parameter()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+
+            RegisterMessageType<EventMessage>();
+            RegisterMessageHandlerType<CatchAllHandler_object>();
+
+            ReceiveMessage(receivedMessage);
+
+            Assert.True(CatchAllHandler_object.Called);
+        }
+        [Test]
+        public void Should_invoke_the_registered_catch_all_handler_using_a_dynamic_parameter()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+
+            RegisterMessageType<EventMessage>();
+            RegisterMessageHandlerType<CatchAllHandler_dynamic>();
+
+            ReceiveMessage(receivedMessage);
+
+            Assert.True(CatchAllHandler_dynamic.Called);
+        }
+
+
+        [Test]
+        public void Should_invoke_the_registered_catch_all_handler_using_a_imessage_parameter()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+
+            RegisterMessageType<EventMessage>();
+            RegisterMessageHandlerType<CatchAllHandler_IMessage>();
+
+            ReceiveMessage(receivedMessage);
+
+            Assert.True(CatchAllHandler_IMessage.Called);
+        }
+
+
+    }
+
+  
     [TestFixture]
     public class When_receiving_a_message_with_an_original_Id : using_the_unicastbus
     {
@@ -140,4 +205,49 @@ namespace NServiceBus.Unicast.Tests
         }
     }
 
+    public class CatchAllHandler_object:IHandleMessages<object>
+    {
+        public static bool Called;
+
+        public void Handle(object message)
+        {
+            Called = true;
+        }
+    }
+
+    public class CatchAllHandler_dynamic : IHandleMessages<object>
+    {
+        public static bool Called;
+
+        public void Handle(dynamic message)
+        {
+            Called = true;
+        }
+    }
+
+
+    public class CatchAllHandler_IMessage : IHandleMessages<IMessage>
+    {
+        public static bool Called;
+
+        public void Handle(IMessage message)
+        {
+            Called = true;
+        }
+    }
+
+    //This would only apply to sagas
+    public class TimeoutHandler : IHandleTimeouts<TimeoutState>
+    {
+        public static bool Called;
+
+        public void Timeout(TimeoutState message)
+        {
+            Called = true;
+        }
+    }
+
+    public class TimeoutState
+    {
+    }
 }

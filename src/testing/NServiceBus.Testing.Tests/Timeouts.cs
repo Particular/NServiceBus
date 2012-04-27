@@ -46,7 +46,10 @@
         }
     }
 
-    class TimeoutSaga : Saga<TimeoutSagaData>,IHandleTimeouts<MyTimeout>,IAmStartedByMessages<StartMessage>
+    class TimeoutSaga : Saga<TimeoutSagaData>,
+        IHandleTimeouts<MyTimeout>,
+        IHandleTimeouts<MyOtherTimeout>,
+        IAmStartedByMessages<StartMessage>
     {
 
         public void Handle(StartMessage message)
@@ -62,6 +65,11 @@
             Bus.Send(new SomeMessage());
         }
 
+        public void Timeout(MyOtherTimeout state)
+        {
+           
+        }
+
     }
 
     internal class StartMessage
@@ -72,12 +80,12 @@
     {
     }
 
-    internal class MyTimeout:ITimeoutState
+    internal class MyTimeout
     {
         public string SomeProperty { get; set; }
     }
 
-    internal class MyOtherTimeout : ITimeoutState
+    internal class MyOtherTimeout
     {
     }
 

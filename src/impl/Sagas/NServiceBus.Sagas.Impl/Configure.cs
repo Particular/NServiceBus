@@ -7,7 +7,6 @@ namespace NServiceBus.Sagas.Impl
     using System.Reflection;
     using Saga;
     using Common.Logging;
-    using NServiceBus.Config.Conventions;
 
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.
@@ -291,7 +290,7 @@ namespace NServiceBus.Sagas.Impl
 
         #region helper methods
 
-        private static bool IsSagaType(Type t)
+        public static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(ISaga));
         }
@@ -418,19 +417,6 @@ namespace NServiceBus.Sagas.Impl
 
             if (!sagas.Contains(sagaType))
                 sagas.Add(sagaType);
-
-            IDictionary<Type, MethodInfo> methods;
-            SagaTypeToHandleMethodLookup.TryGetValue(sagaType, out methods);
-
-            if (methods == null)
-            {
-                methods = new Dictionary<Type, MethodInfo>();
-                SagaTypeToHandleMethodLookup[sagaType] = methods;
-            }
-
-            Type directType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-            if (directType.IsAssignableFrom(sagaType))
-                methods[messageType] = directType.GetMethod("Handle", new[] { messageType });
         }
 
         private static void MapSagaTypeToSagaEntityType(Type sagaType, Type sagaEntityType)
@@ -459,8 +445,7 @@ namespace NServiceBus.Sagas.Impl
         #region members
 
         private readonly static IDictionary<Type, List<Type>> MessageTypeToSagaTypesLookup = new Dictionary<Type, List<Type>>();
-        private readonly static IDictionary<Type, IDictionary<Type, MethodInfo>> SagaTypeToHandleMethodLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
-
+        
         private static readonly IDictionary<Type, Type> SagaEntityTypeToSagaTypeLookup = new Dictionary<Type, Type>();
         private static readonly IDictionary<Type, Type> SagaTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
 
