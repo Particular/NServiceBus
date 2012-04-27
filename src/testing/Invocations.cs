@@ -131,8 +131,11 @@ namespace NServiceBus.Testing
     public class ExpectedDeferMessageInvocation<M, D> : ExpectedMessageAndValueInvocation<DeferMessageInvocation<M, D>, M, D> {}
     public class DeferMessageInvocation<M, D> : MessageAndValueInvocation<M, D> {}
 
-    public class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> {}
-    public class SendToSitesInvocation<M> : MessageAndValueInvocation<M, IEnumerable<string>> {}
+    public class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> { }
+    public class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, Address> { }
+
+    public class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> { }
+    public class SendToSitesInvocation<M> : MessageAndValueInvocation<M, IEnumerable<string>> { }
 
     //Slightly abusing the single message model as these don't actually care about the message type.
     public class ExpectedHandleCurrentMessageLaterInvocation<M> : SingleMessageExpectedInvocation<HandleCurrentMessageLaterInvocation<M>, M> {}
@@ -150,6 +153,21 @@ namespace NServiceBus.Testing
         }
     }
 
+    public class ExpectedNotSendInvocation<M> : ExpectedSendInvocation<M>
+    {
+        public ExpectedNotSendInvocation()
+        {
+            Negate = true;
+        }
+    }
+
+    public class ExpectedNotSendLocalInvocation<M> : ExpectedSendLocalInvocation<M>
+    {
+        public ExpectedNotSendLocalInvocation()
+        {
+            Negate = true;
+        }
+    }
 
     public class ExpectedReplyToOriginatorInvocation<M> : ExpectedInvocation<ReplyToOriginatorInvocation<M>>
     {

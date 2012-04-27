@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Rhino.Mocks;
 
 namespace NServiceBus.Testing
 {
@@ -12,11 +12,11 @@ namespace NServiceBus.Testing
     /// <typeparam name="T"></typeparam>
     public class Handler<T>
     {
-        private readonly Helper helper;
+        private readonly StubBus bus;
         private readonly T handler;
-        private readonly IMessageCreator messageCreator;
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
         private readonly List<Action> assertions = new List<Action>();
+        private IList<IExpectedInvocation> expectedInvocations = new List<IExpectedInvocation>();
 
         /// <summary>
         /// Creates a new instance of the handler tester.
@@ -26,11 +26,10 @@ namespace NServiceBus.Testing
         /// <param name="bus"></param>
         /// <param name="messageCreator"></param>
         /// <param name="types"></param>
-        public Handler(T handler, MockRepository mocks, IBus bus, IMessageCreator messageCreator, IEnumerable<Type> types)
+        public Handler(T handler, StubBus bus, IMessageCreator messageCreator, IEnumerable<Type> types)
         {
             this.handler = handler;
-            this.messageCreator = messageCreator;
-            helper = new Helper(mocks, bus, messageCreator, types);
+            this.bus = bus;
         }
 
         /// <summary>
@@ -77,9 +76,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSend<TMessage>(SendPredicate<TMessage> check)
+        public Handler<T> ExpectSend<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectSend(check);
+            expectedInvocations.Add(new ExpectedSendInvocation<TMessage> { Check = check });
             return this;
         }
         
@@ -89,9 +88,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectNotSend<TMessage>(SendPredicate<TMessage> check)
+        public Handler<T> ExpectNotSend<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectNotSend(check);
+            expectedInvocations.Add(new ExpectedNotSendInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -101,9 +100,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectReply<TMessage>(SendPredicate<TMessage> check)
+        public Handler<T> ExpectReply<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectReply(check);
+            expectedInvocations.Add(new ExpectedReplyInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -114,9 +113,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
+        public Handler<T> ExpectSendLocal<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectSendLocal(check);
+            expectedInvocations.Add(new ExpectedSendLocalInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -126,9 +125,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectNotSendLocal<TMessage>(SendPredicate<TMessage> check)
+        public Handler<T> ExpectNotSendLocal<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectNotSendLocal(check);
+            expectedInvocations.Add(new ExpectedNotSendLocalInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -137,9 +136,9 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectReturn(ReturnPredicate check)
+        public Handler<T> ExpectReturn<TEnum>(Func<TEnum, bool> check)
         {
-            helper.ExpectReturn(check);
+            expectedInvocations.Add(new ExpectedReturnInvocation<TEnum> { Check = check });
             return this;
         }
 
@@ -149,9 +148,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
+        public Handler<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
         {
-            helper.ExpectSendToDestination(check);
+            expectedInvocations.Add(new ExpectedSendToDestinationInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -161,9 +160,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Handler<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
+        public Handler<T> ExpectPublish<TMessage>(Func<TMessage, bool> check)
         {
-            helper.ExpectPublish(check);
+            expectedInvocations.Add(new ExpectedPublishInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -173,9 +172,9 @@ namespace NServiceBus.Testing
 		/// <typeparam name="TMessage"></typeparam>
 		/// <param name="check"></param>
 		/// <returns></returns>
-		public Handler<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
+		public Handler<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check)
 		{
-			helper.ExpectNotPublish(check);
+            expectedInvocations.Add(new ExpectedNotPublishInvocation<TMessage> { Check = check });
 			return this;
 		}
 		
@@ -185,7 +184,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Handler<T> ExpectDoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            helper.ExpectDoNotContinueDispatchingCurrentMessageToHandlers();
+            expectedInvocations.Add(new ExpectedDoNotContinueDispatchingCurrentMessageToHandlersInvocation<object>());
             return this;
         }
 
@@ -196,7 +195,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Handler<T> ExpectForwardCurrentMessageTo(string destination)
         {
-            helper.ExpectForwardCurrentMessageTo(destination);
+            expectedInvocations.Add(new ExpectedForwardCurrentMessageToInvocation { Check = d => d == destination });
             return this;
         }
 
@@ -206,7 +205,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Handler<T> ExpectHandleCurrentMessageLater()
         {
-            helper.ExpectHandleCurrentMessageLater();
+            expectedInvocations.Add(new ExpectedHandleCurrentMessageLaterInvocation<object>());
             return this;
         }
 
@@ -227,7 +226,7 @@ namespace NServiceBus.Testing
         /// <param name="messageId"></param>
         public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId)
         {
-            var msg = messageCreator.CreateInstance(initializeMessage);
+            var msg = bus.CreateInstance(initializeMessage);
             OnMessage(msg, messageId);
         }
 
@@ -241,6 +240,7 @@ namespace NServiceBus.Testing
         public void OnMessage<TMessage>(TMessage message, string messageId)
         {
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
+            bus.CurrentMessageContext = context;
 
             foreach (KeyValuePair<string, string> kvp in incomingHeaders)
                 ExtensionMethods.SetHeaderAction(message, kvp.Key, kvp.Value);
@@ -248,7 +248,11 @@ namespace NServiceBus.Testing
             ExtensionMethods.CurrentMessageBeingHandled = message;
 
             MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
-            helper.Go(context, () => method.Invoke(handler, new object[] { message }));
+            method.Invoke(handler, new object[] {message});
+
+            bus.ValidateAndReset(expectedInvocations);
+            expectedInvocations.Clear();
+
             assertions.ForEach(a => a());
 
             assertions.Clear();
