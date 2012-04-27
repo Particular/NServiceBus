@@ -9,11 +9,12 @@ using Ninject.Injection;
 using Ninject.Parameters;
 using Ninject.Selection;
 using NServiceBus.ObjectBuilder.Common;
-using Ninject.Extensions.ChildKernel;
 using NServiceBus.ObjectBuilder.Ninject.Internal;
 
 namespace NServiceBus.ObjectBuilder.Ninject
 {
+    using global::Ninject.Extensions.NamedScope;
+
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
     /// </summary>
@@ -71,6 +72,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
             this.AddCustomPropertyInjectionHeuristic();
 
             this.ReplacePropertyInjectionStrategyWithCustomPropertyInjectionStrategy();
+
+            this.kernel.Bind<NinjectChildContainer>().ToSelf().Named("Container").DefinesNamedScope("Container");
         }
 
         /// <summary>
@@ -101,7 +104,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <returns>A new child container.</returns>
         public IContainer BuildChildContainer()
         {
-            return new NinjectObjectBuilder(new ChildKernel(this.kernel,new NinjectSettings{LoadExtensions = false}));
+            return this.kernel.Get<NinjectChildContainer>();
         }
 
         /// <summary>
@@ -134,9 +137,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             var instanceScope = this.GetInstanceScopeFrom(dependencyLifecycle);
 
-            this.BindComponentToItself(component, instanceScope);
-
-            this.BindAliasesOfComponentToComponent(component, instanceScope);
+            this.BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            this.BindAliasesOfComponentToComponent(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
 
             this.propertyHeuristic.RegisteredTypes.Add(component);
         }
@@ -287,14 +289,17 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <param name="instanceScope">
         /// The instance scope.
         /// </param>
-        private void BindAliasesOfComponentToComponent(Type component, Func<IContext, object> instanceScope)
+        private void BindAliasesOfComponentToComponent(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
         {
             var services = GetAllServiceTypesFor(component).Where(t => t != component);
 
             foreach (var service in services)
             {
-                this.kernel.Bind(service).ToMethod(ctx => ctx.Kernel.Get(component))
-                    .InScope(instanceScope);
+                this.kernel.Bind(service).ToMethod(ctx => ctx.Kernel.Get(component)).InScope(instanceScope);
+                if (addChildContainerScope)
+                {
+                    this.kernel.Bind(service).ToMethod(ctx => ctx.Kernel.Get(component)).WhenAnyAnchestorNamed("Container").InNamedScope("Container");
+                }
             }
         }
 
@@ -307,10 +312,13 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <param name="instanceScope">
         /// The instance scope.
         /// </param>
-        private void BindComponentToItself(Type component, Func<IContext, object> instanceScope)
+        private void BindComponentToItself(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
         {
-            this.kernel.Bind(component).ToSelf()
-                .InScope(instanceScope);
+            this.kernel.Bind(component).ToSelf().InScope(instanceScope);
+            if (addChildContainerScope)
+            {
+                this.kernel.Bind(component).ToSelf().WhenAnyAnchestorNamed("Container").InNamedScope("Container");
+            }
         }
 
         /// <summary>
