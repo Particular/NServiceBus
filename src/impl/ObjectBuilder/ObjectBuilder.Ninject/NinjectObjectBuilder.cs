@@ -14,6 +14,7 @@ using NServiceBus.ObjectBuilder.Ninject.Internal;
 namespace NServiceBus.ObjectBuilder.Ninject
 {
     using global::Ninject.Extensions.NamedScope;
+    using global::Ninject.Planning.Bindings;
 
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container
@@ -137,8 +138,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             var instanceScope = this.GetInstanceScopeFrom(dependencyLifecycle);
 
-            this.BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
-            this.BindAliasesOfComponentToComponent(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            var bindingConfigurations = this.BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            this.AddAliasesOfComponentToBindingConfigurations(component, bindingConfigurations);
 
             this.propertyHeuristic.RegisteredTypes.Add(component);
         }
@@ -281,24 +282,19 @@ namespace NServiceBus.ObjectBuilder.Ninject
         }
 
         /// <summary>
-        /// Binds the aliases of component to component with the given <paramref name="instanceScope"/>.
+        /// Adds the aliases of component to the binding configurations.
         /// </summary>
-        /// <param name="component">
-        /// The component.
-        /// </param>
-        /// <param name="instanceScope">
-        /// The instance scope.
-        /// </param>
-        private void BindAliasesOfComponentToComponent(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
+        /// <param name="component">The component.</param>
+        /// <param name="bindingConfigurations">The binding configurations.</param>
+        private void AddAliasesOfComponentToBindingConfigurations(Type component, IEnumerable<IBindingConfiguration> bindingConfigurations)
         {
             var services = GetAllServiceTypesFor(component).Where(t => t != component);
 
             foreach (var service in services)
             {
-                this.kernel.Bind(service).ToMethod(ctx => ctx.Kernel.Get(component)).InScope(instanceScope);
-                if (addChildContainerScope)
+                foreach (var bindingConfiguration in bindingConfigurations)
                 {
-                    this.kernel.Bind(service).ToMethod(ctx => ctx.Kernel.Get(component)).WhenAnyAnchestorNamed("Container").InNamedScope("Container");
+                    this.kernel.AddBinding(new Binding(service, bindingConfiguration));
                 }
             }
         }
@@ -306,19 +302,24 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <summary>
         /// Binds the component to itself with the given <paramref name="instanceScope"/>.
         /// </summary>
-        /// <param name="component">
-        /// The component.
-        /// </param>
-        /// <param name="instanceScope">
-        /// The instance scope.
-        /// </param>
-        private void BindComponentToItself(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
+        /// <param name="component">The component.</param>
+        /// <param name="instanceScope">The instance scope.</param>
+        /// <param name="addChildContainerScope">if set to <c>true</c> an additional binding scoped to the child container is added.</param>
+        /// <returns>The created binding configurations.</returns>
+        private IEnumerable<IBindingConfiguration> BindComponentToItself(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
         {
-            this.kernel.Bind(component).ToSelf().InScope(instanceScope);
+            var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                this.kernel.Bind(component).ToSelf().WhenAnyAnchestorNamed("Container").InNamedScope("Container");
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
             }
+            else
+            {
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().InScope(instanceScope).BindingConfiguration);
+            }
+
+            return bindingConfigurations;
         }
 
         /// <summary>
