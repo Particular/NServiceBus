@@ -418,9 +418,12 @@ task CompileTools -depends InitEnvironment -description "Builds the tools XsdGen
 	cd $buildBase\tools
 	Delete-Directory "management"
 	cd $baseDir
-		
-	Copy-Item $buildBase\testing\NServiceBus.Testing.dll $binariesDir -Force;
-	Copy-Item $buildBase\testing\NServiceBus.Testing.pdb $binariesDir -Force;
+	
+	Create-Directory $outDir\testing
+	Copy-Item $buildBase\testing\NServiceBus.Testing.dll $outDir\testing -Force;
+	Copy-Item $buildBase\testing\NServiceBus.Testing.pdb $outDir\testing -Force;
+	
+	Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
