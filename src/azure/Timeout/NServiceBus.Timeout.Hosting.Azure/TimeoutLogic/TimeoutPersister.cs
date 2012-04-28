@@ -49,7 +49,12 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public void Remove(TimeoutData timeout)
         {
-            var timeoutDataEntity = context.TimeoutData.Single();
+            var hash = Hash(timeout);
+            var timeoutDataEntity = (from c in context.TimeoutData
+                          where c.RowKey == hash
+                          select c).SingleOrDefault();
+
+            if (timeoutDataEntity == null) return;
 
             RemoveSerializedState(timeoutDataEntity.StateAddress);
             context.DeleteObject(timeoutDataEntity);
