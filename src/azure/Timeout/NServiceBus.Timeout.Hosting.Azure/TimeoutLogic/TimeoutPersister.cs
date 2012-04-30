@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Services.Client;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -32,7 +31,11 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         void IPersistTimeouts.Add(TimeoutData timeout)
         {
-            var stateAddress = Serialize(timeout.State, Hash(timeout));
+            var hash = Hash(timeout);
+            TimeoutDataEntity timeoutDataEntity;
+            if (TryGetTimeoutData(hash, out timeoutDataEntity)) return;
+
+            var stateAddress = Serialize(timeout.State, hash);
 
             context.AddObject(ServiceContext.TimeoutDataEntityTableName,
                                   new TimeoutDataEntity("TimeoutData", stateAddress)
@@ -50,11 +53,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public void Remove(TimeoutData timeout)
         {
             var hash = Hash(timeout);
-            var timeoutDataEntity = (from c in context.TimeoutData
-                          where c.RowKey == hash
-                          select c).SingleOrDefault();
-
-            if (timeoutDataEntity == null) return;
+            TimeoutDataEntity timeoutDataEntity;
+            if (!TryGetTimeoutData(hash, out timeoutDataEntity)) return;
 
             RemoveSerializedState(timeoutDataEntity.StateAddress);
             context.DeleteObject(timeoutDataEntity);
@@ -67,7 +67,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             try
             {
                 var results = (from c in context.TimeoutData
-                               where c.SagaId == sagaId
+                               where c.PartitionKey == "TimeoutData" && c.SagaId == sagaId
                                select c).ToList();
 
                 foreach (var timeoutDataEntity in results)
@@ -87,17 +87,31 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public bool CanSend(TimeoutData data)
         {
             var hash = Hash(data);
-            var result = (from c in context.TimeoutData
-                          where c.RowKey == hash
-                          select c).SingleOrDefault();
+            TimeoutDataEntity timeoutDataEntity;
+            if (!TryGetTimeoutData(hash, out timeoutDataEntity)) return false;
 
-            if (result == null) return false;
-
-            var leaseBlob = container.GetBlockBlobReference(result.StateAddress);
+            var leaseBlob = container.GetBlockBlobReference(timeoutDataEntity.StateAddress);
 
             using (var lease = new AutoRenewLease(leaseBlob))
             {
                 return lease.HasLease;
+            }
+        }
+
+        private bool TryGetTimeoutData(string hash, out TimeoutDataEntity result)
+        {
+            try
+            {
+                result = (from c in context.TimeoutData
+                          where c.PartitionKey == "TimeoutData" && c.RowKey == hash
+                          select c).SingleOrDefault();
+
+                return result != null;
+            }
+            catch
+            {
+                result = null;
+                return false;
             }
         }
 
