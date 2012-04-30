@@ -213,9 +213,9 @@ namespace NServiceBus.Testing
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>
-        public void OnMessage<TMessage>(Action<TMessage> initializeMessage)
+        public void OnMessage<TMessage>(Action<TMessage> initializeMessage = null)
         {
-            OnMessage(initializeMessage, Guid.NewGuid().ToString("N"));
+            OnMessage(Guid.NewGuid().ToString("N"), initializeMessage);
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="initializeMessage"></param>
         /// <param name="messageId"></param>
-        public void OnMessage<TMessage>(Action<TMessage> initializeMessage, string messageId)
+        public void OnMessage<TMessage>(string messageId, Action<TMessage> initializeMessage = null)
         {
             var msg = bus.CreateInstance(initializeMessage);
             OnMessage(msg, messageId);
