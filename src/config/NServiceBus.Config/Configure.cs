@@ -204,7 +204,7 @@ namespace NServiceBus
                         types.AddRange(a.GetTypes()
                             .Where(t => !t.IsValueType &&
                                         (t.FullName == null || 
-                                                !defaultTypeExclusions.Any(exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
+                                                !defaultTypeExclusions.Union(defaultAssemblyExclusions).Any(exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
                     }
                     catch (ReflectionTypeLoadException e)
                     {
@@ -519,29 +519,34 @@ namespace NServiceBus
         
         static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
 
+        // TODO: rename to defaultAssemblyAndNamespaceExclusions
         static readonly IEnumerable<string> defaultAssemblyExclusions 
             = new[]
               {
-                  "system.", "nhibernate.", "log4net.",
-                  "nunit.", "rhino.licensing.", 
+
+                  "system.", 
                   
-                  "raven.server", "raven.client", "raven.munin.",
-                  "raven.storage.", "raven.abstractions.",
-                  
-                  "lucene.net.", "bouncycastle.crypto", "esent.interop", "asyncctplibrary.",
+                  // NSB Build-Dependencies
+                  "nunit.", "pnunit.", "rhino.mocks.","XsdGenerator.",
+                 
+                  // NSB OSS Dependencies
+                  "rhino.licensing.", "bouncycastle.crypto",
                   "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                  "common.logging.", "topshelf."
+                  "common.logging.", "topshelf.",
+                  "Autofac.", "log4net.","nhibernate.", 
+
+                  // Raven
+                  "raven.server", "raven.client", "raven.munin.",
+                  "raven.storage.", "raven.abstractions.", "raven.database",
+                  "esent.interop", "asyncctplibrary.", "lucene.net.", 
+                  "ICSharpCode.NRefactory"
               };
 
+        // TODO: rename to additionalTypeExclusions 
         private static readonly IEnumerable<string> defaultTypeExclusions
-            = new[]
+            = new string[]
               {
-                  // TODO: just join in the the defaultAssemblyExclustion as assembly name matches the namespace in most cases 
-                  // partly the same as assembly exclusions, because they might get ilmerged
-                  "raven.server", "raven.client", "raven.munin.",
-                  "raven.storage.", "raven.abstractions.",
-                  "system.", "lucene.", "magnum.", "topshelf.", 
-                  "newtonsoft.", "common.logging."
+                  // defaultAssemblyExclusions will merged inn; specify additional ones here 
               };
     }
 }

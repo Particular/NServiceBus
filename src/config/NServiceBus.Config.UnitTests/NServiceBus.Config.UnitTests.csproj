@@ -39,6 +39,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Common.Logging.Log4Net.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -62,7 +65,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestConfigurationSection.cs" />
-    <Compile Include="When_selecting_assemblies.cs" />
+    <Compile Include="When_finding_assemblies_to_scan_with_expressions.cs" />
     <Compile Include="When_loading_types.cs" />
     <Compile Include="When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="When_scanning_assemblies.cs" />

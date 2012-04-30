@@ -9,7 +9,7 @@ using Rhino.Mocks;
 namespace NServiceBus.Config.UnitTests
 {
     [TestFixture]
-    public class When_selecting_assemblies
+    public class When_finding_assemblies_to_scan_with_expressions
     {       
         [Test]
         public void Should_exclude_by_name_without_extension()
@@ -48,12 +48,12 @@ namespace NServiceBus.Config.UnitTests
         }
 
         [Test]
-        public void Should_include_rhino_mocks_by_expression()
+        public void Should_include_fsharp_by_expression()
         {
             var found = AllAssemblies
-                .Matching("rhino.").ToArray();
+                .Matching("fsharp.").ToArray();
 
-            Assert.True(found.Any(a => a.GetName().Name == "Rhino.Mocks"));
+            Assert.True(found.Any(a => a.GetName().Name == "FSharp.Core"));
         }
 
         [Test]
@@ -88,39 +88,39 @@ namespace NServiceBus.Config.UnitTests
         }
 
         [Test]
-        public void Should_exclude_NServiceBus_after_including_rhino_if_wanted()
+        public void Should_exclude_NServiceBus_after_including_FSharp_if_wanted()
         {
             var found = AllAssemblies
-                .Matching("rhino.")
+                .Matching("FSharp.")
                 .Except("nservicebus.")
                 .ToArray();
 
-            Assert.True(found.Any(a => a.GetName().Name == "Rhino.Mocks"), "Rhino.Mocks not found");
+            Assert.True(found.Any(a => a.GetName().Name == "FSharp.Core"), "FSharp.Core not found");
             Assert.False(found.Any(a => a.GetName().Name.StartsWith("NServiceBus.")), "NServiceBus-Assembly found");
         }
 
         [Test]
-        public void Should_include_rhino_using_And()
+        public void Should_include_fsharp_using_And()
         {
             var found = AllAssemblies
                 .Matching("foo.bar")
-                .And("rhino.")
+                .And("fsharp.")
                 .ToArray();
 
-            Assert.True(found.Any(a => a.GetName().Name == "Rhino.Mocks"));
+            Assert.True(found.Any(a => a.GetName().Name == "FSharp.Core"));
         }
 
         [Test]
-        public void Should_use_Appdomain_Assemblies()
+        public void Should_use_Appdomain_Assemblies_if_flagged()
         {
-            // make sure Rhino.Mocks is loaded
-            var repo = new MockRepository();
+            var loadThisIntoAppdomain = new Microsoft.FSharp.Core.ClassAttribute();
 
             var someDir = Path.Combine(Path.GetTempPath(), "empty");
+            Directory.CreateDirectory(someDir);
 
-            var found = Configure.FindAssemblies(someDir, true, null, null);
+            var found = Configure.FindAssemblies(someDir, /*includeAppDomainAssemblies*/ true, null, null);
 
-            Assert.True(found.Any(a => a.GetName().Name == "Rhino.Mocks"));
+            CollectionAssert.Contains(found.Select(a => a.GetName().Name).ToArray(), "FSharp.Core");
         }
     }
 }

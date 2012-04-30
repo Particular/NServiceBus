@@ -12,6 +12,7 @@ namespace NServiceBus
     /// </summary>
     public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
     {
+
         /// <summary>
         /// Indicate that assemblies matching the given expression are not to be used.
         /// Use the 'And' method to indicate other assemblies to be skipped.

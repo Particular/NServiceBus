@@ -189,6 +189,8 @@ task TestCore  -depends CompileCore -description "Builds NServiceBus.Core.dll, k
 	}	
 	$testAssemblies = @()
 	$testAssemblies +=  dir $buildBase\nservicebus.core\*Tests.dll -Exclude *FileShare.Tests.dll,*Gateway.Tests.dll, *Raven.Tests.dll, *Azure.Tests.dll 
+    echo ("Assemblies beeing tested:")
+    $testAssemblies  | % { echo (" - " + $_) }
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 }
 
