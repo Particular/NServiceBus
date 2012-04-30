@@ -19,10 +19,7 @@
             get { return 1; }
         }
 
-        public IManageMessageFailures FailureManager
-        {
-            get { return null; }
-        }
+        public IManageMessageFailures FailureManager { get; set; }
 
         public Address AddressOfAuditStore
         {

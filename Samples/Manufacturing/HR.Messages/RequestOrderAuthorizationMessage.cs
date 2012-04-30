@@ -1,12 +1,13 @@
 using System;
-using NServiceBus.Saga;
 using System.Collections.Generic;
 
 namespace HR.Messages
 {
-    public interface IRequestOrderAuthorizationMessage : ISagaMessage
+    using NServiceBus;
+
+    public class RequestOrderAuthorizationMessage : IMessage
     {
-        Guid PartnerId { get; set; }
-        List<IOrderLine> OrderLines { get; set; }
+        public Guid PartnerId { get; set; }
+        public List<IOrderLine> OrderLines { get; set; }
     }
 }

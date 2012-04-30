@@ -59,7 +59,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InvocationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SagaTests.cs" />
     <Compile Include="TestHandlerFixture.cs" />
     <Compile Include="Timeouts.cs" />
   </ItemGroup>

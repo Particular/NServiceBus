@@ -1,12 +1,12 @@
-using System;
 using System.Collections.Generic;
-using NServiceBus.Saga;
 
 namespace HR.Messages
 {
-    public interface OrderAuthorizationResponseMessage : ISagaMessage
+    using NServiceBus;
+
+    public class OrderAuthorizationResponseMessage:IMessage
     {
-        bool Success { get; set; }
-        List<IOrderLine> OrderLines { get; set; }
+        public bool Success { get; set; }
+        public List<IOrderLine> OrderLines { get; set; }
     }
 }

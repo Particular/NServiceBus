@@ -13,7 +13,7 @@ namespace NServiceBus.Saga
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
-    public abstract class Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage>, IHandleMessages<ITimeoutState> where T : ISagaEntity
+    public abstract class Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage> where T : ISagaEntity
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -133,7 +133,17 @@ namespace NServiceBus.Saga
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
-            RequestUtcTimeout(at.ToUniversalTime() - DateTime.UtcNow, timeoutMessage);
+            object toSend = timeoutMessage;
+
+            if (!typeof(TTimeoutmessageType).IsMessageType())
+                toSend = new TimeoutMessage(at, Data, toSend);
+
+            SetHeaders(toSend);
+
+            if (at.ToUniversalTime() <= DateTime.UtcNow)
+                Bus.SendLocal(toSend);
+            else
+                Bus.Defer(at, toSend);
         }
 
         /// <summary>
@@ -167,12 +177,18 @@ namespace NServiceBus.Saga
             if (!typeof(TTimeoutmessageType).IsMessageType())
                 toSend = new TimeoutMessage(within, Data, toSend);
 
-            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
-            toSend.SetHeader("NServiceBus.SagaDataType", Data.GetType().AssemblyQualifiedName);
+            SetHeaders(toSend);
+
             if (within <= TimeSpan.Zero)
                 Bus.SendLocal(toSend);
             else
                 Bus.Defer(within, toSend);
+        }
+
+        private void SetHeaders(object toSend)
+        {
+            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
+            toSend.SetHeader(Headers.SagaType, this.GetType().AssemblyQualifiedName);
         }
 
         /// <summary>
@@ -195,8 +211,10 @@ namespace NServiceBus.Saga
         /// <param name="messageConstructor"></param>
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor)
         {
-            var message = Bus.CreateInstance(messageConstructor);
-            ReplyToOriginator(message);
+            if (messageConstructor != null)
+                ReplyToOriginator(Bus.CreateInstance(messageConstructor));
+            else
+                ReplyToOriginator(null);
         }
 
         /// <summary>
@@ -224,23 +242,6 @@ namespace NServiceBus.Saga
         public void Handle(TimeoutMessage message)
         {
             Timeout(message.State);
-        }
-
-        /// <summary>
-        /// Message handler for Timeout State 
-        /// </summary>
-        /// <param name="message">Timeout State</param>
-        public void Handle(ITimeoutState message)
-        {
-            var messageType = message.GetType();
-
-            // search for the timeout method using reflection
-            var methodInfo = GetType().GetMethod("Timeout", new[] { messageType });
-
-            if (methodInfo == null || methodInfo.GetParameters().First().ParameterType != messageType)
-                throw new InvalidOperationException(string.Format("Timeout arrived with state {0}, but no method with signature void Timeout({0}). Please implement IHandleTimeouts<{0}> on your {1} class", messageType, GetType()));
-
-            methodInfo.Invoke(this, new[] { message });
         }
     }
 }
