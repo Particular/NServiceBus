@@ -29,13 +29,13 @@
                 yield return () => Bus.HandleCurrentMessageLater();
                 yield break;
             }
-                
+
             var entitiesHandled = new List<ISagaEntity>();
             var sagaTypesHandled = new List<Type>();
 
             foreach (var finder in GetFindersFor(message, builder))
             {
-               bool sagaEntityIsPersistent = true;
+                bool sagaEntityIsPersistent = true;
                 ISagaEntity sagaEntity = UseFinderToFindSaga(finder, message);
                 Type sagaType;
 
@@ -48,22 +48,9 @@
                     if (sagaTypesHandled.Contains(sagaType))
                         continue; // don't create the same saga type twice for the same message
 
+                    sagaEntity = CreateNewSagaEntity(sagaType);
 
-                    Type sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaType);
-                    sagaEntity = Activator.CreateInstance(sagaEntityType) as ISagaEntity;
-
-                    if (sagaEntity != null)
-                    {
-                        if (message is ISagaMessage)
-                            sagaEntity.Id = (message as ISagaMessage).SagaId;
-                        else
-                            sagaEntity.Id = GuidCombGenerator.Generate();
-
-                        sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();
-                        sagaEntity.OriginalMessageId = Bus.CurrentMessageContext.Id;
-
-                        sagaEntityIsPersistent = false;
-                    }
+                    sagaEntityIsPersistent = false;
                 }
                 else
                 {
@@ -80,24 +67,34 @@
 
                                          saga.Entity = sagaEntity;
 
-                                         HandlerInvocationCache.Invoke(saga, message);
-
-                                         if (!saga.Completed)
+                                         try
                                          {
-                                             if (!sagaEntityIsPersistent)
-                                                 Persister.Save(saga.Entity);
+                                             SagaContext.Current = saga;
+
+                                             HandlerInvocationCache.Invoke(saga, message);
+
+                                             if (!saga.Completed)
+                                             {
+                                                 if (!sagaEntityIsPersistent)
+                                                     Persister.Save(saga.Entity);
+                                                 else
+                                                     Persister.Update(saga.Entity);
+                                             }
                                              else
-                                                 Persister.Update(saga.Entity);
+                                             {
+                                                 if (sagaEntityIsPersistent)
+                                                     Persister.Complete(saga.Entity);
+
+                                                 NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                                             }
+
+                                             LogIfSagaIsFinished(saga);
+
                                          }
-                                         else
+                                         finally
                                          {
-                                             if (sagaEntityIsPersistent)
-                                                 Persister.Complete(saga.Entity);
-
-                                             NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                                             SagaContext.Current = null;
                                          }
-
-                                         LogIfSagaIsFinished(saga);
 
                                      };
                 sagaTypesHandled.Add(sagaType);
@@ -118,6 +115,23 @@
                                  };
         }
 
+        ISagaEntity CreateNewSagaEntity(Type sagaType)
+        {
+            var sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaType);
+
+            if(sagaEntityType == null)
+                throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
+
+            var sagaEntity = (ISagaEntity)Activator.CreateInstance(sagaEntityType);
+
+            sagaEntity.Id = GuidCombGenerator.Generate();
+
+            sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();
+            sagaEntity.OriginalMessageId = Bus.CurrentMessageContext.Id;
+
+            return sagaEntity;
+        }
+
         /// <summary>
         /// Dispatcher factory filters on handler type
         /// </summary>
@@ -130,27 +144,43 @@
 
         IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)
         {
-            var sagaTypeName = message.GetHeader("NServiceBus.SagaDataType");
             var sagaId = message.GetHeader(Headers.SagaId);
+            var sagaEntityType = GetSagaEntityType(message);
 
-            Type sagaType = null;
-
-            if(!string.IsNullOrEmpty(sagaTypeName))
-                sagaType = Type.GetType(sagaTypeName);
-
-            if (sagaType == null || string.IsNullOrEmpty(sagaId))
+            if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders= Configure.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+                var finders = Configure.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
 
-                if(logger.IsDebugEnabled)
-                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}",string.Join(";", finders.Select(t=>t.GetType().Name)), message.GetType());
+                if (logger.IsDebugEnabled)
+                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
 
                 return finders;
             }
-                
-            logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaType,sagaId);
 
-            return new List<IFinder> { builder.Build(typeof (HeaderSagaIdFinder<>).MakeGenericType(sagaType)) as IFinder };
+            logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
+
+            return new List<IFinder> { builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
+        }
+
+        static Type GetSagaEntityType(object message)
+        {
+            //we keep this for backwards compatibility with versions < 3.0.4
+            var sagaEntityType = message.GetHeader(Headers.SagaEntityType);
+
+            if (!string.IsNullOrEmpty(sagaEntityType))
+                return Type.GetType(sagaEntityType);
+
+            var sagaTypeName = message.GetHeader(Headers.SagaType);
+
+            if (string.IsNullOrEmpty(sagaTypeName))
+                return null;
+
+            var sagaType = Type.GetType(sagaTypeName, false);
+
+            if (sagaType == null)
+                return null;
+
+            return Configure.GetSagaEntityTypeForSagaType(sagaType);
         }
 
         static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)

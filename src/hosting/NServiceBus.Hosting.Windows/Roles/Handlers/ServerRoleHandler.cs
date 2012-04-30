@@ -24,6 +24,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                 .Sagas()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
+                .RunTimeoutManager()
                 .UnicastBus()
                 .ImpersonateSender(true);
         }

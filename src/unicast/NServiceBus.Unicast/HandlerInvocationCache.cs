@@ -30,9 +30,17 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
         {
-            var method = GetHandleMethod(handler, messageType);
+            CacheMethodForHandler(handler,messageType,GetHandleMethod(handler, messageType));
+        }
 
-           
+
+        /// <summary>
+        /// Registers the metod in the cache
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="messageType"></param>
+        public static void CacheMethodForHandler(Type handler, Type messageType,MethodInfo method)
+        {
             if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(handler))
                 handlerToMessageTypeToHandleMethodMap.Add(handler, new Dictionary<Type, MethodInfo>());
 
@@ -41,9 +49,11 @@ namespace NServiceBus.Unicast
         }
 
 
+
         static MethodInfo GetHandleMethod(Type targetType, Type messageType)
         {
-            var method = targetType.GetMethod("Handle", new[] { messageType });
+            var method = targetType.GetMethods().FirstOrDefault(m => m.GetParameters().Any(p => p.ParameterType == messageType));
+
             if (method != null) return method;
 
             var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);

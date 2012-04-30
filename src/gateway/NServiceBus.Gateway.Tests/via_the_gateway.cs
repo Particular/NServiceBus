@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
+    using Faults;
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
@@ -90,7 +91,8 @@
                                                                    MockRepository.GenerateStub<ISendMessages>(),
                                                                    new FakeDispatcherSettings
                                                                        {
-                                                                           Receiver = inMemoryReceiver
+                                                                           Receiver = inMemoryReceiver,
+                                                                           FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
                                                                        });
 
             dispatcherInSiteA.Start(GatewayAddressForSiteA);

@@ -1,31 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NServiceBus.Saga;
-using Rhino.Mocks;
 
 namespace NServiceBus.Testing
 {
-    using System.Linq;
-
     /// <summary>
     /// Saga unit testing framework.
     /// </summary>
     public class Saga<T> where T : ISaga, new()
     {
-        private readonly Helper helper;
         private readonly T saga;
-        private string messageId;
-        private string clientAddress = "client";
+        private readonly StubBus bus;
+        private Func<string> messageId = () => Guid.NewGuid().ToString();
         private IDictionary<string, string> incomingHeaders = new Dictionary<string, string>();
-        private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
+        private IList<IExpectedInvocation> expectedInvocations = new List<IExpectedInvocation>();
 
-        internal Saga(T saga, MockRepository mocks, IBus bus, IMessageCreator messageCreator, List<Type> types)
+        internal Saga(T saga, StubBus bus)
         {
             this.saga = saga;
-            helper = new Helper(mocks, bus, messageCreator, types);
+            this.bus = bus;
 
-            var headers = bus.OutgoingHeaders;
-            LastCall.Repeat.Any().Return(outgoingHeaders);
+            saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
+            saga.Entity.Originator = "client";
         }
 
         /// <summary>
@@ -47,7 +44,6 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Saga<T> WhenReceivesMessageFrom(string client)
         {
-            clientAddress = client;
             saga.Entity.Originator = client;
 
             return this;
@@ -75,7 +71,7 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Saga<T> SetMessageId(string messageId)
         {
-            this.messageId = messageId;
+            this.messageId = () => messageId;
 
             return this;
         }
@@ -85,7 +81,7 @@ namespace NServiceBus.Testing
         /// </summary>
         public IDictionary<string, string> OutgoingHeaders
         {
-            get { return outgoingHeaders; }
+            get { return bus.OutgoingHeaders; }
         }
 
         /// <summary>
@@ -94,9 +90,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSend<TMessage>(SendPredicate<TMessage> check)
+        public Saga<T> ExpectSend<TMessage>(Func<TMessage,bool> check = null)
         {
-            helper.ExpectSend(check);
+            expectedInvocations.Add(new ExpectedSendInvocation<TMessage> { Check = check});
             return this;
         }
 
@@ -106,10 +102,10 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectReply<TMessage>(SendPredicate<TMessage> check)
+        [Obsolete("Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.")]
+        public Saga<T> ExpectReply<TMessage>(Func<TMessage, bool> check = null)
         {
-            helper.ExpectReply(check);
-            return this;
+            throw new InvalidOperationException("Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
         }
 
         /// <summary>
@@ -119,9 +115,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSendLocal<TMessage>(SendPredicate<TMessage> check)
+        public Saga<T> ExpectSendLocal<TMessage>(Func<TMessage, bool> check = null)
         {
-            helper.ExpectSendLocal(check);
+            expectedInvocations.Add(new ExpectedSendLocalInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -130,10 +126,10 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectReturn(ReturnPredicate check)
+        [Obsolete("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.")]
+        public Saga<T> ExpectReturn(Func<int, bool> check = null)
         {
-            helper.ExpectReturn(check);
-            return this;
+            throw new InvalidOperationException("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
         }
 
         /// <summary>
@@ -142,9 +138,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSendToDestination<TMessage>(SendToDestinationPredicate<TMessage> check)
+        public Saga<T> ExpectSendToDestination<TMessage>(Func<string, TMessage, bool> check = null)
         {
-            helper.ExpectSendToDestination(check);
+            //.ExpectSendToDestination(check);
             return this;
         }
 
@@ -154,9 +150,35 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectReplyToOrginator<TMessage>(SendPredicate<TMessage> check)
+        public Saga<T> ExpectReplyToOrginator<TMessage>(Func<TMessage, bool> check = null)
         {
-            helper.ExpectReplyToOrginator(check);
+            expectedInvocations.Add(new ExpectedReplyToOriginatorInvocation<TMessage>
+                                        {
+                                            Check = (msg, address, correlationId) =>
+                                                        {
+                                                            if (address != Address.Parse(saga.Entity.Originator))
+                                                            {
+                                                                throw new Exception(
+                                                                    "Expected ReplyToOriginator. Messages were sent to " +
+                                                                    address + " instead.");
+                                                                return false;
+                                                            }
+
+                                                            if (correlationId != saga.Entity.OriginalMessageId)
+                                                            {
+                                                                throw new Exception(
+                                                                    "Expected ReplyToOriginator. Messages were sent with correlation ID " +
+                                                                    correlationId + " instead of " + saga.Entity.OriginalMessageId);
+                                                                return false;
+                                                            }
+
+                                                            if (check != null)
+                                                                return check(msg);
+
+                                                            return true;
+                                                        }
+                                        }
+                );
             return this;
         }
 
@@ -166,9 +188,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectPublish<TMessage>(PublishPredicate<TMessage> check)
+        public Saga<T> ExpectPublish<TMessage>(Func<TMessage, bool> check = null)
         {
-            helper.ExpectPublish(check);
+            expectedInvocations.Add(new ExpectedPublishInvocation<TMessage> { Check = check });
             return this;
         }
       
@@ -178,10 +200,10 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectNotPublish<TMessage>(PublishPredicate<TMessage> check)
+        public Saga<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check = null)
         {
-          helper.ExpectNotPublish(check);
-          return this;
+            expectedInvocations.Add(new ExpectedNotPublishInvocation<TMessage> { Check = check });
+            return this;
         }
 
         /// <summary>
@@ -190,8 +212,8 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public Saga<T> ExpectHandleCurrentMessageLater()
         {
-          helper.ExpectHandleCurrentMessageLater();
-          return this;
+            expectedInvocations.Add(new ExpectedHandleCurrentMessageLaterInvocation<object>());
+            return this;
         }
 
         /// <summary>
@@ -201,11 +223,33 @@ namespace NServiceBus.Testing
         /// <param name="sagaIsInvoked"></param>
         public Saga<T> When(Action<T> sagaIsInvoked)
         {
-            var context = new MessageContext { Id = messageId, ReturnAddress = clientAddress, Headers = incomingHeaders };
+            var id = messageId();
 
-            helper.Go(context, () => sagaIsInvoked(saga));
+            var context = new MessageContext { Id = id, ReturnAddress = saga.Entity.Originator, Headers = incomingHeaders };
+            bus.CurrentMessageContext = context;
 
+            sagaIsInvoked(saga);
+
+            bus.ValidateAndReset(expectedInvocations);
+            expectedInvocations.Clear();
+
+            Trace.WriteLine("Finished when invocation.");
+
+            messageId = () => Guid.NewGuid().ToString();
             return this;
+        }
+
+        /// <summary>
+        /// Invokes the saga timeout passing in the last timeout state it sent
+        /// and then clears out all previous expectations.
+        /// </summary>
+        /// <returns></returns>
+        public Saga<T> WhenSagaTimesOut()
+        {
+            var state = bus.PopTimeout();
+            var method = saga.GetType().GetMethod("Timeout", new[] {state.GetType()});
+            
+            return When(s => method.Invoke(s, new[] {state}));
         }
 
         /// <summary>
@@ -225,17 +269,16 @@ namespace NServiceBus.Testing
         }
 
 
-     
+
         /// <summary>
         /// Verifies that the saga is setting the specified timeout
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
-        /// <param name="validateExpiry"></param>
+        /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectTimeoutToBeSet<TMessage>(Func<TimeSpan,bool> validateExpiry = null)
+        public Saga<T> ExpectTimeoutToBeSetIn<TMessage>(Func<TMessage, TimeSpan, bool> check = null)
         {
-            helper.ExpectDefer<TMessage>((expiresIn,state)=> (validateExpiry == null || validateExpiry(expiresIn)) &&
-                                                             state.First().GetType() == typeof (TMessage));
+            expectedInvocations.Add(new ExpectedDeferMessageInvocation<TMessage, TimeSpan> { Check = check });
             return this;
         }
 
@@ -243,12 +286,11 @@ namespace NServiceBus.Testing
         /// Verifies that the saga is setting the specified timeout
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
-        /// <param name="validateState"></param>
+        /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectTimeoutToBeSetWithState<TMessage>(Func<TMessage, bool> validateState = null)
+        public Saga<T> ExpectTimeoutToBeSetAt<TMessage>(Func<TMessage, DateTime, bool> check = null)
         {
-            helper.ExpectDefer<TMessage>((expiresIn, state) => (validateState == null || state.First() is TMessage && validateState((TMessage)state.First())) &&
-                                                             state.First().GetType() == typeof(TMessage));
+            expectedInvocations.Add(new ExpectedDeferMessageInvocation<TMessage, DateTime> { Check = check });
             return this;
         }
     }

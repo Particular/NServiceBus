@@ -16,7 +16,7 @@ namespace NServiceBus.MessageHeaders
             foreach(var key in staticOutgoingHeaders.Keys)
                 transportMessage.Headers.Add(key, staticOutgoingHeaders[key]);
 
-            if (messageHeaders != null)
+            if ((messages != null) && (messages.Length > 0) && (messageHeaders != null))
                 if (messageHeaders.ContainsKey(messages[0]))
                     foreach(var key in messageHeaders[messages[0]].Keys)
                         transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);

@@ -55,10 +55,33 @@ namespace NServiceBus.Persistence.Raven
 
         public void SaveChanges()
         {
-            if (session != null)
+            if (session == null)
+                return;
+            try
+            {
                 session.SaveChanges();
+            }
+            catch (global::Raven.Abstractions.Exceptions.ConcurrencyException ex)
+            {                
+                throw new ConcurrencyException("A saga with the same Unique property already existed in the storage. See the inner exception for further details",ex);
+            }
         }
 
         public static Func<IMessageContext, string> GetDatabaseName = (context) => "";
+    }
+
+    public class ConcurrencyException:Exception
+    {
+        public ConcurrencyException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public ConcurrencyException(string message) : base(message)
+        {
+        }
+
+        public ConcurrencyException()
+        {
+        }
     }
 }

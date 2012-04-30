@@ -1,70 +1,61 @@
 ﻿namespace NServiceBus.Gateway.HeaderManagement
 {
     using System;
-    using System.Collections.Generic;
     using MessageMutator;
+    using NServiceBus.Config;
     using Unicast.Transport;
 
-    public class GatewayHeaderManager : IMutateIncomingMessages, IMutateOutgoingTransportMessages
+    public class GatewayHeaderManager : IMutateTransportMessages,INeedInitialization
     {
-        public IBus Bus { get; set; }
-
-        public object MutateIncoming(object message)
+        public void MutateIncoming(TransportMessage transportMessage)
         {
-            var originatingSite = message.GetOriginatingSiteHeader();
+            returnInfo = null;
 
-            if (originatingSite != null)
+            if (!transportMessage.Headers.ContainsKey(Headers.HttpFrom) && 
+                !transportMessage.Headers.ContainsKey(Headers.OriginatingSite))
+                return;
+
+            returnInfo = new HttpReturnInfo
             {
-                if (messageReturns == null)
-                    messageReturns = new Dictionary<string, GatewayReturnInfo>();
-
-                messageReturns.Add(Bus.CurrentMessageContext.Id, 
-                                    new GatewayReturnInfo
-                                           {
-                                               From = originatingSite,
-                                               ReplyToAddress = Bus.CurrentMessageContext.ReplyToAddress.ToString()
-                                           });
-            }
-
-            return message;
+                //we preserve the httfrom to be backwards compatible with NServiceBus 2.X 
+                HttpFrom = transportMessage.Headers.ContainsKey(Headers.HttpFrom) ? transportMessage.Headers[Headers.HttpFrom] : null,
+                OriginatingSite = transportMessage.Headers.ContainsKey(Headers.OriginatingSite) ? transportMessage.Headers[Headers.OriginatingSite] : null,
+                ReplyToAddress = transportMessage.ReplyToAddress
+            };
         }
 
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if (messageReturns == null)
+            if (returnInfo == null)
                 return;
 
-            GatewayReturnInfo info;
-
-            if (!messageReturns.TryGetValue(transportMessage.CorrelationId, out info)) 
+            if (string.IsNullOrEmpty(transportMessage.CorrelationId))
                 return;
 
-            if (transportMessage.Headers.ContainsKey(Headers.DestinationSites)) 
+            if (transportMessage.Headers.ContainsKey(Headers.HttpTo) || transportMessage.Headers.ContainsKey(Headers.DestinationSites))
                 return;
-            
-            transportMessage.Headers[Headers.DestinationSites] = info.From;
+
+            transportMessage.Headers[Headers.HttpTo] = returnInfo.HttpFrom;
+            transportMessage.Headers[Headers.DestinationSites] = returnInfo.OriginatingSite;
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
-                transportMessage.Headers[Headers.RouteTo] = info.ReplyToAddress;
+                transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.ToString();
         }
 
-        public ITransport Transport
+        public void Init()
         {
-            get { return transport; }
-            set
-            {
-                transport = value;
-                transport.FinishedMessageProcessing +=
-                    (s, e) =>
-                        {
-                            messageReturns = null;
-                        };
-            }
+            Configure.Instance.Configurer.ConfigureComponent<GatewayHeaderManager>(
+                DependencyLifecycle.InstancePerCall);
         }
-        
-        ITransport transport;
 
         [ThreadStatic]
-        private IDictionary<string, GatewayReturnInfo> messageReturns;
+        static HttpReturnInfo returnInfo;
+
+        class HttpReturnInfo
+        {
+            public string HttpFrom { get; set; }
+            public string OriginatingSite { get; set; }
+            public Address ReplyToAddress { get; set; }
+        }
     }
 }

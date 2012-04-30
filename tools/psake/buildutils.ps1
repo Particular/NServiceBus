@@ -66,6 +66,7 @@ function IsWow64{
  
  $ilMergeExec = ".\tools\IlMerge\ilmerge.exe"
 function Ilmerge($key, $directory, $name, $assemblies, $attributeAssembly, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
+	echo "Merging $name....."	
 	
     new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
 	
@@ -77,6 +78,9 @@ function Ilmerge($key, $directory, $name, $assemblies, $attributeAssembly, $exte
 	}
     Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
     Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
+	$mergeLogContent = Get-Content "$logFileName"
+	echo "------------------------------$name Merge Log-----------------------"
+	echo $mergeLogContent
 }
  
 function Generate-Assembly-Info{

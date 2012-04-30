@@ -1,6 +1,8 @@
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Net;
+using log4net;
 
 namespace NServiceBus
 {
@@ -76,21 +78,26 @@ namespace NServiceBus
 
             if (masterNodeName == null)
                 throw new ConfigurationErrorsException(
-                    "When defining Worker profile, 'MasterNodeConfig' section must be defined and the 'Node' entry should point to a valid, non local, host name.");
+                    "When defining Worker profile, 'MasterNodeConfig' section must be defined and the 'Node' entry should point to a valid host name.");
 
-            if (string.IsNullOrWhiteSpace(masterNodeName))
-                throw new ConfigurationErrorsException(
-                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name: [{0}].", masterNodeName));
-
-            if (IsLocalIpAddress(masterNodeName))
-                throw new ConfigurationErrorsException(
-                    string.Format("'MasterNodeConfig.Node' entry should point to a valid, non-local, host name. [{0}] points to a local host address.",
-                        masterNodeName));
+            switch (IsLocalIpAddress(masterNodeName))
+            {
+                case true:
+                    Address.InitializeLocalAddress(Address.Local.SubScope(Guid.NewGuid().ToString()).ToString());
+                    logger.WarnFormat("'MasterNodeConfig.Node' points to a local host name: [{0}]. Worker input address name is [{1}]. It is randomly and uniquely generated to allow multiple workers working from the same machine as the Distributor.", masterNodeName, Address.Local);
+                    break;
+                case false:
+                    logger.InfoFormat("'MasterNodeConfig.Node' points to a non-local valid host name: [{0}].", masterNodeName);
+                    break;
+                case null:
+                    throw new ConfigurationErrorsException(
+                        string.Format("'MasterNodeConfig.Node' entry should point to a valid host name. Currently it is: [{0}].", masterNodeName));
+            }
         }
 
-        internal static bool IsLocalIpAddress(string hostName)
+        internal static bool? IsLocalIpAddress(string hostName)
         {
-            if (string.IsNullOrWhiteSpace(hostName)) return true;
+            if (string.IsNullOrWhiteSpace(hostName)) return null;
             try
             {
                 var hostIPs = Dns.GetHostAddresses(hostName);
@@ -101,12 +108,13 @@ namespace NServiceBus
             }
             catch
             {
-                return false;
+                return null;
             }
             return false;
         }
         static bool distributorEnabled;
         static bool distributorShouldRunOnThisEndpoint;
         static bool workerShouldNotRunOnDistributorEndpoint;
+        static ILog logger = LogManager.GetLogger("ConfigureDistributor");
     }
 }

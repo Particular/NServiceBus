@@ -24,8 +24,6 @@ namespace NServiceBus.Hosting.Windows.Installers
                                                                                                                   ConfigurationFile = configFile,
                                                                                                                   AppDomainInitializer = DomainInitializer,
                                                                                                                   AppDomainInitializerArguments = args.ToArray()
-                                                                                                                  //AppDomainInitializerArguments = new[] { string.Join("#", args), endpointConfig.AssemblyQualifiedName}
-                                                                                                                  //AppDomainInitializerArguments = args.Concat(new[] {endpointConfig.AssemblyQualifiedName}).ToArray()
                                                                                                               });
 
             // Call the right config method in that appdomain.
@@ -68,7 +66,7 @@ namespace NServiceBus.Hosting.Windows.Installers
             if (arguments.ScannedAssemblies != null)
                 scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
             
-            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType.Value, true), args[0].Split(';').ToArray(), endpointName, commandLineArguments.Install, (arguments.InstallInfrastructure != null), scannedAssemblies);
+            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType.Value, true), args, endpointName, commandLineArguments.Install, (arguments.InstallInfrastructure != null), scannedAssemblies);
         }
 
         static WindowsHost host;

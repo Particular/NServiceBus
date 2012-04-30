@@ -5,6 +5,7 @@ using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
+using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus
 {
@@ -89,6 +90,7 @@ namespace NServiceBus
 
             config.Configurer.RegisterSingleton<ISessionFactory>(sessionFactory);
             config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
+            config.NHibernateUnitOfWork();
 
             return config;
         }

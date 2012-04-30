@@ -21,7 +21,7 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class Program
     {
-        private static List<Assembly> scannableAssemblies;
+        private static AssemblyScannerResults assemblyScannerResults;
         static void Main(string[] args)
         {
             Parser.Args commandLineArguments = Parser.ParseArgs(args);
@@ -33,7 +33,7 @@ namespace NServiceBus.Hosting.Windows
 
                 return;
             }
-            scannableAssemblies = AssemblyScanner.GetScannableAssemblies().ToList();
+            assemblyScannerResults = AssemblyScanner.GetScannableAssemblies();
             var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
             if (endpointConfigurationType == null)
@@ -74,7 +74,8 @@ namespace NServiceBus.Hosting.Windows
                 args = args.Concat(new[] { "/endpointName:" + endpointName }).ToArray();
 
             //Add the ScannedAssemblies name so that the new appdomain can get it
-            args = args.Concat(new[] { "/scannedassemblies:" + string.Join(";", scannableAssemblies.Select(s => s.ToString()).ToArray()) }).ToArray();
+            if (arguments.ScannedAssemblies == null)
+                args = args.Concat(new[] { "/scannedassemblies:" + string.Join(";", assemblyScannerResults.Assemblies.Select(s => s.ToString()).ToArray()) }).ToArray();
 
             //Add the endpointConfigurationType name so that the new appdomain can get it
             if (arguments.EndpointConfigurationType == null)
@@ -236,16 +237,19 @@ namespace NServiceBus.Hosting.Windows
             }
 
             IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
-            AssertThatNotMoreThanOneEndpointIsDefined(endpoints);
-            
             if ((endpoints.Count() == 0))
+            {
+                Console.Out.WriteLine(assemblyScannerResults);
                 return null;
+            }
 
+            AssertThatNotMoreThanOneEndpointIsDefined(endpoints);
             return endpoints.First();
         }
 
         static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
+            var scannableAssemblies = assemblyScannerResults.Assemblies;
             foreach (var assembly in scannableAssemblies)
                 foreach (Type type in assembly.GetTypes().Where(
                         t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
