@@ -12,6 +12,16 @@
 	
 }
 
+$coreDependencies = @{
+  log4net="[1.2.10]"; 
+  "Newtonsoft.Json"="[4.0.5]"; 
+  "RavenDB"="[1.0.616]"; 
+  "Common.Logging"="[2.0.0]";
+  "Common.Logging.Log4Net"="[2.0.1]";
+  "Autofac"="2.6.1.841";
+  "NLog"="2.0.0.2000" # is nuget just a dependency of RavenDB? if so, we can just drop it here...
+}
+
 $baseDir  = resolve-path .
 $releaseRoot = "$baseDir\Release"
 $releaseDir = "$releaseRoot\net40"
@@ -744,7 +754,7 @@ else{
 	#region Packing NServiceBus.Autofac
 	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
 	$packit.package_description = "The Autofac Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.6.1.841"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Autofac"=$coreDependencies["Autofac"]} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
 	#endregion
 		
 	#region Packing NServiceBus.CastleWindsor
@@ -822,15 +832,6 @@ else{
 	$packit.PackagingArtifactsRoot = "$baseDir\core-only\PackagingArtifacts"
 	$packit.packageOutPutDir = "$baseDir\core-only\packages"
     
-    $coreDependencies = @{
-      log4net="[1.2.10]"; 
-      "Newtonsoft.Json"="[4.0.5]"; 
-      "RavenDB"="[1.0.616]"; 
-      "Common.Logging"="[2.0.0]";
-      "Common.Logging.Log4Net"="[2.0.1]";
-      "Autofac"="[2.5.2.830]";
-      "NLog"="[2.0.0.2000]" # is nuget just a dependency of RavenDB? if so, we can just drop it here...
-    }
     
     $coreOnlySuffix = "-CoreOnly"
     
