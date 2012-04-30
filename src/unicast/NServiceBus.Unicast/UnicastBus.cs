@@ -813,7 +813,7 @@ namespace NServiceBus.Unicast
 
                 if (DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
                 {
-                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off");
+                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off", messageType);
                     continue;
                 }
 
