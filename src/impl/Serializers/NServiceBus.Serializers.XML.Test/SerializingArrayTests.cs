@@ -17,6 +17,13 @@ namespace NServiceBus.Serializers.XML.Test
             SomeInts = someInts;
         }
     }
+    
+    [Serializable]
+    public class MessageWithArrayAndNoDefaultCtor
+    {
+        public Guid SagaId { get; set; }
+        public string[] SomeWords { get; set; }
+    }    
 
     [TestFixture]
     public class SerializingArrayTests
@@ -63,6 +70,26 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.That(result.SomeInts, Has.Length.EqualTo(2));
             Assert.AreEqual(1234, result.SomeInts[0]);
             Assert.AreEqual(5323, result.SomeInts[1]);
+        }
+        [Test]
+        public void CanSerializeMessagewithNullArray()
+        {
+            var message = new MessageWithArrayAndNoDefaultCtor();
+            message.SomeWords = null;
+
+            var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
+
+            Assert.IsNull(message.SomeWords);
+        }
+        [Test]
+        public void CanSerializeMessagewithEmptyArray()
+        {
+            var message = new MessageWithArrayAndNoDefaultCtor();
+            message.SomeWords = new string[0];
+
+            var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
+
+            Assert.AreEqual(result.SomeWords, new string[0]);
         }
     }
 }
