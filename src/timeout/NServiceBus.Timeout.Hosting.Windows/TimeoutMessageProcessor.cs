@@ -3,8 +3,8 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using Config;
     using Core;
+    using Faults;
     using ObjectBuilder;
     using Unicast;
     using Unicast.Queuing.Msmq;
@@ -21,7 +21,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Run()
         {
-            if (!ConfigureTimeoutManager.TimeoutManagerEnabled)
+
+            if (!Configure.Instance.IsTimeoutManagerEnabled())
                 return;
 
             var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
@@ -32,7 +33,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 IsTransactional = true,
                 NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                 MaxRetries = MainTransport.MaxRetries,
-                FailureManager = MainTransport.FailureManager
+                FailureManager = Builder.Build(MainTransport.FailureManager.GetType())as IManageMessageFailures
             };
 
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;

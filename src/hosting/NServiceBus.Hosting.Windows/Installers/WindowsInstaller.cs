@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Hosting.Windows.Installers
+﻿using NServiceBus.Hosting.Windows.Arguments;
+using Topshelf.Internal;
+
+namespace NServiceBus.Hosting.Windows.Installers
 {
     using System;
     using System.Linq;
@@ -12,19 +15,15 @@
         /// Run installers (infrastructure and per endpoint) and handles profiles.
         /// </summary>
         /// <param name="args"></param>
-        /// <param name="endpointConfig"></param>
-        /// <param name="endpointName"></param>
         /// <param name="configFile"></param>
-        /// <param name="runOtherInstallers"></param>
-        /// <param name="runInfrastructureInstallers"></param>
-        public static void Install(IEnumerable<string> args, Type endpointConfig, string endpointName, string configFile, bool? runOtherInstallers, bool? runInfrastructureInstallers)
+        public static void Install(IEnumerable<string> args, string configFile)
         {
             // Create the new appdomain with the new config.
             var installDomain = AppDomain.CreateDomain("installDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup
                                                                                                               {
                                                                                                                   ConfigurationFile = configFile,
                                                                                                                   AppDomainInitializer = DomainInitializer,
-                                                                                                                  AppDomainInitializerArguments = new[]{string.Join(";",args),endpointConfig.AssemblyQualifiedName,endpointName, runOtherInstallers.ToString(), runInfrastructureInstallers.ToString()}
+                                                                                                                  AppDomainInitializerArguments = args.ToArray()
                                                                                                               });
 
             // Call the right config method in that appdomain.
@@ -56,8 +55,18 @@
         static void DomainInitializer(string[] args)
         {
             Console.WriteLine("Initializing the installer in the Install AppDomain");
+            Parser.Args commandLineArguments = Parser.ParseArgs(args);
+            var arguments = new HostArguments(commandLineArguments);
 
-            host = new WindowsHost( Type.GetType(args[1],true), args[0].Split(';').ToArray(), args[2], bool.Parse(args[3]), bool.Parse(args[4]));
+            string endpointName = string.Empty;
+            if (arguments.EndpointName != null)
+                endpointName = arguments.EndpointName.Value;
+
+            string[] scannedAssemblies = null;
+            if (arguments.ScannedAssemblies != null)
+                scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
+            
+            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType.Value, true), args, endpointName, commandLineArguments.Install, (arguments.InstallInfrastructure != null), scannedAssemblies);
         }
 
         static WindowsHost host;

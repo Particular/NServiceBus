@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
@@ -22,11 +23,12 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="endpointName"></param>
         /// <param name="runOtherInstallers"></param>
         /// <param name="runInfrastructureInstallers"></param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, bool runInfrastructureInstallers)
+        /// <param name="scannableAssembliesFullName">Name of scan-able assemblies</param>
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, bool runInfrastructureInstallers, IEnumerable<string> scannableAssembliesFullName)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Production) }, endpointName);
+            genericHost = new GenericHost(specifier, args, new[] { typeof(Production) }, endpointName, scannableAssembliesFullName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 
@@ -35,7 +37,6 @@ namespace NServiceBus.Hosting.Windows
 
             this.runInfrastructureInstallers = runInfrastructureInstallers;
         }
-
 
         /// <summary>
         /// Windows hosting behavior when critical error occurs is suicide.

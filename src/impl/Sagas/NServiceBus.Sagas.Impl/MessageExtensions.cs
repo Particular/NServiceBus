@@ -15,7 +15,7 @@ namespace NServiceBus.Sagas.Impl
         /// <returns></returns>
         public static bool IsTimeoutMessage(this object message)
         {
-            return !string.IsNullOrEmpty(message.GetHeader(Headers.Expire)) && !string.IsNullOrEmpty(message.GetHeader(Headers.SagaId));
+            return !string.IsNullOrEmpty(message.GetHeader(NServiceBus.Headers.Expire)) && !string.IsNullOrEmpty(message.GetHeader(Headers.SagaId));
         }
 
 
@@ -31,12 +31,12 @@ namespace NServiceBus.Sagas.Impl
                 return !tm.HasNotExpired();
             try
             {
-                return DateTime.UtcNow >= message.GetHeader(Headers.Expire).ToUtcDateTime();
+                return DateTime.UtcNow >= message.GetHeader(NServiceBus.Headers.Expire).ToUtcDateTime();
             }
             catch (Exception)
             {
                 //for backwards compatibility
-                return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(Headers.Expire));
+                return DateTime.UtcNow >= DateTime.Parse(message.GetHeader(NServiceBus.Headers.Expire));
             }
         }
 

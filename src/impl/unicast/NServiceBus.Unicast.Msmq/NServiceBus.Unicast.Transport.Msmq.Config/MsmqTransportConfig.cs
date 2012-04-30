@@ -44,7 +44,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// The number of worker threads that can process messages in parallel.
         /// </summary>
-        [ConfigurationProperty("NumberOfWorkerThreads", IsRequired = true)]
+        [ConfigurationProperty("NumberOfWorkerThreads", IsRequired = true, DefaultValue = 1)]
         public int NumberOfWorkerThreads
         {
             get
@@ -54,6 +54,7 @@ namespace NServiceBus.Config
             set
             {
                 this["NumberOfWorkerThreads"] = value;
+
             }
         }
 
@@ -61,7 +62,7 @@ namespace NServiceBus.Config
         /// The maximum number of times to retry processing a message
         /// when it fails before moving it to the error queue.
         /// </summary>
-        [ConfigurationProperty("MaxRetries", IsRequired = true)]
+        [ConfigurationProperty("MaxRetries", IsRequired = true, DefaultValue = 5)]
         public int MaxRetries
         {
             get

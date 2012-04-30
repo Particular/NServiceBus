@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
 using NServiceBus.Serialization;
 using NServiceBus.Unicast;
@@ -54,10 +55,13 @@ namespace NServiceBus.Testing
                 .XmlSerializer()
                 .InMemoryFaultManagement();
 
-            messageCreator = Configure.Instance.Builder.Build<IMessageCreator>();
-            if (messageCreator == null)
+            var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
+            if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
+            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType()));
+            
+            messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
 
         }
@@ -100,14 +104,11 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
-            var mocks = new MockRepository();
-            var bus = MockTheBus(mocks);
+            var bus = new StubBus(messageCreator);
 
             saga.Bus = bus;
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType() || typeof(ITimeoutState).IsAssignableFrom(t)).ToList();
-
-            return new Saga<T>(saga, mocks, bus, messageCreator, messageTypes);
+            return new Saga<T>(saga, bus);
         }
 
         /// <summary>

@@ -78,6 +78,7 @@ namespace Barista
            {
                var viewData = new OrderIsTrashedView(Data.Drink, Data.CustomerName, Data.Size);
                _view.TrashOrder(viewData);
+              MarkAsComplete();
            }
            else
            {

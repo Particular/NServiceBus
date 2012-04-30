@@ -6,6 +6,7 @@ using NServiceBus.Unicast.Transport.Transactional;
 namespace NServiceBus.Distributor
 {
     using Faults;
+    using ObjectBuilder;
     using Unicast;
 
     public class DistributorBootstrapper : IDisposable, IWantToRunWhenTheBusStarts
@@ -14,6 +15,7 @@ namespace NServiceBus.Distributor
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
+        public IBuilder Builder { get; set; }
 
         public Address InputQueue { get; set; }
 
@@ -34,7 +36,7 @@ namespace NServiceBus.Distributor
                 IsTransactional = true,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 5,
-                FailureManager = MessageFailureManager
+                FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures
             };
 
             distributor = new Unicast.Distributor.Distributor

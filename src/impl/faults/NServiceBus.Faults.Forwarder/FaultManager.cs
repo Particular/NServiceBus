@@ -27,9 +27,14 @@ namespace NServiceBus.Faults.Forwarder
             message.Id = id;
         }
 
+        void IManageMessageFailures.Init(Address address)
+        {
+            localAddress = address;
+        }
+
         // Intentionally service-locate ISendMessages to avoid circular
         // resolution problem in the container
-        private void SendFailureMessage(TransportMessage message, Exception e, string reason)
+        void SendFailureMessage(TransportMessage message, Exception e, string reason)
         {
             SetExceptionHeaders(message, e, reason);
             var sender = Configure.Instance.Builder.Build<ISendMessages>();
@@ -51,7 +56,7 @@ namespace NServiceBus.Faults.Forwarder
             
         }
 
-        private static void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
+        void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
             message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
 			message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
@@ -65,7 +70,10 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 
             message.Headers[TransportHeaderKeys.OriginalId] = message.Id;
-            message.Headers[FaultsHeaderKeys.FailedQ] = Address.Local.ToString();
+
+            var failedQ = localAddress ?? Address.Local;
+
+            message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTime.UtcNow.ToWireFormattedString();
 			
         }
@@ -80,6 +88,7 @@ namespace NServiceBus.Faults.Forwarder
         /// </summary>
         public bool SanitizeProcessingExceptions { get; set; }
 
-        private static ILog Logger = LogManager.GetLogger("NServiceBus");
+        Address localAddress;
+        static ILog Logger = LogManager.GetLogger("NServiceBus");
     }
 }

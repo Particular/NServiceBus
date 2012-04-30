@@ -69,7 +69,6 @@
     <Compile Include="IOrderMessage.cs" />
     <Compile Include="IOrderStatusChangedMessage.cs" />
     <Compile Include="OrderMessage.cs" />
-    <Compile Include="OrderStatusChangedMessage.cs" />
     <Compile Include="OrderStatusEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
