@@ -5,5 +5,9 @@ param(
 
 
 Import-Module .\tools\psake\psake.psm1 -ErrorAction SilentlyContinue
-Invoke-psake .\default.ps1 -taskList @("CreatePackages")  -properties @{BuildNumber="4"; PreRelease="-local"}
+
+# You should increment the BuildNumber whereever you used/referenced the locally built packages
+# Point your VS Package Manager / Nuget at ./release/packages or ./core-only/packages to use your locally built package
+
+Invoke-psake .\default.ps1 -taskList @("CreatePackages")  -properties @{BuildNumber="0"; PreRelease="-local"}
 Remove-Module psake -ErrorAction SilentlyContinue
