@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Saga;
 using NUnit.Framework;
 
 namespace NServiceBus.Serializers.XML.Test
 {
     [Serializable]
-    public class MessageWithArray : ISagaMessage
+    public class MessageWithArray
     {
         public Guid SagaId { get; set; }
         public int[] SomeInts { get; set; }
@@ -30,7 +27,7 @@ namespace NServiceBus.Serializers.XML.Test
         {
             var str =
               @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"" xmlns:baseType=""NServiceBus.Saga.ISagaMessage"">
+<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
     <MessageWithArray>
         <SagaId>6bddc475-22a5-433b-a3ed-9edf00e8e353</SagaId>
         <SomeInts>

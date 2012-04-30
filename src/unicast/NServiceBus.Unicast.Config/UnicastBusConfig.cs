@@ -88,7 +88,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Gets/sets the address that the timeout manager will use to send and recieve messages.
+        /// Gets/sets the address that the timeout manager will use to send and receive messages.
         /// </summary>
         [ConfigurationProperty("TimeoutManagerAddress", IsRequired = false)]
         public string TimeoutManagerAddress

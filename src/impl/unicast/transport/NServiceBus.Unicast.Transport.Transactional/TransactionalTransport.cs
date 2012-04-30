@@ -154,6 +154,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         void ITransport.Start(Address address)
         {
             MessageReceiver.Init(address, IsTransactional);
+            FailureManager.Init(address);
 
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();

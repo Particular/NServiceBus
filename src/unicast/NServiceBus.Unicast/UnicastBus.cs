@@ -21,7 +21,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
-    
+
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
@@ -423,7 +423,7 @@ namespace NServiceBus.Unicast
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-            InvokeOutgoingTransportMessagesMutators(new object[]{}, subscriptionMessage);
+            InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
             MessageSender.Send(subscriptionMessage, destination);
         }
 
@@ -457,9 +457,9 @@ namespace NServiceBus.Unicast
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
-            
+
             InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-            
+
             MessageSender.Send(subscriptionMessage, destination);
         }
 
@@ -483,7 +483,7 @@ namespace NServiceBus.Unicast
             returnMessage.MessageIntent = MessageIntentEnum.Send;
 
             InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
-            
+
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
@@ -600,12 +600,18 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
+            try
+            {
+                messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
 
-            return ((IBus)this).Send(TimeoutManagerAddress, messages);
+                return ((IBus)this).Send(TimeoutManagerAddress, messages);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
+                throw;
+            }
         }
-
-
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
@@ -758,7 +764,7 @@ namespace NServiceBus.Unicast
 
                 if (SubscriptionStorage != null)
                     SubscriptionStorage.Init();
-                
+
                 if (!DoNotStartTransport)
                     transport.Start(InputAddress);
 
@@ -805,7 +811,7 @@ namespace NServiceBus.Unicast
             {
                 var otherHandlersThanSagas = GetHandlerTypes(messageType).Any(t => !typeof(ISaga).IsAssignableFrom(t));
 
-                if(DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
+                if (DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
                 {
                     Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off");
                     continue;
@@ -820,15 +826,15 @@ namespace NServiceBus.Unicast
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t =>!t.IsCommandType()).ToList();
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !t.IsCommandType()).ToList();
 
-            if(AllowSubscribeToSelf)
+            if (AllowSubscribeToSelf)
                 return eventsHandled;
 
             var eventsWithRouting = messageTypeToDestinationLookup
                 .Where(route => route.Value != Address.Undefined &&
                                 eventsHandled.Any(t => t.IsAssignableFrom(route.Key)))
-                .Select(route=>route.Key)
+                .Select(route => route.Key)
                 .ToList();
 
             return eventsWithRouting;
@@ -941,13 +947,13 @@ namespace NServiceBus.Unicast
                 {
                     var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
 
-                    if(!handlers.Any())
+                    if (!handlers.Any())
                     {
                         var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
-                        
-                        if(Debugger.IsAttached)
+
+                        if (Debugger.IsAttached)
                             throw new InvalidOperationException(warning);
-                        
+
                         Log.WarnFormat(warning);
                     }
 
@@ -957,7 +963,7 @@ namespace NServiceBus.Unicast
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
-      
+
         static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
         {
             var mutators = builder.BuildAll<IMutateIncomingMessages>();
@@ -1019,7 +1025,7 @@ namespace NServiceBus.Unicast
                 {
                     var handlerTypeToInvoke = handlerType;
 
-                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke,builder);
+                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
 
                     var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
 
@@ -1058,8 +1064,8 @@ namespace NServiceBus.Unicast
 
             var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
 
-            if(factory == null)
-                throw new InvalidOperationException(string.Format("Registered dispatcher factory {0} for type {1} does not implement IMessageDispatcherFactory",factoryType,messageHandlerTypeToInvoke));
+            if (factory == null)
+                throw new InvalidOperationException(string.Format("Registered dispatcher factory {0} for type {1} does not implement IMessageDispatcherFactory", factoryType, messageHandlerTypeToInvoke));
 
             return factory;
         }
@@ -1476,7 +1482,7 @@ namespace NServiceBus.Unicast
                     Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, handler);
                 }
 
-                HandlerInvocationCache.CacheMethodForHandler(handler,messageType);
+                HandlerInvocationCache.CacheMethodForHandler(handler, messageType);
             }
         }
 
@@ -1488,18 +1494,16 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         private static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
-            foreach (var t in type.GetInterfaces())
+            foreach (var t in type.GetInterfaces().Where(t => t.IsGenericType))
             {
-                if (t.IsGenericType)
-                {
-                    var args = t.GetGenericArguments();
-                    if (args.Length != 1)
-                        continue;
+                var potentialMessageType = t.GetGenericArguments().SingleOrDefault();
 
-                    var handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
-                    if (handlerType.IsAssignableFrom(t))
-                        yield return args[0];
-                }
+                if (potentialMessageType == null)
+                    continue;
+
+                if (potentialMessageType.IsMessageType() ||
+                    typeof(IMessageHandler<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t))
+                    yield return potentialMessageType;
             }
         }
 
@@ -1589,7 +1593,7 @@ namespace NServiceBus.Unicast
         {
             var messageType = messageToHandle.GetType();
 
-            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName]= string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
+            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
 
 

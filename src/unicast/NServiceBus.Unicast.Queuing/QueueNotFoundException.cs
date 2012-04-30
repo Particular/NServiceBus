@@ -10,6 +10,10 @@ namespace NServiceBus.Unicast.Queuing
         public QueueNotFoundException()
         {
         }
+        public QueueNotFoundException(Address queue, string message, Exception inner) : base( message, inner )
+        {
+            Queue = queue;
+        }
 
         protected QueueNotFoundException(
             System.Runtime.Serialization.SerializationInfo info, 

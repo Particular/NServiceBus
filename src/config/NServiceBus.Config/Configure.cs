@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Web;
 using Common.Logging;
 using NServiceBus.Config;
@@ -208,7 +208,15 @@ namespace NServiceBus
                     }
                     catch (ReflectionTypeLoadException e)
                     {
-                        Logger.WarnFormat("Could not scan assembly: {0}. The reason is: {1}.", a.FullName, e.LoaderExceptions.First().Message, e);
+                        var sb = new StringBuilder();
+                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
+                        if (e.LoaderExceptions.Any())
+                        {
+                            sb.Append(Environment.NewLine + "Scanned type errors: ");
+                            foreach (var ex in e.LoaderExceptions)
+                                sb.Append(Environment.NewLine + ex.Message);
+                        }
+                        LogManager.GetLogger(typeof (Configure)).Warn(sb.ToString());
                         return;//intentionally swallow exception
                     }
                 });
@@ -508,23 +516,31 @@ namespace NServiceBus
 
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
-
+        
         static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
 
         static readonly IEnumerable<string> defaultAssemblyExclusions 
             = new[]
               {
                   "system.", "nhibernate.", "log4net.",
-                  "nunit.", "rhino.licensing.", "raven.", "magnum.",
-                  "lucene.", "interop.", "nlog.", "newtonsoft.json.",
+                  "nunit.", "rhino.licensing.", 
+                  
+                  "raven.server", "raven.client", "raven.munin.",
+                  "raven.storage.", "raven.abstractions.",
+                  
+                  "lucene.net.", "bouncycastle.crypto", "esent.interop", "asyncctplibrary.",
+                  "magnum.", "interop.", "nlog.", "newtonsoft.json.",
                   "common.logging.", "topshelf."
               };
 
         private static readonly IEnumerable<string> defaultTypeExclusions
             = new[]
               {
+                  // TODO: just join in the the defaultAssemblyExclustion as assembly name matches the namespace in most cases 
                   // partly the same as assembly exclusions, because they might get ilmerged
-                  "raven.", "system.", "lucene.", "magnum.", "topshelf.", 
+                  "raven.server", "raven.client", "raven.munin.",
+                  "raven.storage.", "raven.abstractions.",
+                  "system.", "lucene.", "magnum.", "topshelf.", 
                   "newtonsoft.", "common.logging."
               };
     }

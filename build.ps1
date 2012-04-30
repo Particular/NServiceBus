@@ -4,8 +4,6 @@ param(
     [Parameter(Position=1, Mandatory=0)]
     [System.Collections.Hashtable]$properties = @{},
 	[Parameter(Position=2, Mandatory=0)]
-    [switch]$genAsmInfo = $false,
-	[Parameter(Position=3, Mandatory=0)]
     [switch]$desc = $false
   )
 
