@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Messaging;
 using System.Transactions;
 using System.Xml.Serialization;
@@ -12,31 +13,42 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         void ISendMessages.Send(TransportMessage message, Address address)
         {
             var queuePath = MsmqUtilities.GetFullPath(address);
-
-            using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
+            try
             {
-                var toSend = MsmqUtilities.Convert(message);
-
-                toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                toSend.UseJournalQueue = UseJournalQueue;
-
-                if (message.ReplyToAddress != null)
-                    toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
-
-                try
+                using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
                 {
-                    q.Send(toSend, GetTransactionTypeForSend());
-                }
-                catch (MessageQueueException ex)
-                {
-                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                        throw new QueueNotFoundException { Queue = address };
+                    var toSend = MsmqUtilities.Convert(message);
 
-                    throw;
-                }
+                    toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+                    toSend.UseJournalQueue = UseJournalQueue;
 
-                message.Id = toSend.Id;
+                    if (message.ReplyToAddress != null)
+                        toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
+
+                        q.Send(toSend, GetTransactionTypeForSend());
+
+                    message.Id = toSend.Id;
+                }
             }
+            catch (MessageQueueException ex)
+            {
+                string msg = string.Empty;
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                    if (address == null)
+                        msg = "Failed to send message.";
+                    else
+                        msg = string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine);
+
+                throw new QueueNotFoundException(address, msg, ex);
+            }
+            catch (Exception ex)
+            {
+                if(address == null)
+                    throw new FailedToSendMessageException("Failed to send message.", ex);
+                else
+                    throw new FailedToSendMessageException(string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine),  ex);
+            }
+
         }
 
         /// <summary>

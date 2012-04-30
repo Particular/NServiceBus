@@ -3,7 +3,6 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using Config;
     using Core;
     using Faults;
     using ObjectBuilder;
@@ -22,7 +21,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Run()
         {
-            if (!ConfigureTimeoutManager.TimeoutManagerEnabled)
+
+            if (!Configure.Instance.IsTimeoutManagerEnabled())
                 return;
 
             var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();

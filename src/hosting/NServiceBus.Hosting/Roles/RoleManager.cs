@@ -52,7 +52,7 @@ namespace NServiceBus.Hosting.Roles
                 config = roleConfigurer.ConfigureRole(specifier);
                 Logger.Info("Role " + roleType + " configured");
                 foreach (var markerProfile in GetMarkerRoles(specifier.GetType(), roleType))
-                    Logger.Info("Role " + roleType + " is marked.");
+                    Logger.Info("Role " + markerProfile + " is marked.");
             }
         }
 

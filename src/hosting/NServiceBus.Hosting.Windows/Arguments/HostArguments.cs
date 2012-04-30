@@ -20,6 +20,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
             SideBySide = GetArgument(arguments, "sideBySide");
             EndpointName = GetArgument(arguments, "endpointName");
             InstallInfrastructure = GetArgument(arguments, "installInfrastructure");
+            ScannedAssemblies = GetArgument(arguments, "scannedAssemblies");
         }
 
         public IArgument SideBySide{ get; set; }
@@ -34,6 +35,7 @@ namespace NServiceBus.Hosting.Windows.Arguments
         public IArgument Password { get; set; }
         public IArgument EndpointName { get; set; }
         public IArgument InstallInfrastructure{ get; set; }
+        public IArgument ScannedAssemblies { get; set; }
 
 
         private static IArgument GetArgument(Parser.Args arguments, string key)

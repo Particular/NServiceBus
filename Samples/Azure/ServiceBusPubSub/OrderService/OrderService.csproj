@@ -49,57 +49,48 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\build\azure\hosting\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections">
-      <HintPath>..\..\..\..\build\azure\hosting\Iesi.Collections.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\..\..\..\build\azure\hosting\Ionic.Zip.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\azure\hosting\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\..\..\..\build\azure\hosting\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ServiceBus, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\WindowsAzure.ServiceBus.1.5.0.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
-    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\..\..\build\azure\hosting\NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
-      <HintPath>..\..\..\..\build\azure\hosting\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
+      <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.dll</HintPath>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Azure">
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Azure.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.Azure.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Core.dll</HintPath>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Hosting.Azure, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.Hosting.Azure.dll</HintPath>
+    <Reference Include="NServiceBus.Hosting.Azure">
+      <HintPath>..\..\..\..\binaries\NServiceBus.Hosting.Azure.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.NHibernate">
-      <HintPath>..\..\..\..\build\azure\hosting\NServiceBus.NHibernate.dll</HintPath>
+      <HintPath>..\..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

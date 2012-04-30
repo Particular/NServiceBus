@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Transactions;
+using Common.Logging;
 using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
@@ -42,14 +43,16 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             }
 
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
+            if (numberOfWorkerThreads < 1)
+                Logger.Warn("Number of worker threads is set to zero hence no messages will be processed.");
 
             DtcInstaller.IsEnabled = IsTransactional;
-
         }
 
         public static bool IsTransactional { get; set; }
         public static IsolationLevel IsolationLevel { get; set; }
         public static TimeSpan TransactionTimeout { get; set; }
         public static bool SupressDTC { get; set; }
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper).Namespace);
     }
 }
