@@ -71,7 +71,7 @@ namespace NServiceBus.Testing.Tests
 
 
         [TestFixtureSetUp]
-        public void Setup()
+        public void TestFixtureSetUp()
         {
             Test.Initialize();
         }
