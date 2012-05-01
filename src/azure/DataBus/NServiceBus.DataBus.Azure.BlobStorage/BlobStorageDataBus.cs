@@ -13,8 +13,6 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 {
     public class BlobStorageDataBus : IDataBus
     {
-        
-
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
         private readonly CloudBlobContainer container;
         private readonly Timer timer;
@@ -23,8 +21,6 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
         public int NumberOfIOThreads { get; set; }
         public string BasePath { get; set; }
         public int BlockSize { get; set; }
-
-
 
         public BlobStorageDataBus(CloudBlobContainer container)
         {
@@ -68,16 +64,23 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 
         private void DeleteExpiredBlobs()
         {
-            var blobs = container.ListBlobs();
-            foreach (var blockBlob in blobs.Select(blob => blob as CloudBlockBlob))
+            try
             {
-                if (blockBlob == null) continue;
+                var blobs = container.ListBlobs();
+                foreach (var blockBlob in blobs.Select(blob => blob as CloudBlockBlob))
+                {
+                    if (blockBlob == null) continue;
 
-                blockBlob.FetchAttributes();
-                DateTime validUntil;
-                DateTime.TryParse(blockBlob.Attributes.Metadata["ValidUntil"], out validUntil);
-                if (validUntil == default(DateTime) || validUntil < DateTime.Now)
-                    blockBlob.DeleteIfExists();
+                    blockBlob.FetchAttributes();
+                    DateTime validUntil;
+                    DateTime.TryParse(blockBlob.Attributes.Metadata["ValidUntil"], out validUntil);
+                    if (validUntil == default(DateTime) || validUntil < DateTime.Now)
+                        blockBlob.DeleteIfExists();
+                }
+            }
+            catch (StorageServerException ex) // prevent azure hickups from hurting us.
+            {
+                logger.Warn(ex.Message);
             }
         }
 

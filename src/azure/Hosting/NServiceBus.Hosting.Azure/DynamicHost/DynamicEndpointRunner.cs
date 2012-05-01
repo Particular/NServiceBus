@@ -19,8 +19,6 @@ namespace NServiceBus.Hosting
         {
             foreach(var service in toHost)
             {
-                
-
                 try
                 {
                     var processStartInfo = new ProcessStartInfo(service.EntryPoint,
