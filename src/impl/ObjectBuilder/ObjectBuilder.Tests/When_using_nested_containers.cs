@@ -5,9 +5,12 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using System.Collections.Generic;
+    using System.Threading;
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
     using StructureMap;
+    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
@@ -35,14 +38,32 @@ namespace ObjectBuilder.Tests
             ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+              
+                results = new List<object>();
+                var thread1 = new Thread(ResolveChildInstance);
+                thread1.Start(builder);
 
-                var nestedContainer = builder.BuildChildContainer();
-                var anotherNestedContainer = builder.BuildChildContainer();
+                var thread2 = new Thread(ResolveChildInstance);
+                thread2.Start(builder);
 
-                Assert.AreNotSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), anotherNestedContainer.Build(typeof(InstancePerUoWComponent)));
+                thread1.Join();
+                thread2.Join();
+
+
+                Assert.AreNotSame(results[0], results[1]);
+
             },
-            typeof(SpringObjectBuilder), typeof(WindsorObjectBuilder));
+            typeof(SpringObjectBuilder));
 
+        }
+
+        static List<object> results;
+
+        void ResolveChildInstance(object container)
+        {
+            var mainContainer = (IContainer)container;
+
+            results.Add(mainContainer.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
         }
 
         [Test]
