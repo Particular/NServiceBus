@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 namespace ObjectBuilder.Tests
 {
+    using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
     using StructureMap;
 
@@ -18,13 +19,44 @@ namespace ObjectBuilder.Tests
             ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-            
+
                 using (var nestedContainer = builder.BuildChildContainer())
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
 
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder));
+
+        }
+
+        [Test]
+        public void Instance_per_uow__components_should_not_be_shared_across_child_containers()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                var nestedContainer = builder.BuildChildContainer();
+                var anotherNestedContainer = builder.BuildChildContainer();
+
+                Assert.AreNotSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), anotherNestedContainer.Build(typeof(InstancePerUoWComponent)));
+            },
+            typeof(SpringObjectBuilder), typeof(WindsorObjectBuilder));
+
+        }
+
+        [Test]
+        public void Instance_per_call_components_should_not_be_shared_across_child_containers()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
+
+                var nestedContainer = builder.BuildChildContainer();
+                var anotherNestedContainer = builder.BuildChildContainer();
+
+                Assert.AreNotSame(nestedContainer.Build(typeof(InstancePerCallComponent)), anotherNestedContainer.Build(typeof(InstancePerCallComponent)));
+            });
 
         }
 
@@ -43,7 +75,7 @@ namespace ObjectBuilder.Tests
             typeof(NinjectObjectBuilder));
         }
 
-       
+
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
@@ -63,6 +95,10 @@ namespace ObjectBuilder.Tests
             },
             typeof(SpringObjectBuilder));
         }
+    }
+
+    public class InstancePerCallComponent
+    {
     }
 
     public class ComponentThatDependsOfSingleton : IDisposable

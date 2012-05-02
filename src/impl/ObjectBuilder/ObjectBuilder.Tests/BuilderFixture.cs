@@ -14,6 +14,8 @@ using IContainer=NServiceBus.ObjectBuilder.Common.IContainer;
 
 namespace ObjectBuilder.Tests
 {
+    using Ninject;
+
     public class BuilderFixture
     {
         protected virtual Action<IContainer> InitializeBuilder()
@@ -55,7 +57,7 @@ namespace ObjectBuilder.Tests
                                      new WindsorObjectBuilder(),
                                      new UnityObjectBuilder(),
                                      new SpringObjectBuilder(),
-                                     new NinjectObjectBuilder(),
+                                     new NinjectObjectBuilder(new StandardKernel(new NinjectSettings{LoadExtensions = false})),
                                  };
 
             DefaultInstances.Clear();
