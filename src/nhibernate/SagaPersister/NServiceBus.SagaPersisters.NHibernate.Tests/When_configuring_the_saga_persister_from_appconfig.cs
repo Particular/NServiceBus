@@ -15,6 +15,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
 
             config = Configure.With(new[] { typeof(MySaga).Assembly })
+                .DefineEndpointName("xyz")
                 .DefaultBuilder()
                 .Sagas()
                 .NHibernateSagaPersister();
