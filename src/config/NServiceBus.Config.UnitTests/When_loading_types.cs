@@ -24,10 +24,18 @@ namespace NServiceBus.Config.UnitTests
             Assert.False(
                 loadedTypes.Any(a => a.Namespace.StartsWith("Raven")));
         }
+
+        [Test]
+        public void Should_always_include_the_core_nservicebus_types()
+        {
+            Assert.True(
+                loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Config")));
+        }
     }
 }
+
 namespace Raven
 {
     public class TestClass
-    {}
+    { }
 }
