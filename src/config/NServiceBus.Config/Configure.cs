@@ -62,7 +62,7 @@ namespace NServiceBus
                     throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
 
                 return builder;
-                
+
             }
             set { builder = value; }
         }
@@ -132,10 +132,10 @@ namespace NServiceBus
         {
             TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
                 .ToList().ForEach(t =>
-            {
-                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                ini.Init();
-            });
+                {
+                    var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                    ini.Init();
+                });
         }
 
         private IConfigureComponents configurer;
@@ -207,32 +207,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(params Assembly[] assemblies)
         {
-            var types = new List<Type>();
-            Array.ForEach(
-                assemblies,
-                a =>
-                {
-                    try
-                    {
-                        types.AddRange(a.GetTypes()
-                            .Where(t => !t.IsValueType &&
-                                        (t.FullName == null || 
-                                                !defaultTypeExclusions.Any(exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
-                    }
-                    catch (ReflectionTypeLoadException e)
-                    {
-                        var sb = new StringBuilder();
-                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
-                        if (e.LoaderExceptions.Any())
-                        {
-                            sb.Append(Environment.NewLine + "Scanned type errors: ");
-                            foreach (var ex in e.LoaderExceptions)
-                                sb.Append(Environment.NewLine + ex.Message);
-                        }
-                        LogManager.GetLogger(typeof (Configure)).Warn(sb.ToString());
-                        return;//intentionally swallow exception
-                    }
-                });
+            var types = GetAllowedTypes(assemblies);
 
             return With(types);
         }
@@ -247,9 +222,9 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            TypesToScan = typesToScan;
+            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
-            
+
             return instance;
         }
 
@@ -278,7 +253,7 @@ namespace NServiceBus
 
             return null;
         }
-       
+
 
         /// <summary>
         /// Finalizes the configuration by invoking all initializers.
@@ -290,7 +265,7 @@ namespace NServiceBus
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-          
+
             ForAllTypes<IWantToRunBeforeConfiguration>(t =>
             {
                 var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
@@ -366,7 +341,7 @@ namespace NServiceBus
             foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", assembliesToSkip))
                 yield return a;
         }
-        
+
         /// <summary>
         /// Initialized the bus in send only mode
         /// </summary>
@@ -397,6 +372,38 @@ namespace NServiceBus
         /// </summary>
         public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
 
+
+        private static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
+        {
+            var types = new List<Type>();
+            Array.ForEach(
+                assemblies,
+                a =>
+                {
+                    try
+                    {
+                        types.AddRange(a.GetTypes()
+                                           .Where(t => !t.IsValueType &&
+                                                       (t.FullName == null ||
+                                                        !defaultTypeExclusions.Any(
+                                                            exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
+                        if (e.LoaderExceptions.Any())
+                        {
+                            sb.Append(Environment.NewLine + "Scanned type errors: ");
+                            foreach (var ex in e.LoaderExceptions)
+                                sb.Append(Environment.NewLine + ex.Message);
+                        }
+                        LogManager.GetLogger(typeof(Configure)).Warn(sb.ToString());
+                        //intentionally swallow exception
+                    }
+                });
+            return types;
+        }
 
         private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, params string[] assembliesToSkip)
         {
