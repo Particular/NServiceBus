@@ -19,7 +19,7 @@ http://www.nservicebus.com/EULA.aspx
 ============
 
 The following web page contains information about how to build NServiceBus form source files:
-http://nservicebus.com/BuildingNServiceBusFromSource.aspxIn order to build the source, run the build.ps1 powershell script.
+http://nservicebus.com/BuildingNServiceBusFromSource.aspx In order to build the source, run the build.ps1 powershell script.
 
 You'll find the built assemblies in /build/binaries.
 
