@@ -97,7 +97,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 
 task Init -depends Clean, InstallDependentPackages, DetectOperatingSystemArchitecture -description "Initializes the build" {
    	
-	echo "Creating build directory at the follwing path $buildBase"
+	echo "Creating build directory at the following path $buildBase"
 	Delete-Directory $buildBase
 	Create-Directory $buildBase
 	
@@ -681,7 +681,7 @@ if(`$Host.Version.Major -gt 1)
 	}
 }
 else{
-	echo `"Please use Poweshell V2 for better configuration for the project`"
+	echo `"Please use PowerShell V2 for better configuration for the project`"
 } 
 "
 	$appConfigTranformFile = "$releaseRoot\content\app.config.transform"
@@ -721,7 +721,7 @@ else{
 	Write-Output $runMeFirstFileContent > $runMeFirstFile
 	
 	$installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
-    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe diretly in Package Manager Console`"
+    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe directly in Package Manager Console`"
 "
 	$installPs1File = "$releaseRoot\tools\init.ps1"
 	$installPs1Content > $installPs1File
