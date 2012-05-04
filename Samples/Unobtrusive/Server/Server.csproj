@@ -52,7 +52,7 @@
     <Compile Include="CatchAllMessageHandler.cs" />
     <Compile Include="DeferredMessageHandler.cs" />
     <Compile Include="RequestMessageHandler.cs" />
-    <Compile Include="EventPublisher.cs" />
+    <Compile Include="CommandSender.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="MyCommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
