@@ -2,10 +2,9 @@ namespace Sender
 {
 	using System;
 	using NServiceBus;
-	using NServiceBus.DataBus;
 	using Receiver.Messages;
 
-	public class SendingEndpoint:IWantToRunAtStartup
+	public class SendingEndpoint : IWantToRunAtStartup
 	{
 		readonly IBus bus;
 
@@ -16,22 +15,29 @@ namespace Sender
 
 		public void Run()
 		{
-			Console.WriteLine("Press 'Enter' to send a large message (>4MB). Use 'e' to send a message that will exceed the limit and throw. To exit, Ctrl + C");
+            Console.WriteLine("Press 'Enter' to send a large message (>4MB)");
+            Console.WriteLine("Press 'E' to send a message that will exceed the limit and throw");
+            Console.WriteLine("To exit, press Ctrl + C");
 
-			string key;
-
-			while ((key = Console.ReadLine()) != null)
+		    while (true)
 			{
-				if(key == "e")
-					SendMessageThatIsLargerThanMsmqCanHandle();
-				else
-					bus.Send<MessageWithLargePayload>(m =>
-					{
-						m.SomeProperty = "This message contains a large blob that will be sent on the data bus";
-						m.LargeBlob = new DataBusProperty<byte[]>(new byte[1024 * 1024 * 5]);//5MB
-					});
+			    var key = Console.ReadKey();
 
-				Console.WriteLine("Message sent, the payload is stored in: " + SetupDataBus.BasePath);
+                if (key.Key == ConsoleKey.E)
+                    SendMessageThatIsLargerThanMsmqCanHandle();
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    bus.Send<MessageWithLargePayload>(m =>
+                                                          {
+                                                              m.SomeProperty =
+                                                                  "This message contains a large blob that will be sent on the data bus";
+                                                              m.LargeBlob =
+                                                                  new DataBusProperty<byte[]>(new byte[1024*1024*5]);
+                                                                  //5MB
+                                                          });
+
+                    Console.WriteLine("Message sent, the payload is stored in: " + SetupDataBus.BasePath);
+                }
 			}
 		}
 
@@ -55,6 +61,5 @@ namespace Sender
 		public void Stop()
 		{
 		}
-  
 	}
 }
