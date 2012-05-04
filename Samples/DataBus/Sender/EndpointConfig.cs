@@ -12,9 +12,9 @@
 
 		public void Init()
 		{
-			Configure.Instance
-                .FileShareDataBus(BasePath)
-                .UnicastBus().DoNotAutoSubscribe();//until ICommand is introduced
+		    Configure.Instance
+		        .FileShareDataBus(BasePath)
+		        .UnicastBus();
 		}
 	}
 }
