@@ -2,22 +2,16 @@
 
 namespace TestClient
 {
-    public class EndpointConfig : IWantCustomInitialization, IConfigureThisEndpoint
+    public class EndpointConfig : AsA_Client, IWantCustomInitialization, IConfigureThisEndpoint
     {
-        #region IWantCustomInitialization Members
-
         public void Init()
         {
             Configure.With()
+                .DefineEndpointName("localhost:1091")
                 .DefaultBuilder()                
                 .FtpTransport()
                 .UnicastBus()
                     .LoadMessageHandlers();
-            
-            
-                
         }
-
-        #endregion
     }
 }

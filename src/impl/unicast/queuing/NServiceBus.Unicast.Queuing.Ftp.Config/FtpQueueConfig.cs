@@ -8,7 +8,8 @@ namespace NServiceBus.Config
         /// <summary>
         /// The temp directory where files will be place before sending
         /// </summary>
-        [ConfigurationProperty("SendDirectory", IsRequired = true)]
+        [Obsolete("Not required any longer. You can safely remove this attribute.", false)]
+        [ConfigurationProperty("SendDirectory", IsRequired = false)]
         public String SendDirectory 
         { 
             get{ return this["SendDirectory"].ToString(); }
