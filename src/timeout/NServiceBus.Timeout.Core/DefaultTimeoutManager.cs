@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using log4net;
 
     /// <summary>
     /// Thread-safe timeout management class.
@@ -54,8 +55,9 @@
 
             if (pair.Key > now)
                 Thread.Sleep(pair.Key - now);
-
-            pair.Value.ForEach(OnSagaTimedOut);
+            
+            DispatchTimeouts(pair.Value);
+            
         }
 
         void IManageTimeouts.ClearTimeout(Guid sagaId)
@@ -72,6 +74,26 @@
                                  });
             }
         }
+        void DispatchTimeouts(List<TimeoutData> value)
+        {
+            var exceptions = new List<Exception>();
+
+            value.ForEach(timeout =>
+                              {
+                                  try
+                                  {
+                                      OnSagaTimedOut(timeout);
+                                  }
+                                  catch (Exception ex)
+                                  {
+                                      Logger.Error("Failed to dispatch timeout " + timeout,ex);
+                                      exceptions.Add(ex);
+                                  }
+                              });
+
+            if(exceptions.Any())
+                throw new InvalidOperationException("Failed to dispatch the following timeouts:" + string.Join(";",value));
+        }
 
         void OnSagaTimedOut(TimeoutData timeoutData)
         {
@@ -81,6 +103,7 @@
 
         readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
 
-        TimeSpan duration = TimeSpan.FromSeconds(1); 
+        TimeSpan duration = TimeSpan.FromSeconds(1);
+        static ILog Logger = LogManager.GetLogger("Timeouts");
     }
 }
