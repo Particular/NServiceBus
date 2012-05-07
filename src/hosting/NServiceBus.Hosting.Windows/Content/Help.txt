@@ -1,29 +1,44 @@
 ﻿NServiceBus Message Endpoint Host Service
 
 USAGE:
-	NServiceBus.Host.exe [/install	[/serviceName]
-					[/displayName]
-					[/description]
-					[/endpointConfigurationType]
-					[/instance]
-					[/startManually]
-					[/username]
-					[/password]] |
-			     [/uninstall[/serviceName]
-					[/instance]]
+	NServiceBus.Host.exe [/install [/serviceName]
+                           [/displayName]
+                           [/description]
+                           [/endpointConfigurationType]
+                           [/endpointName]
+                           [/installInfrastructure]
+                           [/scannedAssemblies]
+                           [/dependsOn]
+                           [/sideBySide]
+                           [/startManually]
+                           [/username]
+                           [/password]] |
+                          [/uninstall [/serviceName]
+                           [/sidebyside]]
 										
 OPTIONS:
 
-/install	Install the message endpoint as a Windows service
-/serviceName	Specify the service name for the installed service
-/displayName	Friendly name for the installed service
-/description	Description for the service
-/endpointConfigurationType	 Specify the type implementing IConfigureThisEndpoint that should be used
-/instance	Specify the unique name of the service instance you wish to install
-		ex: "NServiceBus.Host.exe /install /instance:Instance5"
-/startManually	Specifies that the service should start manually
-/username	Username for the account the service should run under
-/password	Password for the service account
+/install                    Install the message endpoint as a Windows service.
+/serviceName                Specify the service name for the installed service.
+/displayName                Friendly name for the installed service.
+/description                Description for the service.
+/endpointConfigurationType	Specify the type implementing IConfigureThisEndpoint 
+                            that should be used.
+/dependsOn                  Specifies the names of services or groups which must 
+                            start before this service. The names are separated by 
+                            colons (,).
+/sideBySide                 Install the service with the version included in the 
+                            service name. This allows running multiple endpoints 
+                            side by side when doing hot deployments.
+/endpointName               The name of this endpoint.
+/installInfrastructure      Runs the infrastructure installers, this will install 
+                            things like MSMQ, RavenDB if needed.
+/scannedAssemblies          Configures NServiceBus to use the types found in the 
+                            given assemblies. The names are separated by 
+                            semicolons (;).
+/startManually              Specifies that the service should start manually.
+/username                   Username for the account the service should run under.
+/password                   Password for the service account.
 
 If no service name is specified NServiceBus will use the full name of the 
 endpoint configuration type (that which implements NServiceBus.IConfigureThisEndpoint)
@@ -41,10 +56,10 @@ If you don't specify the endpoint configuration type either in the command-line 
 NServiceBus.Host.exe.config file, all the DLLs in the runtime directory will be scanned
 for a type that implements NServiceBus.IConfigureThisEndpoint.
 
-If you set the service name and/or instance name during installation you will need to specify
+If you set the service name and sidebyside during installation you will need to specify
 them when uninstalling them as well, ex:
 
-	NServiceBus.Host.exe /uninstall /serviceName:"MyPublisher" /instance:Instance89
+	NServiceBus.Host.exe /uninstall /serviceName:"MyPublisher" /sidebyside
 	
 EXAMPLES:
 	NServiceBus.Host.exe /install /serviceName:"MyPublisher" /displayName:"My Publisher Service"
