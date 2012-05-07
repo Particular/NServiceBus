@@ -80,24 +80,25 @@ namespace Partner
         private static void Simulate(IBus bus, bool step)
         {
             Guid partnerId = Guid.NewGuid();
-            int numberOfLines;
+            int numberOfOrders;
             int secondsToProvideBy;
 
             while(true)
             {
-                Random r = new Random();
+                var r = new Random();
 
-                numberOfLines = 5 + r.Next(0, 5);
+                numberOfOrders = 5 + r.Next(0, 5);
                 secondsToProvideBy = 10 + r.Next(0, 10);
-                string purchaseOrderNumber = Guid.NewGuid().ToString();
-
-                for (int i = 0; i < numberOfLines; i++)
+                
+                for (var i = 0; i < numberOfOrders; i++)
                 {
+                    var purchaseOrderNumber = Guid.NewGuid().ToString();
+
                     bus.Send<IOrderMessage>(m =>
                     {
                         m.PurchaseOrderNumber = purchaseOrderNumber;
                         m.PartnerId = partnerId;
-                        m.Done = (i == numberOfLines - 1);
+                        m.Done = true;
                         m.ProvideBy = DateTime.UtcNow + TimeSpan.FromSeconds(secondsToProvideBy);
                         m.OrderLines = new List<IOrderLine> {
                             bus.CreateInstance<IOrderLine>(ol => { 
