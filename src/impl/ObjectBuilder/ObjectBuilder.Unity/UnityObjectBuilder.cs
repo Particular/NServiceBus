@@ -32,12 +32,7 @@ namespace NServiceBus.ObjectBuilder.Unity
         public UnityObjectBuilder(IUnityContainer container)
         {
             this.container = container;
-            //var autowireContainerExtension = this.container.Configure<FullAutowireContainerExtension>();
-            //if (autowireContainerExtension == null)
-            //{
-            //    this.container.AddNewExtension<FullAutowireContainerExtension>();
-            //}
-
+            
             var propertyInjectionExtension = this.container.Configure<PropertyInjectionContainerExtension>();
             if (propertyInjectionExtension == null)
             {
@@ -153,7 +148,7 @@ namespace NServiceBus.ObjectBuilder.Unity
                 case DependencyLifecycle.SingleInstance:
                     return new ContainerControlledLifetimeManager();
                 case DependencyLifecycle.InstancePerUnitOfWork:
-                    return new ContainerControlledLifetimeManager();
+                    return new HierarchicalLifetimeManager();
             }
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }

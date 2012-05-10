@@ -139,6 +139,9 @@ namespace NServiceBus.Testing
                 return ProcessInvocation(typeof (ReplyToOriginatorInvocation<>), d, messages);
             }
 
+            if (address != Address.Undefined && correlationId == string.Empty)
+                return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object> { { "Address", address } }, messages);
+
             return ProcessInvocation(typeof(SendInvocation<>), messages);
         }
 
@@ -230,7 +233,8 @@ namespace NServiceBus.Testing
 
         private ICallback ProcessInvocation(Type genericType, Dictionary<string, object> others, object[] messages)
         {
-            var invocationType = genericType.MakeGenericType(GetMessageType(messages[0]));
+            var messageType = GetMessageType(messages[0]);
+            var invocationType = genericType.MakeGenericType(messageType);
             return ProcessInvocationWithBuiltType(invocationType, others, messages);
         }
 
@@ -262,8 +266,13 @@ namespace NServiceBus.Testing
 
         private Type GetMessageType(object message)
         {
-            if (message.GetType().Name.EndsWith("__impl"))
-                return message.GetType().GetInterface(message.GetType().Name.Replace("__impl", ""));
+            if (message.GetType().FullName.EndsWith("__impl"))
+            {
+                var name = message.GetType().FullName.Replace("__impl", "").Replace("\\","");
+                foreach (var i in message.GetType().GetInterfaces())
+                    if (i.FullName == name)
+                        return i;
+            }
 
             return message.GetType();
         }

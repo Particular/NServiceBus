@@ -14,8 +14,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
 
         public String ReceiveDirectory { get; set; }
 
-        public String SendDirectory { get; set; }
-
         public String UserName { get; set; }
 
         public String Password { get; set; }
@@ -28,7 +26,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
         {
             return (_locQueue.Count > 0);
         }
-
 
         public void Init(Address address, bool transactional)
         {
@@ -43,7 +40,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
             }
         }
 
-       
         public void Send(TransportMessage message, Address address)
         {
             Stream bitStream = null;
@@ -71,7 +67,7 @@ namespace NServiceBus.Unicast.Queuing.Ftp
                 bitStream.Close();
                 bitStream = null;
 
-                this.TransmitFile(fName, address.ToString(), bits);                               
+                TransmitFile(fName, address.Queue, bits);                               
             }
             catch (Exception ex)
             {
@@ -133,7 +129,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
                 if (bitStream != null)
                     bitStream.Close();
             }
-
         }
 
         #endregion
@@ -142,10 +137,9 @@ namespace NServiceBus.Unicast.Queuing.Ftp
 
         private void SetupReceiveService()
         {
-            this._receiver = new FileSystemWatcher(this.ReceiveDirectory, "*.msg");
-            this._receiver.Created += new FileSystemEventHandler(this.OnFileCreated);
-            this._receiver.EnableRaisingEvents = true;
-            
+            _receiver = new FileSystemWatcher(ReceiveDirectory, "*.msg");
+            _receiver.Created += new FileSystemEventHandler(OnFileCreated);
+            _receiver.EnableRaisingEvents = true;
         }
 
         private void TransmitFile(String fName, String destination, byte[] bits)
@@ -186,6 +180,5 @@ namespace NServiceBus.Unicast.Queuing.Ftp
         private static readonly ILog Logger = LogManager.GetLogger(typeof(FtpMessageQueue));
 
         #endregion
-       
     }
 }

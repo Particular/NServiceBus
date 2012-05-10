@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Ftp;
 
 
@@ -15,7 +14,6 @@ namespace NServiceBus
             
             if (cfg != null)
             {
-                ftpQueue.ConfigureProperty(t => t.SendDirectory, cfg.SendDirectory);
                 ftpQueue.ConfigureProperty(t => t.ReceiveDirectory, cfg.ReceiveDirectory);
 
                 if (!String.IsNullOrEmpty(cfg.UserName))

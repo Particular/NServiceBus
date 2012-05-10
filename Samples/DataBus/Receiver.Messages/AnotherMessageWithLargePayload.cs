@@ -2,7 +2,7 @@
 {
 	using NServiceBus;
 
-	public class AnotherMessageWithLargePayload : IMessage
+	public class AnotherMessageWithLargePayload : ICommand
 	{
 		public byte[]LargeBlob { get; set; }
 	}

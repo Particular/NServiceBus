@@ -97,7 +97,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                                 Console.WriteLine("Found message - going to return to queue.");
 
-                                using (var tx = new TransactionScope(TransactionScopeOption.RequiresNew))
+                                using (var tx = new TransactionScope())
                                 {
                                     using (var q = new MessageQueue(
                                                 MsmqUtilities.GetFullPath(

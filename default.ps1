@@ -9,6 +9,7 @@
 	$NugetKey = ""
 	$PackageIds = ""
 	$DownloadDependentPackages = $false
+	$buildConfiguration = "Debug"
 	
 }
 
@@ -107,7 +108,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 
 task Init -depends Clean, InstallDependentPackages, DetectOperatingSystemArchitecture -description "Initializes the build" {
    	
-	echo "Creating build directory at the follwing path $buildBase"
+	echo "Creating build directory at the following path $buildBase"
 	Delete-Directory $buildBase
 	Create-Directory $buildBase
 	
@@ -121,7 +122,7 @@ task CompileMain -depends InitEnvironment -description "Builds NServiceBus.dll a
 	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" }
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" /p:Configuration=$buildConfiguration }
 	}
 	
 	$assemblies = @()
@@ -156,7 +157,7 @@ task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.
 	 	$solutions = dir "*.sln"
 		$solutions | % {
 			$solutionFile = $_.FullName
-			exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus.core\" }
+			exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus.core\" /p:Configuration=$buildConfiguration }
 		}
 	}
 	cd $baseDir
@@ -164,7 +165,7 @@ task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.
 	$solutions = dir "$srcDir\AttributeAssemblies\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\attributeAssemblies\" }
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\attributeAssemblies\" /p:Configuration=$buildConfiguration }
 	}
 	
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Core.dll"
@@ -207,7 +208,7 @@ task CompileContainers -depends InitEnvironment -description "Builds the contain
 	$solutions = dir "$srcDir\impl\ObjectBuilder\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" }		
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" /p:Configuration=$buildConfiguration }		
 	}
 	
 	if(Test-Path "$buildBase\output\containers"){
@@ -264,7 +265,7 @@ task CompileWebServicesIntegration -depends InitEnvironment -description "Builds
 	$solutions = dir "$srcDir\integration\WebServices\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" }		
+		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" /p:Configuration=$buildConfiguration }		
 	}
 	
 	Copy-Item $outDir\NServiceBus.Integration.*.* $binariesDir -Force;
@@ -275,7 +276,7 @@ task CompileNHibernate -depends InitEnvironment -description "Builds NServiceBus
 	$solutions = dir "$srcDir\nhibernate\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" }		
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" /p:Configuration=$buildConfiguration }		
 	}
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
@@ -299,7 +300,7 @@ task CompileAzure -depends InitEnvironment -description "Builds NServiceBus.Azur
 	$solutions = dir "$srcDir\azure\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" }		
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" /p:Configuration=$buildConfiguration }		
 	}
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
@@ -332,7 +333,7 @@ task CompileHosts  -depends InitEnvironment -description "Builds NServiceBus.Hos
 	$solutions = dir "$srcDir\hosting\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting\" }		
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting\" /p:Configuration=$buildConfiguration }		
 	}
 	
 	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
@@ -351,7 +352,7 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 		
 		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting32\" /t:Clean }
 		
-		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\"}
+		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration}
 	}
 	
 	
@@ -369,7 +370,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\"}
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
 	}
 	
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.dll",
@@ -383,7 +384,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Timeout\"}
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Timeout\" /p:Configuration=$buildConfiguration}
 	}
 	
 	echo "Copying NServiceBus.Timeout.Hosting.Azure....."	
@@ -392,7 +393,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.HostProcess.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\"}
+		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
 	}
 	
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.HostProcess.exe",
@@ -412,7 +413,7 @@ task CompileTools -depends InitEnvironment -description "Builds the tools XsdGen
 		$currentOutDir = "$buildBase\$_\"
 		$solutions | % {
 			$solutionFile = $_.FullName
-			exec { &$script:msBuild $solutionFile /p:OutDir="$currentOutDir" }
+			exec { &$script:msBuild $solutionFile /p:OutDir="$currentOutDir" /p:Configuration=$buildConfiguration}
 		}
 	}
 	
@@ -428,13 +429,12 @@ task CompileTools -depends InitEnvironment -description "Builds the tools XsdGen
 	cd $buildBase\tools
 	Delete-Directory "management"
 	cd $baseDir
-		
-	$assemblies = @("$buildBase\testing\NServiceBus.Testing.dll", "$buildBase\testing\Rhino.Mocks.dll");
 	
-	Ilmerge $ilMergeKey $outDir\testing "NServiceBus.Testing"  $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusTestingMergeLog.txt"  $ilMergeExclude
+	Create-Directory $outDir\testing
+	Copy-Item $buildBase\testing\NServiceBus.Testing.dll $outDir\testing -Force;
+	Copy-Item $buildBase\testing\NServiceBus.Testing.pdb $outDir\testing -Force;
 	
-	Copy-Item $outDir\testing\NServiceBus.Testing.dll $binariesDir -Force;
-	Copy-Item $outDir\testing\NServiceBus.Testing.pdb $binariesDir -Force;
+	Copy-Item $outDir\testing\*.* $binariesDir -Force;
 	
 	$assemblies = @("$buildBase\nservicebus.core\XsdGenerator.exe",
 	"$buildBase\nservicebus.core\NServiceBus.Serializers.XML.dll", 
@@ -692,7 +692,7 @@ if(`$Host.Version.Major -gt 1)
 	}
 }
 else{
-	echo `"Please use Poweshell V2 for better configuration for the project`"
+	echo `"Please use PowerShell V2 for better configuration for the project`"
 } 
 "
 	$appConfigTranformFile = "$releaseRoot\content\app.config.transform"
@@ -732,7 +732,7 @@ else{
 	Write-Output $runMeFirstFileContent > $runMeFirstFile
 	
 	$installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
-    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe diretly in Package Manager Console`"
+    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe directly in Package Manager Console`"
 "
 	$installPs1File = "$releaseRoot\tools\init.ps1"
 	$installPs1Content > $installPs1File

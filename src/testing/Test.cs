@@ -3,22 +3,21 @@ using System.Linq;
 using System.Reflection;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Saga;
-using NServiceBus.Serialization;
-using NServiceBus.Unicast;
-using Rhino.Mocks;
+using NServiceBus.Config.ConfigurationSource;
 
 namespace NServiceBus.Testing
 {
-    using Config.ConfigurationSource;
-    using DataBus;
-    using Unicast.Queuing;
-    using Unicast.Transport;
-
     /// <summary>
     /// Entry class used for unit testing
     /// </summary>
     public static class Test
     {
+        /// <summary>
+        /// Get the reference to the bus used for testing.
+        /// </summary>
+        public static IBus Bus { get { return bus; } }
+        [ThreadStatic] private static StubBus bus;
+
         /// <summary>
         /// Initializes the testing infrastructure.
         /// </summary>
@@ -63,7 +62,6 @@ namespace NServiceBus.Testing
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
-
         }
 
         /// <summary>
@@ -104,9 +102,10 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
-            var bus = new StubBus(messageCreator);
+            bus = new StubBus(messageCreator);
+            ExtensionMethods.Bus = bus;
 
-            saga.Bus = bus;
+            saga.Bus = Bus;
 
             return new Saga<T>(saga, bus);
         }
@@ -131,14 +130,16 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Handler<T> Handler<T>(T handler)
         {
-            var mocks = new MockRepository();
-            var bus = MockTheBus(mocks);
-
+            Func<IBus, T> handlerCreator = b => handler;
             var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
             if (prop != null)
-                prop.SetValue(handler, bus, null);
+                handlerCreator = b =>
+                                     {
+                                         prop.SetValue(handler, b, null);
+                                         return handler;
+                                     };
 
-            return Handler(handler, mocks, bus);
+            return Handler(handlerCreator);
         }
 
         /// <summary>
@@ -151,56 +152,24 @@ namespace NServiceBus.Testing
         /// <returns></returns>
         public static Handler<T> Handler<T>(Func<IBus, T> handlerCreationCallback)
         {
-            var mocks = new MockRepository();
-            var bus = MockTheBus(mocks);
+            bus = new StubBus(messageCreator);
+            ExtensionMethods.Bus = bus;
 
             var handler = handlerCreationCallback.Invoke(bus);
 
-            return Handler(handler, mocks, bus);
-        }
-
-        private static Handler<T> Handler<T>(T handler, MockRepository mocks, IBus bus)
-        {
-            bool isHandler = false;
-            foreach (var i in handler.GetType().GetInterfaces())
-            {
-                var args = i.GetGenericArguments();
-                if (args.Length == 1)
-                    if (args[0].IsMessageType())
-                        if (typeof(IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i))
-                            isHandler = true;
-            }
+            bool isHandler = (from i in handler.GetType().GetInterfaces()
+                              let args = i.GetGenericArguments()
+                              where args.Length == 1
+                              where args[0].IsMessageType()
+                              where typeof (IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                              select i).Any();
 
             if (!isHandler)
-                throw new ArgumentException("The handler object given does not implement IMessageHandler<T>.", "handler");
+                throw new ArgumentException("The handler object created does not implement IMessageHandler<T>.", "handlerCreationCallback");
 
             var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
 
-            return new Handler<T>(handler, mocks, bus, messageCreator, messageTypes);
-        }
-
-        private static IUnicastBus MockTheBus(MockRepository mocks)
-        {
-            var bus = mocks.DynamicMock<IUnicastBus>();
-            var starter = mocks.DynamicMock<IStartableBus>();
-
-            Configure.Instance.Configurer.RegisterSingleton<IStartableBus>(starter);
-            Configure.Instance.Configurer.RegisterSingleton<IUnicastBus>(bus);
-            Configure.Instance.Configurer.RegisterSingleton<ITransport>(mocks.Stub<ITransport>());
-            Configure.Instance.Configurer.RegisterSingleton<ISendMessages>(mocks.Stub<ISendMessages>());
-            Configure.Instance.Configurer.RegisterSingleton<IDataBus>(mocks.Stub<IDataBus>());
-
-            bus.Replay(); // to neutralize any event subscriptions by rest of NSB
-            
-            ExtensionMethods.Bus = bus;
-
-            Configure.Instance.CreateBus();
-
-            Configure.Instance.Builder.Build<IMessageSerializer>(); // needed to pass message types to message creator
-          
-            bus.BackToRecord(); // to get ready for testing
-            starter.BackToRecord();
-            return bus;
+            return new Handler<T>(handler, bus, messageCreator, messageTypes);
         }
 
         /// <summary>

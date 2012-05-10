@@ -43,5 +43,10 @@
         /// Store the headers to preserve them across timeouts
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("Timeout({0}) - Expires:{1}, SagaId:{2}",Id,Time,SagaId);
+        }
     }
 }

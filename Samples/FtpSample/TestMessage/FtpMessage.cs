@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NServiceBus;
 
 namespace TestMessage
 {
     [Serializable]
-    public class FtpMessage : IMessage
+    public class FtpMessage : ICommand
     {
-        public int ID { get; set;  }
-
+        public int Id { get; set;  }
         public String Name { get; set; }
     }
 }

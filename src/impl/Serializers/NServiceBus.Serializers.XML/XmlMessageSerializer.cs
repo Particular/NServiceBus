@@ -422,7 +422,7 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
-            if (n.ChildNodes.Count == 1 && n.ChildNodes[0] is XmlCharacterData)
+            if ((n.ChildNodes.Count == 1) && (n.ChildNodes[0] is XmlCharacterData)) 
             {
                 var text = n.ChildNodes[0].InnerText;
 
@@ -505,11 +505,13 @@ namespace NServiceBus.Serializers.XML
                 if (type == typeof(Uri))
                     return new Uri(text);
 
-                if (n.ChildNodes[0] is XmlWhitespace)
-                    return Activator.CreateInstance(type);
+                if (!typeof(IEnumerable).IsAssignableFrom(type))
+                {
+                    if (n.ChildNodes[0] is XmlWhitespace)
+                        return Activator.CreateInstance(type);
 
-                throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
-
+                    throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
+                }
             }
 
             //Handle dictionaries
