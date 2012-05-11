@@ -162,7 +162,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpContext.Current != null)
-                throw new InvalidOperationException("NServiceBus has detected that you're running in the context of a web application. The method 'NServiceBus.Configure.With()' is not recommended for web scenarios. Use 'NServiceBus.Configure.WithWeb()' instead, or consider explicitly passing in the assemblies you want to be scanned to one of the overloads to the 'With' method.");
+                return With(HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -173,9 +173,10 @@ namespace NServiceBus
         /// runtime directory.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("This method is obsolete, it has been replaced by NServiceBus.Configure.With.", false)]
         public static Configure WithWeb()
         {
-            return With(HttpRuntime.BinDirectory);
+            return With();
         }
 
         /// <summary>
