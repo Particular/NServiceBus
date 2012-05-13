@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Saga;
 
     /// <summary>
     /// Helper that optimize the invokation of the handle methods
@@ -51,17 +52,31 @@ namespace NServiceBus.Unicast
 
 
         static MethodInfo GetHandleMethod(Type targetType, Type messageType)
-        {
-            var method = targetType.GetMethods().FirstOrDefault(m => m.GetParameters().Any(p => p.ParameterType == messageType));
+        { 
+            foreach (var handlerInterface in handlerInterfaces)
+            {
+                MethodInfo method = null;
+                try
+                {
+                    method = targetType.GetInterfaceMap(handlerInterface.MakeGenericType(messageType))
+                        .TargetMethods
+                        .FirstOrDefault();
 
-            if (method != null) return method;
+                }
+                catch
+                {
+                    //intentionally swallow
+                }
 
-            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-            return targetType.GetInterfaceMap(handlerType)
-                .TargetMethods
-                .FirstOrDefault();
+                if (method != null)
+                    return method;
+                
+            }
+
+            return null;
         }
 
+        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IMessageHandler<>), typeof(IHandleTimeouts<>) }; 
 
         static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
     }
