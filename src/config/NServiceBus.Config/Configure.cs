@@ -390,7 +390,7 @@ namespace NServiceBus
 
                 Predicate<string> additionalExclude =
                     name => yetLoadedMatchingAssemblies.Any(
-                        a => IsMatchingAssembly(a.GetName().Name, name));
+                        a => IsMatch(a.GetName().Name, name));
 
                 if (possiblyChangedExcludePredicate != null)
                     possiblyChangedExcludePredicate = name => additionalExclude(name) || excludeAssemblyNames(name);
@@ -437,7 +437,7 @@ namespace NServiceBus
         public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
 
 
-        private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
+        private static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
             var types = new List<Type>();
             Array.ForEach(
@@ -449,8 +449,8 @@ namespace NServiceBus
                         types.AddRange(a.GetTypes()
                                            .Where(t => !t.IsValueType &&
                                                        (t.FullName == null ||
-                                                        !defaultTypeExclusions.Any(
-                                                            exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
+                                                        !defaultTypeExclusions.Union(defaultAssemblyExclusions).Any(
+                                                            exclusion => IsMatch(exclusion, t.FullName)))));
                     }
                     catch (ReflectionTypeLoadException e)
                     {
@@ -469,6 +469,7 @@ namespace NServiceBus
             return types;
         }
 
+        private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
             var result = new List<Assembly>();
 
@@ -503,10 +504,10 @@ namespace NServiceBus
             
             if (includeAssemblyNames != null 
                 && !includeAssemblyNames(assemblyNameOrFileName)
-                && !defaultAssemblyInclusionOverrides.Any(s => IsMatchingAssembly(s, assemblyNameOrFileName)))
+                && !defaultAssemblyInclusionOverrides.Any(s => IsMatch(s, assemblyNameOrFileName)))
                 return false;
 
-            if (defaultAssemblyExclusions.Any(exclusion => IsMatchingAssembly(exclusion, assemblyNameOrFileName)))
+            if (defaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName)))
                 return false;
 
             if (excludeAssemblyNames != null && excludeAssemblyNames(assemblyNameOrFileName))
@@ -522,13 +523,13 @@ namespace NServiceBus
         ///  <c>Wildcard.</c> matches 'Wildcard' and Assemblies starting with 'Wildcard.';
         ///  <c>Exact</c> matches only "Exact". Casing is generally ignored.
         /// </param>
-        /// <param name="actualNameOrFileName">The name or file name of the assembly.</param>
+        /// <param name="scopedNameOrFileName">The name or file name of the assembly, a full type name or namespace.</param>
         /// <returns></returns>
-        public static bool IsMatchingAssembly(string expression, string actualNameOrFileName)
+        public static bool IsMatch(string expression, string scopedNameOrFileName)
         {
-            if (destillLowerAssemblyName(actualNameOrFileName).StartsWith(expression.ToLower()))
+            if (destillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
                 return true;
-            if (destillLowerAssemblyName(expression).TrimEnd('.') == destillLowerAssemblyName(actualNameOrFileName))
+            if (destillLowerAssemblyName(expression).TrimEnd('.') == destillLowerAssemblyName(scopedNameOrFileName))
                 return true;
 
             return false;

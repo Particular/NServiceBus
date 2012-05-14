@@ -11,7 +11,7 @@ namespace NServiceBus.Config.UnitTests
     [TestFixture]
     public class When_loading_types
     {
-        List<Type> loadedTypes;
+        private List<Type> loadedTypes;
 
         [SetUp]
         public void SetUp()
@@ -35,9 +35,12 @@ namespace NServiceBus.Config.UnitTests
                 loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Config")));
         }
     }
-namespace Raven.Client
+}
 
+namespace Raven.Client
 {
     public class TestClass
-    { }
+    {
+        
+    }
 }

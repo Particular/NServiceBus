@@ -17,8 +17,8 @@ namespace NServiceBus
         /// Indicate that assemblies matching the given expression are not to be used.
         /// Use the 'And' method to indicate other assemblies to be skipped.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatchingAssembly"/></param>
-        /// <seealso cref="Configure.IsMatchingAssembly"/>
+        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
+        /// <seealso cref="Configure.IsMatch"/>
         /// <returns></returns>
         public static IExcludesBuilder Except(string assemblyExpression)
         {
@@ -29,8 +29,8 @@ namespace NServiceBus
         /// Indicate that assemblies matching the given expression are to be used.
         /// Use the 'And' method to indicate other assemblies to be included.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatchingAssembly"/></param>
-        /// <seealso cref="Configure.IsMatchingAssembly"/>
+        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
+        /// <seealso cref="Configure.IsMatch"/>
         /// <returns></returns>
         public static IIncludesBuilder Matching(string assemblyExpression)
         {
@@ -71,11 +71,11 @@ namespace NServiceBus
         public IEnumerator<Assembly> GetEnumerator()
         {
             Predicate<string> exclude = assembliesToExclude != null 
-                ? name => assembliesToExclude.Any(skip => Configure.IsMatchingAssembly(skip, name))
+                ? name => assembliesToExclude.Any(skip => Configure.IsMatch(skip, name))
                 : (Predicate<string>) null;
 
             Predicate<string> include = assembliesToInclude != null
-                ? name => assembliesToInclude.Any(skip => Configure.IsMatchingAssembly(skip, name))
+                ? name => assembliesToInclude.Any(skip => Configure.IsMatch(skip, name))
                 : (Predicate<string>) null;
 
             return Configure.FindAssemblies(directory, true, include, exclude).GetEnumerator();
