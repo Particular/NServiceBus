@@ -26,16 +26,17 @@ namespace NServiceBus.Unicast.Tests.Contexts
         MessageHeaderManager headerManager = new MessageHeaderManager();
         MessageMapper MessageMapper = new MessageMapper();
 
-        protected FakeTransport Transport = new FakeTransport();
-        protected IList<IMessageModule> MessageModules = new List<IMessageModule>();
+        protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
-        protected FuncBuilder FuncBuilder = new FuncBuilder();
+        protected FuncBuilder FuncBuilder;
         protected Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
 
         [SetUp]
         public void SetUp()
         {
+            Transport = new FakeTransport();
+            FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress,"MasterNode"); 
@@ -59,8 +60,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<DefaultDispatcherFactory>(()=>new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
-            
-            
 
             unicastBus = new UnicastBus
             {
@@ -81,7 +80,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IBus>(() => bus);
             
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
-
         }
 
         protected void VerifyThatMessageWasSentTo(Address destination)
@@ -98,7 +96,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             FuncBuilder.Register<IManageUnitsOfWork>(() => uow);
         }
-
 
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
@@ -146,6 +143,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
 
         protected Exception ResultingException;
+
         protected void ReceiveMessage(TransportMessage transportMessage)
         {
             try

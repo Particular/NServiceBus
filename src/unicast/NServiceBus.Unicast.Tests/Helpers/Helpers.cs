@@ -21,6 +21,19 @@ namespace NServiceBus.Unicast.Tests.Helpers
                        };
         }
 
+        public static TransportMessage EmptySubscribeTransportMessage()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            return new TransportMessage
+            {
+                Headers = new Dictionary<string, string> { { UnicastBus.SubscriptionMessageType, "NServiceBus.Unicast.Tests.MyMessage, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c" } },
+                Id = id,
+                IdForCorrelation = id,
+                MessageIntent = MessageIntentEnum.Subscribe
+            };
+        }
+
         public static TransportMessage MessageThatFailsToSerialize()
         {
             var m = EmptyTransportMessage();

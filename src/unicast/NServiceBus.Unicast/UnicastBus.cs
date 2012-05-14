@@ -1175,6 +1175,11 @@ namespace NServiceBus.Unicast
                                                      SubscriberReturnAddress = msg.ReplyToAddress
                                                  });
 
+                    for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
+                    {
+                        var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                        uow.End();
+                    }
                     return;
                 }
 
@@ -1188,7 +1193,7 @@ namespace NServiceBus.Unicast
 
                 for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count;)
                 {
-                    var uow = unitsOfWorkStarted[lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
                     uow.End();
                 }
 
@@ -1200,7 +1205,7 @@ namespace NServiceBus.Unicast
 
                 for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
                 {
-                    var uow = unitsOfWorkStarted[lastUnitOfWorkThatEndWasInvokedOnIndex];
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex];
                     try
                     {
                         uow.End(ex);

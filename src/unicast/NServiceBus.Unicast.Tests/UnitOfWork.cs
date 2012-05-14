@@ -6,6 +6,138 @@
     using UnitOfWork;
 
     [TestFixture]
+    public class When_processing_a_subscribe_message_successfully : using_the_unicastbus
+    {
+        [Test]
+        public void Should_invoke_the_uow_begin_and_end()
+        {
+            var beginCalled = false;
+            var endCalled = false;
+
+            var uow = new TestUnitOfWork
+            {
+                OnBegin = () =>
+                {
+                    beginCalled = true;
+                    Assert.False(endCalled);
+                },
+                OnEnd = (ex) => { Assert.Null(ex); endCalled = true; }
+            };
+
+            RegisterUow(uow);
+            ReceiveMessage(Helpers.Helpers.EmptySubscribeTransportMessage());
+
+            Assert.True(beginCalled);
+            Assert.True(endCalled);
+        }
+    }
+
+    [TestFixture]
+    public class When_begin_and_end_executes : using_the_unicastbus
+    {
+        [Test]
+        public void Should_invoke_ends_in_reverse_order()
+        {
+            var currentEnd = 0;
+            int firstUoWEndOrder = 0, secondUoWEndOrder = 0, thirdUoWEndOrder = 0;
+            var firstUoW = new TestUnitOfWork
+                               {
+                                   ExpectedEndOrder = 3,
+                                   OnEnd = ex => { firstUoWEndOrder = ++currentEnd; }
+                               };
+            var secondUoW = new TestUnitOfWork
+                                {
+                                    ExpectedEndOrder = 2,
+                                    OnEnd = ex => { secondUoWEndOrder = ++currentEnd; }
+                                };
+            var thirdUoW = new TestUnitOfWork
+                               {
+                                   ExpectedEndOrder = 1,
+                                   OnEnd = ex => { thirdUoWEndOrder = ++currentEnd; }
+                               };
+            RegisterUow(firstUoW);
+            RegisterUow(secondUoW);
+            RegisterUow(thirdUoW);
+            ReceiveMessage(Helpers.Helpers.EmptyTransportMessage());
+
+            Assert.AreEqual(firstUoW.ExpectedEndOrder, firstUoWEndOrder);
+            Assert.AreEqual(secondUoW.ExpectedEndOrder, secondUoWEndOrder);
+            Assert.AreEqual(thirdUoW.ExpectedEndOrder, thirdUoWEndOrder);
+        }
+
+        [Test]
+        public void Should_invoke_ends_in_reverse_order_even_if_an_end_throws()
+        {
+            var currentEnd = 0;
+            int firstUoWEndOrder = 0, secondUoWEndOrder = 0, thirdUoWEndOrder = 0;
+            var firstUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = 3,
+                OnEnd = ex => { firstUoWEndOrder = ++currentEnd; }
+            };
+            var secondUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = 2,
+                OnEnd = ex =>
+                            {
+                                secondUoWEndOrder = ++currentEnd;
+                                throw new Exception();
+                            }
+            };
+            var thirdUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = 1,
+                OnEnd = ex => { thirdUoWEndOrder = ++currentEnd; }
+            };
+            RegisterUow(firstUoW);
+            RegisterUow(secondUoW);
+            RegisterUow(thirdUoW);
+            ReceiveMessage(Helpers.Helpers.EmptyTransportMessage());
+            Console.Out.WriteLine(FuncBuilder);
+            Assert.AreEqual(firstUoW.ExpectedEndOrder, firstUoWEndOrder);
+            Assert.AreEqual(secondUoW.ExpectedEndOrder, secondUoWEndOrder);
+            Assert.AreEqual(thirdUoW.ExpectedEndOrder, thirdUoWEndOrder);
+        }
+
+        [Test]
+        public void Should_invoke_ends_in_reverse_order_even_if_a_begin_throws()
+        {
+            var currentEnd = 0;
+            int firstUoWEndOrder = 0, secondUoWEndOrder = 0, thirdUoWEndOrder = -1;
+            var firstUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = 2,
+                OnEnd = ex => { firstUoWEndOrder = ++currentEnd; }
+            };
+            var secondUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = 1,
+                OnBegin = () =>
+                              {
+                                  throw new Exception();
+                              },
+                OnEnd = ex => 
+                {
+                    secondUoWEndOrder = ++currentEnd;
+                }
+            };
+            var thirdUoW = new TestUnitOfWork
+            {
+                ExpectedEndOrder = -1,
+                OnEnd = ex => { thirdUoWEndOrder = ++currentEnd; }
+            };
+            RegisterUow(firstUoW);
+            RegisterUow(secondUoW);
+            RegisterUow(thirdUoW);
+            ReceiveMessage(Helpers.Helpers.EmptyTransportMessage());
+
+            Assert.AreEqual(firstUoW.ExpectedEndOrder, firstUoWEndOrder);
+            Assert.AreEqual(secondUoW.ExpectedEndOrder, secondUoWEndOrder);
+            Assert.AreEqual(thirdUoW.ExpectedEndOrder, thirdUoWEndOrder);
+        }
+    }
+
+    [TestFixture]
     public class When_a_uow_end_throws : using_the_unicastbus
     {
         [Test]
@@ -17,11 +149,11 @@
 
             var firstUoW = new TestUnitOfWork
             {
-                OnEnd = ex => { firstEndCalled = true; }
+                OnEnd = (ex) => { firstEndCalled = true; }
             };
             var throwableUoW = new TestUnitOfWork
             {
-                OnEnd = ex =>
+                OnEnd = (ex) =>
                             {
                                 throwableEndCalled = true;
                                 throw new Exception();
@@ -29,7 +161,7 @@
             };
             var lastUoW = new TestUnitOfWork
             {
-                OnEnd = ex => { lastEndCalled = true; }
+                OnEnd = (ex) => { lastEndCalled = true; }
             };
             RegisterUow(firstUoW);
             RegisterUow(throwableUoW);
@@ -50,11 +182,11 @@
 
             var firstUoW = new TestUnitOfWork
             {
-                OnEnd = ex => { firstEndCalled++; }
+                OnEnd = (ex) => { firstEndCalled++; }
             };
             var throwableUoW = new TestUnitOfWork
             {
-                OnEnd = ex =>
+                OnEnd = (ex) =>
                 {
                     throwableEndCalled++;
                     throw new Exception();
@@ -62,7 +194,7 @@
             };
             var lastUoW = new TestUnitOfWork
             {
-                OnEnd = ex => { lastEndCalled++; }
+                OnEnd = (ex) => { lastEndCalled++; }
             };
             RegisterUow(firstUoW);
             RegisterUow(throwableUoW);
@@ -175,9 +307,11 @@
     {
     }
 
-    public class TestUnitOfWork:IManageUnitsOfWork
+    public class TestUnitOfWork : IManageUnitsOfWork
     {
-        public Action<Exception> OnEnd = (ex) => { };
+        public int ExpectedEndOrder;
+
+        public Action<Exception> OnEnd = ex => { };
         public Action OnBegin = () => { };
 
         public void Begin()
