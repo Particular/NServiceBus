@@ -188,6 +188,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
+            lastProbeDirectory = probeDirectory;
             return With(GetAssembliesInDirectory(probeDirectory));
         }
 
@@ -224,6 +225,16 @@ namespace NServiceBus
                 instance = new Configure();
 
             TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
+
+            if (HttpContext.Current == null)
+            {
+                var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
+                if (File.Exists(hostPath))
+                {
+                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath)));
+                }
+            }
+
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
 
             return instance;
@@ -451,6 +462,7 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        static string lastProbeDirectory;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net.", "raven.server.",
