@@ -62,7 +62,7 @@ namespace NServiceBus
                     throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
 
                 return builder;
-                
+
             }
             set { builder = value; }
         }
@@ -120,9 +120,22 @@ namespace NServiceBus
             }
             set
             {
+                bool invoke = configurer == null;
                 configurer = value;
                 WireUpConfigSectionOverrides();
+                if (invoke)
+                    InvokeBeforeConfigurationInitializers();
             }
+        }
+
+        private void InvokeBeforeConfigurationInitializers()
+        {
+            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
+                .ToList().ForEach(t =>
+                {
+                    var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                    ini.Init();
+                });
         }
 
         private IConfigureComponents configurer;
@@ -149,7 +162,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpContext.Current != null)
-                throw new InvalidOperationException("NServiceBus has detected that you're running in the context of a web application. The method 'NServiceBus.Configure.With()' is not recommended for web scenarios. Use 'NServiceBus.Configure.WithWeb()' instead, or consider explicitly passing in the assemblies you want to be scanned to one of the overloads to the 'With' method.");
+                return With(HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -160,9 +173,10 @@ namespace NServiceBus
         /// runtime directory.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("This method is obsolete, it has been replaced by NServiceBus.Configure.With.", false)]
         public static Configure WithWeb()
         {
-            return With(HttpRuntime.BinDirectory);
+            return With();
         }
 
         /// <summary>
@@ -174,6 +188,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
+            lastProbeDirectory = probeDirectory;
             return With(GetAssembliesInDirectory(probeDirectory));
         }
 
@@ -194,32 +209,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(params Assembly[] assemblies)
         {
-            var types = new List<Type>();
-            Array.ForEach(
-                assemblies,
-                a =>
-                {
-                    try
-                    {
-                        types.AddRange(a.GetTypes()
-                            .Where(t => !t.IsValueType &&
-                                        (t.FullName == null || 
-                                                !defaultTypeExclusions.Union(defaultAssemblyExclusions).Any(exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
-                    }
-                    catch (ReflectionTypeLoadException e)
-                    {
-                        var sb = new StringBuilder();
-                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
-                        if (e.LoaderExceptions.Any())
-                        {
-                            sb.Append(Environment.NewLine + "Scanned type errors: ");
-                            foreach (var ex in e.LoaderExceptions)
-                                sb.Append(Environment.NewLine + ex.Message);
-                        }
-                        LogManager.GetLogger(typeof (Configure)).Warn(sb.ToString());
-                        return;//intentionally swallow exception
-                    }
-                });
+            var types = GetAllowedTypes(assemblies);
 
             return With(types);
         }
@@ -234,8 +224,19 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            TypesToScan = typesToScan;
+            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
+
+            if (HttpContext.Current == null)
+            {
+                var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
+                if (File.Exists(hostPath))
+                {
+                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath)));
+                }
+            }
+
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
+
             return instance;
         }
 
@@ -264,7 +265,7 @@ namespace NServiceBus
 
             return null;
         }
-       
+
 
         /// <summary>
         /// Finalizes the configuration by invoking all initializers.
@@ -276,7 +277,7 @@ namespace NServiceBus
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-          
+
             ForAllTypes<IWantToRunBeforeConfiguration>(t =>
             {
                 var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
@@ -438,6 +439,37 @@ namespace NServiceBus
 
         private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
+            var types = new List<Type>();
+            Array.ForEach(
+                assemblies,
+                a =>
+                {
+                    try
+                    {
+                        types.AddRange(a.GetTypes()
+                                           .Where(t => !t.IsValueType &&
+                                                       (t.FullName == null ||
+                                                        !defaultTypeExclusions.Any(
+                                                            exclusion => t.FullName.ToLower().StartsWith(exclusion)))));
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
+                        if (e.LoaderExceptions.Any())
+                        {
+                            sb.Append(Environment.NewLine + "Scanned type errors: ");
+                            foreach (var ex in e.LoaderExceptions)
+                                sb.Append(Environment.NewLine + ex.Message);
+                        }
+                        LogManager.GetLogger(typeof(Configure)).Warn(sb.ToString());
+                        //intentionally swallow exception
+                    }
+                });
+            return types;
+        }
+
+        {
             var result = new List<Assembly>();
 
             foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
@@ -514,6 +546,7 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        static string lastProbeDirectory;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         

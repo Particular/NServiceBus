@@ -27,10 +27,17 @@ namespace NServiceBus.Config.UnitTests
                 new Type[0],
                 loadedTypes.Where(a => a.Namespace.StartsWith("Raven.Client")).ToArray());
         }
+
+        [Test]
+        public void Should_always_include_the_core_nservicebus_types()
+        {
+            Assert.True(
+                loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Config")));
+        }
     }
-}
 namespace Raven.Client
+
 {
     public class TestClass
-    {}
+    { }
 }

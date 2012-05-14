@@ -1,7 +1,8 @@
 ﻿using NServiceBus.ObjectBuilder.Common.Config;
+using NServiceBus.ObjectBuilder.Ninject;
 using Ninject;
 
-namespace NServiceBus.ObjectBuilder.Ninject.Config
+namespace NServiceBus
 {
     /// <summary>
     /// The static class which holds <see cref="NServiceBus"/> extensions methods.

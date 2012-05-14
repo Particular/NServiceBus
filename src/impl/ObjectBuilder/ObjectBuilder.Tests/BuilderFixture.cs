@@ -11,6 +11,9 @@ using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
 using StructureMap;
 using IContainer=NServiceBus.ObjectBuilder.Common.IContainer;
+using Ninject;
+using Ninject.Extensions.ContextPreservation;
+using Ninject.Extensions.NamedScope;
 
 namespace ObjectBuilder.Tests
 {
@@ -55,7 +58,7 @@ namespace ObjectBuilder.Tests
                                      new WindsorObjectBuilder(),
                                      new UnityObjectBuilder(),
                                      new SpringObjectBuilder(),
-                                     new NinjectObjectBuilder(),
+                                     new NinjectObjectBuilder(new StandardKernel(new NinjectSettings{LoadExtensions = false}, new ContextPreservationModule(), new NamedScopeModule())),
                                  };
 
             DefaultInstances.Clear();

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common.Logging;
+using Microsoft.WindowsAzure.StorageClient;
 
 namespace NServiceBus.Hosting
 {
@@ -10,6 +12,7 @@ namespace NServiceBus.Hosting
         private Thread monitorThread;
         private List<EndpointToHost> endpoints = new List<EndpointToHost>();
         private bool stop;
+        private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointRunner));
 
         public DynamicEndpointLoader Loader { get; set; }
 
@@ -66,43 +69,51 @@ namespace NServiceBus.Hosting
 
         private void CheckForUpdates()
         {
-            var updatedEndpoints = new List<EndpointToHost>();
-            var newEndpoints = new List<EndpointToHost>();
-            var removedEndpoints = new List<EndpointToHost>();
-
-            var loadedEndpoints = Loader.LoadEndpoints();
-            
-            foreach (var loadedEndpoint in loadedEndpoints)
+            try
             {
-                var endpoint = endpoints.SingleOrDefault(e => e.EndpointName == loadedEndpoint.EndpointName);
-                if (endpoint == null)
+                var updatedEndpoints = new List<EndpointToHost>();
+                var newEndpoints = new List<EndpointToHost>();
+                var removedEndpoints = new List<EndpointToHost>();
+
+                var loadedEndpoints = Loader.LoadEndpoints();
+
+                foreach (var loadedEndpoint in loadedEndpoints)
                 {
-                    newEndpoints.Add(loadedEndpoint);
-                }
-                else
-                {
-                    if (loadedEndpoint.LastUpdated > endpoint.LastUpdated)
+                    var endpoint = endpoints.SingleOrDefault(e => e.EndpointName == loadedEndpoint.EndpointName);
+                    if (endpoint == null)
                     {
-                        endpoint.LastUpdated = loadedEndpoint.LastUpdated;
-                        updatedEndpoints.Add(endpoint);
+                        newEndpoints.Add(loadedEndpoint);
+                    }
+                    else
+                    {
+                        if (loadedEndpoint.LastUpdated > endpoint.LastUpdated)
+                        {
+                            endpoint.LastUpdated = loadedEndpoint.LastUpdated;
+                            updatedEndpoints.Add(endpoint);
+                        }
                     }
                 }
-            }
 
-            foreach (var endpoint in endpoints)
+                foreach (var endpoint in endpoints)
+                {
+                    var endpointNotFound =
+                        loadedEndpoints.SingleOrDefault(l => l.EndpointName == endpoint.EndpointName) == null;
+                    if (endpointNotFound) removedEndpoints.Add(endpoint);
+                }
+
+                if (updatedEndpoints.Count > 0)
+                    OnUpdatedEndpoints(new EndpointsEventArgs {Endpoints = updatedEndpoints});
+
+                if (newEndpoints.Count > 0)
+                    OnNewEndpoints(new EndpointsEventArgs {Endpoints = newEndpoints});
+
+                if (removedEndpoints.Count > 0)
+                    OnRemovedEndpoints(new EndpointsEventArgs {Endpoints = removedEndpoints});
+            }
+            catch(StorageServerException ex) //prevent azure storage hickups from hurting us
             {
-                var endpointNotFound = loadedEndpoints.SingleOrDefault(l => l.EndpointName == endpoint.EndpointName) == null;
-                if (endpointNotFound) removedEndpoints.Add(endpoint);
+                logger.Warn(ex.Message);
             }
-
-            if (updatedEndpoints.Count > 0)
-                OnUpdatedEndpoints(new EndpointsEventArgs {Endpoints = updatedEndpoints});
-
-            if (newEndpoints.Count > 0)
-                OnNewEndpoints(new EndpointsEventArgs {Endpoints = newEndpoints});
-
-            if (removedEndpoints.Count > 0)
-                OnRemovedEndpoints(new EndpointsEventArgs {Endpoints = removedEndpoints});
         }
 
         public void Stop()

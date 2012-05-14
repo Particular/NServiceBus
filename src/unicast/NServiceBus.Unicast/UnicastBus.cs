@@ -813,7 +813,7 @@ namespace NServiceBus.Unicast
 
                 if (DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
                 {
-                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off");
+                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off", messageType);
                     continue;
                 }
 
@@ -1146,10 +1146,16 @@ namespace NServiceBus.Unicast
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
+            var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
+            var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
 
             try
             {
-                unitsOfWork.ForEach(uow => uow.Begin());
+                foreach (var uow in unitsOfWork)
+                {
+                    unitsOfWorkStarted.Add(uow);
+                    uow.Begin();
+                }
 
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
                 if (transportMutators != null)
@@ -1169,6 +1175,11 @@ namespace NServiceBus.Unicast
                                                      SubscriberReturnAddress = msg.ReplyToAddress
                                                  });
 
+                    for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
+                    {
+                        var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                        uow.End();
+                    }
                     return;
                 }
 
@@ -1180,14 +1191,37 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                unitsOfWork.ForEach(uow => uow.End());
+                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count;)
+                {
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                    uow.End();
+                }
 
                 ForwardMessageIfNecessary(msg);
             }
             catch (Exception ex)
             {
-                unitsOfWork.ForEach(uow => uow.End(ex));
-                throw;
+                var exceptionsToThrow = new List<Exception> {ex};
+
+                for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
+                {
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex];
+                    try
+                    {
+                        uow.End(ex);
+                    }
+                    catch (Exception anotherException)
+                    {
+                        exceptionsToThrow.Add(anotherException);
+                    }
+                }
+
+                if (exceptionsToThrow.Count == 1)
+                {
+                    throw exceptionsToThrow.First();
+                }
+
+                throw new AggregateException(exceptionsToThrow);
             }
 
             Log.Debug("Finished handling message.");

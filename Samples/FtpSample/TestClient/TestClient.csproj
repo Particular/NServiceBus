@@ -57,8 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientEndpoint.cs" />
+    <Compile Include="CommandSender.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="FtpResponseHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +73,11 @@
       <Name>TestMessage</Name>
     </ProjectReference>
   </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(MSBuildProjectDirectory)\$(OutputPath)NServiceBus.Host.exe</StartProgram>
+    <StartArguments>NServiceBus.Integration</StartArguments>
+  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -5,10 +5,10 @@
     using System.Linq;
     using System.Threading;
     using System.Transactions;
-    using Saga;
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Transport;
+    using log4net;
 
     public class TimeoutRunner : IWantToRunWhenTheBusStarts
     {
@@ -17,7 +17,7 @@
         public IPersistTimeouts Persister { get; set; }
         public ISendMessages MessageSender { get; set; }
 
-        
+
         public void Run()
         {
             if (TimeoutManager == null)
@@ -38,8 +38,7 @@
             Persister.GetAll().ToList().ForEach(td =>
                 TimeoutManager.PushTimeout(td));
 
-            thread = new Thread(Poll);
-            thread.IsBackground = true;
+            thread = new Thread(Poll) { IsBackground = true };
             thread.Start();
         }
 
@@ -55,7 +54,7 @@
                                            Body = timeoutData.State
                                        };
 
-            if(timeoutData.Headers != null)
+            if (timeoutData.Headers != null)
             {
                 transportMessage.Headers = timeoutData.Headers;
             }
@@ -66,7 +65,7 @@
 
                 if (timeoutData.SagaId != Guid.Empty)
                     transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
-    
+
             }
 
             return transportMessage;
@@ -80,13 +79,24 @@
         void Poll()
         {
             while (!stopRequested)
-                TimeoutManager.PopTimeout();
+            {
+                try
+                {
+                    TimeoutManager.PopTimeout();
+                }
+                catch (Exception ex)
+                {
+                    //intentionally swallow here to avoid this bringing the entire endpoint down.
+                    //remove this when our sattelite support is introduced
+                    Logger.ErrorFormat("Failed to pop timeouts - " +  ex);
+                }
+            }
         }
 
-        
+
         Thread thread;
         volatile bool stopRequested;
-
+        static ILog Logger = LogManager.GetLogger("Timeouts");
     }
 }
 

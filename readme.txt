@@ -18,7 +18,8 @@ http://www.nservicebus.com/EULA.aspx
 = Building =
 ============
 
-In order to build the source, run the build.ps1 powershell script.
+The following web page contains information about how to build NServiceBus form source files:
+http://nservicebus.com/BuildingNServiceBusFromSource.aspxIn order to build the source, run the build.ps1 powershell script.
 
 You'll find the built assemblies in /build/binaries.
 
@@ -73,7 +74,7 @@ http://www.gnu.org/licenses/lgpl-3.0.txt
 
 Iesi.Collections binaries are merged into NServiceBus allowed under the license terms found here:
 
-Copyright � 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
+Copyright ? 2002-2004 by Aidant Systems, Inc., and by Jason Smith.
 
 Copied from http://www.codeproject.com/csharp/sets.asp#xx703510xx that was posted by JasonSmith 12:13 2 Jan '04
 
@@ -203,5 +204,4 @@ http://www.ayende.com/projects/rhino-mocks.aspx
 Rhino Mocks binaries are merged into NServiceBus allowed under the license terms described here:
 
 http://www.opensource.org/licenses/bsd-license.php
-
 

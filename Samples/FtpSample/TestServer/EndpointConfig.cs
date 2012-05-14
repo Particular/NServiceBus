@@ -1,12 +1,9 @@
-﻿using System;
-using NServiceBus;
+﻿using NServiceBus;
 
 namespace TestServer
 {
-    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
+    public class EndpointConfig : AsA_Server, IConfigureThisEndpoint, IWantCustomInitialization
     {
-        #region IWantCustomInitialization Members
-
         public void Init()
         {
             Configure.With()
@@ -15,7 +12,5 @@ namespace TestServer
                 .UnicastBus()
                     .LoadMessageHandlers();
         }
-
-        #endregion
     }
 }

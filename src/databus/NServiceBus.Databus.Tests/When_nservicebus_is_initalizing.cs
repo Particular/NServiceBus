@@ -2,6 +2,7 @@ using NServiceBus.DataBus;
 using NServiceBus.DataBus.Config;
 using NServiceBus.DataBus.Tests;
 using NUnit.Framework;
+using log4net;
 
 namespace NServiceBus.DataBus.Tests
 {
@@ -14,6 +15,7 @@ namespace NServiceBus.DataBus.Tests
         public void Databus_mutators_should_be_registered_if_a_databus_property_is_found()
         {
             Configure.With(new[] {typeof (MessageWithDataBusProperty)})
+                .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
 
@@ -30,6 +32,7 @@ namespace NServiceBus.DataBus.Tests
         public void Databus_mutators_should_not_be_registered_if_no_databus_property_is_found()
         {
             Configure.With(new[] { typeof(MessageWithoutDataBusProperty) })
+                .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
             var bootStrapper = new Bootstrapper();

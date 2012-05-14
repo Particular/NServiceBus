@@ -8,6 +8,7 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.Raven
 {
+    using System.Collections.Concurrent;
     using global::Raven.Client;
 
     public class RavenSagaPersister : ISagaPersister
@@ -66,19 +67,13 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public T Get<T>(string property, object value) where T : ISagaEntity
         {
-            try
-            {
-                return Session.Advanced.LuceneQuery<T>()
-                    .WhereEquals(property, value)
-                    .WaitForNonStaleResults()
-                    .FirstOrDefault();
-            }
-            catch (InvalidCastException)
-            {
-                return default(T);
-            }
+            if (IsUniqueProperty<T>(property))
+                return GetByUniqueProperty<T>(property, value);
+
+            return GetByQuery<T>(property, value).FirstOrDefault();
         }
 
+       
         public void Complete(ISagaEntity saga)
         {
             Session.Delete(saga);
@@ -90,6 +85,52 @@ namespace NServiceBus.SagaPersisters.Raven
 
             DeleteUniqueProperty(saga, uniqueProperty.Value);
         }
+        bool IsUniqueProperty<T>(string property)
+        {
+            var key = typeof(T).FullName + property;
+            bool value;
+
+            if (!PropertyCache.TryGetValue(key, out value))
+            {
+                value = UniqueAttribute.GetUniqueProperties(typeof(T)).Any(p => p.Name == property);
+                PropertyCache[key] = value;
+            }
+
+            return value;
+        }
+
+
+        T GetByUniqueProperty<T>(string property, object value) where T : ISagaEntity
+        {
+            var lookupId = SagaUniqueIdentity.FormatId(typeof(T), new KeyValuePair<string, object>(property, value));
+
+            var lookup = Session
+                //The line below is disable because of a bug in Raven 616. We can enable it when we upgrade to the lastest RavenDB
+                //.Include("SagaDocId") //tell raven to pull the saga doc as well to save us a roundtrip
+                .Load<SagaUniqueIdentity>(lookupId);
+
+            if (lookup != null)
+                return lookup.SagaDocId != null
+                    ? Session.Load<T>(lookup.SagaDocId) //if we have a saga id we can just load it
+                    : Get<T>(lookup.SagaId); //if not this is a saga that was created pre 3.0.4 so we fallback to a get instead
+
+
+            return default(T);
+        }
+
+        IEnumerable<T> GetByQuery<T>(string property, object value) where T : ISagaEntity
+        {
+            try
+            {
+                return Session.Advanced.LuceneQuery<T>()
+                    .WhereEquals(property, value)
+                    .WaitForNonStaleResultsAsOfNow();
+            }
+            catch (InvalidCastException)
+            {
+                return new[] { default(T) };
+            }
+        }
 
         void StoreUniqueProperty(ISagaEntity saga)
         {
@@ -98,7 +139,15 @@ namespace NServiceBus.SagaPersisters.Raven
             if (!uniqueProperty.HasValue) return;
 
             var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty.Value);
-            Session.Store(new SagaUniqueIdentity { Id = id, SagaId = saga.Id, UniqueValue = uniqueProperty.Value.Value });
+            var sagaDocId = sessionFactory.Store.Conventions.FindFullDocumentKeyFromNonStringIdentifier(saga.Id, saga.GetType(), false);
+        
+            Session.Store(new SagaUniqueIdentity
+                              {
+                                  Id = id, 
+                                  SagaId = saga.Id, 
+                                  UniqueValue = uniqueProperty.Value.Value,
+                                  SagaDocId = sagaDocId
+                              });
 
             SetUniqueValueMetadata(saga, uniqueProperty.Value);
         }
@@ -114,6 +163,8 @@ namespace NServiceBus.SagaPersisters.Raven
 
             Session.Advanced.DatabaseCommands.Delete(id, null);
         }
+
+        static readonly ConcurrentDictionary<string, bool> PropertyCache = new ConcurrentDictionary<string, bool>();
     }
 
     public class SagaUniqueIdentity
@@ -121,6 +172,7 @@ namespace NServiceBus.SagaPersisters.Raven
         public string Id { get; set; }
         public Guid SagaId { get; set; }
         public object UniqueValue { get; set; }
+        public string SagaDocId { get; set; }
 
         public static string FormatId(Type sagaType, KeyValuePair<string, object> uniqueProperty)
         {

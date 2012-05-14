@@ -10,16 +10,18 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         [Test]
         public void It_should_enforce_uniqueness()
         {
+            var uniqueString = Guid.NewGuid().ToString();
+
             var saga1 = new SagaWithUniqueProperty
                         {
                             Id = Guid.NewGuid(),
-                            UniqueString = "whatever"
+                            UniqueString = uniqueString
                         };
             
             var saga2 = new SagaWithUniqueProperty
                         {
                             Id = Guid.NewGuid(),
-                            UniqueString = "whatever"
+                            UniqueString = uniqueString
                         };
 
             SaveSaga(saga1);

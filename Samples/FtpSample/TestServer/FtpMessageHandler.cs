@@ -1,29 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NServiceBus;
 using TestMessage;
 
 namespace TestServer
 {
-    public class FtpMessageHandler : IMessageHandler<TestMessage.FtpMessage>
+    public class FtpMessageHandler : IHandleMessages<FtpMessage>
     {
         public IBus Bus { get; set; }
 
-        #region IMessageHandler<FtpMessage> Members
-
-        public void Handle(TestMessage.FtpMessage message)
+        public void Handle(FtpMessage message)
         {
-            Console.WriteLine("Message Received With The Following\n\n");
+            Console.WriteLine("Request received with id:" + message.Id);
 
-            Console.WriteLine("ID: " + message.ID.ToString());
-            Console.WriteLine("Name: " + message.Name);
-
-            FtpReply rep = new FtpReply { ID = 500, OtherData = Guid.NewGuid(), IsThisCool = true, Description = "What the?" };
-            this.Bus.Reply(rep);
+            var rep = new FtpResponse { Id = 500, OtherData = Guid.NewGuid(), IsThisCool = true, Description = "What the?", ResponseId = message.Id };
+            Bus.Reply(rep);
         }
-
-        #endregion
     }
 }

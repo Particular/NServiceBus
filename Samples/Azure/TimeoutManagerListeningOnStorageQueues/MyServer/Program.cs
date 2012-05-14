@@ -66,6 +66,7 @@ namespace MyServer
                .RunTimeoutManager()
                     .UseAzureTimeoutPersister()
                     .ListenOnAzureStorageQueues()
+               .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
                .UnicastBus()
                     .LoadMessageHandlers()
                     .IsTransactional(true)

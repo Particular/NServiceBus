@@ -1,5 +1,4 @@
 using System;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Testing.Tests
@@ -18,7 +17,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<DoNotContinueDispatchingCurrentMessageToHandlersHandler>()
                 .ExpectDoNotContinueDispatchingCurrentMessageToHandlers()
-                .OnMessage<TestMessage>(m => {});
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<EmptyHandler>()
                 .ExpectDoNotContinueDispatchingCurrentMessageToHandlers()
-                .OnMessage<TestMessage>(m => {});
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<HandleCurrentMessageLaterHandler>()
                 .ExpectHandleCurrentMessageLater()
-                .OnMessage<TestMessage>(m => {});
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -44,7 +43,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<EmptyHandler>()
                 .ExpectHandleCurrentMessageLater()
-                .OnMessage<TestMessage>(m => {});
+                .OnMessage<TestMessage>();
         }
         
         [Test]
@@ -52,7 +51,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			var handler = new ExplicitInterfaceImplementation();
 			Assert.IsFalse(handler.IsHandled);
-			Test.Handler(handler).OnMessage<TestMessage>(m => { });
+			Test.Handler(handler).OnMessage<TestMessage>();
 			Assert.IsTrue(handler.IsHandled);
 		}
 		[Test]
@@ -60,7 +59,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<PublishingHandler<Publish1>>()
 				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -69,7 +68,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<PublishingHandler<Publish1>>()
 				.ExpectNotPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -77,7 +76,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<PublishingHandler<Publish1, Publish2>>()
 				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
         [Test]
@@ -97,7 +96,7 @@ namespace NServiceBus.Testing.Tests
 			Test.Handler<PublishingHandler<Publish1>>()
 				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
 				.ExpectPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -107,7 +106,7 @@ namespace NServiceBus.Testing.Tests
 			Test.Handler<PublishingHandler<Publish1>>()
 				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
 				.ExpectNotPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -117,7 +116,7 @@ namespace NServiceBus.Testing.Tests
 			Test.Handler<PublishingHandler<Publish1>>()
 				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
 				.ExpectPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -126,7 +125,7 @@ namespace NServiceBus.Testing.Tests
 			Test.Handler<PublishingHandler<Publish1>>()
 				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
 				.ExpectNotPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -135,7 +134,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<EmptyHandler>()
 				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -143,7 +142,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<EmptyHandler>()
 				.ExpectNotPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
         [Test]
@@ -151,7 +150,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<SendingHandler<Send1>>()
                 .ExpectSend<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -160,7 +159,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<EmptyHandler>()
                 .ExpectSend<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -169,7 +168,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<SendingHandler<Publish1>>()
                 .ExpectSend<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -177,7 +176,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<EmptyHandler>()
                 .ExpectNotSend<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -186,7 +185,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<SendingHandler<Send1>>()
                 .ExpectNotSend<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -194,7 +193,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<EmptyHandler>()
                 .ExpectNotSendLocal<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -203,7 +202,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<SendingLocalHandler<Send1>>()
                 .ExpectNotSendLocal<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
 
         [Test]
@@ -211,7 +210,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<SendingLocalHandler<Publish1>>()
                 .ExpectNotSendLocal<Send1>(m => true)
-                .OnMessage<TestMessage>(m => { });
+                .OnMessage<TestMessage>();
         }
         
         [Test]
@@ -220,7 +219,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<PublishingHandler<Publish1>>()
 				.ExpectPublish<Publish2>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
 		[Test]
@@ -228,7 +227,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			Test.Handler<PublishingHandler<Publish1>>()
 				.ExpectNotPublish<Publish2>(m => true)
-				.OnMessage<TestMessage>(m => { });
+				.OnMessage<TestMessage>();
 		}
 
         [Test]
@@ -236,7 +235,7 @@ namespace NServiceBus.Testing.Tests
         {
             Test.Handler<DataBusMessageHandler>()
                 .ExpectNotPublish<Publish2>(m => true)
-                .OnMessage<MessageWithDataBusProperty>(m => { });
+                .OnMessage<MessageWithDataBusProperty>();
         }
 
 
@@ -265,12 +264,7 @@ namespace NServiceBus.Testing.Tests
         {
             public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
-
-            public SendingHandler()
-            {
-                ModifyPublish = m => { };
-            }
-
+            
             public void Handle(TestMessage message)
             {
                 Bus.Send(ModifyPublish);
@@ -282,12 +276,7 @@ namespace NServiceBus.Testing.Tests
         {
             public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
-
-            public SendingLocalHandler()
-            {
-                ModifyPublish = m => { };
-            }
-
+            
             public void Handle(TestMessage message)
             {
                 Bus.SendLocal(ModifyPublish);
@@ -299,12 +288,7 @@ namespace NServiceBus.Testing.Tests
 		{
 			public IBus Bus { get; set; }
 			public Action<TPublish> ModifyPublish { get; set; }
-
-			public PublishingHandler()
-			{
-				ModifyPublish = m => { };
-			}
-
+            
 			public void Handle(TestMessage message)
 			{
 				Bus.Publish(ModifyPublish);
@@ -318,13 +302,7 @@ namespace NServiceBus.Testing.Tests
 			public IBus Bus { get; set; }
 			public Action<TPublish1> ModifyPublish1 { get; set; }
 			public Action<TPublish2> ModifyPublish2 { get; set; }
-
-			public PublishingHandler()
-			{
-				ModifyPublish1 = m => { };
-				ModifyPublish2 = m => { };
-			}
-
+            
 			public void Handle(TestMessage message)
 			{
 				Bus.Publish(ModifyPublish1);
