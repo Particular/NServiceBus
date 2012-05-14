@@ -436,7 +436,6 @@ namespace NServiceBus
         /// </summary>
         public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
 
-
         private static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
             var types = new List<Type>();
@@ -469,6 +468,11 @@ namespace NServiceBus
             return types;
         }
 
+        /// <summary>
+        /// The function used to get the name of this endpoint
+        /// </summary>
+        public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
+
         private static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
             var result = new List<Assembly>();
@@ -479,7 +483,11 @@ namespace NServiceBus
                 {
                     if (IsIncluded(file.Name, includeAssemblyNames, excludeAssemblyNames))
                     {
-                        result.Add(Assembly.LoadFrom(file.FullName));
+                        var loadAssembly = LoadAssembly(file);
+                        if (loadAssembly != null)
+                        {
+                            result.Add(loadAssembly);
+                        }
                     }
                 }
                 catch (BadImageFormatException bif)
