@@ -368,7 +368,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Subcribes to recieve published messages of the specified type.
+        /// Subscribes to receive published messages of the specified type.
         /// </summary>
         /// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
@@ -424,7 +424,9 @@ namespace NServiceBus.Unicast
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
             InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-            MessageSender.Send(subscriptionMessage, destination);
+
+            ThreadPool.QueueUserWorkItem(state =>
+                                         SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType.AssemblyQualifiedName));
         }
 
         /// <summary>
@@ -461,6 +463,26 @@ namespace NServiceBus.Unicast
             InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
 
             MessageSender.Send(subscriptionMessage, destination);
+        }
+
+        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        {
+            try
+            {
+                MessageSender.Send(subscriptionMessage, destination);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                if (retriesCount < 5)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
+                }
+                else
+                {
+                    Log.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
+                }
+            }
         }
 
         void IBus.Reply(params object[] messages)
