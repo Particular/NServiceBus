@@ -20,7 +20,7 @@ namespace NServiceBus.Logging
     public static ILog GetLogger(Type type)
     {
       if (LoggerFactory == null)
-        return new ConsoleLogger();
+        return new NullLogger();
 
       return LoggerFactory.GetLogger(type);
     }
@@ -33,7 +33,7 @@ namespace NServiceBus.Logging
     public static ILog GetLogger(string name)
     {
       if (LoggerFactory == null)
-        return new ConsoleLogger();
+        return new NullLogger();
 
       return LoggerFactory.GetLogger(name);
     }

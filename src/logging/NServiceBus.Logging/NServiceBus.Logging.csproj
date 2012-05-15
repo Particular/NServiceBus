@@ -33,11 +33,6 @@
     <DocumentationFile>bin\Release\NServiceBus.Logging.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\log4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -57,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="NullLogger.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Log4Net\LoggerFactory.cs" />
     <Compile Include="Log4Net\Log.cs" />

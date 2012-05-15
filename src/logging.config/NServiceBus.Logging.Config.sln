@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Config", "NServiceBus.Logging.Config\NServiceBus.Logging.Config.csproj", "{CF91119E-9F1C-435E-8086-A81A16E34AE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Config.Tests", "NServiceBus.Logging.Config.Tests\NServiceBus.Logging.Config.Tests.csproj", "{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{CF91119E-9F1C-435E-8086-A81A16E34AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF91119E-9F1C-435E-8086-A81A16E34AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF91119E-9F1C-435E-8086-A81A16E34AE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
