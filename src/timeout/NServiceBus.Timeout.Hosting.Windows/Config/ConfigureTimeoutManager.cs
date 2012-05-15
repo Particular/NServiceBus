@@ -2,6 +2,7 @@
 {
     using Raven.Client;
     using Timeout.Core;
+    using Timeout.Core.Dispatch;
     using Timeout.Hosting.Windows.Config;
     using Timeout.Hosting.Windows.Persistence;
 
@@ -38,7 +39,10 @@
 
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<TimeoutDispatchHandler>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<TimeoutTransportMessageHandler>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<TimeoutDispatcher>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(d => d.TimeoutManagerAddress, TimeoutManagerAddress);
 
             return config;
         }

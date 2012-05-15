@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Timeout.Tests
 {
-    using System;
-    using System.Threading;
     using System.Transactions;
     using Core;
     using Hosting.Windows.Persistence;
     using NUnit.Framework;
     using Raven.Client;
-    using Raven.Client.Document;
     using Raven.Client.Embedded;
 
     [TestFixture]
@@ -34,7 +31,7 @@
                 {
                     //other tx stuff like pop a message from MSMQ
 
-                    persister.Remove(timeoutData);
+                    persister.Remove(timeoutData.Id);
 
                     tx.Complete();
                 }

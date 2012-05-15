@@ -50,11 +50,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             }
         }
 
-        public void Remove(TimeoutData timeout)
+        public void Remove(string timeoutId)
         {
             using (var session = OpenSession())
             {
-                session.Advanced.Defer(new DeleteCommandData { Key = timeout.Id });
+                session.Advanced.Defer(new DeleteCommandData { Key = timeoutId });
                 session.SaveChanges();
             }
 

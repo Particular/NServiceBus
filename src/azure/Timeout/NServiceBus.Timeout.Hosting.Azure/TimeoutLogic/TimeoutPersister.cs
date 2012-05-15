@@ -50,9 +50,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
             context.SaveChanges();
         }
 
-        public void Remove(TimeoutData timeout)
+        public void Remove(string timeoutId)
         {
-            var hash = Hash(timeout);
+            //todo: we need to make this work using the Id of the timeout data
+            var hash = Hash(new TimeoutData());
             TimeoutDataEntity timeoutDataEntity;
             if (!TryGetTimeoutData(hash, out timeoutDataEntity)) return;
 

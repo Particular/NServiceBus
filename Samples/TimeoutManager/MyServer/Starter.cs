@@ -3,8 +3,11 @@ using MyServer.Scheduling;
 namespace MyServer
 {
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using DeferedProcessing;
     using NServiceBus;
+    using PerformanceTest;
     using Saga;
 
     class Starter:IWantToRunAtStartup
@@ -41,8 +44,21 @@ namespace MyServer
                     case "r":
                         ScheduleTask();
                         break;
+                    case "p":
+                        PerformanceTest();
+                        break;
                 }
             }
+        }
+
+        void PerformanceTest()
+        {
+            var total = 1000;
+            PerformanceTestMessageHandler.receivedMessages = new ConcurrentBag<string>();
+            PerformanceTestMessageHandler.NumExpectedMessages = total;
+            PerformanceTestMessageHandler.TimeStarted = DateTime.UtcNow;
+            for (int i = 0; i < 1000; i++)
+                Bus.Defer(TimeSpan.FromMilliseconds(1),new PerformanceTestMessage());
         }
 
         void DeferMessage()
