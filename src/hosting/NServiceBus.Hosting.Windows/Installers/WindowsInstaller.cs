@@ -1,11 +1,12 @@
-﻿using NServiceBus.Hosting.Windows.Arguments;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using NServiceBus.Utils;
+using NServiceBus.Hosting.Windows.Arguments;
 using Topshelf.Internal;
 
 namespace NServiceBus.Hosting.Windows.Installers
 {
-    using System;
-    using System.Linq;
-    using System.Collections.Generic;
     /// <summary>
     /// Windows Installer for NService Bus Host
     /// </summary>
@@ -65,6 +66,11 @@ namespace NServiceBus.Hosting.Windows.Installers
             string[] scannedAssemblies = null;
             if (arguments.ScannedAssemblies != null)
                 scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
+            
+            if (arguments.Username != null)
+            {
+                MsmqUtilities.AccountToBeAssignedQueuePermissions(arguments.Username.Value);
+            }
             
             host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType.Value, true), args, endpointName, commandLineArguments.Install, (arguments.InstallInfrastructure != null), scannedAssemblies);
         }
