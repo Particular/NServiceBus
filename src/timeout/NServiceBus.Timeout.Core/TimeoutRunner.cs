@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Timeout.Core
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using Dispatch;
@@ -21,14 +22,31 @@
 
             TimeoutManager.SagaTimedOut += (o, timeoutData) => TimeoutDispatcher.DispatchTimeout(timeoutData);
 
-            Persister.GetAll().ToList().ForEach(td =>
-                TimeoutManager.PushTimeout(td));
+            CacheExistingTimeouts();
 
             thread = new Thread(Poll) { IsBackground = true };
             thread.Start();
         }
 
-        
+        void CacheExistingTimeouts()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Logger.InfoFormat("Going to fetch existing timeouts from persister ({0})", Persister.GetType().Name);
+
+            var existingTimeouts = Persister.GetAll().ToList();
+
+            Logger.InfoFormat("{0} timeouts loaded from storage in {1} seconds", existingTimeouts.Count, sw.Elapsed.TotalSeconds);
+
+            existingTimeouts.ForEach(td => TimeoutManager.PushTimeout(td));
+
+            sw.Stop();
+
+            Logger.InfoFormat("Total time for cache priming {0} seconds", sw.Elapsed.TotalSeconds);
+        }
+
+
         public void Stop()
         {
             stopRequested = true;
@@ -46,7 +64,7 @@
                 {
                     //intentionally swallow here to avoid this bringing the entire endpoint down.
                     //remove this when our sattelite support is introduced
-                    Logger.ErrorFormat("Failed to pop timeouts - " +  ex);
+                    Logger.ErrorFormat("Failed to pop timeouts - " + ex);
                 }
             }
         }

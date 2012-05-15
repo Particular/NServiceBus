@@ -20,14 +20,25 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         public IEnumerable<TimeoutData> GetAll()
         {
-            try 
-	        {
+            try
+            {
+                var skip = 0;
+                var results = new List<TimeoutData>();
+
                 using (var session = OpenSession())
-                    return session.Query<TimeoutData>().ToList();
-		
-	        }
-	        catch (Exception)
-	        {
+                {
+                    var query = session.Query<TimeoutData>();
+                    var totalCount = query.Count();
+                    while (skip < totalCount)
+                    {
+                        results.AddRange(query.Skip(skip).Take(1024).ToList());
+                        skip += 1024;
+                    }
+                    return results;
+                }
+            }
+            catch (Exception)
+            {
                 if ((store == null) || (string.IsNullOrWhiteSpace(store.Identifier)) || (string.IsNullOrWhiteSpace(store.Url)))
                 {
                     Logger.Error("Exception occurred while trying to access Raven Database. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).");
@@ -37,9 +48,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 Logger.ErrorFormat(
                     "Exception occurred while trying to access Raven Database: [{0}] at [{1}]. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).",
                     store.Identifier, store.Url);
-		        
+
                 throw;
-	        }
+            }
         }
         public void Add(TimeoutData timeout)
         {
