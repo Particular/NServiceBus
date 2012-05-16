@@ -35,7 +35,10 @@ namespace NServiceBus.Serializers.XML
             set { nameSpace = value; }
         }
 
-
+        /// <summary>
+        /// If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing
+        /// </summary>
+        public bool SanitizeInput { get; set; }
 
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
@@ -228,7 +231,11 @@ namespace NServiceBus.Serializers.XML
 
             var doc = new XmlDocument { PreserveWhitespace = true };
 
-            doc.Load(XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }));
+            XmlReader reader = SanitizeInput
+                                  ? XmlReader.Create(new XmlSanitizingStream(stream), new XmlReaderSettings { CheckCharacters = false })
+                                  : XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false });
+
+            doc.Load(reader);
 
             if (doc.DocumentElement == null)
                 return result.ToArray();
