@@ -3,33 +3,33 @@ using NServiceBus.Logging.Internal;
 
 namespace NServiceBus.Logging.Log4Net
 {
-  /// <summary>
-  /// 
-  /// </summary>
-  public class LoggerFactory : ILoggerFactory
-  {
-    private readonly Func<Type, object> getLoggerByTypeDelegate;
-    private readonly Func<String, object> getLoggerByStringDelegate;
-
-    public LoggerFactory()
+    /// <summary>
+    /// 
+    /// </summary>
+    public class LoggerFactory : ILoggerFactory
     {
-      var logManagerType = Type.GetType("log4net.LogManager, log4net");
+        private static readonly Func<Type, object> GetLoggerByTypeDelegate;
+        private static readonly Func<String, object> GetLoggerByStringDelegate;
 
-      if (logManagerType == null)
-        throw new InvalidOperationException("Could not find log4net. There must be a log4net assembly present in the executable directory.");
+        static LoggerFactory()
+        {
+            var logManagerType = Type.GetType("log4net.LogManager, log4net");
 
-      getLoggerByTypeDelegate = logManagerType.GetStaticFunctionDelegate<Type, object>("GetLogger");
-      getLoggerByStringDelegate = logManagerType.GetStaticFunctionDelegate<String, object>("GetLogger");
+            if (logManagerType == null)
+                throw new InvalidOperationException("Log4net could not be loaded. Make sure that the log4net assembly is located in the executable directory.");
+
+            GetLoggerByTypeDelegate = logManagerType.GetStaticFunctionDelegate<Type, object>("GetLogger");
+            GetLoggerByStringDelegate = logManagerType.GetStaticFunctionDelegate<String, object>("GetLogger");
+        }
+
+        public ILog GetLogger(Type type)
+        {
+            return new Log(GetLoggerByTypeDelegate(type));
+        }
+
+        public ILog GetLogger(string name)
+        {
+            return new Log(GetLoggerByStringDelegate(name));
+        }
     }
-
-    public ILog GetLogger(Type type)
-    {
-      return new Log(getLoggerByTypeDelegate(type));
-    }
-
-    public ILog GetLogger(string name)
-    {
-      return new Log(getLoggerByStringDelegate(name));
-    }
-  }
 }

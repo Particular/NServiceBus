@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logging.cs" />
+    <Compile Include="LoggingLibraryException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetLoggingLibrary.cs" />
   </ItemGroup>
