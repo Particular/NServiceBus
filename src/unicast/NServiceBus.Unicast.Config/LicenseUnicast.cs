@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Throttling message receiving according to licensing policy
         /// </summary>
-        public const string MaxMessageThroughputPerSecondLicenseKey = "MaxMessageThroughputPerSecondLicenseKey";
+        public const string MaxMessageThroughputPerSecondLicenseKey = "MaxMessageThroughputPerSecond";
 
         /// <summary>
         /// There is no licensing policy limit on message receiving throughput
