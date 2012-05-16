@@ -32,15 +32,12 @@ namespace NServiceBus.Faults.Forwarder
             localAddress = address;
         }
 
-        // Intentionally service-locate ISendMessages to avoid circular
-        // resolution problem in the container
         void SendFailureMessage(TransportMessage message, Exception e, string reason)
         {
-            SetExceptionHeaders(message, e, reason);
-            var sender = Configure.Instance.Builder.Build<ISendMessages>();
+            SetExceptionHeaders(message, e, reason);            
             try
             {
-                sender.Send(message, ErrorQueue);
+                Send(message, ErrorQueue);
             }
             catch (Exception exception)
             {
@@ -54,6 +51,14 @@ namespace NServiceBus.Faults.Forwarder
                 throw new InvalidOperationException(errorMessage, exception);
             }
             
+        }
+
+        // Intentionally service-locate ISendMessages to avoid circular
+        // resolution problem in the container
+        protected virtual void Send(TransportMessage message, Address errorQueue)
+        {
+            var sender = Configure.Instance.Builder.Build<ISendMessages>();
+            sender.Send(message, ErrorQueue);
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
