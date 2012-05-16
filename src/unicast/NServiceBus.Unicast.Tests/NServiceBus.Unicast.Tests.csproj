@@ -34,9 +34,6 @@
     <Reference Include="NServiceBus.Logging">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>

@@ -1,8 +1,9 @@
+using NServiceBus.Logging;
+
 namespace NServiceBus.Distributor.Config
 {
     using NServiceBus.Config;
     using Unicast;
-    using log4net;
 
     public class DistributorInitializer
     {

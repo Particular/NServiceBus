@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using log4net;
+using NServiceBus.Logging;
 using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Hosting.Profiles

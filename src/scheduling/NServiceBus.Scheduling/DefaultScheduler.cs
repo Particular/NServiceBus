@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using log4net;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Scheduling
 {

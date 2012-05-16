@@ -50,11 +50,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus, Version=1.10.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -73,7 +68,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Config\ConfigureStructureMapBuilder.cs" />
     <Compile Include="StructureMapExtensions.cs" />
     <Compile Include="StructureMapObjectBuilder.cs" />

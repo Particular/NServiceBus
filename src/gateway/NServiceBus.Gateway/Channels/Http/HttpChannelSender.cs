@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Gateway.Channels.Http
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Gateway.Channels.Http
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +8,6 @@
     using System.IO;
     using System.Net;
     using System.Web;
-    using log4net;
     using Utils;
 
     public class HttpChannelSender : IChannelSender

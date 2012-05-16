@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using log4net;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Hosting.Wcf;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting
 {

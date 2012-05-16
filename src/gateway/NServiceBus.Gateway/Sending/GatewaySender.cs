@@ -1,11 +1,12 @@
-﻿namespace NServiceBus.Gateway.Sending
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Gateway.Sending
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Gateway.Config;
     using NServiceBus.Gateway.Channels;
-    using log4net;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Gateway.Routing;

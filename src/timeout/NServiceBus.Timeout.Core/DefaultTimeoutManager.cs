@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Timeout.Core
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using log4net;
 
     /// <summary>
     /// Thread-safe timeout management class.

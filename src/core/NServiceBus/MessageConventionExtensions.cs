@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using log4net;
+//using log4net;
 
 namespace NServiceBus
 {
@@ -13,7 +13,7 @@ namespace NServiceBus
     /// </summary>
     public static class MessageConventionExtensions
     {
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
+//        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
         /// <summary>
         /// Returns true if the given object is a message.
         /// </summary>
@@ -40,7 +40,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to evaluate Message convention: " + ex);           
+//                Logger.Error("Failed to evaluate Message convention: " + ex);           
                 throw;
             }
         }
@@ -83,7 +83,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to evaluate Command convention: " + ex);
+//                Logger.Error("Failed to evaluate Command convention: " + ex);
                 throw;
             }
         }
@@ -104,7 +104,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to evaluate Encrypted Property convention: " + ex);
+//                Logger.Error("Failed to evaluate Encrypted Property convention: " + ex);
                 throw;
             }
         }
@@ -132,7 +132,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to evaluate Event convention: " + ex);
+//                Logger.Error("Failed to evaluate Event convention: " + ex);
                 throw;
             }
         }

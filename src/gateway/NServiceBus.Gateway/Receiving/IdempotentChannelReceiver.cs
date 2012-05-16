@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Gateway.Receiving
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +12,6 @@
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
-    using log4net;
     using Notifications;
     using ObjectBuilder;
     using Persistence;

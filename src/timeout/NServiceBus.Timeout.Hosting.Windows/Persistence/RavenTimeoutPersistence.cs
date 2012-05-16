@@ -1,3 +1,5 @@
+using NServiceBus.Logging;
+
 namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 {
     using System;
@@ -8,7 +10,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using Raven.Abstractions.Indexing;
     using Raven.Client;
     using Raven.Client.Indexes;
-    using log4net;
     using Raven.Client.Linq;
     
     public class RavenTimeoutPersistence : IPersistTimeouts

@@ -58,6 +58,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>

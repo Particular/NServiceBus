@@ -48,9 +48,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\..\packages\NHibernate.3.3.0.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
@@ -72,7 +69,6 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Config\ConfigureNHibernateSubscriptionStorage.cs" />
     <Compile Include="Config\DBSubscriptionStorageConfig.cs" />
     <Compile Include="Config\NHibernateProperty.cs" />

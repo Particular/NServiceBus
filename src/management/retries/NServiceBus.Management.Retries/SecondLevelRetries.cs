@@ -1,10 +1,10 @@
 ﻿using System;
-using log4net;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.Management.Retries.Helpers;
 using NServiceBus.Satellites;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Management.Retries
 {

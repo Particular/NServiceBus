@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
     using System;
-    using log4net;
     using Hosting.Profiles;
     
     [Obsolete("Timeout Profile is obsolete as Timeout Manager is on by default for Server and Publisher roles.")]

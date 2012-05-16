@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\lib\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\nservicebus\NServiceBus.dll</HintPath>
     </Reference>
@@ -43,6 +40,7 @@
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Logging, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>

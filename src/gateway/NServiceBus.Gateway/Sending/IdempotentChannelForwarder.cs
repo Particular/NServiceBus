@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Gateway.Sending
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Gateway.Sending
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +9,6 @@
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
-    using log4net;
     using Routing;
     using Unicast.Transport;
     using Utils;

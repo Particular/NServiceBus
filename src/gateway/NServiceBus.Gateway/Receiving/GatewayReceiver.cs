@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Gateway.Receiving
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
-    using log4net;
     using Notifications;
     using ObjectBuilder;
     using Routing;

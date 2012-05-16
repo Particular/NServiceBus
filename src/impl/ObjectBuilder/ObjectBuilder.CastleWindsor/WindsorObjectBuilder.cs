@@ -5,7 +5,7 @@ using Castle.Core.Resource;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
-using log4net;
+using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;

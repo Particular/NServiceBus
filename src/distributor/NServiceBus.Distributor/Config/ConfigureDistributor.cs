@@ -2,7 +2,7 @@ using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using log4net;
+using NServiceBus.Logging;
 
 namespace NServiceBus
 {
