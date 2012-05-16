@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-//using log4net;
 
 namespace NServiceBus
 {
@@ -8,12 +7,11 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Reflection;
 
-    /// <summary>
+  /// <summary>
     /// Extension methods for message related conventions
     /// </summary>
     public static class MessageConventionExtensions
     {
-//        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
         /// <summary>
         /// Returns true if the given object is a message.
         /// </summary>
@@ -40,8 +38,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-//                Logger.Error("Failed to evaluate Message convention: " + ex);           
-                throw;
+                throw new MessageConventionException("Failed to evaluate Message convention. See inner exception for details.", ex);           
             }
         }
 
@@ -83,8 +80,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-//                Logger.Error("Failed to evaluate Command convention: " + ex);
-                throw;
+                throw new MessageConventionException("Failed to evaluate Command convention. See inner exception for details.", ex);
             }
         }
 
@@ -104,8 +100,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-//                Logger.Error("Failed to evaluate Encrypted Property convention: " + ex);
-                throw;
+                throw new MessageConventionException("Failed to evaluate Encrypted Property convention. See inner exception for details.", ex);
             }
         }
 
@@ -132,8 +127,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-//                Logger.Error("Failed to evaluate Event convention: " + ex);
-                throw;
+                throw new MessageConventionException("Failed to evaluate Event convention. See inner exception for details.", ex);
             }
         }
 

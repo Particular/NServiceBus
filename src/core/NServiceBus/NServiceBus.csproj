@@ -92,6 +92,8 @@
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
+    <Compile Include="MessageConventionException.cs" />
+    <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
