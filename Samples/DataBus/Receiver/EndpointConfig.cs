@@ -2,17 +2,14 @@
 {
 	using NServiceBus;
 
-	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
 	{
-	}
-
-	internal class SetupDataBus : IWantCustomInitialization
-	{
-		public static string BasePath = "..\\..\\..\\storage";
+        public static string BasePath = "..\\..\\..\\storage";
 
 		public void Init()
 		{
-		    Configure.Instance
+		    Configure.With()
+                .NinjectBuilder()
 		        .FileShareDataBus(BasePath)
 		        .UnicastBus();
 		}

@@ -10,7 +10,7 @@ namespace Client
     {
         public void Init()
         {
-            NServiceBus.Configure.Instance.RijndaelEncryptionService();
+            Configure.Instance.RijndaelEncryptionService();
         }
     }
 

@@ -7,6 +7,7 @@
         public void Init()
         {
             Configure.With()
+                .CastleWindsorBuilder()
                 .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
                 .DefiningMessagesAs(t => t.Namespace != null && t.Namespace == "Messages")
