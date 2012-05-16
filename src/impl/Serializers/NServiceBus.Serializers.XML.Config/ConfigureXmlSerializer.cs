@@ -47,5 +47,38 @@ namespace NServiceBus
 
             return config;
         }
+
+        /// <summary>
+        /// Use XML serialization that supports interface-based messages.
+        /// Optionally set the namespace to be used in the XML.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="sanitizeInput"></param>
+        /// <returns></returns>
+        public static Configure XmlSerializer(this Configure config, bool sanitizeInput)
+        {
+          config.XmlSerializer();
+
+          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
+
+          return config;
+        }
+
+        /// <summary>
+        /// Use XML serialization that supports interface-based messages.
+        /// Optionally set the namespace to be used in the XML.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="sanitizeInput"></param>
+        /// <returns></returns>
+        public static Configure XmlSerializer(this Configure config, string nameSpace, bool sanitizeInput)
+        {
+          config.XmlSerializer();
+
+          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
+          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
+
+          return config;
+        }
     }
 }
