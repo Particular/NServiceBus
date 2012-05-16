@@ -102,6 +102,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
         }
 
         /// <summary>
+        /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
+        /// </summary>
+        public int MaxThroughputPerSecond {get; set;}
+
+        /// <summary>
         /// If set to true the transaction scope will be supressed to avoid the use of DTC
         /// </summary>
         public bool SupressDTC { get; set; }
@@ -372,6 +377,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             try
             {
+                if (MaxThroughputPerSecond > 0)
+                    Thread.Sleep(MaxThroughputPerSecond);
                 return MessageReceiver.HasMessage();
             }
             catch (InvalidOperationException)

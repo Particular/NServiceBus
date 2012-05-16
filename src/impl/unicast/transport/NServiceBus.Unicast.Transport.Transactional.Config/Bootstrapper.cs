@@ -3,11 +3,11 @@ using System.Configuration;
 using System.Transactions;
 using Common.Logging;
 using NServiceBus.Config;
+using NServiceBus.Licensing;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
     using Installers;
-
     public class Bootstrapper : INeedInitialization
     {
         static Bootstrapper()
@@ -41,13 +41,17 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                         "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
                 }
             }
-
+            // Limit all transactional transport users (gateway, distributer, timeout)
+            numberOfWorkerThreads = Math.Min(LicenseTransactionalTransport.GetLicensingAllowedCores(), numberOfWorkerThreads);
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
+
+            Logger.Debug("Number of worker threads is set to: " + numberOfWorkerThreads);
             if (numberOfWorkerThreads < 1)
                 Logger.Warn("Number of worker threads is set to zero hence no messages will be processed.");
 
             DtcInstaller.IsEnabled = IsTransactional;
         }
+        
 
         public static bool IsTransactional { get; set; }
         public static IsolationLevel IsolationLevel { get; set; }

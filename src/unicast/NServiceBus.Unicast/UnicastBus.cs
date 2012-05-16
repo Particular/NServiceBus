@@ -103,6 +103,11 @@ namespace NServiceBus.Unicast
         public Address TimeoutManagerAddress { get; set; }
 
         /// <summary>
+        /// Max time (in milliseconds) to sleep between receives according to NServiceBus licensing model.
+        /// </summary>
+        public int MaxThroughputPerSecond { get; set; }
+
+        /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
         /// </summary>
@@ -788,7 +793,10 @@ namespace NServiceBus.Unicast
                     SubscriptionStorage.Init();
 
                 if (!DoNotStartTransport)
+                {
+                    transport.MaxThroughputPerSecond = MaxThroughputPerSecond;
                     transport.Start(InputAddress);
+                }
 
                 if (autoSubscribe)
                 {
@@ -1162,7 +1170,7 @@ namespace NServiceBus.Unicast
             using (var child = Builder.CreateChildBuilder())
                 HandleTransportMessage(child, e.Message);
         }
-
+        
         private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);

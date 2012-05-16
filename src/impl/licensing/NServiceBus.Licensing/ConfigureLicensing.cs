@@ -2,7 +2,6 @@
 
 namespace NServiceBus
 {
-    using System;
 
     public static class ConfigureLicensing
     {
@@ -10,7 +9,6 @@ namespace NServiceBus
         {
             return hasValidLicense.GetValueOrDefault();
         }
-
         static ConfigureLicensing()
         {
             if (hasValidLicense.HasValue)

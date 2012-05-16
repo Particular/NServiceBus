@@ -4,7 +4,6 @@ using Common.Logging;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Config;
 using System.Collections.Generic;
-using NServiceBus.Saga;
 using System.Linq;
 
 namespace NServiceBus.Unicast.Config
@@ -32,8 +31,8 @@ namespace NServiceBus.Unicast.Config
             Configurer = config.Configurer;
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress())
-                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
-
+                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress())
+                .ConfigureProperty(p => p.MaxThroughputPerSecond, LicenseUnicast.GetMaxThroughputPerSecond());
 
             ConfigureSubscriptionAuthorization();
 
@@ -369,7 +368,6 @@ namespace NServiceBus.Unicast.Config
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(UnicastBus));
-
         internal bool LoadMessageHandlersCalled { get; private set; }
     }
 }
