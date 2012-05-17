@@ -1,5 +1,5 @@
 properties {
-	$ProductVersion = "3.0"
+	$ProductVersion = "3.1"
 	$BuildNumber = "0";
 	$PatchVersion = "5"
 	$PreRelease = "-build"	
