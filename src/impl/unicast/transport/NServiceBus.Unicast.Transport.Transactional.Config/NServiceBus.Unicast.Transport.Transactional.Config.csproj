@@ -68,7 +68,7 @@
   <ItemGroup>
     <Compile Include="AdvancedTransactionalConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="LicenseTransactionalTransport.cs" />
+    <Compile Include="LicenceConfig.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

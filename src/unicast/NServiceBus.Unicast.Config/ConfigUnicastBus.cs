@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast.Config
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress())
                 .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress())
-                .ConfigureProperty(p => p.MaxThroughputPerSecond, LicenseUnicast.GetMaxThroughputPerSecond());
+                .ConfigureProperty(p => p.MaxThroughputPerSecond, LicenseConfig.GetMaxThroughputPerSecond());
 
             ConfigureSubscriptionAuthorization();
 

@@ -103,7 +103,7 @@ namespace NServiceBus.Unicast
         public Address TimeoutManagerAddress { get; set; }
 
         /// <summary>
-        /// Max time (in milliseconds) to sleep between receives according to NServiceBus licensing model.
+        /// Throttling message receiving speed according to NServiceBus licensing model.
         /// </summary>
         public int MaxThroughputPerSecond { get; set; }
 

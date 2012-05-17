@@ -114,7 +114,7 @@
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="Config\DistributorInitializer.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
-    <Compile Include="LicenseDistributor.cs" />
+    <Compile Include="LicenseConfig.cs" />
     <Compile Include="ReadyMessages\Headers.cs" />
     <Compile Include="Config\WorkerInitializer.cs" />
     <Compile Include="Installers\WorkerInputInstaller.cs" />

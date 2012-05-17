@@ -27,10 +27,10 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
             var cfg = Configure.GetConfigSection<MsmqTransportConfig>();
 
-            var numberOfWorkerThreads = 1;
+            var numberOfWorkerThreadsInAppConfig = 1;
             if (cfg != null)
             {
-                numberOfWorkerThreads = cfg.NumberOfWorkerThreads;
+                numberOfWorkerThreadsInAppConfig = cfg.NumberOfWorkerThreads;
                 transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
                 if (!string.IsNullOrWhiteSpace(cfg.InputQueue))
                 {
@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                 }
             }
             // Limit all transactional transport users (gateway, distributer, timeout)
-            numberOfWorkerThreads = Math.Min(LicenseTransactionalTransport.GetLicensingAllowedCores(), numberOfWorkerThreads);
+            var numberOfWorkerThreads = LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig);
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
 
             Logger.Debug("Number of worker threads is set to: " + numberOfWorkerThreads);

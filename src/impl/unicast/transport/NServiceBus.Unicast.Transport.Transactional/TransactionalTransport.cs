@@ -101,10 +101,29 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
+        private int throttlingMilliseconds;
+        private int maxThroughputPerSecond;
+        private const int AverageMessageHandlingTime = 200; // "guessed" time it takes for user code in handler to execute.
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
         /// </summary>
-        public int MaxThroughputPerSecond {get; set;}
+        public int MaxThroughputPerSecond {
+            get { return maxThroughputPerSecond; }
+            set
+            {
+                maxThroughputPerSecond = value;
+                if (maxThroughputPerSecond == 0)
+                {
+                    throttlingMilliseconds = 0;
+                    Logger.Debug("Throttling on message receiving rate is not limited by licensing policy.");
+                    return;
+                }
+
+                if(maxThroughputPerSecond > 0)
+                    throttlingMilliseconds = (1000 - AverageMessageHandlingTime) / maxThroughputPerSecond;
+                Logger.DebugFormat("Setting throttling to: [{0}] message/s per second, sleep between receiving message: [{1}]", maxThroughputPerSecond, throttlingMilliseconds);
+            }
+        }
 
         /// <summary>
         /// If set to true the transaction scope will be supressed to avoid the use of DTC
@@ -160,7 +179,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             MessageReceiver.Init(address, IsTransactional);
             FailureManager.Init(address);
-
+            Logger.DebugFormat("Going to start [{0}] receiving thread/s for Address [{1}].", numberOfWorkerThreads, address);
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
         }
@@ -377,8 +396,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             try
             {
-                if (MaxThroughputPerSecond > 0)
-                    Thread.Sleep(MaxThroughputPerSecond);
+                if (throttlingMilliseconds > 0)
+                    Thread.Sleep(throttlingMilliseconds);
                 return MessageReceiver.HasMessage();
             }
             catch (InvalidOperationException)

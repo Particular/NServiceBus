@@ -50,7 +50,7 @@
         {
             var replyToAddress = controlMessage.ReplyToAddress;
 
-            if (LicenseDistributor.LimitNumberOfWorkers(replyToAddress))
+            if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
                 return;
             
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))

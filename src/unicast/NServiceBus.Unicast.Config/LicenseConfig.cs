@@ -5,12 +5,8 @@ namespace NServiceBus.Unicast.Config
     /// <summary>
     /// Contains Unicast related licensing keys
     /// </summary>
-    public static class LicenseUnicast
+    public static class LicenseConfig
     {
-        /// <summary>
-        /// How many worker (message receiving) threads are allowed by licensing policy
-        /// </summary>
-        public const string AllowedCoresLicenseKey = "AllowedCores";
         /// <summary>
         /// Throttling message receiving according to licensing policy
         /// </summary>
@@ -19,23 +15,23 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// There is no licensing policy limit on message receiving throughput
         /// </summary>
-        public const int MaxMessageThroughputPerSecond = 0;
+        public const string MaxMessageThroughputPerSecond = "Max";
         /// <summary>
         /// Licensing policy limits on message receiving to maximum of 1 message per second
         /// </summary>
-        public const int OneMessagePerSecondThroughput = 800;
+        public const int OneMessagePerSecondThroughput = 1;
         /// <summary>
         /// Licensing policy limits on message receiving to maximum of 2 message per second
         /// </summary>
-        public const int TwoMessagePerSecondThroughput = 400;
+        public const int TwoMessagePerSecondThroughput = 2;
         /// <summary>
         /// Licensing policy limits on message receiving to maximum of 4 message per second
         /// </summary>
-        public const int FourMessagePerSecondThroughput = 200;
+        public const int FourMessagePerSecondThroughput = 4;
         /// <summary>
         /// Licensing policy limits on message receiving to maximum of 8 message per second
         /// </summary>
-        public const int EightMessagePerSecondThroughput = 100;
+        public const int EightMessagePerSecondThroughput = 8;
 
         internal static int GetMaxThroughputPerSecond()
         {
@@ -44,14 +40,20 @@ namespace NServiceBus.Unicast.Config
             if (license.LicenseType == LicenseType.Basic1)
                 return OneMessagePerSecondThroughput;
 
-            int maxThroughputPerSecond = MaxMessageThroughputPerSecond;
-            if (license.LicenseAttributes == null)
-                return maxThroughputPerSecond;
+            if ((license.LicenseAttributes == null) || (license.LicenseAttributes.Count == 0))
+                return 0;
 
             if (license.LicenseAttributes.ContainsKey(MaxMessageThroughputPerSecondLicenseKey))
-                int.TryParse(license.LicenseAttributes[MaxMessageThroughputPerSecondLicenseKey], out maxThroughputPerSecond);
-
-            return maxThroughputPerSecond;
+            {
+                string maxMessageThroughputPerSecond = license.LicenseAttributes[MaxMessageThroughputPerSecondLicenseKey];
+                if (maxMessageThroughputPerSecond == MaxMessageThroughputPerSecond)
+                    return 0;
+                
+                int messageThroughputPerSecond;
+                if (int.TryParse(maxMessageThroughputPerSecond, out messageThroughputPerSecond))
+                    return messageThroughputPerSecond;
+            }
+            return OneMessagePerSecondThroughput;
         }
     }
 }
