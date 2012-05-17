@@ -37,7 +37,7 @@ $script:msBuildTargetFramework = ""
 $script:nunitTargetFramework = "/framework=4.0";
 $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
-$script:packageVersion = "3.0.0-local"
+$script:packageVersion = "3.1.0-local"
 $script:releaseVersion = ""
 
 include $toolsDir\psake\buildutils.ps1
