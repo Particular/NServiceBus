@@ -19,15 +19,15 @@ namespace NServiceBus.Unicast.Tests
             unicastBus.RegisterMessageType(typeof(TestMessage), addressToOwnerOfTestMessage);
         }
         [Test]
-        public void Only_the_major_version_should_be_used_as_the_subscription_key_in_order_to_make_versioning_easier()
+        public void Should_send_the_assemblyqualified_name_as_subscription_type()
         {
             bus.Subscribe<TestMessage>();
 
-            var version = typeof(TestMessage).Assembly.GetName().Version.Major + ".0.0.0";
+            var version = typeof(TestMessage).Assembly.GetName().Version;
 
             messageSender.AssertWasCalled(x =>
                 x.Send(Arg<TransportMessage>.Matches(
-                    m => m.Headers.ContainsKey(UnicastBus.SubscriptionMessageType) && m.Headers[UnicastBus.SubscriptionMessageType].Contains("Version=" + version)),
+                    m => m.Headers.ContainsKey(UnicastBus.SubscriptionMessageType) && m.Headers[UnicastBus.SubscriptionMessageType] == typeof(TestMessage).AssemblyQualifiedName),
                     Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
 
         }
