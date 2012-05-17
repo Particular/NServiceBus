@@ -1,5 +1,4 @@
-﻿using log4net.Appender;
-using log4net.Core;
+﻿using NServiceBus.Logging.Log4Net;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
@@ -10,13 +9,7 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null,
-                a =>
-                {
-                    LiteLoggingHandler.PrepareColors(a);
-                    a.Threshold = Level.Info;
-                }
-            );
+            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateColoredConsoleAppender("Info"));
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using log4net.Appender;
+﻿using NServiceBus.Logging.Log4Net;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     using System;
     using System.Runtime.InteropServices;
-    using log4net.Core;
 
     /// <summary>
     /// Handles logging configuration for the production profile
@@ -13,30 +12,12 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<RollingFileAppender>(null,
-                a =>
-                {
-                    a.CountDirection = 1;
-                    a.DatePattern = "yyyy-MM-dd";
-                    a.RollingStyle = RollingFileAppender.RollingMode.Composite;
-                    a.MaxFileSize = 1024 * 1024;
-                    a.MaxSizeRollBackups = 10;
-                    a.LockingModel = new FileAppender.MinimalLock();
-                    a.StaticLogFileName = true;
-                    a.File = "logfile";
-                    a.AppendToFile = true;
-                });
+            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateRollingFileAppender(null, "logfile"));
 
             if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
                 return;
 
-            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null,
-              a =>
-              {
-                  LiteLoggingHandler.PrepareColors(a);
-                  a.Threshold = Level.Info;
-              }
-          );
+            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateColoredConsoleAppender("Info"));
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

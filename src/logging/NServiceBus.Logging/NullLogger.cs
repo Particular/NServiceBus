@@ -2,7 +2,7 @@ using System;
 
 namespace NServiceBus.Logging
 {
-  /// <summary>
+    /// <summary>
   /// 
   /// </summary>
   public class NullLogger : ILog

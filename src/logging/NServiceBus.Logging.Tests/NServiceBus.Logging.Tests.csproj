@@ -52,7 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Log4NetFactoryTests.cs" />
+    <Compile Include="Log4Net\AppenderFactoryTests.cs" />
+    <Compile Include="Log4Net\ConfiguratorTests.cs" />
+    <Compile Include="Log4Net\LoggerFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

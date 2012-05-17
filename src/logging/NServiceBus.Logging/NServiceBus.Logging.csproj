@@ -52,7 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="Internal\ReflectionExtensions.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="Log4Net\AppenderFactory.cs" />
+    <Compile Include="Log4Net\Configurator.cs" />
+    <Compile Include="LoggingLibraryException.cs" />
     <Compile Include="NullLogger.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Log4Net\LoggerFactory.cs" />
