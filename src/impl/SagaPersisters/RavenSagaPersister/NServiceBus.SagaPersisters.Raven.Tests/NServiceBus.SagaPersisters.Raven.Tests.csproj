@@ -76,7 +76,9 @@
     <Reference Include="NServiceBus.Sagas.Impl">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Sagas.Impl.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.UnitOfWork, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="NServiceBus.UnitOfWork">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
