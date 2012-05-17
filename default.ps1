@@ -1,7 +1,7 @@
 properties {
 	$ProductVersion = "3.1"
 	$BuildNumber = "0";
-	$PatchVersion = "5"
+	$PatchVersion = "0"
 	$PreRelease = "-build"	
 	$PackageNameSuffix = ""
 	$TargetFramework = "net-4.0"
