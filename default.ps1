@@ -954,7 +954,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		"release" `
 		"NServiceBus" `
 		$assemblyProduct `
-		"Copyright � NServiceBus 2007-2012" `
+		"Copyright (C) NServiceBus 2007-2012" `
 		$asmVersion `
 		$fileVersion `
 		$infoVersion `
