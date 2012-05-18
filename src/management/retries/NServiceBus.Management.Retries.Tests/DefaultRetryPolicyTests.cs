@@ -9,7 +9,7 @@ namespace NServiceBus.Management.Retries.Tests
     [TestFixture]
     public class DefaultRetryPolicyTests
     {
-        private readonly int[] _expectedResults = new[] {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+        private readonly int[] _expectedResults = new[] {10,20,30};
         private TransportMessage _message;
 
         [SetUp]
@@ -19,15 +19,15 @@ namespace NServiceBus.Management.Retries.Tests
         }
 
         [Test]
-        public void The_time_span_should_increase_with_5_minutes_for_every_retry()
+        public void The_time_span_should_increase_with_10_sec_for_every_retry()
         {            
-            for (int i=0; i<10; i++)
+            for (int i=0; i<3; i++)
             {                
                 var timeSpan = DefaultRetryPolicy.Validate(_message);
                 
                 Defer();
 
-                Assert.AreEqual(_expectedResults[i], timeSpan.Minutes);
+                Assert.AreEqual(_expectedResults[i], timeSpan.Seconds);
             }          
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using NServiceBus.Config;
 using NServiceBus.Faults;
 using NServiceBus.Satellites.Config;
 using NUnit.Framework;
@@ -26,7 +27,7 @@ namespace NServiceBus.Satellites.Tests
 
             var configurer = new SatelliteConfigurer();
             configurer.Init();
-            configurer.Run();
+            //configurer.Run();
 
             var launcher = new NonThreadingSatelliteLauncher
                                {

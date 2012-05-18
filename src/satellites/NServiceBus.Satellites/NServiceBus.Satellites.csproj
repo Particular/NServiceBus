@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\SatelliteContext.cs" />
-    <Compile Include="Config\SatelliteConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="Config\SatelliteLauncherConfiguration.cs" />
     <Compile Include="ISatellite.cs" />

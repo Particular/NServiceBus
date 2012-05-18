@@ -69,7 +69,7 @@ namespace NServiceBus.Management.Retries
                 TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTime.UtcNow.ToWireFormattedString());
             }            
             
-            Logger.InfoFormat("Defer message and send it to {0} using the timeout manager at {1}", message.ReplyToAddress, TimeoutManagerAddress);
+            Logger.InfoFormat("Defer message and send it to {0} using the timeout manager at {1}", message.ReplyToAddress, TimeoutManagerAddress);            
 
             MessageSender.Send(message, TimeoutManagerAddress);
         }

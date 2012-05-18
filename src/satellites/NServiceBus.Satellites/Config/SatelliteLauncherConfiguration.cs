@@ -1,12 +1,12 @@
-﻿using NServiceBus.Config;
+﻿using NServiceBus.Satellites;
 
-namespace NServiceBus.Satellites.Config
+namespace NServiceBus.Config
 {
     public class SatelliteLauncherConfiguration : INeedInitialization
     {                
         public void Init()
         {
-            Configure.Instance.Configurer.RegisterSingleton<ISatelliteTransportBuilder>(new SatelliteTransportBuilder());                      
+            Configure.Instance.Configurer.ConfigureComponent<SatelliteTransportBuilder>(DependencyLifecycle.SingleInstance);                      
             Configure.Instance.Configurer.ConfigureComponent<SatelliteLauncher>(DependencyLifecycle.SingleInstance);            
         }
     }

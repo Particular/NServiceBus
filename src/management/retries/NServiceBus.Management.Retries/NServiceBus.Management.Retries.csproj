@@ -47,6 +47,9 @@
     <Reference Include="NServiceBus.Faults.Forwarder">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.Forwarder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Faults.Forwarder.Config">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Faults.Forwarder.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Installation, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
@@ -98,7 +101,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecondLevelRetries.cs" />
     <Compile Include="Helpers\TransportMessageHelpers.cs" />
-    <Compile Include="SecondLevelRetriesFaultManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

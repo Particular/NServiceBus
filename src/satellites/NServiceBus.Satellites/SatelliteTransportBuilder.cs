@@ -8,7 +8,7 @@ namespace NServiceBus.Satellites
 {
     public interface ISatelliteTransportBuilder
     {        
-        ITransport Build(int numberOfWorkerThreads, int maxRetries, bool isTransactional);
+        ITransport Build();
     }
 
     public class SatelliteTransportBuilder : ISatelliteTransportBuilder
@@ -16,18 +16,23 @@ namespace NServiceBus.Satellites
         public IBuilder Builder { get; set; }
         public TransactionalTransport MainTransport { get; set; }
 
-        public ITransport Build(int numberOfWorkerThreads, int maxRetries, bool isTransactional)
+        public ITransport Build()
         {
-            var nt = numberOfWorkerThreads > 0 ? numberOfWorkerThreads : MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads;
-            var mr = maxRetries > 0 ? maxRetries : MainTransport.MaxRetries;
+            var nt = 1; // MainTransport != null ? MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads : 1;
+            var mr = MainTransport != null ? MainTransport.MaxRetries : 1;
+            var tx = MainTransport != null ? MainTransport.IsTransactional : true;
+
+            var fm = MainTransport != null
+                         ? Builder.Build(MainTransport.FailureManager.GetType()) as IManageMessageFailures
+                         : Builder.Build<IManageMessageFailures>();
 
             return new TransactionalTransport
             {
                 MessageReceiver = new MsmqMessageReceiver(),
-                IsTransactional = isTransactional,
+                IsTransactional = tx,
                 NumberOfWorkerThreads = nt,
                 MaxRetries = mr,
-                FailureManager = Builder.Build(MainTransport.FailureManager.GetType()) as IManageMessageFailures
+                FailureManager = fm
             };            
         }
     }

@@ -6,12 +6,17 @@ namespace NServiceBus.Management.Retries
 {
     public static class DefaultRetryPolicy
     {
-        const int MAX_NUM_RETRIES = 10;
+        public static int NumberOfRetries = 3;
+        public static TimeSpan TimeIncrease = TimeSpan.FromSeconds(10);
 
         public static TimeSpan Validate(TransportMessage message)
         {
             var numberOfRetries = TransportMessageHelpers.GetNumberOfRetries(message);
-            return numberOfRetries >= MAX_NUM_RETRIES ? TimeSpan.MinValue : TimeSpan.FromMinutes((numberOfRetries + 1)*5);
+
+            var timeToIncreaseInTicks = TimeIncrease.Ticks*(numberOfRetries + 1);
+            var timeIncrease = TimeSpan.FromTicks(timeToIncreaseInTicks);
+
+            return numberOfRetries >= NumberOfRetries ? TimeSpan.MinValue : timeIncrease;
         }
 
         public static bool HasTimedOut(TransportMessage message)

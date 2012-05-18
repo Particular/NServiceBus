@@ -6,7 +6,7 @@ namespace NServiceBus.Satellites.Tests
     {
         public ITransport TransportToReturn { get; set; }
 
-        public ITransport Build(int numberOfWorkerThreads, int maxRetries, bool isTransactional)
+        public ITransport Build()
         {
             return TransportToReturn ?? new FakeTransport();
         }

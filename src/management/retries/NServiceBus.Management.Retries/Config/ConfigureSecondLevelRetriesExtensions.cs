@@ -6,9 +6,15 @@ namespace NServiceBus
     {        
         public static Configure DisableSecondLevelRetries(this Configure config)
         {
-            config.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(rs => rs.Disabled, true);
-
+            if (config.Configurer.HasComponent<SecondLevelRetries>())
+            {
+                config.Configurer.ConfigureProperty<SecondLevelRetries>(p => p.Disabled, true);
+            }
+            else
+            {
+                config.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(p => p.Disabled, true);
+            }
             return config;
         }
     }

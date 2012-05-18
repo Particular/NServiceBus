@@ -1,37 +1,72 @@
-﻿using System.Security.Principal;
-using NServiceBus.Faults;
+﻿using System;
+using System.Security.Principal;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.Installation;
+using NServiceBus.Management.Retries;
 using NServiceBus.Utils;
 
-namespace NServiceBus.Management.Retries.Config
-{
-    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, INeedToInstallSomething<Installation.Environments.Windows>
+namespace NServiceBus.Config
+{        
+    public class SecondLevelRetriesConfiguration : INeedInitialization, INeedToInstallSomething<Installation.Environments.Windows>
     {
-        public void Run()
+        public void Init()
         {
-            // We can only use this when the FaultForwarder is used            
-            var faultManager = Configure.Instance.Builder.Build<IManageMessageFailures>();
+            var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
+            var enabled = retriesConfig != null ? retriesConfig.Enabled : true;
 
-            if (faultManager is FaultManager)
+            Address errorQueue = null;
+
+            if (enabled)
             {
+                var forwardingInCaseOfFaultConfig = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
+
+                if (forwardingInCaseOfFaultConfig != null)
+                {
+                    errorQueue = Address.Parse(forwardingInCaseOfFaultConfig.ErrorQueue);
+                }
+            }
+
+            if (errorQueue != null)
+            {
+                if (retriesConfig != null)
+                {
+                    SetUpRetryPolicy(retriesConfig);
+                }
+
                 var retriesErrorQ = GetAddress();
-                var originalErrorQueue = ((FaultManager) faultManager).ErrorQueue;
-
-                // and only when the retries satellite is running should we alter the FaultManager
-                Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetriesFaultManager>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(fm => fm.ErrorQueue, retriesErrorQ);
-
+                var originalErrorQueue = errorQueue;
+                
+                // and only when the retries satellite is running should we alter the FaultManager                              
+                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.ErrorQueue, retriesErrorQ);
+                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RealErrorQueue, originalErrorQueue);
+                
                 Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(rs => rs.ErrorQueue, originalErrorQueue)
                     .ConfigureProperty(rs => rs.InputAddress, retriesErrorQ)
                     .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress()); 
+
+                
             }
             else
             {
                 Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(rs => rs.Disabled, true);
+
+                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RealErrorQueue, null);
             }             
+        }
+
+        static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
+        {
+            if (retriesConfig.NumberOfRetries != default(int))
+            {
+                DefaultRetryPolicy.NumberOfRetries = retriesConfig.NumberOfRetries;
+            }
+            
+            if (retriesConfig.TimeIncrease != TimeSpan.MinValue)
+            {
+                DefaultRetryPolicy.TimeIncrease = retriesConfig.TimeIncrease;
+            }
         }
 
         public void Install(WindowsIdentity identity)
@@ -41,16 +76,7 @@ namespace NServiceBus.Management.Retries.Config
         
         static Address GetAddress()
         {
-            Address configuredAddress = null;
-
-            var configSection = Configure.GetConfigSection<SecondLevelRetriesConfig>();
-            
-            if (configSection != null)
-            {
-                configuredAddress = Address.Parse(configSection.RetryErrorAddress);
-            }
-
-            return configuredAddress ?? Address.Parse(Configure.EndpointName).SubScope("Retries");
+            return  Address.Parse(Configure.EndpointName).SubScope("Retries");
         }
     }
 }

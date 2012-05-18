@@ -25,28 +25,37 @@ namespace NServiceBus.Satellites
         {
             timer = new System.Timers.Timer {Interval = 1000};
             timer.Elapsed += (o, e) => Start();
-            
+
+            Build();
+
             Initialize();
             Start();
         }
 
+        void Build()
+        {
+            Configure.Instance.Builder
+                .BuildAll<ISatellite>()
+                .ToList()
+                .ForEach(s => Satellites.Add(new SatelliteContext
+                                                 {
+                                                     Instance = s
+                                                 }));
+        }
+
         void Initialize()
         {
-            foreach (var ctx in Satellites.Where(c => c.Enabled))
-            {
-                Logger.DebugFormat("Initializing satellite {0}", ctx.TypeOfSatellite.Name);
-                ctx.Instance = Builder.Build(ctx.TypeOfSatellite) as ISatellite;
-
+            foreach (var ctx in Satellites)
+            {                                
                 if (ctx.Instance == null)
                 {
-                    Logger.DebugFormat("Could not build satellite {0}", ctx.TypeOfSatellite.Name);
-                    ctx.Enabled = false;
+                    Logger.DebugFormat("No satellite found for context!");                    
                     continue;
                 }
 
                 if (ctx.Instance.InputAddress != null && ctx.Instance.Disabled == false)
                 {                    
-                    ctx.Transport = TransportBuilder.Build(ctx.NumberOfWorkerThreads, ctx.MaxRetries, ctx.IsTransactional);
+                    ctx.Transport = TransportBuilder.Build();
                 }                
             }
         }
@@ -69,8 +78,7 @@ namespace NServiceBus.Satellites
             return Satellites.Where(sat => 
                 sat.Instance != null && 
                 !sat.Instance.Disabled && 
-                !sat.Started && 
-                sat.Enabled &&
+                !sat.Started &&                 
                 sat.FailedAttempts < 3);
         }
 
@@ -104,12 +112,6 @@ namespace NServiceBus.Satellites
                     ctx.Transport.TransportMessageReceived += (o, e) => HandleMessageReceived(o, e, ctx.Instance);
                     ctx.Transport.Start(ctx.Instance.InputAddress);
 
-                    // if exception is thrown, worker threads are set to 0. That's why we here increase them again.
-                    if (ctx.NumberOfWorkerThreads != ctx.Transport.NumberOfWorkerThreads && ctx.FailedAttempts > 0)
-                    {
-                        ctx.Transport.ChangeNumberOfWorkerThreads(ctx.NumberOfWorkerThreads);
-                    }
-
                     Logger.DebugFormat("Starting transport {0} for satellite {1} using {2} thread(s)", ctx.Instance.InputAddress, ctx.Instance.GetType().Name, ctx.Transport.NumberOfWorkerThreads);
                 }
                 else
@@ -127,8 +129,7 @@ namespace NServiceBus.Satellites
                     ctx.Started = false;
 
                     if (ctx.Transport != null)
-                    {
-                        //ctx.Transport.Stop() ?
+                    {                        
                         ctx.Transport.ChangeNumberOfWorkerThreads(0);                        
                     }
 

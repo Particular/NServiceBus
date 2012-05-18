@@ -1,23 +1,56 @@
 ﻿using System;
 using System.Configuration;
 
-namespace NServiceBus.Management.Retries.Config
+namespace NServiceBus.Config
 {
     public class SecondLevelRetriesConfig : ConfigurationSection
     {
-        [ConfigurationProperty("RetryErrorAddress", IsRequired = false)]
-        public string RetryErrorAddress
+        [ConfigurationProperty("Enabled", IsRequired = false)]
+        public bool Enabled
         {
             get
             {
-                return CastTo<string>(this["RetryErrorAddress"]);
+                return CastTo<bool>(this["Enabled"]);
             }
             set
             {
-                this["RetryErrorAddress"] = value;
+                this["Enabled"] = value;
             }
         }
-        
+
+        [ConfigurationProperty("TimeIncrease", IsRequired = false)]
+        public TimeSpan TimeIncrease
+        {
+            get
+            {
+                try
+                {
+                    return (TimeSpan)this["TimeIncrease"];
+                }
+                catch (Exception)
+                {
+                    return TimeSpan.MinValue;
+                }
+                
+            }
+            set
+            {
+                this["TimeIncrease"] = value;
+            }
+        }
+
+        [ConfigurationProperty("NumberOfRetries", IsRequired = false)]
+        public int NumberOfRetries
+        {
+            get
+            {
+                return CastTo<int>(this["NumberOfRetries"]);
+            }
+            set
+            {
+                this["NumberOfRetries"] = value;
+            }
+        }
         static T CastTo<T>(object value)
         {
             try
