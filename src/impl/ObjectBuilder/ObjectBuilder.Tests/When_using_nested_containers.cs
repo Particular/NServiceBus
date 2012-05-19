@@ -32,6 +32,8 @@ namespace ObjectBuilder.Tests
 
         }
 
+        List<object> results;
+
         [Test]
         public void Instance_per_uow__components_should_not_be_shared_across_child_containers()
         {
@@ -49,15 +51,11 @@ namespace ObjectBuilder.Tests
                 thread1.Join();
                 thread2.Join();
 
-
                 Assert.AreNotSame(results[0], results[1]);
 
             },
             typeof(SpringObjectBuilder));
-
         }
-
-        static List<object> results;
 
         void ResolveChildInstance(object container)
         {

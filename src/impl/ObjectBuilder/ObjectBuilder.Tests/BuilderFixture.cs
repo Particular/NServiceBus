@@ -29,22 +29,10 @@ namespace ObjectBuilder.Tests
 
         protected void ForAllBuilders(Action<IContainer> assertion,params Type[] containersToIgnore)
         {
-            bool failed = false;
-
             foreach (var builder in objectBuilders.Where(b=>!containersToIgnore.Contains(b.GetType())))
             {
-                try
-                {
-                    assertion(builder);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("Test failed for: " + builder.GetType().Name);
-                    Trace.WriteLine(ex);
-                    failed = true;
-                }
+                assertion(builder);
             }
-            Assert.False(failed,"One or more of the builders failed");
          }
 
         [SetUp]
