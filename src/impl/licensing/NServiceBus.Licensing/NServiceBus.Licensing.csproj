@@ -58,7 +58,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureLicensing.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="LicenseDescriptor.cs" />
     <Compile Include="LicenseManager.cs" />

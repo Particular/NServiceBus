@@ -28,8 +28,6 @@
 
         void SendReadyMessage(int capacityAvailable,bool isStarting = false)
         {
-            CheckForValidLicense();
-            
             var readyMessage = ControlMessage.Create();
 
             readyMessage.ReplyToAddress = Bus.InputAddress; //we use the actual address to make sure that the worker inside the masternode will check in correctly
@@ -41,11 +39,6 @@
 
 
             MessageSender.Send(readyMessage, DistributorControlAddress);
-        }
-        private static void CheckForValidLicense()
-        {
-            if(!Configure.Instance.HasValidLicense() && !IsLocal())
-                Logger.Error("In accordance with NServiceBus licensing agreement, when running your worker from a different machine than your Distributor, a valid license should exist on both endpoints. Please go to http://nservicebus.com/License.aspx to obtain a valid license.");
         }
 
         private static bool? isLocal;

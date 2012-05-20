@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using System.Diagnostics;
 using System.Reflection;
 using Common.Logging;
 using Rhino.Licensing;
@@ -42,7 +41,7 @@ namespace NServiceBus.Licensing
 
                 return true;
             }
-            catch (LicenseNotFoundException licenseNotFoundException)
+            catch (LicenseNotFoundException)
             {
                 Logger.Error("The installed license is not valid");
                 throw;
@@ -83,9 +82,6 @@ namespace NServiceBus.Licensing
 
         private static Version GetNServiceBusVersion()
         {
-            var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-            var semverVersion = string.Format("{0}.{1}.{2}", version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
-            
             string appName = Assembly.GetAssembly(typeof(LicenseManager)).Location;
             var assembyVersion = AssemblyName.GetAssemblyName(appName).Version;
             return new Version(assembyVersion.Major, assembyVersion.Minor);
