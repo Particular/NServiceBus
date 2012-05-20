@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Configuration;
+using System.Diagnostics;
+using System.Reflection;
 using Common.Logging;
 using Rhino.Licensing;
 
@@ -7,6 +10,7 @@ namespace NServiceBus.Licensing
     public class LicenseManager
     {
         public const string LicenseTypeKey = "LicenseType";
+        public const string LicenseVersionKey = "LicenseVersion";
         public LicenseManager()
         {
             Validator = CreateValidator();
@@ -30,32 +34,61 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat("Expires on {0}", Validator.ExpirationDate);
                 if ((Validator.LicenseAttributes != null) && (Validator.LicenseAttributes.Count > 0))
                     foreach (var licenseAttribute in Validator.LicenseAttributes)
-                        Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);                            
-                
-                if (Validator.IsExpired)
-                {
-                    Logger.Warn("Your trial is expired. You are allowed to run on two CPU cores only.");
-                }
+                        Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
 
+                CheckIfNServiceBusVersionIsNewerThanLicenseVersion();
+                
                 SetNServiceBusLicense();
 
                 return true;
             }
-            catch (LicenseNotFoundException)
+            catch (LicenseNotFoundException licenseNotFoundException)
             {
-                string error = "The installed license is not valid";
-
-                if (Validator.LicenseType == Rhino.Licensing.LicenseType.Trial)
-                    error = error + "The trial period has expired!";
-
-                Logger.Warn(error);
+                Logger.Error("The installed license is not valid");
+                throw;
             }
             catch (LicenseFileNotFoundException)
             {
                 Logger.Warn("No valid license file was found. The host will be limited to 1 worker thread.");
             }
+            
             SetNServiceBusLicense();
             return false;
+        }
+        //if NServiceBus version > license version, throw an exception
+        private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
+        {
+            if(Validator.LicenseType == Rhino.Licensing.LicenseType.None)
+                return;
+
+            if (Validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
+            {
+                try
+                {
+                    var semver = GetNServiceBusVersion();
+                    var licenseVersion = Version.Parse(Validator.LicenseAttributes[LicenseVersionKey]);
+                    if (licenseVersion >= semver)
+                        return;
+                }
+                catch (Exception exception)
+                {
+                    throw new ConfigurationErrorsException(
+                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.", exception);
+                }
+            }
+
+            throw new ConfigurationErrorsException(
+                "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.");
+        }
+
+        private static Version GetNServiceBusVersion()
+        {
+            var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            var semverVersion = string.Format("{0}.{1}.{2}", version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
+            
+            string appName = Assembly.GetAssembly(typeof(LicenseManager)).Location;
+            var assembyVersion = AssemblyName.GetAssemblyName(appName).Version;
+            return new Version(assembyVersion.Major, assembyVersion.Minor);
         }
 
         /// <summary>
