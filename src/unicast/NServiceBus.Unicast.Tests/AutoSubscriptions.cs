@@ -55,7 +55,8 @@
             StartBus();
             Thread.Sleep(5000); //Wait for subscriptions to happen
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
+            AssertSubscription(m => true,
+                              eventEndpointAddress);
         }
     }
 
@@ -102,7 +103,8 @@
 
             StartBus();
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
+            AssertSubscription(m => true,
+                              eventEndpointAddress);
         }
     }
     public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaData>, IAmStartedByMessages<EventMessageBase>

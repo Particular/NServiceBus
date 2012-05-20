@@ -23,12 +23,9 @@ namespace NServiceBus.Unicast.Tests
         {
             bus.Subscribe<TestMessage>();
 
-            var version = typeof(TestMessage).Assembly.GetName().Version;
-
-            messageSender.AssertWasCalled(x =>
-                x.Send(Arg<TransportMessage>.Matches(
-                    m => m.Headers.ContainsKey(UnicastBus.SubscriptionMessageType) && m.Headers[UnicastBus.SubscriptionMessageType] == typeof(TestMessage).AssemblyQualifiedName),
-                    Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
+            AssertSubscription(m => m.Headers.ContainsKey(UnicastBus.SubscriptionMessageType) && 
+                                    m.Headers[UnicastBus.SubscriptionMessageType] == typeof(TestMessage).AssemblyQualifiedName,
+                                addressToOwnerOfTestMessage);
 
         }
 
@@ -37,13 +34,8 @@ namespace NServiceBus.Unicast.Tests
         {
             bus.Subscribe<TestMessage>();
 
-            var version = typeof(TestMessage).Assembly.GetName().Version.Major + ".0.0.0";
-
-            messageSender.AssertWasCalled(x =>
-                x.Send(Arg<TransportMessage>.Matches(
-                    m => m.MessageIntent == MessageIntentEnum.Subscribe),
-                    Arg<Address>.Is.Equal(addressToOwnerOfTestMessage)));
-
+            AssertSubscription(m => m.MessageIntent == MessageIntentEnum.Subscribe,
+                                addressToOwnerOfTestMessage);
         }
     }
     

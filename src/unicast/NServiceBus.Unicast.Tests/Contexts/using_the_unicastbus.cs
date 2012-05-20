@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Helpers;
     using Faults;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -39,7 +40,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
-            MasterNodeAddress = new Address(localAddress,"MasterNode"); 
+            MasterNodeAddress = new Address(localAddress, "MasterNode");
 
             try
             {
@@ -56,9 +57,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             messageSender = MockRepository.GenerateStub<ISendMessages>();
 
             subscriptionStorage = new FakeSubscriptionStorage();
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(()=>headerManager);
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
-            FuncBuilder.Register<DefaultDispatcherFactory>(()=>new DefaultDispatcherFactory());
+            FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
 
             unicastBus = new UnicastBus
@@ -76,9 +77,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             };
             bus = unicastBus;
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator{Bus = bus});
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-            
+
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }
 
@@ -87,7 +88,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(destination)));
         }
 
-        protected void VerifyThatMessageWasSentWithHeaders(Func<IDictionary<string,string>,bool> predicate)
+        protected void VerifyThatMessageWasSentWithHeaders(Func<IDictionary<string, string>, bool> predicate)
         {
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(t => predicate(t.Headers)), Arg<Address>.Is.Anything));
         }
@@ -99,13 +100,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
-            FuncBuilder.Register<T>(()=> new T());
+            FuncBuilder.Register<T>(() => new T());
             unicastBus.MessageHandlerTypes = new[] { typeof(T) };
-            
-            if(unicastBus.MessageDispatcherMappings == null)
+
+            if (unicastBus.MessageDispatcherMappings == null)
                 unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
 
-            unicastBus.MessageDispatcherMappings[typeof (T)] = typeof (DefaultDispatcherFactory);
+            unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);
         }
         protected void RegisterOwnedMessageType<T>()
         {
@@ -132,6 +133,22 @@ namespace NServiceBus.Unicast.Tests.Contexts
             ((IStartableBus)bus).Start();
         }
 
+        protected void AssertSubscription(Predicate<TransportMessage> condition, Address addressOfPublishingEndpoint)
+        {
+            try
+            {
+                messageSender.AssertWasCalled(x =>
+                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+
+            }
+            catch (Exception)
+            {
+                //retry to avoid race conditions 
+                Thread.Sleep(2000);
+                messageSender.AssertWasCalled(x =>
+                 x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+            }
+        }
     }
 
     public class using_the_unicastbus : using_a_configured_unicastbus
@@ -152,7 +169,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
             catch (Exception ex)
             {
-                ResultingException = ex; 
+                ResultingException = ex;
             }
         }
 
@@ -167,5 +184,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ResultingException = ex;
             }
         }
+
+
     }
 }
