@@ -24,10 +24,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
                         SagaId = c.SagaId,
                         State = Deserialize(c.StateAddress),
                         Time = c.Time,
-                        CorrelationId = c.CorrelationId
+                        CorrelationId = c.CorrelationId,
+                        Id = c.RowKey
                     });
         }
-
 
         void IPersistTimeouts.Add(TimeoutData timeout)
         {
@@ -52,10 +52,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public void Remove(string timeoutId)
         {
-            //todo: we need to make this work using the Id of the timeout data
-            var hash = Hash(new TimeoutData());
             TimeoutDataEntity timeoutDataEntity;
-            if (!TryGetTimeoutData(hash, out timeoutDataEntity)) return;
+            if (!TryGetTimeoutData(timeoutId, out timeoutDataEntity)) return;
 
             RemoveSerializedState(timeoutDataEntity.StateAddress);
             context.DeleteObject(timeoutDataEntity);
@@ -87,9 +85,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public bool CanSend(TimeoutData data)
         {
-            var hash = Hash(data);
             TimeoutDataEntity timeoutDataEntity;
-            if (!TryGetTimeoutData(hash, out timeoutDataEntity)) return false;
+            if (!TryGetTimeoutData(data.Id, out timeoutDataEntity)) return false;
 
             var leaseBlob = container.GetBlockBlobReference(timeoutDataEntity.StateAddress);
 
