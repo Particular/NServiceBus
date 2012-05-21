@@ -2,7 +2,7 @@ namespace MyServer.Saga
 {
     using NServiceBus.Saga;
 
-    public class MyTimeOutState: ITimeoutState
+    public class MyTimeOutState
     {
         public int SomeValue { get; set; }
     }
