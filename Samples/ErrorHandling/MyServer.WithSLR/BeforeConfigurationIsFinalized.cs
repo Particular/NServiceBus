@@ -9,7 +9,7 @@ namespace MyServer
     {
         public void Run()
         {
-            // The default policy will defer the message 5*N (where N is number of retries) 10 times.
+            // The default policy will defer the message 10*N (where N is number of retries) seconds 3 times. (60 sec total)
             // For this sample we changed that to retry faster and only 3 times
 
             SecondLevelRetries.RetryPolicy = (tm) =>
