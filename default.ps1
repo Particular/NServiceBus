@@ -570,7 +570,7 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
 	cd $releaseRoot\samples 
 	
-	dir -recurse -include ('bin', 'obj') |ForEach-Object {
+	dir -recurse -include ('bin', 'obj', 'packages') |ForEach-Object {
 	write-host deleting $_ 
 	Delete-Directory $_
 	}
