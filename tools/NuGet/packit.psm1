@@ -6,6 +6,7 @@ $script:packit.default_package = "NServiceBus"
 $script:packit.package_owners = "Udi Dahan, Andreas Ohlund, Jonathan Matheus, Jonathan Oliver et al"
 $script:packit.package_authors = "Udi Dahan, Andreas Ohlund, Jonathan Matheus, Jonathan Oliver et al"
 $script:packit.package_description = "The most popular open-source service bus for .net"
+$script:packit.package_releaseNotes = ""
 $script:packit.package_language = "en-US"
 $script:packit.package_licenseUrl = "http://nservicebus.com/license.aspx"
 $script:packit.package_projectUrl = "http://nservicebus.com/"
@@ -177,6 +178,7 @@ function Invoke-Packit
 		$nuGetSpecContent.package.metadata.description = $script:packit.package_description
 		$nuGetSpecContent.package.metadata.tags = $script:packit.package_tags
 		$nuGetSpecContent.package.metadata.iconUrl = $script:packit.package_iconUrl;
+		$nuGetSpecContent.package.metadata.releaseNotes = $script:packit.package_releaseNotes
 		$dependencyInnerXml = ""
 		if($dependencies.Count -gt 0)
 		{
