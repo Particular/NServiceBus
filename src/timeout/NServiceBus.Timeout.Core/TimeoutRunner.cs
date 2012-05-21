@@ -33,17 +33,17 @@
             var sw = new Stopwatch();
             sw.Start();
 
-            Logger.InfoFormat("Going to fetch existing timeouts from persister ({0})", Persister.GetType().Name);
+            Logger.DebugFormat("Going to fetch existing timeouts from persister ({0})", Persister.GetType().Name);
 
             var existingTimeouts = Persister.GetAll().ToList();
 
-            Logger.InfoFormat("{0} timeouts loaded from storage in {1} seconds", existingTimeouts.Count, sw.Elapsed.TotalSeconds);
+            Logger.DebugFormat("{0} timeouts loaded from storage in {1} seconds", existingTimeouts.Count, sw.Elapsed.TotalSeconds);
 
             existingTimeouts.ForEach(td => TimeoutManager.PushTimeout(td));
 
             sw.Stop();
 
-            Logger.InfoFormat("Total time for cache priming {0} seconds", sw.Elapsed.TotalSeconds);
+            Logger.DebugFormat("Total time for cache priming {0} seconds", sw.Elapsed.TotalSeconds);
         }
 
 
