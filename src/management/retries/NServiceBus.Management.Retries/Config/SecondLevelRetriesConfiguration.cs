@@ -9,6 +9,8 @@ namespace NServiceBus.Config
 {        
     public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, INeedToInstallSomething<Installation.Environments.Windows>
     {
+        private static bool isEnabled;
+
         public void Run()
         {
             var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
@@ -34,7 +36,9 @@ namespace NServiceBus.Config
                 
             Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)                    
                 .ConfigureProperty(rs => rs.InputAddress, retriesErrorQ)
-                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());                 
+                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+
+            isEnabled = true;
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
@@ -52,11 +56,14 @@ namespace NServiceBus.Config
 
         public void Install(WindowsIdentity identity)
         {
+            if (!isEnabled)
+                return;
+
             MsmqUtilities.CreateQueueIfNecessary(GetAddress(), WindowsIdentity.GetCurrent().Name);
         }
         
         static Address GetAddress()
-        {
+        {                            
             return  Address.Parse(Configure.EndpointName).SubScope("Retries");
         }
     }
