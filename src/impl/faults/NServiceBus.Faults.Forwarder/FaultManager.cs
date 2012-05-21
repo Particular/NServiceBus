@@ -38,7 +38,19 @@ namespace NServiceBus.Faults.Forwarder
             SetExceptionHeaders(message, e, reason);
             try
             {
-                Send(message, ErrorQueue, reason);
+                var destinationQ = RetriesErrorQueue ?? ErrorQueue;
+               
+                // Intentionally service-locate ISendMessages to avoid circular
+                // resolution problem in the container
+                var sender = Configure.Instance.Builder.Build<ISendMessages>();
+
+                if (MessageWasSentFromSLR(message) || reason == "SerializationFailed")
+                {
+                    sender.Send(message, ErrorQueue);
+                    return;
+                }
+
+                sender.Send(message, destinationQ);                
             }
             catch (Exception exception)
             {
@@ -54,38 +66,16 @@ namespace NServiceBus.Faults.Forwarder
 
         }
 
-        // Intentionally service-locate ISendMessages to avoid circular
-        // resolution problem in the container
-        protected virtual void Send(TransportMessage message, Address errorQueue, string reason)
-        {
-            var sender = Configure.Instance.Builder.Build<ISendMessages>();
-
-            if (MessageWasSentFromSLR(message) || reason == "SerializationFailed")
-            {
-                sender.Send(message, RealErrorQueue);
-                return;
-            }
-
-            sender.Send(message, ErrorQueue);
-        }
-
         bool MessageWasSentFromSLR(TransportMessage message)
         {
-            if (RealErrorQueue == null)
+            if (RetriesErrorQueue == null)
             {
                 return false;
             }
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
-            // SecondLevelRetries sat is running and the error happend within that sat.
-            var replyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
-
-            if (replyToAddress == ErrorQueue)
-            {
-                return true;
-            }
-
-            return false;
+            // SecondLevelRetries sat is running and the error happend within that sat.            
+            return TransportMessageHelpers.GetReplyToAddress(message) == RetriesErrorQueue;
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
@@ -115,8 +105,10 @@ namespace NServiceBus.Faults.Forwarder
         /// </summary>
         public Address ErrorQueue { get; set; }
 
-
-        public Address RealErrorQueue { get; set; }
+        /// <summary>
+        /// The address of the Second Level Retries input queue when SLR is enabled
+        /// </summary>
+        public Address RetriesErrorQueue { get; set; }
 
         /// <summary>
         /// Indicates of exceptions should be sanitized before sending them on
