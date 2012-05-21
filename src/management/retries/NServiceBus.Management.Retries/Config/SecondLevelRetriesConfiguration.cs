@@ -7,53 +7,38 @@ using NServiceBus.Utils;
 
 namespace NServiceBus.Config
 {        
-    public class SecondLevelRetriesConfiguration : INeedInitialization, INeedToInstallSomething<Installation.Environments.Windows>
+    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, INeedToInstallSomething<Installation.Environments.Windows>
     {
-        public void Init()
+        private static bool isEnabled;
+
+        public void Run()
         {
             var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
             var enabled = retriesConfig != null ? retriesConfig.Enabled : true;
-
-            Address errorQueue = null;
-
-            if (enabled)
-            {
-                var forwardingInCaseOfFaultConfig = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
-
-                if (forwardingInCaseOfFaultConfig != null)
-                {
-                    errorQueue = Address.Parse(forwardingInCaseOfFaultConfig.ErrorQueue);
-                }
-            }
-
-            if (errorQueue != null)
-            {
-                if (retriesConfig != null)
-                {
-                    SetUpRetryPolicy(retriesConfig);
-                }
-
-                var retriesErrorQ = GetAddress();
-                var originalErrorQueue = errorQueue;
-                
-                // and only when the retries satellite is running should we alter the FaultManager                              
-                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.ErrorQueue, retriesErrorQ);
-                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RealErrorQueue, originalErrorQueue);
-                
-                Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(rs => rs.ErrorQueue, originalErrorQueue)
-                    .ConfigureProperty(rs => rs.InputAddress, retriesErrorQ)
-                    .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress()); 
-
-                
-            }
-            else
+            
+            if (!Configure.Instance.Configurer.HasComponent<FaultManager>() || !enabled)
             {
                 Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(rs => rs.Disabled, true);
 
-                Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RealErrorQueue, null);
-            }             
+                return;
+            }
+                                                  
+            if (retriesConfig != null)
+            {
+                SetUpRetryPolicy(retriesConfig);
+            }
+
+            var retriesErrorQ = GetAddress();
+                
+            // and only when the retries satellite is running should we alter the FaultManager                              
+            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, retriesErrorQ);                
+                
+            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)                    
+                .ConfigureProperty(rs => rs.InputAddress, retriesErrorQ)
+                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+
+            isEnabled = true;
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
@@ -71,11 +56,14 @@ namespace NServiceBus.Config
 
         public void Install(WindowsIdentity identity)
         {
+            if (!isEnabled)
+                return;
+
             MsmqUtilities.CreateQueueIfNecessary(GetAddress(), WindowsIdentity.GetCurrent().Name);
         }
         
         static Address GetAddress()
-        {
+        {                            
             return  Address.Parse(Configure.EndpointName).SubScope("Retries");
         }
     }

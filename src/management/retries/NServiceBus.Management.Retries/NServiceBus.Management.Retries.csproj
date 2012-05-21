@@ -79,6 +79,10 @@
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Msmq.Config, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Msmq.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Transport.Transactional">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
     </Reference>

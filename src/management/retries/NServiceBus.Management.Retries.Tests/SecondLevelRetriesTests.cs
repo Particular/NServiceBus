@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NServiceBus.Faults.Forwarder;
 using NServiceBus.Management.Retries.Helpers;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Transport;
@@ -22,7 +23,7 @@ namespace NServiceBus.Management.Retries.Tests
         public void SetUp()
         {
             _satellite.InputAddress = RETRIES_QUEUE;
-            _satellite.ErrorQueue = ERROR_QUEUE;
+            _satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
             _satellite.TimeoutManagerAddress = TIMEOUT_MANAGER_QUEUE;
             
             _satellite.MessageSender = _messageSender;
