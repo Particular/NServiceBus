@@ -46,8 +46,9 @@ namespace NServiceBus.Distributor
                 WorkerManager = WorkerAvailabilityManager,
                 DataTransportInputQueue = InputQueue
             };
-
-
+            
+            LicenseConfig.CheckForLicenseLimitationOnNumberOfWorkerNodes();
+            
             distributor.Start();
         }
 

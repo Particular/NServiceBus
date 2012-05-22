@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.Timeout.Core
 {
     using System;
-    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
-    using System.Transactions;
+    using Dispatch;
     using Unicast;
-    using Unicast.Queuing;
-    using Unicast.Transport;
     using log4net;
 
     public class TimeoutRunner : IWantToRunWhenTheBusStarts
@@ -15,61 +13,39 @@
         public IManageTimeouts TimeoutManager { get; set; }
 
         public IPersistTimeouts Persister { get; set; }
-        public ISendMessages MessageSender { get; set; }
-
+        public TimeoutDispatcher TimeoutDispatcher { get; set; }
 
         public void Run()
         {
             if (TimeoutManager == null)
                 return;
 
-            TimeoutManager.SagaTimedOut +=
-                (o, e) =>
-                {
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required))
-                    {
-                        MessageSender.Send(MapToTransportMessage(e), e.Destination);
-                        Persister.Remove(e);
+            TimeoutManager.SagaTimedOut += (o, timeoutData) => TimeoutDispatcher.DispatchTimeout(timeoutData);
 
-                        scope.Complete();
-                    }
-                };
-
-            Persister.GetAll().ToList().ForEach(td =>
-                TimeoutManager.PushTimeout(td));
+            CacheExistingTimeouts();
 
             thread = new Thread(Poll) { IsBackground = true };
             thread.Start();
         }
 
-        TransportMessage MapToTransportMessage(TimeoutData timeoutData)
+        void CacheExistingTimeouts()
         {
-            var transportMessage = new TransportMessage
-                                       {
-                                           ReplyToAddress = Address.Local,
-                                           Headers = new Dictionary<string, string>(),
-                                           Recoverable = true,
-                                           MessageIntent = MessageIntentEnum.Send,
-                                           CorrelationId = timeoutData.CorrelationId,
-                                           Body = timeoutData.State
-                                       };
+            var sw = new Stopwatch();
+            sw.Start();
 
-            if (timeoutData.Headers != null)
-            {
-                transportMessage.Headers = timeoutData.Headers;
-            }
-            else
-            {
-                //we do this to be backwards compatible, this can be removed when going to 3.1.X
-                transportMessage.Headers[Headers.Expire] = timeoutData.Time.ToWireFormattedString();
+            Logger.InfoFormat("Going to fetch existing timeouts from persister ({0})", Persister.GetType().Name);
 
-                if (timeoutData.SagaId != Guid.Empty)
-                    transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
+            var existingTimeouts = Persister.GetAll().ToList();
 
-            }
+            Logger.InfoFormat("{0} timeouts loaded from storage in {1} seconds", existingTimeouts.Count, sw.Elapsed.TotalSeconds);
 
-            return transportMessage;
+            existingTimeouts.ForEach(td => TimeoutManager.PushTimeout(td));
+
+            sw.Stop();
+
+            Logger.InfoFormat("Total time for cache priming {0} seconds", sw.Elapsed.TotalSeconds);
         }
+
 
         public void Stop()
         {
@@ -88,7 +64,7 @@
                 {
                     //intentionally swallow here to avoid this bringing the entire endpoint down.
                     //remove this when our sattelite support is introduced
-                    Logger.ErrorFormat("Failed to pop timeouts - " +  ex);
+                    Logger.ErrorFormat("Failed to pop timeouts - " + ex);
                 }
             }
         }

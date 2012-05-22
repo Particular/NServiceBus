@@ -21,7 +21,16 @@ namespace NServiceBus.Utils
         private static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+        private static string accountToBeAssignedQueuePermissions;
 
+        /// <summary>
+        /// Sets the account to be assigned queue permissions.
+        /// </summary>
+        /// <param name="account">Account to be used.</param>
+        public static void AccountToBeAssignedQueuePermissions(string account)
+        {
+            accountToBeAssignedQueuePermissions = account;
+        }
 
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
@@ -48,7 +57,7 @@ namespace NServiceBus.Utils
                 if (MessageQueue.Exists(q))
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(q, account);
+                    SetPermissionsForQueue(q, accountToBeAssignedQueuePermissions ?? account);
                     return;
                 }
 
@@ -70,9 +79,9 @@ namespace NServiceBus.Utils
         ///<param name="account">The account to be given permissions to the queue</param>
         public static void CreateQueue(string queueName, string account)
         {
-            var createdQueue = MessageQueue.Create(queueName, true);
+            MessageQueue.Create(queueName, true);
 
-            SetPermissionsForQueue(queueName, account);
+            SetPermissionsForQueue(queueName, accountToBeAssignedQueuePermissions ?? account);
             
             Logger.Debug("Queue created: " + queueName);
         }
@@ -360,6 +369,7 @@ namespace NServiceBus.Utils
 
             return result;
         }
+
         /// <summary>
         /// For backward compatibility, extract the V2.6 MSMQ label content (IdForCorrelation and WindowsIdentityName) 
         /// into the V3.X transport message.

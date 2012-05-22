@@ -4,6 +4,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using Core.Dispatch;
     using Faults;
     using ObjectBuilder;
     using Unicast;
@@ -43,8 +44,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            Builder.Build<TimeoutTransportMessageHandler>()
-                .Handle(e.Message);
+            //dispatch request will arrive at the same input so we need to make sure to call the correct handler
+            if (e.Message.Headers.ContainsKey(TimeoutDispatcher.TimeoutIdToDispatchHeader))
+                Builder.Build<TimeoutDispatchHandler>().Handle(e.Message);
+            else
+                Builder.Build<TimeoutTransportMessageHandler>().Handle(e.Message);
         }
 
 

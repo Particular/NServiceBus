@@ -2,13 +2,12 @@
 using System.IO;
 using Common.Logging;
 using Rhino.Licensing;
-using NServiceBus.Licensing.Extensions;
 
 namespace NServiceBus.Licensing
 {
-    public class LicenseValidator : AbstractLicenseValidator
+    internal class LicenseValidator : AbstractLicenseValidator
     {
-        public LicenseValidator(string publicKey, string licensePath) : base(publicKey)
+        internal LicenseValidator(string publicKey, string licensePath) : base(publicKey)
         {
             _licensePath = licensePath;
         }
@@ -28,34 +27,21 @@ namespace NServiceBus.Licensing
                 catch (Exception ex)
                 {
                     _inMemoryLicense = value;
-                    logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
+                    Logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
                 }
             }
         }
 
-        public bool IsExpired
+        internal bool IsExpired
         {
-            get { return LicenseType == LicenseType.Trial && ExpirationDate.Date < DateTime.Today; }
-        }
-
-        public int AllowedCores
-        {
-            get
-            {
-                return LicenseAttributes.ContainsKey(LicenseAttributeKeys.AllowedCores) ? LicenseAttributes[LicenseAttributeKeys.AllowedCores].CastWithDefault(0) : 1024;
-            }
-        }
-
-        public bool ViolatesAllowedCores
-        {
-            get { return SystemInfo.GetNumerOfCores() > AllowedCores; }
+            get { return (LicenseType == Rhino.Licensing.LicenseType.Trial && ExpirationDate.Date < DateTime.Today); }
         }
 
         public override void AssertValidLicense()
         {
             if (!File.Exists(_licensePath))
             {
-                logger.InfoFormat("Could not find license file: {0}", _licensePath);
+                Logger.InfoFormat("Could not find license file: {0}", _licensePath);
                 throw new LicenseFileNotFoundException();
             }
             
@@ -69,6 +55,6 @@ namespace NServiceBus.Licensing
 
         private string _inMemoryLicense;
         private readonly string _licensePath;
-        private static readonly ILog logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
     }
 }

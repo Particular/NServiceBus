@@ -4,13 +4,13 @@ using NServiceBus;
 
 namespace Server
 {
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server {}
-
-    public class SecurityConfig : IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
         public void Init()
         {
-            NServiceBus.Configure.Instance.RijndaelEncryptionService();
+            Configure.With()
+                .StructureMapBuilder()
+                .RijndaelEncryptionService();
         }
     }
 

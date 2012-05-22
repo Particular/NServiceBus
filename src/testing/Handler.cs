@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -33,7 +32,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Provides a way to set external dependencies on the saga under test.
+        /// Provides a way to set external dependencies on the handler under test.
         /// </summary>
         /// <param name="actionToSetUpExternalDependencies"></param>
         /// <returns></returns>
@@ -59,7 +58,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Obselete
+        /// Obsolete
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -71,7 +70,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga sends a message of the given type complying with the given predicate.
+        /// Check that the handler sends a message of the given type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -83,7 +82,7 @@ namespace NServiceBus.Testing
         }
         
         /// <summary>
-        /// Check that the saga does not send a message of the given type complying with the given predicate.
+        /// Check that the handler does not send a message of the given type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -95,7 +94,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga replies with the given message type complying with the given predicate.
+        /// Check that the handler replies with the given message type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -107,7 +106,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga sends the given message type to its local queue
+        /// Check that the handler sends the given message type to its local queue
         /// and that the message complies with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
@@ -120,7 +119,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga does not send a message type to its local queue that complies with the given predicate.
+        /// Check that the handler does not send a message type to its local queue that complies with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -132,7 +131,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga uses the bus to return the appropriate error code.
+        /// Check that the handler uses the bus to return the appropriate error code.
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
@@ -143,7 +142,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga sends the given message type to the appropriate destination.
+        /// Check that the handler sends the given message type to the appropriate destination.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -155,7 +154,7 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga publishes a message of the given type complying with the given predicate.
+        /// Check that the handler publishes a message of the given type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
@@ -167,7 +166,7 @@ namespace NServiceBus.Testing
         }
 
 		/// <summary>
-		/// Check that the saga does not publish any messages of the given type complying with the given predicate.
+        /// Check that the handler does not publish any messages of the given type complying with the given predicate.
 		/// </summary>
 		/// <typeparam name="TMessage"></typeparam>
 		/// <param name="check"></param>

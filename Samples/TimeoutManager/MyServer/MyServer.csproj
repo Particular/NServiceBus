@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="DeferedProcessing\DeferredMessage.cs" />
     <Compile Include="DeferedProcessing\DeferredMessageHandler.cs" />
+    <Compile Include="PerformanceTest\PerformanceTestMessage.cs" />
+    <Compile Include="PerformanceTest\PerformanceTestMessageHandler.cs" />
     <Compile Include="Saga\MyTimeOutState.cs" />
     <Compile Include="Scheduling\ScheduleATask.cs" />
     <Compile Include="Scheduling\ScheduleATaskHandler.cs" />

@@ -69,6 +69,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeoutData.cs" />
     <Compile Include="DefaultTimeoutManager.cs" />
+    <Compile Include="Dispatch\TimeoutDispatcher.cs" />
+    <Compile Include="Dispatch\TimeoutDispatchHandler.cs" />
     <Compile Include="TimeoutMessageConverter.cs" />
     <Compile Include="TimeoutRunner.cs" />
     <Compile Include="TimeoutTransportMessageHandler.cs" />

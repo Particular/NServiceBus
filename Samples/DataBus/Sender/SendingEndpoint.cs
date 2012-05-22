@@ -36,7 +36,7 @@ namespace Sender
                                                                   //5MB
                                                           });
 
-                    Console.WriteLine("Message sent, the payload is stored in: " + SetupDataBus.BasePath);
+                    Console.WriteLine("Message sent, the payload is stored in: " + EndpointConfig.BasePath);
                 }
 			}
 		}
