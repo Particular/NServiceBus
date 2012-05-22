@@ -92,6 +92,18 @@ namespace NServiceBus.Hosting.Profiles
             return FindConfigurerForProfile(openGenericType, profile.BaseType, options);
         }
 
+
+        private void LogImplementedProfiles(Type profile)
+        {
+            if (profile.BaseType != null)
+                foreach (var implementedProfile in profile.BaseType.GetInterfaces())
+                {
+                    if((implementedProfile == typeof(IProfile)))
+                        Logger.Info("Going to activate profile: " + profile.BaseType.AssemblyQualifiedName);
+                    LogImplementedProfiles(profile.BaseType);
+                }
+        }
+
         /// <summary>
         /// Activates the profile handlers that handle the previously identified active profiles. 
         /// </summary>
@@ -99,7 +111,10 @@ namespace NServiceBus.Hosting.Profiles
         public void ActivateProfileHandlers()
         {
             foreach (var p in activeProfiles)
+            {
                 Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
+                LogImplementedProfiles(p);
+            }
 
             var activeHandlers = new List<Type>();
 
