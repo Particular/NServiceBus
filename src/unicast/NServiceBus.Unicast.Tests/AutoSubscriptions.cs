@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Threading;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
@@ -52,6 +53,7 @@
             RegisterMessageHandlerType<MySaga>();
 
             StartBus();
+            Thread.Sleep(5000); //Wait for subscriptions to happen
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
         }

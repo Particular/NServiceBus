@@ -45,10 +45,14 @@
             controlTransport.Start(ControlQueue);
         }
 
+       
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var replyToAddress = controlMessage.ReplyToAddress;
-           
+
+            if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
+                return;
+            
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(replyToAddress);
@@ -63,7 +67,6 @@
 
                 Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
             }
-            
         }
 
         ITransport controlTransport;

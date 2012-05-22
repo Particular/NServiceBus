@@ -72,6 +72,10 @@
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Licensing, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
@@ -98,6 +102,7 @@
   <ItemGroup>
     <Compile Include="ConfigUnicastBus.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
+    <Compile Include="LicenseConfig.cs" />
     <Compile Include="MessageEndpointMapping.cs" />
     <Compile Include="MessageEndpointMappingCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

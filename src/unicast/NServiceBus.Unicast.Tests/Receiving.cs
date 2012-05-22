@@ -189,6 +189,11 @@ namespace NServiceBus.Unicast.Tests
     {
         public static bool Called;
 
+        public void AHelperMethodThatTakesTheMessageAsArgument(EventMessage message)
+        {
+            
+        }
+
         public void Handle(EventMessage message)
         {
             Called = true;

@@ -92,8 +92,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
             },
-            typeof(SpringObjectBuilder),
-            typeof(NinjectObjectBuilder));
+            typeof(SpringObjectBuilder));
         }
 
 

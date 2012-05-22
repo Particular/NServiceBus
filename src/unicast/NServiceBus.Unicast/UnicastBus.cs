@@ -103,6 +103,11 @@ namespace NServiceBus.Unicast
         public Address TimeoutManagerAddress { get; set; }
 
         /// <summary>
+        /// Throttling message receiving speed according to NServiceBus licensing model.
+        /// </summary>
+        public int MaxThroughputPerSecond { get; set; }
+
+        /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
         /// </summary>
@@ -368,7 +373,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Subcribes to recieve published messages of the specified type.
+        /// Subscribes to receive published messages of the specified type.
         /// </summary>
         /// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
@@ -424,7 +429,9 @@ namespace NServiceBus.Unicast
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
             InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-            MessageSender.Send(subscriptionMessage, destination);
+
+            ThreadPool.QueueUserWorkItem(state =>
+                                         SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType.AssemblyQualifiedName));
         }
 
         /// <summary>
@@ -461,6 +468,26 @@ namespace NServiceBus.Unicast
             InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
 
             MessageSender.Send(subscriptionMessage, destination);
+        }
+
+        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        {
+            try
+            {
+                MessageSender.Send(subscriptionMessage, destination);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                if (retriesCount < 5)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
+                }
+                else
+                {
+                    Log.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
+                }
+            }
         }
 
         void IBus.Reply(params object[] messages)
@@ -766,7 +793,10 @@ namespace NServiceBus.Unicast
                     SubscriptionStorage.Init();
 
                 if (!DoNotStartTransport)
+                {
+                    transport.MaxThroughputPerSecond = MaxThroughputPerSecond;
                     transport.Start(InputAddress);
+                }
 
                 if (autoSubscribe)
                 {
@@ -1140,16 +1170,22 @@ namespace NServiceBus.Unicast
             using (var child = Builder.CreateChildBuilder())
                 HandleTransportMessage(child, e.Message);
         }
-
+        
         private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
+            var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
+            var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
 
             try
             {
-                unitsOfWork.ForEach(uow => uow.Begin());
+                foreach (var uow in unitsOfWork)
+                {
+                    unitsOfWorkStarted.Add(uow);
+                    uow.Begin();
+                }
 
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
                 if (transportMutators != null)
@@ -1169,6 +1205,11 @@ namespace NServiceBus.Unicast
                                                      SubscriberReturnAddress = msg.ReplyToAddress
                                                  });
 
+                    for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
+                    {
+                        var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                        uow.End();
+                    }
                     return;
                 }
 
@@ -1180,14 +1221,37 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                unitsOfWork.ForEach(uow => uow.End());
+                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count;)
+                {
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
+                    uow.End();
+                }
 
                 ForwardMessageIfNecessary(msg);
             }
             catch (Exception ex)
             {
-                unitsOfWork.ForEach(uow => uow.End(ex));
-                throw;
+                var exceptionsToThrow = new List<Exception> {ex};
+
+                for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
+                {
+                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex];
+                    try
+                    {
+                        uow.End(ex);
+                    }
+                    catch (Exception anotherException)
+                    {
+                        exceptionsToThrow.Add(anotherException);
+                    }
+                }
+
+                if (exceptionsToThrow.Count == 1)
+                {
+                    throw exceptionsToThrow.First();
+                }
+
+                throw new AggregateException(exceptionsToThrow);
             }
 
             Log.Debug("Finished handling message.");

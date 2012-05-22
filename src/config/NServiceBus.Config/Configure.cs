@@ -162,7 +162,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpContext.Current != null)
-                throw new InvalidOperationException("NServiceBus has detected that you're running in the context of a web application. The method 'NServiceBus.Configure.With()' is not recommended for web scenarios. Use 'NServiceBus.Configure.WithWeb()' instead, or consider explicitly passing in the assemblies you want to be scanned to one of the overloads to the 'With' method.");
+                return With(HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -173,9 +173,10 @@ namespace NServiceBus
         /// runtime directory.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("This method is obsolete, it has been replaced by NServiceBus.Configure.With.", false)]
         public static Configure WithWeb()
         {
-            return With(HttpRuntime.BinDirectory);
+            return With();
         }
 
         /// <summary>
@@ -187,6 +188,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
+            lastProbeDirectory = probeDirectory;
             return With(GetAssembliesInDirectory(probeDirectory));
         }
 
@@ -223,6 +225,16 @@ namespace NServiceBus
                 instance = new Configure();
 
             TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
+
+            if (HttpContext.Current == null)
+            {
+                var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
+                if (File.Exists(hostPath))
+                {
+                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath)));
+                }
+            }
+
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
 
             return instance;
@@ -450,6 +462,7 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
 
+        static string lastProbeDirectory;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
         static readonly IEnumerable<string> defaultAssemblyExclusions = new[] { "system.", "nhibernate.", "log4net.", "raven.server.",

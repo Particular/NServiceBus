@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace NServiceBus.Unicast.Tests.Helpers
 {
     using System;
@@ -9,7 +11,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
            
         }
-
+        
         public void Start(string inputqueue)
         {
         }
@@ -19,6 +21,14 @@ namespace NServiceBus.Unicast.Tests.Helpers
         }
 
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
+        {
+        }
+
+        /// <summary>
+        /// Throttling receiving messages rate.
+        /// </summary>
+        /// <param name="maxMessageThroughputPerSecond"/>
+        public void MaxMessageThroughputPerSecond(int maxMessageThroughputPerSecond)
         {
         }
 
@@ -58,5 +68,9 @@ namespace NServiceBus.Unicast.Tests.Helpers
             }
             FinishedMessageProcessing(this, new EventArgs());
         }
+        /// <summary>
+        /// todo: use for testing.
+        /// </summary>
+        public int MaxThroughputPerSecond { get; set; }
     }
 }

@@ -21,9 +21,10 @@
                 storage.Add(timeout);
         }
 
-        public void Remove(TimeoutData timeout)
+        public void Remove(string timeoutId)
         {
-            storage.Remove(timeout);
+            lock(storage)
+                storage.Remove(storage.Single(t=>t.Id == timeoutId));
         }
 
         public void ClearTimeoutsFor(Guid sagaId)

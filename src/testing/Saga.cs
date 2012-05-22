@@ -97,6 +97,18 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the saga does not send a message of the given type complying with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Saga<T> ExpectNotSend<TMessage>(Func<TMessage, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotSendInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
         /// Check that the saga replies with the given message type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
@@ -122,6 +134,18 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the saga does not send a message type to its local queue that complies with the given predicate.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Saga<T> ExpectNotSendLocal<TMessage>(Func<TMessage, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotSendLocalInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
         /// Check that the saga uses the bus to return the appropriate error code.
         /// </summary>
         /// <param name="check"></param>
@@ -138,9 +162,10 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        public Saga<T> ExpectSendToDestination<TMessage>(Func<string, TMessage, bool> check = null)
+        public Saga<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
         {
-            //.ExpectSendToDestination(check);
+            expectedInvocations.Add(new ExpectedSendToDestinationInvocation<TMessage> { Check = check });
+
             return this;
         }
 
@@ -194,7 +219,7 @@ namespace NServiceBus.Testing
             return this;
         }
       
-      /// <summary>
+        /// <summary>
         /// Check that the saga does not publish any messages of the given type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
@@ -267,8 +292,6 @@ namespace NServiceBus.Testing
             
             throw new Exception("Assert failed. Saga has not been completed.");
         }
-
-
 
         /// <summary>
         /// Verifies that the saga is setting the specified timeout

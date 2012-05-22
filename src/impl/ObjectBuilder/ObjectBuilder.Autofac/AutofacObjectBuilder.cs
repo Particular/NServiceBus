@@ -152,7 +152,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         private IComponentRegistration GetComponentRegistration(Type concreteComponent)
         {
-            return this.container.ComponentRegistry.Registrations.Where(x => x.Activator.LimitType == concreteComponent).FirstOrDefault();
+            return this.container.ComponentRegistry.Registrations.FirstOrDefault(x => x.Activator.LimitType == concreteComponent);
         }
     }
 }

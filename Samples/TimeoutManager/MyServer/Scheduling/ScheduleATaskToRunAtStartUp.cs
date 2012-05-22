@@ -5,7 +5,7 @@ using NServiceBus.Unicast;
 
 namespace MyServer.Scheduling
 {
-    public class ScheduleATaskToRunAtStartUp : IWantToRunWhenTheBusStarts 
+    public class ScheduleATaskToRunAtStartUp //: IWantToRunWhenTheBusStarts 
     {
         public void Run()
         {

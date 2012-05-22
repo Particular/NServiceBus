@@ -38,6 +38,11 @@ namespace NServiceBus.Unicast.Transport
         /// </param>
 	    void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
+        /// <summary>
+        /// Throttling receiving messages rate. You can't set the value than the value specified at your license.
+        /// </summary>
+        int MaxThroughputPerSecond { get; set; }
+
 		/// <summary>
 		/// Raised when a message is received.
 		/// </summary>

@@ -91,10 +91,12 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Messaging" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExceptionSanitizer.cs" />
     <Compile Include="FaultManager.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

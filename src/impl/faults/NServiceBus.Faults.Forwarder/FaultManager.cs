@@ -1,4 +1,5 @@
 ﻿using Common.Logging;
+using NServiceBus.Utils;
 
 namespace NServiceBus.Faults.Forwarder
 {
@@ -32,15 +33,12 @@ namespace NServiceBus.Faults.Forwarder
             localAddress = address;
         }
 
-        // Intentionally service-locate ISendMessages to avoid circular
-        // resolution problem in the container
         void SendFailureMessage(TransportMessage message, Exception e, string reason)
         {
             SetExceptionHeaders(message, e, reason);
-            var sender = Configure.Instance.Builder.Build<ISendMessages>();
             try
             {
-                sender.Send(message, ErrorQueue);
+                Send(message, ErrorQueue, reason);
             }
             catch (Exception exception)
             {
@@ -53,18 +51,52 @@ namespace NServiceBus.Faults.Forwarder
                 Logger.Fatal(errorMessage);
                 throw new InvalidOperationException(errorMessage, exception);
             }
-            
+
+        }
+
+        // Intentionally service-locate ISendMessages to avoid circular
+        // resolution problem in the container
+        protected virtual void Send(TransportMessage message, Address errorQueue, string reason)
+        {
+            var sender = Configure.Instance.Builder.Build<ISendMessages>();
+
+            if (MessageWasSentFromSLR(message) || reason == "SerializationFailed")
+            {
+                sender.Send(message, RealErrorQueue);
+                return;
+            }
+
+            sender.Send(message, ErrorQueue);
+        }
+
+        bool MessageWasSentFromSLR(TransportMessage message)
+        {
+            if (RealErrorQueue == null)
+            {
+                return false;
+            }
+
+            // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
+            // SecondLevelRetries sat is running and the error happend within that sat.
+            var replyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
+
+            if (replyToAddress == ErrorQueue)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
             message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
-			message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
+            message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
-			if (e.InnerException != null)
-				message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
-            
-			message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
+            if (e.InnerException != null)
+                message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+
+            message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
@@ -75,13 +107,16 @@ namespace NServiceBus.Faults.Forwarder
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTime.UtcNow.ToWireFormattedString();
-			
+
         }
 
         /// <summary>
         /// Endpoint to which message failures are forwarded
         /// </summary>
         public Address ErrorQueue { get; set; }
+
+
+        public Address RealErrorQueue { get; set; }
 
         /// <summary>
         /// Indicates of exceptions should be sanitized before sending them on
@@ -90,5 +125,7 @@ namespace NServiceBus.Faults.Forwarder
 
         Address localAddress;
         static ILog Logger = LogManager.GetLogger("NServiceBus");
+
+
     }
 }

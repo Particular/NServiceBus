@@ -1,7 +1,7 @@
-﻿properties {
-	$ProductVersion = "3.0"
+properties {
+	$ProductVersion = "3.1"
 	$BuildNumber = "0";
-	$PatchVersion = "2"
+	$PatchVersion = "0"
 	$PreRelease = "-build"	
 	$PackageNameSuffix = ""
 	$TargetFramework = "net-4.0"
@@ -47,7 +47,7 @@ $script:msBuildTargetFramework = ""
 $script:nunitTargetFramework = "/framework=4.0";
 $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
-$script:packageVersion = "3.0.0-local"
+$script:packageVersion = "3.1.0-local"
 $script:releaseVersion = ""
 
 include $toolsDir\psake\buildutils.ps1
@@ -149,8 +149,7 @@ task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps t
 
 task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.dll and keeps the output in \binaries" { 
 
-    $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging", "impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "impl\licensing", "distributor", "gateway", "scheduling", "timeout"
-	 	
+$coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging",  "Impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "impl\licensing", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "scheduling", "satellites", "management\retries", "timeout"
 	$coreDirs | % {
 		$solutionDir = Resolve-Path "$srcDir\$_"
 		cd 	$solutionDir
@@ -226,26 +225,26 @@ task CompileContainers -depends InitEnvironment -description "Builds the contain
 	}
 	
 	Create-Directory "$binariesDir\containers\autofac"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude *.pdb
 		
 	Create-Directory "$binariesDir\containers\castle"	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude *.pdb
 	
 	
 	Create-Directory "$binariesDir\containers\structuremap"	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude *.pdb
 	
 	
 	Create-Directory "$binariesDir\containers\spring"	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude *.pdb
 	
 			
 	Create-Directory "$binariesDir\containers\unity"	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude *.pdb
 	
 		
 	Create-Directory "$binariesDir\containers\ninject"	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force -Exclude *.pdb	
 	
 	
 }
@@ -485,33 +484,33 @@ function Prepare-Binaries{
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Create-Directory "$coreOnlyBinariesDir\containers\autofac"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $binariesDir\containers\autofac -Force;
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.dll"  $coreOnlyBinariesDir\containers\autofac -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude *.pdb
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Autofac.*"  $coreOnlyBinariesDir\containers\autofac -Force -Exclude *.pdb
 	
 	Create-Directory "$binariesDir\containers\castle"
 	Create-Directory "$coreOnlyBinariesDir\containers\castle"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $binariesDir\containers\castle -Force;
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.dll"  $coreOnlyBinariesDir\containers\castle -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude *.pdb
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.CastleWindsor.*"  $coreOnlyBinariesDir\containers\castle -Force -Exclude *.pdb
 	
 	Create-Directory "$binariesDir\containers\structuremap"
 	Create-Directory "$coreOnlyBinariesDir\containers\structuremap"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $binariesDir\containers\structuremap -Force;
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.dll"  $coreOnlyBinariesDir\containers\structuremap -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude *.pdb
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.StructureMap.*"  $coreOnlyBinariesDir\containers\structuremap -Force -Exclude *.pdb
 	
 	Create-Directory "$binariesDir\containers\spring"
 	Create-Directory "$coreOnlyBinariesDir\containers\spring"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $binariesDir\containers\spring -Force;
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.dll"  $coreOnlyBinariesDir\containers\spring -Force;
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude *.pdb
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Spring.*"  $coreOnlyBinariesDir\containers\spring -Force -Exclude *.pdb
 			
 	Create-Directory "$binariesDir\containers\unity"
 	Create-Directory "$coreOnlyBinariesDir\containers\unity"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $binariesDir\containers\unity -Force
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.dll"  $coreOnlyBinariesDir\containers\unity -Force;		
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude *.pdb
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Unity.*"  $coreOnlyBinariesDir\containers\unity -Force -Exclude *.pdb		
 		
 	Create-Directory "$binariesDir\containers\ninject"
 	Create-Directory "$coreOnlyBinariesDir\containers\ninject"
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $binariesDir\containers\ninject -Force;	
-	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.dll"  $coreOnlyBinariesDir\containers\ninject -Force;	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force -Exclude *.pdb	
+	Copy-Item "$outDir\containers\NServiceBus.ObjectBuilder.Ninject.*"  $coreOnlyBinariesDir\containers\ninject -Force -Exclude *.pdb	
 	
 	Create-Directory $coreOnlyDir\dependencies\
 	Copy-Item $buildBase\nservicebus.core\antlr3*.dll $coreOnlyDir\dependencies\	-Exclude **Tests.dll
@@ -611,13 +610,13 @@ task CreatePackages -depends PrepareRelease  -description "After preparing for R
 	#region Packing NServiceBus
 	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll" @{} 
+	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.xml", "binaries\NServiceBus.Core.xml" @{} 
 	#endregion
 	
 	#region Packing NServiceBus.Interfaces
 	$packageName = "NServiceBus.Interfaces" + $PackageNameSuffix 	
 	$packit.package_description = "The Interfaces for NServiceBus Implementation"
-	invoke-packit $packageName $script:packageVersion @{} "binaries\NServiceBus.dll" @{} 
+	invoke-packit $packageName $script:packageVersion @{} "binaries\NServiceBus.dll", "binaries\NServiceBus.xml"  @{} 
 	#endregion
 	
     #region Packing NServiceBus.Host
@@ -1002,7 +1001,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		"release" `
 		"NServiceBus" `
 		$assemblyProduct `
-		"Copyright � NServiceBus 2007-2012" `
+		"Copyright (C) NServiceBus 2010-2012" `
 		$asmVersion `
 		$fileVersion `
 		$infoVersion `
