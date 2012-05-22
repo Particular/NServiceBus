@@ -7,7 +7,7 @@ namespace MyServerNoSLR
     {
         public void Init()
         {
-            // Here, using code, we disable the second level retries.            
+            // Using code we disable the second level retries.            
             Configure.Instance.DisableSecondLevelRetries();
         }
     }
