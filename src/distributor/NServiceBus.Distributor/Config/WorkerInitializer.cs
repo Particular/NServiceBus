@@ -3,13 +3,10 @@ namespace NServiceBus.Distributor.Config
     using NServiceBus.Config;
     using ReadyMessages;
 
-    public class WorkerInitializer:INeedInitialization
+    public class WorkerInitializer
     {
-        public void Init()
+        public static void Init()
         {
-            if (!Configure.Instance.DistributorEnabled())
-                return;
-
             var config = Configure.Instance;
 
             var masterNodeAddress = config.GetMasterNodeAddress();

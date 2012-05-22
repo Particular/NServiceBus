@@ -12,7 +12,7 @@
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            if ((!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint()) || (!Configure.Instance.WorkerShouldRunOnDistributorEndpoint()))
+            if ((!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint()) || (!Configure.Instance.WorkerRunsOnThisEndpoint()))
                 return;
 
             //create the worker queue

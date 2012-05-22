@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Distributor.ReadyMessages
 {
-    using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Transport;
-    using NServiceBus.Unicast.Queuing;
+    using Unicast;
+    using Unicast.Transport;
+    using Unicast.Queuing;
     using log4net;
 
     public class ReadyMessageSender : IWantToRunWhenTheBusStarts
@@ -17,7 +17,7 @@
 
         public void Run()
         {
-            if (!Configure.Instance.DistributorEnabled()) 
+            if (!Configure.Instance.WorkerRunsOnThisEndpoint()) 
                 return;
 
             var capacityAvailable = EndpointTransport.NumberOfWorkerThreads;

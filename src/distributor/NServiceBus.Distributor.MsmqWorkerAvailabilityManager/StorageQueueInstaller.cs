@@ -15,13 +15,12 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            if (!Configure.Instance.IsConfiguredAsMasterNode() || !Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>())
+            if (!Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>())
                 return;
 
             var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
             MsmqUtilities.CreateQueueIfNecessary(m.StorageQueueAddress, identity.Name);
-
         }
     }
 }

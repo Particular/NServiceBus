@@ -1,5 +1,5 @@
 properties {
-	$ProductVersion = "3.1"
+	$ProductVersion = "3.2"
 	$BuildNumber = "0";
 	$PatchVersion = "0"
 	$PreRelease = "-build"	
@@ -37,7 +37,7 @@ $script:msBuildTargetFramework = ""
 $script:nunitTargetFramework = "/framework=4.0";
 $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
-$script:packageVersion = "3.1.0-local"
+$script:packageVersion = "3.2.0-local"
 $script:releaseVersion = ""
 
 include $toolsDir\psake\buildutils.ps1
@@ -767,7 +767,7 @@ else{
 	#region Packing NServiceBus.Ninject
 	$packageName = "NServiceBus.Ninject" + $PackageNameSuffix
 	$packit.package_description = "The Ninject Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Ninject"="2.2.1.4";"Ninject.Extensions.ChildKernel"="2.2.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Ninject"="3.0.0.15";"Ninject.Extensions.ContextPreservation"="3.0.0.8";"Ninject.Extensions.NamedScope"="3.0.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.Spring

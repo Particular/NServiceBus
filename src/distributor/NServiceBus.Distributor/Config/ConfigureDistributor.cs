@@ -7,6 +7,7 @@ using log4net;
 namespace NServiceBus
 {
     using System;
+    using Distributor.Config;
 
     public static class ConfigureDistributor
     {
@@ -19,26 +20,34 @@ namespace NServiceBus
             return distributorEnabled && distributorShouldRunOnThisEndpoint;
         }
         /// <summary>
-        /// Return whether a Worker should be running in the Distributor endpoint.
+        /// Return whether this endpoint contains a worker
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static bool WorkerShouldRunOnDistributorEndpoint(this Configure config)
+        public static bool WorkerRunsOnThisEndpoint(this Configure config)
         {
-            return !workerShouldNotRunOnDistributorEndpoint;
+            return workerRunsOnThisEndpoint;
         }
+
         /// <summary>
-        /// 
+        /// Configure the distributor to run on this endpoint
         /// </summary>
         /// <param name="config"></param>
+        /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
         /// <returns></returns>
-        public static Configure RunDistributor(this Configure config)
+        public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {
-            if (!config.IsConfiguredAsMasterNode())
-                throw new InvalidOperationException("This endpoint needs to be configured as a master node in order to run the distributor");   
-
             distributorEnabled = true;
             distributorShouldRunOnThisEndpoint = true;
+
+            DistributorInitializer.Init(withWorker);
+
+            if (withWorker)
+            {
+                workerRunsOnThisEndpoint = true;
+                WorkerInitializer.Init();
+            }
+                
 
             return config;
         }
@@ -49,9 +58,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
         {
-            config.RunDistributor();
-            workerShouldNotRunOnDistributorEndpoint = true;
-
+            config.RunDistributor(false);
             return config;
         }
 
@@ -63,11 +70,11 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure EnlistWithDistributor(this Configure config)
         {
-            distributorEnabled = true;
-            if (config.IsConfiguredAsMasterNode())
-                throw new InvalidOperationException("Worker endpoint should not be configured as a master node.");
+            workerRunsOnThisEndpoint = true;
 
             ValidateMasterNodeConfigurationForWorker(config);
+
+            WorkerInitializer.Init();
 
             return config;
         }
@@ -114,7 +121,7 @@ namespace NServiceBus
         }
         static bool distributorEnabled;
         static bool distributorShouldRunOnThisEndpoint;
-        static bool workerShouldNotRunOnDistributorEndpoint;
+        static bool workerRunsOnThisEndpoint;
         static ILog logger = LogManager.GetLogger("ConfigureDistributor");
     }
 }
