@@ -24,6 +24,8 @@ namespace NServiceBus.Config
                 Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(rs => rs.Disabled, true);
 
+                IsDisabled = true;
+
                 return;
             }
                                                   
