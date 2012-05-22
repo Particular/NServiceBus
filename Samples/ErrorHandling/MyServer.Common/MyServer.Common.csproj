@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Application.cs" />
     <Compile Include="MyMessage.cs" />
+    <Compile Include="MyMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransactionalTransportFailedMessageMonitor.cs" />
   </ItemGroup>
