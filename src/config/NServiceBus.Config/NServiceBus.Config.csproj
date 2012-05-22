@@ -36,7 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.Config.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.Config.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -46,7 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.Config.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\NServiceBus.Config.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
@@ -86,6 +86,10 @@
     <Compile Include="ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="Conventions\SystemMessageConventions.cs" />
+    <Compile Include="IExcludesBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />

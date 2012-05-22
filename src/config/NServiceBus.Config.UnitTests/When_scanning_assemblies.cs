@@ -19,25 +19,40 @@ namespace NServiceBus.Config.UnitTests
         }
 
         [Test]
+        public void Should_for_our_code_exclude_everything_but_NServiceBus_by_default()
+        {
+            CollectionAssert.AreEquivalent(new String[0],
+                foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") 
+                    // FSharp is used as an example external assembly in other tests that is not excluded by default
+                    && !a.FullName.StartsWith("FSharp")).ToArray());
+        }
+
+        [Test]
         public void Should_exclude_system_assemblies()
         {
-            Assert.False(
-                foundAssemblies.Any(a => a.FullName.StartsWith("System")));
+            CollectionAssert.AreEquivalent(new String[0],
+                foundAssemblies.Where(a => a.FullName.StartsWith("System")).ToArray());
         }
 
         [Test]
         public void Should_exclude_nhibernate_assemblies()
         {
-            Assert.False(
-                foundAssemblies.Any(a => a.FullName.ToLower().StartsWith("nhibernate")));
+            CollectionAssert.AreEquivalent(new String[0],
+                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("nhibernate")).ToArray());
         }
 
         [Test]
         public void Should_exclude_log4net()
         {
-            Assert.False(
-                foundAssemblies.Any(a => a.FullName.ToLower().StartsWith("log4net")));
+            CollectionAssert.AreEquivalent(new String[0],
+                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("log4net")).ToArray());
         }
 
+        [Test]
+        public void Should_exclude_raven()
+        {
+            CollectionAssert.AreEquivalent(new String[0],
+                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("raven")).ToArray());
+        }
     }
 }

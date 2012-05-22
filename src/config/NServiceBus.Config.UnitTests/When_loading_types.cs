@@ -1,3 +1,5 @@
+using System.CodeDom;
+
 namespace NServiceBus.Config.UnitTests
 {
     using System;
@@ -9,7 +11,7 @@ namespace NServiceBus.Config.UnitTests
     [TestFixture]
     public class When_loading_types
     {
-        List<Type> loadedTypes;
+        private List<Type> loadedTypes;
 
         [SetUp]
         public void SetUp()
@@ -19,10 +21,11 @@ namespace NServiceBus.Config.UnitTests
         }
 
         [Test]
-        public void Should_exclude_the_raven_types()
+        public void Should_exclude_the_raven_client_types()
         {
-            Assert.False(
-                loadedTypes.Any(a => a.Namespace.StartsWith("Raven")));
+            CollectionAssert.AreEquivalent(
+                new Type[0],
+                loadedTypes.Where(a => a.Namespace.StartsWith("Raven.Client")).ToArray());
         }
 
         [Test]
@@ -34,8 +37,10 @@ namespace NServiceBus.Config.UnitTests
     }
 }
 
-namespace Raven
+namespace Raven.Client
 {
     public class TestClass
-    { }
+    {
+        
+    }
 }
