@@ -27,7 +27,6 @@ namespace NServiceBus.Satellites
             timer.Elapsed += (o, e) => Start();
 
             Build();
-
             Initialize();
             Start();
         }

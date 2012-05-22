@@ -1,5 +1,6 @@
 ﻿using System;
 using log4net;
+using NServiceBus.Faults.Forwarder;
 using NServiceBus.Management.Retries.Helpers;
 using NServiceBus.Satellites;
 using NServiceBus.Unicast.Queuing;
@@ -12,10 +13,12 @@ namespace NServiceBus.Management.Retries
         ILog Logger = LogManager.GetLogger("SecondLevelRetries");
 
         public ISendMessages MessageSender { get; set; }        
-        public Address ErrorQueue { get; set; }
+        
         public Address InputAddress { get; set; }
         public Address TimeoutManagerAddress { get; set; }
         public bool Disabled { get; set; }
+
+        public FaultManager FaultManager { get; set; }
 
         public static Func<TransportMessage, TimeSpan> RetryPolicy = DefaultRetryPolicy.Validate;
         public static Func<TransportMessage, bool> TimeoutPolicy = DefaultRetryPolicy.HasTimedOut;
@@ -51,10 +54,10 @@ namespace NServiceBus.Management.Retries
 
         void SendToErrorQueue(TransportMessage message)
         {
-            Logger.InfoFormat("Send message to error queue, {0}", ErrorQueue);
+            Logger.InfoFormat("Send message to error queue, {0}", FaultManager.ErrorQueue);
 
             message.ReplyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
-            MessageSender.Send(message, ErrorQueue);
+            MessageSender.Send(message, FaultManager.ErrorQueue);
         }
 
         void Defer(TimeSpan defer, TransportMessage message)

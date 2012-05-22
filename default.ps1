@@ -570,7 +570,7 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
 	cd $releaseRoot\samples 
 	
-	dir -recurse -include ('bin', 'obj') |ForEach-Object {
+	dir -recurse -include ('bin', 'obj', 'packages') |ForEach-Object {
 	write-host deleting $_ 
 	Delete-Directory $_
 	}
@@ -971,14 +971,28 @@ task InstallDependentPackages -description "Installs dependent packages in the e
 		$installDependentPackages = ((($files -ne $null) -and ($files.count -gt 0)) -eq $false)
 	}
 	if($installDependentPackages){
-	 	dir -recurse -include ('packages.config') |ForEach-Object {
-		$packageconfig = [io.path]::Combine($_.directory,$_.name)
+    $packageNames = @{}
+    
+    dir -recurse -include ('packages.config') | ForEach-Object {
+			$packageconfig = [io.path]::Combine($_.directory,$_.name)
 
-		write-host $packageconfig 
-
-		 exec{ &$nugetExec install $packageconfig -o packages } 
+      $packagexml = [xml] (gc $packageconfig)
+    
+      foreach ($pelem in $packagexml.packages.package) {
+        if ($pelem.id -eq $null) { continue }
+      
+        $packageNames["{0}-{1}" -f $pelem.id, $pelem.version] = $pelem
+      }
 		}
-	}
+
+    $template = [xml] ("<packages></packages>")
+
+    $packageNames.GetEnumerator() | Sort-Object Name | % { $template.DocumentElement.AppendChild($template.ImportNode($_.Value, $true)) | Out-Null }
+
+    $template.Save( (Join-Path (pwd) packages\packages.config) )
+    exec { &$nugetExec install packages\packages.config -o packages }
+    rm packages\packages.config
+  }
  }
 
 task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
