@@ -1,10 +1,11 @@
 ﻿using NServiceBus;
+using NServiceBus.Config;
 
 namespace MyServerNoSLR
 {
-    public class BeforeConfigurationIsFinalized : IWantToRunBeforeConfigurationIsFinalized
+    public class DisableSLR : INeedInitialization
     {
-        public void Run()
+        public void Init()
         {
             // Here, using code, we disable the second level retries.            
             Configure.Instance.DisableSecondLevelRetries();

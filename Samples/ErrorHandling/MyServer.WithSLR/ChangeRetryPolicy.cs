@@ -1,13 +1,13 @@
 ﻿using System;
-using NServiceBus;
+using NServiceBus.Config;
 using NServiceBus.Management.Retries;
 using NServiceBus.Management.Retries.Helpers;
 
 namespace MyServer
 {
-    public class BeforeConfigurationIsFinalized : IWantToRunBeforeConfigurationIsFinalized
+    public class ChangeRetryPolicy : INeedInitialization
     {
-        public void Run()
+        public void Init()
         {
             // The default policy will defer the message 10*N (where N is number of retries) seconds 3 times. (60 sec total)
             // For this sample we changed that to retry faster and only 3 times
