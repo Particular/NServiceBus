@@ -24,8 +24,8 @@ namespace MyServer.Common
                     Last.AddOrUpdate(message.Id, numOfRetries, (key, oldValue) => numOfRetries);
                 }
             }            
-
-            throw new Exception("An exception occured in the handler.");
+            
+            throw new Exception("An exception occurred in the handler.");
         }
     }
 }
