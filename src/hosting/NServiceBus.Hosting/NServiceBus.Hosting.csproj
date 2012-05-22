@@ -69,6 +69,7 @@
     <Compile Include="Profiles\IHandleProfile.cs" />
     <Compile Include="Profiles\IProfile.cs" />
     <Compile Include="Configuration\IWant.cs" />
+    <Compile Include="Profiles\ProfileActivator.cs" />
     <Compile Include="Profiles\ProfileManager.cs" />
     <Compile Include="Roles\IConfigureRole.cs" />
     <Compile Include="Configuration\IConfigureThisEndpoint.cs" />

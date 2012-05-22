@@ -140,24 +140,4 @@ namespace NServiceBus.Hosting.Profiles
 
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Host");
     }
-
-    /// <summary>
-    /// Activates the profiles to be used
-    /// </summary>
-    public class ProfileActivator : INeedInitialization
-    {
-        /// <summary>
-        /// The profile manager
-        /// </summary>
-        public static ProfileManager ProfileManager { get; set; }
-        
-        /// <summary>
-        /// Initialize
-        /// </summary>
-        public void Init()
-        {
-            if (ProfileManager != null)
-                ProfileManager.ActivateProfileHandlers();
-        }
-    }
 }
