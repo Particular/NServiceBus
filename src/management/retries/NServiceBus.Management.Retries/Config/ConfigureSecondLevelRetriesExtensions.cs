@@ -1,4 +1,5 @@
-﻿using NServiceBus.Management.Retries;
+﻿using NServiceBus.Config;
+using NServiceBus.Management.Retries;
 
 namespace NServiceBus
 {
@@ -6,6 +7,9 @@ namespace NServiceBus
     {        
         public static Configure DisableSecondLevelRetries(this Configure config)
         {
+            SecondLevelRetriesConfiguration.IsDisabled = true;
+
+            //make sure to disable it because satellite will try to bring it up
             if (config.Configurer.HasComponent<SecondLevelRetries>())
             {
                 config.Configurer.ConfigureProperty<SecondLevelRetries>(p => p.Disabled, true);
