@@ -20,6 +20,14 @@ namespace MyServer
                                                          // anymore.
                                                          return TimeSpan.MinValue;
                                                      }
+
+                                                     // If an exception is thrown within SLR, we should send the message
+                                                     // direct to the error queue since we can't do anything with it.
+                                                     // if (TransportMessageHelpers.GetNumberOfRetries(tm) == 1)
+                                                     // {
+                                                     //     throw new Exception("This exception it thrown from SLR, message should go to error queue");
+                                                     // }
+
                                                      // We will defer this message for 5 seconds, then send it back to the input queue (retry it)
                                                      return TimeSpan.FromSeconds(5);
                                                  };
