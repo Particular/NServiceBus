@@ -9,40 +9,61 @@ namespace NServiceBus.Config
 {        
     public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, INeedToInstallSomething<Installation.Environments.Windows>
     {
-        private static bool isEnabled;
+        public static bool IsDisabled;
+        static bool installQueue;
+        
+        private static Address retriesQueueAddress;
 
         public void Run()
         {
-            var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
-            var enabled = retriesConfig != null ? retriesConfig.Enabled : true;
-            
-            if (!Configure.Instance.Configurer.HasComponent<FaultManager>() || !enabled)
+            // disabled by configure api
+            if (IsDisabled)
             {
-                Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(rs => rs.Disabled, true);
-
+                installQueue = false;
                 return;
             }
-                                                  
-            if (retriesConfig != null)
+            // if we're not using the Fault Forwarder, we should act as if SLR is disabled
+            if (!Configure.Instance.Configurer.HasComponent<FaultManager>())
             {
-                SetUpRetryPolicy(retriesConfig);
+                DisableSecondLevelRetries();
+                installQueue = false;
+                return;
             }
 
-            var retriesErrorQ = GetAddress();
-                
-            // and only when the retries satellite is running should we alter the FaultManager                              
-            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, retriesErrorQ);                
-                
-            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)                    
-                .ConfigureProperty(rs => rs.InputAddress, retriesErrorQ)
-                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+            var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
+            var enabled = retriesConfig != null ? retriesConfig.Enabled : true;
 
-            isEnabled = true;
+            // if SLR is disabled from app.config, we should disable SLR, but install the queue
+            if (!enabled)
+            {
+                DisableSecondLevelRetries();
+                installQueue = true;
+                return;
+            }
+
+            installQueue = true;
+
+            SetUpRetryPolicy(retriesConfig);
+                            
+            // and only when the retries satellite is running should we alter the FaultManager                              
+            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, RetriesQueueAddress);                
+                
+            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(rs => rs.InputAddress, RetriesQueueAddress)
+                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+        }
+
+        static void DisableSecondLevelRetries()
+        {
+            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(rs => rs.Disabled, true);
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
         {
+            if (retriesConfig == null)
+                return;
+
             if (retriesConfig.NumberOfRetries != default(int))
             {
                 DefaultRetryPolicy.NumberOfRetries = retriesConfig.NumberOfRetries;
@@ -56,15 +77,18 @@ namespace NServiceBus.Config
 
         public void Install(WindowsIdentity identity)
         {
-            if (!isEnabled)
+            if (!installQueue)
                 return;
 
-            MsmqUtilities.CreateQueueIfNecessary(GetAddress(), WindowsIdentity.GetCurrent().Name);
+            MsmqUtilities.CreateQueueIfNecessary(RetriesQueueAddress, WindowsIdentity.GetCurrent().Name);
         }
         
-        static Address GetAddress()
-        {                            
-            return  Address.Parse(Configure.EndpointName).SubScope("Retries");
-        }
+        static Address RetriesQueueAddress 
+        {
+            get 
+            {
+                return retriesQueueAddress ?? (retriesQueueAddress = Address.Parse(Configure.EndpointName).SubScope("Retries"));
+            }
+        }        
     }
 }

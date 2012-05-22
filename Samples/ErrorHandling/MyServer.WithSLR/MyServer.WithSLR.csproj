@@ -52,8 +52,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BeforeConfigurationIsFinalized.cs" />
+    <Compile Include="ChangeRetryPolicy.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="MyOwnFaultManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

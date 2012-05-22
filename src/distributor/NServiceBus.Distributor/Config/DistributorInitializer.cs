@@ -4,13 +4,10 @@ namespace NServiceBus.Distributor.Config
     using Unicast;
     using log4net;
 
-    public class DistributorInitializer : INeedInitialization
+    public class DistributorInitializer
     {
-        public void Init()
+        public static void Init(bool withWorker)
         {
-            if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
-                return;
-
             var config = Configure.Instance;
 
             var masterNodeAddress = config.GetMasterNodeAddress();
@@ -18,7 +15,7 @@ namespace NServiceBus.Distributor.Config
 
             config.Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.InputAddress, masterNodeAddress.SubScope("worker"))
-                .ConfigureProperty(r => r.DoNotStartTransport, !config.WorkerShouldRunOnDistributorEndpoint());
+                .ConfigureProperty(r => r.DoNotStartTransport, !withWorker);
 
             config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                 DependencyLifecycle.SingleInstance)
@@ -49,7 +46,7 @@ namespace NServiceBus.Distributor.Config
             if (msmqTransport == null)
             {
                 Logger.Warn(
-                    "No transport configuration found so the distributor will default to one thread, for production scenarious you would want to adjust this setting");
+                    "No transport configuration found so the distributor will default to one thread, for production scenarios you would want to adjust this setting");
             }
             else
             {
