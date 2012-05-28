@@ -12,7 +12,7 @@ namespace NServiceBus
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [ToolboxItem(false)]
-    public abstract class Webservice<TRequest, TResponse> : WebService where TRequest : IMessage
+    public abstract class Webservice<TRequest, TResponse> : WebService
     {
         /// <summary>
         /// Static constructor that checks that the type TResponse is an enum.

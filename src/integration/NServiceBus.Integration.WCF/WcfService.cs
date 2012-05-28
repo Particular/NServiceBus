@@ -10,7 +10,7 @@ namespace NServiceBus
     /// <typeparam name="TResponse"></typeparam>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, 
                      ConcurrencyMode = ConcurrencyMode.Multiple)]
-    public abstract class WcfService<TRequest, TResponse> : IWcfService<TRequest, TResponse> where TRequest : IMessage
+    public abstract class WcfService<TRequest, TResponse> : IWcfService<TRequest, TResponse>
     {
         protected WcfService()
         {
