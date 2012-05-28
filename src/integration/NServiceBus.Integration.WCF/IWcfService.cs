@@ -9,7 +9,7 @@ namespace NServiceBus
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
     [ServiceContract]
-    public interface IWcfService<TRequest, TResponse> where TRequest : IMessage
+    public interface IWcfService<TRequest, TResponse>
     {
         /// <summary>
         /// Sends the message to the messaging endpoint.
