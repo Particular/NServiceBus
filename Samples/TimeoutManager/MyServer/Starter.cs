@@ -4,7 +4,6 @@ namespace MyServer
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using DeferedProcessing;
     using NServiceBus;
     using PerformanceTest;
@@ -53,12 +52,11 @@ namespace MyServer
 
         void PerformanceTest()
         {
-            var total = 1000;
+            var total = 40000;
             PerformanceTestMessageHandler.receivedMessages = new ConcurrentBag<string>();
             PerformanceTestMessageHandler.NumExpectedMessages = total;
             PerformanceTestMessageHandler.TimeStarted = DateTime.UtcNow;
-            for (int i = 0; i < 1000; i++)
-                Bus.Defer(TimeSpan.FromMilliseconds(1),new PerformanceTestMessage());
+            System.Threading.Tasks.Parallel.For(0, total, _ => Bus.Defer(TimeSpan.FromMinutes(20), new PerformanceTestMessage()));
         }
 
         void DeferMessage()

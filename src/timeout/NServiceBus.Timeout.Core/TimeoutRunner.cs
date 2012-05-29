@@ -11,7 +11,6 @@
     public class TimeoutRunner : IWantToRunWhenTheBusStarts
     {
         public IManageTimeouts TimeoutManager { get; set; }
-
         public IPersistTimeouts Persister { get; set; }
         public TimeoutDispatcher TimeoutDispatcher { get; set; }
 
