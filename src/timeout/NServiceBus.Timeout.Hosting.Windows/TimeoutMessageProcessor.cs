@@ -12,7 +12,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
-    public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts,IDisposable 
+    // HACK: Intentionally using obsoleted IWantToRunWhenTheBusStarts interface to ensure backwards compatability.
+    // This can be changed to use new interface once old interface is removed. 
+    public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts, IDisposable 
     {
         public TransactionalTransport MainTransport { get; set; }
 

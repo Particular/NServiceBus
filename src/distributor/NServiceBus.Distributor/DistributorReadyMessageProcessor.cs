@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Distributor
 {
     using ReadyMessages;
-    using Unicast;
     using Unicast.Distributor;
     using Unicast.Transport.Transactional;
     using Unicast.Queuing.Msmq;

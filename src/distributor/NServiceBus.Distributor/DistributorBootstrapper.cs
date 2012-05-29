@@ -7,7 +7,6 @@ namespace NServiceBus.Distributor
 {
     using Faults;
     using ObjectBuilder;
-    using Unicast;
 
     public class DistributorBootstrapper : IDisposable, IWantToRunWhenTheBusStarts
     {
