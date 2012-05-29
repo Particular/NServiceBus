@@ -5,10 +5,12 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Linq;
     using Core;
     using Raven.Abstractions.Commands;
+    using Raven.Abstractions.Indexing;
     using Raven.Client;
+    using Raven.Client.Indexes;
     using log4net;
     using Raven.Client.Linq;
-
+    
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
         readonly IDocumentStore store;
@@ -16,6 +18,36 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
+
+            if (store.DatabaseCommands.GetIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime") == null)
+            {
+                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
+                                                new IndexDefinitionBuilder<TimeoutData>
+                                                    {
+                                                        Map = docs => from doc in docs
+                                                                      select new { doc.Time },
+                                                        SortOptions =
+                                                            {
+                                                                {doc => doc.Time, SortOptions.String}
+                                                            },
+                                                        Indexes =
+                                                            {
+                                                                {doc => doc.Time, FieldIndexing.Default}
+                                                            },
+                                                        Stores =
+                                                            {
+                                                                {doc => doc.Time, FieldStorage.No}
+                                                            }
+                                                    });
+            }
+            if (store.DatabaseCommands.GetIndex("RavenTimeoutPersistence/TimeoutData/BySagaId") == null)
+            {
+                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
+                                                                            {
+                                                                                Map = docs => from doc in docs
+                                                                                              select new {doc.SagaId}
+                                                                            });
+            }
         }
 
         public IEnumerable<TimeoutData> GetAll()
@@ -24,18 +56,29 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             {
                 var skip = 0;
                 var results = new List<TimeoutData>();
-
-                using (var session = OpenSession())
+                var numberOfRequestsExecutedSoFar = 0;
+                RavenQueryStatistics stats;
+                var timeFetchWasRequested = DateTime.UtcNow;
+                do
                 {
-                    var query = session.Query<TimeoutData>();
-                    var totalCount = query.Count();
-                    while (skip < totalCount)
+                    using (var session = OpenSession())
                     {
-                        results.AddRange(query.Skip(skip).Take(1024).ToList());
-                        skip += 1024;
+                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                            // we'll wait for nonstale results up until the point in time that we start fetching
+                            // since other timeouts that has arrived in the meantime will have been added to the 
+                            // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA
+                            .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested)) 
+                            .Statistics(out stats);
+                        do
+                        {
+                            results.AddRange(query.Skip(skip).Take(1024));
+                            skip += 1024;
+                        }
+                        while (skip < stats.TotalResults && ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
                     }
-                    return results;
-                }
+                } while (skip < stats.TotalResults);
+
+                return results;
             }
             catch (Exception)
             {
@@ -52,6 +95,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 throw;
             }
         }
+
         public void Add(TimeoutData timeout)
         {
             using (var session = OpenSession())
@@ -68,14 +112,13 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 session.Advanced.Defer(new DeleteCommandData { Key = timeoutId });
                 session.SaveChanges();
             }
-
         }
 
         public void ClearTimeoutsFor(Guid sagaId)
         {
             using (var session = OpenSession())
             {
-                var items = session.Query<TimeoutData>().Where(x => x.SagaId == sagaId);
+                var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
 
@@ -91,6 +134,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
             return session;
         }
+
         static readonly ILog Logger = LogManager.GetLogger("RavenTimeoutPersistence");
     }
 }

@@ -57,7 +57,6 @@
                 Thread.Sleep(pair.Key - now);
             
             DispatchTimeouts(pair.Value);
-            
         }
 
         void IManageTimeouts.ClearTimeout(Guid sagaId)
@@ -74,6 +73,7 @@
                                  });
             }
         }
+
         void DispatchTimeouts(List<TimeoutData> value)
         {
             var exceptions = new List<Exception>();

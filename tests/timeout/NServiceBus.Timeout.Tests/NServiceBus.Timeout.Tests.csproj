@@ -103,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="When_fetching_all_timeouts_from_storage.cs" />
+    <Compile Include="When_fetching_timeouts_from_storage.cs" />
     <Compile Include="When_removing_timeouts_from_the_storage.cs" />
     <Compile Include="TimeoutTests.cs" />
     <Compile Include="WithRavenTimeoutPersister.cs" />
