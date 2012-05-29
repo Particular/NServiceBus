@@ -3,13 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{12EDCB05-7B96-4CF8-A968-492388B97BB5}</ProjectGuid>
+    <ProjectGuid>{457BFE05-BC06-4A41-B063-BDA17D57B91D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Logging</RootNamespace>
-    <AssemblyName>NServiceBus.Logging</AssemblyName>
+    <RootNamespace>NServiceBus.Logging.Log4NetBridge</RootNamespace>
+    <AssemblyName>NServiceBus.Logging.Log4NetBridge</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.Logging.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,41 +29,28 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.Logging.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus">
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Logging, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Loggers\ConsoleLogger.cs" />
-    <Compile Include="ILog.cs" />
-    <Compile Include="Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Loggers\NullLoggerFactory.cs" />
-    <Compile Include="Internal\ReflectionExtensions.cs" />
-    <Compile Include="Internal\TypeExtensions.cs" />
-    <Compile Include="Log4Net\AppenderFactory.cs" />
-    <Compile Include="Log4Net\Configurator.cs" />
-    <Compile Include="LoggingLibraryException.cs" />
-    <Compile Include="Loggers\NullLogger.cs" />
-    <Compile Include="ILoggerFactory.cs" />
-    <Compile Include="Log4Net\LoggerFactory.cs" />
-    <Compile Include="Log4Net\Log.cs" />
-    <Compile Include="LogManager.cs" />
+    <Compile Include="ConfigureInternalLog4NetBridge.cs" />
+    <Compile Include="Log4NetBridgeAppender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -75,7 +61,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
-  </PropertyGroup>
 </Project>

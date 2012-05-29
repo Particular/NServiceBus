@@ -1,6 +1,6 @@
 using System;
 
-namespace NServiceBus.Logging
+namespace NServiceBus.Logging.Loggers
 {
     /// <summary>
   /// 

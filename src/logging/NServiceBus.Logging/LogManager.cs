@@ -1,41 +1,48 @@
 ﻿using System;
+using NServiceBus.Logging.Loggers;
 
 namespace NServiceBus.Logging
 {
-  /// <summary>
-  /// 
-  /// </summary>
-  public class LogManager
-  {
     /// <summary>
     /// 
     /// </summary>
-    public static ILoggerFactory LoggerFactory { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    public static ILog GetLogger(Type type)
+    public class LogManager
     {
-      if (LoggerFactory == null)
-        return new NullLogger();
+        private static ILoggerFactory _loggerFactory = new NullLoggerFactory();
 
-      return LoggerFactory.GetLogger(type);
+        /// <summary>
+        /// 
+        /// </summary>
+        public static ILoggerFactory LoggerFactory
+        {
+            get { return _loggerFactory; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+
+                _loggerFactory = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static ILog GetLogger(Type type)
+        {
+            return LoggerFactory.GetLogger(type);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static ILog GetLogger(string name)
+        {
+            return LoggerFactory.GetLogger(name);
+        }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public static ILog GetLogger(string name)
-    {
-      if (LoggerFactory == null)
-        return new NullLogger();
-
-      return LoggerFactory.GetLogger(name);
-    }
-  }
 }

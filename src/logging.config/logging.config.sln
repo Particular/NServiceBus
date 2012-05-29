@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Config"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Config.Tests", "NServiceBus.Logging.Config.Tests\NServiceBus.Logging.Config.Tests.csproj", "{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Log4NetBridge", "NServiceBus.Logging.Log4NetBridge\NServiceBus.Logging.Log4NetBridge.csproj", "{457BFE05-BC06-4A41-B063-BDA17D57B91D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Log4NetBridge.Tests", "NServiceBus.Logging.Log4NetBridge.Tests\NServiceBus.Logging.Log4NetBridge.Tests.csproj", "{84DE0B10-A041-4DD6-A762-EB75B608D588}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +23,14 @@ Global
 		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C44AC3F-1A9A-427B-BFC9-A7DB0D4C2FCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{457BFE05-BC06-4A41-B063-BDA17D57B91D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{457BFE05-BC06-4A41-B063-BDA17D57B91D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{457BFE05-BC06-4A41-B063-BDA17D57B91D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{457BFE05-BC06-4A41-B063-BDA17D57B91D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84DE0B10-A041-4DD6-A762-EB75B608D588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84DE0B10-A041-4DD6-A762-EB75B608D588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84DE0B10-A041-4DD6-A762-EB75B608D588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84DE0B10-A041-4DD6-A762-EB75B608D588}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
