@@ -1,6 +1,4 @@
-﻿using NServiceBus.Logging;
-
-namespace NServiceBus.Timeout.Core
+﻿namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Diagnostics;
@@ -8,6 +6,7 @@ namespace NServiceBus.Timeout.Core
     using System.Threading;
     using Dispatch;
     using Unicast;
+    using Logging;
 
     public class TimeoutRunner : IWantToRunWhenBusStartsAndStops
     {
