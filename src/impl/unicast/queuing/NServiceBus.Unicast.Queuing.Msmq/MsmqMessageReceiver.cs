@@ -81,7 +81,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (Exception e)
             {
-                Logger.Fatal(e);
+                Logger.Fatal("Unknown exception", e);
                 throw;
             }
 
