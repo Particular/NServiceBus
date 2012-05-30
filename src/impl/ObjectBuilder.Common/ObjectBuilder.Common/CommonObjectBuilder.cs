@@ -63,6 +63,12 @@ namespace NServiceBus.ObjectBuilder.Common
             return new ComponentConfig<T>(Container);
         }
 
+        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle)
+        {
+            Container.Configure(componentFactory, instanceLifecycle);
+
+            return new ComponentConfig<T>(Container);
+        }
 
         IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
         {

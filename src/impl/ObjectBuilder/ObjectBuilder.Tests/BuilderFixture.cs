@@ -55,7 +55,14 @@ namespace ObjectBuilder.Tests
 
             foreach (var builder in objectBuilders)
             {
-                inilialize(builder);
+                try
+                {
+                    inilialize(builder);
+                }
+                catch (NotSupportedException)
+                {
+                    // this is expected for SpringBuilder and Unity when running Configure<T>(Func<T>)                    
+                }                
             }
         }
     }

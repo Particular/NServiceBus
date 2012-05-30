@@ -29,6 +29,15 @@ namespace NServiceBus.ObjectBuilder
         IComponentConfig<T> ConfigureComponent<T>(DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
+        /// Configures the given type, allowing to fluently configure properties.
+        /// </summary>
+        /// <typeparam name="T">Type to configure</typeparam>
+        /// <param name="componentFactory">Factory method that returns the given type</param>
+        /// <param name="dependencyLifecycle">Defines lifecyle sematnics for the given type.</param>
+        /// <returns></returns>
+        IComponentConfig<T> ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle);
+
+        /// <summary>
         /// Configures the given type. Can be used to configure all kinds of properties. This method is deprecated use the signature
         /// that contains the DependecyLifecyle enum instead
         /// </summary>

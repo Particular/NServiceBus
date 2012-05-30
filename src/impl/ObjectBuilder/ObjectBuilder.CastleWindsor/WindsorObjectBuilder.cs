@@ -100,8 +100,24 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
             var services = GetAllServiceTypesFor(concreteComponent);
 
-            container.Register(Component.For(services).ImplementedBy(concreteComponent).LifeStyle.Is(lifestyle));
-            
+            container.Register(Component.For(services).ImplementedBy(concreteComponent).LifeStyle.Is(lifestyle));            
+        }
+
+        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            var componentType = typeof (T);
+            var registrations = container.Kernel.GetAssignableHandlers(componentType).Select(x => x.ComponentModel);
+
+            if (registrations.Any())
+            {
+                Logger.Info("Component " + componentType.FullName + " was already registered in the container.");
+                return;
+            }
+
+            var lifestyle = GetLifestyleTypeFrom(dependencyLifecycle);
+            var services = GetAllServiceTypesFor(componentType);
+
+            container.Register(Component.For(services).UsingFactoryMethod(componentFactory).LifeStyle.Is(lifestyle));
         }
 
         void IContainer.ConfigureProperty(Type component, string property, object value)

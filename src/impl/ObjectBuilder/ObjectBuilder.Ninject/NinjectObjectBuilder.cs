@@ -145,6 +145,29 @@ namespace NServiceBus.ObjectBuilder.Ninject
         }
 
         /// <summary>
+        /// Configures the call model of the given component type.
+        /// </summary>
+        /// <typeparam name="T">Type to be configured</typeparam>
+        /// <param name="componentFactory">Factory method that return the type</param>
+        /// <param name="dependencyLifecycle">The desired lifecycle for this type</param>
+        public void Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            var componentType = typeof (T);
+
+            if (this.HasComponent(componentType))
+            {
+                return;
+            }
+
+            var instanceScope = this.GetInstanceScopeFrom(dependencyLifecycle);
+
+            var bindingConfigurations = this.BindComponentToMethod(componentFactory, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            this.AddAliasesOfComponentToBindingConfigurations(componentType, bindingConfigurations);
+
+            this.propertyHeuristic.RegisteredTypes.Add(componentType);
+        }
+
+        /// <summary>
         /// Configures the property.
         /// </summary>
         /// <param name="component">
@@ -317,6 +340,22 @@ namespace NServiceBus.ObjectBuilder.Ninject
             else
             {
                 bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().InScope(instanceScope).BindingConfiguration);
+            }            
+
+            return bindingConfigurations;
+        }
+
+        private IEnumerable<IBindingConfiguration> BindComponentToMethod<T>(Func<T> component, Func<IContext, object> instanceScope, bool addChildContainerScope)
+        {
+            var bindingConfigurations = new List<IBindingConfiguration>();
+            if (addChildContainerScope)
+            {
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
+            }
+            else
+            {
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).InScope(instanceScope).BindingConfiguration);
             }
 
             return bindingConfigurations;
