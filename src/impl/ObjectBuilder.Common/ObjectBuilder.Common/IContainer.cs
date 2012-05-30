@@ -37,6 +37,9 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="dependencyLifecycle">The desired lifecycle for this type</param>
         void Configure(Type component, DependencyLifecycle dependencyLifecycle);
 
+
+        void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle);
+
         /// <summary>
         /// Sets the value to be configured for the given property of the 
         /// given component type.
