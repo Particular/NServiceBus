@@ -1,5 +1,4 @@
-﻿using NServiceBus.Logging.Log4Net;
-
+﻿
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     /// <summary>
@@ -9,7 +8,10 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateColoredConsoleAppender("Info"));
+            if (SetLoggingLibrary.Log4NetExists)
+                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateColoredConsoleAppender("Info"));
+            else if (SetLoggingLibrary.NLogExists)
+                SetLoggingLibrary.NLog(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget());
         }
     }
 }

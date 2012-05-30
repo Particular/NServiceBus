@@ -2,7 +2,7 @@
 using System.Reflection;
 using NServiceBus.Logging.Internal;
 
-namespace NServiceBus.Logging.Log4Net
+namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 {
     /// <summary>
     /// 
@@ -35,9 +35,7 @@ namespace NServiceBus.Logging.Log4Net
 
             appenderSkeleton.InvokeMethod("ActivateOptions");
 
-            BasicConfiguratorType
-                .GetMethod("Configure", BindingFlags.Public | BindingFlags.Static, null, new[] {IAppenderType}, null)
-                .Invoke(null, new[] {appenderSkeleton});
+            BasicConfiguratorType.InvokeStaticMethod("Configure", new[] { IAppenderType }, new[] { appenderSkeleton });
 
         }
 

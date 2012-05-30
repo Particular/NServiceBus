@@ -10,6 +10,9 @@ namespace NServiceBus.Logging.Internal
         {
             var propertyInfo = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
+            if (propertyInfo == null)
+                throw new InvalidOperationException(String.Format("Could not find property {0} on type {1}", propertyName, type));
+
             var instanceParam = Expression.Parameter(typeof(object));
             var expr = Expression.Property(Expression.Convert(instanceParam, type), propertyInfo);
 
@@ -19,6 +22,10 @@ namespace NServiceBus.Logging.Internal
         public static Action<object, TParam1> GetInstanceMethodDelegate<TParam1>(this Type type, string methodName)
         {
             var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(TParam1) }, null);
+
+            if (methodInfo == null)
+                throw new InvalidOperationException(String.Format("Could not find method {0} on type {1}", methodName, type));
+            
             var instanceParam = Expression.Parameter(typeof(object));
             var param1 = Expression.Parameter(typeof(TParam1));
 
@@ -30,6 +37,10 @@ namespace NServiceBus.Logging.Internal
         public static Action<object, TParam1, TParam2> GetInstanceMethodDelegate<TParam1, TParam2>(this Type type, string methodName)
         {
             var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(TParam1), typeof(TParam2) }, null);
+
+            if (methodInfo == null)
+                throw new InvalidOperationException(String.Format("Could not find method {0} on type {1}", methodName, type));
+            
             var instanceParam = Expression.Parameter(typeof(object));
             var param1 = Expression.Parameter(typeof(TParam1));
             var param2 = Expression.Parameter(typeof(TParam2));
@@ -43,6 +54,9 @@ namespace NServiceBus.Logging.Internal
         {
             var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static, null,
                                             new[] { typeof(T) }, null);
+
+            if (methodInfo == null)
+                throw new InvalidOperationException(String.Format("Could not find method {0} on type {1}", methodName, type));
 
             var param1 = Expression.Parameter(typeof(T));
 

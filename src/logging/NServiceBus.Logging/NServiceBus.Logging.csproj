@@ -54,17 +54,21 @@
     <Compile Include="Loggers\ConsoleLogger.cs" />
     <Compile Include="ILog.cs" />
     <Compile Include="Loggers\ConsoleLoggerFactory.cs" />
+    <Compile Include="Loggers\NLogAdapter\TargetFactory.cs" />
+    <Compile Include="Loggers\NLogAdapter\Configurator.cs" />
     <Compile Include="Loggers\NullLoggerFactory.cs" />
     <Compile Include="Internal\ReflectionExtensions.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
-    <Compile Include="Log4Net\AppenderFactory.cs" />
-    <Compile Include="Log4Net\Configurator.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\AppenderFactory.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\Configurator.cs" />
     <Compile Include="LoggingLibraryException.cs" />
     <Compile Include="Loggers\NullLogger.cs" />
     <Compile Include="ILoggerFactory.cs" />
-    <Compile Include="Log4Net\LoggerFactory.cs" />
-    <Compile Include="Log4Net\Log.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\LoggerFactory.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\Log.cs" />
     <Compile Include="LogManager.cs" />
+    <Compile Include="Loggers\NLogAdapter\Log.cs" />
+    <Compile Include="Loggers\NLogAdapter\LoggerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -32,11 +32,11 @@ namespace NServiceBus.Logging.Loggers
       get { return false; }
     }
 
-    public void Debug(object message)
+    public void Debug(string message)
     {
     }
 
-    public void Debug(object message, Exception exception)
+    public void Debug(string message, Exception exception)
     {
     }
 
@@ -44,11 +44,11 @@ namespace NServiceBus.Logging.Loggers
     {
     }
 
-    public void Info(object message)
+    public void Info(string message)
     {
     }
 
-    public void Info(object message, Exception exception)
+    public void Info(string message, Exception exception)
     {
     }
 
@@ -56,11 +56,11 @@ namespace NServiceBus.Logging.Loggers
     {
     }
 
-    public void Warn(object message)
+    public void Warn(string message)
     {
     }
 
-    public void Warn(object message, Exception exception)
+    public void Warn(string message, Exception exception)
     {
     }
 
@@ -68,11 +68,11 @@ namespace NServiceBus.Logging.Loggers
     {
     }
 
-    public void Error(object message)
+    public void Error(string message)
     {
     }
 
-    public void Error(object message, Exception exception)
+    public void Error(string message, Exception exception)
     {
     }
 
@@ -80,11 +80,11 @@ namespace NServiceBus.Logging.Loggers
     {
     }
 
-    public void Fatal(object message)
+    public void Fatal(string message)
     {
     }
 
-    public void Fatal(object message, Exception exception)
+    public void Fatal(string message, Exception exception)
     {
     }
 

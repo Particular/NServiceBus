@@ -1,4 +1,4 @@
-using NServiceBus.Logging.Log4Net;
+using NServiceBus.Logging.Loggers.Log4NetAdapter;
 using NUnit.Framework;
 using log4net.Appender;
 using log4net.Core;

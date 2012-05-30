@@ -32,13 +32,13 @@ namespace NServiceBus.Logging
         /// 
         /// </summary>
         /// <param name="message"></param>
-        void Debug(object message);
+        void Debug(string message);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="exception"></param>
-        void Debug(object message, Exception exception);
+        void Debug(string message, Exception exception);
         /// <summary>
         /// 
         /// </summary>
@@ -50,13 +50,13 @@ namespace NServiceBus.Logging
         /// 
         /// </summary>
         /// <param name="message"></param>
-        void Info(object message);
+        void Info(string message);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="exception"></param>
-        void Info(object message, Exception exception);
+        void Info(string message, Exception exception);
         /// <summary>
         /// 
         /// </summary>
@@ -68,13 +68,13 @@ namespace NServiceBus.Logging
         /// 
         /// </summary>
         /// <param name="message"></param>
-        void Warn(object message);
+        void Warn(string message);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="exception"></param>
-        void Warn(object message, Exception exception);
+        void Warn(string message, Exception exception);
 
         /// <summary>
         /// 
@@ -87,13 +87,13 @@ namespace NServiceBus.Logging
         /// 
         /// </summary>
         /// <param name="message"></param>
-        void Error(object message);
+        void Error(string message);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="exception"></param>
-        void Error(object message, Exception exception);
+        void Error(string message, Exception exception);
 
         /// <summary>
         /// 
@@ -106,13 +106,13 @@ namespace NServiceBus.Logging
         /// 
         /// </summary>
         /// <param name="message"></param>
-        void Fatal(object message);
+        void Fatal(string message);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="exception"></param>
-        void Fatal(object message, Exception exception);
+        void Fatal(string message, Exception exception);
 
         /// <summary>
         /// 

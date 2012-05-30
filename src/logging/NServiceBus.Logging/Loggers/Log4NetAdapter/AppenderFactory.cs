@@ -1,8 +1,7 @@
 using System;
-using System.Reflection;
 using NServiceBus.Logging.Internal;
 
-namespace NServiceBus.Logging.Log4Net
+namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 {
     public class AppenderFactory
     {

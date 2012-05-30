@@ -1,4 +1,4 @@
-using NServiceBus.Logging.Log4Net;
+using NServiceBus.Logging.Loggers.Log4NetAdapter;
 using NUnit.Framework;
 
 namespace NServiceBus.Logging.Tests.Log4Net

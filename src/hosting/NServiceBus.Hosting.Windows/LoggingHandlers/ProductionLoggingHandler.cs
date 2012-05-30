@@ -1,6 +1,4 @@
-﻿using NServiceBus.Logging.Log4Net;
-
-namespace NServiceBus.Hosting.Windows.LoggingHandlers
+﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     using System;
     using System.Runtime.InteropServices;
@@ -12,12 +10,18 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateRollingFileAppender(null, "logfile"));
+            if (SetLoggingLibrary.Log4NetExists)
+                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateRollingFileAppender(null, "logfile"));
+            else if (SetLoggingLibrary.NLogExists)
+                SetLoggingLibrary.NLog(Logging.Loggers.NLogAdapter.TargetFactory.CreateRollingFileTarget("logfile"));
 
             if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
                 return;
 
-            SetLoggingLibrary.Log4Net(null, AppenderFactory.CreateColoredConsoleAppender("Info"));
+            if (SetLoggingLibrary.Log4NetExists)
+                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateColoredConsoleAppender("Info"));
+            else if (SetLoggingLibrary.NLogExists)
+                SetLoggingLibrary.NLog(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget());
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

@@ -30,5 +30,15 @@ namespace NServiceBus.Logging.Internal
                 .GetType()
                 .InvokeMember(methodName, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, instance, args);
         }
+
+        public static object InvokeStaticMethod(this Type type, string methodName, Type[] argTypes, object[] args)
+        {
+            var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static, null, argTypes, null);
+
+            if (methodInfo == null)
+                throw new InvalidOperationException(String.Format("Could not find static method {0} on type {1}", methodName, type));
+
+            return methodInfo.Invoke(null, args);
+        }
     }
 }

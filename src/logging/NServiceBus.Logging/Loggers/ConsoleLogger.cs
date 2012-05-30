@@ -38,12 +38,12 @@ namespace NServiceBus.Logging.Loggers
       get { return true; }
     }
 
-    public void Debug(object message)
+    public void Debug(string message)
     {
       Console.WriteLine(message);
     }
 
-    public void Debug(object message, Exception exception)
+    public void Debug(string message, Exception exception)
     {
       Console.WriteLine(message);
       Console.WriteLine(exception);
@@ -54,12 +54,12 @@ namespace NServiceBus.Logging.Loggers
       Console.WriteLine(format, args);
     }
 
-    public void Info(object message)
+    public void Info(string message)
     {
       Console.WriteLine(message);
     }
 
-    public void Info(object message, Exception exception)
+    public void Info(string message, Exception exception)
     {
       Console.WriteLine(message);
       Console.WriteLine(exception);
@@ -70,12 +70,12 @@ namespace NServiceBus.Logging.Loggers
       Console.WriteLine(format, args);
     }
 
-    public void Warn(object message)
+    public void Warn(string message)
     {
       Console.WriteLine(message);
     }
 
-    public void Warn(object message, Exception exception)
+    public void Warn(string message, Exception exception)
     {
       Console.WriteLine(message);
       Console.WriteLine(exception);
@@ -86,12 +86,12 @@ namespace NServiceBus.Logging.Loggers
       Console.WriteLine(format, args);
     }
 
-    public void Error(object message)
+    public void Error(string message)
     {
       Console.WriteLine(message);
     }
 
-    public void Error(object message, Exception exception)
+    public void Error(string message, Exception exception)
     {
       Console.WriteLine(message);
       Console.WriteLine(exception);
@@ -102,12 +102,12 @@ namespace NServiceBus.Logging.Loggers
       Console.WriteLine(format, args);
     }
 
-    public void Fatal(object message)
+    public void Fatal(string message)
     {
       Console.WriteLine(message);
     }
 
-    public void Fatal(object message, Exception exception)
+    public void Fatal(string message, Exception exception)
     {
       Console.WriteLine(message);
       Console.WriteLine(exception);

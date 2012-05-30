@@ -1,6 +1,4 @@
 using System;
-using NServiceBus.Logging;
-using NServiceBus.Logging.Log4Net;
 
 namespace NServiceBus
 {
@@ -14,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config)
         {
-            var appender = AppenderFactory.CreateConsoleAppender("All");
+            var appender = Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateConsoleAppender("All");
 
             return config.Log4Net(appender);
         }
@@ -51,7 +49,7 @@ namespace NServiceBus
                 threshold = cfg.Threshold;
             }
 
-            Configurator.Basic(appenderSkeleton, threshold);
+            Logging.Loggers.Log4NetAdapter.Configurator.Basic(appenderSkeleton, threshold);
 
             return config;
         }
@@ -61,8 +59,10 @@ namespace NServiceBus
         /// </summary>
         public static void Log4Net()
         {
-            LogManager.LoggerFactory = new Logging.Log4Net.LoggerFactory();
+            Logging.Loggers.Log4NetAdapter.Configurator.Basic();
         }
+
+
 
         /// <summary>
         /// Configure NServiceBus to use Log4Net and specify your own configuration.
@@ -73,6 +73,34 @@ namespace NServiceBus
             Log4Net();
 
             config();
+        }
+
+        public static void NLog(object target)
+        {
+            string threshold = null;
+
+            var cfg = Configure.GetConfigSection<Config.Logging>();
+            if (cfg != null)
+            {
+                threshold = cfg.Threshold;
+            }
+
+            Logging.Loggers.NLogAdapter.Configurator.Basic(target, threshold);
+        }
+
+        public static void NLog()
+        {
+            Logging.Loggers.NLogAdapter.Configurator.Basic();
+        }
+
+        public static bool Log4NetExists
+        {
+            get { return Type.GetType("log4net.LogManager, log4net") != null; }
+        }
+
+        public static bool NLogExists
+        {
+            get { return Type.GetType("NLog.LogManager, NLog") != null; }
         }
     }
 }

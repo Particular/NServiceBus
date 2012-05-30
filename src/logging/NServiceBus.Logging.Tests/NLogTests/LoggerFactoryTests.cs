@@ -1,9 +1,8 @@
-﻿using NServiceBus.Logging.Loggers.Log4NetAdapter;
+﻿using NLog;
+using NServiceBus.Logging.Loggers.NLogAdapter;
 using NUnit.Framework;
-using log4net.Appender;
-using log4net.Core;
 
-namespace NServiceBus.Logging.Tests.Log4Net
+namespace NServiceBus.Logging.Tests.NLogTests
 {
     [TestFixture]
     public class LoggerFactoryTests : BaseLoggerFactoryTests
@@ -12,10 +11,9 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Test()
         {
-            var loggerFactory = new LoggerFactory();
+            global::NLog.Config.SimpleConfigurator.ConfigureForConsoleLogging(LogLevel.Trace);
 
-            global::log4net.LogManager.ResetConfiguration();
-            Configurator.Basic(new ConsoleAppender { Threshold = Level.All });
+            var loggerFactory = new LoggerFactory();
 
             var log = loggerFactory.GetLogger("Test");
 
