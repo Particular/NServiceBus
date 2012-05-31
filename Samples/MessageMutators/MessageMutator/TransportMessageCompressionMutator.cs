@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using NServiceBus.MessageMutator;
-using NServiceBus.Unicast.Transport;
+using NServiceBus;
 using log4net;
 
 namespace MessageMutators

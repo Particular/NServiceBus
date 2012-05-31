@@ -79,9 +79,6 @@
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
