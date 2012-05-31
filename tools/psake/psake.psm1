@@ -177,12 +177,14 @@ function Configure-BuildEnvironment
 
   $bitness = 'Framework'
   if($versionPart -ne '1.0' -and $versionPart -ne '1.1') {
+     
     switch ($bitnessPart)
     {
       'x86' { $bitness = 'Framework' }
       'x64' { $bitness = 'Framework64' }
-      $null {
+      $default {
         $ptrSize = [System.IntPtr]::Size
+      
         switch ($ptrSize)
         {
           4 { $bitness = 'Framework' }
@@ -190,7 +192,6 @@ function Configure-BuildEnvironment
           default { throw "Error: Unknown pointer size ($ptrSize) returned from System.IntPtr." }
         }
       }
-      default { throw "Error: Unknown .NET Framework bitness, $bitnessPart, specified in $framework" }
     }
   }
   $frameworkDirs = $versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" }
