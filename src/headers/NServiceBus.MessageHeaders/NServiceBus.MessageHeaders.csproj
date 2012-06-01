@@ -41,10 +41,6 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
@@ -70,7 +66,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="MessageHeaderManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

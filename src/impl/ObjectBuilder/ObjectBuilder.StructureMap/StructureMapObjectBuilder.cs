@@ -15,7 +15,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
     public class StructureMapObjectBuilder : Common.IContainer
     {
         private readonly IContainer container;
-        private readonly IDictionary<Type, ConfiguredInstance> configuredInstances = new Dictionary<Type, ConfiguredInstance>();
+        private readonly IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();
         private bool disposed;
 
         public StructureMapObjectBuilder()
@@ -77,8 +77,10 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
             lock (configuredInstances)
             {
-                ConfiguredInstance configuredInstance;
-                configuredInstances.TryGetValue(component, out configuredInstance);
+                Instance instance;
+                configuredInstances.TryGetValue(component, out instance);
+
+                var configuredInstance = instance as ConfiguredInstance;
 
                 if (configuredInstance == null)
                     throw new InvalidOperationException("Cannot configure property before the component has been configured. Please call 'Configure' first.");
@@ -120,6 +122,39 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
             lock (configuredInstances)
                 configuredInstances.Add(component, configuredInstance);
+        }
+
+        void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            var pluginType = typeof(T);
+
+            lock (configuredInstances)
+            {
+                if (configuredInstances.ContainsKey(pluginType))
+                    return;
+            }
+
+            var lifecycle = GetLifecycleFrom(dependencyLifecycle);
+            LambdaInstance<T> lambdaInstance = null;
+
+            container.Configure(x =>
+            {
+                lambdaInstance = x.For<T>()
+                    .LifecycleIs(lifecycle)
+                    .Use(componentFactory);
+
+                x.EnableSetterInjectionFor(pluginType);
+
+                foreach (var implementedInterface in GetAllInterfacesImplementedBy(pluginType))
+                {
+                    x.RegisterAdditionalInterfaceForPluginType(implementedInterface, pluginType, lifecycle);
+                    x.EnableSetterInjectionFor(implementedInterface);
+                }
+            }
+                );
+
+            lock (configuredInstances)
+                configuredInstances.Add(pluginType, lambdaInstance);
         }
 
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)

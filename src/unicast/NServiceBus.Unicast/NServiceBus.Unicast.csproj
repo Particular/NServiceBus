@@ -54,6 +54,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
@@ -79,9 +80,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
@@ -96,6 +94,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.0.4.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -108,6 +109,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusAsyncResult.cs" />
@@ -158,14 +160,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <PropertyGroup>
     <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
   </PropertyGroup>
+  <Import Project="..\..\..\Tools\Fody\Fody.targets" />
 </Project>

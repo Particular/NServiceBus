@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NServiceBus.Unicast.Transport
+namespace NServiceBus
 {
 	/// <summary>
 	/// An envelope used by NServiceBus to package messages for transmission.

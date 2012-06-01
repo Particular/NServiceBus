@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Transport
+﻿namespace NServiceBus
 {
     ///<summary>
     /// Enumeration defining different kinds of message intent like Send and Publish.

@@ -84,8 +84,11 @@
     <Compile Include="IMessageModule.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
+    <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
+    <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransportMessage.cs" />
     <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>

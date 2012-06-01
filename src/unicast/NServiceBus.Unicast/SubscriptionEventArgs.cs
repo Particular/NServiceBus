@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The address of the subscriber.
         /// </summary>
-        [Obsolete("Use SubscriberReturnAddress instead.", true)]
+        [ObsoleteEx(Replacement = "SubscriberReturnAddress",TreatAsErrorFromVersion = "0.0")]
         public string SubscriberAddress { get; set; }
 
         /// <summary>

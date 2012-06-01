@@ -56,8 +56,4 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = ..\..\..\packages\Unity.2.1.505.0\lib\NET35;..\..\..\packages\Unity.Interception.2.1.505.0\lib\NET35
 	EndGlobalSection
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 EndGlobal

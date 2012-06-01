@@ -16,6 +16,7 @@
             LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
         }
 
+        [Obsolete]
         public override void Timeout(object state)
         {
             LogMessage("v2.6 Timeout fired, with state: " + state);
@@ -43,7 +44,7 @@
         {
             LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
 
-            LogMessage("Marking the saga as complete, be aware that this will remove the document from the storage");
+            LogMessage("Marking the saga as complete, be aware that this will remove the saga from the storage");
             MarkAsComplete();
         }
     }

@@ -1,5 +1,4 @@
-﻿using NServiceBus.Unicast.Transport;
-
+﻿
 namespace NServiceBus.MessageMutator
 {
     /// <summary>

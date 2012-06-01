@@ -5,7 +5,7 @@
     using Unicast.Queuing;
     using log4net;
 
-    public class ReadyMessageSender : IWantToRunWhenTheBusStarts
+    public class ReadyMessageSender : NServiceBus.IWantToRunWhenTheBusStarts
     {
         public ITransport EndpointTransport { get; set; }
         
