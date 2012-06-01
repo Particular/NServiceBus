@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus.Unicast
 {
-    using System;
 
     /// <summary>
     /// Implement this interface if you want to be called when the bus starts up
     /// </summary>
-    [Obsolete("This interface is obsolete, it has been moved to NServiceBus.IWantToRunWhenTheBusStarts, NServiceBus.", false)]
+    [ObsoleteEx(Replacement = "NServiceBus.IWantToRunWhenTheBusStarts, NServiceBus")]
     public interface IWantToRunWhenTheBusStarts
     {
         /// <summary>
