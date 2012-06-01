@@ -53,6 +53,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="Common.Logging, Version=1.1.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Common.Logging.dll</HintPath>
@@ -77,6 +78,9 @@
       <HintPath>..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\packages\Obsolete.Fody.0.4.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -86,6 +90,7 @@
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DateTimeExtensions.cs" />
@@ -116,14 +121,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <PropertyGroup>
     <notused>copy /Y "$(OutDir)*.*" "$(ProjectDir)..\..\build\"</notused>
   </PropertyGroup>
+  <Import Project="..\..\Tools\Fody\Fody.targets" />
 </Project>

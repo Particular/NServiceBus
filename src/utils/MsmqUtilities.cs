@@ -110,7 +110,7 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        [Obsolete("Use the overload which accepts the Address parameter instead.", true)]
+        [ObsoleteEx(Replacement = "MsmqUtilities.GetFullPath(Address)", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
         public static string GetFullPath(string value)
         {
             return GetFullPath(Address.Parse(value));
@@ -217,7 +217,7 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="logicalName"></param>
         /// <returns></returns>
-        [Obsolete("Use Address.Machine instead.", true)]
+        [ObsoleteEx(Replacement = "Address.Machine", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
         public static string GetMachineNameFromLogicalName(string logicalName)
         {
             return getMachineNameFromLogicalName(logicalName);
@@ -241,7 +241,7 @@ namespace NServiceBus.Utils
         /// </summary>
         /// <param name="logicalName"></param>
         /// <returns></returns>
-        [Obsolete("Use Address.Queue instead.", true)]
+        [ObsoleteEx(Replacement = "Address.Queue", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
         public static string GetQueueNameFromLogicalName(string logicalName)
         {
             return getQueueNameFromLogicalName(logicalName);
