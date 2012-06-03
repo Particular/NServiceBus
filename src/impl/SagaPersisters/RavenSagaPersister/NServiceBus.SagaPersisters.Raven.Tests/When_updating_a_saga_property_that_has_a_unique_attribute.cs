@@ -3,6 +3,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using Saga;
+
     public class When_updating_a_saga_property_that_has_a_unique_attribute : Raven_saga_persistence_concern
     {
         [Test]
