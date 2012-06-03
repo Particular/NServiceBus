@@ -183,7 +183,17 @@ namespace NServiceBus.SagaPersisters.Raven
             //generate a guid from the hash:
             var value = new Guid(hashBytes);
 
-            return string.Format(string.Format("{0}/{1}/{2}", sagaType.FullName, uniqueProperty.Key, value));
+            var id  = string.Format(string.Format("{0}/{1}/{2}", sagaType.FullName, uniqueProperty.Key, value));
+
+            //raven has a size limit of 255 bytes == 127 unicode chars
+            if(id.Length > 127)
+            {
+                //generate a guid from the hash:
+                var key = new Guid(provider.ComputeHash(Encoding.Default.GetBytes(sagaType.FullName + uniqueProperty.Key)));
+
+                id = string.Format(string.Format("MoreThan127/{0}/{1}", key, value));
+            }
+            return id;
         }
     }
 }

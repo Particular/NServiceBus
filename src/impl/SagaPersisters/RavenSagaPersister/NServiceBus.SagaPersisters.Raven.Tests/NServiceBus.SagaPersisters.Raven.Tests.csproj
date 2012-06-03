@@ -124,6 +124,7 @@
     <Compile Include="Raven_saga_persistence_concern.cs" />
     <Compile Include="SagaWithoutUniqueProperties.cs" />
     <Compile Include="SagaWithUniqueProperty.cs" />
+    <Compile Include="SagaWithUniquePropertyAndALongNamespace.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_completing_a_saga_with_the_raven_persister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="When_persisting_a_saga_entity_with_inherited_property.cs" />
     <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
     <Compile Include="When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="When_storing_a_saga_with_a_long_namespace.cs" />
     <Compile Include="When_updating_a_saga_property_that_has_a_unique_attribute.cs" />
     <Compile Include="When_updating_a_saga_property_that_does_not_have_a_unique_attribute.cs" />
     <Compile Include="WithRavenDbServer.cs" />
