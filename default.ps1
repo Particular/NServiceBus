@@ -339,7 +339,7 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	$solutions | % {
 		$solutionFile = $_.FullName
 		
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting32\" /t:Clean }
+		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration /t:Clean }
 		
 		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration}
 	}
