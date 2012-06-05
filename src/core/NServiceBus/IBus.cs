@@ -257,5 +257,10 @@ namespace NServiceBus
         /// of the message currently being handled on this thread.
         /// </summary>
         IMessageContext CurrentMessageContext { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+	    IInMemoryOperations InMemory { get; }
     }
 }

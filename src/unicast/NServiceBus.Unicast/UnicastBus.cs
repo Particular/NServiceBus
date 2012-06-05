@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IUnicastBus, IStartableBus
+    public class UnicastBus : IUnicastBus, IStartableBus, IInMemoryOperations
     {
         /// <summary>
         /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
@@ -920,6 +920,25 @@ namespace NServiceBus.Unicast
             }
         }
 
+        public IInMemoryOperations InMemory
+        {
+            get { return this; }
+        }
+
+        #endregion
+
+        #region IInMemoryOperations
+
+        void IInMemoryOperations.Raise<T>(T @event)
+        {
+            DispatchMessageToHandlersBasedOnType(Builder, @event);
+        }
+
+        void IInMemoryOperations.Raise<T>(Action<T> messageConstructor)
+        {
+            ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
+        }
+
         #endregion
 
         #region receiving and handling
@@ -1710,7 +1729,6 @@ namespace NServiceBus.Unicast
 
         #endregion
     }
-
 
     /// <summary>
     /// Extansion methods for IBuilder

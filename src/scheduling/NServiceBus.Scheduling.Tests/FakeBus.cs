@@ -202,5 +202,10 @@ namespace NServiceBus.Scheduling.Tests
         {
             get { throw new NotImplementedException(); }
         }
+
+        public IInMemoryOperations InMemory
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

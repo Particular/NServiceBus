@@ -211,6 +211,11 @@ namespace NServiceBus.Testing
             set { messageContext = value; }
         }
 
+        public IInMemoryOperations InMemory
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         public T CreateInstance<T>()
         {
             return messageCreator.CreateInstance<T>();

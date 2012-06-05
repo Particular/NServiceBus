@@ -83,9 +83,47 @@
         {
             var defaultAddress = RegisterMessageType<InterfaceMessage>();
 
-            bus.Send<InterfaceMessage>(m=>{});
+            bus.Send<InterfaceMessage>(m=>{});            
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Equal(defaultAddress)));
+        }
+    }
+
+    [TestFixture]
+    public class When_raising_an_in_memory_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_invoke_registered_message_handlers()
+        {
+            RegisterMessageType<TestMessage>();
+
+            RegisterMessageHandlerType<TestMessageHandler1>();
+            RegisterMessageHandlerType<TestMessageHandler2>();
+
+            bus.InMemory.Raise(new TestMessage());
+
+            Assert.That(TestMessageHandler1.Called, Is.True);
+            Assert.That(TestMessageHandler2.Called, Is.True);
+        }
+
+        public class TestMessageHandler1 : IHandleMessages<TestMessage>
+        {
+            public static bool Called;
+
+            public void Handle(TestMessage message)
+            {
+                Called = true;
+            }
+        }
+
+        public class TestMessageHandler2 : IHandleMessages<TestMessage>
+        {
+            public static bool Called;
+
+            public void Handle(TestMessage message)
+            {
+                Called = true;
+            }
         }
     }
 }
