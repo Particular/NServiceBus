@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection;
+using System.Linq;
 using NServiceBus.Logging.Internal;
 
 namespace NServiceBus.Logging.Loggers.NLogAdapter
@@ -9,42 +9,41 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
     /// </summary>
     public class Configurator
     {
-
         private static readonly Type TargetType = Type.GetType("NLog.Targets.Target, NLog");
         private static readonly Type LogLevelType = Type.GetType("NLog.LogLevel, NLog");
-        //private static readonly Type PatternLayoutType = Type.GetType("log4net.Layout.PatternLayout, log4net");
-        private static readonly Type SimpleConfiguratorType = Type.GetType("NLog.Config.SimpleConfigurator, NLog");
-        //private static readonly Type IAppenderType = Type.GetType("log4net.Appender.IAppender, log4net");
+        private static readonly Type LoggingConfigurationType = Type.GetType("NLog.Config.LoggingConfiguration, NLog");
+        private static readonly Type LogManagerType = Type.GetType("NLog.LogManager, NLog");
+        private static readonly Type LoggingRuleType = Type.GetType("NLog.Config.LoggingRule, NLog");
 
         public static void Basic(object target, string level = null)
         {
+            Basic(new [] { target}, level);
+        }
+
+        public static void Basic(object[] targets, string level = null)
+        {
             EnsureNLogExists();
 
-            if (!TargetType.IsInstanceOfType(target))
-                throw new ArgumentException("The object provided must inherit from NLog.Targets.Target.");
+            if (!targets.All(x => TargetType.IsInstanceOfType(x)))
+                throw new ArgumentException("The objects provided must inherit from NLog.Targets.Target.");
 
             Basic();
+            
+            var loggingConfiguration = Activator.CreateInstance(LoggingConfigurationType);
 
-            if (level != null)
-                SimpleConfiguratorType.InvokeStaticMethod("ConfigureForTargetLogging", new[] { TargetType, LogLevelType }, new[] { target, LogLevelType.GetStaticField(level) });
-            else
-                SimpleConfiguratorType.InvokeStaticMethod("ConfigureForTargetLogging", new[] { TargetType }, new[] { target });
+            object loggingRule = Activator.CreateInstance(LoggingRuleType, "*", LogLevelType.GetStaticField(level ?? "Info"), targets.First());
 
-            //if (appenderSkeleton.GetProperty("Layout") == null)
-            //    appenderSkeleton.SetProperty("Layout", Activator.CreateInstance(PatternLayoutType, "%d [%t] %-5p %c [%x] <%X{auth}> - %m%n"));
+            foreach (var target in targets.Skip(1))
+            {
+                loggingRule.GetProperty("Targets")
+                    .InvokeMethod("Add", target);
+            }
 
-            //if (threshold != null)
-            //    AppenderFactory.SetThreshold(appenderSkeleton, threshold);
+            loggingConfiguration
+                .GetProperty("LoggingRules")
+                .InvokeMethod("Add", loggingRule);
 
-            //if (AppenderFactory.GetThreshold(appenderSkeleton) == null)
-            //    AppenderFactory.SetThreshold(appenderSkeleton, "Info");
-
-            //appenderSkeleton.InvokeMethod("ActivateOptions");
-
-            //BasicConfiguratorType
-            //    .GetMethod("Configure", BindingFlags.Public | BindingFlags.Static, null, new[] {IAppenderType}, null)
-            //    .Invoke(null, new[] {appenderSkeleton});
-
+            LogManagerType.SetStaticProperty("Configuration", loggingConfiguration);
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
 
         private static void EnsureNLogExists()
         {
-            if (SimpleConfiguratorType == null)
+            if (LogManagerType == null)
                 throw new LoggingLibraryException("NLog could not be loaded. Make sure that the NLog assembly is located in the executable directory.");
         }
     }

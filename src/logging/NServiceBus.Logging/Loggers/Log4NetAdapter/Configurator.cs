@@ -13,7 +13,6 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
         private static readonly Type AppenderSkeletonType = Type.GetType("log4net.Appender.AppenderSkeleton, log4net");
         private static readonly Type PatternLayoutType = Type.GetType("log4net.Layout.PatternLayout, log4net");
         private static readonly Type BasicConfiguratorType = Type.GetType("log4net.Config.BasicConfigurator, log4net");
-        private static readonly Type IAppenderType = Type.GetType("log4net.Appender.IAppender, log4net");
 
         public static void Basic(object appenderSkeleton, string threshold = null)
         {
@@ -35,8 +34,7 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 
             appenderSkeleton.InvokeMethod("ActivateOptions");
 
-            BasicConfiguratorType.InvokeStaticMethod("Configure", new[] { IAppenderType }, new[] { appenderSkeleton });
-
+            BasicConfiguratorType.InvokeStaticMethod("Configure", appenderSkeleton);
         }
 
         /// <summary>

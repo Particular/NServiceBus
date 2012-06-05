@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace NServiceBus.Logging.Internal
@@ -19,6 +20,12 @@ namespace NServiceBus.Logging.Internal
                 .InvokeMember(propertyName, BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance, null, instance, new[] { val });
         }
 
+        public static object SetStaticProperty(this Type type, string propertyName, object val)
+        {
+            return type
+                .InvokeMember(propertyName, BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Static, null, null, new[] { val });
+        }
+
         public static object GetStaticField(this Type type, string fieldName)
         {
             return type.InvokeMember(fieldName, BindingFlags.GetField | BindingFlags.Public | BindingFlags.Static, null, null, null);
@@ -31,8 +38,10 @@ namespace NServiceBus.Logging.Internal
                 .InvokeMember(methodName, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, instance, args);
         }
 
-        public static object InvokeStaticMethod(this Type type, string methodName, Type[] argTypes, object[] args)
+        public static object InvokeStaticMethod(this Type type, string methodName, params object[] args)
         {
+            var argTypes = args.Select(x => x.GetType()).ToArray();
+
             var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static, null, argTypes, null);
 
             if (methodInfo == null)

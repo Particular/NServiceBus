@@ -74,8 +74,8 @@ namespace NServiceBus
 
             config();
         }
-
-        public static void NLog(object target)
+        
+        public static void NLog(params object[] targets)
         {
             string threshold = null;
 
@@ -85,7 +85,7 @@ namespace NServiceBus
                 threshold = cfg.Threshold;
             }
 
-            Logging.Loggers.NLogAdapter.Configurator.Basic(target, threshold);
+            Logging.Loggers.NLogAdapter.Configurator.Basic(targets, threshold);
         }
 
         public static void NLog()

@@ -1,3 +1,4 @@
+using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
 using NServiceBus.Logging.Loggers.NLogAdapter;
@@ -19,6 +20,16 @@ namespace NServiceBus.Logging.Tests.NLogTests
             new NLog.Targets.ColoredConsoleTarget() {UseDefaultRowHighlightingRules = true};
 
             var filename = "logfile";
+
+            NLog.Config.SimpleConfigurator.ConfigureForConsoleLogging();
+
+            //LoggingConfiguration config = new LoggingConfiguration();
+            //LoggingRule rule = new LoggingRule("*", minLevel, consoleTarget);
+            //config.LoggingRules.Add(rule);
+            //NLog.LogManager.Configuration = config;
+
+
+            new NLog.Config.LoggingConfiguration();
 
             new NLog.Targets.FileTarget()
                 {
@@ -53,6 +64,14 @@ namespace NServiceBus.Logging.Tests.NLogTests
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
             LogManager.GetLogger("Test").Error("Testing Error");
+        }
+
+        [Test]
+        public void Can_configure_2_targets()
+        {
+            Configurator.Basic(new Target[] { new ConsoleTarget(), new ColoredConsoleTarget()});
+
+            Assert.AreEqual(2, NLog.LogManager.Configuration.LoggingRules[0].Targets.Count);
         }
     }
 }
