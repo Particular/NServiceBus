@@ -15,6 +15,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Serializers.XML.Test
 {
+    using System.Net.Mail;
+
     [TestFixture]
     public class SerializerTests
     {
@@ -28,22 +30,22 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<IThird>();
             var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
 
-            var count = 0; 
+            var count = 0;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] {msgBeforeSerialization}, stream);
+                serializer.Serialize(new[] { msgBeforeSerialization }, stream);
                 stream.Position = 0;
-                
+
                 var reader = XmlReader.Create(stream);
 
                 while (reader.Read())
                     if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "FirstName"))
-                            count++;
+                        count++;
             }
             Assert.AreEqual(count, 1);
         }
-        
-        
+
+
         [Test]
         public void Generic_properties_should_be_supported()
         {
@@ -58,8 +60,8 @@ namespace NServiceBus.Serializers.XML.Test
 
 
         }
-        
-        
+
+
         [Test]
         public void Culture()
         {
@@ -197,13 +199,13 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
-        
+
         [Test]
         public void SerializeLists()
         {
             IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
-            var msg = mapper.CreateInstance<MessageWithList>();            
+            var msg = mapper.CreateInstance<MessageWithList>();
 
             msg.Items = new List<MessageWithListItem> { new MessageWithListItem { Data = "Hello" } };
 
@@ -354,9 +356,10 @@ namespace NServiceBus.Serializers.XML.Test
             var theTime = DateTime.Now;
 
             var result = ExecuteSerializer.ForMessage<MessageWithGenericPropClosingNullable>(
-                m => {
-                         m.GenericNullable = new GenericPropertyWithNullable<DateTime?> {TheType = theTime};
-                         m.Whatever = "fdsfsdfsd";
+                m =>
+                {
+                    m.GenericNullable = new GenericPropertyWithNullable<DateTime?> { TheType = theTime };
+                    m.Whatever = "fdsfsdfsd";
                 });
             Assert.IsNotNull(result.GenericNullable.TheType == theTime);
         }
@@ -372,8 +375,68 @@ namespace NServiceBus.Serializers.XML.Test
         {
             Assert.Throws<NotSupportedException>(() => SerializerFactory.Create<MessageWithDictionaryWithAnObjectAsValue>());
         }
+
+
+
+        [Test]
+        public void System_classes_with_non_default_ctors_should_be_supported()
+        {
+            var message = new MailMessage("from@gmail.com", "to@hotmail.com")
+                                                {
+                                                    Subject = "Testing the NSB email support",
+                                                    Body = "Hello",
+                                                };
+
+            var result = ExecuteSerializer.ForMessage<MessageWithSystemClassAsProperty>(
+                    m =>
+                        {
+                            m.MailMessage = message;
+                        });
+            Assert.IsNotNull(result.MailMessage);
+            Assert.AreEqual( "from@gmail.com",result.MailMessage.From.Address);
+            Assert.AreEqual(message.To.First(), result.MailMessage.To.First());
+            Assert.AreEqual(message.BodyEncoding.CodePage, result.MailMessage.BodyEncoding.CodePage);
+            Assert.AreEqual(message.BodyEncoding.EncoderFallback.MaxCharCount, result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount);
+
+        }
+
+        [Test]
+        public void Messages_with_polymorphic_properties_should_be_supported()
+        {
+            var message = new PolyMessage
+                              {
+                                  BaseType = new ChildOfBase
+                                                 {
+                                                     BaseTypeProp = "base",
+                                                     ChildProp = "Child"
+                                                 }
+                              };
+
+            var result = ExecuteSerializer.ForMessage<PolyMessage>(message);
+
+            Assert.AreEqual(message.BaseType.BaseTypeProp, result.BaseType.BaseTypeProp);
+
+            Assert.AreEqual(((ChildOfBase)message.BaseType).ChildProp, ((ChildOfBase)result.BaseType).ChildProp);
+        }
+
+    }
+    public class PolyMessage : IMessage
+    {
+        public BaseType BaseType { get; set; }
     }
 
+    public class ChildOfBase : BaseType
+    {
+        public BaseType BaseType { get; set; }
+
+
+        public string ChildProp { get; set; }
+    }
+
+    public class BaseType
+    {
+        public string BaseTypeProp { get; set; }
+    }
     public class MessageWithGenericPropClosingNullable
     {
         public GenericPropertyWithNullable<DateTime?> GenericNullable { get; set; }
@@ -401,6 +464,13 @@ namespace NServiceBus.Serializers.XML.Test
     {
         public MessageWithNullProperty NestedObject { get; set; }
     }
+
+
+    public class MessageWithSystemClassAsProperty
+    {
+        public MailMessage MailMessage { get; set; }
+    }
+
 
     public class GenericPropertyWithNullable<T>
     {

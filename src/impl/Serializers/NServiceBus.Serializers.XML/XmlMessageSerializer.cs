@@ -122,8 +122,18 @@ namespace NServiceBus.Serializers.XML
             typesBeingInitialized.Add(t);
 
             var props = GetAllPropertiesForType(t, isKeyValuePair);
+
+            if (TypeHasNonWritableProperties(t))
+                props = new List<PropertyInfo>();
+
+            IEnumerable<FieldInfo> fields = new List<FieldInfo>();
+
+            if (!props.Any())
+            {
+                fields = t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            }
+
             typeToProperties[t] = props;
-            var fields = GetAllFieldsForType(t);
             typeToFields[t] = fields;
 
 
@@ -134,7 +144,19 @@ namespace NServiceBus.Serializers.XML
                 propertyInfoToLateBoundProperty[p] = DelegateFactory.Create(p);
 
                 if (!isKeyValuePair)
-                    propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
+                {
+                    if (typeof(ICollection).IsAssignableFrom(p.PropertyType) && !p.CanWrite)
+                    {
+                        var p1 = p;
+                        var x = GetGenericArgumentsOfCollectionTypes(p.PropertyType);
+
+                        if (x.Any())
+                            propertyInfoToLateBoundPropertySet[p] = (target, value) => p1.PropertyType.GetMethod("Add", x).Invoke(target, new[] { value });
+                    }
+                    else
+                        propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
+
+                }
 
                 InitType(p.PropertyType);
             }
@@ -146,10 +168,25 @@ namespace NServiceBus.Serializers.XML
                 fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
 
                 if (!isKeyValuePair)
-                    fieldInfoToLateBoundFieldSet[f] = DelegateFactory.CreateSet(f);
+                {
+                    if (f.IsInitOnly)
+                    {
+                        FieldInfo f1 = f;
+                        fieldInfoToLateBoundFieldSet[f] = f1.SetValue;
+                    }
+                    else
+                        fieldInfoToLateBoundFieldSet[f] = DelegateFactory.CreateSet(f);
+
+
+                }
 
                 InitType(f.FieldType);
             }
+        }
+
+        bool TypeHasNonWritableProperties(Type type)
+        {
+            return type.GetProperties().Any(p => !p.CanWrite) || type.Namespace.StartsWith("System.Net.Mail");
         }
 
         /// <summary>
@@ -188,7 +225,7 @@ namespace NServiceBus.Serializers.XML
 
                 }
 
-                if (!prop.CanWrite && !isKeyValuePair)
+                if (!prop.CanWrite && !isKeyValuePair && !GetGenericArgumentsOfCollectionTypes(prop.PropertyType).Any())
                     continue;
                 if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
                     continue;
@@ -201,16 +238,6 @@ namespace NServiceBus.Serializers.XML
                     result.AddRange(GetAllPropertiesForType(interfaceType, false));
 
             return result.Distinct();
-        }
-
-        /// <summary>
-        /// Gets a FieldInfo for each field in the given type.
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
-        {
-            return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
         #region Deserialize
@@ -314,9 +341,11 @@ namespace NServiceBus.Serializers.XML
                     if (parent.GetType().IsArray)
                         return GetObjectOfTypeFromNode(parent.GetType().GetElementType(), node);
 
-                    var args = parent.GetType().GetGenericArguments();
-                    if (args.Length == 1)
-                        return GetObjectOfTypeFromNode(args[0], node);
+                    //todo: optimize
+                    var x = GetGenericArgumentsOfCollectionTypes(parent.GetType());
+
+                    if (x.Any())
+                        return GetObjectOfTypeFromNode(x[0], node);
                 }
 
                 PropertyInfo prop = parent.GetType().GetProperty(name);
@@ -352,26 +381,59 @@ namespace NServiceBus.Serializers.XML
             if (typeof(IEnumerable).IsAssignableFrom(t))
                 return GetPropertyValue(t, node);
 
+            var typeAttribute = node.Attributes.GetNamedItem("type");
+
+            if (typeAttribute != null)
+            {
+                t = Type.GetType(typeAttribute.Value, true);
+
+                if(!typeToProperties.ContainsKey(t))
+                    InitType(t);
+            }
+                
             object result = mapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
             {
                 Type type = null;
-                if (n.Name.Contains(":"))
-                    type = Type.GetType("System." + n.Name.Substring(0, n.Name.IndexOf(":")), false, true);
+                nodeName = XmlConvert.DecodeName(n.Name);
 
-                var prop = GetProperty(t, n.Name);
+                if (nodeName.Contains(":"))
+                    type = Type.GetType("System." + nodeName.Substring(0, nodeName.IndexOf(":")), false, true);
+
+                var prop = GetProperty(t, nodeName);
                 if (prop != null)
                 {
-                    var val = GetPropertyValue(type ?? prop.PropertyType, n);
-                    if (val != null)
+                    if (prop.CanWrite)
                     {
-                        propertyInfoToLateBoundPropertySet[prop].Invoke(result, val);
+                        var val = GetPropertyValue(type ?? prop.PropertyType, n);
+
+                        if (val != null)
+                            propertyInfoToLateBoundPropertySet[prop].Invoke(result, val);
                         continue;
                     }
-                }
 
-                var field = GetField(t, n.Name);
+                    
+                    if (typeof(ICollection).IsAssignableFrom(prop.PropertyType))
+                    {
+                        var x = GetGenericArgumentsOfCollectionTypes(prop.PropertyType);
+
+                        if(!x.Any())
+                            continue;
+
+                        foreach (XmlNode child in n.ChildNodes)
+                        {
+                            var childVal = GetPropertyValue(x[0], child);
+                            
+                            if(childVal != null)
+                                propertyInfoToLateBoundPropertySet[prop].Invoke(prop.GetValue(result, null), childVal);
+                        }
+                    }
+                        
+                    continue;
+
+                }
+                var field = GetField(t, nodeName);
                 if (field != null)
                 {
                     object val = GetPropertyValue(type ?? field.FieldType, n);
@@ -429,7 +491,7 @@ namespace NServiceBus.Serializers.XML
 
         private object GetPropertyValue(Type type, XmlNode n)
         {
-            if ((n.ChildNodes.Count == 1) && (n.ChildNodes[0] is XmlCharacterData)) 
+            if ((n.ChildNodes.Count == 1) && (n.ChildNodes[0] is XmlCharacterData))
             {
                 var text = n.ChildNodes[0].InnerText;
 
@@ -515,7 +577,7 @@ namespace NServiceBus.Serializers.XML
                 if (!typeof(IEnumerable).IsAssignableFrom(type))
                 {
                     if (n.ChildNodes[0] is XmlWhitespace)
-                        return Activator.CreateInstance(type);
+                        return mapper.CreateInstance(type);
 
                     throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
                 }
@@ -692,14 +754,24 @@ namespace NServiceBus.Serializers.XML
             if (obj == null)
                 return;
 
+            //todo: 
+            if (t != obj.GetType() && !typeToProperties.ContainsKey(obj.GetType()))
+            {
+                t = obj.GetType();
+                InitType(t);
+            }
+                
             if (!typeToProperties.ContainsKey(t))
                 throw new InvalidOperationException("Type " + t.FullName + " was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.");
 
             foreach (PropertyInfo prop in typeToProperties[t])
                 WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
-
+            
             foreach (FieldInfo field in typeToFields[t])
-                WriteEntry(field.Name, field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
+                WriteEntry( XmlConvert.EncodeName(field.Name) , field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
+
+            
+
         }
 
         private void WriteObject(string name, Type type, object value, StringBuilder builder)
@@ -723,7 +795,10 @@ namespace NServiceBus.Serializers.XML
             if (!string.IsNullOrEmpty(prefix))
                 element = prefix + ":" + name;
 
-            builder.AppendFormat("<{0}>\n", element);
+            if (value == null || type == value.GetType() || value.GetType().Name.EndsWith("__impl"))
+                builder.AppendFormat("<{0}>\n", element);
+            else
+                builder.AppendFormat("<{0} type=\"{1}\">\n", element, value.GetType().AssemblyQualifiedName);
 
             Write(builder, type, value);
 
@@ -790,6 +865,7 @@ namespace NServiceBus.Serializers.XML
                             WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
 
                 }
+
 
                 builder.AppendFormat("</{0}>\n", name);
                 return;
@@ -881,6 +957,15 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
+        Type[] GetGenericArgumentsOfCollectionTypes(Type t)
+        {
+            var x = t.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericArguments().Length == 1)
+                            .FirstOrDefault(i => typeof(ICollection<>).MakeGenericType(i.GetGenericArguments()).IsAssignableFrom(t));
+            if (x == null)
+                return Type.EmptyTypes;
+
+            return x.GetGenericArguments();
+        }
         #endregion
 
         #region members
@@ -951,5 +1036,6 @@ namespace NServiceBus.Serializers.XML
         }
 
         string nameSpace = "http://tempuri.net";
+        string nodeName;
     }
 }

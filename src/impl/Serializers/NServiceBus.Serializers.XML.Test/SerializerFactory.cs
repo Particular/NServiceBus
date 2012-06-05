@@ -34,14 +34,12 @@ namespace NServiceBus.Serializers.XML.Test
 
         public static T ForMessage<T>(object message)
         {
-            var serializer = SerializerFactory.Create<T>();
-
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new[] { message }, stream);
+                SerializerFactory.Create<T>().Serialize(new[] { message }, stream);
                 stream.Position = 0;
-
-                var msgArray = serializer.Deserialize(stream);
+              
+                var msgArray = SerializerFactory.Create<T>().Deserialize(stream);
                 return (T)msgArray[0];
 
             }
