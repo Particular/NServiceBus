@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Orders.Handler")]
+[assembly: AssemblyTitle("Orders.Handler.Worker2")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Orders.Handler")]
+[assembly: AssemblyProduct("Orders.Handler.Worker2")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b9788f63-94a6-48e2-8e27-c59cec384a6b")]
+[assembly: Guid("08618f51-b46e-4a67-b4aa-5012df2e2147")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -2,17 +2,8 @@
 
 namespace Orders.Handler
 {
-    using NServiceBus.Config;
-
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, IWantCustomLogging
-    {
-        public void Init()
-        {
-            SetLoggingLibrary.Log4Net(log4net.Config.XmlConfigurator.Configure);
-
-        }
-    }
-
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher { }
+    
     class ConfiguringTheDistributorWithTheFluentApi : INeedInitialization
     {
         public void Init()
