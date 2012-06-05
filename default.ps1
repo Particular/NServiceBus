@@ -87,6 +87,8 @@ task InitEnvironment -description "Initializes the environment for build" {
 			$script:nunitTargetFramework = "/framework=4.0";
 			
 			$script:isEnvironmentInitialized = $true
+
+			Set-Item -path env:COMPLUS_Version -value "v4.0.30319"
 		}
 	}
 	$binariesExists = Test-Path $binariesDir;
