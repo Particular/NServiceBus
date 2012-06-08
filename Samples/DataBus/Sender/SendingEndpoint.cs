@@ -4,7 +4,7 @@ namespace Sender
 	using NServiceBus;
 	using Receiver.Messages;
 
-	public class SendingEndpoint : IWantToRunAtStartup
+	public class SendingEndpoint : IWantToRunWhenBusStartsAndStops
 	{
 		readonly IBus bus;
 
@@ -13,7 +13,7 @@ namespace Sender
 			this.bus = bus;
 		}
 
-		public void Run()
+		public void Start()
 		{
             Console.WriteLine("Press 'Enter' to send a large message (>4MB)");
             Console.WriteLine("Press 'E' to send a message that will exceed the limit and throw");

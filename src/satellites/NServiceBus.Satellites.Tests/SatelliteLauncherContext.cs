@@ -27,7 +27,6 @@ namespace NServiceBus.Satellites.Tests
 
             var configurer = new SatelliteConfigurer();
             configurer.Init();
-            //configurer.Run();
 
             var launcher = new NonThreadingSatelliteLauncher
                                {
@@ -36,7 +35,7 @@ namespace NServiceBus.Satellites.Tests
                                };
 
             BeforeRun();
-            launcher.Run();
+            launcher.Start();
         }
 
         public abstract void BeforeRun();

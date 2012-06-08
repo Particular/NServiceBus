@@ -1,7 +1,6 @@
 namespace NServiceBus.Timeout.Core
 {
     using System.Globalization;
-    using Config;
     using MessageMutator;
     using Saga;
 

@@ -56,8 +56,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="log4net">
       <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -65,6 +69,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address.cs" />
@@ -83,9 +88,10 @@
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
+    <Compile Include="INeedInitialization.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
-    <Compile Include="IWantToRunWhenTheBusStarts.cs" />
+    <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,4 +126,5 @@
   <PropertyGroup>
     <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
   </PropertyGroup>
+  <Import Project="..\..\..\tools\Fody\Fody.targets" />
 </Project>

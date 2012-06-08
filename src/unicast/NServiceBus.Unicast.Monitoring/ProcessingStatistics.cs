@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.Unicast.Monitoring
 {
     using System;
-    using NServiceBus.Config;
     using UnitOfWork;
 
     /// <summary>
     /// Stores the start and endtimes for statistic purposes
     /// </summary>
-    public class ProcessingStatistics:IManageUnitsOfWork,INeedInitialization
+    public class ProcessingStatistics : IManageUnitsOfWork, INeedInitialization
     {
         /// <summary>
         /// Needs the bus to set the headers

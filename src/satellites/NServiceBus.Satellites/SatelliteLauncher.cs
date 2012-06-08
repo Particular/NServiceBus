@@ -6,12 +6,11 @@ using System.Threading;
 using log4net;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Satellites.Config;
-using NServiceBus.Unicast;
 using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Satellites
 {
-    public class SatelliteLauncher : IWantToRunWhenTheBusStarts
+    public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
     {
         ILog Logger = LogManager.GetLogger("SatelliteLauncher");
 
@@ -21,14 +20,19 @@ namespace NServiceBus.Satellites
         public IBuilder Builder { get; set; }        
         public ISatelliteTransportBuilder TransportBuilder { get; set; }
         
-        public void Run()
+        public void Start()
         {
             timer = new System.Timers.Timer {Interval = 1000};
             timer.Elapsed += (o, e) => Start();
 
             Build();
             Initialize();
-            Start();
+            StartSatellites();
+        }
+
+        public void Stop()
+        {
+            //TODO: Need to stop satellite
         }
 
         void Build()
@@ -58,8 +62,8 @@ namespace NServiceBus.Satellites
                 }                
             }
         }
-        
-        void Start()
+
+        void StartSatellites()
         {
             timer.Stop();
 

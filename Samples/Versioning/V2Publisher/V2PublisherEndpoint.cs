@@ -3,11 +3,11 @@ using NServiceBus;
 
 namespace V2Publisher
 {
-    public class V2PublisherEndpoint : IWantToRunAtStartup
+    public class V2PublisherEndpoint : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
         
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'Enter' to publish a message, Ctrl + C to exit.");
 

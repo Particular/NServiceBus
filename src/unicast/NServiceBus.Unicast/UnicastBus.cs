@@ -21,6 +21,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -809,7 +810,51 @@ namespace NServiceBus.Unicast
             if (Started != null)
                 Started(this, null);
 
+            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>();
+
+            foreach (var thingToRunAtStartup in thingsToRunAtStartup)
+            {
+                var runAtStartup = thingToRunAtStartup;
+                Task.Factory.StartNew(() =>
+                                          {
+                                              try
+                                              {
+                                                  Log.DebugFormat("Calling {0}", runAtStartup.GetType().Name);
+                                                  runAtStartup.Start();
+                                              }
+                                              catch (Exception ex)
+                                              {
+                                                  Log.Error("Problem occurred when starting the endpoint.", ex);
+                                                  //don't rethrow so that thread doesn't die before log message is shown.
+                                              }
+                                          });
+            }
+            
             return this;
+        }
+
+        private void ExecuteIWantToRunAtStartupStopMethods()
+        {
+            if (thingsToRunAtStartup == null)
+                return;
+
+            var tasks = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
+                                                                                              {
+                                                                                                  Log.DebugFormat("Stopping {0}", toRun.GetType().Name);
+                                                                                                  try
+                                                                                                  {
+                                                                                                      toRun.Stop();
+                                                                                                  }
+                                                                                                  catch (Exception ex)
+                                                                                                  {
+                                                                                                      Log.ErrorFormat("{0} could not be stopped.", ex, toRun.GetType().Name);
+                                                                                                      // no need to rethrow, closing the process anyway
+                                                                                                  }
+                                                                                              })).ToArray();
+
+            
+            // Wait for a period here otherwise the process may be killed too early!
+            Task.WaitAll(tasks, TimeSpan.FromSeconds(20));
         }
 
         /// <summary>
@@ -882,19 +927,31 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
         /// Tells the transport to dispose.
         /// </summary>
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-            transport.TransportMessageReceived -= TransportMessageReceived;
-            transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-            transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+            if (disposing)
+            {
+                ExecuteIWantToRunAtStartupStopMethods();
 
-            transport.Dispose();
+                // free managed resources
+                transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+                transport.TransportMessageReceived -= TransportMessageReceived;
+                transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+                transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+
+                transport.Dispose();
+            }
+            // free native resources if there are any.
         }
-
 
         void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
         {
@@ -1438,9 +1495,6 @@ namespace NServiceBus.Unicast
 
             foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
                 timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
-
-            return;
-
         }
 
 
@@ -1726,6 +1780,7 @@ namespace NServiceBus.Unicast
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
+        private IEnumerable<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 
         #endregion
     }

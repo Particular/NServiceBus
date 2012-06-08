@@ -2,10 +2,8 @@
 {
     using System;
     using MessageMutator;
-    using NServiceBus.Config;
-    using Unicast.Transport;
 
-    public class GatewayHeaderManager : IMutateTransportMessages,INeedInitialization
+    public class GatewayHeaderManager : IMutateTransportMessages, INeedInitialization
     {
         public void MutateIncoming(TransportMessage transportMessage)
         {

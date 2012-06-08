@@ -4,11 +4,11 @@ namespace NotifySample
     using System.Net.Mail;
     using NServiceBus;
 
-    public class EmailSender : IWantToRunAtStartup
+    public class EmailSender : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Hit any key to send a email using the notification satellite");
 

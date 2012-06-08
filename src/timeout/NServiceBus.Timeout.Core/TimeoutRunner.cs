@@ -7,13 +7,13 @@
     using Dispatch;
     using log4net;
 
-    public class TimeoutRunner : IWantToRunWhenTheBusStarts
+    public class TimeoutRunner : IWantToRunWhenBusStartsAndStops
     {
         public IManageTimeouts TimeoutManager { get; set; }
         public IPersistTimeouts Persister { get; set; }
         public TimeoutDispatcher TimeoutDispatcher { get; set; }
 
-        public void Run()
+        public void Start()
         {
             if (TimeoutManager == null)
                 return;
@@ -44,7 +44,6 @@
             Logger.DebugFormat("Total time for cache priming {0} seconds", sw.Elapsed.TotalSeconds);
         }
 
-
         public void Stop()
         {
             stopRequested = true;
@@ -66,7 +65,6 @@
                 }
             }
         }
-
 
         Thread thread;
         volatile bool stopRequested;

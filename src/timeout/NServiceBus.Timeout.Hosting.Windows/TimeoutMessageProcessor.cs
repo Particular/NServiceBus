@@ -1,20 +1,16 @@
-﻿using NServiceBus.Unicast.Queuing;
-
-namespace NServiceBus.Timeout.Hosting.Windows
+﻿namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
     using Core.Dispatch;
     using Faults;
     using ObjectBuilder;
-    using Unicast;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
+    using NServiceBus.Unicast.Queuing;
 
-    // HACK: Intentionally using obsoleted IWantToRunWhenTheBusStarts interface to ensure backwards compatability.
-    // This can be changed to use new interface once old interface is removed. 
-    public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts, IDisposable 
+    public class TimeoutMessageProcessor : IWantToRunWhenBusStartsAndStops
     {
         public TransactionalTransport MainTransport { get; set; }
 
@@ -22,7 +18,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
 
-        public void Run()
+        public void Start()
         {
 
             if (!Configure.Instance.IsTimeoutManagerEnabled())
@@ -44,6 +40,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
             inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
         }
 
+        public void Stop()
+        {
+            if (inputTransport != null)
+                inputTransport.Dispose();
+        }
+
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
@@ -52,15 +54,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
             else
                 Builder.Build<TimeoutTransportMessageHandler>().Handle(e.Message);
         }
-
-
-     
-        public void Dispose()
-        {
-            if (inputTransport != null)
-                inputTransport.Dispose();
-        }
-
 
         ITransport inputTransport;
     }

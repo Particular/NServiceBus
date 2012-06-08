@@ -5,11 +5,11 @@ namespace Headquarter
     using System;
     using Messages;
 
-    public class HeadquarterService : IWantToRunAtStartup
+    public class HeadquarterService : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
 
             Console.WriteLine("Press 'Enter' to send a message to SiteA and SiteB, SiteA will also reply to the sent message. To exit, Ctrl + C");

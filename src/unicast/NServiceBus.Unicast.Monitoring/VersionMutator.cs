@@ -3,8 +3,6 @@ namespace NServiceBus.Unicast.Monitoring
     using System.Diagnostics;
     using System.Reflection;
     using MessageMutator;
-    using NServiceBus.Config;
-    using Transport;
 
     public class VersionMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {

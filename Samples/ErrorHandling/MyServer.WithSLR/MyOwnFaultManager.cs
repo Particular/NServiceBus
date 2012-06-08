@@ -1,8 +1,6 @@
 ﻿using System;
 using NServiceBus;
-using NServiceBus.Config;
 using NServiceBus.Faults;
-using NServiceBus.Unicast.Transport;
 
 namespace MyServer
 {

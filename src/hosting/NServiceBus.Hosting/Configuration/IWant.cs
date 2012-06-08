@@ -35,6 +35,7 @@ namespace NServiceBus
     /// Implementers will be invoked when the endpoint starts up.
     /// Dependency injection is provided for these types.
     /// </summary>
+    [ObsoleteEx(Replacement = "NServiceBus!NServiceBus.IWantToRunWhenBusStartsAndStops", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
     public interface IWantToRunAtStartup
     {
         /// <summary>

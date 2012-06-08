@@ -8,7 +8,7 @@
     using Unicast.Transport;
     using log4net;
 
-    public class DistributorReadyMessageProcessor : IWantToRunWhenTheBusStarts
+    public class DistributorReadyMessageProcessor : IWantToRunWhenBusStartsAndStops
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
@@ -16,7 +16,7 @@
 
         public Address ControlQueue { get; set; }
 
-        public void Run()
+        public void Start()
         {
             if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
@@ -44,7 +44,11 @@
             controlTransport.Start(ControlQueue);
         }
 
-       
+        public void Stop()
+        {
+            //TODO: Need to add code here
+        }
+
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var replyToAddress = controlMessage.ReplyToAddress;

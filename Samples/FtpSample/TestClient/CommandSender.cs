@@ -4,13 +4,13 @@ using TestMessage;
 
 namespace TestClient
 {
-    class CommandSender : IWantToRunAtStartup
+    class CommandSender : IWantToRunWhenBusStartsAndStops
     {
         readonly Random random = new Random();
 
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'R' to send a request");
             Console.WriteLine("To exit, press Ctrl + C");
