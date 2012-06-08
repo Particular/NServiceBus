@@ -57,9 +57,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Reference Include="log4net">
-      <HintPath>..\..\..\lib\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Obsolete">
       <HintPath>..\..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
@@ -93,7 +90,6 @@
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="MessageConventionException.cs" />
-    <Compile Include="IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -167,7 +167,7 @@ $coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", 
 	
 	<#It's Possible to copy the NServiceBus.Core.dll to Core-Only but not done gain time on development build #>
 			
-	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll
+	$assemblies += dir $buildBase\nservicebus.core\log4net.dll
 	#$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
 	#$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
 	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll
@@ -329,7 +329,7 @@ task CompileHosts  -depends InitEnvironment -description "Builds NServiceBus.Hos
 	}
 	
 	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
-		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
+		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll", "$libDir\log4net.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 	
@@ -349,7 +349,7 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	
 	
 	$assemblies = @("$buildBase\hosting32\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting32\NServiceBus.Hosting.dll",
-		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
+		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll", "$libDir\log4net.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
 	
