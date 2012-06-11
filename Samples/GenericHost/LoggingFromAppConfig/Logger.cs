@@ -3,9 +3,9 @@ using log4net;
 
 namespace LoggingFromAppConfig
 {
-    class Logger : IWantToRunAtStartup
+    class Logger : IWantToRunWhenBusStartsAndStops
     {
-        public void Run()
+        public void Start()
         {
             Log.Debug("logging this.");
         }

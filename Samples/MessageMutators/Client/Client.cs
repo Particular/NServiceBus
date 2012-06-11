@@ -6,9 +6,9 @@ namespace Client
 {
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Client {}
 
-    public class Runner : IWantToRunAtStartup
+    public class Runner : IWantToRunWhenBusStartsAndStops
     {
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 's' to send a valid message, press 'e' to send a failed message. To exit, 'q'\n" );
 

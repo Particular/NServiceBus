@@ -1,9 +1,7 @@
 ﻿namespace MyServer
 {
     using NServiceBus;
-    using NServiceBus.Config;
     using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Transport;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
     {

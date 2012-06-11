@@ -8,9 +8,8 @@ namespace NServiceBus.Distributor
     using Faults;
     using ObjectBuilder;
 
-    public class DistributorBootstrapper : IDisposable, IWantToRunWhenTheBusStarts
+    public class DistributorBootstrapper : IWantToRunWhenBusStartsAndStops
     {
-
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
@@ -18,13 +17,13 @@ namespace NServiceBus.Distributor
 
         public Address InputQueue { get; set; }
 
-        public void Dispose()
+        public void Stop()
         {
             if (distributor != null)
                 distributor.Stop();
         }
 
-        public void Run()
+        public void Start()
         {
             if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
@@ -52,7 +51,5 @@ namespace NServiceBus.Distributor
         }
 
         Unicast.Distributor.Distributor distributor;
-
-
     }
 }

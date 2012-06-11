@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.Sagas.Impl
 {
-    using Config;
     using MessageMutator;
-    using Unicast.Transport;
 
     /// <summary>
     /// Adds the originating saga headers to outgoing messages
     /// </summary>
-    public class OriginatingSagaHeaderMutator:IMutateOutgoingTransportMessages,INeedInitialization
+    public class OriginatingSagaHeaderMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// Set the header if we run in the context of a saga

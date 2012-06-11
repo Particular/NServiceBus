@@ -5,11 +5,11 @@ namespace Client
     using Messages;
     using NServiceBus;
 
-    class CommandSender : IWantToRunAtStartup
+    class CommandSender : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'C' to send a command");
             Console.WriteLine("Press 'R' to send a request");

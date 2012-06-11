@@ -4,6 +4,7 @@
     /// Implementers will be called after NServiceBus.Configure.With completes and a container
     /// has been set. 
     /// </summary>
+    [ObsoleteEx(Replacement = "NServiceBus!NServiceBus.INeedInitialization", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
     public interface INeedInitialization
     {
         /// <summary>

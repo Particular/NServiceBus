@@ -5,11 +5,11 @@ namespace Server
     using Messages;
     using NServiceBus;
 
-    class CommandSender : IWantToRunAtStartup
+    class CommandSender : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'E' to publish an event");
             Console.WriteLine("Press 'D' to send a deferred message");

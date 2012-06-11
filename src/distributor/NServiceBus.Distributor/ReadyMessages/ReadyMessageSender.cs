@@ -3,9 +3,8 @@
     using Unicast;
     using Unicast.Transport;
     using Unicast.Queuing;
-    using log4net;
 
-    public class ReadyMessageSender : NServiceBus.IWantToRunWhenTheBusStarts
+    public class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
     {
         public ITransport EndpointTransport { get; set; }
         
@@ -15,7 +14,7 @@
 
         public Address DistributorControlAddress { get; set; }
 
-        public void Run()
+        public void Start()
         {
             if (!Configure.Instance.WorkerRunsOnThisEndpoint()) 
                 return;
@@ -24,6 +23,11 @@
             SendReadyMessage(capacityAvailable,true);
 
             EndpointTransport.FinishedMessageProcessing += (a, b) => SendReadyMessage(1);
+        }
+
+        public void Stop()
+        {
+            //TODO: Need to add code here
         }
 
         void SendReadyMessage(int capacityAvailable,bool isStarting = false)
@@ -37,26 +41,7 @@
             if (isStarting)
                 readyMessage.Headers.Add(Headers.WorkerStarting, true.ToString());
 
-
             MessageSender.Send(readyMessage, DistributorControlAddress);
         }
-
-        private static bool? isLocal;
-        private static bool IsLocal()
-        {
-            if (isLocal.HasValue)
-                return isLocal.GetValueOrDefault();
-            
-            var masterNodeName = Configure.Instance.GetMasterNode();
-            if (string.IsNullOrWhiteSpace(masterNodeName))
-            {
-                isLocal = true;
-                return true;
-            }
-            isLocal = ConfigureDistributor.IsLocalIpAddress(masterNodeName);
-            return isLocal.GetValueOrDefault();
-        }
-
-        static readonly ILog Logger = LogManager.GetLogger("Worker");
     }
 }

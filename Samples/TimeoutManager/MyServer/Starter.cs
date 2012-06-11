@@ -9,11 +9,11 @@ namespace MyServer
     using PerformanceTest;
     using Saga;
 
-    class Starter:IWantToRunAtStartup
+    class Starter : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'S' to start the saga");
             Console.WriteLine("Press 'T' to start the saga in multi tenant mode");

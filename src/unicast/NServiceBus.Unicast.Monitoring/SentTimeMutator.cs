@@ -2,8 +2,6 @@
 {
     using System;
     using MessageMutator;
-    using NServiceBus.Config;
-    using Transport;
 
     /// <summary>
     /// Set the TimeSent header

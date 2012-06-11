@@ -1,11 +1,9 @@
 namespace TimeoutMigrator
 {
     using NServiceBus;
-    using NServiceBus.Config;
     using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Transport;
 
-    public class DestinationOverride : IMutateOutgoingTransportMessages,INeedInitialization
+    public class DestinationOverride : IMutateOutgoingTransportMessages, INeedInitialization
     {
         public static Address CurrentDestination { get; set; }
 

@@ -173,7 +173,7 @@ namespace NServiceBus
         /// runtime directory.
         /// </summary>
         /// <returns></returns>
-        [Obsolete("This method is obsolete, it has been replaced by NServiceBus.Configure.With.", false)]
+        [ObsoleteEx(Replacement = "NServiceBus.Configure.With", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure WithWeb()
         {
             return With();
@@ -276,11 +276,18 @@ namespace NServiceBus
                 return;
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
+            
+            ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             ForAllTypes<IWantToRunBeforeConfiguration>(t =>
             {
                 var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                ini.Init();
+            });
+
+            ForAllTypes<Config.INeedInitialization>(t =>
+            {
+                var ini = (Config.INeedInitialization)Activator.CreateInstance(t);
                 ini.Init();
             });
 

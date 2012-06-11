@@ -4,9 +4,9 @@ using NServiceBus;
 
 namespace LoggingWithConfigurableThreshold
 {
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantToRunAtStartup
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantToRunWhenBusStartsAndStops
     {
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("The WARN threshold has been set in the config file.");
 

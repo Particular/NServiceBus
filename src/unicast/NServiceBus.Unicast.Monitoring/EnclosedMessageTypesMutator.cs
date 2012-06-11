@@ -3,13 +3,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using MessageMutator;
-    using NServiceBus.Config;
-    using Transport;
 
     /// <summary>
     /// Adds a header with the types of the messages enclosed in this transport message
     /// </summary>
-    public class EnclosedMessageTypesMutator : IMutateOutgoingTransportMessages,INeedInitialization
+    public class EnclosedMessageTypesMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// Sets the header to a ; separated list of message types carried in this message

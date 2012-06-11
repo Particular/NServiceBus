@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Monitoring
 {
     using MessageMutator;
-    using NServiceBus.Config;
-    using Transport;
 
     /// <summary>
     /// Mutator to set the related to header

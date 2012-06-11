@@ -7,11 +7,11 @@ namespace Subscriber2
     /// <summary>
     /// Showing how to manage subscriptions manually
     /// </summary>
-    class Subscriber2Endpoint : IWantToRunAtStartup
+    class Subscriber2Endpoint : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Bus.Subscribe<IMyEvent>();
         }

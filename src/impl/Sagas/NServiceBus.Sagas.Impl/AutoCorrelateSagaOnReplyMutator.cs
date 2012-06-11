@@ -1,9 +1,7 @@
 namespace NServiceBus.Sagas.Impl
 {
     using System;
-    using Config;
     using MessageMutator;
-    using Unicast.Transport;
 
     /// <summary>
     /// Promotes the saga id and type headers on replies(bus.Reply|bus.Return) so that the saga can be 

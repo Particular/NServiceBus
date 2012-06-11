@@ -6,13 +6,13 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus Reflection Utilities")]
 [assembly: AssemblyDescription("Basic reflection utilities for nServiceBus")]
-[assembly: AssemblyVersion("3.2.0.0")]
-[assembly: AssemblyFileVersion("3.2.0.0")]
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
 [assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
 [assembly: AssemblyProduct("NServiceBus")]
 [assembly: AssemblyCompany("NServiceBus")]
 [assembly: AssemblyConfiguration("release")]
-[assembly: AssemblyInformationalVersion("3.2.0-build0")]
+[assembly: AssemblyInformationalVersion("4.0.0.0alpha")]
 [assembly: ComVisible(false)]		
 [assembly: CLSCompliantAttribute(true)]
 

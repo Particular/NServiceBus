@@ -27,7 +27,7 @@ namespace NServiceBus.Hosting
             {
                 PerformConfiguration();
 
-                var bus = Configure.Instance.CreateBus();
+                bus = Configure.Instance.CreateBus();
                 if (bus != null)
                     bus.Start();
 
@@ -51,6 +51,11 @@ namespace NServiceBus.Hosting
         {
             configManager.Shutdown();
             wcfManager.Shutdown();
+
+            if (bus != null)
+            {
+                bus.Dispose();
+            }
         }
 
         /// <summary>
@@ -152,6 +157,7 @@ namespace NServiceBus.Hosting
             roleManager = new RoleManager(assembliesToScan);
         }
 
+        IStartableBus bus;
         readonly IConfigureThisEndpoint specifier;
         readonly ProfileManager profileManager;
         readonly ConfigManager configManager;

@@ -1,6 +1,5 @@
 namespace NServiceBus.Serializers.XML.Config
 {
-    using NServiceBus.Config;
     using Serialization;
 
     /// <summary>

@@ -14,9 +14,9 @@ namespace Client
         }
     }
 
-    public class Runner : IWantToRunAtStartup
+    public class Runner : IWantToRunWhenBusStartsAndStops
     {
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'Enter' to send a message.");
             while (Console.ReadLine() != null)

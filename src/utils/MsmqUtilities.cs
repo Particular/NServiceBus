@@ -104,18 +104,6 @@ namespace NServiceBus.Utils
             q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);            
         }
 
-        /// <summary>
-        /// Turns a '@' separated value into a full path.
-        /// Format is 'queue@machine', or 'queue@ipaddress'
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        [ObsoleteEx(Replacement = "MsmqUtilities.GetFullPath(Address)", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
-        public static string GetFullPath(string value)
-        {
-            return GetFullPath(Address.Parse(value));
-        }
-
         private static string getFullPath(string value)
         {
             return GetFullPath(Address.Parse(value));
@@ -211,18 +199,6 @@ namespace NServiceBus.Utils
             return address.Machine + PRIVATE + address.Queue;
         }
 
-        /// <summary>
-        /// Returns the machine name from a '@' separated full logical name,
-        /// or the Environment.MachineName otherwise.
-        /// </summary>
-        /// <param name="logicalName"></param>
-        /// <returns></returns>
-        [ObsoleteEx(Replacement = "Address.Machine", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
-        public static string GetMachineNameFromLogicalName(string logicalName)
-        {
-            return getMachineNameFromLogicalName(logicalName);
-        }
-
         private static string getMachineNameFromLogicalName(string logicalName)
         {
             string[] arr = logicalName.Split('@');
@@ -234,17 +210,6 @@ namespace NServiceBus.Utils
                     machine = arr[1];
 
             return machine;
-        }
-
-        /// <summary>
-        /// Returns the queue name from a '@' separated full logical name.
-        /// </summary>
-        /// <param name="logicalName"></param>
-        /// <returns></returns>
-        [ObsoleteEx(Replacement = "Address.Queue", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
-        public static string GetQueueNameFromLogicalName(string logicalName)
-        {
-            return getQueueNameFromLogicalName(logicalName);
         }
 
         private static string getQueueNameFromLogicalName(string logicalName)

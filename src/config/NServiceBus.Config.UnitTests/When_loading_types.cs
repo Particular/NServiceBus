@@ -22,7 +22,7 @@ namespace NServiceBus.Config.UnitTests
         public void Should_exclude_the_raven_types()
         {
             Assert.False(
-                loadedTypes.Any(a => a.Namespace.StartsWith("Raven")));
+                loadedTypes.Any(a => a.Namespace != null && a.Namespace.StartsWith("Raven")));
         }
 
         [Test]
