@@ -2,11 +2,10 @@
 using System.Linq;
 using System.Transactions;
 using NHibernate.Criterion;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate
 {
-    using log4net;
-
     /// <summary>
     /// Subscription storage using NHibernate for persistence 
     /// </summary>

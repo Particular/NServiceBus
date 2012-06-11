@@ -4,7 +4,7 @@ using NServiceBus.Config;
 using NServiceBus.Faults;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.ObjectBuilder;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Utils;
 
 namespace NServiceBus

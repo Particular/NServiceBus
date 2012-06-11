@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Configuration;
-using log4net;
+using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Subscriptions.Msmq;

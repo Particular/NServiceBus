@@ -43,9 +43,6 @@
     <Reference Include="ICSharpCode.NRefactory">
       <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\..\lib\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Lucene.Net">
       <HintPath>..\..\..\..\packages\RavenDB-Embedded.1.0.616\lib\net40\Lucene.Net.dll</HintPath>
     </Reference>

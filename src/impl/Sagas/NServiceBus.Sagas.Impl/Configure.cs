@@ -1,3 +1,4 @@
+
 namespace NServiceBus.Sagas.Impl
 {
     using System;
@@ -6,7 +7,7 @@ namespace NServiceBus.Sagas.Impl
     using ObjectBuilder;
     using System.Reflection;
     using Saga;
-    using Common.Logging;
+    using Logging;
 
     /// <summary>
     /// Object that scans types and stores meta-data to be used for type lookups at runtime by sagas.

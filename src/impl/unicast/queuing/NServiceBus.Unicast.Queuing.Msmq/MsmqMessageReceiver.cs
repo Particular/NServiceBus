@@ -4,7 +4,7 @@ using System.Messaging;
 using System.Security.Principal;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
@@ -81,7 +81,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (Exception e)
             {
-                Logger.Fatal(e);
+                Logger.Fatal("Unknown exception", e);
                 throw;
             }
 

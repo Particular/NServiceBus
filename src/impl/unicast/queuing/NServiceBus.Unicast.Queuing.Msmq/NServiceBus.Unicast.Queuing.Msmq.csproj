@@ -32,9 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+    <Reference Include="NServiceBus.Logging">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\lib\Common.Logging.dll</HintPath>
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>

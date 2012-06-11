@@ -142,7 +142,7 @@ task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps t
 
 task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.dll and keeps the output in \binaries" { 
 
-$coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging",  "Impl\ObjectBuilder.Common", "installation", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "impl\licensing", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "scheduling", "satellites", "management\retries", "timeout", "Notifications"
+$coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging.config",  "Impl\ObjectBuilder.Common", "installation", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "impl\licensing", "unicast", "headers", "impersonation", "impl\unicast\queuing", "impl\unicast\transport", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "scheduling", "satellites", "management\retries", "timeout", "Notifications"
 	$coreDirs | % {
 		$solutionDir = Resolve-Path "$srcDir\$_"
 		cd 	$solutionDir
@@ -167,9 +167,9 @@ $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "m
 	
 	<#It's Possible to copy the NServiceBus.Core.dll to Core-Only but not done gain time on development build #>
 			
-	$assemblies += dir $buildBase\nservicebus.core\antlr3*.dll
-	$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
-	$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
+	$assemblies += dir $buildBase\nservicebus.core\log4net.dll
+	#$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
+	#$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
 	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll
 	$assemblies += dir $buildBase\nservicebus.core\AutoFac.dll
 	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
@@ -329,7 +329,7 @@ task CompileHosts  -depends InitEnvironment -description "Builds NServiceBus.Hos
 	}
 	
 	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
-		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll")
+		"$buildBase\hosting\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting\Magnum.dll", "$buildBase\hosting\Topshelf.dll", "$libDir\log4net.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMergeLog.txt"  $ilMergeExclude
 	
@@ -349,7 +349,7 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	
 	
 	$assemblies = @("$buildBase\hosting32\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting32\NServiceBus.Hosting.dll",
-		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll")
+		"$buildBase\hosting32\Microsoft.Practices.ServiceLocation.dll", "$buildBase\hosting32\Magnum.dll", "$buildBase\hosting32\Topshelf.dll", "$libDir\log4net.dll")
 	
 	Ilmerge $ilMergeKey $outDir\host\ "NServiceBus.Host32" $assemblies "" "exe"  $script:ilmergeTargetFramework "$buildBase\NServiceBusHostMerge32Log.txt"  $ilMergeExclude
 	

@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\..\lib\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -43,6 +40,9 @@
     </Reference>
     <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Licensing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>

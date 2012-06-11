@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using log4net;
+using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Satellites.Config;
 using NServiceBus.Unicast.Transport;

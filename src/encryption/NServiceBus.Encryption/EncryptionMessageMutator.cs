@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.MessageMutator;
 
 namespace NServiceBus.Encryption

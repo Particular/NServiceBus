@@ -1,5 +1,4 @@
-﻿using log4net.Appender;
-using log4net.Core;
+﻿using System.Configuration;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
@@ -10,46 +9,12 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null, 
-                a =>
-                {
-                    PrepareColors(a);
-                    a.Threshold = Level.Info;
-                }
-            );
-        }
-
-        
-        ///<summary>
-        /// Sets default colors for a ColredConsoleAppender
-        ///</summary>
-        ///<param name="a"></param>
-        public static void PrepareColors(ColoredConsoleAppender a)
-        {
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Debug,
-                        ForeColor = ColoredConsoleAppender.Colors.White
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Info,
-                        ForeColor = ColoredConsoleAppender.Colors.Green
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Warn,
-                        ForeColor = ColoredConsoleAppender.Colors.Yellow | ColoredConsoleAppender.Colors.HighIntensity
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Error,
-                        ForeColor = ColoredConsoleAppender.Colors.Red | ColoredConsoleAppender.Colors.HighIntensity
-                    });
+            if (SetLoggingLibrary.Log4NetExists)
+                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateColoredConsoleAppender("Info"));
+            else if (SetLoggingLibrary.NLogExists)
+                SetLoggingLibrary.NLog(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget());
+            else
+                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
         }
     }
 }

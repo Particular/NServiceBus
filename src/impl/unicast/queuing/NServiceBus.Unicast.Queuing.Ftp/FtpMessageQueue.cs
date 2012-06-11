@@ -4,7 +4,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NServiceBus.Unicast.Transport;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Ftp
 {

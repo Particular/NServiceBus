@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using log4net;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Configuration
 {

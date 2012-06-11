@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Config;
 using NServiceBus.MessageMutator;
 using NServiceBus.Unicast.Transport;

@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast
 {
@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception e)
                 {
-                    log.Error(this.callback, e);
+                    log.Error(this.callback.ToString(), e);
                 }
 
             this.sync.Set();

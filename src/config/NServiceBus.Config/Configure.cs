@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.ObjectBuilder;

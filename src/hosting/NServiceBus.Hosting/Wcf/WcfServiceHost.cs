@@ -3,7 +3,7 @@ using System.Configuration;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Configuration;
-using log4net;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Wcf
 {

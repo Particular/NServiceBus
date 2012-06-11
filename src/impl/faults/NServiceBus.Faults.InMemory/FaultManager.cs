@@ -1,6 +1,6 @@
 ﻿using System;
 using NServiceBus.Unicast.Transport;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Faults.InMemory
 {

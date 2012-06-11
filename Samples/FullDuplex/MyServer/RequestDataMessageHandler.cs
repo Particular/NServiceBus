@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using log4net;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Logging;
 
 namespace MyServer
 {

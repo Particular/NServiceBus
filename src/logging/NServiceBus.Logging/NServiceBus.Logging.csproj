@@ -33,26 +33,8 @@
     <DocumentationFile>bin\Release\NServiceBus.Logging.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Common.Logging.Log4Net, Version=1.2.0.2, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\Common.Logging.Log4Net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\log4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Config">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -69,9 +51,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
-    <Compile Include="Logging.cs" />
-    <Compile Include="SetLoggingLibrary.cs" />
+    <Compile Include="Loggers\ConsoleLogger.cs" />
+    <Compile Include="ILog.cs" />
+    <Compile Include="Loggers\ConsoleLoggerFactory.cs" />
+    <Compile Include="Loggers\NLogAdapter\TargetFactory.cs" />
+    <Compile Include="Loggers\NLogAdapter\Configurator.cs" />
+    <Compile Include="Loggers\NullLoggerFactory.cs" />
+    <Compile Include="Internal\ReflectionExtensions.cs" />
+    <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\AppenderFactory.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\Configurator.cs" />
+    <Compile Include="LoggingLibraryException.cs" />
+    <Compile Include="Loggers\NullLogger.cs" />
+    <Compile Include="ILoggerFactory.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\LoggerFactory.cs" />
+    <Compile Include="Loggers\Log4NetAdapter\Log.cs" />
+    <Compile Include="LogManager.cs" />
+    <Compile Include="Loggers\NLogAdapter\Log.cs" />
+    <Compile Include="Loggers\NLogAdapter\LoggerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

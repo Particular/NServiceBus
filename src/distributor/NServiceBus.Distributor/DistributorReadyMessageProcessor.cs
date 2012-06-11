@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Distributor
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Distributor
 {
     using ReadyMessages;
     using Unicast.Distributor;
@@ -6,7 +8,6 @@
     using Unicast.Queuing.Msmq;
     using Faults;
     using Unicast.Transport;
-    using log4net;
 
     public class DistributorReadyMessageProcessor : IWantToRunWhenBusStartsAndStops
     {

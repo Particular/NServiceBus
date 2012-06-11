@@ -1,5 +1,5 @@
 using System;
-using log4net;
+using NServiceBus.Logging;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Transport;

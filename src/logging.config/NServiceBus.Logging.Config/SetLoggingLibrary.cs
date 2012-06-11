@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Specialized;
-using log4net.Appender;
-using log4net.Core;
-using System.Reflection;
 
 namespace NServiceBus
 {
@@ -16,7 +12,9 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config)
         {
-            return config.Log4Net<ConsoleAppender>(ca => ca.Threshold = Level.All);
+            var appender = Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateConsoleAppender("All");
+
+            return config.Log4Net(appender);
         }
 
         /// <summary>
@@ -41,33 +39,17 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
-            var appender = appenderSkeleton as AppenderSkeleton;
-            if (appender == null)
-                throw new ArgumentException("The object provided must inherit from log4net.Appender.AppenderSkeleton.");
-
             Log4Net();
 
-            if (appender.Layout == null)
-                appender.Layout = new log4net.Layout.PatternLayout("%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
+            string threshold = null;
 
             var cfg = Configure.GetConfigSection<Config.Logging>();
             if (cfg != null)
             {
-                foreach(var f in typeof(Level).GetFields(BindingFlags.Public | BindingFlags.Static))
-                    if (string.Compare(cfg.Threshold, f.Name, true) == 0)
-                    {
-                        var val = f.GetValue(null);
-                        appender.Threshold = val as Level;
-                        break;
-                    }
+                threshold = cfg.Threshold;
             }
 
-            if (appender.Threshold == null)
-                appender.Threshold = Level.Info;
-
-            appender.ActivateOptions();
-
-            log4net.Config.BasicConfigurator.Configure(appender);
+            Logging.Loggers.Log4NetAdapter.Configurator.Basic(appenderSkeleton, threshold);
 
             return config;
         }
@@ -77,10 +59,10 @@ namespace NServiceBus
         /// </summary>
         public static void Log4Net()
         {
-            var props = new NameValueCollection();
-            props["configType"] = "EXTERNAL";
-            Common.Logging.LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(props);
+            Logging.Loggers.Log4NetAdapter.Configurator.Basic();
         }
+
+
 
         /// <summary>
         /// Configure NServiceBus to use Log4Net and specify your own configuration.
@@ -92,6 +74,33 @@ namespace NServiceBus
 
             config();
         }
+        
+        public static void NLog(params object[] targets)
+        {
+            string threshold = null;
 
+            var cfg = Configure.GetConfigSection<Config.Logging>();
+            if (cfg != null)
+            {
+                threshold = cfg.Threshold;
+            }
+
+            Logging.Loggers.NLogAdapter.Configurator.Basic(targets, threshold);
+        }
+
+        public static void NLog()
+        {
+            Logging.Loggers.NLogAdapter.Configurator.Basic();
+        }
+
+        public static bool Log4NetExists
+        {
+            get { return Type.GetType("log4net.LogManager, log4net") != null; }
+        }
+
+        public static bool NLogExists
+        {
+            get { return Type.GetType("NLog.LogManager, NLog") != null; }
+        }
     }
 }

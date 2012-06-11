@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using log4net;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Hosting.Roles;
 using NServiceBus.Hosting.Wcf;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting
 {
@@ -38,7 +38,7 @@ namespace NServiceBus.Hosting
             {
                 //we log the error here in order to avoid issues with non serializable exceptions
                 //going across the appdomain back to topshelf
-                LogManager.GetLogger(typeof(GenericHost)).Fatal(ex);
+                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when starting endpoint", ex);
 
                 throw new Exception("Exception when starting endpoint, error has been logged. Reason: " + ex.Message, ex);
             }

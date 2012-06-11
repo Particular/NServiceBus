@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using NServiceBus.Hosting.Helpers;
+using NServiceBus.Logging;
 using NServiceBus.Unicast.Config;
 using NServiceBus.Utils.Reflection;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ServiceProcess;
-using Common.Logging;
+using NServiceBus.Logging;
 using System.ComponentModel;
 
 namespace NServiceBus.Utils

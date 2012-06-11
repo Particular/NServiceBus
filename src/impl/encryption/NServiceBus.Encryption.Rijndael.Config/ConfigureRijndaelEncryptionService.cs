@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Common.Logging;
+using NServiceBus.Logging;
 using NServiceBus.Config;
 using NServiceBus.Encryption.Rijndael;
 using NServiceBus.ObjectBuilder;

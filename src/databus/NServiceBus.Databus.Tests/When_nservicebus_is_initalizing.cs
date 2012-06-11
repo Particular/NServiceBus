@@ -2,7 +2,6 @@ using NServiceBus.DataBus;
 using NServiceBus.DataBus.Config;
 using NServiceBus.DataBus.Tests;
 using NUnit.Framework;
-using log4net;
 
 namespace NServiceBus.DataBus.Tests
 {

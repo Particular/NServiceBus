@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus.Licensing;
-using log4net;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Distributor
 {

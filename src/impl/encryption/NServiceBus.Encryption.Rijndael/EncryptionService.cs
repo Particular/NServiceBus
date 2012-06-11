@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using Common.Logging;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Encryption.Rijndael
 {

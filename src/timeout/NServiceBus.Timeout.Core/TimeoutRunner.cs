@@ -5,7 +5,8 @@
     using System.Linq;
     using System.Threading;
     using Dispatch;
-    using log4net;
+    using Unicast;
+    using Logging;
 
     public class TimeoutRunner : IWantToRunWhenBusStartsAndStops
     {

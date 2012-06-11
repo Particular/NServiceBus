@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Reflection;
-using Common.Logging;
+using NServiceBus.Logging;
 using Rhino.Licensing;
 
 namespace NServiceBus.Licensing
