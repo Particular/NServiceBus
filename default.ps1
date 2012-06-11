@@ -1,8 +1,8 @@
 properties {
-	$ProductVersion = "3.2"
+	$ProductVersion = "4.0"
 	$BuildNumber = "0";
 	$PatchVersion = "0"
-	$PreRelease = "-build"	
+	$PreRelease = "alpha"	
 	$PackageNameSuffix = ""
 	$TargetFramework = "net-4.0"
 	$UploadPackage = $false;
@@ -865,16 +865,10 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
 	else {
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $ProductVersion+ "." + $PatchVersion + $PreRelease + $BuildNumber 
+		$infoVersion = $ProductVersion+ "." + $PatchVersion  + $BuildNumber +$PreRelease
 		$script:packageVersion = $infoVersion
 	}
 	
-	#Temporarily removed the PreRelease prefix ('-build') from the package version for CI packages to maintain compatibility with the existing versioning scheme
-	#We will remove this as soon as we until we consolidate the CI and regular packages
-	if($PackageNameSuffix -eq "-CI") {
-		$script:packageVersion = $ProductVersion + "." + $BuildNumber
-	}
-
 	$script:releaseVersion = $script:packageVersion
 		
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
