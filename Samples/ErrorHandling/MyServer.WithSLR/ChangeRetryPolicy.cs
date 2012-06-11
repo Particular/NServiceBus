@@ -1,10 +1,11 @@
 ﻿using System;
-using NServiceBus.Config;
 using NServiceBus.Management.Retries;
 using NServiceBus.Management.Retries.Helpers;
 
 namespace MyServer
 {
+    using NServiceBus;
+
     public class ChangeRetryPolicy : INeedInitialization
     {
         public void Init()
