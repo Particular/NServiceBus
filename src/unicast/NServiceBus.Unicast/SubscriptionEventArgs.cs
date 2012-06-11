@@ -10,12 +10,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The address of the subscriber.
         /// </summary>
-        [ObsoleteEx(Replacement = "SubscriberReturnAddress", TreatAsErrorFromVersion = "3.0", RemoveInVersion = "4.0")]
-        public string SubscriberAddress { get; set; }
-
-        /// <summary>
-        /// The address of the subscriber.
-        /// </summary>
         public Address SubscriberReturnAddress { get; set; }
 
         /// <summary>

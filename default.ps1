@@ -865,7 +865,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
 	else {
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $ProductVersion+ "." + $PatchVersion  + $BuildNumber +$PreRelease
+		$infoVersion = $fileVersion +$PreRelease
 		$script:packageVersion = $infoVersion
 	}
 	
