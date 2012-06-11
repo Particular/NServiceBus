@@ -23,7 +23,7 @@ namespace NServiceBus.Satellites
         public void Start()
         {
             timer = new System.Timers.Timer {Interval = 1000};
-            timer.Elapsed += (o, e) => Start();
+            timer.Elapsed += (o, e) => StartSatellites();
 
             Build();
             Initialize();
