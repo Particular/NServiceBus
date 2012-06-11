@@ -53,7 +53,6 @@ task Clean -description "Cleans the eviorment for the build" {
 	
 	if(Test-Path $artifactsDir){
 		Delete-Directory $artifactsDir
-		
 	}
 	
 	if(Test-Path $binariesDir){
@@ -91,10 +90,12 @@ task InitEnvironment -description "Initializes the environment for build" {
 			Set-Item -path env:COMPLUS_Version -value "v4.0.30319"
 		}
 	}
-	$binariesExists = Test-Path $binariesDir;
-	if($binariesExists -eq $false){	
+	if(-not (Test-Path $binariesDir)){	
 		Create-Directory $binariesDir
-		echo "created binaries"
+	}
+
+	if(-not (Test-Path $artifactsDir)){	
+		Create-Directory $artifactsDir
 	}
 }
 
@@ -581,7 +582,7 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
 
-task CreatePackages -depends PrepareRelease  -description "After preparing for Release creates the nuget packages and if UploadPackage is set to true then publishes the packages to Nuget gallery "  {
+task CreatePackages {
 
 	if(($UploadPackage) -and ($NugetKey -eq "")){
 		throw "Could not find the NuGet access key Package Cannot be uploaded without access key"
@@ -594,7 +595,7 @@ task CreatePackages -depends PrepareRelease  -description "After preparing for R
 	
 	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
 	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
-	$packit.packageOutPutDir = "$baseDir\release\packages"
+	$packit.packageOutPutDir = "$artifactsDir"
 
 	$packit.targeted_Frameworks = "net40";
 
@@ -808,7 +809,7 @@ else{
 	$packit.package_description = "The process used when sharing an azure instance between multiple NServicebus endpoints"
 	invoke-packit $packageNameHostingAzureHostProcess $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.HostProcess.exe"
 	#endregion
-		
+		"done!"
 	remove-module packit
  }
 
@@ -865,7 +866,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
 	else {
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $fileVersion +$PreRelease
+		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 
 		$script:packageVersion = $infoVersion
 	}
 	
@@ -1002,30 +1003,15 @@ task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput -desc
 	Stop-Process -Name "nunit-console.exe" -ErrorAction SilentlyContinue -Force
 }
 
-task ZipOutput -description "Ziping artifacts directory for releasing"  {
-	
-	echo "Cleaning the Release Artifacts before ziping"
+task ZipOutput -description "Ziping artifacts directory for releasing"  {	
 	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
-	$packageOutPutDir = "$releaseRoot\packages"
 	
 	if(Test-Path -Path $packagingArtifacts ){
 		Delete-Directory $packagingArtifacts
 	}
 	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
-	Copy-Item -Force -Recurse $releaseDir\packages "$releaseRoot\packages"  -ErrorAction SilentlyContinue  
 	
 	Delete-Directory $releaseDir
-			
-	if((Test-Path -Path $packageOutPutDir) -and ($UploadPackage) ){
-        Delete-Directory $packageOutPutDir
-	}
-
-	if((Test-Path -Path $artifactsDir) -eq $true)
-	{
-		Delete-Directory $artifactsDir
-	}
-	
-    Create-Directory $artifactsDir
 	
 	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
 	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"

@@ -276,7 +276,6 @@ function Invoke-Packit
  		$writer.Flush()
   		$writer.Close()
 	
-		
 		if($createWithSymbol){&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose -Symbols}
 		else{&$script:packit.nugetCommand  pack $nuGetSpecFile -OutputDirectory $script:packit.packageOutPutDir -Verbose}
 		 

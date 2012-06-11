@@ -12,6 +12,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct("NServiceBus")]
 [assembly: AssemblyCompany("NServiceBus")]
 [assembly: AssemblyConfiguration("release")]
-[assembly: AssemblyInformationalVersion("4.0.0.0alpha")]
+[assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
 [assembly: ComVisible(false)]		
 
