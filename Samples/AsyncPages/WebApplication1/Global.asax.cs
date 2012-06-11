@@ -10,7 +10,7 @@ namespace WebApplication1
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            Bus = NServiceBus.Configure.WithWeb()
+            Bus = Configure.With()
                 .Log4Net()
                 .DefaultBuilder()
                 .XmlSerializer()
