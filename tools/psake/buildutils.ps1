@@ -141,5 +141,5 @@ using System.Runtime.CompilerServices;
 		[System.IO.Directory]::CreateDirectory($dir)
 	}
 	Write-Host "Generating assembly info file: $file"
-	Write-Output $asmInfo > $file
+	$asmInfo | Out-File -Encoding UTF8 $file
 }
