@@ -185,7 +185,6 @@ $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "m
 	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Abstractions.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Client.Lightweight.dll
-	$assemblies += dir $buildBase\nservicebus.core\AsyncCtpLibrary.dll
 	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll
 	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
