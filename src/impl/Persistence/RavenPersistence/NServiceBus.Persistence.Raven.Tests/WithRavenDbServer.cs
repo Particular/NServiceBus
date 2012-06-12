@@ -1,12 +1,9 @@
 using System;
 using System.IO;
-using Raven.Database.Config;
 using Raven.Database.Extensions;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
-    using global::Raven.Database.Server;
-
     public class WithRavenDbServer
     {
         protected const string DbDirectory = @".\TestDb\";
