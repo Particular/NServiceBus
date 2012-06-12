@@ -32,7 +32,8 @@
                 SetLoggingLibrary.NLog(targets.ToArray());
             }
             else
-                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
+                Internal.ConfigureInternalLog4Net.Production();
+//                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

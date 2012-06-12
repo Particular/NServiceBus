@@ -15,7 +15,8 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
             else if (SetLoggingLibrary.NLogExists)
                 SetLoggingLibrary.NLog(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget());
             else
-                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
+                Internal.ConfigureInternalLog4Net.Integration();
+            //                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
         }
     }
 }

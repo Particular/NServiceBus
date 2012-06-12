@@ -34,6 +34,9 @@
     <DocumentationFile>bin\Release\NServiceBus.Hosting.Windows.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Magnum, Version=0.1.0.300, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Topshelf\Magnum.dll</HintPath>
@@ -68,6 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
     <Compile Include="Profiles\MultiSite.cs" />
