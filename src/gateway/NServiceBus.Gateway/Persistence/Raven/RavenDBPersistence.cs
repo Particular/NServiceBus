@@ -9,13 +9,6 @@
 
     public class RavenDbPersistence : IPersistMessages
     {
-        readonly IDocumentStore store;
-
-        public RavenDbPersistence(IDocumentStore store)
-        {
-            this.store = store;
-        }
-
         public bool InsertMessage(string clientId, DateTime timeReceived, Stream messageStream, IDictionary<string, string> headers)
         {
             var gatewayMessage = new GatewayMessage
@@ -28,7 +21,7 @@
                                      };
 
             messageStream.Read(gatewayMessage.OriginalMessage, 0, (int)messageStream.Length);
-            using (var session = store.OpenSession())
+            using (var session = OpenSession())
             {
                 session.Advanced.UseOptimisticConcurrency = true;
                 session.Store(gatewayMessage);
@@ -51,7 +44,7 @@
             message = null;
             headers = null;
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession())
             {
                 var storedMessage = session.Load<GatewayMessage>(EscapeClientId(clientId));
 
@@ -74,7 +67,7 @@
 
         public void UpdateHeader(string clientId, string headerKey, string newValue)
         {
-            using (var session = store.OpenSession())
+            using (var session = OpenSession())
             {
                 session.Load<GatewayMessage>(EscapeClientId(clientId)).Headers[headerKey] = newValue;
 
@@ -86,5 +79,16 @@
         {
             return clientId.Replace("\\", "_");
         }
+
+        IDocumentSession OpenSession()
+        {
+            var session = Store.OpenSession();
+
+            session.Advanced.AllowNonAuthoritativeInformation = false;
+
+            return session;
+        }
+
+        public IDocumentStore Store { get; set; }
     }
 }

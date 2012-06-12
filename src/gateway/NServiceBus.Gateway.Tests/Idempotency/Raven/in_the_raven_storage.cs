@@ -24,7 +24,7 @@
             
             store.Initialize();
 
-            ravenPersister = new RavenDbPersistence(store);
+            ravenPersister = new RavenDbPersistence{Store = store};
         }
 
         [TearDown]
@@ -35,13 +35,12 @@
 
         protected bool Store(TestMessage message)
         {
-            //todo: The TXScope causes raven to return null on later loads so we keep it out for now
-            //using (var scope = new TransactionScope())
+            using (var scope = new TransactionScope())
             using (var msgStream = new MemoryStream(message.OriginalMessage))
             {
                 var result = ravenPersister.InsertMessage(message.ClientId, message.TimeReceived, msgStream, message.Headers);
                
-                //scope.Complete();
+                scope.Complete();
 
                 return result;
             }
@@ -51,6 +50,7 @@
         {
             using (var session = store.OpenSession())
             {
+                session.Advanced.AllowNonAuthoritativeInformation = false;
                 var messageStored = session.Load<GatewayMessage>(RavenDbPersistence.EscapeClientId(clientId));
 
                 return new TestMessage
