@@ -3,7 +3,6 @@
     using System;
     using System.Runtime.InteropServices;
     using System.Collections.Generic;
-    using System.Configuration;
 
     /// <summary>
     /// Handles logging configuration for the production profile
@@ -23,17 +22,18 @@
             }
             else if (SetLoggingLibrary.NLogExists)
             {
-                var targets = new List<object>();
-                targets.Add(Logging.Loggers.NLogAdapter.TargetFactory.CreateRollingFileTarget("logfile"));
+                const string layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}";
+
+                var targets = new List<object> { Logging.Loggers.NLogAdapter.TargetFactory.CreateRollingFileTarget("logfile", layout) };
 
                 if (GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero)
-                    targets.Add(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget());
+                    targets.Add(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget(layout));
 
-                SetLoggingLibrary.NLog(targets.ToArray());
+                SetLoggingLibrary.NLog(null, targets.ToArray());
             }
             else
                 Internal.ConfigureInternalLog4Net.Production();
-//                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
+            //                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

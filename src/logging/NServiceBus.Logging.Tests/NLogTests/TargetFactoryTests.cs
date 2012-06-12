@@ -1,3 +1,4 @@
+using System;
 using NServiceBus.Logging.Loggers.NLogAdapter;
 using NUnit.Framework;
 
@@ -25,11 +26,12 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Can_create_ColoredConsoleTarget()
         {
-            var target = TargetFactory.CreateColoredConsoleTarget();
+            var target = TargetFactory.CreateColoredConsoleTarget("${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}");
 
             Configurator.Basic(target, "Debug");
 
             NLog.LogManager.GetCurrentClassLogger().Debug("Testing colored console target");
+            NLog.LogManager.GetCurrentClassLogger().DebugException("Testing colored console target", new Exception());
         }
 
         [Test]

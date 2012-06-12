@@ -15,6 +15,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
         private static readonly Type FileArchivePeriodType = Type.GetType("NLog.Targets.FileArchivePeriod, NLog");
         private static readonly Type ArchiveNumberingModeType = Type.GetType("NLog.Targets.ArchiveNumberingMode, NLog");
 
+        private static readonly Type SimpleLayoutType = Type.GetType("NLog.Layouts.SimpleLayout, NLog");
         private static readonly Type LayoutType = Type.GetType("NLog.Layouts.Layout, NLog");
 
         static TargetFactory()
@@ -23,21 +24,28 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
                 throw new InvalidOperationException("NLog could not be loaded. Make sure that the NLog assembly is located in the executable directory.");
         }
 
-        public static object CreateConsoleTarget()
+        public static object CreateConsoleTarget(string layout = null)
         {
-            return Activator.CreateInstance(ConsoleTargetType);
+            var target = Activator.CreateInstance(ConsoleTargetType);
+
+            SetLayout(layout, target);
+
+            return target;
         }
 
-        public static object CreateColoredConsoleTarget()
+        public static object CreateColoredConsoleTarget(string layout = null)
         {
             var target = Activator.CreateInstance(ColoredConsoleTargetType);
 
             target.SetProperty("UseDefaultRowHighlightingRules", true);
 
+            SetLayout(layout, target);
+
             return target;
         }
 
-        public static object CreateRollingFileTarget(string filename)
+
+        public static object CreateRollingFileTarget(string filename, string layout = null)
         {
             var target = Activator.CreateInstance(FileTargetType);
 
@@ -51,7 +59,17 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
             target.SetProperty("MaxArchiveFiles", 10);
             target.SetProperty("KeepFileOpen", false);
 
+            SetLayout(layout, target);
+
             return target;
+        }
+
+        private static void SetLayout(string layout, object target)
+        {
+            if (layout != null)
+            {
+                target.SetProperty("Layout", Activator.CreateInstance(SimpleLayoutType, layout));
+            }
         }
     }
 }

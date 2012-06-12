@@ -75,7 +75,7 @@ namespace NServiceBus
             config();
         }
         
-        public static void NLog(params object[] targets)
+        public static void NLog(this Configure config, params object[] targets)
         {
             string threshold = null;
 

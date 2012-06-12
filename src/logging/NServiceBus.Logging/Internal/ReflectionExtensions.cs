@@ -13,11 +13,15 @@ namespace NServiceBus.Logging.Internal
                 .InvokeMember(propertyName, BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance, null, instance, null);
         }
 
-        public static object SetProperty(this object instance, string propertyName, object val)
+        public static void SetProperty(this object instance, string propertyName, object val)
         {
-            return instance
-                .GetType()
-                .InvokeMember(propertyName, BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance, null, instance, new[] { val });
+            var type = instance.GetType();
+            var pi = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            
+            if (pi == null)
+                throw new InvalidOperationException(String.Format("Could not find property {0} on type {1}", propertyName, type));
+
+            pi.SetValue(instance, val, null);
         }
 
         public static object SetStaticProperty(this Type type, string propertyName, object val)
