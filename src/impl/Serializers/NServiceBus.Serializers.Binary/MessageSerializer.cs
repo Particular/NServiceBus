@@ -36,10 +36,10 @@ namespace NServiceBus.Serializers.Binary
             if (body == null)
                 return null;
 
-            var result = new IMessage[body.Count];
+            var result = new object[body.Count];
 
             int i = 0;
-            foreach (IMessage m in body)
+            foreach (object m in body)
                 result[i++] = m;
 
             return result;
