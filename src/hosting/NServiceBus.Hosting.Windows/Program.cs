@@ -83,8 +83,10 @@ namespace NServiceBus.Hosting.Windows
             
             AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
             if ((commandLineArguments.Install) || (arguments.InstallInfrastructure != null))
-                WindowsInstaller.Install(args, endpointConfigurationFile); 
-                    
+                WindowsInstaller.Install(args, endpointConfigurationFile);
+
+            if (arguments.InstallInfrastructure != null)
+                return;
 
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
                                                                {

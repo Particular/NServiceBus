@@ -9,7 +9,7 @@
     /// <summary>
     /// Performs installation of the performance counters 
     /// </summary>
-    public class PerformanceCounterInstaller:INeedToInstallInfrastructure<Windows>
+    public class PerformanceCounterInstaller : INeedToInstallInfrastructure<Windows>
     {
         public void Install(WindowsIdentity identity)
         {
