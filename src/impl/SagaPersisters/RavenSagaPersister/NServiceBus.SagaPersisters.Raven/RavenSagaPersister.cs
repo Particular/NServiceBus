@@ -105,8 +105,7 @@ namespace NServiceBus.SagaPersisters.Raven
             var lookupId = SagaUniqueIdentity.FormatId(typeof(T), new KeyValuePair<string, object>(property, value));
 
             var lookup = Session
-                //The line below is disable because of a bug in Raven 616. We can enable it when we upgrade to the lastest RavenDB
-                //.Include("SagaDocId") //tell raven to pull the saga doc as well to save us a roundtrip
+                .Include("SagaDocId") //tell raven to pull the saga doc as well to save us a roundtrip
                 .Load<SagaUniqueIdentity>(lookupId);
 
             if (lookup != null)
