@@ -23,5 +23,13 @@ namespace NServiceBus.Timeout.Tests
 
             persister = new RavenTimeoutPersistence(store);
         }
+
+        [TearDown]
+        public void DisposeStore()
+        {
+            // This is required otherwise we get:
+            // StackTrace of un-disposed document store recorded. Please make sure to dispose any document store in the tests in order to avoid race conditions in tests.
+            store.Dispose();
+        }
     }
 }
