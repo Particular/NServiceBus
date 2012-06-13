@@ -163,7 +163,7 @@ namespace NServiceBus.Utils
                         var ipProps = ni.GetIPProperties();
                         if (ipProps.UnicastAddresses.Count > 0)
                         {
-                            myIp = ipProps.UnicastAddresses[1].Address.ToString();
+                            myIp = ipProps.UnicastAddresses[0].Address.ToString();
                             break;
                         }
                     }
