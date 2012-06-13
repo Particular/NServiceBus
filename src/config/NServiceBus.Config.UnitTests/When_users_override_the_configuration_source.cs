@@ -1,9 +1,9 @@
-using System;
-using NServiceBus.Config.ConfigurationSource;
-using NUnit.Framework;
-
 namespace NServiceBus.Config.UnitTests
 {
+    using System;
+    using ConfigurationSource;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_users_override_the_configuration_source
     {

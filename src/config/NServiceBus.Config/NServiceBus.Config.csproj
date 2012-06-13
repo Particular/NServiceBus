@@ -51,11 +51,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Reference Include="Common.Logging, Version=1.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\Common.Logging.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="NServiceBus, Version=1.9.2.30448, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
@@ -95,6 +90,8 @@
     <Compile Include="ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="Conventions\SystemMessageConventions.cs" />
+    <Compile Include="IExcludesBuilder.cs" />
+    <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
@@ -102,23 +99,6 @@
     <Compile Include="Conventions\EndpointConventions.cs" />
     <Compile Include="Conventions\DefaultEndpointName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

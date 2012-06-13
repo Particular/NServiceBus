@@ -1,8 +1,8 @@
 using System;
-using NUnit.Framework;
-
 namespace NServiceBus.Config.UnitTests
 {
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_no_custom_configuration_source_is_specified
     {
