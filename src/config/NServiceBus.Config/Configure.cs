@@ -161,7 +161,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure With()
         {
-            if (HttpContext.Current != null)
+            if (HttpRuntime.AppDomainAppId != null)
                 return With(HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
@@ -226,7 +226,7 @@ namespace NServiceBus
 
             TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
 
-            if (HttpContext.Current == null)
+            if (HttpRuntime.AppDomainAppId == null)
             {
                 var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
