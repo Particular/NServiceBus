@@ -182,7 +182,7 @@ namespace NServiceBus.Utils
                     var ipProps = ni.GetIPProperties();
                     if (ipProps.UnicastAddresses.Count > 0)
                     {
-                        localIp = ipProps.UnicastAddresses[0].Address.ToString();
+                            myIp = ipProps.UnicastAddresses[0].Address.ToString();
                         return localIp;
                     }
 
