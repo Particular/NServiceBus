@@ -54,7 +54,7 @@ namespace NServiceBus
 
             if (configSection == null)
             {
-                throw new InvalidOperationException("No configuration section for DB Subscription Storage found. Pleas add a DBSubscriptionStorageConfig section to you configuration file");
+                throw new InvalidOperationException("No configuration section for DB Subscription Storage found. Please add a DBSubscriptionStorageConfig section to you configuration file");
             }
 
 
