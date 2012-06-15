@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using NHibernate;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
-using NServiceBus.UnitOfWork.NHibernate;
 
 namespace NServiceBus
 {
