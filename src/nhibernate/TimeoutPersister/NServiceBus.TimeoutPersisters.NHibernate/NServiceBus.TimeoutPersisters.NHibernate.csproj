@@ -3,13 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{EC6FD140-4970-4414-A972-AE3D3576328E}</ProjectGuid>
+    <ProjectGuid>{11F92A75-4CBE-4715-9E65-8EB7EBD64AF7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.UnitOfWork.NHibernate.Config</RootNamespace>
-    <AssemblyName>NServiceBus.UnitOfWork.NHibernate.Config</AssemblyName>
+    <RootNamespace>NServiceBus.TimeoutPersisters.NHibernate</RootNamespace>
+    <AssemblyName>NServiceBus.TimeoutPersisters.NHibernate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.UnitOfWork.NHibernate.Config.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\NServiceBus.TimeoutPersisters.NHibernate.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,9 +30,15 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.UnitOfWork.NHibernate.Config.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\NServiceBus.TimeoutPersisters.NHibernate.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\..\..\packages\NHibernate.3.3.0.4000\lib\Net35\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -41,20 +47,28 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureNHibernateUnitOfWork.cs" />
+    <Compile Include="AddressUserType.cs" />
+    <Compile Include="Config\ConfigureNHibernateTimeoutPersister.cs" />
+    <Compile Include="Config\NHibernateProperty.cs" />
+    <Compile Include="Config\NHibernatePropertyCollection.cs" />
+    <Compile Include="Config\TimeoutEntityMap.cs" />
+    <Compile Include="Config\TimeoutPersisterConfig.cs" />
+    <Compile Include="TimeoutEntity.cs" />
+    <Compile Include="TimeoutStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.UnitOfWork.NHibernate\NServiceBus.UnitOfWork.NHibernate.csproj">
-      <Project>{6A731C25-84D8-42AC-BDC4-618432B87257}</Project>
-      <Name>NServiceBus.UnitOfWork.NHibernate</Name>
-    </ProjectReference>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
