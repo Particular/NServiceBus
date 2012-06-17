@@ -1,4 +1,5 @@
 using System;
+using NServiceBus.Logging;
 
 namespace NServiceBus
 {
@@ -74,8 +75,8 @@ namespace NServiceBus
 
             config();
         }
-        
-        public static void NLog(this Configure config, params object[] targets)
+
+        public static Configure NLog(this Configure config, params object[] targets)
         {
             string threshold = null;
 
@@ -86,11 +87,18 @@ namespace NServiceBus
             }
 
             Logging.Loggers.NLogAdapter.Configurator.Basic(targets, threshold);
+
+            return config;
         }
 
         public static void NLog()
         {
             Logging.Loggers.NLogAdapter.Configurator.Basic();
+        }
+
+        public static void Custom(ILoggerFactory loggerFactory)
+        {
+            LogManager.LoggerFactory = loggerFactory;
         }
 
         public static bool Log4NetExists
