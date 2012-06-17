@@ -126,8 +126,6 @@ task CompileMain -depends InitEnvironment -description "Builds NServiceBus.dll a
 	
 	Copy-Item $outDir\NServiceBus.dll $binariesDir -Force;
 	Copy-Item $outDir\NServiceBus.pdb $binariesDir -Force;
-	Copy-Item $libDir\log4net.dll $binariesDir -Force;
-
 }
 
 task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps the output in \binaries and unit tests the code responsible for NServiceBus.dll"{
@@ -163,13 +161,12 @@ $coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", 
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Core.dll"
 	
 	$assemblies  =  dir $buildBase\nservicebus.core\NServiceBus.**.dll -Exclude **Tests.dll 
-	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" $assemblies $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
+  
+	Ilmerge $ilMergeKey $coreOnly "NServiceBus.Core" ($assemblies + "$buildBase\nservicebus.core\log4net.dll") $attributeAssembly "dll" $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreCore-OnlyMergeLog.txt" $ilMergeExclude
 	
 	<#It's Possible to copy the NServiceBus.Core.dll to Core-Only but not done gain time on development build #>
 			
 	$assemblies += dir $buildBase\nservicebus.core\log4net.dll
-	#$assemblies += dir $buildBase\nservicebus.core\common.logging.dll
-	#$assemblies += dir $buildBase\nservicebus.core\common.logging.log4net.dll
 	$assemblies += dir $buildBase\nservicebus.core\Interop.MSMQ.dll
 	$assemblies += dir $buildBase\nservicebus.core\AutoFac.dll
 	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
@@ -603,7 +600,7 @@ task CreatePackages {
 	#region Packing NServiceBus
 	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 	
 	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{log4net="[1.2.10]"} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.xml", "binaries\NServiceBus.Core.xml" @{} 
+	invoke-packit $packageNameNsb $script:packageVersion @{} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.xml", "binaries\NServiceBus.Core.xml" @{} 
 	#endregion
 	
 	#region Packing NServiceBus.Interfaces
