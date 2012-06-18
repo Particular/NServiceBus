@@ -1372,20 +1372,25 @@ namespace NServiceBus.Unicast
                               };
 
             if (msg.MessageIntent == MessageIntentEnum.Subscribe)
+            {
+                if (string.IsNullOrEmpty(messageTypeString))
+                    throw new NullReferenceException("Message intent is Subscribe, but the subscription message type header is missing!");
+
                 if (subscriptionStorage != null)
                 {
                     bool goAhead = true;
                     if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, msg.ReplyToAddress.ToString(), msg.Headers))
+                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, msg.ReplyToAddress.ToString(),msg.Headers))
                         {
                             goAhead = false;
-                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageTypeString));
+                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.",
+                                                    msg.ReplyToAddress, messageTypeString));
                         }
 
                     if (goAhead)
                     {
                         Log.Info("Subscribing " + msg.ReplyToAddress + " to message type " + messageTypeString);
-                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] { new MessageType(messageTypeString) });
+                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] {new MessageType(messageTypeString)});
                     }
 
                     return true;
@@ -1394,6 +1399,7 @@ namespace NServiceBus.Unicast
                 {
                     warn();
                 }
+            }
 
             if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
                 if (subscriptionStorage != null)
