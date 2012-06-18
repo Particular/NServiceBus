@@ -40,6 +40,11 @@
         public string CorrelationId { get; set; }
 
         /// <summary>
+        /// The timeout manager that owns this particular timeout
+        /// </summary>
+        public string OwningTimeoutManager { get; set; }
+
+        /// <summary>
         /// Store the headers to preserve them across timeouts
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
