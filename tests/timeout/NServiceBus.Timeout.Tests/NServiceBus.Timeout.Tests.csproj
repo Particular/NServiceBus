@@ -58,6 +58,9 @@
     <Reference Include="NLog">
       <HintPath>..\..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
