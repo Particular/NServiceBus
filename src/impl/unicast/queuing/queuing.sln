@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.SQLServer.Config", "NServiceBus.Unicast.Queuing.SQLServer.Config\NServiceBus.Unicast.Queuing.SQLServer.Config.csproj", "{9AFA850B-795E-4AA4-9E14-204ED12D7BD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.SQLServer.Tests", "NServiceBus.Unicast.Queuing.SQLServer.Tests\NServiceBus.Unicast.Queuing.SQLServer.Tests.csproj", "{C8F43410-6506-4387-A5AF-EB066F582DC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{9AFA850B-795E-4AA4-9E14-204ED12D7BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AFA850B-795E-4AA4-9E14-204ED12D7BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AFA850B-795E-4AA4-9E14-204ED12D7BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8F43410-6506-4387-A5AF-EB066F582DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8F43410-6506-4387-A5AF-EB066F582DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8F43410-6506-4387-A5AF-EB066F582DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8F43410-6506-4387-A5AF-EB066F582DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,5 +69,6 @@ Global
 		{847FD31B-84C7-4FE6-B9AA-1E56C1CA5B71} = {50027F16-64EF-4039-82CD-1CB8C1D9DB16}
 		{AF2C96DD-9894-4664-AB46-91EE0971A6FB} = {50820FFE-9984-4C86-8AB5-F08E7AAED000}
 		{9AFA850B-795E-4AA4-9E14-204ED12D7BD3} = {50820FFE-9984-4C86-8AB5-F08E7AAED000}
+		{C8F43410-6506-4387-A5AF-EB066F582DC0} = {50820FFE-9984-4C86-8AB5-F08E7AAED000}
 	EndGlobalSection
 EndGlobal

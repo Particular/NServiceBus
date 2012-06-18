@@ -44,9 +44,13 @@
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Transactional.Config">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.Config.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureSqlServerTransport.cs" />

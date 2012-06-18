@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Transactions;
+
+namespace NServiceBus
 {
     using Unicast.Queuing.SQLServer;
 
@@ -8,6 +10,8 @@
         {
             configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.ConnectionString, "Server=MIKNOR8540WW7\\sqlexpress;Database=NSB;Trusted_Connection=True;");
+
+            configure.IsolationLevel(IsolationLevel.ReadCommitted);
 
             return configure;
         }
