@@ -37,7 +37,7 @@ namespace NServiceBus
             var connectionStringEntry = GetRavenConnectionString(connectionStringName);
             return RavenPersistenceWithConnectionString(config, connectionStringEntry, null);
         }
-        
+
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
         {
             var connectionString = GetRavenConnectionString(connectionStringName);
@@ -49,7 +49,7 @@ namespace NServiceBus
             var connectionString = GetRavenConnectionString(getConnectionString);
             return RavenPersistenceWithConnectionString(config, connectionString, null);
         }
-        
+
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
@@ -82,7 +82,7 @@ namespace NServiceBus
                                                                      connectionStringName));
             return connectionStringEntry.ConnectionString;
         }
-        
+
         static Configure RavenPersistenceWithConnectionString(Configure config, string connectionStringValue, string database)
         {
             var store = new DocumentStore
@@ -94,9 +94,10 @@ namespace NServiceBus
 
             if (!string.IsNullOrEmpty(database))
                 store.DefaultDatabase = database;
-            else if (!connectionStringValue.Contains("DefaultDatabase"))
+
+            if (store.DefaultDatabase == null)
                 store.DefaultDatabase = databaseNamingConvention();
-            
+
             return RavenPersistence(config, store);
         }
 
@@ -115,7 +116,7 @@ namespace NServiceBus
 
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
-            
+
             RavenDBInstaller.InstallEnabled = installRavenIfNeeded && ravenInstallEnabled;
 
             return config;
@@ -127,14 +128,14 @@ namespace NServiceBus
 
             return config;
         }
-        
+
         public static Configure InstallRavenIfNeeded(this Configure config)
         {
             installRavenIfNeeded = true;
 
             return config;
         }
-        
+
         static bool installRavenIfNeeded;
 
 
@@ -149,7 +150,7 @@ namespace NServiceBus
         }
 
         static Func<string> databaseNamingConvention = () => Configure.EndpointName;
-        
+
 
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {
