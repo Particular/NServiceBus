@@ -7,6 +7,8 @@ using Raven.Client.Embedded;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using global::Raven.Client.Document;
+
     public abstract class Raven_saga_persistence_concern
     {
         protected IDocumentStore store;
@@ -23,10 +25,13 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
             var conventions = new RavenConventions();
 
             store.Conventions.FindTypeTagName = conventions.FindTypeTagName;
-
             store.Initialize();
         }
-
+        [TestFixtureTearDown]
+        public virtual void Teardown()
+        {
+            store.Dispose();
+        }
         public void WithASagaPersistenceUnitOfWork(Action<RavenSagaPersister> action)
         {
             using (var sessionFactory = new RavenSessionFactory(store))

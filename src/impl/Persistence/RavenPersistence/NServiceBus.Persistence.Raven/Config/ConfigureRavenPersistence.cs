@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Configuration;
     using Persistence.Raven;
     using Persistence.Raven.Installation;
+    using Raven.Client.Extensions;
 
     public static class ConfigureRavenPersistence
     {
@@ -36,7 +37,7 @@ namespace NServiceBus
         {
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
-            //use exisiting config if we can find one
+            //use existing config if we can find one
             if (connectionStringEntry != null)
                 return RavenPersistenceWithConnectionString(config, connectionStringEntry.ConnectionString, null);
 
@@ -131,6 +132,7 @@ namespace NServiceBus
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
             
 
+            EnsureDatabaseExists((DocumentStore)store);
             store.Initialize();
 
             var maxNumberOfRequestsPerSession = 100;
@@ -142,6 +144,9 @@ namespace NServiceBus
             }
             store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
 
+            //We need to turn compression off to make us compatible with Raven616
+            store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
 
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
@@ -150,6 +155,28 @@ namespace NServiceBus
             RavenDBInstaller.InstallEnabled = installRavenIfNeeded && ravenInstallEnabled;
 
             return config;
+        }
+
+        [ObsoleteEx(Replacement ="This can be removed when we drop support for Raven 616",RemoveInVersion = "5.0")]
+        static void EnsureDatabaseExists(DocumentStore store)
+        {
+            if (!AutoCreateDatabase)
+                return;
+
+            //we need to do a little trick here to be compatible with Raven 616
+
+            //First we create a new store without a specific database
+            using(var dummyStore = new DocumentStore{Url = store.Url})
+            {
+                //that allows us to initalize without talking to the db
+                dummyStore.Initialize();
+
+                //and the turn the compression off
+                dummyStore.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+
+                //and then make sure that the database the user asked for is created
+                dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);
+            }
         }
 
         public static Configure DisableRavenInstall(this Configure config)
@@ -166,6 +193,23 @@ namespace NServiceBus
             return config;
         }
         
+        [ObsoleteEx(Replacement = "RequestCompression will be on by default in NServiceBus 5.0",TreatAsErrorFromVersion = "5.0",RemoveInVersion = "6.0")]
+        public static Configure EnableRequestCompression(this Configure config)
+        {
+            enableRequestCompression = true;
+
+            return config;
+        }
+
+        public static Configure DisableRequestCompression(this Configure config)
+        {
+            enableRequestCompression = false;
+
+            return config;
+        }
+
+        static bool enableRequestCompression;
+
         static bool installRavenIfNeeded;
 
 
@@ -188,5 +232,6 @@ namespace NServiceBus
         }
 
         static Func<Type, string> tagNameConvention;
+        public static bool AutoCreateDatabase = true;
     }
 }
