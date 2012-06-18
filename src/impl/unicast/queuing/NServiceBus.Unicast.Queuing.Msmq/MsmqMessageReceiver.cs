@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Messaging;
 using System.Security.Principal;
-using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
 using NServiceBus.Logging;
 
@@ -25,7 +24,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var machine = address.Machine;
 
             if (machine.ToLower() != Environment.MachineName.ToLower())
-                throw new InvalidOperationException("Input queue must be on the same machine as this process.");
+                throw new InvalidOperationException(string.Format("Input queue [{0}] must be on the same machine as this process [{1}].",
+                    address, Environment.MachineName.ToLower()));
 
             myQueue = new MessageQueue(MsmqUtilities.GetFullPath(address));
 
@@ -63,7 +63,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         break;
                     
                     case MessageQueueErrorCode.QueueNotFound:
-                        errorMessage = string.Format("Queue was not found while peeking queue. Exception: [{0}]", mqe);
+                        errorMessage = string.Format("Queue [{0}] was not found while peeking queue. Exception: [{1}]", myQueue.QueueName, mqe);
                         break;
                     
                     default:

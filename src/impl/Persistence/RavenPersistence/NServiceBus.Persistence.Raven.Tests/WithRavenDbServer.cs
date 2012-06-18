@@ -1,34 +1,36 @@
-using System;
-using System.IO;
-using Raven.Database.Extensions;
-
 namespace NServiceBus.Persistence.Raven.Tests
 {
+    using NUnit.Framework;
+    using global::Raven.Client;
+    using global::Raven.Client.Document;
+
     public class WithRavenDbServer
     {
-        protected const string DbDirectory = @".\TestDb\";
-        protected const string DbName = DbDirectory + @"DocDb.esb";
+        protected DocumentStore store;
 
-        
-        public WithRavenDbServer()
+        [TestFixtureSetUp]
+        public void SetUp()
         {
-            try
-            {
-                new Uri("http://fail/first/time?only=%2bplus");
-            }
-            catch (Exception)
-            {
-            }
+            ConfigureRavenPersistence.AutoCreateDatabase = false;
 
-            ClearDatabaseDirectory();
+            var config = Configure.With(new[] { GetType().Assembly })
+                .DefineEndpointName("UnitTests")
+                .DefaultBuilder();
 
-            Directory.CreateDirectory(DbDirectory);
+            Initialize(config);
+          
+            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
         }
 
-        protected void ClearDatabaseDirectory()
+        [TestFixtureTearDown]
+        public void TearDown()
         {
-            IOExtensions.DeleteDirectory(DbName);
-            IOExtensions.DeleteDirectory(DbDirectory);
+            store.Dispose();
+        }
+
+        protected virtual void Initialize(Configure config)
+        {
+            config.RavenPersistence();
         }
     }
 }

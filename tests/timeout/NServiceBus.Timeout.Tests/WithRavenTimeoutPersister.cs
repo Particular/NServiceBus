@@ -6,6 +6,7 @@ namespace NServiceBus.Timeout.Tests
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
+    using Raven.Client.Extensions;
 
     public class WithRavenTimeoutPersister
     {
@@ -18,11 +19,10 @@ namespace NServiceBus.Timeout.Tests
             Configure.GetEndpointNameAction = () => "MyEndpoint";
 
             store = new EmbeddableDocumentStore { RunInMemory = true };
-            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "MyServer" };
+            //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "Test" };
             store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites; //This turns on WaitForNonStaleResults() on queries globally
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
-
             persister = new RavenTimeoutPersistence(store);
         }
 
