@@ -11,7 +11,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using Raven.Client;
     using Raven.Client.Indexes;
     using Raven.Client.Linq;
-    
+
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
         readonly IDocumentStore store;
@@ -20,35 +20,31 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         {
             this.store = store;
 
-            if (store.DatabaseCommands.GetIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime") == null)
-            {
-                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
-                                                new IndexDefinitionBuilder<TimeoutData>
-                                                    {
-                                                        Map = docs => from doc in docs
-                                                                      select new { doc.Time },
-                                                        SortOptions =
+            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
+                                            new IndexDefinitionBuilder<TimeoutData>
+                                                {
+                                                    Map = docs => from doc in docs
+                                                                  select new { doc.Time, OwningTimeoutManager = doc.OwningTimeoutManager ?? "" },
+                                                    SortOptions =
                                                             {
                                                                 {doc => doc.Time, SortOptions.String}
                                                             },
-                                                        Indexes =
+                                                    Indexes =
                                                             {
                                                                 {doc => doc.Time, FieldIndexing.Default}
                                                             },
-                                                        Stores =
+                                                    Stores =
                                                             {
                                                                 {doc => doc.Time, FieldStorage.No}
                                                             }
-                                                    });
-            }
-            if (store.DatabaseCommands.GetIndex("RavenTimeoutPersistence/TimeoutData/BySagaId") == null)
-            {
-                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
-                                                                            {
-                                                                                Map = docs => from doc in docs
-                                                                                              select new {doc.SagaId}
-                                                                            });
-            }
+                                                }, true);
+
+            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
+                                                                        {
+                                                                            Map = docs => from doc in docs
+                                                                                          select new { doc.SagaId }
+                                                                        }, true);
+
         }
 
         public IEnumerable<TimeoutData> GetAll()
@@ -68,7 +64,8 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                             // we'll wait for nonstale results up until the point in time that we start fetching
                             // since other timeouts that has arrived in the meantime will have been added to the 
                             // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA
-                            .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested)) 
+                            .Where(t => t.OwningTimeoutManager == "" || t.OwningTimeoutManager == Configure.EndpointName)
+                            .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested))
                             .Statistics(out stats);
                         do
                         {

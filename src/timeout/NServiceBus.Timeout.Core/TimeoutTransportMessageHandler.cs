@@ -37,7 +37,8 @@ namespace NServiceBus.Timeout.Core
                                    State = message.Body,
                                    Time = message.Headers[Headers.Expire].ToUtcDateTime(),
                                    CorrelationId = message.CorrelationId,
-                                   Headers = message.Headers
+                                   Headers = message.Headers,
+                                   OwningTimeoutManager = Configure.EndpointName
                                };
 
                 Persister.Add(data);
