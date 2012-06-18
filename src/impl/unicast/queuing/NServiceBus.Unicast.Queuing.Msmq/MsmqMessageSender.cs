@@ -34,10 +34,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 string msg = string.Empty;
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                    if (address == null)
-                        msg = "Failed to send message.";
-                    else
-                        msg = string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine);
+                    msg = address == null ? "Failed to send message. Target address is null." : string.Format("Failed to send message to address: [{0}]", address);
 
                 throw new QueueNotFoundException(address, msg, ex);
             }
