@@ -175,6 +175,9 @@ namespace NServiceBus.SagaPersisters.Raven
 
         public static string FormatId(Type sagaType, KeyValuePair<string, object> uniqueProperty)
         {
+            if (uniqueProperty.Value == null)
+                throw new ArgumentNullException("uniqueProperty", string.Format("Property {0} is marked with the [Unique] attribute on {1} but contains a null value. Please make sure that all unique properties are set on your SagaData and/or that you have marked the correct properies as unique.", uniqueProperty.Key, sagaType.Name));
+
             //use MD5 hash to get a 16-byte hash of the string
             var provider = new MD5CryptoServiceProvider();
             var inputBytes = Encoding.Default.GetBytes(uniqueProperty.Value.ToString());

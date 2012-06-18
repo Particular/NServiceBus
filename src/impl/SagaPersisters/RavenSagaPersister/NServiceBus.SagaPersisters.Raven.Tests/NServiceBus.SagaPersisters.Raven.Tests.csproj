@@ -117,6 +117,7 @@
     <Compile Include="SagaWithoutUniqueProperties.cs" />
     <Compile Include="SagaWithUniqueProperty.cs" />
     <Compile Include="SagaWithUniquePropertyAndALongNamespace.cs" />
+    <Compile Include="Saga_with_unique_property_set_to_null.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_completing_a_saga_with_the_raven_persister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
