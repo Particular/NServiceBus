@@ -8,20 +8,9 @@ namespace NServiceBus.Persistence.Raven.Tests
     [TestFixture]
     public class When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda : WithRavenDbServer
     {
-        Func<string> connectionStringFunc;
-        IDocumentStore store;
-
-        [TestFixtureSetUp]
-        public void SetUp()
+        protected override void Initialize(Configure config)
         {
-            connectionStringFunc = () => "Url = http://localhost:8080";
-
-            var config = Configure.With(new[] { GetType().Assembly })
-                .DefineEndpointName("UnitTests")
-                .DefaultBuilder()
-                .RavenPersistence(connectionStringFunc);
-
-            store = config.Builder.Build<IDocumentStore>();
+            config.RavenPersistence(() => "Url = http://localhost:8080");
         }
 
         [Test]

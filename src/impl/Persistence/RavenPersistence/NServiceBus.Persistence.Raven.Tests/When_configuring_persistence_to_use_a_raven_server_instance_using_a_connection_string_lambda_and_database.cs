@@ -10,20 +10,13 @@ namespace NServiceBus.Persistence.Raven.Tests
     {
         Func<string> connectionStringFunc;
         string database;
-        DocumentStore store;
 
-        [TestFixtureSetUp]
-        public void SetUp()
+        protected override void Initialize(Configure config)
         {
             connectionStringFunc = () => "Url = http://localhost:8080";
             database = "CustomDatabase";
 
-            var config = Configure.With(new[] { GetType().Assembly })
-                .DefineEndpointName("UnitTests")
-                .DefaultBuilder()
-                .RavenPersistence(connectionStringFunc, database);
-
-            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
+            config.RavenPersistence(connectionStringFunc, database);
         }
 
         [Test]
