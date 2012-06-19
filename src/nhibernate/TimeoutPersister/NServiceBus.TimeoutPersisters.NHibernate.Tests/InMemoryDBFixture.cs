@@ -56,7 +56,10 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             cfg.AddMapping(mapping);
 
             sessionFactory = cfg.BuildSessionFactory();
-            persister = new TimeoutStorage(sessionFactory);
+            persister = new TimeoutStorage
+                            {
+                                SessionFactory = sessionFactory
+                            };
 
             Configure.Instance.DefineEndpointName("MyEndpoint");
 

@@ -11,16 +11,11 @@
 
     public class TimeoutStorage : IPersistTimeouts
     {
-        private readonly ISessionFactory sessionFactory;
-
-        public TimeoutStorage(ISessionFactory sessionFactory)
-        {
-            this.sessionFactory = sessionFactory;
-        }
+        public ISessionFactory SessionFactory { get; set; }
 
         public IEnumerable<TimeoutData> GetAll()
         {
-            using (var session = sessionFactory.OpenStatelessSession())
+            using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var timeoutEntities = session.QueryOver<TimeoutEntity>()
@@ -46,7 +41,7 @@
         {
             var newId = Guid.NewGuid();
 
-            using (var session = sessionFactory.OpenSession())
+            using (var session = SessionFactory.OpenSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 session.Save(new TimeoutEntity
@@ -69,7 +64,7 @@
 
         public void Remove(string timeoutId)
         {
-            using (var session = sessionFactory.OpenStatelessSession())
+            using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var queryString = string.Format("delete {0} where Id = :timeoutId",
@@ -84,7 +79,7 @@
 
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            using (var session = sessionFactory.OpenStatelessSession())
+            using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var queryString = string.Format("delete {0} where SagaId = :sagaid",

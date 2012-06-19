@@ -47,13 +47,13 @@ namespace NServiceBus
 
             if (configSection == null)
             {
-                throw new InvalidOperationException("No configuration section for DB Subscription Storage found. Please add a DBSubscriptionStorageConfig section to you configuration file");
+                throw new InvalidOperationException("No configuration section for DB Timeout Storage found. Please add a TimeoutPersisterConfig section to you configuration file");
             }
 
 
             if (configSection.NHibernateProperties.Count  == 0)
             {
-                throw new InvalidOperationException("No NHibernate properties found. Please specify NHibernateProperties in your DBSubscriptionStorageConfig section");
+                throw new InvalidOperationException("No NHibernate properties found. Please specify NHibernateProperties in your TimeoutPersisterConfig section");
             }
 
             return UseNHibernateTimeoutPersister(config,
@@ -82,10 +82,8 @@ namespace NServiceBus
             if (autoUpdateSchema)
                 new SchemaUpdate(configuration).Execute(false, true);
 
-            //var timeoutStorage = new TimeoutStorage(configuration.BuildSessionFactory());
-
-            config.Configurer.ConfigureComponent(
-                () => new TimeoutStorage(configuration.BuildSessionFactory()), DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<TimeoutStorage>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.SessionFactory, configuration.BuildSessionFactory());
 
             return config;
         }
