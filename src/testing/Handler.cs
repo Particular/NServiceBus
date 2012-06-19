@@ -192,6 +192,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="destination"></param>
         /// <returns></returns>
+        [ObsoleteEx(Message = "Please use an integration test to validate this feature.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public Handler<T> ExpectForwardCurrentMessageTo(string destination)
         {
             expectedInvocations.Add(new ExpectedForwardCurrentMessageToInvocation { Check = d => d == destination });
