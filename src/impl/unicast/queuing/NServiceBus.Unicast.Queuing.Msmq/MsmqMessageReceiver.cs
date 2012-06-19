@@ -121,7 +121,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(string.Format("There is a problem with the input queue given: {0}. See the enclosed exception for details.", myQueue.QueueName), ex);
+                throw new InvalidOperationException(string.Format("There is a problem with the input queue: {0}. See the enclosed exception for details.", myQueue.Path), ex);
             }
         }
         
