@@ -16,6 +16,7 @@
             LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
         }
 
+        [Obsolete("2.6 style timeouts has been replaced. Please implement IHandleTimeouts<T> instead", false)]
         public override void Timeout(object state)
         {
             LogMessage("v2.6 Timeout fired, with state: " + state);

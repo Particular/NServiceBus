@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CancelOrderMessage.cs" />
+    <Compile Include="DelayMessage.cs" />
     <Compile Include="IOrderLine.cs" />
     <Compile Include="IOrderMessage.cs" />
     <Compile Include="IOrderStatusChangedMessage.cs" />
