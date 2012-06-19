@@ -4,10 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Data;
-    using System.IO;
     using System.Linq;
-    using System.Text;
-    using MessageInterfaces;
     using Serializers.Json;
     using Timeout.Core;
     using global::NHibernate;
@@ -61,7 +58,7 @@
                     State = timeout.State,
                     Time = timeout.Time,
                     Headers = ConvertDictionaryToString(timeout.Headers),
-                    Endpoint = Configure.EndpointName,
+                    Endpoint = timeout.OwningTimeoutManager,
                 });
 
                 tx.Commit();
@@ -107,18 +104,7 @@
                 return new Dictionary<string, string>();
             }
 
-            object[] objects;
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(data)))
-            {
-                objects = serializer.Deserialize(stream);
-            }
-
-            if (objects.Length == 0)
-            {
-                return new Dictionary<string, string>();
-            }
-
-            return objects[0] as Dictionary<string, string>;
+            return serializer.DeserializeObject<Dictionary<string, string>>(data);
         }
 
         static string ConvertDictionaryToString(ICollection data)
@@ -128,54 +114,9 @@
                 return null;
             }
 
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream, Encoding.UTF8))
-            {
-                serializer.Serialize(new[] {(object) data}, writer.BaseStream);
-                writer.Flush();
-
-                stream.Position = 0;
-
-                using (var reader = new StreamReader(stream, Encoding.UTF8))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            return serializer.SerializeObject(data);
         }
 
-        static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(new DictionaryMessageMapper());
-
-        class DictionaryMessageMapper : IMessageMapper
-        {
-            public T CreateInstance<T>()
-            {
-                return default(T);
-            }
-
-            public T CreateInstance<T>(Action<T> action)
-            {
-                return default(T);
-            }
-
-            public object CreateInstance(Type messageType)
-            {
-                return null;
-            }
-
-            public void Initialize(IEnumerable<Type> types)
-            {
-
-            }
-
-            public Type GetMappedTypeFor(Type t)
-            {
-                return null;
-            }
-
-            public Type GetMappedTypeFor(string typeName)
-            {
-                return null;
-            }
-        }
+        static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
     }
 }

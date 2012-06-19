@@ -11,8 +11,8 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(1), Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(1), Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
 
             persister.Add(t1);
             persister.Add(t2);
@@ -36,8 +36,8 @@
         {
             var sagaId1 = Guid.NewGuid();
             var sagaId2 = Guid.NewGuid();
-            var t1 = new TimeoutData { SagaId = sagaId1, Time = DateTime.Now.AddYears(1), Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { SagaId = sagaId2, Time = DateTime.Now.AddYears(1), Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData { SagaId = sagaId1, Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t2 = new TimeoutData { SagaId = sagaId2, Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
 
             persister.Add(t1);
             persister.Add(t2);
