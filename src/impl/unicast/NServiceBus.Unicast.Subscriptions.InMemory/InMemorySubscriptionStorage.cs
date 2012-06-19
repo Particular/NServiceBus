@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Subscriptions.InMemory
                     result.AddRange(storage[m]);
             });
 
-            return result;
+            return result.Distinct();
         }
 
         public void Init()
