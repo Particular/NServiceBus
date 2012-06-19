@@ -30,7 +30,7 @@ namespace Customer
               // .AzureConfigurationSource()
                .AzureMessageQueue()
                .JsonSerializer()
-               .DBSubcriptionStorage()
+               .DBSubscriptionStorage()
                
                .UnicastBus()
                .LoadMessageHandlers()

@@ -56,13 +56,18 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HasCompleted.cs" />
@@ -120,4 +125,5 @@
   <PropertyGroup>
     <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
   </PropertyGroup>
+  <Import Project="..\..\..\tools\Fody\Fody.targets" />
 </Project>

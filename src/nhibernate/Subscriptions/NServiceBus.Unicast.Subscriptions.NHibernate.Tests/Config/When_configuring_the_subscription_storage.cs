@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
         {
             config = Configure.With(new Type[] { })
                                 .DefaultBuilder()
-                                .DBSubcriptionStorage();
+                                .DBSubscriptionStorage();
 
         }
 
@@ -69,7 +69,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
             var configWithoutConfigSection = Configure.With(new Type[]{})
                                                     .DefaultBuilder()
                                                     .CustomConfigurationSource(configSource)
-                                                    .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
+                                                    .DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
             configWithoutConfigSection.Builder.Build<ISubscriptionStorageSessionProvider>();
 

@@ -48,9 +48,8 @@ namespace OrderService.Tests
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(Check)
-                .ExpectTimeoutToBeSetAt<string>((state, at) => at == order.ProvideBy - TimeSpan.FromSeconds(2) && state == "state")
+                .ExpectTimeoutToBeSetAt<DelayMessage>((state, at) => at == order.ProvideBy - TimeSpan.FromSeconds(2) && state.State == "state")
             .When(os => os.Handle(order))
-
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Accepted))
             .When(os => os.Handle(CreateResponse()));
@@ -59,21 +58,19 @@ namespace OrderService.Tests
         [Test]
         public void TimeoutTest()
         {
-            object st = null;
             var sagaId = Guid.NewGuid();
 
             Test.Saga<OrderSaga>(sagaId).WhenReceivesMessageFrom(partnerAddress)
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Recieved)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => Check(m, OrderStatusEnum.Recieved))
                 .ExpectSend<RequestOrderAuthorizationMessage>(Check)
-                .ExpectTimeoutToBeSetAt<string>((state, at) => { st = state; return true; })
+                .ExpectTimeoutToBeSetAt<DelayMessage>()
             .When(os => os.Handle(CreateRequest()))
 
                 .ExpectReplyToOrginator<IOrderStatusChangedMessage>(m => (Check(m, OrderStatusEnum.Accepted)))
                 .ExpectPublish<IOrderStatusChangedMessage>(m => BasicCheck(m, OrderStatusEnum.Accepted))
-            .When(os => os.Timeout(st))
-
-            .AssertSagaCompletionIs(true);
+            .When(os => os.Timeout(new DelayMessage()))
+                .AssertSagaCompletionIs(true);
         }
 
         #region helper methods

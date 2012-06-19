@@ -28,7 +28,7 @@ namespace Barista
                .StructureMapBuilder(ObjectFactory.Container)
                //.AzureConfigurationSource()
                .AzureMessageQueue().JsonSerializer()
-               .DBSubcriptionStorage()
+               .DBSubscriptionStorage()
                .Sagas()
                 .NHibernateSagaPersister().NHibernateUnitOfWork()
 

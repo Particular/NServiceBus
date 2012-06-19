@@ -62,6 +62,9 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -69,6 +72,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureNHibernateSubscriptionStorage.cs" />
@@ -113,4 +117,5 @@
   <PropertyGroup>
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\nhibernate\"</notused>
   </PropertyGroup>
+  <Import Project="..\..\..\..\tools\Fody\Fody.targets" />
 </Project>

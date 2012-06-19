@@ -11,7 +11,8 @@ namespace OrderService
     public class OrderSaga : Saga<OrderSagaData>,
         IAmStartedByMessages<IOrderMessage>,
         IHandleMessages<OrderAuthorizationResponseMessage>,
-        IHandleMessages<CancelOrderMessage>
+        IHandleMessages<CancelOrderMessage>,
+        IHandleTimeouts<DelayMessage>
     {
         public override void ConfigureHowToFindSaga()
         {
@@ -24,7 +25,7 @@ namespace OrderService
 
         public void Handle(IOrderMessage message)
         {
-            Console.WriteLine("Recieved message: " + message);
+            Console.WriteLine("Received message: " + message);
             
             Data.PurchaseOrderNumber = message.PurchaseOrderNumber;
             Data.PartnerId = message.PartnerId;
@@ -46,7 +47,7 @@ namespace OrderService
                                                                    m.OrderLines = Convert<Messages.IOrderLine, IOrderLine>(status.OrderLines);
                                                                });
 
-                RequestUtcTimeout(Data.ProvideBy - TimeSpan.FromSeconds(2), "state");
+                RequestUtcTimeout<DelayMessage>(Data.ProvideBy - TimeSpan.FromSeconds(2), delayMessage => delayMessage.State = "state");
             }
             else
             {
@@ -90,7 +91,7 @@ namespace OrderService
             MarkAsComplete();
         }
 
-        public override void Timeout(object state)
+        public void Timeout(DelayMessage state)
         {
             Console.WriteLine("======================================================================");
 
