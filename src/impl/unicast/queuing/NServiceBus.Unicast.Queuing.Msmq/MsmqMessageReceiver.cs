@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Messaging;
 using System.Security.Principal;
+using NServiceBus.Unicast.Transport;
 using NServiceBus.Utils;
 using Common.Logging;
 
