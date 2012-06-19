@@ -31,7 +31,7 @@ namespace Cashier
               //  .AzureConfigurationSource()
                 .AzureMessageQueue()
                 .JsonSerializer()
-                .DBSubcriptionStorage()
+                .DBSubscriptionStorage()
                 .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork()
 
                 .UnicastBus()
