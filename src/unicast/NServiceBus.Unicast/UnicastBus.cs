@@ -1505,7 +1505,8 @@ namespace NServiceBus.Unicast
             messageTypeToDestinationLookup[messageType] = address;
             messageTypeToDestinationLocker.ExitWriteLock();
 
-            Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
+            if(!string.IsNullOrWhiteSpace(address.Machine))
+                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
             if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                 recoverableMessageTypes.Add(messageType);
