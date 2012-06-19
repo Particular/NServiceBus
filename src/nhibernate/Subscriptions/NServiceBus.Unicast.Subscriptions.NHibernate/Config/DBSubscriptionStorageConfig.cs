@@ -3,7 +3,7 @@ using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
 
 namespace NServiceBus.Config
 {
-    public class DBSubscriptionStorageConfig:ConfigurationSection
+    public class DBSubscriptionStorageConfig : ConfigurationSection
     {
         [ConfigurationProperty("NHibernateProperties", IsRequired = false)]
         public NHibernatePropertyCollection NHibernateProperties
