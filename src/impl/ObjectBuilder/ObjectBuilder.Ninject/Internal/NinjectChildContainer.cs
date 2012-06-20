@@ -39,6 +39,11 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
             throw new NotImplementedException();
         }
 
+        public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
+        {
+            throw new NotImplementedException();
+        }
+
         public void ConfigureProperty(Type component, string property, object value)
         {
             throw new NotImplementedException();

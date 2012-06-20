@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using NServiceBus.Config;
 
     /// <summary>
     /// Initializes the peformcecounters if they are enabled
@@ -13,6 +12,11 @@
         {
             if (!Configure.Instance.PerformanceCountersEnabled())
                 return;
+
+            if (!PerformanceCounterCategory.Exists(CategoryName))
+            {
+                return;
+            }
 
             SetupCriticalTimePerformanceCounter();
 
@@ -55,6 +59,7 @@
         static PerformanceCounter InstantiateCounter(string counterName)
         {
             PerformanceCounter counter;
+            
             try
             {
                 counter = new PerformanceCounter(CategoryName, counterName, Configure.EndpointName, false);

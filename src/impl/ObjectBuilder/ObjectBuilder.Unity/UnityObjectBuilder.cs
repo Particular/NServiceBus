@@ -94,7 +94,6 @@ namespace NServiceBus.ObjectBuilder.Unity
                 return;
 
             IEnumerable<Type> interfaces = GetAllServiceTypesFor(concreteComponent);
-
       
             foreach (Type t in interfaces)
             {
@@ -109,6 +108,11 @@ namespace NServiceBus.ObjectBuilder.Unity
                 }
             }
 
+        }
+
+        public void Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            throw new NotSupportedException("UnityObjectBuilder does not support lambda expressions.");        
         }
 
         public void ConfigureProperty(Type concreteComponent, string property, object value)

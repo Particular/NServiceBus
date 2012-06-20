@@ -89,9 +89,25 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
             var builder = new ContainerBuilder();
             var services = component.GetAllServices().ToArray();
-            var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
+            var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();            
 
             SetLifetimeScope(dependencyLifecycle, registrationBuilder);
+
+            builder.Update(this.container.ComponentRegistry);
+        }
+
+        void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            var registration = this.GetComponentRegistration(typeof (T));
+
+            if (registration != null)
+                return;
+
+            var builder = new ContainerBuilder();
+            var services = typeof (T).GetAllServices().ToArray();
+            var registrationBuilder = builder.Register(c => componentFactory.Invoke()).As(services).PropertiesAutowired();            
+
+            SetLifetimeScope(dependencyLifecycle, (IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle>) registrationBuilder);
 
             builder.Update(this.container.ComponentRegistry);
         }
@@ -132,7 +148,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.IsRegistered(componentType);
         }
 
-        private static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> registrationBuilder)
+        private static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle> registrationBuilder)
         {
             switch (dependencyLifecycle)
             {

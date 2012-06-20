@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NServiceBus.UnitOfWork.NHibernate.Config.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NServiceBus">
@@ -45,7 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="ConfigureNHibernateUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

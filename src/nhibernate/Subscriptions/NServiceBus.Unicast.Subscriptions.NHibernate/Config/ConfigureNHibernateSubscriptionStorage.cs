@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NHibernate.Cfg;
 using NHibernate.Cfg.MappingSchema;
@@ -7,9 +6,7 @@ using NHibernate.Dialect;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Subscriptions.NHibernate;
-using NServiceBus.Unicast.Subscriptions.NHibernate.Config;
 using Configuration = NHibernate.Cfg.Configuration;
 
 namespace NServiceBus
@@ -32,12 +29,6 @@ namespace NServiceBus
               x.Dialect<SQLiteDialect>();
               x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Subscriptions.sqlite");
             });
-          
-          //var nhibernateProperties = SQLiteConfiguration
-          //      .Standard
-          //      .ProxyFactoryFactory(typeof(ProxyFactoryFactory).AssemblyQualifiedName)
-          //      .UsingFile(".\\NServiceBus.Subscriptions.sqlite")
-          //      .ToProperties();
 
             return DBSubcriptionStorage(config, configuration, true);
         }

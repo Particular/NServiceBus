@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BB947AD4-907C-4B0A-826E-24C59B7CFC06}</ProjectGuid>
+    <ProjectGuid>{4A6833F7-A0BE-49B2-89F5-803BE1A151BC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Orders.Handler</RootNamespace>
@@ -37,9 +37,8 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
@@ -53,13 +52,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Orders.Messages\Orders.Messages.csproj">
       <Project>{162BEDCA-6C44-43B3-B2C1-83994BFFC094}</Project>
       <Name>Orders.Messages</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -72,7 +71,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-    <StartArguments>NServiceBus.Integration NServiceBus.Master</StartArguments>
+    <StartArguments>NServiceBus.Production NServiceBus.Master</StartArguments>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+    <StartArguments>NServiceBus.Production NServiceBus.Master</StartArguments>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 </Project>

@@ -85,6 +85,11 @@ namespace NServiceBus.ObjectBuilder.Spring
             
         }
 
+        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            throw new NotSupportedException("SpringObjectBuilder does not support lambda expressions.");
+        }
+
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
         {
             if (initialized)
@@ -139,7 +144,7 @@ namespace NServiceBus.ObjectBuilder.Spring
                 {
                     ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
                         .SetAutowireMode(AutoWiringMode.AutoDetect)
-                        .SetSingleton(typeHandleLookup[t] == DependencyLifecycle.SingleInstance);
+                        .SetSingleton(typeHandleLookup[t] == DependencyLifecycle.SingleInstance);                    
 
                     componentProperties[t].Configure(builder);
 

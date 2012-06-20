@@ -71,7 +71,7 @@ namespace NServiceBus.Utils
                 Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
         }
-        
+
         ///<summary>
         /// Create named message queue
         ///</summary>
@@ -82,7 +82,7 @@ namespace NServiceBus.Utils
             MessageQueue.Create(queueName, true);
 
             SetPermissionsForQueue(queueName, accountToBeAssignedQueuePermissions ?? account);
-            
+
             Logger.Debug("Queue created: " + queueName);
         }
 
@@ -101,7 +101,7 @@ namespace NServiceBus.Utils
 
             q.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
             q.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);            
+            q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
         }
 
         /// <summary>
@@ -161,33 +161,46 @@ namespace NServiceBus.Utils
         {
             var machine = target.Machine;
 
-            IPAddress ipAddress;
+            IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(machine, out ipAddress))
+            if (IPAddress.TryParse(machine, out targetIpAddress))
             {
-                string myIp = null;
+                if (string.IsNullOrEmpty(localIp))
+                    localIp = LocalIpAddress(targetIpAddress);
 
-                var networkInterfaces = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
-                foreach(var ni in networkInterfaces)
-                    if (ni.OperationalStatus == OperationalStatus.Up && ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                    {
-                        var ipProps = ni.GetIPProperties();
-                        if (ipProps.UnicastAddresses.Count > 0)
-                        {
-                            myIp = ipProps.UnicastAddresses[1].Address.ToString();
-                            break;
-                        }
-                    }
-
-                if (myIp == null)
-                    myIp = "127.0.0.1";
-
-                return PREFIX_TCP + myIp + PRIVATE + value.Queue;
+                return PREFIX_TCP + localIp + PRIVATE + value.Queue;
             }
-
+                
             return PREFIX + GetFullPathWithoutPrefix(value);
         }
+
+        static string LocalIpAddress(IPAddress targetIpAddress)
+        {
+            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            var availableAddresses =
+                networkInterfaces.Where(
+                    ni =>
+                    ni.OperationalStatus == OperationalStatus.Up &&
+                    ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    .SelectMany(ni=>ni.GetIPProperties().UnicastAddresses).ToList();
+
+            var firstWithMatchingFamily =
+                availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
+
+            if (firstWithMatchingFamily != null)
+                return firstWithMatchingFamily.Address.ToString();
+
+            var fallbackToDifferentFamily = availableAddresses.FirstOrDefault();
+
+            if (fallbackToDifferentFamily != null)
+                return fallbackToDifferentFamily.Address.ToString();
+
+            return "127.0.0.1";
+        }
+
+        static string localIp;
 
         /// <summary>
         /// Returns the full path without Format or direct os
@@ -363,7 +376,7 @@ namespace NServiceBus.Utils
             }
 
             result.Id = result.GetOriginalId();
-            if(result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
+            if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
                 ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
             result.IdForCorrelation = result.GetIdForCorrelation();
 
@@ -378,7 +391,7 @@ namespace NServiceBus.Utils
         /// <param name="result">Transport message to be filled from MSMQ message label</param>
         private static void ExtractMsmqMessageLabelInformationForBackwardCompatibility(Message msmqMsg, TransportMessage result)
         {
-            if(string.IsNullOrWhiteSpace(msmqMsg.Label))
+            if (string.IsNullOrWhiteSpace(msmqMsg.Label))
                 return;
 
             if (msmqMsg.Label.Contains(TransportHeaderKeys.IdForCorrelation))
@@ -395,7 +408,7 @@ namespace NServiceBus.Utils
                 int winCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.WindowsIdentityName)) - winStartIndex;
 
                 result.Headers.Add(Headers.WindowsIdentityName, msmqMsg.Label.Substring(winStartIndex, winCount));
-            }          
+            }
         }
 
         /// <summary>
@@ -447,7 +460,7 @@ namespace NServiceBus.Utils
         /// <param name="msmqMessage"></param>
         static void FillLabelForBackwardsCompatabilityWhileSending(TransportMessage transportMessage, Message msmqMessage)
         {
-            string windowsIdentityName = 
+            string windowsIdentityName =
                 (transportMessage.Headers.ContainsKey(Headers.WindowsIdentityName) && (!string.IsNullOrWhiteSpace(transportMessage.Headers[Headers.WindowsIdentityName])))
                 ? transportMessage.Headers[Headers.WindowsIdentityName] : string.Empty;
 

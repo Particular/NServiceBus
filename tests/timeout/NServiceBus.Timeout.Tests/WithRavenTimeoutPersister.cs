@@ -15,6 +15,8 @@ namespace NServiceBus.Timeout.Tests
         [SetUp]
         public void SetupContext()
         {
+            Configure.GetEndpointNameAction = () => "MyEndpoint";
+
             store = new EmbeddableDocumentStore { RunInMemory = true };
             //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "MyServer" };
             store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites; //This turns on WaitForNonStaleResults() on queries globally

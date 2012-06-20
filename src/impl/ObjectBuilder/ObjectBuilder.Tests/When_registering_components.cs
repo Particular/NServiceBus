@@ -18,16 +18,31 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
-           
+
             ForAllBuilders((builder) =>
-                                     {
-                                         builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-                                         builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-            
-                                         Assert.AreEqual(1,builder.BuildAll(typeof(DuplicateClass)).Count());
-                                     });
+            {
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+
+                Assert.AreEqual(1, builder.BuildAll(typeof(DuplicateClass)).Count());
+            });
+
+           
         }
 
+
+        [Test]
+        public void Should_support_lambdas_that_uses_other_components_registered_later()
+        {
+            ForAllBuilders((builder) =>
+            {
+                builder.Configure<ComponentCreatedByFactory>(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
+                builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
+
+
+                Assert.NotNull(builder.Build(typeof(ComponentCreatedByFactory)));
+            },typeof(UnityObjectBuilder),typeof(SpringObjectBuilder));
+        }
 
         [Test]
         public void A_registration_should_be_allowed_to_be_updated()

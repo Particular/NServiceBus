@@ -1116,9 +1116,19 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private static Exception GetInnermostException(Exception e)
         {
+            if (e.InnerException == null)
+                return e;
+
             var result = e;
-            while (result.InnerException != null)
+
+            do
+            {
+                if (!result.Source.ToLower().Equals("mscorlib"))
+                    return result;
+
                 result = result.InnerException;
+
+            } while (result.InnerException != null);
 
             return result;
         }
@@ -1412,7 +1422,8 @@ namespace NServiceBus.Unicast
             messageTypeToDestinationLookup[messageType] = address;
             messageTypeToDestinationLocker.ExitWriteLock();
 
-            Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
+            if(!string.IsNullOrWhiteSpace(address.Machine))
+                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
             if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                 recoverableMessageTypes.Add(messageType);
