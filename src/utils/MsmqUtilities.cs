@@ -149,37 +149,47 @@ namespace NServiceBus.Utils
         {
             var machine = target.Machine;
 
-            IPAddress ipAddress;
+            IPAddress targetIpAddress;
 
             //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(machine, out ipAddress))
-                return PREFIX_TCP + LocalIpAddress() + PRIVATE + value.Queue;
+            if (IPAddress.TryParse(machine, out targetIpAddress))
+            {
+                if (string.IsNullOrEmpty(localIp))
+                    localIp = LocalIpAddress(targetIpAddress);
 
+                return PREFIX_TCP + localIp + PRIVATE + value.Queue;
+            }
+                
             return PREFIX + GetFullPathWithoutPrefix(value);
         }
 
-        static string LocalIpAddress()
+        static string LocalIpAddress(IPAddress targetIpAddress)
         {
-            if (!string.IsNullOrEmpty(localIp))
-                return localIp;
-
             var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (var ni in networkInterfaces)
-                if (ni.OperationalStatus == OperationalStatus.Up && ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                {
-                    var ipProps = ni.GetIPProperties();
-                    if (ipProps.UnicastAddresses.Count > 0)
-                    {
-                        localIp = ipProps.UnicastAddresses[0].Address.ToString();
-                        return localIp;
-                    }
 
-                }
-            localIp = "127.0.0.1";
-            return localIp;
+            var availableAddresses =
+                networkInterfaces.Where(
+                    ni =>
+                    ni.OperationalStatus == OperationalStatus.Up &&
+                    ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    .SelectMany(ni=>ni.GetIPProperties().UnicastAddresses).ToList();
+
+            var firstWithMatchingFamily =
+                availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
+
+            if (firstWithMatchingFamily != null)
+                return firstWithMatchingFamily.Address.ToString();
+
+            var fallbackToDifferentFamily = availableAddresses.FirstOrDefault();
+
+            if (fallbackToDifferentFamily != null)
+                return fallbackToDifferentFamily.Address.ToString();
+
+            return "127.0.0.1";
         }
 
-        static string localIp = null;
+        static string localIp;
+
         /// <summary>
         /// Returns the full path without Format or direct os
         /// from a '@' separated path.

@@ -23,13 +23,12 @@ namespace NServiceBus
         /// <returns>The <see cref="Configure" /> object.</returns>
         public static Configure DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            var configuration = new Configuration()
-                .DataBaseIntegration(x =>
-                                         {
-                                             x.Dialect<SQLiteDialect>();
-                                             x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;",
-                                                                                ".\\NServiceBus.Subscriptions.sqlite");
-                                         });
+          var configuration = new Configuration()
+            .DataBaseIntegration(x =>
+            {
+              x.Dialect<SQLiteDialect>();
+              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Subscriptions.sqlite");
+            });
 
             return DBSubscriptionStorage(config, configuration, true);
         }

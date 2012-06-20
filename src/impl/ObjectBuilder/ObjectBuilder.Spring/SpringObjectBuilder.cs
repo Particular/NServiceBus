@@ -81,6 +81,7 @@ namespace NServiceBus.ObjectBuilder.Spring
 
             lock (componentProperties)
                 if (!componentProperties.ContainsKey(concreteComponent))
+<<<<<<< HEAD
                     componentProperties[concreteComponent] = new ComponentConfig();
             
         }
@@ -90,6 +91,17 @@ namespace NServiceBus.ObjectBuilder.Spring
             throw new NotSupportedException("SpringObjectBuilder does not support lambda expressions.");
         }
 
+=======
+                    componentProperties[concreteComponent] = new ComponentConfig();
+            
+        }
+
+        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            throw new NotSupportedException("SpringObjectBuilder does not support lambda expressions.");
+        }
+
+>>>>>>> master
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
         {
             if (initialized)
