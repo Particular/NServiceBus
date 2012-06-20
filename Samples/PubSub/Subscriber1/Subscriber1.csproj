@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnotherEventMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="EventMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -96,17 +96,40 @@ namespace NServiceBus.Unicast.Config
                         Logger.Error("Problem loading message type: " + mapping.Messages, ex);
                     }
 
+                    var split = mapping.Messages.Split(new[] { ".*," }, StringSplitOptions.RemoveEmptyEntries);
+
+                    string assemblyName;
+                    string ns;
+
+                    switch (split.Length)
+                    {
+                        case 1:
+                            ns = null;
+                            assemblyName = mapping.Messages;
+                            break;
+                        case 2:
+                            ns = split[0].Trim();
+                            assemblyName = split[1].Trim();
+                            break;
+                        default:
+                            throw new ArgumentException("Message mapping configuration is invalid: " + mapping.Messages);
+                    }
+
                     try
                     {
-                        var a = Assembly.Load(mapping.Messages);
-                        foreach (var t in a.GetTypes())
+                        var a = Assembly.Load(assemblyName);
+                        var messageTypes = a.GetTypes().AsQueryable();
+
+                        if (!string.IsNullOrEmpty(ns))
+                            messageTypes = messageTypes.Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
+
+                        foreach (var t in messageTypes)
                             typesToEndpoints[t] = Address.Parse(mapping.Endpoint);
                     }
                     catch (Exception ex)
                     {
                         throw new ArgumentException("Problem loading message assembly: " + mapping.Messages, ex);
                     }
-
                 }
             }
 
@@ -228,18 +251,18 @@ namespace NServiceBus.Unicast.Config
             //configure the message dispatcher for each handler
             busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
 
-            availableDispatcherFactories.ToList().ForEach(factory=> Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
-            
+            availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
+
             return this;
         }
 
-        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers,IEnumerable<Type> messageDispatcherFactories)
+        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers, IEnumerable<Type> messageDispatcherFactories)
         {
             var result = new Dictionary<Type, Type>();
 
             var customFactories = messageDispatcherFactories
-                .Where(t=>t!= defaultDispatcherFactory)
-                .Select(t => (IMessageDispatcherFactory) Activator.CreateInstance(t)).ToList();
+                .Where(t => t != defaultDispatcherFactory)
+                .Select(t => (IMessageDispatcherFactory)Activator.CreateInstance(t)).ToList();
 
 
             foreach (var handler in handlers)
