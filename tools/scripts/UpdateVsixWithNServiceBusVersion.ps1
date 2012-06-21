@@ -1,5 +1,5 @@
-#   $ProductVersion = "3.2.1"
-#   $VsixFilePath   = "D:\nsb\NServiceBusStudio\NServiceBusStudio.vsix"
+#   $ProductVersion = "3.2.3"
+#   $VsixFilePath   = "C:\Users\WorkUser\Desktop\NServiceBusStudio.vsix"
 #   $OutputDirectory = "d:\temp"
 #   Usage: .\UpdateVsixWithNServiceBusVersion.ps1 3.2.1 d:\nsb\NServiceBusStudio\NServiceBusStudio.vsix d:\temp
 param(   
@@ -10,7 +10,8 @@ param(
 
     $NServiceBusVersionFile = "NServiceBusVersion.txt"
     $zipOutputTempDirectory = $env:temp + "\" + "$(Get-Date -format 'yyyy_MM_dd_hh_mm_ss')"
-    $zipExec = "C:\Users\WorkPcUser\NServiceBus\tools\zip\7za.exe"
+    $baseDir  = resolve-path ..
+    $zipExec = "$baseDir\zip\7za.exe"
 
 function Rename-FileExtension([string]$filename, [string]$oldExtension, [string]$newExtension)
 {
