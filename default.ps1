@@ -779,7 +779,7 @@ else{
 	#region Packing NServiceBus.NHibernate
 	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
 	$packit.package_description = "The NHibernate for the NServicebus"
-	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.2.0.4000"} "binaries\NServiceBus.NHibernate.dll"
+	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.3.1.4000"} "binaries\NServiceBus.NHibernate.dll"
 	#endregion	
 		
 	#region Packing NServiceBus.Azure
