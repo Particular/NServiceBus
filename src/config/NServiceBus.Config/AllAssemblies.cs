@@ -92,7 +92,7 @@ namespace NServiceBus
 
         private AllAssemblies()
         {
-            if (HttpContext.Current != null)
+            if (HttpRuntime.AppDomainAppId != null)
 				directory = HttpRuntime.BinDirectory;
             else
                 directory = AppDomain.CurrentDomain.BaseDirectory;
