@@ -621,6 +621,8 @@ task CreatePackages {
 "
     $installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
 	
+    `$project.Save()
+    
 	`$directoryName  = [system.io.Path]::GetDirectoryName(`$project.FullName)	
 	`$appConfigFile = `$directoryName + `"\App.config`"
 	if((Test-Path -Path `$appConfigFile) -eq `$true){
@@ -643,46 +645,35 @@ task CreatePackages {
 		}
 	}
 	
-if(`$Host.Version.Major -gt 1)
-{  
 	[xml] `$prjXml = Get-Content `$project.FullName
 	`$proceed = `$true
 	foreach(`$PropertyGroup in `$prjXml.project.ChildNodes)
 	{
-	  
 	  if(`$PropertyGroup.StartAction -ne `$null)
 	  {
 		`$proceed = `$false
 	  }
-	  
 	}
 
 	if (`$proceed -eq `$true){
-		`$propertyGroupElement = `$prjXml.CreateElement(`"PropertyGroup`");
-		`$propertyGroupElement.SetAttribute(`"Condition`", `"'```$(Configuration)|```$(Platform)' == 'Release|AnyCPU'`")
-		`$propertyGroupElement.RemoveAttribute(`"xmlns`")
-		`$startActionElement = `$prjXml.CreateElement(`"StartAction`");
+		`$propertyGroupElement = `$prjXml.CreateElement(`"PropertyGroup`", `$prjXml.Project.GetAttribute(`"xmlns`"));
+		`$startActionElement = `$prjXml.CreateElement(`"StartAction`", `$prjXml.Project.GetAttribute(`"xmlns`"));
 		`$propertyGroupElement.AppendChild(`$startActionElement)
 		`$propertyGroupElement.StartAction = `"Program`"
-		`$startProgramElement = `$prjXml.CreateElement(`"StartProgram`");
+		`$startProgramElement = `$prjXml.CreateElement(`"StartProgram`", `$prjXml.Project.GetAttribute(`"xmlns`"));
 		`$propertyGroupElement.AppendChild(`$startProgramElement)
 		`$propertyGroupElement.StartProgram = `"```$(ProjectDir)```$(OutputPath)NServiceBus.Host.exe`"
 		`$prjXml.project.AppendChild(`$propertyGroupElement);
 		`$writerSettings = new-object System.Xml.XmlWriterSettings
-		`$writerSettings.OmitXmlDeclaration = `$true
-		`$writerSettings.NewLineOnAttributes = `$true
+		`$writerSettings.OmitXmlDeclaration = `$false
+		`$writerSettings.NewLineOnAttributes = `$false
 		`$writerSettings.Indent = `$true
 		`$projectFilePath = Resolve-Path -Path `$project.FullName
 		`$writer = [System.Xml.XmlWriter]::Create(`$projectFilePath, `$writerSettings)
-
 		`$prjXml.WriteTo(`$writer)
 		`$writer.Flush()
 		`$writer.Close()
-	}
-}
-else{
-	echo `"Please use PowerShell V2 for better configuration for the project`"
-} 
+	} 
 "
 	$appConfigTranformFile = "$releaseRoot\content\app.config.transform"
 	$installPs1File = "$releaseRoot\tools\install.ps1"
