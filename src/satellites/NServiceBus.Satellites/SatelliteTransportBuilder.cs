@@ -1,5 +1,6 @@
 ﻿using NServiceBus.Faults;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Transactional;
@@ -28,7 +29,9 @@ namespace NServiceBus.Satellites
 
             return new TransactionalTransport
             {
-                MessageReceiver = new MsmqMessageReceiver(),
+                MessageReceiver = MainTransport != null
+                         ? Builder.Build(MainTransport.MessageReceiver.GetType()) as IReceiveMessages
+                         : Builder.Build<MsmqMessageReceiver>(),
                 IsTransactional = tx,
                 NumberOfWorkerThreads = nt,
                 MaxRetries = mr,
