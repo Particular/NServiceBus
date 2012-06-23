@@ -25,7 +25,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
         private CloudQueue queue;
         private int timeToDelayNextPeek;
         private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
-        private readonly Dictionary<string, CloudQueueClient> destinationQueueClients = new Dictionary<string, CloudQueueClient>(); 
+        private readonly Dictionary<string, CloudQueueClient> destinationQueueClients = new Dictionary<string, CloudQueueClient>();
+        private static readonly object SenderLock = new Object();
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
@@ -112,21 +113,27 @@ namespace NServiceBus.Unicast.Queuing.Azure
         private CloudQueueClient GetClientForConnectionString(string connectionString)
         {
             CloudQueueClient sendClient;
-
+            
             if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
             {
-                CloudStorageAccount account;
-                
-                if(CloudStorageAccount.TryParse(connectionString, out account))
+                lock (SenderLock)
                 {
-                    sendClient = account.CreateCloudQueueClient();
+                    if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
+                    {
+                        CloudStorageAccount account;
+
+                        if (CloudStorageAccount.TryParse(connectionString, out account))
+                        {
+                            sendClient = account.CreateCloudQueueClient();
+                        }
+
+                        // sendClient could be null, this is intentional 
+                        // so that it remembers a connectionstring was invald 
+                        // and doesn't try to parse it again.
+
+                        destinationQueueClients.Add(connectionString, sendClient);
+                    }
                 }
-
-                // sendClient could be null, this is intentional 
-                // so that it remembers a connectionstring was invald 
-                // and doesn't try to parse it again.
-
-                destinationQueueClients.Add(connectionString, sendClient);
             }
 
             return sendClient;
