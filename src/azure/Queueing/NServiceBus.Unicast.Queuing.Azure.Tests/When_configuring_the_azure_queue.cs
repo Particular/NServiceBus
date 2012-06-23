@@ -33,13 +33,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         }
 
         [Test]
-        public void The_azurequeue_should_be_singleton()
+        public void The_azurequeue_should_not_be_singleton()
         {
             Configure.With()
              .DefaultBuilder()
              .AzureMessageQueue();
 
-            Assert.AreEqual(Configure.Instance.Builder.Build<AzureMessageQueue>(),Configure.Instance.Builder.Build<AzureMessageQueue>());
+            Assert.AreNotEqual(Configure.Instance.Builder.Build<AzureMessageQueueReceiver>(), Configure.Instance.Builder.Build<AzureMessageQueueReceiver>());
         }
     }
 

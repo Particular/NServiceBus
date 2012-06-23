@@ -4,7 +4,6 @@ using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
-using NServiceBus.Config.Conventions;
 using NServiceBus.Unicast.Queuing.Azure.ServiceBus;
 
 namespace NServiceBus
@@ -30,17 +29,18 @@ namespace NServiceBus
             config.Configurer.RegisterSingleton<NamespaceManager>(namespaceClient); 
             config.Configurer.RegisterSingleton<MessagingFactory>(factory);
 
-            config.Configurer.ConfigureComponent<AzureServiceBusMessageQueue>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<AzureServiceBusMessageQueueReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<AzureServiceBusMessageQueueSender>(DependencyLifecycle.InstancePerCall);
 
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.LockDuration, TimeSpan.FromMilliseconds(configSection.LockDuration));
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.MaxSizeInMegabytes, configSection.MaxSizeInMegabytes);
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.RequiresDuplicateDetection, configSection.RequiresDuplicateDetection);
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.RequiresSession, configSection.RequiresSession);
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.DefaultMessageTimeToLive, TimeSpan.FromMilliseconds(configSection.DefaultMessageTimeToLive));
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.EnableDeadLetteringOnMessageExpiration, configSection.EnableDeadLetteringOnMessageExpiration);
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
-            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueue>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.LockDuration, TimeSpan.FromMilliseconds(configSection.LockDuration));
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.MaxSizeInMegabytes, configSection.MaxSizeInMegabytes);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.RequiresDuplicateDetection, configSection.RequiresDuplicateDetection);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.RequiresSession, configSection.RequiresSession);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.DefaultMessageTimeToLive, TimeSpan.FromMilliseconds(configSection.DefaultMessageTimeToLive));
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.EnableDeadLetteringOnMessageExpiration, configSection.EnableDeadLetteringOnMessageExpiration);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
 
             if (!string.IsNullOrEmpty(configSection.QueueName))
             {

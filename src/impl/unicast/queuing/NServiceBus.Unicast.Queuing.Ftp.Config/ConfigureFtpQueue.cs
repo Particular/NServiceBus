@@ -9,7 +9,7 @@ namespace NServiceBus
     {
         public static Configure FtpTransport(this Configure config)
         {            
-            var ftpQueue = config.Configurer.ConfigureComponent<FtpMessageQueue>(DependencyLifecycle.SingleInstance);
+            var ftpQueue = config.Configurer.ConfigureComponent<FtpMessageQueue>(DependencyLifecycle.InstancePerCall);
             var cfg = Configure.GetConfigSection<FtpQueueConfig>();
             
             if (cfg != null)

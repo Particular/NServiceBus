@@ -26,20 +26,21 @@ namespace NServiceBus
             else
             {
                 queueClient = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
-                Address.OverrideDefaultMachine(NServiceBus.Unicast.Queuing.Azure.AzureMessageQueue.DefaultConnectionString);
+                Address.OverrideDefaultMachine(AzureMessageQueueReceiver.DefaultConnectionString);
             }
 
             config.Configurer.RegisterSingleton<CloudQueueClient>(queueClient);
-       
-            config.Configurer.ConfigureComponent<AzureMessageQueue>(DependencyLifecycle.SingleInstance)
+
+            config.Configurer.ConfigureComponent<AzureMessageQueueReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
+            config.Configurer.ConfigureComponent<AzureMessageQueueSender>(DependencyLifecycle.InstancePerCall);
 
             if (configSection != null)
             {
-                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PurgeOnStartup, configSection.PurgeOnStartup);
-                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MaximumWaitTimeWhenIdle, configSection.MaximumWaitTimeWhenIdle);
-                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MessageInvisibleTime, configSection.MessageInvisibleTime);
-                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PeekInterval, configSection.PeekInterval);
+                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.PurgeOnStartup, configSection.PurgeOnStartup);
+                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MaximumWaitTimeWhenIdle, configSection.MaximumWaitTimeWhenIdle);
+                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MessageInvisibleTime, configSection.MessageInvisibleTime);
+                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.PeekInterval, configSection.PeekInterval);
             }
 
             if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))
@@ -66,7 +67,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure PeekInterval(this Configure config, int value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.PeekInterval, value);
+            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.PeekInterval, value);
 
             return config;
         }
@@ -79,7 +80,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MaximumWaitTimeWhenIdle(this Configure config, int value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MaximumWaitTimeWhenIdle, value);
+            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MaximumWaitTimeWhenIdle, value);
 
             return config;
         }
@@ -92,7 +93,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MessageInvisibleTime(this Configure config, int value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.MessageInvisibleTime, value);
+            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MessageInvisibleTime, value);
 
             return config;
         }
@@ -105,7 +106,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure BatchSize(this Configure config, int value)
         {
-            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueue>(t => t.BatchSize, value);
+            Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.BatchSize, value);
 
             return config;
         }

@@ -18,7 +18,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultConnectionString)]
+        [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultConnectionString)]
         public string ConnectionString
         {
             get
@@ -31,7 +31,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("PeekInterval", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultPeekInterval)]
+        [ConfigurationProperty("PeekInterval", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultPeekInterval)]
         public int PeekInterval
         {
             get
@@ -44,7 +44,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("MaximumWaitTimeWhenIdle", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultMaximumWaitTimeWhenIdle)]
+        [ConfigurationProperty("MaximumWaitTimeWhenIdle", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultMaximumWaitTimeWhenIdle)]
         public int MaximumWaitTimeWhenIdle
         {
             get
@@ -57,7 +57,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("PurgeOnStartup", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultPurgeOnStartup)]
+        [ConfigurationProperty("PurgeOnStartup", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultPurgeOnStartup)]
         public bool PurgeOnStartup
         {
             get
@@ -70,7 +70,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("MessageInvisibleTime", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultMessageInvisibleTime)]
+        [ConfigurationProperty("MessageInvisibleTime", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultMessageInvisibleTime)]
         public int MessageInvisibleTime
         {
             get
@@ -83,7 +83,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("BatchSize", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultBatchSize)]
+        [ConfigurationProperty("BatchSize", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultBatchSize)]
         public int BatchSize
         {
             get
@@ -96,7 +96,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("QueuePerInstance", IsRequired = false, DefaultValue = AzureMessageQueue.DefaultQueuePerInstance)]
+        [ConfigurationProperty("QueuePerInstance", IsRequired = false, DefaultValue = AzureMessageQueueReceiver.DefaultQueuePerInstance)]
         public bool QueuePerInstance
         {
             get

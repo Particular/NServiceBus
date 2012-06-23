@@ -7,8 +7,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
     {
         [Test]
         public void A_native_azure_queue_should_be_created()
-        { 
-            queue.CreateQueue(QueueName);
+        {
+            receiver.CreateQueue(QueueName);
 
             Assert.True(nativeQueue.Exists());
         }

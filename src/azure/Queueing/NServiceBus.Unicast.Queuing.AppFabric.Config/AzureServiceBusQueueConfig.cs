@@ -44,7 +44,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("IssuerName", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultIssuerName)]
+        [ConfigurationProperty("IssuerName", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultIssuerName)]
         public string IssuerName
         {
             get
@@ -58,7 +58,7 @@ namespace NServiceBus.Config
         }
 
 
-        [ConfigurationProperty("LockDuration", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultLockDuration)]
+        [ConfigurationProperty("LockDuration", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultLockDuration)]
         public int LockDuration
         {
             get
@@ -71,7 +71,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("MaxSizeInMegabytes", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultMaxSizeInMegabytes)]
+        [ConfigurationProperty("MaxSizeInMegabytes", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultMaxSizeInMegabytes)]
         public long MaxSizeInMegabytes
         {
              get
@@ -84,7 +84,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("RequiresDuplicateDetection", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultRequiresDuplicateDetection)]
+        [ConfigurationProperty("RequiresDuplicateDetection", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultRequiresDuplicateDetection)]
         public bool RequiresDuplicateDetection
         {
              get
@@ -97,7 +97,7 @@ namespace NServiceBus.Config
              }
          }
 
-        [ConfigurationProperty("RequiresSession", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultRequiresSession)]
+        [ConfigurationProperty("RequiresSession", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultRequiresSession)]
         public bool RequiresSession
         {
              get
@@ -110,7 +110,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("DefaultMessageTimeToLive", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultDefaultMessageTimeToLive)]
+        [ConfigurationProperty("DefaultMessageTimeToLive", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultDefaultMessageTimeToLive)]
         public long DefaultMessageTimeToLive
          {
              get
@@ -123,7 +123,7 @@ namespace NServiceBus.Config
              }
          }
 
-        [ConfigurationProperty("EnableDeadLetteringOnMessageExpiration", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultEnableDeadLetteringOnMessageExpiration)]
+        [ConfigurationProperty("EnableDeadLetteringOnMessageExpiration", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultEnableDeadLetteringOnMessageExpiration)]
         public bool EnableDeadLetteringOnMessageExpiration
         {
              get
@@ -136,7 +136,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("DuplicateDetectionHistoryTimeWindow", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultDuplicateDetectionHistoryTimeWindow)]
+        [ConfigurationProperty("DuplicateDetectionHistoryTimeWindow", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultDuplicateDetectionHistoryTimeWindow)]
         public int DuplicateDetectionHistoryTimeWindow
         {
              get
@@ -149,7 +149,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("MaxDeliveryCount", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultMaxDeliveryCount)]
+        [ConfigurationProperty("MaxDeliveryCount", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultMaxDeliveryCount)]
         public int MaxDeliveryCount
         {
              get
@@ -162,7 +162,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("EnableBatchedOperations", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultEnableBatchedOperations)]
+        [ConfigurationProperty("EnableBatchedOperations", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultEnableBatchedOperations)]
         public bool EnableBatchedOperations
         {
              get
@@ -175,7 +175,7 @@ namespace NServiceBus.Config
              }
         }
 
-        [ConfigurationProperty("QueuePerInstance", IsRequired = false, DefaultValue = AzureServiceBusMessageQueue.DefaultQueuePerInstance)]
+        [ConfigurationProperty("QueuePerInstance", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultQueuePerInstance)]
         public bool QueuePerInstance
         {
             get

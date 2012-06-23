@@ -28,8 +28,6 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 .JsonSerializer()
                 .IsTransactional(true)
                 .Sagas()
-                .DisableSecondLevelRetries()
-                .DisableNotifications()
                 .UnicastBus()
                     .ImpersonateSender(false);
         }

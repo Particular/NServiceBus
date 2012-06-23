@@ -13,11 +13,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             AddTestMessage();
             AddTestMessage();
 
-            queue.PurgeOnStartup = true;
+            receiver.PurgeOnStartup = true;
 
-            queue.Init(QueueName,false);
+            receiver.Init(QueueName, false);
 
-            Assert.Null(queue.Receive());
+            Assert.Null(receiver.Receive());
         }
     }
 } 

@@ -22,10 +22,10 @@ namespace NServiceBus
         {
             Selected = true;
 
-            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.SingleInstance)
+            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
 
-            config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall);
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 

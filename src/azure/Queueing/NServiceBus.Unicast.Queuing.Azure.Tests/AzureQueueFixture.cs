@@ -7,7 +7,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     public abstract class AzureQueueFixture
     {
-        protected AzureMessageQueue queue;
+        protected AzureMessageQueueSender sender;
+        protected AzureMessageQueueReceiver receiver;
         protected CloudQueueClient client;
         protected CloudQueue nativeQueue;
 
@@ -33,13 +34,19 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             nativeQueue.Clear();
 
 
-            queue = new AzureMessageQueue
+            sender = new AzureMessageQueueSender
                         {
-                            PurgeOnStartup = PurgeOnStartup,
                             Client = client
                         };
 
-            queue.Init(QueueName,true);
+            sender.Init(QueueName, true);
+
+            receiver = new AzureMessageQueueReceiver
+            {
+                Client = client
+            };
+
+            sender.Init(QueueName, true);
         }
 
         protected void AddTestMessage()
@@ -49,7 +56,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
         protected void AddTestMessage(TransportMessage messageToAdd)
         {
-            queue.Send(messageToAdd, QueueName);
+            sender.Send(messageToAdd, QueueName);
         }
 
     }

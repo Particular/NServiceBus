@@ -32,8 +32,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public static Configure ListenOnAzureStorageQueues(this Configure config)
         {
             TimeoutMessageProcessor.MessageReceiverFactory = () =>{
-                var queue = config.Builder.Build<AzureMessageQueue>();
-                return new AzureMessageQueue
+                var queue = config.Builder.Build<AzureMessageQueueReceiver>();
+                return new AzureMessageQueueReceiver
                            {
                                Client = queue.Client,
                                PeekInterval = queue.PeekInterval,
@@ -55,8 +55,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public static Configure ListenOnAzureServiceBusQueues(this Configure config)
         {
             TimeoutMessageProcessor.MessageReceiverFactory = () =>{
-                var queue = config.Builder.Build<AzureServiceBusMessageQueue>();
-                return new AzureServiceBusMessageQueue{
+                var queue = config.Builder.Build<AzureServiceBusMessageQueueReceiver>();
+                return new AzureServiceBusMessageQueueReceiver{
                     LockDuration = queue.LockDuration,
                     MaxSizeInMegabytes =queue.MaxSizeInMegabytes,
                     RequiresDuplicateDetection = queue.RequiresDuplicateDetection,
