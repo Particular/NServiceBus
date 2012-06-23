@@ -18,7 +18,7 @@ namespace OrderWebSite
 		
 		private static IBus ConfigureNServiceBus()
 		{
-            var bus = Configure.WithWeb()
+            var bus = Configure.With()
                 .DefaultBuilder()
                 .Log4Net(new AzureAppender())
                 .AzureConfigurationSource()
