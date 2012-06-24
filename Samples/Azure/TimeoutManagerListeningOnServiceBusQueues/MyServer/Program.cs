@@ -67,6 +67,7 @@ namespace MyServer
                     .UseAzureTimeoutPersister()
                     .ListenOnAzureServiceBusQueues()
                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
+               .DefineEndpointName("MyServer")
                .UnicastBus()
                     .LoadMessageHandlers()
                     .IsTransactional(true)

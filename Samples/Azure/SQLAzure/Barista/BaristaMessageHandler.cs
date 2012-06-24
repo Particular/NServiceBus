@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Barista.ViewData;
 using CashierContracts;
@@ -36,6 +37,8 @@ namespace Barista
             Data.Drink = message.Drink;
             Data.OrderId = message.OrderId;
             Data.Size = message.DrinkSize;
+
+            RequestUtcTimeout(TimeSpan.FromMinutes(1), new TimeoutMessage(TimeSpan.FromMinutes(1), Data, null));
             
             for(var i=0; i<10; i++)
             {
@@ -66,6 +69,21 @@ namespace Barista
             Bus.Send(new OrderReadyMessage(Data.CustomerName, Data.Drink));
 
             MarkAsComplete();
+        }
+
+        [Obsolete("Should be refactored to use the new timeout support", false)]
+        public override void Timeout(object state)
+        {
+            if (!Data.OrderIsReady || !Data.OrderIsPaid)
+            {
+                var viewData = new OrderIsTrashedView(Data.Drink, Data.CustomerName, Data.Size);
+                _view.TrashOrder(viewData);
+                MarkAsComplete();
+            }
+            else
+            {
+                DeliverOrder();
+            }
         }
     }
 }

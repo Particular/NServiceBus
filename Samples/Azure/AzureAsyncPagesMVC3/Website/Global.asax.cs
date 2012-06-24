@@ -18,7 +18,7 @@ namespace Website
 
         private static IBus ConfigureNServiceBus()
         {
-            var bus = Configure.WithWeb()
+            var bus = Configure.With()
                   .DefaultBuilder()
                   .ForMvc()
                   .Log4Net(new AzureAppender())

@@ -26,13 +26,14 @@ namespace TimeoutManager
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
-               .AzureMessageQueue().JsonSerializer()
+                    .AzureMessageQueue().JsonSerializer()
+               .DefineEndpointName("TimeoutManager")
                .RunTimeoutManager()
                     .UseAzureTimeoutPersister()
                     .ListenOnAzureStorageQueues()
                .UnicastBus()
-               .LoadMessageHandlers()
-               .IsTransactional(true)
+                   .LoadMessageHandlers()
+                   .IsTransactional(true)
                .CreateBus()
                .Start();
         }

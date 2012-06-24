@@ -9,6 +9,7 @@ namespace Barista
         void DeliverOrder(DeliverOrderView view);
         void OrderIsDone(OrderIsDoneView view);
         void PrepareOrder(PrepareOrderView view);
+        void TrashOrder(OrderIsTrashedView viewData);
         void Start();
     }
 
@@ -36,6 +37,14 @@ namespace Barista
             var logItem = String.Format("Preparing {0} - {1} for customer {2}.", 
                                         view.Drink, view.DrinkSize, view.CustomerName);
             
+            Invoke(new Action<String>(Log), logItem);
+        }
+
+        public void TrashOrder(OrderIsTrashedView viewData)
+        {
+            var logItem = String.Format("Trashing {0} - {1} for customer {2} as it got cold.",
+                                        viewData.Drink, viewData.Size, viewData.CustomerName);
+
             Invoke(new Action<String>(Log), logItem);
         }
 

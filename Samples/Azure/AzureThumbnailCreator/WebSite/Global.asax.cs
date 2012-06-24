@@ -26,7 +26,7 @@ namespace OrderWebSite
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             if(_configure == null)
-               _configure = Configure.WithWeb()
+               _configure = Configure.With()
                   .DefaultBuilder()
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()

@@ -27,6 +27,7 @@ namespace TimeoutManager
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
                     .AzureMessageQueue().JsonSerializer()
+                .DefineEndpointName("TimeoutManager")
                 .RunTimeoutManager()
                     .UseAzureTimeoutPersister()
                     .ListenOnAzureStorageQueues()
