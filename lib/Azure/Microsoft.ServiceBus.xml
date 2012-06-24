@@ -379,10 +379,10 @@
       <summary>The server is busy.</summary>
     </member>
     <member name="F:Microsoft.ServiceBus.ExceptionErrorCodes.BadGatewayFailure">
-      <summary />
+      <summary>The error is caused by bad gateway.</summary>
     </member>
     <member name="F:Microsoft.ServiceBus.ExceptionErrorCodes.GatewayTimeoutFailure">
-      <summary />
+      <summary>The gateway did not receive a timely response from the upstream server.</summary>
     </member>
     <member name="F:Microsoft.ServiceBus.ExceptionErrorCodes.UnknownExceptionDetail">
       <summary>The detail of an unknown exception.</summary>
@@ -798,7 +798,7 @@
       <param name="address">The full address of the service namespace.</param>
       <param name="settings">A <see cref="T:Microsoft.ServiceBus.NamespaceManagerSettings" /> object, which contains the <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.Credential" /> and <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.OperationTimeout" /> properties.</param>
       <exception cref="T:System.ArgumentException">
-        <paramref name="path" /> is null or empty.</exception>
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="address" /> or <paramref name="settings" /> is null.</exception>
     </member>
@@ -806,6 +806,8 @@
       <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> class with the given service namespace base address and token provider.</summary>
       <param name="address">The full address of the service namespace.</param>
       <param name="tokenProvider">The security token provider.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="address" /> or <paramref name="token provider" /> is null.</exception>
     </member>
@@ -814,11 +816,19 @@
       <param name="address">The full URI address of the service namespace.</param>
       <param name="settings">A <see cref="T:Microsoft.ServiceBus.NamespaceManagerSettings" /> object, which contains the <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.Credential" /> and <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.OperationTimeout" /> properties.</param>
       <exception cref="T:System.ArgumentException">
-        <paramref name="path" /> is null or empty.</exception>
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="address" /> or <paramref name="settings" /> is null.</exception>
     </member>
-    <member name="M:Microsoft.ServiceBus.NamespaceManager.#ctor(System.Uri,Microsoft.ServiceBus.TokenProvider)"></member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.#ctor(System.Uri,Microsoft.ServiceBus.TokenProvider)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> class with the given service namespace URI base address and <see cref="T:Microsoft.ServiceBus.TokenProvider" /> object.</summary>
+      <param name="address">The full URI address of the service namespace.</param>
+      <param name="tokenProvider">The security token provider object.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="address" /> or <paramref name="token provider" /> is null.</exception>
+    </member>
     <member name="P:Microsoft.ServiceBus.NamespaceManager.Address">
       <summary>Gets the service namespace base address.</summary>
       <returns>A <see cref="T:System.Uri" /> that represents the service namespace base address.</returns>
@@ -851,7 +861,14 @@
       <exception cref="T:Microsoft.ServiceBus.Messaging.QuotaExceededException">Either the specified size in the description is not supported or the maximum allowable quota has been reached. You must specify one of the supported size values, delete existing entities, or increase your quota size.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
     </member>
-    <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)">
+      <summary>Asynchronous version of <see cref="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.Filters.FilterExpression)" /> method.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that represents the status of the asynchronous create subscription action.</returns>
+      <param name="description">The subscription description object.</param>
+      <param name="filter">The filter expression used to capture messages satisfying the filtering expression value.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains state information about the asynchronous operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.NamespaceManager.EndCreateSubscription(System.IAsyncResult)" /> delegate when the operation is complete.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.RuleDescription,System.AsyncCallback,System.Object)">
       <summary>Asynchronous version of <see cref="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.RuleDescription)" /> method.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that represents the status of the asynchronous create subscription action.</returns>
@@ -867,7 +884,15 @@
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.NamespaceManager.EndCreateSubscription(System.IAsyncResult)" /> delegate when the operation is complete.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)">
+      <summary>Asynchronous version of <see cref="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.Filters.FilterExpression)" /> method.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that represents the status of the asynchronous create subscription action.</returns>
+      <param name="topicPath">The topic path relative to the service namespace base address.</param>
+      <param name="name">The name of the subscription.</param>
+      <param name="filter">The filter expression used to capture messages satisfying the filtering expression value.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains state information about the asynchronous operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.NamespaceManager.EndCreateSubscription(System.IAsyncResult)" /> delegate when the operation is complete.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.BeginCreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.RuleDescription,System.AsyncCallback,System.Object)">
       <summary>Asynchronous version of <see cref="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.RuleDescription)" /> method.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that represents the status of the asynchronous create subscription action.</returns>
@@ -1026,6 +1051,15 @@
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.NamespaceManager.EndTopicExists(System.IAsyncResult)" /> delegate when the operation is complete.</param>
     </member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.Create">
+      <summary>Creates a new instance of <see cref="T:Microsoft.ServiceBus.NamespaceManager" />.</summary>
+      <returns>A new instance of <see cref="T:Microsoft.ServiceBus.NamespaceManager" />.</returns>
+    </member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateFromConnectionString(System.String)">
+      <summary>Creates a new instance of <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> using a specified connection string.</summary>
+      <returns>A new instance of <see cref="T:Microsoft.ServiceBus.NamespaceManager" />.</returns>
+      <param name="connectionString">The connection sting used.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateQueue(Microsoft.ServiceBus.Messaging.QueueDescription)">
       <summary>Creates a new queue in the service namespace with the specified queue description.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.QueueDescription" /> of the newly created queue.</returns>
@@ -1050,7 +1084,12 @@
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> of the newly created subscription.</returns>
       <param name="description">A <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> object describing the attributes with which the new subscription will be created.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.Filter)"></member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.Filter)">
+      <summary>Creates a new subscription in the service namespace with the specified subscription description and filter expression.</summary>
+      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> of the newly created subscription.</returns>
+      <param name="description">A <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> object describing the attributes with which the new subscription will be created.</param>
+      <param name="filter">The filter expression used to capture messages satisfying the filtering expression value.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(Microsoft.ServiceBus.Messaging.SubscriptionDescription,Microsoft.ServiceBus.Messaging.RuleDescription)">
       <summary>Creates a new subscription in the service namespace with the specified subscription description and rule description.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> of the newly created subscription.</returns>
@@ -1063,7 +1102,13 @@
       <param name="topicPath">The topic path relative to the service namespace base address.</param>
       <param name="name">The name of the subscription.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.Filter)"></member>
+    <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.Filter)">
+      <summary>Creates a new subscription in the service namespace with the specified topic path, subscription name, and filter expression.</summary>
+      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> of the newly created subscription.</returns>
+      <param name="topicPath">The topic path relative to the service namespace base address.</param>
+      <param name="name">The name of the subscription.</param>
+      <param name="filter">The filter expression used to capture messages satisfying the filtering expression value.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.CreateSubscription(System.String,System.String,Microsoft.ServiceBus.Messaging.RuleDescription)">
       <summary>Creates a new subscription in the service namespace with the specified topic path, subscription name, and rule description.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> of the newly created subscription.</returns>
@@ -1206,12 +1251,13 @@
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetQueue(System.String)">
       <summary>Retrieves a queue from the service namespace.</summary>
-      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.QueueDescription" /> handle to the queue, or null if the queue does not exist in the service namespace.</returns>
+      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.QueueDescription" /> handle to the queue, or a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException" /> exception if the queue does not exist in the service namespace.</returns>
       <param name="path">The path of the queue relative to the service namespace base address.</param>
       <exception cref="T:System.ArgumentException">
         <paramref name="path" /> is empty or null, or <paramref name="path" /> starts or ends with "/".</exception>
       <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.NamespaceManagerSettings" /> class. You may need to increase the value of the <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.OperationTimeout" /> property to avoid this exception if the timeout value is relatively low.</exception>
       <exception cref="T:System.UnauthorizedAccessException">The <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> object does not have sufficient permission to perform this operation. You should check to ensure that your <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> has the correct <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.Credential" /> credentials to perform this operation.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">The queue does not exist in the service namespace.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetQueues">
@@ -1229,9 +1275,10 @@
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetSubscription(System.String,System.String)">
       <summary>Retrieves the topic from the service namespace.</summary>
-      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> handle to the subscription, or null if the subscription does not exist in the service namespace.</returns>
+      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> handle to the subscription, or a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException" /> exception if the subscription does not exist in the service namespace.</returns>
       <param name="topicPath">The path of the topic relative to the service namespace base address.</param>
       <param name="name">The name of the subscription.</param>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">The subscription does not exist in the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetSubscriptions(System.String)">
       <summary>Retrieves an enumerable collection of all subscriptions in the service namespace.</summary>
@@ -1240,12 +1287,13 @@
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetTopic(System.String)">
       <summary>Retrieves the topic from the service namespace.</summary>
-      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.TopicDescription" /> reference to the topic, or null if the topic does not exist in the service namespace.</returns>
+      <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.TopicDescription" /> reference to the topic, or a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException" /> exception if the topic does not exist in the service namespace.</returns>
       <param name="path">The path of the topic relative to the service namespace base address.</param>
       <exception cref="T:System.ArgumentException">
         <paramref name="path" /> is empty or null.</exception>
       <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.NamespaceManagerSettings" /> class. You may need to increase the value of the <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.OperationTimeout" /> property to avoid this exception if the timeout value is relatively low.</exception>
       <exception cref="T:System.UnauthorizedAccessException">The <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> object does not have sufficient permission to perform this operation. You should check to ensure that your <see cref="T:Microsoft.ServiceBus.NamespaceManager" /> has the correct <see cref="P:Microsoft.ServiceBus.NamespaceManagerSettings.Credential" /> credentials to perform this operation.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">The topic does not exist in the service namespace.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.NamespaceManager.GetTopics">
@@ -1453,7 +1501,7 @@
       <returns>Returns a <see cref="T:Microsoft.ServiceBus.OnewayRelayTransportSecurity" /> that indicates the type of transport-level security requirements for an endpoint.</returns>
     </member>
     <member name="T:Microsoft.ServiceBus.NetTcpRelayBinding">
-      <summary>A secure, reliable binding suitable for cross-machine communication.</summary>
+      <summary>Provides a secure, reliable binding suitable for cross-computer communication.</summary>
     </member>
     <member name="M:Microsoft.ServiceBus.NetTcpRelayBinding.#ctor">
       <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.NetTcpRelayBinding" /> class.</summary>
@@ -1531,8 +1579,8 @@
       <exception cref="ConfigurationErrorsException">Did not find the binding element specified by the input configuration name in the configuration.</exception>
     </member>
     <member name="P:Microsoft.ServiceBus.NetTcpRelayBindingBase.ConnectionMode">
-      <summary>Gets or sets the connection mode.</summary>
-      <returns>Returns a <see cref="T:Microsoft.ServiceBus.TcpRelayConnectionMode" /> that contains the connection mode. The default is Relayed.</returns>
+      <summary>Gets or sets the connection mode: <see cref="F:Microsoft.ServiceBus.TcpRelayConnectionMode.Hybrid" /> or <see cref="F:Microsoft.ServiceBus.TcpRelayConnectionMode.Relayed" />.</summary>
+      <returns>Returns a <see cref="T:Microsoft.ServiceBus.TcpRelayConnectionMode" /> that contains the connection mode; either <see cref="F:Microsoft.ServiceBus.TcpRelayConnectionMode.Hybrid" /> or <see cref="F:Microsoft.ServiceBus.TcpRelayConnectionMode.Relayed" />. The default is Relayed.</returns>
     </member>
     <member name="M:Microsoft.ServiceBus.NetTcpRelayBindingBase.CreateBindingElements">
       <summary>Retrieves an ordered collection of binding elements contained in the current binding.</summary>
@@ -1786,7 +1834,9 @@
     <member name="F:Microsoft.ServiceBus.RelayTransportProtectionMode.EndToEnd">
       <summary>Both the service application and client application must have security. </summary>
     </member>
-    <member name="T:Microsoft.ServiceBus.SamlTokenProvider"></member>
+    <member name="T:Microsoft.ServiceBus.SamlTokenProvider">
+      <summary>Provides a set of methods that execute asynchronous SAML token retrieval operations.</summary>
+    </member>
     <member name="M:Microsoft.ServiceBus.SamlTokenProvider.OnBeginGetToken(System.String,System.String,System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Executes the begin get token action.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous operation to get a token.</returns>
@@ -1911,7 +1961,9 @@
     <member name="F:Microsoft.ServiceBus.ServiceRegistrySettings.transportProtectionEnabled">
       <summary>true if transport protection is enabled; otherwise, false. The default value is true.</summary>
     </member>
-    <member name="T:Microsoft.ServiceBus.SharedSecretTokenProvider"></member>
+    <member name="T:Microsoft.ServiceBus.SharedSecretTokenProvider">
+      <summary>Provides methods that return name/value pairs for web token assertions, and that execute asynchronous shared secret token retrieval operations.</summary>
+    </member>
     <member name="M:Microsoft.ServiceBus.SharedSecretTokenProvider.ComputeSimpleWebTokenString(System.String,System.Byte[])">
       <summary>Returns a string of URL encoded name/value pairs for a simple web token assertion using the specified issuer name and issuer secret.</summary>
       <returns>A URL encoded name/value pairs for a simple web token assertion.</returns>
@@ -2081,7 +2133,9 @@
       <param name="writer">An <see cref="T:System.Xml.XmlWriter" /> used to write the SimpleWebSecurityToken or security token.</param>
       <param name="token">The SimpleWebSecurityToken or security token to write.</param>
     </member>
-    <member name="T:Microsoft.ServiceBus.SimpleWebTokenProvider"></member>
+    <member name="T:Microsoft.ServiceBus.SimpleWebTokenProvider">
+      <summary>Provides a set of methods that execute asynchronous simple Web token (SWT) retrieval operations.</summary>
+    </member>
     <member name="M:Microsoft.ServiceBus.SimpleWebTokenProvider.OnBeginGetToken(System.String,System.String,System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Executes the begin get token action.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous operation to get a token.</returns>
@@ -4280,14 +4334,14 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.InvalidOperationException">If the message has not been delivered by ServerBus.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.BrokeredMessage.GetBody``1">
-      <summary>Deserializes the brokered message body into an object of the specified type by using the supplied XmlObjectSerializer with a binary XmlDictionaryReader.</summary>
+      <summary>Deserializes the brokered message body into an object of the specified type by using the <see cref="T:System.Runtime.Serialization.DataContractSerializer" /> with a binary <see cref="T:System.Xml.XmlDictionaryReader" />.</summary>
       <returns>The deserialized object or graph.</returns>
       <typeparam name="T">The type to which the message body will be deserialized.</typeparam>
       <exception cref="T:System.ObjectDisposedException">If the message is in disposed state or the message body stream is already disposed.</exception>
       <exception cref="T:System.InvalidOperationException">If the message contains a null body stream or the body stream contains no data or the message body has already been consumed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.BrokeredMessage.GetBody``1(System.Runtime.Serialization.XmlObjectSerializer)">
-      <summary>Deserializes the brokered message body into an object of the specified type by using the supplied XmlObjectSerializer with a binary XmlObjectSerializer.</summary>
+      <summary>Deserializes the brokered message body into an object of the specified type by using the supplied <see cref="T:System.Runtime.Serialization.XmlObjectSerializer" />.</summary>
       <returns>The deserialized object or graph.</returns>
       <param name="serializer">The serializer object.</param>
       <typeparam name="T">The generic type parameter.</typeparam>
@@ -4334,7 +4388,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.ObjectDisposedException">Thrown if the message is in disposed state.</exception>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.BrokeredMessage.ScheduledEnqueueTimeUtc">
-      <summary>Gets or sets the date and time in UTC at which the message will be enqueued.</summary>
+      <summary>Gets or sets the date and time in UTC at which the message will be enqueued. This property returns the time in UTC; when setting the property, the supplied DateTime value must also be in UTC.</summary>
       <returns>The scheduled enqueue time in UTC. This value is for delayed message sending. It is utilized to delay messages sending to a specific time in the future.</returns>
       <exception cref="T:System.ObjectDisposedException">Thrown if the message is in disposed state.</exception>
       <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the passed in value is DateTime.MaxValue.</exception>
@@ -4368,7 +4422,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="writer">The XmlWriter stream to which the object is serialized.</param>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.BrokeredMessage.TimeToLive">
-      <summary>Gets or sets the message’s time to live value.</summary>
+      <summary>Gets or sets the message’s time to live value. This is the duration after which the message expires, starting from when the message is sent to the Service Bus. Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.</summary>
       <returns>The message’s time to live value.</returns>
       <exception cref="T:System.ObjectDisposedException">Thrown if the message is in disposed state.</exception>
       <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the passed in value is less than or equal to TimeSpan.Zero.</exception>
@@ -4480,7 +4534,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>The copy of the current instance of brokered message.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.BrokeredMessageProperty.TimeToLive">
-      <summary>Gets or sets the message’s time to live value.</summary>
+      <summary>Gets or sets the message’s time to live value. This is the duration after which the message expires, starting from when the message is sent to the Service Bus.Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.</summary>
       <returns>The message’s time to live value.</returns>
       <exception cref="T:System.ObjectDisposedException">If the message is in disposed state.</exception>
       <exception cref="T:System.ArgumentOutOfRangeException">If the passed in value is less than or equal to TimeSpan.Zero.</exception>
@@ -4972,7 +5026,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.TimeoutException">Thrown when operation times out.</exception>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.MessageSender">
-      <summary>The <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> class is used to send messages from the AppFabric Service Bus.</summary>
+      <summary>The <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> class is used to send messages from the Service Bus. Although you can use the <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" /> class to send and receive messages without creating a <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> object, you can also use <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> and <see cref="T:Microsoft.ServiceBus.Messaging.MessageReceiver" /> to create a sender and receiver on an entity without knowing whether it is a topic or a queue.</summary>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.MessageSender.BatchFlushInterval">
       <summary>Gets the batch flush interval.</summary>
@@ -4997,7 +5051,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="result">A <see cref="T:System.IAsyncResult" /> that references the <see cref="M:Microsoft.ServiceBus.Messaging.MessageSender.Send(Microsoft.ServiceBus.Messaging.BrokeredMessage)" /> method.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSender.OnBeginSend(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage},System.TimeSpan,System.AsyncCallback,System.Object)">
-      <summary>Allows concrete implementations to define what should be done when sending messages.</summary>
+      <summary>Allows concrete implementations to define what should be done when sending messages. This method cannot be implemented in a concrete class by the user.</summary>
       <returns>A <see cref="T:System.IAsyncResult" /> for the operation.</returns>
       <param name="trackingContext">The context of the tracking.</param>
       <param name="messages">A list of <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> objects to be sent.</param>
@@ -5006,7 +5060,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="state">The state to be passed to the callback when the operation completes.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSender.OnEndSend(System.IAsyncResult)">
-      <summary>Executes the end send action.</summary>
+      <summary>Executes the end send action. This method cannot be implemented in a concrete class by the user.</summary>
       <param name="result">The <see cref="T:System.IAsyncResult" /> object created from a call to <see cref="M:Microsoft.ServiceBus.Messaging.MessageSender.OnBeginSend(System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage},System.TimeSpan,System.AsyncCallback,System.Object)" /> method.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSender.OnSend(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage},System.TimeSpan)">
@@ -5023,12 +5077,24 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Sends the specified brokered message.</summary>
       <param name="message">The brokered message to send.</param>
       <exception cref="T:System.TimeoutException">Thrown when operation times out. Timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" />. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
+      <exception cref="T:System.ArgumentException">Thrown when <paramref name="message" /> is null.</exception>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.MessageSession">
       <summary>Represents a message session that allows grouping of related messages for processing in a single transaction.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.BeginGetState(System.AsyncCallback,System.Object)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.BeginSetState(System.IO.Stream,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.BeginGetState(System.AsyncCallback,System.Object)">
+      <summary>Begins an asynchronous operation to set the state of the message session.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to get the state of the message session.</returns>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains state information about the asynchronous operation.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.BeginSetState(System.IO.Stream,System.AsyncCallback,System.Object)">
+      <summary>Begins an asynchronous operation to set the state of the message session.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to get the state of the message session.</returns>
+      <param name="stream">The time span interval the get operation waits before it times out.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains state information about the asynchronous operation.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.EndGetState(System.IAsyncResult)">
       <summary>Ends an asynchronous operation to get the state of the message session.</summary>
       <returns>The stream from which the state information is persisted.</returns>
@@ -5042,7 +5108,12 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Gets the state of the message session.</summary>
       <returns>The stream from which the state information is persisted.</returns>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnAbandon(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnAbandon(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)">
+      <summary>Abandons the message.</summary>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="lockTokens">The lock tokens of the <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> collection. This is only available when a message is received in peek-lock mode. The lock token is used internally to complete or abandon a message.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnAbort">
       <summary>Aborts the message session. </summary>
     </member>
@@ -5133,9 +5204,26 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnComplete(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnDeadLetter(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.String,System.String,System.TimeSpan)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnDefer(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnComplete(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)">
+      <summary>Completes the message receive operation.</summary>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="lockTokens">The collection of lock tokens bound to the locked message instances.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnDeadLetter(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.String,System.String,System.TimeSpan)">
+      <summary>Deadletters a message.</summary>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="lockTokens">The collection of lock tokens bound to the locked message instances.</param>
+      <param name="deadLetterReason">The reason for deadlettering the messages.</param>
+      <param name="deadLetterErrorDescription">The error description for deadlettering the messages.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnDefer(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Guid},System.TimeSpan)">
+      <summary>Defers the delivery of a message.</summary>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="lockTokens">The collection of lock tokens bound to the locked message instances.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnEndAbandon(System.IAsyncResult)">
       <summary>Ends an asynchronous operation to abandon the message and relinquish its lock.</summary>
       <param name="result">An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to abandon the messages and relinquish its lock.</param>
@@ -5187,8 +5275,22 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="stream">The stream to which the state information is persisted.</param>
       <param name="timeout">The time span interval the set operation waits before it times out.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnTryReceive(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Int64},System.TimeSpan,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage}@)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnTryReceive(Microsoft.ServiceBus.Tracing.TrackingContext,System.Int32,System.TimeSpan,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage}@)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnTryReceive(Microsoft.ServiceBus.Tracing.TrackingContext,System.Collections.Generic.IEnumerable{System.Int64},System.TimeSpan,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage}@)">
+      <summary>Attempts a message receive operation.</summary>
+      <returns>true if the receive operation was successful; otherwise, false.</returns>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="receipts">The collection of unique numbers assigned to messages by the Service Bus.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+      <param name="messages">A collection of <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> objects.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessageSession.OnTryReceive(Microsoft.ServiceBus.Tracing.TrackingContext,System.Int32,System.TimeSpan,System.Collections.Generic.IEnumerable{Microsoft.ServiceBus.Messaging.BrokeredMessage}@)">
+      <summary>Attempts a message receive operation.</summary>
+      <returns>true if the receive operation was successful; otherwise, false.</returns>
+      <param name="trackingContext">The context information associated by a transaction tracking this operation.</param>
+      <param name="messageCount">The number of messages to try to receive.</param>
+      <param name="timeout">The time span interval the operation waits before it times out.</param>
+      <param name="messages">A collection of <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> objects.</param>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.MessageSession.Path">
       <summary>Gets the path of the queue or topic, relative to the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> base address.</summary>
       <returns>A string representing the path of the queue or topic.</returns>
@@ -5278,6 +5380,10 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Populates the serialization information with data about the exception.</summary>
       <param name="info">The serialized object data about the exception being thrown.</param>
       <param name="context">The contextual information about the source or destinations.</param>
+    </member>
+    <member name="P:Microsoft.ServiceBus.Messaging.MessagingException.IsTransient">
+      <summary>Gets a value indicating whether the exception is transient.</summary>
+      <returns>True if the exception is transient; otherwise, false.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.MessagingException.Timestamp">
       <summary>Gets or sets the time at which the messaging exception occurred.</summary>
@@ -5370,6 +5476,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
         <paramref name="address" /> is empty or null.</exception>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="credential" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.BeginCreate(System.String,Microsoft.ServiceBus.TokenProvider,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous request to create a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
@@ -5378,6 +5486,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="tokenProvider">The token provider.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-provided object that contains information about the create operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.Messaging.MessagingFactory.EndCreate(System.IAsyncResult)" /> delegate when the operation is complete.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.BeginCreate(System.Uri,Microsoft.ServiceBus.Messaging.MessagingFactorySettings,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous request to create a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
@@ -5390,6 +5500,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
         <paramref name="address" /> is empty or null.</exception>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="credential" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.BeginCreate(System.Uri,Microsoft.ServiceBus.TokenProvider,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous request to create a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
@@ -5398,6 +5510,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="tokenProvider">The token provider.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-provided object that contains information about the create operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.Messaging.MessagingFactory.EndCreate(System.IAsyncResult)" /> delegate when the operation is complete.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.BeginCreateMessageReceiver(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.AsyncCallback,System.Object)">
       <summary>Begins a create message receiver.</summary>
@@ -5421,19 +5535,29 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="callback">The callback.</param>
       <param name="state">The state.</param>
     </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.Create">
+      <summary>Creates a new messaging factory object.</summary>
+      <returns>The newly created <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</returns>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.Create(System.String,Microsoft.ServiceBus.Messaging.MessagingFactorySettings)">
       <summary>Creates a new <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
       <returns>The newly created <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</returns>
-      <param name="address">The base address of the namespace.</param>
+      <param name="address">The base address of the service namespace.</param>
       <param name="factorySettings">The <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> settings.</param>
-      <exception cref="T:System.UriFormatException">Thrown when <paramref name="address" /> is empty or null.</exception>
-      <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="factorySettings" /> is null.</exception>
+      <exception cref="T:System.UriFormatException">Thrown when <paramref name="address" /> is empty.</exception>
+      <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="factorySettings" /> or <paramref name="address" /> are null.</exception>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.Create(System.String,Microsoft.ServiceBus.TokenProvider)">
       <summary>Creates a new <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
       <returns>The newly created <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</returns>
       <param name="address">The base address of the namespace.</param>
       <param name="tokenProvider">The token provider.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
+      <exception cref="T:System.UriFormatException">Thrown when <paramref name="address" /> is empty.</exception>
+      <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="tokenProvider" /> or <paramref name="address" /> are null.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.Create(System.Uri,Microsoft.ServiceBus.Messaging.MessagingFactorySettings)">
       <summary>Creates a new <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
@@ -5441,12 +5565,22 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="address">The namespace base address.</param>
       <param name="factorySettings">The <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> settings.</param>
       <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="address" /> or <paramref name="factorySettings" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.Create(System.Uri,Microsoft.ServiceBus.TokenProvider)">
       <summary>Creates a new <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
       <returns>The newly created <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</returns>
       <param name="address">The base address of the namespace.</param>
       <param name="tokenProvider">The token provider.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="address" /> contains a path appended to the full address of the service namespace.</exception>
+      <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="tokenProvider" /> or <paramref name="address" /> are null.</exception>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateFromConnectionString(System.String)">
+      <summary>Creates a new <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object from a connection string.</summary>
+      <returns>The newly created <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</returns>
+      <param name="connectionString">The connection string.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateMessageReceiver(System.String)">
       <summary>Creates a message receiver.</summary>
@@ -5474,12 +5608,20 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
         <paramref name="path" /> length is greater than <see cref="F:Microsoft.ServiceBus.Messaging.Constants.TopicNameMaximumLength" />.</exception>
       <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> object. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
+      <exception cref="T:System.ObjectDisposedException">The factory has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateQueueClient(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
       <summary>Creates a new queue client.</summary>
       <returns>The newly created queue client.</returns>
       <param name="path">The path of the queue relative to the service namespace base address.</param>
       <param name="receiveMode">The receive mode.</param>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="path" /> is null or empty.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+        <paramref name="path" /> length is greater than <see cref="F:Microsoft.ServiceBus.Messaging.Constants.TopicNameMaximumLength" />.</exception>
+      <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> object. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
+      <exception cref="T:System.ObjectDisposedException">The factory has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateSubscriptionClient(System.String,System.String)">
       <summary>Creates a subscription client.</summary>
@@ -5490,6 +5632,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.ArgumentOutOfRangeException">The length of <paramref name="topicPath" /> is greater than <see cref="F:Microsoft.ServiceBus.Messaging.Constants.TopicNameMaximumLength" />.</exception>
       <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> object. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
+      <exception cref="T:System.ObjectDisposedException">The factory has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateSubscriptionClient(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
       <summary>Creates a new subscription client.</summary>
@@ -5497,6 +5640,11 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="topicPath">The topic path relative to the service namespace.</param>
       <param name="name">The name of the subscription.</param>
       <param name="receiveMode">The receive mode.</param>
+      <exception cref="T:System.ArgumentException">The supplied <paramref name="topicPath" /> is null or empty.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">The length of <paramref name="topicPath" /> is greater than <see cref="F:Microsoft.ServiceBus.Messaging.Constants.TopicNameMaximumLength" />.</exception>
+      <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> object. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
+      <exception cref="T:System.ObjectDisposedException">The factory has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.CreateTopicClient(System.String)">
       <summary>Creates a new topic client.</summary>
@@ -5505,6 +5653,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.ArgumentNullException">The supplied <paramref name="path" /> is null.</exception>
       <exception cref="T:System.TimeoutException">The operation times out. The timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> object. You may need to increase the value of <see cref="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if the timeout value is relatively low.</exception>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">An internal error or unexpected exception occurs.</exception>
+      <exception cref="T:System.ObjectDisposedException">The factory has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.EndCreate(System.IAsyncResult)">
       <summary>Ends an asynchronous request to create a <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactory" /> object.</summary>
@@ -5528,8 +5677,24 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnAbort">
       <summary>Executes the abort action.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnAcceptSessionReceiver(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginAcceptSessionReceiver(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnAcceptSessionReceiver(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan)">
+      <summary>Executes the accept session receiver action.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous accept session receiver action.</returns>
+      <param name="entityName">The name of the entity.</param>
+      <param name="sessionId">The session identifier.</param>
+      <param name="receiveMode">The message receive mode.</param>
+      <param name="timeout">The wait time before the operation times out.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginAcceptSessionReceiver(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan,System.AsyncCallback,System.Object)">
+      <summary>Executes the begin accept session receiver action.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous accept session receiver action.</returns>
+      <param name="entityName">The name of the entity.</param>
+      <param name="sessionId">The session identifier.</param>
+      <param name="receiveMode">The message receive mode.</param>
+      <param name="timeout">The wait time before the operation times out.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains information about the receive operation.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginClose(System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Executes the begin close action.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous close action.</returns>
@@ -5537,7 +5702,15 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="callback">The callback.</param>
       <param name="state">The state.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginCreateMessageReceiver(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginCreateMessageReceiver(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan,System.AsyncCallback,System.Object)">
+      <summary>Executes the begin create message receiver action.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous create message receiver action.</returns>
+      <param name="entityName">The name of the entity.</param>
+      <param name="receiveMode">The message receive mode.</param>
+      <param name="timeout">The wait time before the operation times out.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains information about the receive operation.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnBeginCreateMessageSender(System.String,System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Executes the begin create message sender action.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous create message sender action.</returns>
@@ -5550,7 +5723,13 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Executes the close action.</summary>
       <param name="timeout">The timeout.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnCreateMessageReceiver(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnCreateMessageReceiver(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode,System.TimeSpan)">
+      <summary>Executes the create message receiver action.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous create message receiver action.</returns>
+      <param name="entityName">The name of the entity.</param>
+      <param name="receiveMode">The message receive mode.</param>
+      <param name="timeout">The timeout.</param>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactory.OnCreateMessageSender(System.String,System.TimeSpan)">
       <summary>Executes the create message sender action.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> object that references the asynchronous create message sender action.</returns>
@@ -5604,13 +5783,26 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> class with the specified messaging factory settings for cloning.</summary>
       <param name="other">The specified messaging factory settings.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.Clone"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.Clone">
+      <summary>Creates a copy of <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" />.</summary>
+      <returns>A created copy of <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" />.</returns>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.NetMessagingTransportSettings">
       <summary>Gets or sets the transport settings required for the net messaging.</summary>
       <returns>The transport settings required for the net messaging.</returns>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OnBeginCreateFactory(System.Uri,System.AsyncCallback,System.Object)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OnEndCreateFactory(System.IAsyncResult)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OnBeginCreateFactory(System.Uri,System.AsyncCallback,System.Object)">
+      <summary>Executes the begin create factory action.</summary>
+      <returns>The executed action.</returns>
+      <param name="uri">The uniform resource identifier.</param>
+      <param name="callback">The asynchronous callback.</param>
+      <param name="state">The state.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OnEndCreateFactory(System.IAsyncResult)">
+      <summary>Executes the end create factory action.</summary>
+      <returns>The result of the execution.</returns>
+      <param name="result">The result of the execution.</param>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout">
       <summary>Gets or sets the <see cref="T:System.TimeSpan" /> that specifies how long the messaging operation has to complete before timing out.</summary>
       <returns>The <see cref="T:System.TimeSpan" /> that specifies how long the messaging operation has to complete before timing out. The default value is one minute.</returns>
@@ -5733,7 +5925,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="T:Microsoft.ServiceBus.Messaging.NetMessagingTransportSettings">
       <summary>Represents .NET messaging transport settings.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.NetMessagingTransportSettings.#ctor"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.NetMessagingTransportSettings.#ctor">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.NetMessagingTransportSettings" /> class.</summary>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.NetMessagingTransportSettings.BatchFlushInterval">
       <summary>Gets or sets the batch flush interval.</summary>
       <returns>The batch flush interval.</returns>
@@ -5755,31 +5949,45 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="innerException">The inner exception that is the cause of the current exception.</param>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.QueueClient">
-      <summary>Represents the queue client object. </summary>
+      <summary>Represents the queue client object.</summary>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Abandon(System.Guid)">
       <summary>Discards the message and relinquishes the message lock ownership.</summary>
       <param name="lockToken">The lock token bound to the locked message instance to abandon.</param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.AcceptMessageSession">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.AcceptMessageSession(System.String)">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the given session identifier.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="sessionId">The session identifier of the message session.</param>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.AcceptMessageSession(System.String,System.TimeSpan)">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the given session identifier and wait time.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="sessionId">The session identifier of the message session.</param>
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="serverWaitTime" /> is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.AcceptMessageSession(System.TimeSpan)">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the specified server wait time.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="serverWaitTime" /> is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginAbandon(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to abandon the message and relinquish its lock.</summary>
@@ -5793,6 +6001,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to accept a message session.</returns>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginAcceptMessageSession(System.String,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -5800,6 +6010,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="sessionId">The session identifier of the message session.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginAcceptMessageSession(System.String,System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -5808,6 +6021,10 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="serverWaitTime" /> is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginAcceptMessageSession(System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -5815,6 +6032,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="serverWaitTime" /> is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginComplete(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to complete processing of a message.</summary>
@@ -5822,6 +6042,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginDeadLetter(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to move a message to the dead letter queue.</summary>
@@ -5829,6 +6052,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginDeadLetter(System.Guid,System.String,System.String,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to move a message to the dead letter queue.</summary>
@@ -5838,6 +6064,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="deadLetterErrorDescription">The error description for deadlettering the message.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginDefer(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to suspend processing of a message.</summary>
@@ -5845,12 +6074,16 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.ServiceBusMessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginReceive(System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to receive a message.</returns>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginReceive(System.Int64,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
@@ -5858,6 +6091,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="sequenceNumber">The unique number assigned to a message by the Service Bus.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginReceive(System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
@@ -5865,6 +6099,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.BeginSend(Microsoft.ServiceBus.Messaging.BrokeredMessage,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to send a message.</summary>
@@ -5872,24 +6108,65 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="message">The message to send.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
+      <exception cref="T:System.TimeoutException">Thrown when operation times out. Timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> may need to increase the value of <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if timeout value is relatively low. </exception>
+      <exception cref="T:System.ArgumentException">Thrown when the <paramref name="BrokeredMessage" /> is null.</exception>
+      <exception cref="T:System.InvalidOperationException">Thrown if the  <paramref name="message" /> has already been sent by a QueueClient or <see cref="T:Microsoft.ConnectedServices.Sdk.Client.MessageSender" /> once already.</exception>
+      <exception cref="T:System.NotSupportedException">Thrown if the topic/subscription we are point to does not support the send operation. That is, Deadletter queue does not support send operations.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Complete(System.Guid)">
       <summary>Completes processing of a message.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by  <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /></exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Create(System.String)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" /> with specified path.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" />.</returns>
+      <param name="path">The path.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Create(System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" /> with specified path and mode.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" />.</returns>
+      <param name="path">The path.</param>
+      <param name="mode">The mode.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.CreateFromConnectionString(System.String,System.String)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" /> from connection string with specified path.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" />.</returns>
+      <param name="connectionString">The connection string used.</param>
+      <param name="path">The path.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.CreateFromConnectionString(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" /> from connection string with specified path and mode.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.QueueClient" />.</returns>
+      <param name="connectionString">The connection string.</param>
+      <param name="path">The path.</param>
+      <param name="mode">The mode.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.DeadLetter(System.Guid)">
       <summary>Moves the undelivered message to the dead letter queue.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by  <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /></exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.DeadLetter(System.Guid,System.String,System.String)">
       <summary>Moves the undelivered message to the dead letter queue.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="deadLetterReason">The reason for deadlettering the message.</param>
       <param name="deadLetterErrorDescription">The error description for deadlettering the message.</param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by  <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /></exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Defer(System.Guid)">
       <summary>Suspends the processing of a message.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by  <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /></exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by the <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.EndAbandon(System.IAsyncResult)">
       <summary>Finishes an asynchronous operation to abandon the message and relinquish its lock.</summary>
@@ -6022,36 +6299,56 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Receive">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
-      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
+      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> that represents the received message. If no message is available to be received, the method returns NULL, and you can retry the operation at a later time.</returns>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the message receive operation times out.</exception>
+      <exception cref="T:System.UnauthorizedAccessException">Thrown if an I/O or security error occurs.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">Thrown if the messaging entity associated with the operation does not exist or it has been deleted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">Thrown if the user code has performed some unexpected operations, or the Service Bus gateway is down. Check the exception message for the actual error.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Receive(System.Int64)">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
-      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
-      <param name="sequenceNumber">The sequence number of the message to receive.</param>
+      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> that represents the received message. If no message is available to be received, the method returns NULL, and you can retry the operation at a later time.</returns>
+      <param name="sequenceNumber">The sequence number of the deferred message to receive. </param>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Receive(System.TimeSpan)">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
-      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
+      <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> that represents the received message. If no message is available to be received, the method returns NULL, and you can retry the operation at a later time.</returns>
       <param name="serverWaitTime">The time span the server waits for receiving a message before it times out.</param>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the message receive operation times out.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.UnauthorizedAccessException">Thrown if an I/O or security error occurs.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">Thrown if the messaging entity associated with the operation does not exist or it has been deleted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingException">Thrown if the user code has performed some unexpected operations, or the Service Bus gateway is down. Check the exception message for the actual error.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.QueueClient.Send(Microsoft.ServiceBus.Messaging.BrokeredMessage)">
       <summary>Sends a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalSender" />.</summary>
       <param name="message">The message to send.</param>
+      <exception cref="T:System.TimeoutException">Thrown when operation times out. Timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" /> may need to increase the value of <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if timeout value is relatively low. </exception>
+      <exception cref="T:System.ArgumentException">Thrown when the <paramref name="BrokeredMessage" /> is null.</exception>
+      <exception cref="T:System.InvalidOperationException">Thrown if the  <paramref name="message" /> has already been sent by a QueueClient or <see cref="T:Microsoft.ConnectedServices.Sdk.Client.MessageSender" /> once already.</exception>
+      <exception cref="T:System.InvalidOperationException">Thrown if the topic/subscription pointed to does not support the send operation. That is, Deadletter queue does not support send operations.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.QueueDescription">
       <summary>Represents the metadata description of the queue.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.QueueDescription.#ctor(System.String)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.QueueDescription.#ctor(System.String)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.QueueDescription" /> class with the specified relative path.</summary>
+      <param name="path">Path of the queue relative to the service namespace base address.</param>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.DefaultMessageTimeToLive">
-      <summary>Gets or sets the default message time to live value.</summary>
+      <summary>Gets or sets the default message time to live value. This is the duration after which the message expires, starting from when the message is sent to the Service Bus. This is the default value used when <see cref="P:Microsoft.ServiceBus.Messaging.BrokeredMessage.TimeToLive" /> is not set on a message itself.Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.</summary>
       <returns>The default message time to live value.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.DuplicateDetectionHistoryTimeWindow">
-      <summary>Gets or sets the time windows for duplication detection history.</summary>
+      <summary>Gets or sets the <see cref="T:System.TimeSpan" /> structure that defines the duration of the duplicate detection history. The default value is 10 minutes.</summary>
       <returns>The <see cref="T:System.TimeSpan" /> structure that represents the time windows for duplication detection history.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.EnableBatchedOperations">
-      <summary>Gets or sets a value that indicates whether the batched operations are enabled.</summary>
+      <summary>Gets or sets a value that indicates whether server-side batched operations are enabled.</summary>
       <returns>true if the batched operations are enabled; otherwise, false.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.EnableDeadLetteringOnMessageExpiration">
@@ -6059,27 +6356,27 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>true if the queue has a dead letter support when a message expires; otherwise, false.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.LockDuration">
-      <summary>Gets or sets the duration of the lock.</summary>
+      <summary>Gets or sets the duration of a peek lock; that is, the amount of time that the message is locked for other receivers. The maximum value for <see cref="P:Microsoft.ServiceBus.Messaging.QueueDescription.LockDuration" /> is 5 minutes; the default value is 1 minute.</summary>
       <returns>The duration of the lock.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.MaxDeliveryCount">
-      <summary>Gets or sets the number of maximum deliveries.</summary>
+      <summary>Gets or sets the maximum delivery count. A message is automatically deadlettered after this number of deliveries.</summary>
       <returns>The number of maximum deliveries.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.MaxSizeInMegabytes">
-      <summary>Gets or sets the maximum size of the queue, in megabytes.</summary>
+      <summary>Gets or sets the maximum size in megabytes, which is the size of memory allocated for the queue.</summary>
       <returns>The maximum size of the queue in megabytes.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.MessageCount">
-      <summary>Gets the number of messages.</summary>
+      <summary>Gets the number of messages in the queue.</summary>
       <returns>The number of messages.</returns>
     </member>
     <member name="F:Microsoft.ServiceBus.Messaging.QueueDescription.MessageTimeToLiveDefaultValue">
       <summary>Specifies the message time to live default value.</summary>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.Path">
-      <summary>Gets the path of the queue description.</summary>
-      <returns>The path of the queue description.</returns>
+      <summary>Gets the name of the queue.</summary>
+      <returns>The name of the queue.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.RequiresDuplicateDetection">
       <summary>Gets or sets the value indicating if this queue requires duplicate detection.</summary>
@@ -6090,8 +6387,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>true if the receiver application can only receive from the queue through a <see cref="T:Microsoft.ServiceBus.Messaging.SessionReceiver" />; false if a queue cannot receive using <see cref="T:Microsoft.ServiceBus.Messaging.SessionReceiver" />.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.QueueDescription.SizeInBytes">
-      <summary>Gets or sets the size in bytes.</summary>
-      <returns>The size in bytes.</returns>
+      <summary>Gets the size of the queue in bytes.</summary>
+      <returns>The size of the queue.</returns>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.QuotaExceededException">
       <summary>The exception that is thrown for signaling quota exceeded errors.</summary>
@@ -6122,12 +6419,18 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>The modified BrokeredMessage after executing the rule action.</returns>
       <param name="message">Input BrokeredMessage.</param>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.RuleAction.Preprocess"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.RuleAction.Preprocess">
+      <summary>Preprocesses the <see cref="T:Microsoft.ServiceBus.Messaging.RuleAction" /> object.</summary>
+      <returns>The preprocessed <see cref="T:Microsoft.ServiceBus.Messaging.RuleAction" /> object.</returns>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.RuleAction.RequiresPreprocessing">
       <summary>Gets a value that indicates whether the rule action requires preprocessing.</summary>
       <returns>true if the rule action requires preprocessing; otherwise, false.</returns>
     </member>
-    <member name="P:Microsoft.ServiceBus.Messaging.RuleAction.System#Runtime#Serialization#IExtensibleDataObject#ExtensionData"></member>
+    <member name="P:Microsoft.ServiceBus.Messaging.RuleAction.System#Runtime#Serialization#IExtensibleDataObject#ExtensionData">
+      <summary>Gets or sets the object that contains extra data.</summary>
+      <returns>The object that contains extra data.</returns>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.RuleAction.Validate">
       <summary>Validates the rule action against the grammar.</summary>
     </member>
@@ -6149,15 +6452,35 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor">
       <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.RuleDescription" /> class with default values.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(Microsoft.ServiceBus.Messaging.Filter)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(System.String)"></member>
-    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(System.String,Microsoft.ServiceBus.Messaging.Filter)"></member>
-    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Action"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(Microsoft.ServiceBus.Messaging.Filter)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.RuleDescription" /> class with the specified filter expression.</summary>
+      <param name="filter">The filter expression used to match messages.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(System.String)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.RuleDescription" /> class with the specified name.</summary>
+      <param name="name">The name of the rule.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.RuleDescription.#ctor(System.String,Microsoft.ServiceBus.Messaging.Filter)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.RuleDescription" /> class with the specified name and filter expression.</summary>
+      <param name="name">The name of the rule.</param>
+      <param name="filter">The filter expression used to match messages.</param>
+    </member>
+    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Action">
+      <summary>Gets or sets the action to perform if the message satisfies the filtering expression.</summary>
+      <returns>The action to perform if the message satisfies the filtering expression.</returns>
+    </member>
     <member name="F:Microsoft.ServiceBus.Messaging.RuleDescription.DefaultRuleName">
       <summary>Specifies the name of the default rule. </summary>
     </member>
-    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Filter"></member>
-    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Name"></member>
+    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Filter">
+      <summary>Gets or sets the filter expression used to match messages.</summary>
+      <returns>The filter expression used to match messages.</returns>
+      <exception cref="T:System.ArgumentNullException">null (Nothing in Visual Basic) is assigned.</exception>
+    </member>
+    <member name="P:Microsoft.ServiceBus.Messaging.RuleDescription.Name">
+      <summary>Gets or sets the name of the rule.</summary>
+      <returns>Returns a<see cref="T:System.String" /> Representing the name of the rule.</returns>
+    </member>
     <member name="T:Microsoft.ServiceBus.Messaging.ServerBusyException">
       <summary>The exception that is thrown when a server is overloaded with logical operations.</summary>
     </member>
@@ -6198,15 +6521,16 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Represents a filter which is a composition of an expression and an action that is executed in the pub/sub pipeline.</summary>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlFilter.#ctor(System.String)">
-      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilterExpression" /> class using the specified SQL expression.</summary>
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilter" /> class using the specified SQL expression.</summary>
+      <param name="sqlExpression">The SQL expression.</param>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SqlFilter.CompatibilityLevel">
       <summary>This property is reserved for future use. An integer value showing the compatibility level, currently hard-coded to 20.</summary>
-      <returns>Returns <see cref="T:System.Int32" />.</returns>
+      <returns>The compatibility level.</returns>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlFilter.Match(Microsoft.ServiceBus.Messaging.BrokeredMessage)">
-      <summary>Matches a message against the current SQL expression.</summary>
-      <returns>true if it matches; otherwise, false.</returns>
+      <summary>Specifies whether a message matches against the current SQL expression.</summary>
+      <returns>truea message matches against the current SQL expression; otherwise, false.</returns>
       <param name="message">The BrokeredMessage.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlFilter.Preprocess">
@@ -6215,7 +6539,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SqlFilter.RequiresPreprocessing">
       <summary>Gets a value indicating whether the SQL filter expression requires preprocessing.</summary>
-      <returns>true if the SQL filter expression requires preprocessing; otherwise, false. Currently returns always true.</returns>
+      <returns>true if the SQL filter expression requires preprocessing; otherwise, false. Currently always returns true.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SqlFilter.SqlExpression">
       <summary>Gets the SQL expression.</summary>
@@ -6228,11 +6552,11 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Represents set of actions written in SQL language-based syntax that is performed against a <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />.</summary>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlRuleAction.#ctor(System.String)">
-      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilterAction" /> class with the specified SQL expression.</summary>
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlRuleAction" /> class with the specified SQL expression.</summary>
       <param name="sqlExpression">The SQL expression.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlRuleAction.#ctor(System.String,System.Int32)">
-      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilterAction" /> class with the specified SQL expression and compatibility level.</summary>
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SqlRuleAction" /> class with the specified SQL expression and compatibility level.</summary>
       <param name="sqlExpression">The SQL expression.</param>
       <param name="compatibilityLevel">Reserved for future use. An integer value showing compatibility level. Currently hard-coded to 20.</param>
     </member>
@@ -6241,27 +6565,27 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>Returns <see cref="T:System.Int32" />.</returns>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlRuleAction.Execute(Microsoft.ServiceBus.Messaging.BrokeredMessage)">
-      <summary>Executes the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilterAction" /> object.</summary>
+      <summary>Executes the <see cref="T:Microsoft.ServiceBus.Messaging.SqlRuleAction" /> object.</summary>
       <returns>The processed <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />.</returns>
-      <param name="message">The BrokeredMessage that will apply the SQLFilterExpression to.</param>
+      <param name="message">The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> to which the <see cref="T:Microsoft.ServiceBus.Messaging.SqlRuleAction" /> will be applied.</param>
       <exception cref="T:System.InvalidOperationException">Thrown when the operation is not valid for the current state.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlRuleAction.Preprocess">
-      <summary>Gets the preprocess.</summary>
-      <returns>The filter action associated with the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilter" />.</returns>
-      <exception cref="T:Microsoft.ServiceBus.Messaging.RuleActionException">Thrown when the filter action statement is invalid or exceeds maximum allowed number of actions.</exception>
+      <summary>Gets the pre-processed <see cref="T:Microsoft.ServiceBus.Messaging.RuleAction" /> expression.</summary>
+      <returns>The preprocessed <see cref="T:Microsoft.ServiceBus.Messaging.RuleAction" /> expression.</returns>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.RuleActionException">Thrown when the rule action statement is invalid or exceeds maximum allowed number of actions.</exception>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SqlRuleAction.RequiresPreprocessing">
-      <summary>Gets a value indicating whether the SqlFilterAction requires preprocessing.</summary>
-      <returns>true if the SqlFilterAction requires preprocessing; otherwise, false.</returns>
+      <summary>Gets a value indicating whether the <see cref="T:Microsoft.ServiceBus.Messaging.SqlRuleAction" /> requires preprocessing.</summary>
+      <returns>true if the SQL rule action requires preprocessing; otherwise, false. Currently always returns true.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SqlRuleAction.SqlExpression">
       <summary>Gets the SQL expression.</summary>
       <returns>The SQL expression.</returns>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SqlRuleAction.Validate">
-      <summary>Validates the <see cref="T:Microsoft.ServiceBus.Messaging.SqlFilter" /> expression against the SQL 92 syntax and rules.</summary>
-      <exception cref="T:Microsoft.ServiceBus.Messaging.RuleActionException">Thrown when the filter action statement is invalid or exceeds maximum allowed number of actions.</exception>
+      <summary>Validates the SQL expression against the SQL 92 syntax and rules.</summary>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.RuleActionException">Thrown when the rule action statement is invalid or exceeds maximum allowed number of actions.</exception>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.SubscriptionClient">
       <summary>The anchor class used in run-time operations related to a topic subscription.</summary>
@@ -6269,8 +6593,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Abandon(System.Guid)">
       <summary>Discards the message and relinquishes the message lock ownership.</summary>
       <param name="lockToken">The lock token bound to the locked message instance to abandon.</param>
-      <exception cref="TimeoutException">Throw if the operation exceeded the timeout value set via <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AcceptMessageSession">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction.</summary>
@@ -6280,55 +6604,65 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the given session identifier.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="sessionId">The session identifier of the message session.</param>
-      <exception cref="ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AcceptMessageSession(System.String,System.TimeSpan)">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the given session identifier and wait time.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="sessionId">The session identifier of the message session.</param>
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
-      <exception cref="ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
-      <exception cref="ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AcceptMessageSession(System.TimeSpan)">
       <summary>Accepts a message session that allows grouping of related messages for processing in a single transaction using the specified server wait time.</summary>
       <returns>A <see cref="T:Microsoft.ServiceBus.Messaging.MessageSession" /> that allows grouping of related messages for processing in a single transaction.</returns>
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
-      <exception cref="ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AddRule(Microsoft.ServiceBus.Messaging.RuleDescription)">
       <summary>Adds a new rule to the <see cref="T:Microsoft.ServiceBus.Messaging.Subscription" /> using the specified rule description.</summary>
       <param name="description">The rule description that provides metadata of the rule to add.</param>
-      <exception cref="ArgumentNullException">Thrown if <paramref name="description" /> is null.</exception>
-      <exception cref="ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
-      <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="description.Name" /> length has exceeded the limit of 50 characters.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="description.Name" /> already existed for this subscription. </exception>
+      <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="description" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="description.Name" /> length has exceeded the limit of 50 characters.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="description.Name" /> already existed for this subscription. </exception>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AddRule(System.String,Microsoft.ServiceBus.Messaging.Filter)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.AddRule(System.String,Microsoft.ServiceBus.Messaging.Filter)">
+      <summary>Adds a rule to the current subscription with the specified name and filter expression.</summary>
+      <param name="ruleName">The name of the rule to add</param>
+      <param name="filter">The filter expression against which messages will be matched.</param>
+      <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="filter" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="ruleName" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="ruleName" /> length has exceeded the limit of 50 characters.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="ruleName" /> already existed for this subscription.</exception>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAbandon(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to abandon the message and relinquish its lock.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to abandon the message and relinquish its lock.</returns>
       <param name="lockToken">The lock token bound to the locked message instance to abandon.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAcceptMessageSession(System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to accept a message session.</returns>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" /></exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /></exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAcceptMessageSession(System.String,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -6336,9 +6670,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="sessionId">The session identifier of the message session.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAcceptMessageSession(System.String,System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -6347,10 +6681,10 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ArgumentException">Thrown if sessionId is null, empty, or white spaces. </exception>
-      <exception cref="ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if sessionId is null, empty, or white spaces. </exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <paramref name="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAcceptMessageSession(System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begin an asynchronous operation to accept a message session.</summary>
@@ -6358,9 +6692,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if serverWaitTime is not a positive TimeSpan value.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="serverWaitTime" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client is already closed, aborted, or disposed.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAddRule(Microsoft.ServiceBus.Messaging.RuleDescription,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to add a new rule to the subscription.</summary>
@@ -6368,23 +6702,36 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="description">The rule description that provides metadata of the rule to add.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ArgumentNullException">Thrown if <paramref name="description" /> is null.</exception>
-      <exception cref="ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
-      <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="description.Name" /> length has exceeded the limit of 50 characters.</exception>
-      <exception cref="TimeoutException">Throw if the operation exceeded the timeout value set via <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="description.Name" /> already existed for this subscription.</exception>
+      <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="description" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="description.Name" /> length has exceeded the limit of 50 characters.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="description.Name" /> already existed for this subscription.</exception>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAddRule(System.String,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginAddRule(System.String,Microsoft.ServiceBus.Messaging.Filter,System.AsyncCallback,System.Object)">
+      <summary>Begins an asynchronous operation to add a new rule to the subscription.</summary>
+      <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to add a new rule to the subscription.</returns>
+      <param name="ruleName">The name of the rule to add.</param>
+      <param name="filter">The filter expression against which messages will be matched.</param>
+      <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
+      <param name="state">A user-defined object that contains state information about the asynchronous operation.</param>
+      <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="filter" /> is null.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="ruleName" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if <paramref name="ruleName" /> length has exceeded the limit of 50 characters.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityAlreadyExistsException">Thrown if the rule with the same name as <paramref name="ruleName" /> already existed for this subscription.</exception>
+    </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginComplete(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to complete processing of a message.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to complete processing of a message.</returns>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set b y <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted. </exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set b y <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted. </exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginDeadLetter(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to move a message to the dead letter queue.</summary>
@@ -6392,9 +6739,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginDeadLetter(System.Guid,System.String,System.String,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to move a message to the dead letter queue.</summary>
@@ -6404,9 +6751,9 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="deadLetterErrorDescription">The error description for deadlettering the message.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginDefer(System.Guid,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to suspend processing of a message.</summary>
@@ -6414,16 +6761,16 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginReceive(System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
       <returns>An <see cref="T:System.IAsyncResult" /> that references the asynchronous operation to receive a message.</returns>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginReceive(System.Int64,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
@@ -6431,7 +6778,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="sequenceNumber">The unique number assigned to a message by the Service Bus.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginReceive(System.TimeSpan,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous operation to receive a message.</summary>
@@ -6439,8 +6786,8 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="serverWaitTime">The time span the server waits for processing messages before it times out.</param>
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
-      <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.BeginRemoveRule(System.String,System.AsyncCallback,System.Object)">
       <summary>Begins an asynchronous remove rule action.</summary>
@@ -6449,39 +6796,67 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains information about the receive operation. This object is passed to the <see cref="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.EndRemoveRule(System.IAsyncResult)" /> delegate when the operation is complete.</param>
       <exception cref="MessagingEntityNotFoundException">Thrown when rule does not exist.</exception>
-      <exception cref="ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
-      <exception cref="TimeoutException">Throw if the operation exceeded the timeout value set via <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.TimeoutException">ThrowN if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Complete(System.Guid)">
       <summary>Completes processing of a message.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Create(System.String,System.String)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" /> with specified name and topic path.</summary>
+      <returns>A new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" />.</returns>
+      <param name="topicPath">The full pathname of the topic.</param>
+      <param name="name">The name of the subscription.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Create(System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" /> with specified name, topic path and mode.</summary>
+      <returns>A new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" />.</returns>
+      <param name="topicPath">The full pathname of the topic.</param>
+      <param name="name">The name of the subscription.</param>
+      <param name="mode">The message receive mode.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.CreateFromConnectionString(System.String,System.String,System.String)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" /> from a connection string with specified topic path and name.</summary>
+      <returns>A new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" />.</returns>
+      <param name="connectionString">The connection string.</param>
+      <param name="topicPath">The full pathname of the topic.</param>
+      <param name="name">The name of the subscription.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.CreateFromConnectionString(System.String,System.String,System.String,Microsoft.ServiceBus.Messaging.ReceiveMode)">
+      <summary>Creates a new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" /> from a connection string with specified topic path, name and mode.</summary>
+      <returns>A new copy of <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionClient" />.</returns>
+      <param name="connectionString">The connection string.</param>
+      <param name="topicPath">The full pathname of the topic.</param>
+      <param name="name">The name of the subscription.</param>
+      <param name="mode">The message receive mode.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.DeadLetter(System.Guid)">
       <summary>Moves the undelivered message to the dead letter queue.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.DeadLetter(System.Guid,System.String,System.String)">
       <summary>Moves the undelivered message to the dead letter queue.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
       <param name="deadLetterReason">The reason for deadlettering the message.</param>
       <param name="deadLetterErrorDescription">The error description for deadlettering the message.</param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Defer(System.Guid)">
       <summary>Suspends the processing of a message.</summary>
       <param name="lockToken">The lock token bound to the locked message instance.</param>
-      <exception cref="TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
-      <exception cref="MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set by <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessageLockLostException">Thrown if the message represented by <paramref name="lockToken" /> has lost the message lock.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.EndAbandon(System.IAsyncResult)">
       <summary>Finishes an asynchronous operation to abandon the message and relinquish its lock.</summary>
@@ -6635,28 +7010,34 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Receive">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">Thrown when the subscription does not exist.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.UnauthorizedAccessException">Thrown if there is an authentication error.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Receive(System.Int64)">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
-      <param name="sequenceNumber">The sequence number of the message to receive.</param>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <param name="sequenceNumber">The sequence number of the deferred message to receive.</param>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.Receive(System.TimeSpan)">
       <summary>Receives a message using the <see cref="P:Microsoft.ServiceBus.Messaging.QueueClient.InternalReceiver" />.</summary>
       <returns>The <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" />  that represents the received message.</returns>
       <param name="serverWaitTime">The time span the server waits for receiving a message before it times out.</param>
-      <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the <paramref name="serverWaitTime" /> is negative.</exception>
+      <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">Thrown when the subscription does not exist.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.UnauthorizedAccessException">Thrown if there is an authentication error.</exception>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionClient.RemoveRule(System.String)">
       <summary>Removes the rule described by <paramref name="ruleName" />.</summary>
       <param name="ruleName">The name of the rule.</param>
       <exception cref="T:Microsoft.ServiceBus.Messaging.MessagingEntityNotFoundException">Thrown when rule does not exist.</exception>
-      <exception cref="ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
-      <exception cref="TimeoutException">Throw if the operation exceeded the timeout value set via <see cref="MessagingFactorySettings.OperationTimeout" />.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ArgumentException">Thrown if <paramref name="description.Name" /> is null, white space empty or not in the right format.</exception>
+      <exception cref="T:System.TimeoutException">Thrown if the operation exceeded the timeout value set via <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" />.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SubscriptionClient.TopicPath">
       <summary>Gets the full pathname of the topic.</summary>
@@ -6665,9 +7046,13 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     <member name="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription">
       <summary>Represents a description of the subscription.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionDescription.#ctor(System.String,System.String)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.SubscriptionDescription.#ctor(System.String,System.String)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.SubscriptionDescription" /> class.</summary>
+      <param name="topicPath">The topic path.</param>
+      <param name="subscriptionName">The subscription name.</param>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SubscriptionDescription.DefaultMessageTimeToLive">
-      <summary>Gets or sets the default message time to live for a subscription.</summary>
+      <summary>Gets or sets the default message time to live value. This is the duration after which the message expires, starting from when the message is sent to the Service Bus. This is the default value used when <see cref="P:Microsoft.ServiceBus.Messaging.BrokeredMessage.TimeToLive" /> is not set on a message itself. Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.</summary>
       <returns>The default message time to live for a subscription.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SubscriptionDescription.EnableBatchedOperations">
@@ -6703,7 +7088,7 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SubscriptionDescription.RequiresSession">
       <summary>Gets or sets the value indicating if a subscription supports the concept of session.</summary>
-      <returns>true if a subscription supports the concept of session; otherwise, false.</returns>
+      <returns>true if the receiver application can only receive from the queue through a <see cref="T:Microsoft.ServiceBus.Messaging.SessionReceiver" />; false if a queue cannot receive using <see cref="T:Microsoft.ServiceBus.Messaging.SessionReceiver" />.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.SubscriptionDescription.TopicPath">
       <summary>Gets the path of the topic that this subscription description belongs to.</summary>
@@ -6719,10 +7104,21 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <param name="callback">An <see cref="T:System.AsyncCallback" /> delegate that references the method to invoke when the operation is complete.</param>
       <param name="state">A user-defined object that contains state information about the asynchronous operation. </param>
       <exception cref="T:System.TimeoutException">Thrown when operation times out. Timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings" />. Youmay need to increase the value of <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if timeout valueis relatively low.</exception>
-      <exception cref="ArgumentException">Thrown when the BrokeredMessage is null.</exception>
-      <exception cref="T:System.InvalidOperationException">Thrown if the <paramref name="message" /> has already been sent by a <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" />or <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> once already.</exception>
-      <exception cref="NotSupportedException">Thrown if the topic/subscription we are point to does not support the send operation. That is, Deadletter topic/subscription does not support send operations.</exception>
-      <exception cref="ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+      <exception cref="T:System.ArgumentException">Thrown when the BrokeredMessage is null.</exception>
+      <exception cref="T:System.InvalidOperationException">Thrown if the <paramref name="message" /> has already been sent by a <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" /> or <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> once already.</exception>
+      <exception cref="T:System.NotSupportedException">Thrown if the Deadletter topic/subscription pointed to does not support the send operation.</exception>
+      <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.TopicClient.Create(System.String)">
+      <summary>Creates a new instance of <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" />.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" />.</returns>
+      <param name="path">The path.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Messaging.TopicClient.CreateFromConnectionString(System.String,System.String)">
+      <summary>Creates a new instance of <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" />using a specified connection string.</summary>
+      <returns>The created <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" />.</returns>
+      <param name="connectionString">The connection string used.</param>
+      <param name="path">The path.</param>
     </member>
     <member name="M:Microsoft.ServiceBus.Messaging.TopicClient.EndSend(System.IAsyncResult)">
       <summary>Finishes an asynchronous operation to send a message.</summary>
@@ -6780,15 +7176,17 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <exception cref="T:System.TimeoutException">Thrown when operation times out. Timeout period is initialized through the <see cref="T:Microsoft.ServiceBus.Messaging.MessagingFactorySettings.OperationTimeout" /> to avoid this exception if timeout value is relatively low.</exception>
       <exception cref="T:System.ArgumentException">Thrown when the <see cref="T:Microsoft.ServiceBus.Messaging.BrokeredMessage" /> is null.</exception>
       <exception cref="T:System.InvalidOperationException">Thrown if the <paramref name="message" /> has already been sent by a <see cref="T:Microsoft.ServiceBus.Messaging.TopicClient" /> or <see cref="T:Microsoft.ServiceBus.Messaging.MessageSender" /> once already.</exception>
-      <exception cref="T:System.NotSupportedException">Thrown if the topic/subscription we are point to does not support the send operation. That is, Deadletter topic/subscription does not support send operations.</exception>
       <exception cref="T:System.ObjectDisposedException">Thrown if the client entity has been closed or aborted.</exception>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.TopicDescription">
       <summary>Represents a description of the topic.</summary>
     </member>
-    <member name="M:Microsoft.ServiceBus.Messaging.TopicDescription.#ctor(System.String)"></member>
+    <member name="M:Microsoft.ServiceBus.Messaging.TopicDescription.#ctor(System.String)">
+      <summary>Initializes a new instance of the <see cref="T:Microsoft.ServiceBus.Messaging.TopicDescription" /> class with the specified relative path.</summary>
+      <param name="path">Path of the topic relative to the service namespace base address.</param>
+    </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.DefaultMessageTimeToLive">
-      <summary>Gets or sets the default message time to live for a topic.</summary>
+      <summary>Gets or sets the default message time to live value for a topic. This is the duration after which the message expires, starting from when the message is sent to the Service Bus. This is the default value used when <see cref="P:Microsoft.ServiceBus.Messaging.BrokeredMessage.TimeToLive" /> is not set on a message itself.Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.</summary>
       <returns>The default message time to live for a topic.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.DuplicateDetectionHistoryTimeWindow">
@@ -6796,26 +7194,26 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <returns>The <see cref="T:System.TimeSpan" /> structure that defines the duration of the duplicate detection history.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.EnableBatchedOperations">
-      <summary>Gets or sets a value that indicates whether the batched operations are enabled.</summary>
+      <summary>Gets or sets a value that indicates whether server-side batched operations are enabled.</summary>
       <returns>true if the batched operations are enabled; otherwise, false.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.MaxSizeInMegabytes">
-      <summary>Gets or sets the maximum size in megabytes.</summary>
+      <summary>Gets or sets the maximum size in megabytes, which is the size of memory allocated for the topic.</summary>
       <returns>The maximum size in megabytes.</returns>
     </member>
     <member name="F:Microsoft.ServiceBus.Messaging.TopicDescription.MessageTimeToLiveDefaultValue">
       <summary>Specifies the message time to live default value.</summary>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.Path">
-      <summary>Gets the path of the topic description.</summary>
-      <returns>The path of the topic description.</returns>
+      <summary>Gets the path of the topic.</summary>
+      <returns>The path of the topic.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.RequiresDuplicateDetection">
       <summary>Gets or sets the value that indicates whether a topic requires duplication detection.</summary>
       <returns>True if a topic requires duplication detection; otherwise, false.</returns>
     </member>
     <member name="P:Microsoft.ServiceBus.Messaging.TopicDescription.SizeInBytes">
-      <summary>Gets or sets the size in bytes.</summary>
+      <summary>Gets the size of the topic in bytes.</summary>
       <returns>The size in bytes.</returns>
     </member>
     <member name="T:Microsoft.ServiceBus.Messaging.TrueFilter">
@@ -6941,6 +7339,11 @@ This mode additionally requires outbound port 819 for the NAT prediction algorit
       <summary>Retrieves the stream of the specified message.</summary>
       <returns>Returns a <see cref="T:System.IO.Stream" /> that contains the stream of the message. A Stream is always returned regardless of whether the Message body is empty.</returns>
       <param name="message">The message.</param>
+    </member>
+    <member name="M:Microsoft.ServiceBus.Web.StreamMessageHelper.GetStream(System.Xml.XmlDictionaryReader)">
+      <summary>Retrieves the stream of the specified message with specified reader.</summary>
+      <returns>The stream of the specified message.</returns>
+      <param name="reader">The reader.</param>
     </member>
     <member name="T:Microsoft.ServiceBus.Web.StreamWriterDelegate">
       <summary>This delegate is used by StreamMessageHelper to write the body of streamed messages.</summary>

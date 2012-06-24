@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2012-05.1.7">
   <Role name="WebSite">
     <Instances count="1" />
     <ConfigurationSettings>

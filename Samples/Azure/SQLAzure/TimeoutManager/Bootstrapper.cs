@@ -1,5 +1,6 @@
 using NServiceBus;
 using NServiceBus.Timeout.Hosting.Azure;
+using NServiceBus.Timeout.Hosting.Windows;
 using StructureMap;
 using Configure = NServiceBus.Configure;
 
@@ -27,7 +28,7 @@ namespace TimeoutManager
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                     .AzureMessageQueue().JsonSerializer()
-               .DefineEndpointName("TimeoutManager")
+               .DefineEndpointName("notused")
                .RunTimeoutManager()
                     .UseAzureTimeoutPersister()
                     .ListenOnAzureStorageQueues()

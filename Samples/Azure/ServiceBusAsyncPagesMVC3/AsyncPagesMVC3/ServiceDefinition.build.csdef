@@ -8,7 +8,7 @@
 
   **********************************************************************************************
 -->
-<ServiceDefinition name="AsyncPagesMVC3" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+<ServiceDefinition name="AsyncPagesMVC3" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-05.1.7">
   <WebRole name="Website" vmsize="Small">
     <Sites>
       <Site name="Web">

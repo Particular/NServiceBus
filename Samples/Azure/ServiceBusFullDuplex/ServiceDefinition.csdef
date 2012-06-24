@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+<ServiceDefinition name="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-05.1.7">
   <WebRole name="OrderWebSite" enableNativeCodeExecution="true">
     <Sites>
       <Site name="Web">
@@ -12,12 +12,9 @@
       <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
-      
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
-
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
     </ConfigurationSettings>
@@ -30,13 +27,10 @@
       <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
-
       <Setting name="AzureProfileConfig.Profiles" />
-      
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
-
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
     </ConfigurationSettings>
