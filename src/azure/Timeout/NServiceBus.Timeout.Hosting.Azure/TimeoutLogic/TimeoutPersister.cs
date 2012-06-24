@@ -36,6 +36,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             if (TryGetTimeoutData(hash, out timeoutDataEntity)) return;
 
             var stateAddress = Serialize(timeout.State, hash);
+            timeout.Id = stateAddress;
 
             context.AddObject(ServiceContext.TimeoutDataEntityTableName,
                                   new TimeoutDataEntity("TimeoutData", stateAddress)
