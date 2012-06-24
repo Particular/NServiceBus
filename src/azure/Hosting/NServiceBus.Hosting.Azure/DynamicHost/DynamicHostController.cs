@@ -21,14 +21,16 @@ namespace NServiceBus.Hosting
         private DynamicHostMonitor monitor;
         private List<EndpointToHost> runningServices;
 
-        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles,IEnumerable<Type> defaultProfiles)
+        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles, IEnumerable<Type> defaultProfiles, string endpointName)
         {
             this.specifier = specifier;
+            Configure.GetEndpointNameAction = (Func<string>)(() => endpointName);
 
             var assembliesToScan = new[] {GetType().Assembly};
 
             profileManager = new ProfileManager(assembliesToScan, specifier, requestedProfiles, defaultProfiles);
             configManager = new ConfigManager(assembliesToScan, specifier);
+
         }
 
         public void Start()
