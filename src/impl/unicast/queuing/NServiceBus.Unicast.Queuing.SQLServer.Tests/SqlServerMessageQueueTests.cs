@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serializers.Binary;
 using NServiceBus.Serializers.XML;
@@ -137,7 +138,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            for(int i = 0; i < 50000; i++)
+            for(int i = 0; i < 500; i++)
             {
                 Send();
             }
@@ -156,21 +157,44 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
             Console.WriteLine("total: " + stopwatch.Elapsed);
         }
 
+        [Test]
+        public void AreEqual()
+        {
+            Init();
+
+            var m1 = CreateNewTransportMessage();
+            _mq.Send(m1, _address);
+            var m2 = _mq.Receive();
+
+            Assert.AreEqual(m1.Body, m2.Body);
+            Assert.AreEqual(m1.CorrelationId, m2.CorrelationId);
+            Assert.AreEqual(m1.Headers, m2.Headers);
+            Assert.AreEqual(m1.Id, m2.Id);
+            Assert.AreEqual(m1.IdForCorrelation, m2.IdForCorrelation);
+            Assert.AreEqual(m1.MessageIntent, m2.MessageIntent);
+            Assert.AreEqual(m1.Recoverable, m2.Recoverable);
+            Assert.AreEqual(m1.ReplyToAddress, m2.ReplyToAddress);
+            Assert.AreEqual(m1.TimeToBeReceived, m2.TimeToBeReceived);
+
+        }
+
         static TransportMessage CreateNewTransportMessage()
         {
             var message = new TransportMessage
                               {
-                                  Id = "Id",
-                                  Body = new byte[100],
-                                  CorrelationId = "CorrelationId",
+                                  Id = Guid.NewGuid().ToString(),
+                                  Body = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) ,
+                                  CorrelationId = Guid.NewGuid().ToString(),
                                   Recoverable = true,
                                   ReplyToAddress = Address.Parse("replyto@address"),
                                   TimeToBeReceived = TimeSpan.FromMinutes(1),
                                   Headers = new Dictionary<string, string>(),
                                   MessageIntent = MessageIntentEnum.Send,
-                                  TimeSent = DateTime.UtcNow,
-                                  IdForCorrelation = "IdForCorrelation"
+                                  IdForCorrelation = Guid.NewGuid().ToString()
                               };
+            
+            message.Headers.Add("TimeSent",DateTime.UtcNow.ToString());
+
             return message;
         }
     }

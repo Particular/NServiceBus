@@ -4,11 +4,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text;
-using NServiceBus.Serializers.Binary;
+
 
 namespace NServiceBus.Unicast.Queuing.SQLServer
 {
+    using Serializers.Binary;
     using Serialization;
+    using Newtonsoft.Json;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
@@ -19,8 +21,8 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
         #region ISendMessages
 
-        private string SQL_SEND = @"INSERT INTO [{0}] ([IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[TimeSent],[Headers],[Body]) 
-                                    VALUES (@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@TimeSent,@Headers,@Body);
+        private string SQL_SEND = @"INSERT INTO [{0}] ([IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body);
 	                                SELECT SCOPE_IDENTITY()";
 
         public void Send(TransportMessage message, Address address)
@@ -45,22 +47,26 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                 var sql = string.Format(SQL_SEND, address); 
                 connection.Open();                
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
-                {                                                                                                                     
-	                command.Parameters.AddWithValue("IdForCorrelation", message.IdForCorrelation); 
-	                command.Parameters.AddWithValue("CorrelationId", message.CorrelationId); 
-	                //command.Parameters.AddWithValue("ReturnAddress", message.ReturnAddress); 
+                {
+                    command.Parameters.Add("IdForCorrelation", SqlDbType.VarChar).Value = GetValue(message.IdForCorrelation);
+                    command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId); 
 	                command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString()); 
 	                command.Parameters.AddWithValue("Recoverable", message.Recoverable); 
 	                command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString()); 
-	                command.Parameters.AddWithValue("TimeToBeReceived", message.TimeToBeReceived.Ticks); 
-	                command.Parameters.AddWithValue("TimeSent", message.TimeSent); 
-	                command.Parameters.AddWithValue("Headers", Newtonsoft.Json.JsonConvert.SerializeObject(message.Headers));
+                    command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks; 
+	                command.Parameters.AddWithValue("Headers", JsonConvert.SerializeObject(message.Headers));
                     command.Parameters.AddWithValue("Body", body); 
 
                     message.Id = command.ExecuteScalar().ToString();
                 }
             }                           
         }
+
+        private object GetValue(object value)
+        {
+            return value ?? DBNull.Value;
+        }
+
         #endregion
 
         #region IReceiveMessages
@@ -70,13 +76,12 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                   BEGIN
                     CREATE TABLE [dbo].[{0}](
 	                    [Id] [int] IDENTITY(1,1) NOT NULL,	                    
-	                    [IdForCorrelation] [varchar](255) NOT NULL,
-	                    [CorrelationId] [varchar](255) NOT NULL,	                    
+	                    [IdForCorrelation] [varchar](255),
+	                    [CorrelationId] [varchar](255),
 	                    [ReplyToAddress] [varchar](255) NOT NULL,
 	                    [Recoverable] [bit] NOT NULL,
 	                    [MessageIntent] [varchar](16) NOT NULL,
-	                    [TimeToBeReceived] [bigint] NOT NULL,
-	                    [TimeSent] [datetime] NOT NULL,
+	                    [TimeToBeReceived] [bigint],	                    
 	                    [Headers] [varchar](8000) NOT NULL,
 	                    [Body] [varchar](max) NOT NULL
                     ) ON [PRIMARY]
@@ -120,18 +125,17 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                                         declare @ReplyToAddress [varchar](255) 
                                         declare @Recoverable [bit]
                                         declare @MessageIntent [varchar](16)
-                                        declare @TimeToBeReceived [bigint]
-                                        declare @TimeSent [datetime]
+                                        declare @TimeToBeReceived [bigint]                                        
                                         declare @Headers [varchar](8000)
                                         declare @Body [varchar](max)
 
-                                        SELECT TOP 1 @NextId=[Id],@IdForCorrelation=IdForCorrelation,@CorrelationId=CorrelationId,@ReplyToAddress=ReplyToAddress,@Recoverable=Recoverable,@MessageIntent=MessageIntent,@TimeToBeReceived=TimeToBeReceived,@TimeSent=TimeSent,@Headers=Headers,@Body=Body
+                                        SELECT TOP 1 @NextId=[Id],@IdForCorrelation=IdForCorrelation,@CorrelationId=CorrelationId,@ReplyToAddress=ReplyToAddress,@Recoverable=Recoverable,@MessageIntent=MessageIntent,@TimeToBeReceived=TimeToBeReceived,@Headers=Headers,@Body=Body
                                         FROM [{0}] WITH (UPDLOCK, READPAST)	                                         
                                         ORDER BY Id ASC;
 
                                         IF (@NextId IS NOT NULL)
                                         BEGIN		
-	                                        SELECT @NextId,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@TimeSent,@Headers,@Body
+	                                        SELECT @NextId,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body
 	                                        DELETE FROM [{0}] WHERE Id = @NextId
                                         END";
         
@@ -148,18 +152,18 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                         if (dataReader.Read())
                         {                                                                                                                                   
                             var id = dataReader.GetInt32(0);
-                            var idForCorrelation = dataReader.GetString(1);
-                            var correlationId = dataReader.GetString(2);
+                            
+                            var idForCorrelation = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                            var correlationId = dataReader.IsDBNull(2) ? null : dataReader.GetString(2);
                             var replyToAddress = Address.Parse(dataReader.GetString(3));
                             var recoverable = dataReader.GetBoolean(4);
 
                             MessageIntentEnum messageIntent;
                             Enum.TryParse(dataReader.GetString(5), out messageIntent);
 
-                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));
-                            var timeSent = dataReader.GetDateTime(7);
-                            var headers = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(dataReader.GetString(8));
-                            var tmpBody = dataReader.GetString(9);
+                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));                            
+                            var headers = JsonConvert.DeserializeObject<Dictionary<string,string>>(dataReader.GetString(7));
+                            var tmpBody = dataReader.GetString(8);
                             
                             byte[] body;
                             
@@ -180,8 +184,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
                                 MessageIntent = messageIntent,
-                                TimeToBeReceived = timeToBeReceived,
-                                TimeSent = timeSent,
+                                TimeToBeReceived = timeToBeReceived,                                
                                 Headers = headers,
                                 Body = body
                             };
