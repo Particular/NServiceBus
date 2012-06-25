@@ -32,6 +32,14 @@ namespace NServiceBus.Unicast.Config
         /// Licensing policy limits on message receiving to maximum of 8 message per second
         /// </summary>
         public const int EightMessagePerSecondThroughput = 8;
+        /// <summary>
+        /// Licensing policy limits on message receiving to maximum of 16 message per second
+        /// </summary>
+        public const int SixteenMessagePerSecondThroughput = 16;
+        /// <summary>
+        /// Licensing policy limits on message receiving to maximum of 8 message per second
+        /// </summary>
+        public const int ThirtyTwotMessagePerSecondThroughput = 32;
 
         internal static int GetMaxThroughputPerSecond()
         {
