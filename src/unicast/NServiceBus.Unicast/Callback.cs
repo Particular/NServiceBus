@@ -107,7 +107,7 @@ namespace NServiceBus.Unicast
             if (synchronizer is SynchronizationContext)
             {
                 (this as ICallback).Register(
-                    ar => (synchronizer as SynchronizationContext).Send(
+                    ar => (synchronizer as SynchronizationContext).Post(
                               x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
                     null
                     );
