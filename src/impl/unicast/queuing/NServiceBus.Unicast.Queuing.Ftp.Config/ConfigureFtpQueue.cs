@@ -1,6 +1,7 @@
 ﻿using System;
 using NServiceBus.Config;
 using NServiceBus.Unicast.Queuing.Ftp;
+using NServiceBus.Unicast.Queuing.Installers;
 
 
 namespace NServiceBus
@@ -22,7 +23,9 @@ namespace NServiceBus
                     ftpQueue.ConfigureProperty(t => t.Password, cfg.Password);
                 }
             }
-            
+
+            EndpointInputQueueCreator.Enabled = true;
+
             return config;
         }
     }

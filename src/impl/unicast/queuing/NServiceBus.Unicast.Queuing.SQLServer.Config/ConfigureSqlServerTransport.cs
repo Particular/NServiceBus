@@ -18,6 +18,9 @@ namespace NServiceBus
             configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.ConnectionString, connectionString);
 
+            configure.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.ConnectionString, connectionString);
+
             configure.IsolationLevel(IsolationLevel.ReadCommitted);
 
             return configure;

@@ -1,5 +1,6 @@
 ﻿using NServiceBus.Config;
 using NServiceBus.ObjectBuilder;
+using NServiceBus.Unicast.Queuing.Installers;
 using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus
@@ -23,9 +24,11 @@ namespace NServiceBus
             Selected = true;
 
             config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
+                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
             config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall);
+
+            config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.SingleInstance);
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 
@@ -37,15 +40,14 @@ namespace NServiceBus
                 useJournalQueue = cfg.UseJournalQueue;
                 useDeadLetterQueue = cfg.UseDeadLetterQueue;
             }
+
             config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, useDeadLetterQueue);
             config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, useJournalQueue);
 
-            EndpointInputQueueInstaller.Enabled = true;
+            EndpointInputQueueCreator.Enabled = true;
             MsmqInfrastructureInstaller.Enabled = true;
 
             return config;
         }
-
-
     }
 }
