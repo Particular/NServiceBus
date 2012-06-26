@@ -50,11 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="IEnvironment.cs" />
     <Compile Include="INeedToInstallInfrastructure.cs" />
     <Compile Include="INeedToInstallSomething.cs" />
     <Compile Include="Install.cs" />
+    <Compile Include="IWantQueuesCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

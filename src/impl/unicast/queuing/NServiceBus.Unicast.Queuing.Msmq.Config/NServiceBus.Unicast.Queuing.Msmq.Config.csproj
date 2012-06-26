@@ -67,9 +67,6 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.Installers">
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Installers.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Utils">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
       <Private>False</Private>
@@ -87,6 +84,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Installers\NServiceBus.Unicast.Queuing.Installers.csproj">
+      <Project>{00601589-0CFA-41B1-9519-C8F784C6B01F}</Project>
+      <Name>NServiceBus.Unicast.Queuing.Installers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Msmq\NServiceBus.Unicast.Queuing.Msmq.csproj">
       <Project>{4D4FA577-EFBD-4DFF-BFFC-2DA1A71F36ED}</Project>
       <Name>NServiceBus.Unicast.Queuing.Msmq</Name>
