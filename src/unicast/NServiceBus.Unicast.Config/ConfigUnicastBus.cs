@@ -144,6 +144,25 @@ namespace NServiceBus.Unicast.Config
         IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
+        /// Decrease throttling message receiving speed.
+        /// </summary>
+        /// <param name="messagesPerSecond"></param>
+        /// <returns></returns>
+        public ConfigUnicastBus DecreaseMaxThroughputPerSecond(int messagesPerSecond)
+        {
+            var licenseMaxThroughputPerSecond = LicenseConfig.GetMaxThroughputPerSecond();
+            if ((licenseMaxThroughputPerSecond == 0) || (messagesPerSecond < licenseMaxThroughputPerSecond))
+            {
+                busConfig.ConfigureProperty(b => b.MaxThroughputPerSecond, messagesPerSecond);
+                Logger.InfoFormat("Message receiving throughput was decreased to: [{0}] message per second", messagesPerSecond);
+                return this;
+            }
+            
+            Logger.ErrorFormat("Decrease your max message throughput to a value lower than [{0}], which is specified in your license.", licenseMaxThroughputPerSecond);
+            return this;
+        }
+        /// <summary>
+        /// 
         /// Loads all message handler assemblies in the runtime directory.
         /// </summary>
         /// <returns></returns>
