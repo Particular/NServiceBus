@@ -2,10 +2,15 @@
 {
     public class ConfigureInternalLog4NetBridge : IWantToRunBeforeConfiguration
     {
+        private static bool isConfigured;
+
         public void Init()
         {
-            log4net.LogManager.ResetConfiguration();
+            if (isConfigured)
+                return;
+            
             log4net.Config.BasicConfigurator.Configure(new Log4NetBridgeAppender());
+            isConfigured = true;
         }
     }
 }
