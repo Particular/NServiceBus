@@ -144,11 +144,11 @@ namespace NServiceBus.Unicast.Config
         IComponentConfig<UnicastBus> busConfig;
 
         /// <summary>
-        /// Decrease throttling message receiving speed.
+        /// Setting throttling message receiving rate.
         /// </summary>
         /// <param name="messagesPerSecond"></param>
         /// <returns></returns>
-        public ConfigUnicastBus DecreaseMaxThroughputPerSecond(int messagesPerSecond)
+        public ConfigUnicastBus MaxThroughputPerSecond(int messagesPerSecond)
         {
             var licenseMaxThroughputPerSecond = LicenseConfig.GetMaxThroughputPerSecond();
             if ((licenseMaxThroughputPerSecond == 0) || (messagesPerSecond < licenseMaxThroughputPerSecond))
