@@ -25,6 +25,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const bool DefaultEnableBatchedOperations = false;
         public const bool DefaultQueuePerInstance = false;
         public const int DefaultBackoffTimeInSeconds = 10;
+        public const int DefaultServerWaitTime = 30;
         
         private bool useTransactions;
         private QueueClient queueClient;
@@ -39,6 +40,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public TimeSpan DuplicateDetectionHistoryTimeWindow { get; set; }
         public int MaxDeliveryCount { get; set; }
         public bool EnableBatchedOperations { get; set; }
+        public int ServerWaitTime { get; set; }
 
         public MessagingFactory Factory { get; set; }
         public NamespaceManager NamespaceClient { get; set; }
@@ -88,7 +90,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             BrokeredMessage message = null;
 
             try{
-                message= queueClient.Receive(TimeSpan.FromSeconds(30));
+                message = queueClient.Receive(TimeSpan.FromSeconds(ServerWaitTime));
             }
             // back off when we're being throttled
             catch (ServerBusyException)

@@ -187,5 +187,18 @@ namespace NServiceBus.Config
                 this["QueuePerInstance"] = value;
             }
         }
+
+        [ConfigurationProperty("ServerWaitTime", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultServerWaitTime)]
+        public int ServerWaitTime
+        {
+            get
+            {
+                return (int)this["ServerWaitTime"];
+            }
+            set
+            {
+                this["ServerWaitTime"] = value;
+            }
+        }
    }
 }
