@@ -97,6 +97,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds)); 
             }
+            catch(TimeoutException)
+            {
+                return null;
+            }
 
             if(message != null)
             {
