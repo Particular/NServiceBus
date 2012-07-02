@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Data.SqlClient;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -41,7 +40,11 @@
 
                     var messageParam = cmd.CreateParameter();
                     messageParam.ParameterName = "@Message";
-                    messageParam.Value = message;
+                    var ms = message as MemoryStream;
+                    if (ms == null)
+                        messageParam.Value = message;
+                    else
+                        messageParam.Value = ms.GetBuffer();
                     cmd.Parameters.Add(messageParam);
 
                     var headersParam = cmd.CreateParameter();
