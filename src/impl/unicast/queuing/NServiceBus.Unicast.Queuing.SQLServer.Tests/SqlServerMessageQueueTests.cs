@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serializers.Binary;
 using NServiceBus.Serializers.XML;
@@ -16,6 +17,8 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
         private MessageMapper _messageMapper;
         private MessageSerializer _binMessageSerializer;
         private SimpleMessageMapper _simpleMessageMapper;
+
+        private const string ConStr = "Server=MIKNOR8540WW7\\sqlexpress;Database=NSB;Trusted_Connection=True;";
 
         [SetUp]
         public void SetUp()
@@ -33,9 +36,12 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 
             _mq = new SqlServerMessageQueue
                       {
-                          ConnectionString = "Server=MIKNOR8540WW7\\sqlexpress;Database=NSB;Trusted_Connection=True;",
+                          ConnectionString = ConStr,
                           MessageSerializer = _xmlMessageSerializer
                       };
+
+            var creator = new SqlServerQueueCreator {ConnectionString = ConStr};
+            creator.CreateQueueIfNecessary(_address, "test");
         }
 
         private readonly Address _address = new Address("send", "testhost");
@@ -96,7 +102,8 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 
         [Test]
         public void ReceiveMany()
-        {
+        {   
+            Init();
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             for (int i = 0; i < 1000; i++)
             {
@@ -123,7 +130,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
         public void All100()
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            for(int i = 0; i < 1000; i++)
+            for(int i = 0; i < 100; i++)
             {
                 All();
             }
@@ -138,7 +145,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            for(int i = 0; i < 500; i++)
+            for(int i = 0; i < 2000; i++)
             {
                 Send();
             }
@@ -147,10 +154,21 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 
             Console.WriteLine("send: " + stopwatch.Elapsed);
 
-            while (_mq.HasMessage())
+            bool moreMessages = true;
+            var threads = new Thread[10];
+
+            for (int i = 0; i < threads.Length; i++ )
             {
-                _mq.Receive();
+                bool more = moreMessages;
+                threads[i] = new Thread(x => { while (more && _mq.HasMessage()) { moreMessages = _mq.Receive() != null; } });
             }
+           
+            foreach (var thread in threads)
+            {
+                thread.Start();
+            }
+
+            while (moreMessages) { }
 
             stopwatch.Stop();
             Console.WriteLine("receive: " + stopwatch.Elapsed.Subtract(send));

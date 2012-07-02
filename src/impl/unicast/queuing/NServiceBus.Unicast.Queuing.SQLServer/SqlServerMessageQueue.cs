@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Text;
 
-
 namespace NServiceBus.Unicast.Queuing.SQLServer
 {
     using Serializers.Binary;
@@ -21,9 +20,12 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
         #region ISendMessages
 
-        private string SQL_SEND = @"INSERT INTO [{0}] ([IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    VALUES (@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body);
-	                                SELECT SCOPE_IDENTITY()";
+        private string SQL_SEND = @" DECLARE @NextId [uniqueidentifier] = NEWID();
+                                     
+                                     INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                     VALUES (@NextId,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body);
+	                                 
+                                     SELECT @NextId";
 
         public void Send(TransportMessage message, Address address)
         {                                   
@@ -77,22 +79,21 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
         private string SQL_PEEK = @"SELECT TOP 1 Id
 	                                FROM [{0}] WITH (UPDLOCK, READPAST)	                                      
-	                                ORDER BY Id ASC";
+	                                ORDER BY TimeStamp ASC";
         public bool HasMessage()
-        {           
+        {            
             using (var connection = new SqlConnection(ConnectionString))
             {
                 var sql = string.Format(SQL_PEEK, currentEndpointName);
                 connection.Open();
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {                                                                            
-                    var value = command.ExecuteScalar();
-                    return value != null && (int)value > 0;
+                    return command.ExecuteScalar() != null;                    
                 }
             }        
         }
 
-        private string SQL_RECEIVE = @" declare @NextId [int]
+        private string SQL_RECEIVE = @" declare @NextId [uniqueidentifier]                                        
                                         declare @IdForCorrelation [varchar](255) 
                                         declare @CorrelationId [varchar](255)                                        
                                         declare @ReplyToAddress [varchar](255) 
@@ -104,7 +105,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
                                         SELECT TOP 1 @NextId=[Id],@IdForCorrelation=IdForCorrelation,@CorrelationId=CorrelationId,@ReplyToAddress=ReplyToAddress,@Recoverable=Recoverable,@MessageIntent=MessageIntent,@TimeToBeReceived=TimeToBeReceived,@Headers=Headers,@Body=Body
                                         FROM [{0}] WITH (UPDLOCK, READPAST)	                                         
-                                        ORDER BY Id ASC;
+                                        ORDER BY TimeStamp ASC;
 
                                         IF (@NextId IS NOT NULL)
                                         BEGIN		
@@ -123,9 +124,9 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                     using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
                     {
                         if (dataReader.Read())
-                        {                                                                                                                                   
-                            var id = dataReader.GetInt32(0);
-                            
+                        {
+                            var id = dataReader.GetGuid(0).ToString();
+
                             var idForCorrelation = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
                             var correlationId = dataReader.IsDBNull(2) ? null : dataReader.GetString(2);
                             var replyToAddress = Address.Parse(dataReader.GetString(3));
@@ -151,7 +152,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
                             var message = new TransportMessage
                             {
-                                Id = id.ToString(),
+                                Id = id,
                                 IdForCorrelation = idForCorrelation,
                                 CorrelationId = correlationId,                                
                                 ReplyToAddress = replyToAddress,
