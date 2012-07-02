@@ -174,14 +174,22 @@ namespace NServiceBus
                 //and the turn the compression off
                 dummyStore.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
-                //and then make sure that the database the user asked for is created
-                dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);
+                try
+                {
+                    //and then make sure that the database the user asked for is created
+                    dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);    
+                }
+                catch (System.Net.WebException)
+                {
+                    //Ignore since this could be running as part of an install
+                }
             }
         }
 
         public static Configure DisableRavenInstall(this Configure config)
         {
             ravenInstallEnabled = false;
+            AutoCreateDatabase = false;
 
             return config;
         }
