@@ -776,7 +776,7 @@ task CreatePackages {
 	#region Packing NServiceBus.Azure
 	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
 	$packit.package_description = "Azure support for NServicebus"
-	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5" } "binaries\NServiceBus.Azure.dll", 
+	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5";"WindowsAzure.Storage"="1.7.0.0" } "binaries\NServiceBus.Azure.dll", 
 	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll" 
 	#endregion	
 	
