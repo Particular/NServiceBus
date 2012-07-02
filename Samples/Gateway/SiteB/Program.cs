@@ -1,4 +1,5 @@
 ﻿using System;
+using NServiceBus.Gateway.Persistence.Sql;
 
 namespace SiteB
 {
@@ -21,6 +22,7 @@ namespace SiteB
                 .UnicastBus()
                 .RunGateway()//this line configures the gateway.
                 .UseInMemoryGatewayPersister() //this tells nservicebus to use Raven to store messages ids for deduplication. If omitted RavenDB will be used by default
+                //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
                 .CreateBus()
                 .Start();
            
