@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using Raven.Client;
 using Raven.Client.Document;
 
@@ -120,6 +119,7 @@ namespace NServiceBus
 
             return config;
         }
+
 
         public static Configure DisableRavenInstall(this Configure config)
         {
