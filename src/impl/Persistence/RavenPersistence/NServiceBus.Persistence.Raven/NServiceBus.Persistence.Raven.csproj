@@ -74,6 +74,7 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureRavenPersistence.cs" />
@@ -157,4 +158,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\..\..\..\tools\Fody\Fody.targets" />
 </Project>
