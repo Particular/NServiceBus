@@ -92,6 +92,7 @@ namespace NServiceBus
 
         private static bool installedInfrastructureInstallers = false;
         private static bool installedOthersInstallers = false;
+        private static bool queuesCreated = false;
 
         /// <summary>
         /// Invokes installers for the given environment
@@ -105,6 +106,19 @@ namespace NServiceBus
             
             if(RunOtherInstallers)            
                 InstallOtherInstallers();
+
+            CreateQueues();
+        }
+
+        private void CreateQueues()
+        {
+            if (queuesCreated)
+                return;
+
+            GetInstallers<T>(typeof(IWantQueuesCreated<>))
+                .ForEach(t => ((IWantQueuesCreated)Configure.Instance.Builder.Build(t)).Create(winIdentity));
+
+            queuesCreated = true;
         }
 
         /// <summary>
@@ -117,6 +131,7 @@ namespace NServiceBus
 
             GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
                 .ForEach(t => ((INeedToInstallInfrastructure)Activator.CreateInstance(t)).Install(winIdentity));
+            
             installedInfrastructureInstallers = true;
         }
 
@@ -130,6 +145,7 @@ namespace NServiceBus
 
             GetInstallers<T>(typeof(INeedToInstallSomething<>))
                 .ForEach(t => ((INeedToInstallSomething)Activator.CreateInstance(t)).Install(winIdentity));
+            
             installedOthersInstallers = true;
         }
 
@@ -137,7 +153,6 @@ namespace NServiceBus
         private static List<Type> GetInstallers<TEnvtype>(Type openGenericInstallType) where TEnvtype : IEnvironment
         {
             var listOfCompatibleTypes = new List<Type>();
-            var listOfInstallers = new List<Type>();
 
             var envType = typeof(TEnvtype);
             while (envType != typeof(object))
@@ -146,12 +161,10 @@ namespace NServiceBus
                 envType = envType.BaseType;
             }
 
-            foreach (var t in Configure.TypesToScan)
-                foreach (var i in listOfCompatibleTypes)
-                    if (i.IsAssignableFrom(t))
-                        listOfInstallers.Add(t);
-
-            return listOfInstallers;
+            return (from t in Configure.TypesToScan 
+                    from i in listOfCompatibleTypes 
+                    where i.IsAssignableFrom(t) 
+                    select t).ToList();
         }
     }
 }

@@ -80,6 +80,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Utils">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
       <Private>False</Private>
@@ -91,7 +94,6 @@
     <Reference Include="System.Messaging" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="StorageQueueInstaller.cs" />
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
