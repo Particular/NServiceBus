@@ -13,6 +13,10 @@ namespace NServiceBus
     {
         public static Configure RavenPersistence(this Configure config)
         {
+            //If it's already configured don't do it again!
+            if (config.Configurer.HasComponent<IDocumentStore>())
+                return config;
+
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
             //use existing config if we can find one
