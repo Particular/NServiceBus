@@ -33,4 +33,3 @@ IF EXIST "%LocalExtensionPath%\NServiceBus\NServiceBus Studio" set nsbstudioinst
 IF %nsbstudioinstalled%==false .\tools\NServiceBusStudio.vsix
 IF %nsbstudioinstalled%==true ECHO NServiceBus studio already installed - Please visit the visual studio gallery to make sure that you have the latest version
 
-

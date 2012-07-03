@@ -12,7 +12,6 @@
 *.PDF	diff=astextplain
 *.rtf	diff=astextplain
 *.RTF	diff=astextplain
-*.txt	diff=astextplain
 
 *.exe	-text -diff
 *.jpg  	-text -diff
@@ -56,6 +55,8 @@
 
 *.psm1 text
 *.ps1 text
+*.txt text eol=crlf
+*.bat text eol=crlf
 
 # Custom for Visual Studio
 *.csproj merge=union

@@ -13,7 +13,7 @@ If you do not wish to release the source of software you build using NServiceBus
 
 http://www.nservicebus.com/EULA.aspx
 
-
+ 
 ============
 = Building =
 ============
@@ -204,4 +204,3 @@ http://www.ayende.com/projects/rhino-mocks.aspx
 Rhino Mocks binaries are merged into NServiceBus allowed under the license terms described here:
 
 http://www.opensource.org/licenses/bsd-license.php
-
