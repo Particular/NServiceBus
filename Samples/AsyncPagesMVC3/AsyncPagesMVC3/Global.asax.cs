@@ -33,7 +33,7 @@ namespace AsyncPagesMVC3
             RegisterRoutes(RouteTable.Routes);
            
             // NServiceBus configuration
-            Configure.WithWeb()
+            Configure.With()
                 .DefaultBuilder()
                 .ForMvc()
                 .JsonSerializer()
