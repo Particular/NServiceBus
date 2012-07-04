@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -301,7 +300,7 @@ namespace NServiceBus.Serializers.XML
                 string prefix = node.Name.Substring(0, colonIndex);
                 string ns = prefixesToNamespaces[prefix];
 
-                typeName = ns.Substring(nameSpace.LastIndexOf("/") + 1) + "." + name;
+                typeName = ns.Substring(ns.LastIndexOf("/") + 1) + "." + name;
             }
 
             if (name.Contains("NServiceBus."))

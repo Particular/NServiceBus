@@ -20,6 +20,17 @@ namespace NServiceBus.Serializers.XML.Test
 
              return serializer;
          }
+
+         public static IMessageSerializer Create(params Type[] types)
+         {
+             var mapper = new MessageMapper();
+             mapper.Initialize(types);
+             var serializer = new XmlMessageSerializer(mapper);
+
+             serializer.Initialize(types);
+
+             return serializer;
+         }
     }
 
     public class ExecuteSerializer

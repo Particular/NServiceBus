@@ -15,6 +15,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Serializers.XML.Test
 {
+    using A;
+    using B;
     [TestFixture]
     public class SerializerTests
     {
@@ -32,47 +34,20 @@ namespace NServiceBus.Serializers.XML.Test
 
             CollectionAssert.AreEqual(expected, result.GenericDictionary);
         }
-
-        [Test, Ignore("Not supported")]
-        public void Should_deserialize_arraylist()
-        {
-            var expected = new ArrayList
-                               {
-                                   "Value1",
-                                   "Value2",
-                                   "Value3",
-                               };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.ArrayList = expected);
-
-            CollectionAssert.AreEqual(expected, result.ArrayList);
-        }
-
-        [Test, Ignore("Not supported")]
-        public void Should_deserialize_hashtable()
-        {
-            var expected = new Hashtable
-                               {
-                                   {"Key1", "Value1"},
-                                   {"Key2", "Value2"},
-                                   {"Key3", "Value3"},
-                               };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.Hashtable = expected);
-
-            CollectionAssert.AreEqual(expected, result.Hashtable);
-        }
-
         [Test]
-        public void Should_deserialize_list()
+        public void Should_deserialize_multiple_messages_from_different_namespaces()
         {
-            var expected = new List<string>
-                               {
-                                   "Value1",
-                                   "Value2",
-                                   "Value3",
-                               };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.GenericList = expected);
+            using (var stream = new MemoryStream())
+            {
+                SerializerFactory.Create(typeof(Command1), typeof(Command2)).Serialize(new object[] { new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid()) }, stream);
+                stream.Position = 0;
 
-            CollectionAssert.AreEqual(expected, result.GenericList);
+                var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream);
+
+                Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
+                Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
+
+            }    
         }
 
         [Test]
