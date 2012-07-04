@@ -16,12 +16,30 @@ using NUnit.Framework;
 namespace NServiceBus.Serializers.XML.Test
 {
     using System.Net.Mail;
+    using A;
+    using B;
 
     [TestFixture]
     public class SerializerTests
     {
         private int number = 1;
         private int numberOfIterations = 100;
+
+        [Test]
+        public void Should_deserialize_multiple_messages_from_different_namespaces()
+        {
+            using (var stream = new MemoryStream())
+            {
+                SerializerFactory.Create(typeof(Command1), typeof(Command2)).Serialize(new object[] { new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid()) }, stream);
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream);
+
+                Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
+                Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
+
+            }    
+        }
 
         [Test]
         public void TestMultipleInterfacesDuplicatedPropery()
