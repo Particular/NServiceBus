@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
     using Installation;
     using Utils;
 
-    class MsmqInfrastructureInstaller : INeedToInstallInfrastructure<Installation.Environments.Windows>,IWantToRunBeforeConfiguration
+    public class MsmqInfrastructureInstaller : INeedToInstallInfrastructure<Installation.Environments.Windows>
     {
         static MsmqInfrastructureInstaller()
         {
@@ -19,11 +19,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
                 return;
 
             MsmqInstallation.StartMsmqIfNecessary();
-        }
-
-        public void Init()
-        {
-            Enabled = false; //disabled by default when running in a endpoint
         }
     }
 }
