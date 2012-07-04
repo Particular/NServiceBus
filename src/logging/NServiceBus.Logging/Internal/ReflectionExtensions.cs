@@ -30,9 +30,13 @@ namespace NServiceBus.Logging.Internal
                 .InvokeMember(propertyName, BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Static, null, null, new[] { val });
         }
 
-        public static object GetStaticField(this Type type, string fieldName)
+        public static object GetStaticField(this Type type, string fieldName, bool ignoreCase = false)
         {
-            return type.InvokeMember(fieldName, BindingFlags.GetField | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            var bindingFlags = BindingFlags.GetField | BindingFlags.Public | BindingFlags.Static;
+            if (ignoreCase)
+                bindingFlags |= BindingFlags.IgnoreCase;
+
+            return type.InvokeMember(fieldName, bindingFlags, null, null, null);
         }
 
         public static object InvokeMethod(this object instance, string methodName, params object[] args)

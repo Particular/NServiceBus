@@ -89,7 +89,7 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 
         public static void SetThreshold(object appender, string threshold)
         {
-            appender.SetProperty("Threshold", LevelType.GetStaticField(threshold));
+            appender.SetProperty("Threshold", LevelType.GetStaticField(threshold, true));
         }
 
         public static object GetThreshold(object appender)
