@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
     using System.Reflection;
     using System.Web;
 
@@ -16,29 +17,25 @@
         /// <returns></returns>
         public static string Get()
         {
-            var trace = new StackTrace();
-            StackFrame targetFrame = null;
-            var stackFrames = trace.GetFrames();
-            if (stackFrames == null)
-                return "";
-
-            foreach (var f in stackFrames)
+            var entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly != null && entryAssembly.EntryPoint != null)
             {
-                if (typeof(HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType))
-                {
-                    targetFrame = f;
-                    break;
-                }
-                var mi = f.GetMethod() as MethodInfo;
-                if (mi != null && mi.IsStatic && mi.ReturnType == typeof(void) && mi.Name == "Main" && mi.DeclaringType.Name == "Program")
-                {
-                    targetFrame = f;
-                    break;
-                }
+                return entryAssembly.EntryPoint.ReflectedType.Namespace ??
+                       entryAssembly.EntryPoint.ReflectedType.Assembly.GetName().Name;
+            }
+
+            var stackFrames = new StackTrace().GetFrames();
+            StackFrame targetFrame = null;
+            if (stackFrames != null)
+            {
+                targetFrame =
+                    stackFrames.FirstOrDefault(
+                        f => typeof (HttpApplication).IsAssignableFrom(f.GetMethod().DeclaringType));
             }
 
             if (targetFrame != null)
-                return targetFrame.GetMethod().ReflectedType.Namespace;
+                return targetFrame.GetMethod().ReflectedType.Namespace ??
+                       targetFrame.GetMethod().ReflectedType.Assembly.GetName().Name;
 
             throw new InvalidOperationException(
                 "No endpoint name could be generated, please specify your own convention using Configure.DefineEndpointName(...)");
