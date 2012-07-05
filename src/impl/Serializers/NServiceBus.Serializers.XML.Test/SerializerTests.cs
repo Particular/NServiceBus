@@ -20,6 +20,60 @@ namespace NServiceBus.Serializers.XML.Test
     {
         private int number = 1;
         private int numberOfIterations = 100;
+        public void Should_deserialize_dictionary_of_string_string()
+        {
+            var expected = new Dictionary<string, string>
+                               {
+                                   {"Key1", "Value1"},
+                                   {"Key2", "Value2"},
+                                   {"Key3", "Value3"},
+                               };
+            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.GenericDictionary = expected);
+
+            CollectionAssert.AreEqual(expected, result.GenericDictionary);
+        }
+
+        [Test, Ignore("Not supported")]
+        public void Should_deserialize_arraylist()
+        {
+            var expected = new ArrayList
+                               {
+                                   "Value1",
+                                   "Value2",
+                                   "Value3",
+                               };
+            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.ArrayList = expected);
+
+            CollectionAssert.AreEqual(expected, result.ArrayList);
+        }
+
+        [Test, Ignore("Not supported")]
+        public void Should_deserialize_hashtable()
+        {
+            var expected = new Hashtable
+                               {
+                                   {"Key1", "Value1"},
+                                   {"Key2", "Value2"},
+                                   {"Key3", "Value3"},
+                               };
+            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.Hashtable = expected);
+
+            CollectionAssert.AreEqual(expected, result.Hashtable);
+        }
+
+        [Test]
+        public void Should_deserialize_list()
+        {
+            var expected = new List<string>
+                               {
+                                   "Value1",
+                                   "Value2",
+                                   "Value3",
+                               };
+            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.GenericList = expected);
+
+            CollectionAssert.AreEqual(expected, result.GenericList);
+        }
 
         [Test]
         public void TestMultipleInterfacesDuplicatedPropery()

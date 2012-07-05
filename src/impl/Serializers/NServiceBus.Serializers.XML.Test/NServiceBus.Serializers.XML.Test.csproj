@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="M3.cs" />
     <Compile Include="MultipleInterfaces.cs" />
     <Compile Include="SerializerFactory.cs" />
     <Compile Include="SerializerTests.cs" />
