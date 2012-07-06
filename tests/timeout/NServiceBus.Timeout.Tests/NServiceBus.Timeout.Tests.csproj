@@ -106,8 +106,11 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_fetching_timeouts_from_storage.cs" />
+    <Compile Include="When_fetching_timeouts_from_storage_with_InMemoryTimeoutPersister.cs" />
     <Compile Include="When_removing_timeouts_from_the_storage.cs" />
     <Compile Include="TimeoutTests.cs" />
+    <Compile Include="When_removing_timeouts_from_the_storage_with_InMemoryTimeoutPersister.cs" />
+    <Compile Include="WithInMemoryTimeoutPersister.cs" />
     <Compile Include="WithRavenTimeoutPersister.cs" />
   </ItemGroup>
   <ItemGroup>

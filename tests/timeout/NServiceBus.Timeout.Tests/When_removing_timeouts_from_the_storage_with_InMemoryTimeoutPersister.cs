@@ -1,11 +1,12 @@
-﻿namespace NServiceBus.Timeout.Tests
+namespace NServiceBus.Timeout.Tests
 {
+    using System.Linq;
     using System.Transactions;
     using Core;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_removing_timeouts_from_the_storage : WithRavenTimeoutPersister
+    public class When_removing_timeouts_from_the_storage_with_InMemoryTimeoutPersister : WithInMemoryTimeoutPersister
     {
         [Test]
         public void Should_remove_timeouts_by_id()
@@ -24,21 +25,14 @@
             {
                 using (var tx = new TransactionScope())
                 {
-                    //other tx stuff like pop a message from MSMQ
-
                     persister.Remove(timeoutData.Id);
 
                     tx.Complete();
                 }
             }
 
-            using (var session = store.OpenSession())
-            {
-                session.Advanced.AllowNonAuthoritativeInformation = false;
-                
-                Assert.Null(session.Load<TimeoutData>(t1.Id));
-                Assert.Null(session.Load<TimeoutData>(t2.Id));
-            }
+            t = persister.GetAll();
+            Assert.AreEqual(0, t.Count());
         }
     }
 }

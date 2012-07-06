@@ -64,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                             // we'll wait for nonstale results up until the point in time that we start fetching
                             // since other timeouts that has arrived in the meantime will have been added to the 
                             // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA
-                            .Where(t => t.OwningTimeoutManager == "" || t.OwningTimeoutManager == Configure.EndpointName)
+                            .Where(t => t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName)
                             .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested))
                             .Statistics(out stats);
                         do
