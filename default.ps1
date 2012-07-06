@@ -740,7 +740,7 @@ task CreatePackages {
 	#region Packing NServiceBus.CastleWindsor
 	$packageName = "NServiceBus.CastleWindsor" + $PackageNameSuffix
 	$packit.package_description = "The CastleWindsor Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Castle.Core"="3.0.0.2001";"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.StructureMap
@@ -752,7 +752,7 @@ task CreatePackages {
 	#region Packing NServiceBus.Unity
 	$packageName = "NServiceBus.Unity" + $PackageNameSuffix
 	$packit.package_description = "The Unity Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"CommonServiceLocator"="1.0";"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
 	#endregion
 	
 	#region Packing NServiceBus.Ninject
@@ -764,13 +764,13 @@ task CreatePackages {
 	#region Packing NServiceBus.Spring
 	$packageName = "NServiceBus.Spring" + $PackageNameSuffix
 	$packit.package_description = "The Spring Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Common.Logging"="2.0.0";"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
+	invoke-packit $packageName $script:packageVersion @{"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
 	#endregion	
 	
 	#region Packing NServiceBus.NHibernate
 	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
 	$packit.package_description = "The NHibernate for the NServicebus"
-	invoke-packit $packageNameNHibernate $script:packageVersion @{"Iesi.Collections"="3.2.0.4000";"NHibernate"="3.3.1.4000"} "binaries\NServiceBus.NHibernate.dll"
+	invoke-packit $packageNameNHibernate $script:packageVersion @{"NHibernate"="3.3.1.4000"} "binaries\NServiceBus.NHibernate.dll"
 	#endregion	
 		
 	#region Packing NServiceBus.Azure
