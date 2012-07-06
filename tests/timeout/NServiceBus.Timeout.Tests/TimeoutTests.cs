@@ -34,8 +34,6 @@
             eventTime = DateTime.MinValue;
         }
 
-
-
         [Test]
         public void PopWithoutPush()
         {

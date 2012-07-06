@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Timeout.Tests
 {
-    using System;
     using System.Transactions;
     using Core;
     using NUnit.Framework;

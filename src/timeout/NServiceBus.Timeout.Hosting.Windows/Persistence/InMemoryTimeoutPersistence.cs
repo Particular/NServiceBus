@@ -18,7 +18,10 @@
         public void Add(TimeoutData timeout)
         {
             lock (storage)
+            {
+                timeout.Id = Guid.NewGuid().ToString();
                 storage.Add(timeout);
+            }
         }
 
         public void Remove(string timeoutId)
