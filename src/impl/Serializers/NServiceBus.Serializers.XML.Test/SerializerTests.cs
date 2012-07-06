@@ -25,20 +25,6 @@ namespace NServiceBus.Serializers.XML.Test
         private int number = 1;
         private int numberOfIterations = 100;
 
-        [Test]
-        public void Should_deserialize_dictionary_of_string_string()
-        {
-            var expected = new Dictionary<string, string>
-                               {
-                                   {"Key1", "Value1"},
-                                   {"Key2", "Value2"},
-                                   {"Key3", "Value3"},
-                               };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.GenericDictionary = expected);
-
-            CollectionAssert.AreEqual(expected, result.GenericDictionary);
-        }
-
         [Test, Ignore("Not supported")]
         public void Should_deserialize_arraylist()
         {
@@ -48,7 +34,7 @@ namespace NServiceBus.Serializers.XML.Test
                                    "Value2",
                                    "Value3",
                                };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.ArrayList = expected);
+            var result = ExecuteSerializer.ForMessage<MessageWithArrayList>(m3 => m3.ArrayList = expected);
 
             CollectionAssert.AreEqual(expected, result.ArrayList);
         }
@@ -62,23 +48,9 @@ namespace NServiceBus.Serializers.XML.Test
                                    {"Key2", "Value2"},
                                    {"Key3", "Value3"},
                                };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.Hashtable = expected);
+            var result = ExecuteSerializer.ForMessage<MessageWithHashtable>(m3 => m3.Hashtable = expected);
 
             CollectionAssert.AreEqual(expected, result.Hashtable);
-        }
-
-        [Test]
-        public void Should_deserialize_list()
-        {
-            var expected = new List<string>
-                               {
-                                   "Value1",
-                                   "Value2",
-                                   "Value3",
-                               };
-            var result = ExecuteSerializer.ForMessage<M3>(m3 => m3.GenericList = expected);
-
-            CollectionAssert.AreEqual(expected, result.GenericList);
         }
 
         [Test]
@@ -588,5 +560,17 @@ namespace NServiceBus.Serializers.XML.Test
     public class MessageWithList : IMessage
     {
         public List<MessageWithListItem> Items { get; set; }
+    }
+
+    [Serializable]
+    public class MessageWithHashtable : IMessage
+    {
+        public Hashtable Hashtable { get; set; }
+    }
+
+    [Serializable]
+    public class MessageWithArrayList : IMessage
+    {
+        public ArrayList ArrayList { get; set; }
     }
 }
