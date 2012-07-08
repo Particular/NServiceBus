@@ -16,12 +16,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="handler"></param>
         /// <param name="message"></param>
-        public static void Invoke(object handler, object message)
+        public static void Invoke(Type interfaceType,object handler, object message)
         {
             var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[handler.GetType()];
             foreach (var messageType in messageTypesToMethods.Keys)
                 if (messageType.IsInstanceOfType(message))
-                    messageTypesToMethods[messageType].Invoke(handler, new[] { message });
+                    messageTypesToMethods[messageType][interfaceType].Invoke(handler, new[] { message });
         }
 
         /// <summary>
@@ -31,28 +31,19 @@ namespace NServiceBus.Unicast
         /// <param name="messageType"></param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
         {
-            CacheMethodForHandler(handler,messageType,GetHandleMethod(handler, messageType));
-        }
-
-
-        /// <summary>
-        /// Registers the metod in the cache
-        /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="messageType"></param>
-        public static void CacheMethodForHandler(Type handler, Type messageType,MethodInfo method)
-        {
             if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(handler))
-                handlerToMessageTypeToHandleMethodMap.Add(handler, new Dictionary<Type, MethodInfo>());
+                handlerToMessageTypeToHandleMethodMap.Add(handler, new Dictionary<Type, IDictionary<Type, MethodInfo>>());
 
             if (!(handlerToMessageTypeToHandleMethodMap[handler].ContainsKey(messageType)))
-                handlerToMessageTypeToHandleMethodMap[handler].Add(messageType, method);
+                handlerToMessageTypeToHandleMethodMap[handler].Add(messageType, GetHandleMethods(handler, messageType));
         }
 
 
 
-        static MethodInfo GetHandleMethod(Type targetType, Type messageType)
-        { 
+
+        static IDictionary<Type,MethodInfo> GetHandleMethods(Type targetType, Type messageType)
+        {
+            var result = new Dictionary<Type, MethodInfo>();
             foreach (var handlerInterface in handlerInterfaces)
             {
                 MethodInfo method = null;
@@ -69,15 +60,14 @@ namespace NServiceBus.Unicast
                 }
 
                 if (method != null)
-                    return method;
+                   result.Add(handlerInterface,method);
                 
             }
 
-            return null;
+            return result;
         }
 
-        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IMessageHandler<>), typeof(IHandleTimeouts<>) }; 
-
-        static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
+        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IMessageHandler<>), typeof(IHandleTimeouts<>) };
+        static readonly IDictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>>();
     }
 }

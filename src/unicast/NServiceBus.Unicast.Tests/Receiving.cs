@@ -29,26 +29,6 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_handling_a_timeout_message : using_the_unicastbus
-    {
-        [Test]
-        public void Should_invoke_the_timeout_handler()
-        {
-            MessageConventionExtensions.IsMessageTypeAction = type => type == typeof (TimeoutState);
-
-            var receivedMessage = Helpers.Helpers.Serialize(new TimeoutState());
-
-            RegisterMessageType<TimeoutState>();
-            RegisterMessageHandlerType<TimeoutHandler>();
-            
-            ReceiveMessage(receivedMessage);
-
-
-            Assert.True(TimeoutHandler.Called);
-        }
-    }
-
-    [TestFixture]
     public class When_receiving_any_message : using_the_unicastbus
     {
         [Test]
@@ -239,20 +219,5 @@ namespace NServiceBus.Unicast.Tests
         {
             Called = true;
         }
-    }
-
-    //This would only apply to sagas
-    public class TimeoutHandler : IHandleTimeouts<TimeoutState>
-    {
-        public static bool Called;
-
-        public void Timeout(TimeoutState message)
-        {
-            Called = true;
-        }
-    }
-
-    public class TimeoutState
-    {
     }
 }
