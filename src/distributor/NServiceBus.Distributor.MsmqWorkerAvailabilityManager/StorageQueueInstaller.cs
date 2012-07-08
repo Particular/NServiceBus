@@ -22,7 +22,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
-            Creator.CreateQueueIfNecessary(m.StorageQueueAddress, identity.Name);
+            Creator.CreateQueueIfNecessary(m.StorageQueueAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

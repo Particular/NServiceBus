@@ -126,7 +126,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         }
 
         /// <summary>
-        /// If set to true the transaction scope will be supressed to avoid the use of DTC
+        /// If set to true the transaction scope will be suppressed to avoid the use of DTC
         /// </summary>
         public bool SupressDTC { get; set; }
 

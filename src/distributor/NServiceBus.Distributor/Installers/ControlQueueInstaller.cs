@@ -15,7 +15,7 @@ namespace NServiceBus.Distributor.Installers
             //create the control queue
             var m = Configure.Instance.Builder.Build<DistributorReadyMessageProcessor>();
 
-            Creator.CreateQueueIfNecessary(m.ControlQueue, identity.Name);
+            Creator.CreateQueueIfNecessary(m.ControlQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

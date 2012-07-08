@@ -11,7 +11,7 @@ namespace NServiceBus.Gateway.Installation
         public void Create(WindowsIdentity identity)
         {
             if (ConfigureGateway.GatewayInputAddress != null)
-                Creator.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name);            
+                Creator.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);            
         }
     }
 }

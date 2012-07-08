@@ -1,11 +1,12 @@
 using System.Security.Principal;
 using NServiceBus.Installation;
 using NServiceBus.Utils;
+using NServiceBus;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
     /// <summary>
-    /// Class responssible for installing the MSMQ subscription storage.
+    /// Class responsible for installing the MSMQ subscription storage.
     /// </summary>
     public class Installer : INeedToInstallSomething<Installation.Environments.Windows>
     {
@@ -15,7 +16,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            MsmqUtilities.CreateQueueIfNecessary(ConfigureMsmqSubscriptionStorage.Queue, identity.Name);
+            MsmqUtilities.CreateQueueIfNecessary(ConfigureMsmqSubscriptionStorage.Queue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

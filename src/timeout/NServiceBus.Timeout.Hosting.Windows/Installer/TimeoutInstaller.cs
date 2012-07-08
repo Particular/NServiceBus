@@ -15,7 +15,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Installer
         public void Create(WindowsIdentity identity)
         {
             if ((ConfigureTimeoutManager.TimeoutManagerAddress != null) && (Configure.Instance.IsTimeoutManagerEnabled()))
-                Creator.CreateQueueIfNecessary(ConfigureTimeoutManager.TimeoutManagerAddress, identity.Name);
+                Creator.CreateQueueIfNecessary(ConfigureTimeoutManager.TimeoutManagerAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

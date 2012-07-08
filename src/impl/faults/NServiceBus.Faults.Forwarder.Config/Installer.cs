@@ -10,7 +10,7 @@ namespace NServiceBus.Faults.Forwarder.Config
         public void Create(WindowsIdentity identity)
         {
             if (ConfigureFaultsForwarder.ErrorQueue != null)
-                QueueCreator.CreateQueueIfNecessary(ConfigureFaultsForwarder.ErrorQueue, identity.Name);            
+                QueueCreator.CreateQueueIfNecessary(ConfigureFaultsForwarder.ErrorQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);            
         }
     }
 }

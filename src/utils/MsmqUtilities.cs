@@ -35,9 +35,10 @@ namespace NServiceBus.Utils
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
-        ///<param name="address"></param>
+        ///<param name="address">Queue path to create</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        public static void CreateQueueIfNecessary(Address address, string account)
+        /// <param name="volatileQueues">Queues are volatile (non-durable), that is create the queue as non-transactional</param>
+        public static void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false)
         {
             if (address == null)
                 return;
@@ -64,7 +65,7 @@ namespace NServiceBus.Utils
                 Logger.Warn("Queue " + q + " does not exist.");
                 Logger.Debug("Going to create queue: " + q);
 
-                CreateQueue(q, account);
+                CreateQueue(q, account, volatileQueues);
             }
             catch (Exception ex)
             {
@@ -75,15 +76,16 @@ namespace NServiceBus.Utils
         ///<summary>
         /// Create named message queue
         ///</summary>
-        ///<param name="queueName"></param>
+        ///<param name="queueName">Queue path</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        public static void CreateQueue(string queueName, string account)
+        /// <param name="volatileQueues">If volatileQueues is true then create a non-transactional message queue</param>
+        public static void CreateQueue(string queueName, string account, bool volatileQueues)
         {
-            MessageQueue.Create(queueName, true);
+            MessageQueue.Create(queueName, !volatileQueues);
 
             SetPermissionsForQueue(queueName, accountToBeAssignedQueuePermissions ?? account);
 
-            Logger.Debug("Queue created: " + queueName);
+            Logger.DebugFormat("Created queue, path: [{0}], account: [{2}], transactional: [{2}]", queueName, account, !volatileQueues);
         }
 
         /// <summary>

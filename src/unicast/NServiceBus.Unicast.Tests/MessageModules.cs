@@ -83,7 +83,7 @@
     {
         public Action OnBegin = () => { };
         public Action OnEnd = () => { };
-        public Action OnError = () => Assert.Fail("Error occured");
+        public Action OnError = () => Assert.Fail("Error occurred");
         public void HandleBeginMessage()
         {
             OnBegin();

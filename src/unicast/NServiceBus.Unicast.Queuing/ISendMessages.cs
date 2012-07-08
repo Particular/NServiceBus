@@ -1,9 +1,7 @@
-﻿using NServiceBus.Unicast.Transport;
-
-namespace NServiceBus.Unicast.Queuing
+﻿namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
-    /// Abstraction of a the capability to send messages
+    /// Abstraction of the capability to send messages
     /// </summary>
     public interface ISendMessages
     {

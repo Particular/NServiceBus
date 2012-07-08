@@ -91,7 +91,7 @@ namespace NServiceBus.Config
             if (!installQueue)
                 return;
 
-            QueueCreator.CreateQueueIfNecessary(RetriesQueueAddress, identity.Name);
+            QueueCreator.CreateQueueIfNecessary(RetriesQueueAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

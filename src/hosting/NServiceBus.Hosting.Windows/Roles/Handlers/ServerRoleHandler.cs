@@ -22,7 +22,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
 
             return Configure.Instance
                 .Sagas()
-                .IsTransactional(true)
+                .IsTransactional(!ConfigureVolatileQueues.IsVolatileQueues)
                 .PurgeOnStartup(false)
                 .RunTimeoutManager()
                 .UnicastBus()

@@ -17,7 +17,7 @@
                 return;
 
             //create the worker queue
-            Creator.CreateQueueIfNecessary(Address.Local.SubScope("Worker"), identity.Name);
+            Creator.CreateQueueIfNecessary(Address.Local.SubScope("Worker"), identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

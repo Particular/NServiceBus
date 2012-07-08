@@ -29,7 +29,7 @@
             inputTransport = new TransactionalTransport
             {
                 MessageReceiver = messageReceiver,
-                IsTransactional = true,
+                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
                 NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                 MaxRetries = MainTransport.MaxRetries,
                 FailureManager = Builder.Build(MainTransport.FailureManager.GetType())as IManageMessageFailures

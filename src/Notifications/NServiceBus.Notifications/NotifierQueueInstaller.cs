@@ -14,7 +14,7 @@ namespace NServiceBus.Notifications
             if (ConfigureNotifications.NotificationsDisabled)
                 return;
 
-            Creator.CreateQueueIfNecessary(BusExtensions.NotificationAddess, identity.Name);
+            Creator.CreateQueueIfNecessary(BusExtensions.NotificationAddess, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

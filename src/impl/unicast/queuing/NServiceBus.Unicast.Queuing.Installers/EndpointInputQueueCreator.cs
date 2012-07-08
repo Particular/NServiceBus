@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
                 throw new Exception("No QueueCreator is configured and the EndpointInputQueueCreator is enabled!");
             }
 
-            QueueCreator.CreateQueueIfNecessary(Address.Local, identity.Name);
+            QueueCreator.CreateQueueIfNecessary(Address.Local, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 
             if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
             {
-                QueueCreator.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name);
+                QueueCreator.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
             }
         }
     }

@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     if (message.ReplyToAddress != null)
                         toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
-                        q.Send(toSend, GetTransactionTypeForSend());
+                    q.Send(toSend, GetTransactionTypeForSend());
 
                     message.Id = toSend.Id;
                 }
@@ -60,6 +60,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
+            if(ConfigureVolatileQueues.IsVolatileQueues)
+                return MessageQueueTransactionType.None;
+            
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
         }
 

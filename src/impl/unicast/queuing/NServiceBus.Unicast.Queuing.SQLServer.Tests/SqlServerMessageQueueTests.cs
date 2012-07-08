@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
                       };
 
             var creator = new SqlServerQueueCreator {ConnectionString = ConStr};
-            creator.CreateQueueIfNecessary(_address, "test");
+            creator.CreateQueueIfNecessary(_address, "test", ConfigureVolatileQueues.IsVolatileQueues);
         }
 
         private readonly Address _address = new Address("send", "testhost");
