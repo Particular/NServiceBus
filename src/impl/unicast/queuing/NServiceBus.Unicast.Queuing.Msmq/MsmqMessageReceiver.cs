@@ -59,15 +59,15 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 {
                     case MessageQueueErrorCode.AccessDenied:
                         errorMessage = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. Exception: [{2}]",
-                            myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user", mqe);
+                            myQueue.FormatName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user", mqe);
                         break;
                     
                     case MessageQueueErrorCode.QueueNotFound:
-                        errorMessage = string.Format("Queue [{0}] was not found while peeking queue. Exception: [{1}]", myQueue.QueueName, mqe);
+                        errorMessage = string.Format("Queue [{0}] was not found while peeking queue. Exception: [{1}]", myQueue.FormatName, mqe);
                         break;
                     
                     default:
-                        errorMessage = string.Format("Error while while peeking queue: [{0}], exception: [{1}]", myQueue.QueueName, mqe);        
+                        errorMessage = string.Format("Error while while peeking queue: [{0}], exception: [{1}]", myQueue.FormatName, mqe);        
                         break;
                 }
                 Logger.Fatal(errorMessage);
