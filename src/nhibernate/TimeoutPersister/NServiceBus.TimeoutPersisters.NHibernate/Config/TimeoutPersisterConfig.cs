@@ -3,8 +3,14 @@ namespace NServiceBus.Config
     using System.Configuration;
     using TimeoutPersisters.NHibernate.Config;
 
+    /// <summary>
+    /// Represents the configuration section for Timeout Persister.
+    /// </summary>
     public class TimeoutPersisterConfig : ConfigurationSection
     {
+        /// <summary>
+        /// Collection of NHibernate properties.
+        /// </summary>
         [ConfigurationProperty("NHibernateProperties", IsRequired = false)]
         public NHibernatePropertyCollection NHibernateProperties
         {
@@ -18,6 +24,9 @@ namespace NServiceBus.Config
             }
         }
 
+        /// <summary>
+        /// <value>true</value> to update database schema.
+        /// </summary>
         [ConfigurationProperty("UpdateSchema", IsRequired = false,DefaultValue = true)]
         public bool UpdateSchema
         {

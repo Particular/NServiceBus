@@ -16,7 +16,6 @@
     using Rhino.Mocks;
     using Sending;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     public class via_the_gateway
     {
@@ -39,6 +38,7 @@
             dispatcherInSiteA.Dispose();
             receiverInSiteB.Dispose();
         }
+
         [SetUp]
         public void SetUp()
         {
@@ -129,8 +129,6 @@
         {
             return messageSender.GetResultingMessage();
         }
-
-
 
         GatewaySender dispatcherInSiteA;
         GatewayReceiver receiverInSiteB;

@@ -1,16 +1,13 @@
-using System;
-using System.Reflection;
-using NHibernate;
-using NHibernate.Cfg;
-using NHibernate.Dialect;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using NServiceBus.Config;
-using NServiceBus.Unicast.Subscriptions.NHibernate;
-using Configuration = NHibernate.Cfg.Configuration;
-
 namespace NServiceBus
 {
+    using System;
+    using Config;
+    using NHibernate;
+    using NHibernate.Cfg;
+    using Persistence.NHibernate;
+    using Unicast.Subscriptions.NHibernate;
+    using Unicast.Subscriptions.NHibernate.Config;
+
     /// <summary>
     /// Configuration extensions for the NHibernate subscription storage
     /// </summary>
@@ -23,66 +20,69 @@ namespace NServiceBus
         /// <returns>The <see cref="Configure" /> object.</returns>
         public static Configure DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-          var configuration = new Configuration()
-            .DataBaseIntegration(x =>
-            {
-              x.Dialect<SQLiteDialect>();
-              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Subscriptions.sqlite");
-            });
+            ConfigureNHibernate.TimeoutPersisterProperties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
+            ConfigureNHibernate.TimeoutPersisterProperties.Add("connection.connection_string", "Data Source=.\\NServiceBus.Subscriptions.sqlite;Version=3;New=True;");
 
-            return DBSubscriptionStorage(config, configuration, true);
+            var configuration = new Configuration()
+                .AddProperties(ConfigureNHibernate.TimeoutPersisterProperties);
+
+            return config.UseNHibernateSubscriptionPersisterInternal(configuration, true);
         }
 
         /// <summary>
-        /// Configures the storage with Sqlite as DB and auto generates schema on startup
+        /// Configures NHibernate Subscription Persister.
         /// </summary>
-        /// <param name="config">The <see cref="Configure" /> object.</param>
-        /// <returns>The <see cref="Configure" /> object.</returns>
-        [ObsoleteEx(Replacement = "DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        public static Configure DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
-        {
-            return config.DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
-        }
-
-        /// <summary>
-        /// Configures DB Subscription Storage.
-        /// Database settings are read from custom config section <see cref="DBSubscriptionStorageConfig"/>.
-        /// </summary>
-        /// <param name="config">The <see cref="Configure" /> object.</param>
-        /// <returns>The <see cref="Configure" /> object.</returns>
-        public static Configure DBSubscriptionStorage(this Configure config)
+        /// <remarks>
+        /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/ms228154.aspx">&lt;appSettings&gt; config section</a> and <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
+        /// </remarks>
+        /// <example>
+        /// An example that shows the minimum configuration:
+        /// <code lang="XML" escaped="true">
+        ///  <appSettings>
+        ///    <!-- dialect is the only required NHibernate property -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/dialect" value="NHibernate.Dialect.MsSql2008Dialect"/>
+        /// 
+        ///    <!-- other optional settings examples -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.provider" value="NHibernate.Connection.DriverConnectionProvider"/>
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.driver_class" value="NHibernate.Driver.Sql2008ClientDriver"/>
+        ///    <!-- For more setting see http://www.nhforge.org/doc/nh/en/#configuration-hibernatejdbc and http://www.nhforge.org/doc/nh/en/#configuration-optional -->
+        ///  </appSettings>
+        ///  
+        ///  <connectionStrings>
+        ///    <!-- Default connection string for all persisters -->
+        ///    <add name="NServiceBus/Persistence/NHibernate" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" />
+        ///    
+        ///    <!-- Optional overrides per persister -->
+        ///    <add name="NServiceBus/Persistence/NHibernate/Subscription" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=subscription;Integrated Security=True" />
+        ///  </connectionStrings>
+        /// </code>
+        /// </example>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure UseNHibernateSubscriptionPersister(this Configure config)
         {
             var configSection = Configure.GetConfigSection<DBSubscriptionStorageConfig>();
 
-            if (configSection == null)
+            if (configSection != null)
             {
-                throw new InvalidOperationException(
-                    "No configuration section for DB Subscription Storage found. Please add a DBSubscriptionStorageConfig section to you configuration file");
+                if (configSection.NHibernateProperties.Count == 0)
+                {
+                    throw new InvalidOperationException(
+                        "No NHibernate properties found. Please specify NHibernateProperties in your DBSubscriptionStorageConfig section");
+                }
+
+                foreach (var property in configSection.NHibernateProperties.ToProperties())
+                {
+                    ConfigureNHibernate.SubscriptionStorageProperties[property.Key] = property.Value;
+                }
             }
 
+            ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(ConfigureNHibernate.SubscriptionStorageProperties);
 
-            if (configSection.NHibernateProperties.Count == 0)
-            {
-                throw new InvalidOperationException(
-                    "No NHibernate properties found. Please specify NHibernateProperties in your DBSubscriptionStorageConfig section");
-            }
+            var properties = ConfigureNHibernate.SubscriptionStorageProperties;
 
-            return DBSubscriptionStorage(config,
-                                        new Configuration().AddProperties(
-                                            configSection.NHibernateProperties.ToProperties()),
-                                        configSection.UpdateSchema);
-        }
-
-        /// <summary>
-        /// Configures DB Subscription Storage.
-        /// Database settings are read from custom config section <see cref="DBSubscriptionStorageConfig"/>.
-        /// </summary>
-        /// <param name="config">The <see cref="Configure" /> object.</param>
-        /// <returns>The <see cref="Configure" /> object.</returns>
-        [ObsoleteEx(Replacement = "DBSubscriptionStorage()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]        
-        public static Configure DBSubcriptionStorage(this Configure config)
-        {
-            return config.DBSubscriptionStorage();
+            return config.UseNHibernateSubscriptionPersisterInternal(new Configuration().AddProperties(properties),
+                                                                configSection == null || configSection.UpdateSchema);
         }
 
         /// <summary>
@@ -93,18 +93,32 @@ namespace NServiceBus
         /// <param name="configuration">The <see cref="Configuration" /> allows the application to specify properties and mapping documents to be used when creating a <see cref="ISessionFactory" />.</param>
         /// <param name="autoUpdateSchema"><value>True</value> to auto update the database schema.</param>
         /// <returns>The <see cref="Configure" /> object.</returns>
-        public static Configure DBSubscriptionStorage(this Configure config,
-                                                      Configuration configuration,
-                                                      bool autoUpdateSchema)
+        public static Configure DBSubscriptionStorage(this Configure config, Configuration configuration, bool autoUpdateSchema)
         {
-            var mapper = new ModelMapper();
-            mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
-            var mappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
+            foreach (var property in configuration.Properties)
+            {
+                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+            }
 
-            configuration.AddMapping(mappings);
+            return config.UseNHibernateSubscriptionPersisterInternal(configuration, autoUpdateSchema);
+        }
 
-            if (autoUpdateSchema)
-                new SchemaUpdate(configuration).Execute(false, true);
+        /// <summary>
+        /// Disables the automatic creation of the database schema.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure DisableNHibernateSubscriptionPersisterInstall(this Configure config)
+        {
+            Unicast.Subscriptions.NHibernate.Installer.Installer.RunInstaller = false;
+            return config;
+        }
+
+        static Configure UseNHibernateSubscriptionPersisterInternal(this Configure config, Configuration configuration, bool autoUpdateSchema)
+        {
+            Unicast.Subscriptions.NHibernate.Installer.Installer.RunInstaller = autoUpdateSchema;
+
+            ConfigureNHibernate.AddMappings<SubscriptionMap>(configuration);
 
             var sessionSource = new SubscriptionStorageSessionProvider(configuration.BuildSessionFactory());
 
@@ -128,6 +142,41 @@ namespace NServiceBus
                                                      bool autoUpdateSchema)
         {
             return config.DBSubscriptionStorage(configuration, autoUpdateSchema);
+        }
+
+        /// <summary>
+        /// Configures the storage with Sqlite as DB and auto generates schema on startup
+        /// </summary>
+        /// <param name="config">The <see cref="Configure" /> object.</param>
+        /// <returns>The <see cref="Configure" /> object.</returns>
+        [ObsoleteEx(Replacement = "DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        public static Configure DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
+        {
+            return config.DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
+        }
+
+        /// <summary>
+        /// Configures DB Subscription Storage.
+        /// Database settings are read from custom config section <see cref="DBSubscriptionStorageConfig"/>.
+        /// </summary>
+        /// <param name="config">The <see cref="Configure" /> object.</param>
+        /// <returns>The <see cref="Configure" /> object.</returns>
+        [ObsoleteEx(Replacement = "UseNHibernateSubscriptionPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        public static Configure DBSubscriptionStorage(this Configure config)
+        {
+            return config.UseNHibernateSubscriptionPersister();
+        }
+
+        /// <summary>
+        /// Configures DB Subscription Storage.
+        /// Database settings are read from custom config section <see cref="DBSubscriptionStorageConfig"/>.
+        /// </summary>
+        /// <param name="config">The <see cref="Configure" /> object.</param>
+        /// <returns>The <see cref="Configure" /> object.</returns>
+        [ObsoleteEx(Replacement = "UseNHibernateSubscriptionPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]        
+        public static Configure DBSubcriptionStorage(this Configure config)
+        {
+            return config.DBSubscriptionStorage();
         }
     }
 }

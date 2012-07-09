@@ -18,7 +18,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("UpdateSchema", IsRequired = false,DefaultValue = true)]
+        [ConfigurationProperty("UpdateSchema", IsRequired = false, DefaultValue = true)]
         public bool UpdateSchema
         {
 

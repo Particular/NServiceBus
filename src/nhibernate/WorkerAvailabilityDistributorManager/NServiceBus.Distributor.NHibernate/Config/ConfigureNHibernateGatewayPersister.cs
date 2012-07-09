@@ -1,0 +1,102 @@
+namespace NServiceBus
+{
+    using System;
+    using Distributor.NHibernate;
+    using Distributor.NHibernate.Config;
+    using NHibernate.Cfg;
+    using Persistence.NHibernate;
+
+    /// <summary>
+    /// Configuration extensions for the NHibernate Timeouts persister
+    /// </summary>
+    public static class ConfigureNHibernateDistributorManager
+    {
+        /// <summary>
+        /// Configures NHibernate Gateway Persister.
+        /// </summary>
+        /// <remarks>
+        /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/ms228154.aspx">&lt;appSettings&gt; config section</a> and <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
+        /// </remarks>
+        /// <example>
+        /// An example that shows the minimum configuration:
+        /// <code lang="XML" escaped="true">
+        ///  <appSettings>
+        ///    <!-- dialect is the only required NHibernate property -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/dialect" value="NHibernate.Dialect.MsSql2008Dialect"/>
+        /// 
+        ///    <!-- other optional settings examples -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.provider" value="NHibernate.Connection.DriverConnectionProvider"/>
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.driver_class" value="NHibernate.Driver.Sql2008ClientDriver"/>
+        ///    <!-- For more setting see http://www.nhforge.org/doc/nh/en/#configuration-hibernatejdbc and http://www.nhforge.org/doc/nh/en/#configuration-optional -->
+        ///  </appSettings>
+        ///  
+        ///  <connectionStrings>
+        ///    <!-- Default connection string for all persisters -->
+        ///    <add name="NServiceBus/Persistence/NHibernate" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" />
+        ///    
+        ///    <!-- Optional overrides per persister -->
+        ///    <add name="NServiceBus/Persistence/NHibernate/Distributor" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=distributor;Integrated Security=True" />
+        ///  </connectionStrings>
+        /// </code>
+        /// </example>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure UseNHibernateDistributor(this Configure config)
+        {
+            ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(ConfigureNHibernate.DistributorPersisterProperties);
+
+            var properties = ConfigureNHibernate.DistributorPersisterProperties;
+            var configuration = new Configuration().AddProperties(properties);
+
+            return config.UseNHibernateDistributorInternal(configuration);
+        }
+
+        /// <summary>
+        /// Configures the storage with the user supplied persistence configuration.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="configuration">The <see cref="Configuration"/> object.</param>
+        /// <returns>The configuration object</returns>
+        public static Configure UseNHibernateDistributor(this Configure config, Configuration configuration)
+        {
+            foreach (var property in configuration.Properties)
+            {
+                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+            }
+
+            return config.UseNHibernateDistributorInternal(configuration);
+        }
+
+        /// <summary>
+        /// Disables the automatic creation of the database schema.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure DisableNHibernateDistributorInstall(this Configure config)
+        {
+            Distributor.NHibernate.Installer.Installer.RunInstaller = false;
+            return config;
+        }
+
+        private static Configure UseNHibernateDistributorInternal(this Configure config, Configuration configuration)
+        {
+            ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(configuration.Properties);
+
+            var batchSize = configuration.GetProperty("adonet.batch_size");
+
+            if (String.IsNullOrEmpty(batchSize))
+            {
+                configuration.SetProperty("adonet.batch_size", "50");
+            }
+
+            Distributor.NHibernate.Installer.Installer.RunInstaller = true;
+
+            ConfigureNHibernate.AddMappings<DistributorMessageMap>(configuration);
+
+            config.Configurer.ConfigureComponent<NHibernateWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.SessionFactory, configuration.BuildSessionFactory());
+
+            return config;
+        }
+    }
+}

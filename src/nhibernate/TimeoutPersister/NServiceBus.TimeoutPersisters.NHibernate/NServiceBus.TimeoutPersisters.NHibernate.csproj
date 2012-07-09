@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\NServiceBus.TimeoutPersisters.NHibernate.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\NServiceBus.TimeoutPersisters.NHibernate.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Iesi.Collections">
@@ -54,12 +56,12 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddressUserType.cs" />
     <Compile Include="Config\ConfigureNHibernateTimeoutPersister.cs" />
     <Compile Include="Config\NHibernateProperty.cs" />
     <Compile Include="Config\NHibernatePropertyCollection.cs" />
     <Compile Include="Config\TimeoutEntityMap.cs" />
     <Compile Include="Config\TimeoutPersisterConfig.cs" />
+    <Compile Include="Installer\Installer.cs" />
     <Compile Include="TimeoutEntity.cs" />
     <Compile Include="TimeoutStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,7 +71,12 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\NServiceBus.Persistence.NHibernate\NServiceBus.Persistence.NHibernate.csproj">
+      <Project>{C01D0E0E-4712-4A5B-9C79-7E0424811703}</Project>
+      <Name>NServiceBus.Persistence.NHibernate</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

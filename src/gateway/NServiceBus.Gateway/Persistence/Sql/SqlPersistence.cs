@@ -6,6 +6,7 @@
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
 
+    [ObsoleteEx(Message = "Please use UseNHibernateGatewayPersister() in the NServiceBus.NHibernate assembly instead.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
     public class SqlPersistence:IPersistMessages
     {
         public string ConnectionString { get; set; }

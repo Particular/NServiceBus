@@ -1,16 +1,11 @@
-using System;
-using System.Reflection;
-using NHibernate.Cfg;
-using NHibernate.Cfg.MappingSchema;
-using NHibernate.Dialect;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using Configuration = NHibernate.Cfg.Configuration;
-
 namespace NServiceBus
 {
+    using System;
     using Config;
+    using NHibernate.Cfg;
+    using Persistence.NHibernate;
     using TimeoutPersisters.NHibernate;
+    using TimeoutPersisters.NHibernate.Config;
 
     /// <summary>
     /// Configuration extensions for the NHibernate Timeouts persister
@@ -24,41 +19,69 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure UseNHibernateTimeoutPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-          var configuration = new Configuration()
-            .DataBaseIntegration(x =>
-            {
-              x.Dialect<SQLiteDialect>();
-              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", ".\\NServiceBus.Timeouts.sqlite");
-            });
+            ConfigureNHibernate.TimeoutPersisterProperties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
+            ConfigureNHibernate.TimeoutPersisterProperties.Add("connection.connection_string", "Data Source=.\\NServiceBus.Timeouts.sqlite;Version=3;New=True;");
 
-          return UseNHibernateTimeoutPersister(config, configuration, true);
+            var configuration = new Configuration()
+                .AddProperties(ConfigureNHibernate.TimeoutPersisterProperties);
+
+            return config.UseNHibernateTimeoutPersisterInternal(configuration, true);
         }
 
         /// <summary>
         /// Configures NHibernate Timeout Persister.
-        /// Database settings are read from custom config section <see cref="TimeoutPersisterConfig"/>.
         /// </summary>
+        /// <remarks>
+        /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/ms228154.aspx">&lt;appSettings&gt; config section</a> and <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
+        /// </remarks>
+        /// <example>
+        /// An example that shows the minimum configuration:
+        /// <code lang="XML" escaped="true">
+        ///  <appSettings>
+        ///    <!-- dialect is the only required NHibernate property -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/dialect" value="NHibernate.Dialect.MsSql2008Dialect"/>
+        /// 
+        ///    <!-- other optional settings examples -->
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.provider" value="NHibernate.Connection.DriverConnectionProvider"/>
+        ///    <add key="NServiceBus/Persistence/NHibernate/connection.driver_class" value="NHibernate.Driver.Sql2008ClientDriver"/>
+        ///    <!-- For more setting see http://www.nhforge.org/doc/nh/en/#configuration-hibernatejdbc and http://www.nhforge.org/doc/nh/en/#configuration-optional -->
+        ///  </appSettings>
+        ///  
+        ///  <connectionStrings>
+        ///    <!-- Default connection string for all persisters -->
+        ///    <add name="NServiceBus/Persistence/NHibernate" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" />
+        ///    
+        ///    <!-- Optional overrides per persister -->
+        ///    <add name="NServiceBus/Persistence/NHibernate/Timeout" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=timeout;Integrated Security=True" />
+        ///  </connectionStrings>
+        /// </code>
+        /// </example>
         /// <param name="config">The configuration object.</param>
         /// <returns>The configuration object.</returns>
         public static Configure UseNHibernateTimeoutPersister(this Configure config)
         {
-
             var configSection = Configure.GetConfigSection<TimeoutPersisterConfig>();
 
-            if (configSection == null)
+            if (configSection != null)
             {
-                throw new InvalidOperationException("No configuration section for DB Timeout Storage found. Please add a TimeoutPersisterConfig section to you configuration file");
+                if (configSection.NHibernateProperties.Count == 0)
+                {
+                    throw new InvalidOperationException(
+                        "No NHibernate properties found. Please specify NHibernateProperties in your TimeoutPersisterConfig section");
+                }
+
+                foreach (var property in configSection.NHibernateProperties.ToProperties())
+                {
+                    ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+                }
             }
 
+            ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(ConfigureNHibernate.TimeoutPersisterProperties);
 
-            if (configSection.NHibernateProperties.Count  == 0)
-            {
-                throw new InvalidOperationException("No NHibernate properties found. Please specify NHibernateProperties in your TimeoutPersisterConfig section");
-            }
+            var properties = ConfigureNHibernate.TimeoutPersisterProperties;
 
-            return UseNHibernateTimeoutPersister(config,
-                new Configuration().AddProperties(configSection.NHibernateProperties.ToProperties()),
-                configSection.UpdateSchema);
+            return config.UseNHibernateTimeoutPersisterInternal(new Configuration().AddProperties(properties),
+                                                                configSection == null || configSection.UpdateSchema);
         }
 
         /// <summary>
@@ -67,20 +90,35 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <param name="configuration">The <see cref="Configuration"/> object.</param>
-        /// <param name="autoUpdateSchema"><value>true</value> to auto update schema<./param>
+        /// <param name="autoUpdateSchema"><value>true</value> to auto update schema</param>
         /// <returns>The configuration object</returns>
-        public static Configure UseNHibernateTimeoutPersister(this Configure config,
-            Configuration configuration,
-            bool autoUpdateSchema)
+        public static Configure UseNHibernateTimeoutPersister(this Configure config, Configuration configuration, bool autoUpdateSchema)
         {
-          var mapper = new ModelMapper();
-          mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
-          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
+            foreach (var property in configuration.Properties)
+            {
+                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+            }
 
-          configuration.AddMapping(faultMappings);
+            return config.UseNHibernateTimeoutPersisterInternal(configuration, autoUpdateSchema);
+        }
 
-            if (autoUpdateSchema)
-                new SchemaUpdate(configuration).Execute(false, true);
+        /// <summary>
+        /// Disables the automatic creation of the database schema.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure DisableNHibernateTimeoutPersisterInstall(this Configure config)
+        {
+            TimeoutPersisters.NHibernate.Installer.Installer.RunInstaller = false;
+            return config;
+        }
+
+        static Configure UseNHibernateTimeoutPersisterInternal(this Configure config, Configuration configuration, bool autoUpdateSchema)
+        {
+            ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.TimeoutPersisterProperties);
+
+            TimeoutPersisters.NHibernate.Installer.Installer.RunInstaller = autoUpdateSchema;
+            ConfigureNHibernate.AddMappings<TimeoutEntityMap>(configuration);
 
             config.Configurer.ConfigureComponent<TimeoutStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.SessionFactory, configuration.BuildSessionFactory());

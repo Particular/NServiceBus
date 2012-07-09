@@ -8,6 +8,7 @@ using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
 namespace NServiceBus
 {
     using NServiceBus.Logging;
+    using Persistence.NHibernate;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister.
@@ -23,18 +24,19 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure NHibernateSagaPersister(this Configure config)
         {
-            IDictionary<string, string> nhibernateProperties = null;
-            bool updateSchema = false;
-
             var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
+            IDictionary<string, string> properties;
 
-            if (configSection != null)
+            if (configSection == null)
             {
-                nhibernateProperties = configSection.NHibernateProperties.ToProperties();
-                updateSchema = configSection.UpdateSchema;
+                properties = ConfigureNHibernate.SagaPersisterProperties;
+            }
+            else
+            {
+                properties = configSection.NHibernateProperties.ToProperties();
             }
 
-            return NHibernateSagaPersister(config, nhibernateProperties, updateSchema);
+            return config.NHibernateSagaPersister(properties, configSection != null && configSection.UpdateSchema);
         }
 
         /// <summary>

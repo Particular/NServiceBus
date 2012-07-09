@@ -11,7 +11,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [SetUp]
         public void SetUp()
         {
-            
             config = Configure.With(new[] { typeof(MySaga).Assembly})
                 .DefaultBuilder()
                 .Sagas()
@@ -33,13 +32,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             Assert.NotNull(sessionFactory);
             Assert.AreEqual(sessionFactory,config.Builder.Build<ISessionFactory>());
-
         }
-
-
-
-        
     }
-
-  
 }

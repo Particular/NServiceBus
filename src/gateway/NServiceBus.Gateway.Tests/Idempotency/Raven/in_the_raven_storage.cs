@@ -8,7 +8,6 @@
     using NUnit.Framework;
     using Persistence;
     using Persistence.Raven;
-    using global::Raven.Client.Document;
     using global::Raven.Client.Embedded;
 
     public class in_the_raven_storage
@@ -62,9 +61,7 @@
                     Acknowledged = messageStored.Acknowledged
                 };
             }
-
         }
-
 
         protected TestMessage CreateTestMessage()
         {
@@ -82,12 +79,9 @@
                 Headers = headers,
                 OriginalMessage = new byte[] { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 }
 
-            }
-            ;
+            };
         }
-
     }
-
 
     public class TestMessage
     {

@@ -1,8 +1,7 @@
-﻿using NServiceBus.UnitOfWork.NHibernate;
-using NServiceBus.ObjectBuilder;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using UnitOfWork.NHibernate;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate unit of work manager.
     /// </summary>

@@ -45,20 +45,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
       var mapping = modelMapper.Compile();
 
-      //var serializer = new XmlSerializer(typeof (HbmMapping));
-      //using (var writer = XmlWriter.Create("sagamappings.xml", new XmlWriterSettings() { Indent = true}))
-      //serializer.Serialize(writer, mapping);
-
       nhibernateConfiguration.AddMapping(mapping);
 
       ApplyDefaultsTo(nhibernateConfiguration);
 
       if (updateSchema)
         UpdateDatabaseSchemaUsing(nhibernateConfiguration);
-
-      //using (var writer = new StreamWriter("schema.sql"))
-      //  new SchemaExport(nhibernateConfiguration)
-      //    .Execute(s => writer.Write(s), true, false);
 
       try
       {

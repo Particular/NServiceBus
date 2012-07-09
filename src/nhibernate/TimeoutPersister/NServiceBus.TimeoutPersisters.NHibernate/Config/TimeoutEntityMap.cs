@@ -1,11 +1,18 @@
 namespace NServiceBus.TimeoutPersisters.NHibernate.Config
 {
     using NHibernate;
+    using Persistence.NHibernate;
     using global::NHibernate.Mapping.ByCode;
     using global::NHibernate.Mapping.ByCode.Conformist;
 
+    /// <summary>
+    /// Timeout entity map class
+    /// </summary>
     public class TimeoutEntityMap : ClassMapping<TimeoutEntity>
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public TimeoutEntityMap()
         {
             Id(x => x.Id, m => m.Generator(Generators.Assigned));

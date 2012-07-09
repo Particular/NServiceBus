@@ -80,6 +80,7 @@
     <Compile Include="Config\NHibernateProperty.cs" />
     <Compile Include="Config\NHibernatePropertyCollection.cs" />
     <Compile Include="Config\SubscriptionMap.cs" />
+    <Compile Include="Installer\Installer.cs" />
     <Compile Include="ISubscriptionStorageSessionProvider.cs" />
     <Compile Include="SubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,6 +106,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\NServiceBus.Persistence.NHibernate\NServiceBus.Persistence.NHibernate.csproj">
+      <Project>{C01D0E0E-4712-4A5B-9C79-7E0424811703}</Project>
+      <Name>NServiceBus.Persistence.NHibernate</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

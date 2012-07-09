@@ -1,4 +1,4 @@
-namespace NServiceBus.TimeoutPersisters.NHibernate
+namespace NServiceBus.Persistence.NHibernate
 {
     using System;
     using System.Data;
@@ -6,11 +6,11 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
     using global::NHibernate.SqlTypes;
     using global::NHibernate.UserTypes;
 
-    class AddressUserType: IUserType
+    public class AddressUserType : IUserType
     {
-        private static readonly SqlType[] sqlTypes = new[] { NHibernateUtil.String.SqlType };
+        private static readonly SqlType[] sqlTypes = new[] {NHibernateUtil.String.SqlType};
 
-        public bool Equals(object x, object y)
+        public new bool Equals(object x, object y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -22,7 +22,6 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
             }
 
             return x.Equals(y);
-
         }
 
         public int GetHashCode(object x)
@@ -33,7 +32,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
         public object NullSafeGet(IDataReader rs, string[] names, object owner)
         {
             var obj = NHibernateUtil.String.NullSafeGet(rs, names[0]) as string;
-            
+
             return obj == null ? null : Address.Parse(obj);
         }
 

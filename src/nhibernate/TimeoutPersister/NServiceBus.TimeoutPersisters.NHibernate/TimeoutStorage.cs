@@ -9,10 +9,20 @@
     using Timeout.Core;
     using global::NHibernate;
 
+    /// <summary>
+    /// Timeout persister.
+    /// </summary>
     public class TimeoutStorage : IPersistTimeouts
     {
+        /// <summary>
+        /// Creates <c>ISession</c>s.
+        /// </summary>
         public ISessionFactory SessionFactory { get; set; }
 
+        /// <summary>
+        /// Returns list of all timeouts from database.
+        /// </summary>
+        /// <returns>List of all timeouts from database.</returns>
         public IEnumerable<TimeoutData> GetAll()
         {
             using (var session = SessionFactory.OpenStatelessSession())
@@ -37,6 +47,10 @@
             }
         }
 
+        /// <summary>
+        /// Adds a timeout to the database.
+        /// </summary>
+        /// <param name="timeout">Timeout to add.</param>
         public void Add(TimeoutData timeout)
         {
             var newId = Guid.NewGuid();
@@ -62,6 +76,10 @@
             timeout.Id = newId.ToString();
         }
 
+        /// <summary>
+        /// Removes a timeout from the database.
+        /// </summary>
+        /// <param name="timeoutId">Timeout identifier to remove.</param>
         public void Remove(string timeoutId)
         {
             using (var session = SessionFactory.OpenStatelessSession())
@@ -77,6 +95,10 @@
             }
         }
 
+        /// <summary>
+        /// Clears timeouts for a specific saga.
+        /// </summary>
+        /// <param name="sagaId">Saga identifier.</param>
         public void ClearTimeoutsFor(Guid sagaId)
         {
             using (var session = SessionFactory.OpenStatelessSession())
@@ -99,7 +121,7 @@
                 return new Dictionary<string, string>();
             }
 
-            return serializer.DeserializeObject<Dictionary<string, string>>(data);
+            return Serializer.DeserializeObject<Dictionary<string, string>>(data);
         }
 
         static string ConvertDictionaryToString(ICollection data)
@@ -109,9 +131,9 @@
                 return null;
             }
 
-            return serializer.SerializeObject(data);
+            return Serializer.SerializeObject(data);
         }
 
-        static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
     }
 }

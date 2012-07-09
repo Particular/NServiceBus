@@ -142,7 +142,6 @@
     <Compile Include="InMemoryDataBus.cs" />
     <Compile Include="InMemoryReceiver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Idempotency\Persistenstester.cs" />
     <Compile Include="RegularMessage.cs" />
     <Compile Include="Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Routing\When_routing_using_the_configuration_source.cs" />

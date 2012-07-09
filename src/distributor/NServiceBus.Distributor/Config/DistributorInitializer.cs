@@ -4,6 +4,7 @@ namespace NServiceBus.Distributor.Config
 {
     using NServiceBus.Config;
     using Unicast;
+    using Unicast.Distributor;
 
     public class DistributorInitializer
     {
@@ -18,9 +19,12 @@ namespace NServiceBus.Distributor.Config
                 .ConfigureProperty(r => r.InputAddress, masterNodeAddress.SubScope("worker"))
                 .ConfigureProperty(r => r.DoNotStartTransport, !withWorker);
 
-            config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
-                DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.StorageQueueAddress, masterNodeAddress.SubScope("distributor.storage"));
+            if (!config.Configurer.HasComponent<IWorkerAvailabilityManager>())
+            {
+                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
+                    DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(r => r.StorageQueueAddress, masterNodeAddress.SubScope("distributor.storage"));
+            }
 
             var numberOfWorkerThreads = GetNumberOfWorkerThreads();
 

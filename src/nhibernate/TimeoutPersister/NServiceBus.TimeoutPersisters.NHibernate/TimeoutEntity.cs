@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.TimeoutPersisters.NHibernate
 {
     using System;
-    using System.Collections.Generic;
+    using Timeout.Core;
 
+    /// <summary>
+    /// NHibernate wrapper class for <see cref="TimeoutData"/>
+    /// </summary>
     public class TimeoutEntity
     {
         /// <summary>
