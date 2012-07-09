@@ -87,7 +87,6 @@
   <ItemGroup>
     <Compile Include="Command1.cs" />
     <Compile Include="Command2.cs" />
-    <Compile Include="M3.cs" />
     <Compile Include="MultipleInterfaces.cs" />
     <Compile Include="SerializerFactory.cs" />
     <Compile Include="SerializerTests.cs" />

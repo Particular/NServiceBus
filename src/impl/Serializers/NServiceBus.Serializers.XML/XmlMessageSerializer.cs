@@ -542,20 +542,14 @@ namespace NServiceBus.Serializers.XML
 
                 foreach (XmlNode xn in n.ChildNodes) // go over KeyValuePairs
                 {
-                    if (xn.NodeType == XmlNodeType.Whitespace)
-                        continue;
-
                     object key = null;
                     object value = null;
 
                     foreach (XmlNode node in xn.ChildNodes)
                     {
-                        if (node.NodeType == XmlNodeType.Whitespace)
-                            continue;
-
-                        if (node.Name.ToLowerInvariant() == "key")
+                        if (node.Name == "Key")
                             key = GetObjectOfTypeFromNode(keyType, node);
-                        if (node.Name.ToLowerInvariant() == "value")
+                        if (node.Name == "Value")
                             value = GetObjectOfTypeFromNode(valueType, node);
                     }
 
