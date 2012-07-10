@@ -44,7 +44,8 @@ namespace NServiceBus.Utils
 
             var q = GetFullPathWithoutPrefix(address);
 
-            if (address.Machine != Environment.MachineName.ToLower())
+            var isRemote = address.Machine != Environment.MachineName.ToLower();
+            if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
                 Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
@@ -65,6 +66,14 @@ namespace NServiceBus.Utils
                 Logger.Debug("Going to create queue: " + q);
 
                 CreateQueue(q, account);
+            }
+            catch (MessageQueueException ex)
+            {
+                if (isRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
+                {
+                    return;
+                }
+                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
             catch (Exception ex)
             {
