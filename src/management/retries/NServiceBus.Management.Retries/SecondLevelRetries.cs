@@ -56,16 +56,21 @@ namespace NServiceBus.Management.Retries
         {
             Logger.InfoFormat("Send message to error queue, {0}", FaultManager.ErrorQueue);
 
-            message.ReplyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
+            message.ReplyToAddress = TransportMessageHelpers.GetOriginalReplyToAddressAndRemoveItFromHeaders(message);
             MessageSender.Send(message, FaultManager.ErrorQueue);
         }
 
         void Defer(TimeSpan defer, TransportMessage message)
-        {            
-            message.ReplyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
-
+        {
             TransportMessageHelpers.SetHeader(message, Headers.Expire, (DateTime.UtcNow + defer).ToWireFormattedString());
             TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
+
+            if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.OriginalReplyToAddress) && message.ReplyToAddress != null)
+            {
+                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.OriginalReplyToAddress, message.ReplyToAddress.ToString());
+            }
+
+            message.ReplyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
