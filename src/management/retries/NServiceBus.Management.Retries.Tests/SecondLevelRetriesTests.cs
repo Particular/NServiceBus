@@ -124,7 +124,7 @@ namespace NServiceBus.Management.Retries.Tests
         }
 
         [Test]
-        public void The_original_senders_address_should_be_used_as_ReplyToAddress()
+        public void The_original_failing_handler_address_should_be_used_as_ReplyToAddress()
         {
             TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
