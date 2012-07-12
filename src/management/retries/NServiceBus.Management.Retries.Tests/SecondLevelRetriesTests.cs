@@ -35,6 +35,34 @@ namespace NServiceBus.Management.Retries.Tests
         }
 
         [Test]
+        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq()
+        {
+            var expected = new Address("clientQ", "myMachine");
+            _message.ReplyToAddress = expected;
+            SecondLevelRetries.RetryPolicy = _ => TimeSpan.MinValue;
+
+            _satellite.Handle(_message);
+
+            Assert.AreEqual(expected, _message.ReplyToAddress);
+        }
+
+        [Test]
+        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq_after_retries()
+        {
+            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+
+            var expected = new Address("clientQ", "myMachine");
+            _message.ReplyToAddress = expected;
+
+            for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
+            {
+                _satellite.Handle(_message);
+            }
+
+            Assert.AreEqual(expected, _message.ReplyToAddress);
+        }
+
+        [Test]
         public void Message_should_be_sent_to_real_errorQ_if_defer_timespan_is_less_than_zero()
         {
             TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
@@ -96,7 +124,7 @@ namespace NServiceBus.Management.Retries.Tests
         }
 
         [Test]
-        public void The_original_senders_address_should_be_used_as_ReplyToAddress()
+        public void The_original_failing_handler_address_should_be_used_as_ReplyToAddress()
         {
             TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };

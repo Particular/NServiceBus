@@ -24,6 +24,7 @@ namespace NServiceBus.Serializers.XML.Test
     {
         private int number = 1;
         private int numberOfIterations = 100;
+        
 
         [Test, Ignore("Not supported")]
         public void Should_deserialize_arraylist()
@@ -65,6 +66,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
                 Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
+
             }    
         }
 

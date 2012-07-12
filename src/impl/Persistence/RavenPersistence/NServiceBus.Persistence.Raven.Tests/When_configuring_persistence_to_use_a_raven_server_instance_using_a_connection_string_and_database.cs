@@ -60,6 +60,27 @@ namespace NServiceBus.Persistence.Raven.Tests
     }
 
     [TestFixture]
+    public class When_configuring_the_raven_saga_persister_with_a_connection_string_that_has_a_database_set : WithRavenDbServer
+    {
+        protected override void Initialize(Configure config)
+        {
+            config.RavenPersistence("RavenWithDatabaseSet");
+        }
+
+        [Test]
+        public void It_should_use_the_default_database_of_the_store()
+        {
+            Assert.AreEqual("MyDB", store.DefaultDatabase);
+        }
+
+        [Test]
+        public void It_should_use_the_default_resourcemanager_id_if_not_specified_in_the_string()
+        {
+            Assert.AreEqual(RavenPersistenceConstants.DefaultResourceManagerId, store.ResourceManagerId);
+        }
+    }
+
+    [TestFixture]
     public class When_configuring_the_raven_saga_persister_with_a_connection_string_that_has_a_resourcemanager_set : WithRavenDbServer
     {
         protected override void  Initialize(Configure config)

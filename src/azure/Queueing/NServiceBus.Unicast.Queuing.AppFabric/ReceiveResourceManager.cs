@@ -20,20 +20,15 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public void Commit(Enlistment enlistment)
         {
-            try
-            {
-                receivedMessage.Complete();
-            }
-            catch (MessageLockLostException)
-            {
-                // message has been completed by another thread or worker
-            }
-
+            receivedMessage.SafeComplete();
+           
             enlistment.Done();
         }
 
         public void Rollback(Enlistment enlistment)
         {
+            receivedMessage.SafeAbandon();
+
             enlistment.Done();
         }
 

@@ -24,7 +24,9 @@
         /// <returns>Saga Dispatcher</returns>
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
         {
-            if (message.IsTimeoutMessage() && !message.TimeoutHasExpired())
+            var isTimeoutMessage = message.IsTimeoutMessage();
+
+            if (isTimeoutMessage && !message.TimeoutHasExpired())
             {
                 yield return () => Bus.HandleCurrentMessageLater();
                 yield break;
@@ -71,7 +73,10 @@
                                          {
                                              SagaContext.Current = saga;
 
-                                             HandlerInvocationCache.Invoke(saga, message);
+                                             if (isTimeoutMessage && !(message is TimeoutMessage))
+                                                 HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>),saga, message);
+                                             else
+                                                 HandlerInvocationCache.Invoke(typeof(IMessageHandler<>),saga, message);
 
                                              if (!saga.Completed)
                                              {
@@ -119,7 +124,7 @@
         {
             var sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaType);
 
-            if(sagaEntityType == null)
+            if (sagaEntityType == null)
                 throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
 
             var sagaEntity = (ISagaEntity)Activator.CreateInstance(sagaEntityType);

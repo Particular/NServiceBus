@@ -12,7 +12,7 @@
     {
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object toHandle)
         {
-            yield return () => builder.BuildAndDispatch(messageHandlerType, handler => HandlerInvocationCache.Invoke(handler, toHandle));
+            yield return () => builder.BuildAndDispatch(messageHandlerType, handler => HandlerInvocationCache.Invoke(typeof(IMessageHandler<>),handler, toHandle));
         }
 
         public bool CanDispatch(Type handler)
