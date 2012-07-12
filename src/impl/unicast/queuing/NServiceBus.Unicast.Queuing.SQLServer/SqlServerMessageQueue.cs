@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Text;
-
-namespace NServiceBus.Unicast.Queuing.SQLServer
+﻿namespace NServiceBus.Unicast.Queuing.SQLServer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Data.SqlClient;
+    using System.IO;
+    using System.Text;
     using Serializers.Binary;
     using Serialization;
-    using Newtonsoft.Json;
+    using Serializers.Json;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
         private string currentEndpointName;
+        static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
         public string ConnectionString { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }  
@@ -55,8 +55,8 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 	                command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString()); 
 	                command.Parameters.AddWithValue("Recoverable", message.Recoverable); 
 	                command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString()); 
-                    command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks; 
-	                command.Parameters.AddWithValue("Headers", JsonConvert.SerializeObject(message.Headers));
+                    command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
+                    command.Parameters.AddWithValue("Headers", serializer.SerializeObject(message.Headers));
                     command.Parameters.AddWithValue("Body", body); 
 
                     message.Id = command.ExecuteScalar().ToString();
@@ -135,8 +135,8 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                             MessageIntentEnum messageIntent;
                             Enum.TryParse(dataReader.GetString(5), out messageIntent);
 
-                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));                            
-                            var headers = JsonConvert.DeserializeObject<Dictionary<string,string>>(dataReader.GetString(7));
+                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));
+                            var headers = serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(7));
                             var tmpBody = dataReader.GetString(8);
                             
                             byte[] body;
