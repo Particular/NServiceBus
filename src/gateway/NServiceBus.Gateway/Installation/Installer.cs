@@ -1,15 +1,17 @@
+using NServiceBus.Unicast.Queuing;
+
 namespace NServiceBus.Gateway.Installation
 {
     using System.Security.Principal;
-    using NServiceBus.Installation;
-    using NServiceBus.Utils;
 
-    public class Installer : INeedToInstallSomething<NServiceBus.Installation.Environments.Windows>
+    public class Installer : IWantQueuesCreated<NServiceBus.Installation.Environments.Windows>
     {
-        public void Install(WindowsIdentity identity)
+        public ICreateQueues Creator { get; set; }
+
+        public void Create(WindowsIdentity identity)
         {
             if (ConfigureGateway.GatewayInputAddress != null)
-                MsmqUtilities.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name);
+                Creator.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);            
         }
     }
 }

@@ -1,14 +1,16 @@
 ﻿using System.Security.Principal;
-using NServiceBus.Installation;
+using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Proxy
 {
-    class Installer : INeedToInstallSomething<Installation.Environments.Windows>
+    class Installer : IWantQueuesCreated<Installation.Environments.Windows>
     {
-        public void Install(WindowsIdentity identity)
+        public ICreateQueues Creator { get; set; }
+
+        public void Create(WindowsIdentity identity)
         {
             var s = Configure.Instance.Builder.Build<MsmqProxyDataStorage>();
-            Utils.MsmqUtilities.CreateQueueIfNecessary(s.StorageQueue, identity.Name);
+            Creator.CreateQueueIfNecessary(s.StorageQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

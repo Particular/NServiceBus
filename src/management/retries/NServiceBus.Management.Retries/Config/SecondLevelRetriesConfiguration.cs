@@ -3,16 +3,19 @@ using System.Security.Principal;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.Installation;
 using NServiceBus.Management.Retries;
+using NServiceBus.Unicast.Queuing;
 using NServiceBus.Utils;
 
 namespace NServiceBus.Config
 {        
-    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, INeedToInstallSomething<Installation.Environments.Windows>
+    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueuesCreated<Installation.Environments.Windows>
     {
         public static bool IsDisabled;
         static bool installQueue;
         
         private static Address retriesQueueAddress;
+
+        public ICreateQueues QueueCreator { get; set; }
 
         public void Run()
         {
@@ -74,14 +77,6 @@ namespace NServiceBus.Config
                 DefaultRetryPolicy.TimeIncrease = retriesConfig.TimeIncrease;
             }
         }
-
-        public void Install(WindowsIdentity identity)
-        {
-            if (!installQueue)
-                return;
-
-            MsmqUtilities.CreateQueueIfNecessary(RetriesQueueAddress, WindowsIdentity.GetCurrent().Name);
-        }
         
         static Address RetriesQueueAddress 
         {
@@ -89,6 +84,14 @@ namespace NServiceBus.Config
             {
                 return retriesQueueAddress ?? (retriesQueueAddress = Address.Parse(Configure.EndpointName).SubScope("Retries"));
             }
-        }        
+        }
+
+        public void Create(WindowsIdentity identity)
+        {
+            if (!installQueue)
+                return;
+
+            QueueCreator.CreateQueueIfNecessary(RetriesQueueAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+        }
     }
 }

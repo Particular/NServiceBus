@@ -79,12 +79,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
-    <Compile Include="Installers\EndpointInputQueueInstaller.cs" />
     <Compile Include="Installers\MsmqInfrastructureInstaller.cs" />
     <Compile Include="MsmqMessageQueueConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Installers\NServiceBus.Unicast.Queuing.Installers.csproj">
+      <Project>{00601589-0CFA-41B1-9519-C8F784C6B01F}</Project>
+      <Name>NServiceBus.Unicast.Queuing.Installers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Msmq\NServiceBus.Unicast.Queuing.Msmq.csproj">
       <Project>{4D4FA577-EFBD-4DFF-BFFC-2DA1A71F36ED}</Project>
       <Name>NServiceBus.Unicast.Queuing.Msmq</Name>

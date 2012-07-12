@@ -10,16 +10,14 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
     using Installers;
     public class Bootstrapper : INeedInitialization
     {
-        static Bootstrapper()
-        {
-            IsTransactional = true;
-        }
-
         public void Init()
         {
             var transportConfig = Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(
                 DependencyLifecycle.SingleInstance);
 
+            if(IsTransactional)
+                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues;
+            
             transportConfig.ConfigureProperty(t => t.IsTransactional, IsTransactional);
             transportConfig.ConfigureProperty(t => t.IsolationLevel, IsolationLevel);
             transportConfig.ConfigureProperty(t => t.TransactionTimeout, TransactionTimeout);

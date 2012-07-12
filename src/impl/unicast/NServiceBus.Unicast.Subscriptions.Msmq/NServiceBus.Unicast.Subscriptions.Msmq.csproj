@@ -53,6 +53,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Logging">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
@@ -66,6 +69,9 @@
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing">
+      <HintPath>NServiceBus.Unicast.Subscriptions.Msmq.Config\bin\Debug\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
@@ -90,7 +96,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    
     <Compile Include="Entry.cs" />
     <Compile Include="MsmqSubscriptionStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

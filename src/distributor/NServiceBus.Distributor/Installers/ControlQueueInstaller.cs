@@ -1,12 +1,13 @@
 namespace NServiceBus.Distributor.Installers
 {
     using System.Security.Principal;
-    using NServiceBus.Installation;
-    using NServiceBus.Utils;
+    using Unicast.Queuing;
 
-    public class ControlQueueInstaller : INeedToInstallSomething<Installation.Environments.Windows>
+    public class ControlQueueInstaller : IWantQueuesCreated<Installation.Environments.Windows>
     {
-        public void Install(WindowsIdentity identity)
+        public ICreateQueues Creator { get; set; }
+
+        public void Create(WindowsIdentity identity)
         {
             if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
@@ -14,8 +15,7 @@ namespace NServiceBus.Distributor.Installers
             //create the control queue
             var m = Configure.Instance.Builder.Build<DistributorReadyMessageProcessor>();
 
-            MsmqUtilities.CreateQueueIfNecessary(m.ControlQueue, identity.Name);
-
+            Creator.CreateQueueIfNecessary(m.ControlQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

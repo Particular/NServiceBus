@@ -62,7 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurePurging.cs" />
+    <Compile Include="ConfigureVolatileQueues.cs" />
     <Compile Include="FailedToSendMessageException.cs" />
+    <Compile Include="ICreateQueues.cs" />
     <Compile Include="ISendMessages.cs" />
     <Compile Include="QueueNotFoundException.cs" />
     <Compile Include="IReceiveMessages.cs" />

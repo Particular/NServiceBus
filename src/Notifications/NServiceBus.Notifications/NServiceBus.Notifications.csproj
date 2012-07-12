@@ -46,6 +46,9 @@
     <Reference Include="NServiceBus.Satellites">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Satellites.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Utils">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
     </Reference>

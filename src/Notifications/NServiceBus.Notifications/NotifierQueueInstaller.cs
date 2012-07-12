@@ -2,17 +2,19 @@ namespace NServiceBus.Notifications
 {
     using System.Security.Principal;
     using Config;
-    using Installation;
     using Installation.Environments;
+    using Unicast.Queuing;
 
-    public class NotifierQueueInstaller:INeedToInstallSomething<Windows>
+    public class NotifierQueueInstaller:IWantQueuesCreated<Windows>
     {
-        public void Install(WindowsIdentity identity)
+        public ICreateQueues Creator { get; set; }
+
+        public void Create(WindowsIdentity identity)
         {
             if (ConfigureNotifications.NotificationsDisabled)
                 return;
 
-            Utils.MsmqUtilities.CreateQueueIfNecessary(BusExtensions.NotificationAddess,identity.Name);
+            Creator.CreateQueueIfNecessary(BusExtensions.NotificationAddess, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

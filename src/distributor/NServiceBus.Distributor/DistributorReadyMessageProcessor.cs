@@ -24,7 +24,7 @@ namespace NServiceBus.Distributor
         
             controlTransport = new TransactionalTransport
             {
-                IsTransactional = true,
+                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
                 FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 5,

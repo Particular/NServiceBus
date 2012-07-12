@@ -20,7 +20,7 @@ namespace NServiceBus.Proxy
               {
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
-                  IsTransactional = true,
+                  IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
                   MessageReceiver = new MsmqMessageReceiver()
               };
 
@@ -28,7 +28,7 @@ namespace NServiceBus.Proxy
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
-                IsTransactional = true,
+                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
                 MessageReceiver = new MsmqMessageReceiver()
             };
 

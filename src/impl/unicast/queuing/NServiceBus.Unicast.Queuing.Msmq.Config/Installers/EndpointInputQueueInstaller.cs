@@ -14,12 +14,12 @@
             if (!Enabled)
                 return;
 
-            MsmqUtilities.CreateQueueIfNecessary(Address.Local, identity.Name);
+            MsmqUtilities.CreateQueueIfNecessary(Address.Local, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
             if (unicastConfig != null)
                 if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
-                    MsmqUtilities.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name);
+                    MsmqUtilities.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }

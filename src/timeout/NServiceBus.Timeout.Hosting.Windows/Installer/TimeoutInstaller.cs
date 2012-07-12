@@ -1,19 +1,21 @@
-﻿namespace NServiceBus.Timeout.Hosting.Windows.Installer
+﻿using NServiceBus.Unicast.Queuing;
+
+namespace NServiceBus.Timeout.Hosting.Windows.Installer
 {
     using System.Security.Principal;
-    using Installation;
-    using Utils;
 
-    public class TimeoutInstaller : INeedToInstallSomething<Installation.Environments.Windows>
+    public class TimeoutInstaller : IWantQueuesCreated<Installation.Environments.Windows>
     {
+        public ICreateQueues Creator { get; set; }
+
         /// <summary>
         /// Install Timeout manager queue if TimeoutManager is enabled.
         /// </summary>
         /// <param name="identity"></param>
-        public void Install(WindowsIdentity identity)
+        public void Create(WindowsIdentity identity)
         {
             if ((ConfigureTimeoutManager.TimeoutManagerAddress != null) && (Configure.Instance.IsTimeoutManagerEnabled()))
-                MsmqUtilities.CreateQueueIfNecessary(ConfigureTimeoutManager.TimeoutManagerAddress, identity.Name);
+                Creator.CreateQueueIfNecessary(ConfigureTimeoutManager.TimeoutManagerAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
         }
     }
 }
