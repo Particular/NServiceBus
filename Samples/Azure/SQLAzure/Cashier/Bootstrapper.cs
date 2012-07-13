@@ -27,13 +27,10 @@ namespace Cashier
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
-
-              //  .AzureConfigurationSource()
                 .AzureMessageQueue()
                 .JsonSerializer()
-                .DBSubscriptionStorage()
+                .UseNHibernateSubscriptionPersister()
                 .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork()
-
                 .UnicastBus()
                 .LoadMessageHandlers()
                 .IsTransactional(true)

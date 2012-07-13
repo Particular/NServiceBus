@@ -26,12 +26,9 @@ namespace Customer
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
-               
-              // .AzureConfigurationSource()
                .AzureMessageQueue()
                .JsonSerializer()
-               .DBSubscriptionStorage()
-               
+               .UseNHibernateSubscriptionPersister()
                .UnicastBus()
                .LoadMessageHandlers()
                .IsTransactional(true)
