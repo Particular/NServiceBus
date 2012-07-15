@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleManagerTests.cs" />
   </ItemGroup>

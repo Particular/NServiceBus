@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus.Hosting")]
@@ -15,4 +14,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
 [assembly: ComVisible(false)]		
 [assembly: CLSCompliantAttribute(true)]
+[assembly: InternalsVisibleTo("NServiceBus.Hosting.Tests")]
+[assembly: InternalsVisibleTo("NServiceBus.Hosting.Windows")]
+
 

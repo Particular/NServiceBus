@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using NServiceBus.Hosting.Helpers;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Configuration
@@ -15,18 +17,19 @@ namespace NServiceBus.Hosting.Configuration
         /// </summary>
         /// <param name="assembliesToScan"></param>
         /// <param name="specifier"></param>
-        public ConfigManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
+        public ConfigManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
         {
             this.specifier = specifier;
 
-            foreach(var a in assembliesToScan)
-                foreach(var t in a.GetTypes())
-                {
-                    if (typeof(IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract && !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
-                        toInitialize.Add(t);
-                    if (typeof(IWantToRunAtStartup).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-                        toRunAtStartup.Add(t);
-                }
+            toInitialize = assembliesToScan
+                .AllTypesAssignableTo<IWantCustomInitialization>()
+                .WhereConcrete()
+                .Where(t => !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
+                .ToList();
+            toRunAtStartup = assembliesToScan
+                .AllTypesAssignableTo<IWantToRunAtStartup>()
+                .WhereConcrete()
+                .ToList();
         }
 
         /// <summary>
@@ -109,8 +112,8 @@ namespace NServiceBus.Hosting.Configuration
             }
         }
 
-        private readonly IList<Type> toInitialize = new List<Type>();
-        private readonly IList<Type> toRunAtStartup = new List<Type>();
+        internal List<Type> toInitialize ;
+        internal List<Type> toRunAtStartup;
         private readonly IConfigureThisEndpoint specifier;
 
         private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;
