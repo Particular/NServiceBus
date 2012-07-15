@@ -22,7 +22,7 @@ namespace NServiceBus.Hosting.Tests
                 .Where(t => !typeof (IConfigureThisEndpoint).IsAssignableFrom(t))
                 .ToList();
             stopwatch.Stop();
-            Debug.WriteLine(stopwatch.ElapsedMilliseconds + "ms");
+            Debug.WriteLine("Find implementations: "+  stopwatch.ElapsedMilliseconds + "ms");
         }
 
         [Test]
@@ -42,7 +42,8 @@ namespace NServiceBus.Hosting.Tests
                 }
             }
             stopwatch.Stop();
-            Debug.WriteLine(stopwatch.ElapsedMilliseconds + "ms");
+            Debug.WriteLine("Find implementations: " + stopwatch.ElapsedMilliseconds + "ms");
+
         }
     }
 }
