@@ -20,23 +20,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         {
             this.store = store;
 
-            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
+            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/ByOwningTimeoutManager",
                                             new IndexDefinitionBuilder<TimeoutData>
                                                 {
                                                     Map = docs => from doc in docs
-                                                                  select new { doc.Time, OwningTimeoutManager = doc.OwningTimeoutManager ?? "" },
-                                                    SortOptions =
-                                                            {
-                                                                {doc => doc.Time, SortOptions.String}
-                                                            },
-                                                    Indexes =
-                                                            {
-                                                                {doc => doc.Time, FieldIndexing.Default}
-                                                            },
-                                                    Stores =
-                                                            {
-                                                                {doc => doc.Time, FieldStorage.No}
-                                                            }
+                                                                  select new { OwningTimeoutManager = doc.OwningTimeoutManager ?? "" },
                                                 }, true);
 
             store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
@@ -60,7 +48,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 {
                     using (var session = OpenSession())
                     {
-                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/ByOwningTimeoutManager")
                             // we'll wait for nonstale results up until the point in time that we start fetching
                             // since other timeouts that has arrived in the meantime will have been added to the 
                             // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA

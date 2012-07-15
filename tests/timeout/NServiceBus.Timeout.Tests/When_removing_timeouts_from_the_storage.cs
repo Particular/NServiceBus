@@ -10,11 +10,17 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData();
+            var t1 = new TimeoutData
+                         {
+                             OwningTimeoutManager = Configure.EndpointName
+                         };
 
             persister.Add(t1);
 
-            var t2 = new TimeoutData();
+            var t2 = new TimeoutData
+                         {
+                             OwningTimeoutManager = Configure.EndpointName
+                         };
 
             persister.Add(t2);
 

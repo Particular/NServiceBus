@@ -17,7 +17,8 @@ namespace NServiceBus.Timeout.Tests
             {
                 persister.Add(new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(1)
+                    Time = DateTime.UtcNow.AddHours(1),
+                    OwningTimeoutManager = Configure.EndpointName
                 });
             }
 
@@ -50,6 +51,7 @@ namespace NServiceBus.Timeout.Tests
             persister.Add(new TimeoutData
             {
                 Time = DateTime.UtcNow.AddHours(1),
+                OwningTimeoutManager = String.Empty
             });
 
 
@@ -65,7 +67,8 @@ namespace NServiceBus.Timeout.Tests
             {
                 persister.Add(new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(1)
+                    Time = DateTime.UtcNow.AddHours(1),
+                    OwningTimeoutManager = String.Empty
                 });
             }
 
