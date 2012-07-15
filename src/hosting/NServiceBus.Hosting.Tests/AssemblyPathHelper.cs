@@ -15,8 +15,9 @@ namespace NServiceBus.Hosting.Tests
                 var uri = new UriBuilder(codeBase);
                 var path = Uri.UnescapeDataString(uri.Path);
                 var directoryName = Path.GetDirectoryName(path);
+                var files = Directory.EnumerateFiles(directoryName, "*.dll").ToList();
                 var stopwatch = Stopwatch.StartNew();
-            var allAssemblies = Directory.EnumerateFiles(directoryName, "*.dll")
+            var allAssemblies = files
                 .Select(Assembly.LoadFrom)
                 .ToList();
             stopwatch.Stop();

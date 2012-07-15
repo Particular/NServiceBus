@@ -41,6 +41,18 @@
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.3\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.3\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.3\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.3\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
@@ -67,6 +79,7 @@
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="ConfigManagerTests.cs" />
+    <Compile Include="InterfaceImplementationFinder.cs" />
     <Compile Include="ProfileManagerTests.cs" />
     <Compile Include="ReflectionPerfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
