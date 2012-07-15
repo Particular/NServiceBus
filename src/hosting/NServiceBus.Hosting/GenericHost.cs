@@ -137,7 +137,7 @@ namespace NServiceBus.Hosting
         /// <param name="defaultProfiles"></param>
         /// <param name="endpointName"></param>
         /// <param name="scannableAssembliesFullName">Assemblies full name that were scanned.</param>
-        public GenericHost(IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
+        public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
             Configure.GetEndpointNameAction = () => endpointName;

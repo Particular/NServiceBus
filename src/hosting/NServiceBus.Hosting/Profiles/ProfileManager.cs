@@ -24,7 +24,7 @@ namespace NServiceBus.Hosting.Profiles
         /// <param name="specifier"></param>
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
-        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles)
+        public ProfileManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles)
         {
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
