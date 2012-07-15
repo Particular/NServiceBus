@@ -14,7 +14,7 @@ namespace NServiceBus.Hosting.Profiles
     public class ProfileManager
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
-        private readonly IEnumerable<Type> activeProfiles;
+        internal readonly List<Type> activeProfiles;
         private readonly IConfigureThisEndpoint specifier;
 
         /// <summary>
@@ -28,6 +28,7 @@ namespace NServiceBus.Hosting.Profiles
         {
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
+
             var profiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower())));
 
             if (profiles.Count() == 0)
