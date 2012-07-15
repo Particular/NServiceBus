@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using NServiceBus.Hosting.Helpers;
 
@@ -16,15 +14,12 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void SubSetAssemblies()
         {
-            var assemblies = Directory.EnumerateFiles(AssemblyDirectory, "*.dll")
-                .Select(Assembly.LoadFrom)
-                .ToList();
-
+            var assemblies = AssemblyPathHelper.GetAllAssemblies();
             var stopwatch = Stopwatch.StartNew();
             var types = assemblies
                 .AllTypesAssignableTo<IWantCustomInitialization>()
                 .WhereConcrete()
-                .Where(t => !typeof(IConfigureThisEndpoint).IsAssignableFrom(t))
+                .Where(t => !typeof (IConfigureThisEndpoint).IsAssignableFrom(t))
                 .ToList();
             stopwatch.Stop();
             Debug.WriteLine(stopwatch.ElapsedMilliseconds + "ms");
@@ -33,13 +28,10 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void AllAssemblies()
         {
-            var assemblies = Directory.EnumerateFiles(AssemblyDirectory, "*.dll")
-                .Select(Assembly.LoadFrom)
-                .ToList();
-
+            var assemblies = AssemblyPathHelper.GetAllAssemblies();
             var stopwatch = Stopwatch.StartNew();
             var types = new List<Type>();
-            foreach(var a in assemblies)
+            foreach (var a in assemblies)
             {
                 foreach (var t in a.GetTypes())
                 {
@@ -51,16 +43,6 @@ namespace NServiceBus.Hosting.Tests
             }
             stopwatch.Stop();
             Debug.WriteLine(stopwatch.ElapsedMilliseconds + "ms");
-        }
-        static public string AssemblyDirectory
-        {
-            get
-            {
-                var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                var uri = new UriBuilder(codeBase);
-                var path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
         }
     }
 }

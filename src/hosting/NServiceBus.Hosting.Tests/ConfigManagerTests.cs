@@ -67,5 +67,4 @@ namespace NServiceBus.Hosting.Tests
         {
         }
     }
-
 }

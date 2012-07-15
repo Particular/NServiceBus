@@ -63,6 +63,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyListExtensions\AllTypesAssignableToTests.cs" />
+    <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
+    <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="ConfigManagerTests.cs" />
     <Compile Include="ReflectionPerfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
