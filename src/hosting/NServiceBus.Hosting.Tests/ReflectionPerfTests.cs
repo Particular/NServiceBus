@@ -16,13 +16,21 @@ namespace NServiceBus.Hosting.Tests
         {
             var assemblies = AssemblyPathHelper.GetAllAssemblies();
             var stopwatch = Stopwatch.StartNew();
-            var types = assemblies
+            var types1 = assemblies
                 .AllTypesAssignableTo<IWantCustomInitialization>()
                 .WhereConcrete()
                 .Where(t => !typeof (IConfigureThisEndpoint).IsAssignableFrom(t))
                 .ToList();
             stopwatch.Stop();
-            Debug.WriteLine("Find implementations: "+  stopwatch.ElapsedMilliseconds + "ms");
+            Debug.WriteLine("Find implementations 1: "+  stopwatch.ElapsedMilliseconds + "ms");
+            stopwatch = Stopwatch.StartNew();
+            var types2 = assemblies
+                .AllTypesAssignableTo<IWantCustomInitialization>()
+                .WhereConcrete()
+                .Where(t => !typeof (IConfigureThisEndpoint).IsAssignableFrom(t))
+                .ToList();
+            stopwatch.Stop();
+            Debug.WriteLine("Find implementations 2: "+  stopwatch.ElapsedMilliseconds + "ms");
         }
 
         [Test]
@@ -30,19 +38,13 @@ namespace NServiceBus.Hosting.Tests
         {
             var assemblies = AssemblyPathHelper.GetAllAssemblies();
             var stopwatch = Stopwatch.StartNew();
-            var types = new List<Type>();
-            foreach (var a in assemblies)
-            {
-                foreach (var t in a.GetTypes())
-                {
-                    if (typeof (IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract && !typeof (IConfigureThisEndpoint).IsAssignableFrom(t))
-                    {
-                        types.Add(t);
-                    }
-                }
-            }
+            var types1 = (from a in assemblies from t in a.GetTypes() where typeof (IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract && !typeof (IConfigureThisEndpoint).IsAssignableFrom(t) select t).ToList();
             stopwatch.Stop();
-            Debug.WriteLine("Find implementations: " + stopwatch.ElapsedMilliseconds + "ms");
+            Debug.WriteLine("Find implementations 1: " + stopwatch.ElapsedMilliseconds + "ms");
+            stopwatch = Stopwatch.StartNew();
+            var types2 = (from a in assemblies from t in a.GetTypes() where typeof (IWantCustomInitialization).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract && !typeof (IConfigureThisEndpoint).IsAssignableFrom(t) select t).ToList();
+            stopwatch.Stop();
+            Debug.WriteLine("Find implementations 2: " + stopwatch.ElapsedMilliseconds + "ms");
 
         }
     }

@@ -1,6 +1,4 @@
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using NServiceBus.Hosting.Helpers;
 
