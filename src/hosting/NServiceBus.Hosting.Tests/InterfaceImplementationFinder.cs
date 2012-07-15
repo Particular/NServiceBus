@@ -8,7 +8,6 @@ namespace NServiceBus.Hosting.Tests
     public class InterfaceImplementationFinder
     {
         string fullInterfaceName;
-        List<string> targetAssemblyPaths;
         List<ModuleDefinition> moduleDefinitions;
         public Dictionary<string, bool> implementing = new Dictionary<string, bool>();
 
