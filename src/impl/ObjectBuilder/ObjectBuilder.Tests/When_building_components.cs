@@ -1,16 +1,13 @@
 using System;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.ObjectBuilder.Ninject;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.CastleWindsor;
 
 namespace ObjectBuilder.Tests
 {
-    using NServiceBus;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-
     [TestFixture]
     public class When_building_components : BuilderFixture
     {
@@ -41,7 +38,7 @@ namespace ObjectBuilder.Tests
         {            
             ForAllBuilders((builder) =>
                Assert.NotNull(builder.Build(typeof(LambdaComponentUoW))),               
-               typeof(WindsorObjectBuilder), typeof(SpringObjectBuilder), typeof(UnityObjectBuilder));
+               typeof(WindsorObjectBuilder), typeof(UnityObjectBuilder));
         }
 
         [Test]
@@ -49,7 +46,7 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders((builder) =>
                Assert.AreNotEqual(builder.Build(typeof(SingleCallLambdaComponent)), builder.Build(typeof(SingleCallLambdaComponent))),
-               typeof(SpringObjectBuilder), typeof(UnityObjectBuilder));
+               typeof(UnityObjectBuilder));
         }
 
         [Test]
@@ -57,7 +54,7 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders((builder) =>
                Assert.AreEqual(builder.Build(typeof(SingletonLambdaComponent)), builder.Build(typeof(SingletonLambdaComponent))),
-               typeof(SpringObjectBuilder), typeof(UnityObjectBuilder));
+               typeof(UnityObjectBuilder));
         }
 
         [Test]

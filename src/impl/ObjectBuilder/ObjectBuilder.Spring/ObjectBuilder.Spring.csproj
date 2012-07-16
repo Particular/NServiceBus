@@ -56,7 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
+    <Compile Include="ArbitraryFuncDelegatingFactoryObject.cs" />
     <Compile Include="ComponentConfig.cs" />
     <Compile Include="Config\ConfigureSpringBuilder.cs" />
     <Compile Include="SpringObjectBuilder.cs" />

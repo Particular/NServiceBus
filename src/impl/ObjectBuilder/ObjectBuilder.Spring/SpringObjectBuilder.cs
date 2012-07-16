@@ -9,8 +9,6 @@ using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
-    using System.Linq;
-
     /// <summary>
     /// Implementation of IBuilderInternal using the Spring Framework container
     /// </summary>
@@ -82,12 +80,20 @@ namespace NServiceBus.ObjectBuilder.Spring
             lock (componentProperties)
                 if (!componentProperties.ContainsKey(concreteComponent))
                     componentProperties[concreteComponent] = new ComponentConfig();
-            
         }
 
         void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
-            throw new NotSupportedException("SpringObjectBuilder does not support lambda expressions.");
+            var componentType = typeof(T);
+
+            if (((IContainer)this).HasComponent(componentType))
+            {
+                return;
+            }
+
+            var funcFactory = new ArbitraryFuncDelegatingFactoryObject<T>(componentFactory, dependencyLifecycle == DependencyLifecycle.SingleInstance);
+            
+            ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(componentType.FullName, funcFactory);
         }
 
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
@@ -153,6 +159,7 @@ namespace NServiceBus.ObjectBuilder.Spring
                 }
             }
 
+            context.Refresh();
             initialized = true;
         }
 
