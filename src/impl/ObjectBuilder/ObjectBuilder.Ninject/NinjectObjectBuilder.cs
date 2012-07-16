@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Ninject;
 using Ninject.Activation;
-using Ninject.Activation.Strategies;
 using Ninject.Infrastructure;
 using Ninject.Injection;
 using Ninject.Parameters;
@@ -71,8 +70,6 @@ namespace NServiceBus.ObjectBuilder.Ninject
             this.propertyHeuristic = this.kernel.Get<IObjectBuilderPropertyHeuristic>();
 
             this.AddCustomPropertyInjectionHeuristic();
-
-            this.ReplacePropertyInjectionStrategyWithCustomPropertyInjectionStrategy();
 
             this.kernel.Bind<NinjectChildContainer>().ToSelf().Named("Container").DefinesNamedScope("Container");
         }
@@ -205,14 +202,15 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            if (propertyHeuristic.RegisteredTypes.Contains(lookupType))
+            if (this.propertyHeuristic.RegisteredTypes.Contains(lookupType))
             {
-                kernel.Rebind(lookupType).ToConstant(instance);
+                this.kernel.Rebind(lookupType).ToConstant(instance);
                 return;
             }
-            propertyHeuristic.RegisteredTypes.Add(lookupType);
+
+            this.propertyHeuristic.RegisteredTypes.Add(lookupType);
 			
-            kernel.Bind(lookupType).ToConstant(instance);
+            this.kernel.Bind(lookupType).ToConstant(instance);
         }
 
         /// <summary>
@@ -379,30 +377,11 @@ namespace NServiceBus.ObjectBuilder.Ninject
         {
             this.kernel.Bind<IContainer>().ToConstant(this).InSingletonScope();
 
-            this.kernel.Bind<NewActivationPropertyInjectStrategy>().ToSelf()
-                .InSingletonScope()
-                .WithPropertyValue("Settings", ctx => ctx.Kernel.Settings);
-
             this.kernel.Bind<IObjectBuilderPropertyHeuristic>().To<ObjectBuilderPropertyHeuristic>()
                 .InSingletonScope()
                 .WithPropertyValue("Settings", ctx => ctx.Kernel.Settings);
 
             this.kernel.Bind<IInjectorFactory>().ToMethod(ctx => ctx.Kernel.Components.Get<IInjectorFactory>());
-        }
-
-        /// <summary>
-        /// Replaces the default property injection strategy with custom property injection strategy.
-        /// </summary>
-        private void ReplacePropertyInjectionStrategyWithCustomPropertyInjectionStrategy()
-        {
-            IList<IActivationStrategy> activationStrategies = this.kernel.Components.Get<IPipeline>().Strategies;
-
-            IList<IActivationStrategy> copiedStrategies = new List<IActivationStrategy>(
-                activationStrategies.Where(strategy => !strategy.GetType().Equals(typeof(PropertyInjectionStrategy)))
-                    .Union(new List<IActivationStrategy> { this.kernel.Get<NewActivationPropertyInjectStrategy>() }));
-
-            activationStrategies.Clear();
-            copiedStrategies.ToList().ForEach(activationStrategies.Add);
         }
     }
 }
