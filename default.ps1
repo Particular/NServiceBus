@@ -44,7 +44,7 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends ReleaseNServiceBus -description "Invokes ReleaseNServiceBus task"
  
-task Clean -description "Cleans the eviorment for the build" {
+task Clean -description "Cleans the environment for the build" {
 
 	if(Test-Path $buildBase){
 		Delete-Directory $buildBase
@@ -115,7 +115,7 @@ task CompileMain -depends InitEnvironment -description "Builds NServiceBus.dll a
 	$solutions = dir "$srcDir\core\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus\" /p:Configuration=$buildConfiguration }
+		exec { &$script:msBuild /p:OutDir="$buildBase\nservicebus\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	$assemblies = @()
@@ -147,7 +147,7 @@ $coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", 
 	 	$solutions = dir "*.sln"
 		$solutions | % {
 			$solutionFile = $_.FullName
-			exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\nservicebus.core\" /p:Configuration=$buildConfiguration }
+			exec { &$script:msBuild /p:OutDir="$buildBase\nservicebus.core\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 		}
 	}
 	cd $baseDir
@@ -155,7 +155,7 @@ $coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", 
 	$solutions = dir "$srcDir\AttributeAssemblies\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\attributeAssemblies\" /p:Configuration=$buildConfiguration }
+		exec { &$script:msBuild /p:OutDir="$buildBase\attributeAssemblies\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Core.dll"
@@ -197,7 +197,7 @@ task CompileContainers -depends InitEnvironment -description "Builds the contain
 	$solutions = dir "$srcDir\impl\ObjectBuilder\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\containers\" /p:Configuration=$buildConfiguration }		
+		exec { &$script:msBuild /p:OutDir="$buildBase\containers\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }		
 	}
 	
 	if(Test-Path "$buildBase\output\containers"){
@@ -254,7 +254,7 @@ task CompileWebServicesIntegration -depends InitEnvironment -description "Builds
 	$solutions = dir "$srcDir\integration\WebServices\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$outDir\" /p:Configuration=$buildConfiguration }		
+		exec { &$script:msBuild /p:OutDir="$outDir\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }		
 	}
 	
 	Copy-Item $outDir\NServiceBus.Integration.*.* $binariesDir -Force;
@@ -265,7 +265,7 @@ task CompileNHibernate -depends InitEnvironment -description "Builds NServiceBus
 	$solutions = dir "$srcDir\nhibernate\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\NServiceBus.NHibernate\" /p:Configuration=$buildConfiguration }		
+		exec { &$script:msBuild /p:OutDir="$buildBase\NServiceBus.NHibernate\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }		
 	}
 	$assemblies = dir $buildBase\NServiceBus.NHibernate\NServiceBus.**NHibernate**.dll -Exclude **Tests.dll
 	Ilmerge  $ilMergeKey $outDir "NServiceBus.NHibernate" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusNHibernateMergeLog.txt"  $ilMergeExclude
@@ -289,7 +289,7 @@ task CompileAzure -depends InitEnvironment -description "Builds NServiceBus.Azur
 	$solutions = dir "$srcDir\azure\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\NServiceBus.Azure\" /p:Configuration=$buildConfiguration }		
+		exec { &$script:msBuild /p:OutDir="$buildBase\azure\NServiceBus.Azure\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }		
 	}
 	$attributeAssembly = "$buildBase\attributeAssemblies\NServiceBus.Azure.dll"
 	$assemblies = dir $buildBase\azure\NServiceBus.Azure\NServiceBus.**Azure**.dll -Exclude **Tests.dll
@@ -322,7 +322,7 @@ task CompileHosts  -depends InitEnvironment -description "Builds NServiceBus.Hos
 	$solutions = dir "$srcDir\hosting\*.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\hosting\" /p:Configuration=$buildConfiguration }		
+		exec { &$script:msBuild /p:OutDir="$buildBase\hosting\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }		
 	}
 	
 	$assemblies = @("$buildBase\hosting\NServiceBus.Hosting.Windows.exe", "$buildBase\hosting\NServiceBus.Hosting.dll",
@@ -339,9 +339,9 @@ task CompileHosts32  -depends InitEnvironment -description "Builds NServiceBus.H
 	$solutions | % {
 		$solutionFile = $_.FullName
 		
-		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration /t:Clean }
+		exec { &$script:msBuild /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration /t:Clean /nr:true $solutionFile }
 		
-		exec { &$script:msBuild $solutionFile /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration}
+		exec { &$script:msBuild /p:PlatformTarget=x86 /p:OutDir="$buildBase\hosting32\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	
@@ -359,7 +359,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
+		exec { &$script:msBuild /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.dll",
@@ -373,7 +373,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Timeout\Timeout.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Timeout\" /p:Configuration=$buildConfiguration}
+		exec { &$script:msBuild /p:OutDir="$buildBase\azure\Timeout\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	echo "Copying NServiceBus.Timeout.Hosting.Azure....."	
@@ -382,7 +382,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 	$solutions = dir "$srcDir\azure\Hosting\NServiceBus.Hosting.HostProcess.sln"
 	$solutions | % {
 		$solutionFile = $_.FullName
-		exec { &$script:msBuild $solutionFile /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration}
+		exec { &$script:msBuild /p:OutDir="$buildBase\azure\Hosting\" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 	}
 	
 	$assemblies = @("$buildBase\azure\Hosting\NServiceBus.Hosting.Azure.HostProcess.exe",
@@ -402,7 +402,7 @@ task CompileTools -depends InitEnvironment -description "Builds the tools XsdGen
 		$currentOutDir = "$buildBase\$_\"
 		$solutions | % {
 			$solutionFile = $_.FullName
-			exec { &$script:msBuild $solutionFile /p:OutDir="$currentOutDir" /p:Configuration=$buildConfiguration}
+			exec { &$script:msBuild /p:OutDir="$currentOutDir" /p:Configuration=$buildConfiguration /nr:true $solutionFile }
 		}
 	}
 	
@@ -530,7 +530,7 @@ task CompileSamples -depends InitEnvironment -description "Compiles all the samp
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
 				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
 				$solutionFile = $_.FullName
-				exec {&$script:msBuild $solutionFile}
+				exec { &$script:msBuild /nr:true $solutionFile }
 			}
 		}
 	}
@@ -627,11 +627,11 @@ task CreatePackages {
 	`$appConfigFile = `$directoryName + `"\App.config`"
 	if((Test-Path -Path `$appConfigFile) -eq `$true){
 		[xml] `$appConfig = Get-Content `$appConfigFile
-		`$selectedNodes = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig`" -Xml `$appConfig
+		`$selectedNodes = Select-Xml -XPath `"/configuration/nr:trueessageForwardingInCaseOfFaultConfig`" -Xml `$appConfig
 		if(`$selectedNodes -ne `$null){
 			`$selectedNodes.Count
 			if(`$selectedNodes.Count -gt 1){
-				`$selectedNode = Select-Xml -XPath `"/configuration/MessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
+				`$selectedNode = Select-Xml -XPath `"/configuration/nr:trueessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
 				`$appConfig | select-xml -xpath `"/configuration`" | % {`$_.node.removechild(`$selectedNode.node)}
 				`$writerSettings = new-object System.Xml.XmlWriterSettings
 				`$writerSettings.OmitXmlDeclaration = `$false
