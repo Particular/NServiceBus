@@ -14,9 +14,10 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Invokes the handle method of the given handler passing the message
         /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="message"></param>
-        public static void Invoke(Type interfaceType,object handler, object message)
+        /// <param name="interfaceType">The method that implements the interface type to execute.</param>
+        /// <param name="handler">The handler instance.</param>
+        /// <param name="message">The message instance.</param>
+        public static void Invoke(Type interfaceType, object handler, object message)
         {
             var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[handler.GetType()];
             foreach (var messageType in messageTypesToMethods.Keys)
@@ -25,10 +26,10 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Registers the metod in the cache
+        /// Registers the method in the cache
         /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="messageType"></param>
+        /// <param name="handler">The object type.</param>
+        /// <param name="messageType">the message type.</param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
         {
             if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(handler))
@@ -38,30 +39,27 @@ namespace NServiceBus.Unicast
                 handlerToMessageTypeToHandleMethodMap[handler].Add(messageType, GetHandleMethods(handler, messageType));
         }
 
-
-
-
-        static IDictionary<Type,MethodInfo> GetHandleMethods(Type targetType, Type messageType)
+        static IDictionary<Type, MethodInfo> GetHandleMethods(Type targetType, Type messageType)
         {
             var result = new Dictionary<Type, MethodInfo>();
+
             foreach (var handlerInterface in handlerInterfaces)
             {
                 MethodInfo method = null;
-                try
+
+                var interfaceType = handlerInterface.MakeGenericType(messageType);
+
+                if (interfaceType.IsAssignableFrom(targetType))
                 {
-                    method = targetType.GetInterfaceMap(handlerInterface.MakeGenericType(messageType))
+                    method = targetType.GetInterfaceMap(interfaceType)
                         .TargetMethods
                         .FirstOrDefault();
-
-                }
-                catch
-                {
-                    //intentionally swallow
                 }
 
                 if (method != null)
-                   result.Add(handlerInterface,method);
-                
+                {
+                    result.Add(handlerInterface, method);
+                }
             }
 
             return result;
