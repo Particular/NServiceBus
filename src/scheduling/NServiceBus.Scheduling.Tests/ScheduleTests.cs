@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using NUnit.Framework;
 
 namespace NServiceBus.Scheduling.Tests
 {
+    using System.Threading.Tasks;
+
     [TestFixture]
     public class ScheduleTests
     {
@@ -44,58 +44,20 @@ namespace NServiceBus.Scheduling.Tests
         [Test]
         public void Schedule_tasks_using_mutiple_threads()
         {
-            var threads = new Thread[20];
-            
-            ScheduleTaskThreads(threads);
-
-            threads = new Thread[20];
+            Parallel.For(0, 20, i => Schedule.Every(TimeSpan.FromSeconds(1)).Action(() => { }));
             
             _bus.DeferWasCalled = 0;
-            InvokeHandlerThreads(threads);
+
+            Parallel.ForEach(_taskStorage.Tasks,
+                              t => new ScheduledTaskMessageHandler(new DefaultScheduler(_bus, _taskStorage)).Handle(
+                                  new Messages.ScheduledTask { TaskId = t.Key }));
 
             Assert.That(_bus.DeferWasCalled, Is.EqualTo(20));
         }
 
         private bool EnsureThatNameExists(string name)
         {
-            return _taskStorage.Tasks.Where(task => task.Value.Name.Equals(name)).Any();
-        }
-
-        private static void ScheduleTaskThreads(IList<Thread> threads)
-        {
-            for (var i=0; i < threads.Count; i++)
-            {
-                threads[i] = new Thread(() => Schedule.Every(TimeSpan.FromSeconds(1)).Action(() => {}));
-            }
-
-            StartJoin(threads);
-        }
-
-        private void InvokeHandlerThreads(IList<Thread> threads)
-        {
-            var j = 0;
-
-            foreach (var task in _taskStorage.Tasks)
-            {
-                var t = task;
-                threads[j] = new Thread(() => new ScheduledTaskMessageHandler(new DefaultScheduler(_bus, _taskStorage)).Handle(new Messages.ScheduledTask { TaskId = t.Key }));
-                j++;
-            }
-
-            StartJoin(threads);
-        }
-
-        private static void StartJoin(IEnumerable<Thread> threads)
-        {
-            foreach (var t in threads)
-            {
-                t.Start();
-            }
-
-            foreach (var t in threads)
-            {
-                t.Join();
-            }
+            return _taskStorage.Tasks.Any(task => task.Value.Name.Equals(name));
         }
     }
 }

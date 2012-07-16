@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace NServiceBus.Scheduling.Tests
 {
+    using System.Threading;
+
     public class FakeBus : IBus 
     {
         public T CreateInstance<T>()
@@ -127,7 +129,7 @@ namespace NServiceBus.Scheduling.Tests
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            _deferWasCalled++;
+            Interlocked.Increment(ref _deferWasCalled);
             _deferDelay = delay;
             _deferMessages = messages;
             return null;
@@ -157,7 +159,7 @@ namespace NServiceBus.Scheduling.Tests
         }
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            _deferWasCalled++;
+            Interlocked.Increment(ref _deferWasCalled);
             _deferProcessAt = processAt;
             _deferMessages = messages;
             return null;
