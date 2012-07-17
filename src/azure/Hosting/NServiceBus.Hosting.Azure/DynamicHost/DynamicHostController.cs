@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Profiles;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting
 {
@@ -21,12 +21,12 @@ namespace NServiceBus.Hosting
         private DynamicHostMonitor monitor;
         private List<EndpointToHost> runningServices;
 
-        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles, IEnumerable<Type> defaultProfiles, string endpointName)
+        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles, List<Type> defaultProfiles, string endpointName)
         {
             this.specifier = specifier;
             Configure.GetEndpointNameAction = (Func<string>)(() => endpointName);
 
-            var assembliesToScan = new[] {GetType().Assembly};
+            var assembliesToScan = new List<Assembly> {GetType().Assembly};
 
             profileManager = new ProfileManager(assembliesToScan, specifier, requestedProfiles, defaultProfiles);
             configManager = new ConfigManager(assembliesToScan, specifier);
