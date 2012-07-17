@@ -60,7 +60,6 @@
   <ItemGroup>
     <Compile Include="Config\ConfigureNinjectBuilder.cs" />
     <Compile Include="Internal\IObjectBuilderPropertyHeuristic.cs" />
-    <Compile Include="Internal\NewActivationPropertyInjectStrategy.cs" />
     <Compile Include="Internal\NinjectChildContainer.cs" />
     <Compile Include="Internal\ObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="NinjectObjectBuilder.cs" />
