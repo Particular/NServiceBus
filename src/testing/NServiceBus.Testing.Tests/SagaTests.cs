@@ -50,6 +50,19 @@ namespace NServiceBus.Testing.Tests
                 .When(s => s.Handle(new SubmitOrder { Total = total }));
         }
 
+
+		[Test]
+		public void RemoteOrder()
+		{
+			decimal total = 100;
+
+			Test.Saga<DiscountPolicy>()
+						.ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Queue == "remote.orderqueue")
+						.ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+						.When(s => s.Handle(new SubmitOrder {Total = total, IsRemoteOrder = true}));
+		}
+
+
         [Test]
         public void DiscountTestWithSpecificTimeout()
         {
@@ -110,7 +123,7 @@ namespace NServiceBus.Testing.Tests
 
 
     public class DiscountPolicy : Saga.Saga<DiscountPolicyData>,
-    IAmStartedByMessages<SubmitOrder>,
+		IAmStartedByMessages<SubmitOrder>,
         IHandleTimeouts<SubmitOrder>
     {
         public void Handle(SubmitOrder message)
@@ -118,6 +131,9 @@ namespace NServiceBus.Testing.Tests
             Data.CustomerId = message.CustomerId;
             Data.RunningTotal += message.Total;
 
+			if (message.IsRemoteOrder)
+				ProcessExternalOrder(message);
+        	else
             if (Data.RunningTotal >= 1000)
                 ProcessOrderWithDiscount(message);
             else
@@ -126,7 +142,17 @@ namespace NServiceBus.Testing.Tests
             RequestUtcTimeout(TimeSpan.FromDays(7), message);
         }
 
-        public void Timeout(SubmitOrder state)
+    	private void ProcessExternalOrder(SubmitOrder message)
+    	{
+			Bus.Send<ProcessOrder>("remote.orderqueue", m =>
+			{
+				m.CustomerId = Data.CustomerId;
+				m.OrderId = message.OrderId;
+				m.Total = message.Total;
+			});
+    	}
+
+    	public void Timeout(SubmitOrder state)
         {
             Data.RunningTotal -= state.Total;
         }
@@ -157,6 +183,7 @@ namespace NServiceBus.Testing.Tests
         public Guid OrderId { get; set; }
         public Guid CustomerId { get; set; }
         public decimal Total { get; set; }
+		public bool IsRemoteOrder { get; set; }
     }
 
     public class ProcessOrder : IMessage
@@ -174,6 +201,8 @@ namespace NServiceBus.Testing.Tests
 
         public Guid CustomerId { get; set; }
         public decimal RunningTotal { get; set; }
+
+		
     }
 
 }
