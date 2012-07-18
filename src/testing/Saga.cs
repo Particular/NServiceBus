@@ -272,6 +272,9 @@ namespace NServiceBus.Testing
         public Saga<T> WhenSagaTimesOut()
         {
             var state = bus.PopTimeout();
+            if (state == null)
+                return this;
+
             var method = saga.GetType().GetMethod("Timeout", new[] {state.GetType()});
             
             return When(s => method.Invoke(s, new[] {state}));
