@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\When_configuring_the_subscription_storage.cs" />
+    <Compile Include="EnsuringBackwardsCompatability.cs" />
     <Compile Include="InMemoryDBFixture.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="SqlServerFixture.cs" />
@@ -96,6 +97,10 @@
     <Compile Include="When_using_semantic_versioning_of_messages.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\NServiceBus.Persistence.NHibernate\NServiceBus.Persistence.NHibernate.csproj">
+      <Project>{C01D0E0E-4712-4A5B-9C79-7E0424811703}</Project>
+      <Name>NServiceBus.Persistence.NHibernate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions.NHibernate\NServiceBus.Unicast.Subscriptions.NHibernate.csproj">
       <Project>{FB2ACC79-1E04-47CA-8F4B-31327E10B5E3}</Project>
       <Name>NServiceBus.Unicast.Subscriptions.NHibernate</Name>

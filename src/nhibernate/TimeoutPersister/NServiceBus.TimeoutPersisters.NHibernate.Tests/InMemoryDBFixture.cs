@@ -6,6 +6,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using System.IO;
     using System.Linq;
     using System.Security.Principal;
+    using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using Persistence.NHibernate;
     using global::NHibernate;
@@ -21,6 +22,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
         [SetUp]
         public void Setup()
         {
+            Configure.ConfigurationSource = new DefaultConfigurationSource();
+
             NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
                                                                {
                                                                    {"NServiceBus/Persistence/NHibernate/dialect", dialect}
@@ -30,6 +33,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                                                      {
                                                                          new ConnectionStringSettings("NServiceBus/Persistence/NHibernate/Timeout", connectionString)
                                                                      };
+
+            ConfigureNHibernate.Init();
 
             Configure.With(Enumerable.Empty<Type>())
                 .DefineEndpointName("Foo")

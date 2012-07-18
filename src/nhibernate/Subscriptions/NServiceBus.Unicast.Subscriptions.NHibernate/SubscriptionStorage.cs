@@ -18,7 +18,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
             this.subscriptionStorageSessionProvider = subscriptionStorageSessionProvider;
         }
 
-
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
@@ -102,5 +101,4 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(ISubscriptionStorage));
     }
-
 }

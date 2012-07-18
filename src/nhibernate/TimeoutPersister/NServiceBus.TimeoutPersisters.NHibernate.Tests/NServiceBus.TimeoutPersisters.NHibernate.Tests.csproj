@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnsuringBackwardsCompatability.cs" />
     <Compile Include="InMemoryDBFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_fetching_timeouts_from_storage.cs" />

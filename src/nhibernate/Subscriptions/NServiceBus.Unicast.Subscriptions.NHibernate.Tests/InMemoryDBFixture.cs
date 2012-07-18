@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using NHibernate.Cfg;
 using NHibernate.Cfg.MappingSchema;
 using NHibernate.Dialect;

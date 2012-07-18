@@ -15,3 +15,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: CLSCompliantAttribute(true)]
 [assembly: InternalsVisibleTo("NServiceBus.Persistence.NHibernate.Tests")]
+[assembly: InternalsVisibleTo("NServiceBus.Unicast.Subscriptions.NHibernate.Tests")]
+[assembly: InternalsVisibleTo("NServiceBus.TimeoutPersisters.NHibernate.Tests")]

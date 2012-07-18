@@ -48,12 +48,16 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureNHibernateTimeoutPersister.cs" />
@@ -85,4 +89,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\..\..\tools\Fody\Fody.targets" />
 </Project>
