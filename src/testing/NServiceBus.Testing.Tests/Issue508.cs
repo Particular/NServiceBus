@@ -14,26 +14,36 @@
             Test.Initialize();
         }
 
-        [Test]
+        [Test, Ignore("NSB doesn't handle the timeout with the TimeoutManager but sends the timeout immediately")]
         public void TimeoutInThePast()
         {
-            var expected = DateTime.UtcNow.AddDays(-3);
-            var message = new TheMessage { TimeoutAt = expected };
+            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
 
             Test
                 .Saga<TheSaga>()
-                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == expected)
+                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == DateTime.MinValue.ToUniversalTime())
+                .When(s => s.Handle(message));
+        }
+
+        [Test]
+        public void TimeoutInThePastAssertingSendLocal()
+        {
+            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
+
+            Test
+                .Saga<TheSaga>()
+                .ExpectSendLocal<TheTimeout>(m => true)
                 .When(s => s.Handle(message));
         }
 
         [Test]
         public void TimeoutInThePastWithSendOnTimeout()
         {
-            var message = new TheMessage { TimeoutAt = DateTime.UtcNow.AddDays(-3) };
+            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
 
             Test
                 .Saga<TheSaga>()
-                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => true)
+                .ExpectSendLocal<TheTimeout>(m => true)
                 .When(s => s.Handle(message))
                 .ExpectSend<TheMessageSentAtTimeout>()
                 .WhenSagaTimesOut();
@@ -42,12 +52,11 @@
         [Test]
         public void TimeoutInTheFuture()
         {
-            var expected = DateTime.UtcNow.AddDays(3);
-            var message = new TheMessage { TimeoutAt = expected };
+            var message = new TheMessage { TimeoutAt = DateTime.MaxValue };
 
             Test
                 .Saga<TheSaga>()
-                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == expected)
+                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == DateTime.MaxValue.ToUniversalTime())
                 .When(s => s.Handle(message));
         }
     }
@@ -58,7 +67,7 @@
     {
         public void Handle(TheMessage message)
         {
-            RequestUtcTimeout<TheTimeout>(message.TimeoutAt);
+            RequestUtcTimeout<TheTimeout>(message.TimeoutAt.ToUniversalTime());
         }
 
         public void Timeout(TheTimeout state)
