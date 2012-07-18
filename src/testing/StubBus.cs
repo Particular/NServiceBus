@@ -5,6 +5,8 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.Testing
 {
+    using System.Diagnostics;
+
     public class StubBus : IBus
     {
         private readonly IMessageCreator messageCreator;
@@ -81,6 +83,15 @@ namespace NServiceBus.Testing
 
         public ICallback SendLocal(params object[] messages)
         {
+            var stackTrace = new StackTrace();
+
+            var methodBase = stackTrace.GetFrame(1).GetMethod();
+            
+            if (methodBase.Name == "RequestUtcTimeout" && methodBase.IsFamily && methodBase.IsHideBySig)
+            {
+                Console.Out.WriteLine("The request timeout is in the past, assuming that requested date is DateTime.MinValue.");
+                return ProcessDefer<DateTime>(DateTime.MinValue, messages);
+            }
             return ProcessInvocation(typeof(SendLocalInvocation<>), messages);
         }
 
