@@ -50,7 +50,7 @@ Here is an example of what is required:
             Init();
         }
 
-        internal static void Init()
+        public static void Init()
         {
             connectionStringSettingsCollection = NHibernateSettingRetriever.ConnectionStrings() ??
                                                  new ConnectionStringSettingsCollection();

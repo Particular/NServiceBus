@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("NServiceBus NHibernate Persistence Config")]
@@ -14,6 +13,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliantAttribute(true)]
-[assembly: InternalsVisibleTo("NServiceBus.Persistence.NHibernate.Tests")]
-[assembly: InternalsVisibleTo("NServiceBus.Unicast.Subscriptions.NHibernate.Tests")]
-[assembly: InternalsVisibleTo("NServiceBus.TimeoutPersisters.NHibernate.Tests")]
