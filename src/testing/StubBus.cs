@@ -32,15 +32,16 @@ namespace NServiceBus.Testing
 
         public void Publish<T>(params T[] messages)
         {
-            if (messages.Length > 1)
-                throw new NotSupportedException("Testing doesn't support publishing multiple messages.");
             if (messages.Length == 0)
             {
                 ProcessInvocation(typeof(PublishInvocation<>), CreateInstance<T>());
                 return;
             }
 
-            ProcessInvocation(typeof(PublishInvocation<>), messages[0]);
+            foreach (var message in messages)
+            {
+                ProcessInvocation(typeof(PublishInvocation<>), message);
+            }
         }
 
         public void Publish<T>(Action<T> messageConstructor)
@@ -231,15 +232,25 @@ namespace NServiceBus.Testing
 
         private ICallback ProcessInvocation(Type genericType, Dictionary<string, object> others, object[] messages)
         {
-            var messageType = GetMessageType(messages[0]);
-            var invocationType = genericType.MakeGenericType(messageType);
-            return ProcessInvocationWithBuiltType(invocationType, others, messages);
+            foreach (var message in messages)
+            {
+                var messageType = GetMessageType(message);
+                var invocationType = genericType.MakeGenericType(messageType);
+                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
+            }
+
+            return null;
         }
 
         private ICallback ProcessInvocation<K>(Type dualGenericType, Dictionary<string, object> others, params object[] messages)
         {
-            var invocationType = dualGenericType.MakeGenericType(GetMessageType(messages[0]), typeof(K));
-            return ProcessInvocationWithBuiltType(invocationType, others, messages);
+            foreach (var message in messages)
+            {
+                var invocationType = dualGenericType.MakeGenericType(GetMessageType(message), typeof (K));
+                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
+            }
+
+            return null;
         }
 
         private ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object[] messages)

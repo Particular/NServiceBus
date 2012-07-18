@@ -46,20 +46,21 @@
         }
     }
 
-    class TimeoutSaga : Saga<TimeoutSagaData>,
-        IHandleTimeouts<MyTimeout>,
-        IHandleTimeouts<MyOtherTimeout>,
-        IAmStartedByMessages<StartMessage>
+    internal class TimeoutSaga : Saga<TimeoutSagaData>,
+                                 IHandleTimeouts<MyTimeout>,
+                                 IHandleTimeouts<MyOtherTimeout>,
+                                 IAmStartedByMessages<StartMessage>
     {
 
         public void Handle(StartMessage message)
         {
-            RequestUtcTimeout(TimeSpan.FromDays(1),new MyTimeout
-                                                       {
-                                                           SomeProperty = "Test"
-                                                       });
+            RequestUtcTimeout(TimeSpan.FromDays(1), new MyTimeout
+                                                        {
+                                                            SomeProperty = "Test"
+                                                        });
             RequestUtcTimeout<MyOtherTimeout>(TimeSpan.FromDays(1));
         }
+
         public void Timeout(MyTimeout state)
         {
             Bus.Send(new SomeMessage());
@@ -67,7 +68,7 @@
 
         public void Timeout(MyOtherTimeout state)
         {
-           
+
         }
 
     }
@@ -89,7 +90,7 @@
     {
     }
 
-    class TimeoutSagaData : ISagaEntity
+    internal class TimeoutSagaData : ISagaEntity
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }
