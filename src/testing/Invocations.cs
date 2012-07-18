@@ -21,7 +21,7 @@ namespace NServiceBus.Testing
                                          {
                                              var result = Validate(c as T);
                                              if (!result)
-                                                 Trace.WriteLine("Check evaluated false for " + filter(GetType()));
+                                                 Console.Out.WriteLine("Check evaluated false for " + filter(GetType()));
 
                                              return result;
                                          });

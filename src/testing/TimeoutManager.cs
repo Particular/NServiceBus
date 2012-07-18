@@ -26,9 +26,6 @@ namespace NServiceBus.Testing
                 if (d < min)
                     min = d;
 
-            if (!storage.ContainsKey(min))
-                return null;
-
             var result = storage[min][0];
 
             storage[min].RemoveAt(0);

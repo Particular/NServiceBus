@@ -14,25 +14,15 @@
             Test.Initialize();
         }
 
-        [Test, Ignore("NSB doesn't handle the timeout with the TimeoutManager but sends the timeout immediately")]
+        [Test]
         public void TimeoutInThePast()
         {
+            //This only works with DateTime.MinValue!
             var message = new TheMessage { TimeoutAt = DateTime.MinValue };
 
             Test
                 .Saga<TheSaga>()
                 .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == DateTime.MinValue.ToUniversalTime())
-                .When(s => s.Handle(message));
-        }
-
-        [Test]
-        public void TimeoutInThePastAssertingSendLocal()
-        {
-            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
-
-            Test
-                .Saga<TheSaga>()
-                .ExpectSendLocal<TheTimeout>(m => true)
                 .When(s => s.Handle(message));
         }
 
@@ -43,7 +33,7 @@
 
             Test
                 .Saga<TheSaga>()
-                .ExpectSendLocal<TheTimeout>(m => true)
+                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => true)
                 .When(s => s.Handle(message))
                 .ExpectSend<TheMessageSentAtTimeout>()
                 .WhenSagaTimesOut();
