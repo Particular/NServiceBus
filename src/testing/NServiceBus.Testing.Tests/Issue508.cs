@@ -17,19 +17,19 @@
         [Test]
         public void TimeoutInThePast()
         {
-            //This only works with DateTime.MinValue!
-            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
+            var expected = DateTime.UtcNow.AddDays(-3);
+            var message = new TheMessage { TimeoutAt = expected };
 
             Test
                 .Saga<TheSaga>()
-                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == DateTime.MinValue.ToUniversalTime())
+                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == expected)
                 .When(s => s.Handle(message));
         }
 
         [Test]
         public void TimeoutInThePastWithSendOnTimeout()
         {
-            var message = new TheMessage { TimeoutAt = DateTime.MinValue };
+            var message = new TheMessage { TimeoutAt = DateTime.UtcNow.AddDays(-3) };
 
             Test
                 .Saga<TheSaga>()
@@ -42,11 +42,12 @@
         [Test]
         public void TimeoutInTheFuture()
         {
-            var message = new TheMessage { TimeoutAt = DateTime.MaxValue };
+            var expected = DateTime.UtcNow.AddDays(3);
+            var message = new TheMessage { TimeoutAt = expected };
 
             Test
                 .Saga<TheSaga>()
-                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == DateTime.MaxValue.ToUniversalTime())
+                .ExpectTimeoutToBeSetAt<TheTimeout>((m, at) => at == expected)
                 .When(s => s.Handle(message));
         }
     }
@@ -57,7 +58,7 @@
     {
         public void Handle(TheMessage message)
         {
-            RequestUtcTimeout<TheTimeout>(message.TimeoutAt.ToUniversalTime());
+            RequestUtcTimeout<TheTimeout>(message.TimeoutAt);
         }
 
         public void Timeout(TheTimeout state)

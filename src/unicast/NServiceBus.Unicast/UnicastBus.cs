@@ -629,6 +629,11 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
+            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
+            {
+                return ((IBus) this).SendLocal(messages);
+            }
+
             try
             {
                 messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());

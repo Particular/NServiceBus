@@ -13,7 +13,8 @@ namespace NServiceBus.Saga
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
-    public abstract class Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage> where T : ISagaEntity
+    public abstract class 
+        Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage> where T : ISagaEntity
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -140,10 +141,7 @@ namespace NServiceBus.Saga
 
             SetHeaders(toSend);
 
-            if (at.ToUniversalTime() <= DateTime.UtcNow)
-                Bus.SendLocal(toSend);
-            else
-                Bus.Defer(at, toSend);
+            Bus.Defer(at, toSend);
         }
 
         /// <summary>
@@ -179,10 +177,7 @@ namespace NServiceBus.Saga
 
             SetHeaders(toSend);
 
-            if (within <= TimeSpan.Zero)
-                Bus.SendLocal(toSend);
-            else
-                Bus.Defer(within, toSend);
+            Bus.Defer(within, toSend);
         }
 
         private void SetHeaders(object toSend)
