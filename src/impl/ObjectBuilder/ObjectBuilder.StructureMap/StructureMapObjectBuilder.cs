@@ -169,6 +169,14 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         {
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
+		
+        public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }		
 
         private static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)
         {

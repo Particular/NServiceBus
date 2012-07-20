@@ -228,6 +228,14 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             return this.kernel.CanResolve(req);
         }
+		
+        public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }		
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

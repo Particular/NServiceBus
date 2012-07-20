@@ -167,6 +167,16 @@ namespace NServiceBus.ObjectBuilder.Common
                 action(o);
             }
         }
+		
+		void IBuilder.Release(object instance)
+        {
+           Container.Release(instance);
+        }
+
+        void IBuilder.Release(IEnumerable<object> instances)
+        {
+           Container.Release(instances);
+        }
 
         #endregion
 

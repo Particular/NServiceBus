@@ -147,6 +147,16 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
             return container.IsRegistered(componentType);
         }
+		
+        public void Release(object instance)
+        {
+            //autofac does not need instances to be released
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {
+            //autofac does not need instances to be released
+        }
 
         private static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle> registrationBuilder)
         {

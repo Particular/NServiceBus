@@ -58,5 +58,13 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
         {
             throw new NotImplementedException();
         }
+		
+		public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }
     }
 }

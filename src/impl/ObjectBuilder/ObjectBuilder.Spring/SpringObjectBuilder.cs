@@ -138,6 +138,14 @@ namespace NServiceBus.ObjectBuilder.Spring
 
             return false;
         }
+		
+        public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }
 
         private void Init()
         {
