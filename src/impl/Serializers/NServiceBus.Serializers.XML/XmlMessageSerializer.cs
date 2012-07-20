@@ -24,7 +24,6 @@ namespace NServiceBus.Serializers.XML
         readonly IMessageMapper mapper;
         IList<Type> messageTypes;
 
-
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -76,7 +75,7 @@ namespace NServiceBus.Serializers.XML
                     if (e.IsAssignableFrom(t))
                         typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                 }
-#if !NET35
+
                 if (t.IsGenericType && t.GetGenericArguments().Length == 1)
                 {
                     Type setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
@@ -90,7 +89,6 @@ namespace NServiceBus.Serializers.XML
                             typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                     }
                 }
-#endif
 
                 return;
             }
@@ -395,7 +393,7 @@ namespace NServiceBus.Serializers.XML
             foreach (XmlNode n in node.ChildNodes)
             {
                 Type type = null;
-                nodeName = XmlConvert.DecodeName(n.Name);
+                var nodeName = XmlConvert.DecodeName(n.Name);
 
                 if (nodeName.Contains(":"))
                     type = Type.GetType("System." + nodeName.Substring(0, nodeName.IndexOf(":")), false, true);
@@ -439,7 +437,6 @@ namespace NServiceBus.Serializers.XML
                     if (val != null)
                     {
                         fieldInfoToLateBoundFieldSet[field].Invoke(result, val);
-                        continue;
                     }
                 }
             }
@@ -536,7 +533,7 @@ namespace NServiceBus.Serializers.XML
 
                 if (type == typeof(Guid))
                     return XmlConvert.ToGuid(text);
-
+                   
                 if (type == typeof(Int16))
                     return XmlConvert.ToInt16(text);
 
@@ -661,12 +658,10 @@ namespace NServiceBus.Serializers.XML
 
                         if (isArray)
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
-#if !NET35
+
                         if (isISet)
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
-#endif
                     }
-
 
                     return list;
                 }
@@ -975,8 +970,6 @@ namespace NServiceBus.Serializers.XML
 
         #region members
 
-        private const string XMLPREFIX = "d1p1";
-        private const string XMLTYPE = XMLPREFIX + ":type";
         private const string BASETYPE = "baseType";
 
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
@@ -1041,6 +1034,5 @@ namespace NServiceBus.Serializers.XML
         }
 
         string nameSpace = "http://tempuri.net";
-        string nodeName;
     }
 }

@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="Command1.cs" />
     <Compile Include="Command2.cs" />
+    <Compile Include="ConcurrencySerializerTests.cs" />
     <Compile Include="DictionaryTests.cs" />
     <Compile Include="ListTests.cs" />
     <Compile Include="MultipleInterfaces.cs" />

@@ -467,6 +467,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
     }
+
     public class PolyMessage : IMessage
     {
         public BaseType BaseType { get; set; }
