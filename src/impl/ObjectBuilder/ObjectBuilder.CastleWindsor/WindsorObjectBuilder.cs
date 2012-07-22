@@ -162,6 +162,21 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         {
             return container.Kernel.HasComponent(componentType);
         }
+		
+        public void Release(object instance)
+        {   
+			container.Release(instance);
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {
+		    if (instances == null) return;
+
+            foreach (var instance in instances)
+            {
+                container.Release(instance);
+            }
+        }
 
         private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
         {

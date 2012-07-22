@@ -75,5 +75,13 @@ namespace NServiceBus.Scheduling.Tests
 
             action(obj);
         }
+		
+        public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }		
     }
 }

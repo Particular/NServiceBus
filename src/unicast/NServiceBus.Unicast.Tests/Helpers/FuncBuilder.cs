@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
     public class FuncBuilder : IBuilder
     {
         IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
+		readonly List<object> releasedObjects = new List<object>();
         public void Dispose()
         {
 
@@ -69,6 +70,21 @@ namespace NServiceBus.Unicast.Tests.Helpers
             var obj = Build(typeToBuild);
 
             action(obj);
+        }
+		
+        public void Release(object instance)
+        {
+            releasedObjects.Add(instance);
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+		    releasedObjects.AddRange(instances);
+        }
+
+        public bool HasBeenReleased(object instance)
+        {
+            return releasedObjects.Contains(instance);
         }
     }
 }

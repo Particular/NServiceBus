@@ -130,6 +130,14 @@ namespace NServiceBus.ObjectBuilder.Unity
         {
             return container.IsRegistered(componentType);
         }
+		
+        public void Release(object instance)
+        {            
+        }
+
+        public void Release(IEnumerable<object> instances)
+        {            
+        }		
 
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {

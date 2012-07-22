@@ -38,6 +38,7 @@
 
             Assert.True(beginCalled);
             Assert.True(endCalled);
+			Assert.True(FuncBuilder.HasBeenReleased(messageModule));
         }
     }
 
@@ -70,6 +71,7 @@
 
             Assert.True(beginCalled);
             Assert.True(endCalled);
+			Assert.True(FuncBuilder.HasBeenReleased(messageModule));
         }
 
         [Test]

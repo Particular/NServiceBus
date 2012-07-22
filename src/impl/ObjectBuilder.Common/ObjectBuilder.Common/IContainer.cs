@@ -63,5 +63,23 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="componentType"></param>
         /// <returns></returns>
         bool HasComponent(Type componentType);
+		
+		/// <summary>
+        /// Releases an instance from the builder once they are finished with.
+        /// </summary>
+        /// <param name="instance">
+        /// The instance built through Build method which is no longer needed 
+        /// and can be released.
+        /// </param>
+        void Release(object instance);
+
+        /// <summary>
+        /// Releases the instances from the builder once they are finished with.
+        /// </summary>
+        /// <param name="instances">
+        /// The instances built through Build method which are no longer needed 
+        /// and can be released.
+        /// </param>
+        void Release(IEnumerable<object> instances);
     }
 }

@@ -1441,6 +1441,8 @@ namespace NServiceBus.Unicast
                 Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
                 module.HandleEndMessage();
             });
+			
+			Builder.Release(modules);
         }
 
         void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
@@ -1450,6 +1452,8 @@ namespace NServiceBus.Unicast
                 Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
                 module.HandleError();
             });
+			
+			Builder.Release(modules);
         }
 
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
