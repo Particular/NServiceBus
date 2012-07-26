@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using log4net;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
+    using log4net;
 
     /// <summary>
     /// Extension methods for message related conventions
@@ -110,6 +109,24 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns true if the given property should be send via the DataBus
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static bool IsDataBusProperty(this PropertyInfo property)
+        {
+            try
+            {
+                return IsDataBusPropertyAction(property);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate DataBus Property convention: " + ex);
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Returns true if the given object is a event.
         /// </summary>
         /// <param name="o"></param>
@@ -163,6 +180,11 @@ namespace NServiceBus
         /// The function used to determine whether a property should be encrypted
         /// </summary>
         public static Func<PropertyInfo, bool> IsEncryptedPropertyAction = property => typeof(WireEncryptedString).IsAssignableFrom(property.PropertyType);
+
+        /// <summary>
+        /// The function used to determine whether a property should be treated as a databus property.
+        /// </summary>
+        public static Func<PropertyInfo, bool> IsDataBusPropertyAction = property => typeof(IDataBusProperty).IsAssignableFrom(property.PropertyType) && typeof(IDataBusProperty) != property.PropertyType;
 
        /// <summary>
        /// Contains list of System messages' conventions

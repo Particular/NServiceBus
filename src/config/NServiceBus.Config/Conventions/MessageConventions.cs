@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
     using System.Reflection;
 
     /// <summary>
@@ -43,13 +42,24 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the function to be used to evaluate whether a property should be encrypted or not
+        /// Sets the function to be used to evaluate whether a property should be encrypted or not.
         /// </summary>
         /// <param name="config"></param>
         /// <param name="definesEncryptedProperty"></param>
         public static Configure DefiningEncryptedPropertiesAs(this Configure config, Func<PropertyInfo, bool> definesEncryptedProperty)
         {
             MessageConventionExtensions.IsEncryptedPropertyAction = definesEncryptedProperty;
+            return config;
+        }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="definesDataBusProperty"></param>
+        public static Configure DefiningDataBusPropertiesAs(this Configure config, Func<PropertyInfo, bool> definesDataBusProperty)
+        {
+            MessageConventionExtensions.IsDataBusPropertyAction = definesDataBusProperty;
             return config;
         }
     }

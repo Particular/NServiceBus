@@ -1,4 +1,3 @@
-using NServiceBus.DataBus;
 using NServiceBus.DataBus.Config;
 using NServiceBus.DataBus.Tests;
 using NUnit.Framework;
@@ -6,9 +5,10 @@ using log4net;
 
 namespace NServiceBus.DataBus.Tests
 {
-	using ObjectBuilder;
+    using System;
+    using NUnit.Framework;
 
-	[TestFixture]
+    [TestFixture]
     public class When_nservicebus_is_initalizing
     {
         [Test]
@@ -42,10 +42,23 @@ namespace NServiceBus.DataBus.Tests
             Assert.False(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
         }
 
-        public class MessageWithoutDataBusProperty
+        [Test]
+        public void Should_throw_if_propertytype_is_not_serializable()
         {
-            public string SomeProperty { get; set; }
-        }
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                Assert.Ignore("This only work in debug mode.");
+            }
 
+            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
+                .DefineEndpointName("xyz")
+                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
+                .DefaultBuilder()
+                .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+
+            var bootStrapper = new Bootstrapper();
+
+            Assert.Throws<InvalidOperationException>(bootStrapper.Init);
+        }
     }
 }

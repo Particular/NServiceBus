@@ -678,12 +678,33 @@ namespace NServiceBus.Unicast
             return null;
         }
 
-        private ICollection<string> SendMessage(IEnumerable<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+        private ICollection<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             messages.ToList()
                         .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
 
-            addresses.ToList()
+            if (messages.Length > 1)
+            {
+                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a bug that will be fixed in v4!
+
+                var numberOfMessagesWithDataBusProperties = 0;
+                foreach (var message in messages)
+                {
+                    var hasAtLeastOneDataBusProperty = message.GetType().GetProperties().Any(p => p.IsDataBusProperty());
+
+                    if (hasAtLeastOneDataBusProperty)
+                    {
+                        numberOfMessagesWithDataBusProperties++;
+                    }
+                }
+
+                if (numberOfMessagesWithDataBusProperties > 1)
+                {
+                    throw new InvalidOperationException("This version of NServiceBus only supports sending up to one message with DataBusProperties per Send().");
+                }
+            }
+
+            addresses
                 .ForEach(address =>
                              {
                                  if (address == Address.Undefined)
