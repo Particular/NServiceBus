@@ -1449,13 +1449,15 @@ namespace NServiceBus.Unicast
             if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
                 recoverableMessageTypes.Add(messageType);
 
-            foreach (TimeToBeReceivedAttribute a in messageType.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
-                timeToBeReceivedPerMessageType[messageType] = a.TimeToBeReceived;
+            var timeToBeReceived = MessageConventionExtensions.TimeToBeReceivedFactoryAction(messageType);
 
-            return;
+            if (timeToBeReceived == TimeSpan.MaxValue)
+            {
+                return;
+            }
 
+            timeToBeReceivedPerMessageType[messageType] = timeToBeReceived;
         }
-
 
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.

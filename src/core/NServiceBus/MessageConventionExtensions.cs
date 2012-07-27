@@ -87,7 +87,6 @@
             }
         }
 
-
         /// <summary>
         /// Returns true if the given property should be encrypted
         /// </summary>
@@ -154,8 +153,6 @@
             }
         }
 
-
-
         /// <summary>
         /// The function used to determine whether a type is a message type.
         /// </summary>
@@ -164,12 +161,10 @@
                                                                     typeof(IEvent) != t &&
                                                                     typeof(ICommand) != t;
 
-
         /// <summary>
         /// The function used to determine whether a type is a command type.
         /// </summary>
         public static Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
-
 
         /// <summary>
         /// The function used to determine whether a type is a event type.
@@ -185,6 +180,18 @@
         /// The function used to determine whether a property should be treated as a databus property.
         /// </summary>
         public static Func<PropertyInfo, bool> IsDataBusPropertyAction = property => typeof(IDataBusProperty).IsAssignableFrom(property.PropertyType) && typeof(IDataBusProperty) != property.PropertyType;
+
+        /// <summary>
+        /// The function to evaluate wheather the message has a time to be received or not (<value>TimeSpan.MaxValue</value>).
+        /// </summary>
+        public static Func<Type, TimeSpan> TimeToBeReceivedFactoryAction = t =>
+                                                                                  {
+                                                                                      var attributes = t.GetCustomAttributes(typeof (TimeToBeReceivedAttribute), true)
+                                                                                          .Select(s => s as TimeToBeReceivedAttribute)
+                                                                                          .ToList();
+
+                                                                                      return attributes.Count > 0 ? attributes.Last().TimeToBeReceived : TimeSpan.MaxValue;
+                                                                                  };
 
        /// <summary>
        /// Contains list of System messages' conventions

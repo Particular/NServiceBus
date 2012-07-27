@@ -62,5 +62,16 @@
             MessageConventionExtensions.IsDataBusPropertyAction = definesDataBusProperty;
             return config;
         }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a message has a time to be received.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="timeToBeReceivedFactoryDelegate"></param>
+        public static Configure DefiningFactoryForTimeToBeReceivedAs(this Configure config, Func<Type, TimeSpan> timeToBeReceivedFactoryDelegate)
+        {
+            MessageConventionExtensions.TimeToBeReceivedFactoryAction = timeToBeReceivedFactoryDelegate;
+            return config;
+        }
     }
 }

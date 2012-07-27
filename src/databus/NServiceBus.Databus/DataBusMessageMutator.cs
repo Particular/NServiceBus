@@ -130,10 +130,7 @@
                 return TimeSpan.MaxValue;
             }
 
-            var attributes = message.GetType().GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true)
-                .Select(s => s as TimeToBeReceivedAttribute).ToList();
-
-            return attributes.Count > 0 ? attributes.Last().TimeToBeReceived : TimeSpan.MaxValue;
+            return MessageConventionExtensions.TimeToBeReceivedFactoryAction(message.GetType());
         }
 
         readonly static IDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>(); 
