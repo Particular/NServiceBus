@@ -58,6 +58,7 @@
             if(!IsSystemMessageActions.Contains(definesMessageType))
                 IsSystemMessageActions.Add(definesMessageType);
         }
+
         /// <summary>
         /// Returns true if the given object is a command.
         /// </summary>
@@ -66,7 +67,6 @@
         public static bool IsCommand(this object o)
         {
                 return o.GetType().IsCommandType();
-
         }
 
         /// <summary>
@@ -83,6 +83,34 @@
             catch (Exception ex)
             {
                 Logger.Error("Failed to evaluate Command convention: " + ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the given message should not be written to disk when sent.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static bool IsExpress(object o)
+        {
+            return IsExpressType(o.GetType());
+        }
+
+        /// <summary>
+        /// Returns true if the given type should not be written to disk when sent.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsExpressType(Type t)
+        {
+            try
+            {
+                return ExpressConventionCache.ApplyConvention(t, type => IsExpressAction(type));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to evaluate Express convention: " + ex);
                 throw;
             }
         }
@@ -193,6 +221,12 @@
                                                                                       return attributes.Count > 0 ? attributes.Last().TimeToBeReceived : TimeSpan.MaxValue;
                                                                                   };
 
+        /// <summary>
+        /// The function used to determine whether a type is an express message (the message should not be written to disk).
+        /// </summary>
+        public static Func<Type, bool> IsExpressAction = t => t.GetCustomAttributes(typeof (ExpressAttribute), true)
+                                                                  .Any();
+
        /// <summary>
        /// Contains list of System messages' conventions
        /// </summary>
@@ -201,17 +235,18 @@
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> EventsConventionCache = new ConventionCache<Type>();
+        static readonly ConventionCache<Type> ExpressConventionCache = new ConventionCache<Type>();
     }
 
-    class ConventionCache<T>
+    internal class ConventionCache<T>
     {
-        readonly IDictionary<T,bool> cache = new ConcurrentDictionary<T,bool>();
+        private readonly IDictionary<T, bool> cache = new ConcurrentDictionary<T, bool>();
 
-        public bool ApplyConvention(T type,Func<T, bool> action)
+        public bool ApplyConvention(T type, Func<T, bool> action)
         {
             bool result;
 
-            if(cache.TryGetValue(type,out result))
+            if (cache.TryGetValue(type, out result))
                 return result;
 
             result = action(type);

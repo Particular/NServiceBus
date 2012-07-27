@@ -73,5 +73,16 @@
             MessageConventionExtensions.TimeToBeReceivedFactoryAction = timeToBeReceivedFactoryDelegate;
             return config;
         }
+
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a type is an express message or not.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="definesExpressType"></param>
+        public static Configure DefiningExpressAs(this Configure config, Func<Type, bool> definesExpressType)
+        {
+            MessageConventionExtensions.IsExpressAction = definesExpressType;
+            return config;
+        }
     }
 }

@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace NServiceBus.Unicast.Tests
+﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Saga;
     using Transport;
 
     [TestFixture]
@@ -69,10 +67,7 @@ namespace NServiceBus.Unicast.Tests
 
             Assert.True(CatchAllHandler_IMessage.Called);
         }
-
-
     }
-
   
     [TestFixture]
     public class When_receiving_a_message_with_an_original_Id : using_the_unicastbus
@@ -109,11 +104,9 @@ namespace NServiceBus.Unicast.Tests
 
             ReceiveMessage(receivedMessage);
 
-
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Monitoring.Headers.RelatedTo] == receivedMessage.IdForCorrelation), Arg<Address>.Is.Anything));
         }
     }
-
 
     [TestFixture]
     public class When_replying_with_a_command : using_the_unicastbus
@@ -129,11 +122,9 @@ namespace NServiceBus.Unicast.Tests
 
             ReceiveMessage(receivedMessage);
 
-
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Anything));
         }
     }
-
 
     class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>
     {

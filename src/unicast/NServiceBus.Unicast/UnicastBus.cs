@@ -1438,7 +1438,6 @@ namespace NServiceBus.Unicast
         /// <param name="address">The address of the destination the message type is registered to.</param>
         public void RegisterMessageType(Type messageType, Address address)
         {
-
             messageTypeToDestinationLocker.EnterWriteLock();
             messageTypeToDestinationLookup[messageType] = address;
             messageTypeToDestinationLocker.ExitWriteLock();
@@ -1446,8 +1445,10 @@ namespace NServiceBus.Unicast
             if(!string.IsNullOrWhiteSpace(address.Machine))
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
-            if (messageType.GetCustomAttributes(typeof(ExpressAttribute), true).Length == 0)
+            if (!MessageConventionExtensions.IsExpressType(messageType))
+            {
                 recoverableMessageTypes.Add(messageType);
+            }
 
             var timeToBeReceived = MessageConventionExtensions.TimeToBeReceivedFactoryAction(messageType);
 
