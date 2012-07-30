@@ -642,7 +642,7 @@ namespace NServiceBus.Unicast
             }
             catch (Exception ex)
             {
-                Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
+                Log.Error("It might be that TimeoutManager is not configured. Make sure DisableTimeoutManager was not called at your endpoint.");
                 throw;
             }
         }

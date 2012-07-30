@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.Faults;
+﻿using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Saga;
 using NServiceBus.Unicast.Subscriptions;
@@ -15,8 +12,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         void IHandleProfile.ProfileActivated()
         {
 
-            if (Configure.Instance.IsTimeoutManagerEnabled())
-                Configure.Instance.DefaultToInMemoryTimeoutPersistence();
+
+            Configure.Instance.DefaultToInMemoryTimeoutPersistence();
             
             Configure.Instance.AsMasterNode()
                 .DefaultToInMemoryGatewayPersistence();

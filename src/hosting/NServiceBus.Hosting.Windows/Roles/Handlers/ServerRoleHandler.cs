@@ -24,7 +24,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                 .Sagas()
                 .IsTransactional(!ConfigureVolatileQueues.IsVolatileQueues)
                 .PurgeOnStartup(false)
-                .RunTimeoutManager()
                 .UnicastBus()
                 .ImpersonateSender(true);
         }

@@ -3,58 +3,36 @@
     using System;
     using Core;
     using Core.Dispatch;
-    using Faults;
     using ObjectBuilder;
-    using Unicast.Queuing.Msmq;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
-    using NServiceBus.Unicast.Queuing;
+    using Satellites;
+    using Unicast.Queuing;
+    using System.Configuration;
+    using Logging;
 
-    public class TimeoutMessageProcessor : IWantToRunWhenBusStartsAndStops
+    public class TimeoutMessageProcessor : ISatellite
     {
-        public TransactionalTransport MainTransport { get; set; }
-
+        ILog Logger = LogManager.GetLogger("TimeoutMessageProcessor");
         public IBuilder Builder { get; set; }
-
         public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
+        public Address InputAddress { get; private set; }
+        public bool Disabled { get; set; }
+        public ISendMessages MessageSender { get; set; }       
 
-        public void Start()
+        public void Handle(TransportMessage message)
         {
-
-            if (!Configure.Instance.IsTimeoutManagerEnabled())
-                return;
-
-            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
-
-            inputTransport = new TransactionalTransport
+            if (Disabled)
             {
-                MessageReceiver = messageReceiver,
-                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
-                NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
-                MaxRetries = MainTransport.MaxRetries,
-                FailureManager = Builder.Build(MainTransport.FailureManager.GetType())as IManageMessageFailures
-            };
+                throw new ConfigurationErrorsException("The TimeoutManager satellite is invoked, but disabled.");
+            }
 
-            inputTransport.TransportMessageReceived += OnTransportMessageReceived;
-
-            inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
-        }
-
-        public void Stop()
-        {
-            if (inputTransport != null)
-                inputTransport.Dispose();
-        }
-
-        void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
-            if (e.Message.Headers.ContainsKey(TimeoutDispatcher.TimeoutIdToDispatchHeader))
-                Builder.Build<TimeoutDispatchHandler>().Handle(e.Message);
+            if (message.Headers.ContainsKey(TimeoutDispatcher.TimeoutIdToDispatchHeader))
+                Builder.Build<TimeoutDispatchHandler>().Handle(message);
             else
-                Builder.Build<TimeoutTransportMessageHandler>().Handle(e.Message);
+                Builder.Build<TimeoutTransportMessageHandler>().Handle(message);
         }
 
-        ITransport inputTransport;
+        public void Start(){}
+        public void Stop(){}
     }
 }

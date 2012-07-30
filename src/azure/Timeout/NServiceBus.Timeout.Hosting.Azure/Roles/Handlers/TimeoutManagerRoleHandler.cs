@@ -31,8 +31,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
             return instance
                 .JsonSerializer()
-                .RunTimeoutManager()
-                    .UseAzureTimeoutPersister()
+                .UseAzureTimeoutPersister()
                 .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()
