@@ -1,4 +1,5 @@
 ﻿using System;
+using NServiceBus.Config;
 using NServiceBus.Management.Retries;
 using NServiceBus.Management.Retries.Helpers;
 
