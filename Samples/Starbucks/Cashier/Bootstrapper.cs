@@ -25,7 +25,7 @@ namespace Cashier
                 .StructureMapBuilder(ObjectFactory.Container)
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
-                .RunTimeoutManagerWithInMemoryPersistence()
+                .UseInMemoryTimeoutPersister()
                 // For sagas
                 .Sagas()
                 .InMemorySagaPersister()

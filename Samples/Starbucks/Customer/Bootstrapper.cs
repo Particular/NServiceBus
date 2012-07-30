@@ -25,7 +25,7 @@ namespace Customer
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
-                .RunTimeoutManagerWithInMemoryPersistence()
+                .UseInMemoryTimeoutPersister()
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
                 .MsmqTransport()
