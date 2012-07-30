@@ -1,4 +1,5 @@
-﻿using NServiceBus.Faults;
+﻿using System.Transactions;
+using NServiceBus.Faults;
 using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
@@ -27,16 +28,21 @@ namespace NServiceBus.Satellites
                          ? Builder.Build(MainTransport.FailureManager.GetType()) as IManageMessageFailures
                          : Builder.Build<IManageMessageFailures>();
 
-            return new TransactionalTransport
-            {
-                MessageReceiver = MainTransport != null
-                         ? Builder.Build(MainTransport.MessageReceiver.GetType()) as IReceiveMessages
-                         : Builder.Build<MsmqMessageReceiver>(),
-                IsTransactional = tx,
-                NumberOfWorkerThreads = nt,
-                MaxRetries = mr,
-                FailureManager = fm
-            };            
+            var transactionalTransport = new TransactionalTransport
+                                             {
+                                                 MessageReceiver = MainTransport != null
+                                                                       ? Builder.Build(MainTransport.MessageReceiver.GetType()) as IReceiveMessages
+                                                                       : Builder.Build<MsmqMessageReceiver>(),
+                                                 IsTransactional = tx,
+                                                 NumberOfWorkerThreads = nt,
+                                                 MaxRetries = mr,
+                                                 FailureManager = fm,
+                                             };
+
+            if(MainTransport != null)
+                transactionalTransport.IsolationLevel = MainTransport.IsolationLevel;
+            
+            return transactionalTransport;
         }
     }
 }
