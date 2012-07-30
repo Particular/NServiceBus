@@ -71,7 +71,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 
 	if($script:isEnvironmentInitialized -ne $true){
 		if ($TargetFramework -eq "net-4.0"){
-			$netfxInstallroot ="" 
+			$netfxInstallroot = "" 
 			$netfxInstallroot =	Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\.NETFramework\' 'InstallRoot' 
 			
 			$netfxCurrent = $netfxInstallroot + "v4.0.30319"
@@ -80,9 +80,22 @@ task InitEnvironment -description "Initializes the environment for build" {
 			
 			echo ".Net 4.0 build requested - $script:msBuild" 
 
-			$script:ilmergeTargetFramework  = "/targetplatform:v4," + $netfxCurrent
+			$script:ilmergeTargetFramework = "/targetplatform:v4," + $netfxCurrent
+
+			$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+			if(test-path $ilMergeTargetFrameworkPath) {
+				$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath		
+			} else {
+				$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles(x86)').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+
+				if(test-path $ilMergeTargetFrameworkPath) {
+					$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath
+				}
+			}
 			
-			$script:msBuildTargetFramework ="/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
+			echo "ilmergeTargetFramework requested $script:$ilmergeTargetFramework"
+
+			$script:msBuildTargetFramework = "/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
 			
 			$script:nunitTargetFramework = "/framework=4.0";
 			
@@ -172,6 +185,7 @@ $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "m
 	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Abstractions.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Client.Lightweight.dll
+	$assemblies += dir $buildBase\nservicebus.core\AsyncCtpLibrary.dll
 	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll
 	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
