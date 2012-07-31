@@ -67,10 +67,10 @@
         /// Sets the function to be used to evaluate whether a message has a time to be received.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="timeToBeReceivedFactoryDelegate"></param>
-        public static Configure DefiningFactoryForTimeToBeReceivedAs(this Configure config, Func<Type, TimeSpan> timeToBeReceivedFactoryDelegate)
+        /// <param name="retrieveTimeToBeReceived"></param>
+        public static Configure DefiningTimeToBeReceivedAs(this Configure config, Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
-            MessageConventionExtensions.TimeToBeReceivedFactoryAction = timeToBeReceivedFactoryDelegate;
+            MessageConventionExtensions.TimeToBeReceivedAction = retrieveTimeToBeReceived;
             return config;
         }
 
@@ -78,10 +78,10 @@
         /// Sets the function to be used to evaluate whether a type is an express message or not.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="definesExpressType"></param>
-        public static Configure DefiningExpressAs(this Configure config, Func<Type, bool> definesExpressType)
+        /// <param name="definesExpressMessageType"></param>
+        public static Configure DefiningExpressMessagesAs(this Configure config, Func<Type, bool> definesExpressMessageType)
         {
-            MessageConventionExtensions.IsExpressAction = definesExpressType;
+            MessageConventionExtensions.IsExpressMessageAction = definesExpressMessageType;
             return config;
         }
     }

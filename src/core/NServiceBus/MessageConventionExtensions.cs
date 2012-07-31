@@ -92,9 +92,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsExpress(object o)
+        public static bool IsExpressMessage(object o)
         {
-            return IsExpressType(o.GetType());
+            return IsExpressMessageType(o.GetType());
         }
 
         /// <summary>
@@ -102,11 +102,11 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsExpressType(Type t)
+        public static bool IsExpressMessageType(Type t)
         {
             try
             {
-                return ExpressConventionCache.ApplyConvention(t, type => IsExpressAction(type));
+                return ExpressConventionCache.ApplyConvention(t, type => IsExpressMessageAction(type));
             }
             catch (Exception ex)
             {
@@ -212,7 +212,7 @@
         /// <summary>
         /// The function to evaluate wheather the message has a time to be received or not (<value>TimeSpan.MaxValue</value>).
         /// </summary>
-        public static Func<Type, TimeSpan> TimeToBeReceivedFactoryAction = t =>
+        public static Func<Type, TimeSpan> TimeToBeReceivedAction = t =>
                                                                                   {
                                                                                       var attributes = t.GetCustomAttributes(typeof (TimeToBeReceivedAttribute), true)
                                                                                           .Select(s => s as TimeToBeReceivedAttribute)
@@ -224,7 +224,7 @@
         /// <summary>
         /// The function used to determine whether a type is an express message (the message should not be written to disk).
         /// </summary>
-        public static Func<Type, bool> IsExpressAction = t => t.GetCustomAttributes(typeof (ExpressAttribute), true)
+        public static Func<Type, bool> IsExpressMessageAction = t => t.GetCustomAttributes(typeof(ExpressAttribute), true)
                                                                   .Any();
 
        /// <summary>

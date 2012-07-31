@@ -1450,12 +1450,12 @@ namespace NServiceBus.Unicast
             if(!string.IsNullOrWhiteSpace(address.Machine))
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
-            if (!MessageConventionExtensions.IsExpressType(messageType))
+            if (!MessageConventionExtensions.IsExpressMessageType(messageType))
             {
                 recoverableMessageTypes.Add(messageType);
             }
 
-            var timeToBeReceived = MessageConventionExtensions.TimeToBeReceivedFactoryAction(messageType);
+            var timeToBeReceived = MessageConventionExtensions.TimeToBeReceivedAction(messageType);
 
             if (timeToBeReceived == TimeSpan.MaxValue)
             {

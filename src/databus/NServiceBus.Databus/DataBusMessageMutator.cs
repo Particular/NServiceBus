@@ -130,7 +130,7 @@
                 return TimeSpan.MaxValue;
             }
 
-            return MessageConventionExtensions.TimeToBeReceivedFactoryAction(message.GetType());
+            return MessageConventionExtensions.TimeToBeReceivedAction(message.GetType());
         }
 
         readonly static IDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>(); 
