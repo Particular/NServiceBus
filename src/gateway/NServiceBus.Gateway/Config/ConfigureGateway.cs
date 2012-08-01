@@ -18,6 +18,18 @@ namespace NServiceBus
     {
         public static Address GatewayInputAddress { get; private set; }
 
+		private static bool gatewayEnabled;
+
+		/// <summary>
+		/// Determine if the Gateway is enabled.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <returns></returns>
+		public static bool IsGatewayEnabled(this Configure config)
+		{
+			return gatewayEnabled;
+		}
+
         /// <summary>
         /// Configuring to run the Gateway. By default Gateway will use RavenPersistence (see GatewayDefaults class).
         /// </summary>
@@ -25,6 +37,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure RunGateway(this Configure config)
         {
+			if (disabledGatewayCalledExplicitly)
+				return config; 
+
             return SetupGateway(config);
         }
 
@@ -81,6 +96,8 @@ namespace NServiceBus
 
         static Configure SetupGateway(this Configure config)
         {
+			gatewayEnabled = true;
+
             GatewayInputAddress = Address.Parse(Configure.EndpointName).SubScope("gateway");
 
             ConfigureChannels(config);
@@ -141,5 +158,19 @@ namespace NServiceBus
                                                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
 
         }
+
+		public static bool disabledGatewayCalledExplicitly;
+
+		/// <summary>
+		/// The Gateway is turned on by default for the Master role. Call DisableGateway method to turn the Gateway off.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <returns></returns>
+		public static Configure DisableGateway(this Configure config)
+		{
+			gatewayEnabled = false;
+			disabledGatewayCalledExplicitly = true;
+			return config;
+		}
     }
 }
