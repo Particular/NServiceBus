@@ -222,7 +222,7 @@
                                                                                   };
 
         /// <summary>
-        /// The function used to determine whether a type is an express message (the message should not be written to disk).
+        /// The function used to determine if a type is an express message (the message should not be written to disk).
         /// </summary>
         public static Func<Type, bool> IsExpressMessageAction = t => t.GetCustomAttributes(typeof(ExpressAttribute), true)
                                                                   .Any();
