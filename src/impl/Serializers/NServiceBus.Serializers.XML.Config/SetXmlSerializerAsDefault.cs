@@ -11,7 +11,7 @@ namespace NServiceBus.Serializers.XML.Config
 
         void INeedInitialization.Init()
         {
-            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>() || UseXmlSerializer)
+            if (!Configure.Instance.Configurer.HasComponent<IMessageSerializer>() && UseXmlSerializer)
                 Configure.Instance.XmlSerializer();
         }
     }
