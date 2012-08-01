@@ -37,8 +37,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure RunGateway(this Configure config)
         {
-			if (disabledGatewayCalledExplicitly)
-				return config; 
+            if (disabledGatewayCalledExplicitly)
+                return config; 
 
             return SetupGateway(config);
         }
@@ -96,7 +96,7 @@ namespace NServiceBus
 
         static Configure SetupGateway(this Configure config)
         {
-			gatewayEnabled = true;
+            gatewayEnabled = true;
 
             GatewayInputAddress = Address.Parse(Configure.EndpointName).SubScope("gateway");
 
