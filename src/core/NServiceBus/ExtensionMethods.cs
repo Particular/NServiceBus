@@ -1,8 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 
+
 namespace NServiceBus
 {
+
+    /// <summary>
+    /// Extension method on message handler.
+    /// </summary>
+    public static class MessageHandlerExtensionMethods
+    {
+        /// <summary>
+        /// Extension method on MessageHandler. Users can avoid declaring an IBus to be injected, and use the bus implicitly.
+        /// Usage: this.Bus().Send....
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        public static IBus Bus<T>(this IMessageHandler<T> handler)
+        {
+            return ExtensionMethods.Bus;
+        }
+    }
+    
     /// <summary>
     /// Class containing extension methods for base class libraries for using interface-based messages.
     /// </summary>
