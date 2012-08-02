@@ -627,18 +627,18 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
-            {
-                return ((IBus) this).SendLocal(messages);
-            }
-
             try
             {
                 messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
 
+                if (processAt.ToUniversalTime() <= DateTime.UtcNow)
+                {
+                    return ((IBus)this).SendLocal(messages);
+                }
+
                 return ((IBus)this).Send(TimeoutManagerAddress, messages);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
                 throw;
