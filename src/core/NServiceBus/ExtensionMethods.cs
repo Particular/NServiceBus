@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace NServiceBus
 {
-
     /// <summary>
     /// Extension method on message handler.
     /// </summary>
@@ -12,11 +10,26 @@ namespace NServiceBus
     {
         /// <summary>
         /// Extension method on MessageHandler. Users can avoid declaring an IBus to be injected, and use the bus implicitly.
-        /// Usage: this.Bus().Send....
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="handler"></param>
-        /// <returns></returns>
+        /// <example> The following is an example on how a message handler might look like using the Bus() extension method:
+        /// <code escaped="false">
+        /// public class RequestDataMessageHandler : IHandleMessages&lt;RequestDataMessage&gt;
+        /// {
+        ///    public void Handle(RequestDataMessage message)
+        ///    {
+        ///       var response = this.Bus().CreateInstance&lt;DataResponseMessage&gt;(m =>
+        ///      {
+        ///            m.DataId = message.DataId;
+        ///            m.String = message.String;
+        ///        });
+        ///        this.Bus().Reply(response);
+        ///    }
+        /// }
+        /// </code>
+        /// </example>
+        /// <typeparam name="T">The message type to handle</typeparam>
+        /// <param name="handler">The <see cref="IMessageHandler{T}" /> implementing class</param>
+        /// <returns>IBus interface</returns>
         public static IBus Bus<T>(this IMessageHandler<T> handler)
         {
             return ExtensionMethods.Bus;
