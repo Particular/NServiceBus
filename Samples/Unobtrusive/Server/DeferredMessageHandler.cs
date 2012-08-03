@@ -1,9 +1,9 @@
-using System;
-using Messages;
-using NServiceBus;
-
 namespace Server
 {
+    using System;
+    using Messages;
+    using NServiceBus;
+
     public class DeferredMessageHandler : IHandleMessages<DeferredMessage>
     {
         public void Handle(DeferredMessage message)

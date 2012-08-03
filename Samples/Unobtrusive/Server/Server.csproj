@@ -61,6 +61,9 @@
   <ItemGroup>
     <Compile Include="CatchAllMessageHandler.cs" />
     <Compile Include="DeferredMessageHandler.cs" />
+    <Compile Include="ExpressMessagesHandler.cs" />
+    <Compile Include="LargeMessagesHandler.cs" />
+    <Compile Include="MessagesThatMarkWithExpirationHandler.cs" />
     <Compile Include="RequestMessageHandler.cs" />
     <Compile Include="CommandSender.cs" />
     <Compile Include="EndpointConfig.cs" />

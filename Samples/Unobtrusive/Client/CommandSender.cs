@@ -1,10 +1,10 @@
-using System;
-using Commands;
-using Messages;
-using NServiceBus;
-
 namespace Client
 {
+    using System;
+    using Commands;
+    using Messages;
+    using NServiceBus;
+
     public class CommandSender : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
@@ -15,7 +15,7 @@ namespace Client
             Console.WriteLine("Press 'R' to send a request");
             Console.WriteLine("Press 'S' to start the saga");
             Console.WriteLine("Press 'E' to send a message that is marked as Express");
-            Console.WriteLine("Press 'D' to send a large message that is marked to be sent using Databus");
+            Console.WriteLine("Press 'D' to send a large message that is marked to be sent using Data Bus");
             Console.WriteLine("Press 'X' to send a message that is marked with expiration time.");
             Console.WriteLine("To exit, press Ctrl + C");
 
@@ -27,9 +27,11 @@ namespace Client
                     case "c":
                         SendCommand();
                         break;
+
                     case "r":
                         SendRequest();
                         break;
+
                     case "s":
                         StartSaga();
                         break;
@@ -45,7 +47,6 @@ namespace Client
                     case "x":
                         Expiration();
                         break;
-
                 }
             }
         }
@@ -94,7 +95,7 @@ namespace Client
                 message.SetHeader("tennant", tennant);
 
             Bus.Send(message);
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"));
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent");
         }
 
         void SendRequest()

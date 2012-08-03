@@ -34,7 +34,8 @@ namespace Server
         void DeferMessage()
         {
             Bus.Defer(TimeSpan.FromSeconds(10), new DeferredMessage());
-            Console.WriteLine(string.Format("\n{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds"));
+            Console.WriteLine();
+           Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds");
         }
 
         void PublishEvent()

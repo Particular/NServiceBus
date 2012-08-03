@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Messages
+﻿namespace Messages
 {
+    using System;
+
     public class LargeMessage
     {
         public Guid RequestId { get; set; }
