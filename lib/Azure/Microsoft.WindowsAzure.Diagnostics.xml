@@ -49,6 +49,12 @@
             Environment variable for Agent RPC Endpoint.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RdModuleName">
+            <summary>
+            String environment variable that defines the module name for system plugin tasks.
+            It is required to differenciate user startup task and system startup task.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.IISConfiguratorCleanServerOnStartup">
             <summary>
             Boolean environment variable that causes IISConfigurator to delete existing sites.
@@ -84,6 +90,11 @@
             <summary>
             The role type value indicating a web role hosted in IIS.
             </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.DeploymentsRegBasePath">
+            <summary>
+            Base path to SDK runtime endpoint discovery (no version specified).
+            </summary> 
         </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.DeploymentsRegPath">
             <summary>
@@ -130,6 +141,11 @@
             Name of the event log.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.WAEventSourceAgent">
+            <summary>
+            Name of the event guest agent source.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.WAEventSourceRuntime">
             <summary>
             Name of the event runtime source.
@@ -144,6 +160,20 @@
             This is shared between the runtime and the devfabric. Do not change this, as it breaks
             a contract between the two.
             </remarks>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.UseIISExpressPrivateSettingName">
+            <summary>
+            The name of the private configuration setting use to pass the path to the IIS Express installation root.
+            </summary>
+            <remarks>
+            This is shared between the runtime and the devfabric. Do not change this, as it breaks
+            a contract between the two.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Internal.Common.SDKConstants.RoleHostDebuggerPrivateSettingName">
+            <summary>
+            Path to a debugger to launch the role host process under.
+            </summary>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions">
             <summary>
@@ -660,6 +690,9 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.SelectType.StatementBlock">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.SelectType.Join">
+            <remarks/>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.SelectColumnType">
             <remarks/>
         </member>
@@ -843,13 +876,19 @@
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EventFormatType.manifest">
             <remarks/>
         </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsAnomalyCheckType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsAnomalyCheckType.name">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsAnomalyCheckType.Value">
+            <remarks/>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType">
             <remarks/>
         </member>
-        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.AllowedValue">
-            <remarks/>
-        </member>
-        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.RequiredValue">
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.AnomalyCheck">
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorInfoType.type">
@@ -907,6 +946,9 @@
             <remarks/>
         </member>
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.DosDetect">
+            <remarks/>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorType.VfpMetrics">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.EwsDetectorMode">
@@ -1308,6 +1350,9 @@
         <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimKindType.Directory">
             <remarks/>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimKindType.NodeDiagnostics">
+            <remarks/>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.ClaimRightType">
             <remarks/>
         </member>
@@ -1341,10 +1386,25 @@
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.UserRoleType.Claims">
             <remarks/>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.UserRoleType.ClaimSets">
+            <remarks/>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.UserRoleType.ClientCerts">
             <remarks/>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.UserRoleType.Name">
+            <remarks/>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.AuthorizationPolicyType">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.AuthorizationPolicyType.UserRole">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.AuthorizationPolicyType.OperationResources">
+            <remarks/>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.Internal.AuthorizationPolicyType.ClaimSets">
             <remarks/>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Internal.XstoreDataSiteBaseType">

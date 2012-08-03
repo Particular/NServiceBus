@@ -971,14 +971,14 @@
             <summary>
             Returns an access condition such that an operation will be performed only if the resource's ETag value matches the ETag value provided.
             </summary>
-            <param name="etag">The ETag value to check.</param>
+            <param name="etag">The quoted ETag value to check.</param>
             <returns>A structure specifying the if-match condition.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.AccessCondition.IfNoneMatch(System.String)">
             <summary>
             Returns an access condition such that an operation will be performed only if the resource's ETag value does not match the ETag value provided.
             </summary>
-            <param name="etag">The ETag value to check.</param>
+            <param name="etag">The quoted ETag value to check.</param>
             <returns>A structure specifying the if-none-match condition.</returns>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.AccessCondition.GetSourceConditions(Microsoft.WindowsAzure.StorageClient.AccessCondition,Microsoft.WindowsAzure.StorageClient.Protocol.ConditionHeaderKind@,System.String@)">
@@ -1123,7 +1123,7 @@
             <summary>
             Gets the ETag value for the container.
             </summary>
-            <value>The container's ETag value.</value>
+            <value>The container's quoted ETag value.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.BlobContainerProperties.LastModifiedUtc">
             <summary>
@@ -1276,7 +1276,7 @@
             <summary>
             Gets the blob's ETag value.
             </summary>
-            <value>The blob's ETag value.</value>
+            <value>The blob's quoted ETag value.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.BlobProperties.LastModifiedUtc">
             <summary>
@@ -1750,6 +1750,11 @@
         <member name="T:Microsoft.WindowsAzure.StorageClient.BlobRequestOptions">
             <summary>
             Represents a set of options that may be specified on a request.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.BlobRequestOptions.timeout">
+            <summary>
+            The server and client timeout interval for the request.
             </summary>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.BlobRequestOptions.#ctor">
@@ -2986,9 +2991,9 @@
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlob.UploadFullBlobWithRetrySequenceImpl(System.IO.Stream,Microsoft.WindowsAzure.StorageClient.BlobRequestOptions)">
             <summary>
-            Uploads the full blob with a retry sequence.
+            Uploads the full blob with a retry sequence. The stream must be seekable.
             </summary>
-            <param name="source">The source stream.</param>
+            <param name="source">The source stream, which must be seekable.</param>
             <param name="options">An object that specifies any additional options for the request.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that uploads the blob.</returns>
         </member>
@@ -3169,6 +3174,11 @@
         <member name="F:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.writeBlockSizeInBytes">
             <summary>
             Default is 4 MB.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.timeout">
+            <summary>
+            The default server and client timeout interval.
             </summary>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobClient.#ctor(System.String)">
@@ -4095,6 +4105,12 @@
             <param name="maxResults">The maximum result size.</param>
             <param name="setResult">The result report delegate.</param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> that lists the blobs.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobContainer.ParseETagAndLastModified(System.Net.HttpWebResponse)">
+            <summary>
+            Retrieve ETag and LastModified date time from response.
+            </summary>
+            <param name="response">The response to parse.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudBlobContainer.GetContainerAcl(System.String)">
             <summary>
@@ -5710,6 +5726,11 @@
             Provides a client for accessing the Windows Azure Queue service.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.timeout">
+            <summary>
+            The default server and client timeout interval.
+            </summary>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudQueueClient.#ctor(System.String,Microsoft.WindowsAzure.StorageCredentials)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.StorageClient.CloudQueueClient"/> class using the specified
@@ -6153,6 +6174,11 @@
         <member name="T:Microsoft.WindowsAzure.StorageClient.CloudTableClient">
             <summary>
             Provides a client for accessing the Windows Azure Table service.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.CloudTableClient.timeout">
+            <summary>
+            The default server and client timeout interval.
             </summary>
         </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.CloudTableClient.#ctor(System.String,Microsoft.WindowsAzure.StorageCredentials)">
@@ -8676,6 +8702,11 @@
             Default client side timeout for all service clients.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.MaximumAllowedTimeout">
+            <summary>
+            Maximum allowed timeout for any request.
+            </summary>
+        </member>
         <member name="F:Microsoft.WindowsAzure.StorageClient.Protocol.Constants.V1BlockPrefix">
             <summary>
             This is used to create V1 BlockIDs. The prefix must be Base64 compatible.
@@ -9201,6 +9232,12 @@
             Gets the account name to be used in signing the request.
             </summary>
             <value>The name of the account.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.Credentials.SigningAccountName">
+            <summary>
+            Gets or sets the account name whose key is used to sign requests.
+            </summary>
+            <value>The name of the account whose key is used to sign requests.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.StorageClient.Protocol.Credentials.Key">
             <summary>
@@ -13097,6 +13134,14 @@
             <param name="toStream">The destination stream.</param>
             <returns>The sequence that when invoked results in an asynchronous copy.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.StreamExtensions.ComputeMD5(System.IO.Stream,System.Action{System.String})">
+            <summary>
+            Compute the MD5 hash of the stream.
+            </summary>
+            <param name="stream">The stream.</param>
+            <param name="setResult">A delegate for setting the resulting MD5 hash as a string.</param>
+            <returns>The sequence that when invoked results in an asynchronous MD5 computation.</returns>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Tasks.StreamExtensions.WriteToSync(System.IO.Stream,System.IO.Stream)">
             <summary>
             Reads synchronously the entire content of the stream and writes it to the given output stream.
@@ -13494,6 +13539,13 @@
             <param name="seqNo">The sequence prefix value.</param>
             <returns>The block id.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.StorageClient.Utilities.CheckTimeoutBounds(System.TimeSpan)">
+            <summary>
+            Checks that the given timeout in within allowed bounds.
+            </summary>
+            <param name="timeout">The timeout to check.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">The timeout is not within allowed bounds.</exception>
+        </member>
         <member name="M:Microsoft.WindowsAzure.StorageClient.Utilities.TranslateExtendedError(Microsoft.WindowsAzure.StorageClient.StorageExtendedErrorInformation,System.Net.HttpStatusCode,System.String,System.Exception)">
             <summary>
             Translates the extended error.
@@ -13621,6 +13673,12 @@
             HMAC-encoded signature string when called using the specified credentials.
             </summary>
             <value><c>True</c> for objects of type <see cref="T:Microsoft.WindowsAzure.StorageCredentialsAccountAndKey"/>.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.StorageCredentialsAccountAndKey.SigningAccountName">
+            <summary>
+            Sets the account name that owns the key to use when signing requests.
+            </summary>
+            <value>The name of the account that owns the key to use when signing requests.</value>
         </member>
         <member name="T:Microsoft.WindowsAzure.StorageCredentialsAnonymous">
             <summary>
