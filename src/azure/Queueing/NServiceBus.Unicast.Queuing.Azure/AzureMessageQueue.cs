@@ -115,18 +115,24 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
             {
-                CloudStorageAccount account;
-                
-                if(CloudStorageAccount.TryParse(connectionString, out account))
+                lock (SenderLock)
                 {
-                    sendClient = account.CreateCloudQueueClient();
+                    if (!destinationQueueClients.TryGetValue(connectionString, out sendClient))
+                    {
+                        CloudStorageAccount account;
+
+                        if (CloudStorageAccount.TryParse(connectionString, out account))
+                        {
+                            sendClient = account.CreateCloudQueueClient();
+                        }
+
+                        // sendClient could be null, this is intentional 
+                        // so that it remembers a connectionstring was invald 
+                        // and doesn't try to parse it again.
+
+                        destinationQueueClients.Add(connectionString, sendClient);
+                    }
                 }
-
-                // sendClient could be null, this is intentional 
-                // so that it remembers a connectionstring was invald 
-                // and doesn't try to parse it again.
-
-                destinationQueueClients.Add(connectionString, sendClient);
             }
 
             return sendClient;
@@ -297,8 +303,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private bool useTransactions;
         private const string Idforcorrelation = "CorrId";
+        private static readonly object SenderLock = new Object();
 
-        
     }
 
     [Serializable]
