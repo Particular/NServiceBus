@@ -93,7 +93,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 				}
 			}
 			
-			echo "ilmergeTargetFramework requested $script:$ilmergeTargetFramework"
+			echo "ilmergeTargetFramework requested $script:ilmergeTargetFramework"
 
 			$script:msBuildTargetFramework = "/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
 			
