@@ -335,7 +335,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                Bus.Publish(one, two);
+                this.Bus().Publish(one, two);
             }
         }
 
@@ -382,12 +382,11 @@ namespace NServiceBus.Testing.Tests
         public class SendingHandler<TSend> : IHandleMessages<TestMessage>
             where TSend : IMessage
         {
-            public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
 
             public void Handle(TestMessage message)
             {
-                Bus.Send(ModifyPublish);
+                this.Bus().Send(ModifyPublish);
             }
         }
 
