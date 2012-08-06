@@ -7,8 +7,12 @@ namespace Server
 {
     public class CommandMessageHandler : IHandleMessages<Command>
     {
-        public IBus Bus { get; set; }
-
+        
+        /// <summary>
+        /// The handler is using the new IHandleMessages&lt;T&gt; extension method of the Bus().
+        /// Hence, there is no need to declare on a IBus interface property to be injected.
+        /// </summary>
+        /// <param name="message"></param>
         public void Handle(Command message)
         {
             Console.WriteLine("======================================================================");
@@ -16,9 +20,9 @@ namespace Server
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
             if (message.Id % 2 == 0)
-                Bus.Return(ErrorCodes.Fail);
+                this.Bus().Return(ErrorCodes.Fail);
             else 
-                Bus.Return(ErrorCodes.None);
+                this.Bus().Return(ErrorCodes.None);
         }
     }
 }
