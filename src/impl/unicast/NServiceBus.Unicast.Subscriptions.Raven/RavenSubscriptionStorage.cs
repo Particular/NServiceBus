@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Raven.Client;
 
@@ -25,7 +24,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
                 var newAndExistingSubscriptions = messageTypeLookup
                     .Select(id => existingSubscriptions[id.Key].SingleOrDefault() ?? StoreNewSubscription(session, id.Key, id.Value))
-                    .Where(subscription => !subscription.Clients.Any(c => c == client)).ToArray();
+                    .Where(subscription => subscription.Clients.All(c => c != client)).ToArray();
 
                 foreach (var subscription in newAndExistingSubscriptions)
                 {
@@ -78,10 +77,9 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
         static IEnumerable<Subscription> GetSubscriptions(IEnumerable<MessageType> messageTypes, IDocumentSession session)
         {
             var ids = messageTypes
-                .Select(Subscription.FormatId)
-                .ToArray();
+                .Select(Subscription.FormatId);
 
-            return ids.Select(session.Load<Subscription>).Where(s => s != null);
+            return session.Load<Subscription>(ids).Where(s => s != null);
         }
 
         static Subscription StoreNewSubscription(IDocumentSession session, string id, MessageType messageType)

@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
 {
-    using global::Raven.Client.Document;
-
     [TestFixture]
     public class When_listing_subscribers_for_message_types : WithRavenSubscriptionStorage
     {
@@ -36,7 +32,6 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests
             Assert.AreEqual(1, subscriptionsForMessageType.Count());
         }
     }
-
 
     [TestFixture]
     public class When_listing_subscribers_for_a_non_existing_message_type : WithRavenSubscriptionStorage
