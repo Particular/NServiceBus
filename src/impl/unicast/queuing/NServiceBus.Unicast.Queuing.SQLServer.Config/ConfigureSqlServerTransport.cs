@@ -16,10 +16,10 @@ namespace NServiceBus
 
         public static Configure SqlServerTransport(this Configure configure, string connectionString)
         {
-            configure.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.SingleInstance)
+            configure.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ConnectionString, connectionString);
 
-            configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.SingleInstance)
+            configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ConnectionString, connectionString);
 
             configure.IsolationLevel(IsolationLevel.ReadCommitted);
