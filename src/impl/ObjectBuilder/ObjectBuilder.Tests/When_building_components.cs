@@ -38,23 +38,21 @@ namespace ObjectBuilder.Tests
         {            
             ForAllBuilders((builder) =>
                Assert.NotNull(builder.Build(typeof(LambdaComponentUoW))),               
-               typeof(WindsorObjectBuilder), typeof(UnityObjectBuilder));
+               typeof(WindsorObjectBuilder));
         }
 
         [Test]
         public void Lambda_singlecall_components_should_yield_unique_instances()
         {
             ForAllBuilders((builder) =>
-               Assert.AreNotEqual(builder.Build(typeof(SingleCallLambdaComponent)), builder.Build(typeof(SingleCallLambdaComponent))),
-               typeof(UnityObjectBuilder));
+               Assert.AreNotEqual(builder.Build(typeof(SingleCallLambdaComponent)), builder.Build(typeof(SingleCallLambdaComponent))));
         }
 
         [Test]
         public void Lambda_singleton_components_should_yield_the_same_instance()
         {
             ForAllBuilders((builder) =>
-               Assert.AreEqual(builder.Build(typeof(SingletonLambdaComponent)), builder.Build(typeof(SingletonLambdaComponent))),
-               typeof(UnityObjectBuilder));
+               Assert.AreEqual(builder.Build(typeof(SingletonLambdaComponent)), builder.Build(typeof(SingletonLambdaComponent))));
         }
 
         [Test]
