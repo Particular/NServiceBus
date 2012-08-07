@@ -9,7 +9,6 @@ namespace ObjectBuilder.Tests
     using System.Collections.Generic;
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.Unity;
 
     [TestFixture]
     public class When_registering_components : BuilderFixture
@@ -36,7 +35,7 @@ namespace ObjectBuilder.Tests
                 builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
 
                 Assert.NotNull(builder.Build(typeof(ComponentCreatedByFactory)));
-            },typeof(UnityObjectBuilder));
+            });
         }
 
         [Test]
