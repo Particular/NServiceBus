@@ -28,14 +28,14 @@
                                      SELECT @NextId";
 
         public void Send(TransportMessage message, Address address)
-        {                                   
-            string body;            
+        {
+            string body = string.Empty;          
             
             if (MessageSerializer is MessageSerializer)
             {
                 body = Convert.ToBase64String(message.Body);
             }
-            else
+            else if (message.Body != null)
             {
                 var stream = new MemoryStream(message.Body) {Position = 0};
                 using (TextReader textReader = new StreamReader(stream))
