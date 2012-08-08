@@ -7,19 +7,17 @@ namespace NServiceBus.Testing
 {
     public class StubBus : IBus
     {
-        private IMessageCreator messageCreator;
-        private IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
+        private readonly IMessageCreator messageCreator;
+        private readonly IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
         private IMessageContext messageContext;
-
-        private readonly List<ActualInvocation> ActualInvocations = new List<ActualInvocation>();
-
-        private TimeoutManager timeoutManager = new TimeoutManager();
+        private readonly List<ActualInvocation> actualInvocations = new List<ActualInvocation>();
+        private readonly TimeoutManager timeoutManager = new TimeoutManager();
 
         public void ValidateAndReset(IEnumerable<IExpectedInvocation> expectedInvocations)
         {
-            expectedInvocations.ToList().ForEach(e => e.Validate(ActualInvocations.ToArray()));
+            expectedInvocations.ToList().ForEach(e => e.Validate(actualInvocations.ToArray()));
 
-            ActualInvocations.Clear();
+            actualInvocations.Clear();
         }
 
         public object PopTimeout()
@@ -34,15 +32,16 @@ namespace NServiceBus.Testing
 
         public void Publish<T>(params T[] messages)
         {
-            if (messages.Length > 1)
-                throw new NotSupportedException("Testing doesn't support publishing multiple messages.");
             if (messages.Length == 0)
             {
                 ProcessInvocation(typeof(PublishInvocation<>), CreateInstance<T>());
                 return;
             }
 
-            ProcessInvocation(typeof(PublishInvocation<>), messages[0]);
+            foreach (var message in messages)
+            {
+                ProcessInvocation(typeof(PublishInvocation<>), message);
+            }
         }
 
         public void Publish<T>(Action<T> messageConstructor)
@@ -182,22 +181,22 @@ namespace NServiceBus.Testing
 
         public void Return<T>(T errorEnum)
         {
-            ActualInvocations.Add(new ReturnInvocation<T> { Value = errorEnum});
+            actualInvocations.Add(new ReturnInvocation<T> { Value = errorEnum});
         }
 
         public void HandleCurrentMessageLater()
         {
-            ActualInvocations.Add(new HandleCurrentMessageLaterInvocation<object>());
+            actualInvocations.Add(new HandleCurrentMessageLaterInvocation<object>());
         }
 
         public void ForwardCurrentMessageTo(string destination)
         {
-            ActualInvocations.Add(new ForwardCurrentMessageToInvocation { Value = destination });
+            actualInvocations.Add(new ForwardCurrentMessageToInvocation { Value = destination });
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            ActualInvocations.Add(new DoNotContinueDispatchingCurrentMessageToHandlersInvocation<object>());
+            actualInvocations.Add(new DoNotContinueDispatchingCurrentMessageToHandlersInvocation<object>());
         }
 
         public IDictionary<string, string> OutgoingHeaders
@@ -233,15 +232,25 @@ namespace NServiceBus.Testing
 
         private ICallback ProcessInvocation(Type genericType, Dictionary<string, object> others, object[] messages)
         {
-            var messageType = GetMessageType(messages[0]);
-            var invocationType = genericType.MakeGenericType(messageType);
-            return ProcessInvocationWithBuiltType(invocationType, others, messages);
+            foreach (var message in messages)
+            {
+                var messageType = GetMessageType(message);
+                var invocationType = genericType.MakeGenericType(messageType);
+                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
+            }
+
+            return null;
         }
 
         private ICallback ProcessInvocation<K>(Type dualGenericType, Dictionary<string, object> others, params object[] messages)
         {
-            var invocationType = dualGenericType.MakeGenericType(GetMessageType(messages[0]), typeof(K));
-            return ProcessInvocationWithBuiltType(invocationType, others, messages);
+            foreach (var message in messages)
+            {
+                var invocationType = dualGenericType.MakeGenericType(GetMessageType(message), typeof (K));
+                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
+            }
+
+            return null;
         }
 
         private ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object[] messages)
@@ -259,7 +268,7 @@ namespace NServiceBus.Testing
             foreach (var kv in others)
                 builtType.GetProperty(kv.Key).SetValue(invocation, kv.Value, null);
 
-            ActualInvocations.Add(invocation);
+            actualInvocations.Add(invocation);
 
             return null;
         }

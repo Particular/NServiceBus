@@ -2,20 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.IO;
-    using System.Net;
     using System.Transactions;
     using Channels;
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
+    using Unicast.Transport;
     using log4net;
     using Notifications;
-    using ObjectBuilder;
     using Persistence;
     using Sending;
-    using Unicast.Transport;
     using Utils;
 
     public class IdempotentChannelReceiver : IReceiveMessagesFromSites
@@ -107,8 +103,6 @@
                 AutoAck = headers.ContainsKey(GatewayHeaders.AutoAck)
             };
         }
-
-
 
         void HandleSubmit(CallInfo callInfo)
         {

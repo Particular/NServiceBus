@@ -5,20 +5,26 @@ using NUnit.Framework;
 namespace NServiceBus.Testing.Tests
 {
     [TestFixture]
-    class SagaTests
+    internal class SagaTests
     {
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            Test.Initialize();
+        }
+
         [Test]
         public void MySaga()
         {
             Test.Saga<MySaga>()
-                    .ExpectReplyToOrginator<ResponseToOriginator>()
-                    .ExpectTimeoutToBeSetIn<StartsSaga>((state, span) => span == TimeSpan.FromDays(7))
-                    .ExpectPublish<Event>()
-                    .ExpectSend<Command>()
+                .ExpectReplyToOrginator<ResponseToOriginator>()
+                .ExpectTimeoutToBeSetIn<StartsSaga>((state, span) => span == TimeSpan.FromDays(7))
+                .ExpectPublish<Event>()
+                .ExpectSend<Command>()
                 .When(s => s.Handle(new StartsSaga()))
-                    .ExpectPublish<Event>()
+                .ExpectPublish<Event>()
                 .WhenSagaTimesOut()
-                    .AssertSagaCompletionIs(true);
+                .AssertSagaCompletionIs(true);
         }
 
         [Test]
@@ -27,12 +33,12 @@ namespace NServiceBus.Testing.Tests
             decimal total = 600;
 
             Test.Saga<DiscountPolicy>()
-                    .ExpectSend<ProcessOrder>(m => m.Total == total)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = total }))
-                    .ExpectSend<ProcessOrder>(m => m.Total == total * (decimal)0.9)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = total }));
+                .ExpectSend<ProcessOrder>(m => m.Total == total)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = total}))
+                .ExpectSend<ProcessOrder>(m => m.Total == total*(decimal) 0.9)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = total}));
         }
 
         [Test]
@@ -41,45 +47,51 @@ namespace NServiceBus.Testing.Tests
             decimal total = 600;
 
             Test.Saga<DiscountPolicy>()
-                    .ExpectSend<ProcessOrder>(m => m.Total == total)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = total }))
+                .ExpectSend<ProcessOrder>(m => m.Total == total)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = total}))
                 .WhenSagaTimesOut()
-                    .ExpectSend<ProcessOrder>(m => m.Total == total)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = total }));
+                .ExpectSend<ProcessOrder>(m => m.Total == total)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = total}));
         }
+
+
+        [Test]
+        public void RemoteOrder()
+        {
+            decimal total = 100;
+
+            Test.Saga<DiscountPolicy>()
+                .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Queue == "remote.orderqueue")
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = total, IsRemoteOrder = true}));
+        }
+
 
         [Test]
         public void DiscountTestWithSpecificTimeout()
         {
             Test.Saga<DiscountPolicy>()
-                    .ExpectSend<ProcessOrder>(m => m.Total == 500)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = 500 }))
-                    .ExpectSend<ProcessOrder>(m => m.Total == 400)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = 400 }))
-                    .ExpectSend<ProcessOrder>(m => m.Total == 300 * (decimal)0.9)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = 300 }))
+                .ExpectSend<ProcessOrder>(m => m.Total == 500)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = 500}))
+                .ExpectSend<ProcessOrder>(m => m.Total == 400)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = 400}))
+                .ExpectSend<ProcessOrder>(m => m.Total == 300*(decimal) 0.9)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = 300}))
                 .WhenSagaTimesOut()
-                    .ExpectSend<ProcessOrder>(m => m.Total == 200)
-                    .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
-                .When(s => s.Handle(new SubmitOrder { Total = 200 }));
-        }
-
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            Test.Initialize();
+                .ExpectSend<ProcessOrder>(m => m.Total == 200)
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder {Total = 200}));
         }
     }
 
-    public class MySaga : NServiceBus.Saga.Saga<MySagaData>,
-        IAmStartedByMessages<StartsSaga>,
-        IHandleTimeouts<StartsSaga>
+    public class MySaga : Saga.Saga<MySagaData>,
+                          IAmStartedByMessages<StartsSaga>,
+                          IHandleTimeouts<StartsSaga>
     {
         public void Handle(StartsSaga message)
         {
@@ -103,27 +115,49 @@ namespace NServiceBus.Testing.Tests
         public string OriginalMessageId { get; set; }
     }
 
-    public class StartsSaga : ICommand {}
-    public class ResponseToOriginator : IMessage {}
-    public interface Event : IEvent { }
-    public class Command : ICommand {}
+    public class StartsSaga : ICommand
+    {
+    }
 
+    public class ResponseToOriginator : IMessage
+    {
+    }
+
+    public interface Event : IEvent
+    {
+    }
+
+    public class Command : ICommand
+    {
+    }
 
     public class DiscountPolicy : Saga.Saga<DiscountPolicyData>,
-    IAmStartedByMessages<SubmitOrder>,
-        IHandleTimeouts<SubmitOrder>
+                                  IAmStartedByMessages<SubmitOrder>,
+                                  IHandleTimeouts<SubmitOrder>
     {
         public void Handle(SubmitOrder message)
         {
             Data.CustomerId = message.CustomerId;
             Data.RunningTotal += message.Total;
 
-            if (Data.RunningTotal >= 1000)
+            if (message.IsRemoteOrder)
+                ProcessExternalOrder(message);
+            else if (Data.RunningTotal >= 1000)
                 ProcessOrderWithDiscount(message);
             else
                 ProcessOrder(message);
 
             RequestUtcTimeout(TimeSpan.FromDays(7), message);
+        }
+
+        private void ProcessExternalOrder(SubmitOrder message)
+        {
+            Bus.Send<ProcessOrder>("remote.orderqueue", m =>
+                                                            {
+                                                                m.CustomerId = Data.CustomerId;
+                                                                m.OrderId = message.OrderId;
+                                                                m.Total = message.Total;
+                                                            });
         }
 
         public void Timeout(SubmitOrder state)
@@ -134,21 +168,21 @@ namespace NServiceBus.Testing.Tests
         private void ProcessOrder(SubmitOrder message)
         {
             Bus.Send<ProcessOrder>(m =>
-            {
-                m.CustomerId = Data.CustomerId;
-                m.OrderId = message.OrderId;
-                m.Total = message.Total;
-            });
+                                       {
+                                           m.CustomerId = Data.CustomerId;
+                                           m.OrderId = message.OrderId;
+                                           m.Total = message.Total;
+                                       });
         }
 
         private void ProcessOrderWithDiscount(SubmitOrder message)
         {
             Bus.Send<ProcessOrder>(m =>
-            {
-                m.CustomerId = Data.CustomerId;
-                m.OrderId = message.OrderId;
-                m.Total = message.Total * (decimal)0.9;
-            });
+                                       {
+                                           m.CustomerId = Data.CustomerId;
+                                           m.OrderId = message.OrderId;
+                                           m.Total = message.Total*(decimal) 0.9;
+                                       });
         }
     }
 
@@ -157,6 +191,7 @@ namespace NServiceBus.Testing.Tests
         public Guid OrderId { get; set; }
         public Guid CustomerId { get; set; }
         public decimal Total { get; set; }
+        public bool IsRemoteOrder { get; set; }
     }
 
     public class ProcessOrder : IMessage
@@ -175,5 +210,4 @@ namespace NServiceBus.Testing.Tests
         public Guid CustomerId { get; set; }
         public decimal RunningTotal { get; set; }
     }
-
 }

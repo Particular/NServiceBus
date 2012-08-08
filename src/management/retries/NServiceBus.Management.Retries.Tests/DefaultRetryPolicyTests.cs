@@ -41,7 +41,7 @@ namespace NServiceBus.Management.Retries.Tests
 
         private void Defer()
         {
-            TransportMessageHelpers.SetHeader(_message, SecondLevelRetriesHeaders.Retries, (TransportMessageHelpers.GetNumberOfRetries(_message) + 1).ToString());
+            TransportMessageHelpers.SetHeader(_message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(_message) + 1).ToString());
         }
     }
 }

@@ -48,7 +48,7 @@ namespace NServiceBus.Licensing
             }
             catch (LicenseFileNotFoundException)
             {
-                Logger.Warn("No valid license file was found. The host will be limited to 1 worker thread.");
+                Logger.Warn("No valid license file was found. The host will be limited to a throughput of 1msg/s.");
             }
             
             SetNServiceBusLicense();

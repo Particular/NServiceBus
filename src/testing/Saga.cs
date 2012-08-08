@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using NServiceBus.Saga;
 
 namespace NServiceBus.Testing
@@ -186,7 +185,6 @@ namespace NServiceBus.Testing
                                                                 throw new Exception(
                                                                     "Expected ReplyToOriginator. Messages were sent to " +
                                                                     address + " instead.");
-                                                                return false;
                                                             }
 
                                                             if (correlationId != saga.Entity.OriginalMessageId)
@@ -194,7 +192,6 @@ namespace NServiceBus.Testing
                                                                 throw new Exception(
                                                                     "Expected ReplyToOriginator. Messages were sent with correlation ID " +
                                                                     correlationId + " instead of " + saga.Entity.OriginalMessageId);
-                                                                return false;
                                                             }
 
                                                             if (check != null)
@@ -258,8 +255,6 @@ namespace NServiceBus.Testing
             bus.ValidateAndReset(expectedInvocations);
             expectedInvocations.Clear();
 
-            Trace.WriteLine("Finished when invocation.");
-
             messageId = () => Guid.NewGuid().ToString();
             return this;
         }
@@ -272,6 +267,7 @@ namespace NServiceBus.Testing
         public Saga<T> WhenSagaTimesOut()
         {
             var state = bus.PopTimeout();
+            
             var method = saga.GetType().GetMethod("Timeout", new[] {state.GetType()});
             
             return When(s => method.Invoke(s, new[] {state}));
@@ -317,5 +313,4 @@ namespace NServiceBus.Testing
             return this;
         }
     }
-
 }

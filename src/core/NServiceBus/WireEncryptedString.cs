@@ -7,7 +7,7 @@ namespace NServiceBus
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
     [Serializable]
-    public class WireEncryptedString:ISerializable
+    public class WireEncryptedString : ISerializable
     {
         /// <summary>
         /// Default contstructor

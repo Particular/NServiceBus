@@ -21,7 +21,7 @@ namespace NServiceBus.Testing
                                          {
                                              var result = Validate(c as T);
                                              if (!result)
-                                                 Trace.WriteLine("Check evaluated false for " + filter(GetType()));
+                                                 Console.Out.WriteLine("Check evaluated false for " + filter(GetType()));
 
                                              return result;
                                          });
@@ -130,8 +130,12 @@ namespace NServiceBus.Testing
     public class ExpectedDeferMessageInvocation<M, D> : ExpectedMessageAndValueInvocation<DeferMessageInvocation<M, D>, M, D> {}
     public class DeferMessageInvocation<M, D> : MessageAndValueInvocation<M, D> {}
 
-    public class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> { }
-    public class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, Address> { }
+    public class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> {}
+
+    public class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, Address>
+    {
+		public Address Address { get { return Value; } set { Value = value; } }
+    }
 
     public class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> { }
     public class SendToSitesInvocation<M> : MessageAndValueInvocation<M, IEnumerable<string>> { }

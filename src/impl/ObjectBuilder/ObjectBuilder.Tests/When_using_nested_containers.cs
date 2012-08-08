@@ -2,16 +2,10 @@ using System;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.Spring;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace ObjectBuilder.Tests
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using StructureMap;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
-
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
     {
@@ -32,36 +26,25 @@ namespace ObjectBuilder.Tests
 
         }
 
-        List<object> results;
-
         [Test]
         public void Instance_per_uow__components_should_not_be_shared_across_child_containers()
         {
             ForAllBuilders(builder =>
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-              
-                results = new List<object>();
-                var thread1 = new Thread(ResolveChildInstance);
-                thread1.Start(builder);
+                builder.Configure(typeof(InstancePerUoWComponent),
+                                  DependencyLifecycle.InstancePerUnitOfWork);
 
-                var thread2 = new Thread(ResolveChildInstance);
-                thread2.Start(builder);
+                var task1 =
+                    Task<object>.Factory.StartNew(
+                        () => builder.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
+                var task2 =
+                    Task<object>.Factory.StartNew(
+                        () => builder.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
 
-                thread1.Join();
-                thread2.Join();
-
-                Assert.AreNotSame(results[0], results[1]);
+                Assert.AreNotSame(task1.Result, task2.Result);
 
             },
-            typeof(SpringObjectBuilder));
-        }
-
-        void ResolveChildInstance(object container)
-        {
-            var mainContainer = (IContainer)container;
-
-            results.Add(mainContainer.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
+                           typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -108,7 +91,6 @@ namespace ObjectBuilder.Tests
                 using (var nestedContainer = builder.BuildChildContainer())
                     nestedContainer.Build(typeof(ComponentThatDependsOfSingleton));
 
-                Console.WriteLine(ObjectFactory.WhatDoIHave());
                 Assert.False(SingletonComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder));

@@ -8,9 +8,7 @@ namespace ObjectBuilder.Tests
     using System.Collections;
     using System.Collections.Generic;
     using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.Unity;
 
     [TestFixture]
     public class When_registering_components : BuilderFixture
@@ -26,22 +24,18 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreEqual(1, builder.BuildAll(typeof(DuplicateClass)).Count());
             });
-
-           
         }
-
 
         [Test]
         public void Should_support_lambdas_that_uses_other_components_registered_later()
         {
             ForAllBuilders((builder) =>
             {
-                builder.Configure<ComponentCreatedByFactory>(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
+                builder.Configure(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
                 builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
 
-
                 Assert.NotNull(builder.Build(typeof(ComponentCreatedByFactory)));
-            },typeof(UnityObjectBuilder),typeof(SpringObjectBuilder));
+            });
         }
 
         [Test]
@@ -56,7 +50,6 @@ namespace ObjectBuilder.Tests
                 Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
             }, typeof(SpringObjectBuilder));
         }
-
 
         [Test]
         public void Register_singleton_should_be_supported()
@@ -111,7 +104,6 @@ namespace ObjectBuilder.Tests
 
                 Assert.True(component.AnotherProperty);
             });
-
         }
 
 
@@ -136,7 +128,6 @@ namespace ObjectBuilder.Tests
                 Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
                 
             });
-
         }
 
         [Test]
@@ -148,30 +139,26 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreSame(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(ISingletonComponent)));
             });
-
-
         }
 
         [Test]
         public void All_implemented_interfaces_should_be_registered()
         {
             ForAllBuilders(builder =>
-            {
-                builder.Configure(typeof(ComponentWithMultipleInterfaces), DependencyLifecycle.InstancePerCall);
+                               {
+                                   builder.Configure(typeof (ComponentWithMultipleInterfaces),
+                                                     DependencyLifecycle.InstancePerCall);
 
-                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+                                   Assert.True(builder.HasComponent(typeof (ISomeInterface)));
 
-                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+                                   Assert.True(builder.HasComponent(typeof (ISomeOtherInterface)));
 
-                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+                                   Assert.True(builder.HasComponent(typeof (IYetAnotherInterface)));
 
-                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
-            }
-            );
-
-
+                                   Assert.AreEqual(1, builder.BuildAll(typeof (IYetAnotherInterface)).Count());
+                               }
+                );
         }
-
 
         [Test]
         public void Multiple_implementations_should_be_supported()
@@ -190,34 +177,33 @@ namespace ObjectBuilder.Tests
 
             }
             ,typeof(WindsorObjectBuilder));
-
-
         }
-
 
         [Test]
         public void Generic_interfaces_should_be_registered()
         {
             ForAllBuilders(builder =>
-            {
-                builder.Configure(typeof(ComponentWithGenericInterface), DependencyLifecycle.InstancePerCall);
+                               {
+                                   builder.Configure(typeof (ComponentWithGenericInterface),
+                                                     DependencyLifecycle.InstancePerCall);
 
-                Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
-            }
-            );
+                                   Assert.True(builder.HasComponent(typeof (ISomeGenericInterface<string>)));
+                               }
+                );
         }
 
-        [Test,Ignore("Not sure that we should enforce this")]
+        [Test, Ignore("Not sure that we should enforce this")]
         public void System_interfaces_should_not_be_autoregistered()
         {
             ForAllBuilders(builder =>
-            {
-                builder.Configure(typeof(ComponentWithSystemInterface), DependencyLifecycle.InstancePerCall);
+                               {
+                                   builder.Configure(typeof (ComponentWithSystemInterface),
+                                                     DependencyLifecycle.InstancePerCall);
 
-                Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));
-                Assert.False(builder.HasComponent(typeof(IDisposable)));
-            }
-            );
+                                   Assert.False(builder.HasComponent(typeof (IGrouping<string, string>)));
+                                   Assert.False(builder.HasComponent(typeof (IDisposable)));
+                               }
+                );
         }
     }
 

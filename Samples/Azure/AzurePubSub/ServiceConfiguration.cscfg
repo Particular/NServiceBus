@@ -1,15 +1,14 @@
-<?xml version="1.0"?>
-<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2012-05.1.7">
   <Role name="OrderWebSite">
     <Instances count="2" />
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="orderwebsiteinputqueue" />
-      
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Diagnostics.Level" value="Verbose" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -26,13 +25,12 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="orderserviceinputqueue" />
-      
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Diagnostics.Level" value="Verbose" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />

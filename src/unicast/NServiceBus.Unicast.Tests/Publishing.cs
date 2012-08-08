@@ -1,12 +1,9 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Subscriptions;
     using Transport;
 
     [TestFixture]
@@ -21,12 +18,11 @@
         }
     }
 
-
     [TestFixture]
     public class When_publishing_a_event_messages : using_the_unicastbus
     {
         [Test]
-        public void Should_get_an_error_messages()
+        public void Should_not_get_an_error_messages()
         {
             var subscriberAddress = new Address("sub1", ".");
 

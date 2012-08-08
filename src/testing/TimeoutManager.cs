@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace NServiceBus.Testing
 {
@@ -10,9 +8,9 @@ namespace NServiceBus.Testing
         public void Push(object spanOrTime, object value)
         {
             var at = new DateTime();
-            if (spanOrTime.GetType() == typeof(DateTime))
+            if (spanOrTime is DateTime)
                 at = (DateTime) spanOrTime;
-            if (spanOrTime.GetType() == typeof(TimeSpan))
+            if (spanOrTime is TimeSpan)
                 at = DateTime.UtcNow + (TimeSpan) spanOrTime;
 
             if (!storage.ContainsKey(at))

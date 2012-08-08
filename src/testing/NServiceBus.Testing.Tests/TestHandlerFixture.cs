@@ -45,39 +45,40 @@ namespace NServiceBus.Testing.Tests
                 .ExpectHandleCurrentMessageLater()
                 .OnMessage<TestMessage>();
         }
-        
+
         [Test]
-		public void ShouldCallHandleOnExplicitInterfaceImplementation()
-		{
-			var handler = new ExplicitInterfaceImplementation();
-			Assert.IsFalse(handler.IsHandled);
-			Test.Handler(handler).OnMessage<TestMessage>();
-			Assert.IsTrue(handler.IsHandled);
-		}
-		[Test]
-		public void ShouldPassExpectPublishWhenPublishing()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        public void ShouldCallHandleOnExplicitInterfaceImplementation()
+        {
+            var handler = new ExplicitInterfaceImplementation();
+            Assert.IsFalse(handler.IsHandled);
+            Test.Handler(handler).OnMessage<TestMessage>();
+            Assert.IsTrue(handler.IsHandled);
+        }
 
-		[Test]
-		[ExpectedException]
-		public void ShouldFailExpectNotPublishWhenPublishing()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.ExpectNotPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        public void ShouldPassExpectPublishWhenPublishing()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .ExpectPublish<Publish1>(m => true)
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		public void ShouldPassExpectPublishWhenPublishingMultipleEvents()
-		{
-			Test.Handler<PublishingHandler<Publish1, Publish2>>()
-				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectNotPublishWhenPublishing()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .ExpectNotPublish<Publish1>(m => true)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldPassExpectPublishWhenPublishingMultipleEvents()
+        {
+            Test.Handler<PublishingHandler<Publish1, Publish2>>()
+                .ExpectPublish<Publish1>(m => true)
+                .OnMessage<TestMessage>();
+        }
 
         [Test]
         public void ShouldPassExpectPublishWhenMessageIsSend()
@@ -87,63 +88,61 @@ namespace NServiceBus.Testing.Tests
                 .OnMessage(new TestMessageImpl(), Guid.NewGuid().ToString());
         }
 
-        private class TestMessageImpl : TestMessage{}
-        
 
-		[Test]
-		public void ShouldPassExpectPublishWhenPublishingAndCheckingPredicate()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
-				.ExpectPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        public void ShouldPassExpectPublishWhenPublishingAndCheckingPredicate()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
+                .ExpectPublish<Publish1>(m => m.Data == "Data")
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		[ExpectedException]
-		public void ShouldFailExpectNotPublishWhenPublishingAndCheckingPredicate()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
-				.ExpectNotPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectNotPublishWhenPublishingAndCheckingPredicate()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "Data")
+                .ExpectNotPublish<Publish1>(m => m.Data == "Data")
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		[ExpectedException]
-		public void ShouldFailExpectPublishWhenPublishingAndCheckingPredicateThatFails()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
-				.ExpectPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectPublishWhenPublishingAndCheckingPredicateThatFails()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
+                .ExpectPublish<Publish1>(m => m.Data == "Data")
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		public void ShouldPassExpectNotPublishWhenPublishingAndCheckingPredicateThatFails()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
-				.ExpectNotPublish<Publish1>(m => m.Data == "Data")
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        public void ShouldPassExpectNotPublishWhenPublishingAndCheckingPredicateThatFails()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .WithExternalDependencies(h => h.ModifyPublish = m => m.Data = "NotData")
+                .ExpectNotPublish<Publish1>(m => m.Data == "Data")
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		[ExpectedException]
-		public void ShouldFailExpectPublishIfNotPublishing()
-		{
-			Test.Handler<EmptyHandler>()
-				.ExpectPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectPublishIfNotPublishing()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectPublish<Publish1>(m => true)
+                .OnMessage<TestMessage>();
+        }
 
-		[Test]
-		public void ShouldPassExpectNotPublishIfNotPublishing()
-		{
-			Test.Handler<EmptyHandler>()
-				.ExpectNotPublish<Publish1>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        public void ShouldPassExpectNotPublishIfNotPublishing()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectNotPublish<Publish1>(m => true)
+                .OnMessage<TestMessage>();
+        }
 
         [Test]
         public void ShouldPassExpectSendIfSending()
@@ -212,23 +211,23 @@ namespace NServiceBus.Testing.Tests
                 .ExpectNotSendLocal<Send1>(m => true)
                 .OnMessage<TestMessage>();
         }
-        
-        [Test]
-		[ExpectedException]
-		public void ShouldFailExpectPublishIfPublishWrongMessageType()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.ExpectPublish<Publish2>(m => true)
-				.OnMessage<TestMessage>();
-		}
 
-		[Test]
-		public void ShouldPassExpectNotPublishIfPublishWrongMessageType()
-		{
-			Test.Handler<PublishingHandler<Publish1>>()
-				.ExpectNotPublish<Publish2>(m => true)
-				.OnMessage<TestMessage>();
-		}
+        [Test]
+        [ExpectedException]
+        public void ShouldFailExpectPublishIfPublishWrongMessageType()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .ExpectPublish<Publish2>(m => true)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldPassExpectNotPublishIfPublishWrongMessageType()
+        {
+            Test.Handler<PublishingHandler<Publish1>>()
+                .ExpectNotPublish<Publish2>(m => true)
+                .OnMessage<TestMessage>();
+        }
 
         [Test]
         public void ShouldSupportDataBusProperties()
@@ -238,36 +237,156 @@ namespace NServiceBus.Testing.Tests
                 .OnMessage<MessageWithDataBusProperty>();
         }
 
+        [Test]
+        public void ShouldSupportSendingManyMessagesAtOnce()
+        {
+            Test.Handler<SendingManyHandler>()
+                .ExpectSend<Ougoing>(m => m.Number == 1)
+                .OnMessage<Incoming>();
+
+            Test.Handler<SendingManyHandler>()
+                .ExpectSend<Ougoing>(m => m.Number == 2)
+                .OnMessage<Incoming>();
+        }
+
+        [Test]
+        public void ShouldSupportSendingDifferentMessagesAtOnce()
+        {
+            var result = 0;
+
+            Test.Handler<SendingManyWithDifferentMessagesHandler>()
+                .ExpectSend<Ougoing>(m =>
+                {
+                    result += m.Number;
+                    return true;
+                })
+                .ExpectSend<Ougoing2>(m =>
+                {
+                    result += m.Number;
+                    return true;
+                })
+                .OnMessage<Incoming>();
+
+            Assert.AreEqual(3, result);
+        }
+
+        [Test]
+        public void ShouldSupportPublishMoreThanOneMessageAtOnce()
+        {
+            Test.Handler<PublishingManyHandler>()
+                .ExpectPublish<Ougoing>(m => true)
+                .ExpectPublish<Ougoing>(m => true)
+                .OnMessage<Incoming>();
+        }
+
+        private class TestMessageImpl : TestMessage
+        {
+        }
 
         public class EmptyHandler : IHandleMessages<TestMessage>
         {
-            public void Handle(TestMessage message) {}
+            public void Handle(TestMessage message)
+            {
+            }
         }
 
-		public interface Publish1 : IMessage
-		{
-			string Data { get; set; }
-		}
+        public interface Publish1 : IMessage
+        {
+            string Data { get; set; }
+        }
 
         public interface Send1 : IMessage
         {
             string Data { get; set; }
         }
-        
+
         public interface Publish2 : IMessage
-		{
-			string Data { get; set; }
-		}
+        {
+            string Data { get; set; }
+        }
+
+        public class Ougoing : IMessage
+        {
+            public int Number { get; set; }
+        }
+
+        public class Ougoing2 : IMessage
+        {
+            public int Number { get; set; }
+        }
+
+        public class Incoming : IMessage
+        {
+        }
+
+        public class PublishingManyHandler : IHandleMessages<Incoming>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(Incoming message)
+            {
+                var one = Bus.CreateInstance<Ougoing>(m =>
+                {
+                    m.Number = 1;
+                });
+
+                var two = Bus.CreateInstance<Ougoing>(m =>
+                {
+                    m.Number = 2;
+                });
+
+                this.Bus().Publish(one, two);
+            }
+        }
+
+        public class SendingManyWithDifferentMessagesHandler : IHandleMessages<Incoming>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(Incoming message)
+            {
+                var one = Bus.CreateInstance<Ougoing>(m =>
+                {
+                    m.Number = 1;
+                });
+
+                var two = Bus.CreateInstance<Ougoing2>(m =>
+                {
+                    m.Number = 2;
+                });
+
+                Bus.Send(one, two);
+            }
+        }
+
+        public class SendingManyHandler : IHandleMessages<Incoming>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(Incoming message)
+            {
+                var one = Bus.CreateInstance<Ougoing>(m =>
+                {
+                    m.Number = 1;
+                });
+
+                var two = Bus.CreateInstance<Ougoing>(m =>
+                {
+                    m.Number = 2;
+                });
+
+                Bus.Send(one, two);
+            }
+        }
 
         public class SendingHandler<TSend> : IHandleMessages<TestMessage>
             where TSend : IMessage
         {
-            public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
-            
+
             public void Handle(TestMessage message)
             {
-                Bus.Send(ModifyPublish);
+                this.Bus().Send(ModifyPublish);
             }
         }
 
@@ -276,39 +395,39 @@ namespace NServiceBus.Testing.Tests
         {
             public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
-            
+
             public void Handle(TestMessage message)
             {
                 Bus.SendLocal(ModifyPublish);
             }
         }
 
-		public class PublishingHandler<TPublish> : IHandleMessages<TestMessage>
-			where TPublish : IMessage
-		{
-			public IBus Bus { get; set; }
-			public Action<TPublish> ModifyPublish { get; set; }
-            
-			public void Handle(TestMessage message)
-			{
-				Bus.Publish(ModifyPublish);
-			}
-		}
-		
+        public class PublishingHandler<TPublish> : IHandleMessages<TestMessage>
+            where TPublish : IMessage
+        {
+            public IBus Bus { get; set; }
+            public Action<TPublish> ModifyPublish { get; set; }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.Publish(ModifyPublish);
+            }
+        }
+
         public class PublishingHandler<TPublish1, TPublish2> : IHandleMessages<TestMessage>
-			where TPublish1 : IMessage
-			where TPublish2 : IMessage
-		{
-			public IBus Bus { get; set; }
-			public Action<TPublish1> ModifyPublish1 { get; set; }
-			public Action<TPublish2> ModifyPublish2 { get; set; }
-            
-			public void Handle(TestMessage message)
-			{
-				Bus.Publish(ModifyPublish1);
-				Bus.Publish(ModifyPublish2);
-			}
-		}
+            where TPublish1 : IMessage
+            where TPublish2 : IMessage
+        {
+            public IBus Bus { get; set; }
+            public Action<TPublish1> ModifyPublish1 { get; set; }
+            public Action<TPublish2> ModifyPublish2 { get; set; }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.Publish(ModifyPublish1);
+                Bus.Publish(ModifyPublish2);
+            }
+        }
 
         public class DoNotContinueDispatchingCurrentMessageToHandlersHandler : IHandleMessages<TestMessage>
         {
@@ -329,32 +448,33 @@ namespace NServiceBus.Testing.Tests
                 this.Bus.HandleCurrentMessageLater();
             }
         }
-        
-		public class ExplicitInterfaceImplementation : IHandleMessages<TestMessage>
-		{
 
-			public bool IsHandled { get; set; }
+        public class ExplicitInterfaceImplementation : IHandleMessages<TestMessage>
+        {
 
-			void IMessageHandler<TestMessage>.Handle(TestMessage message) {
-				IsHandled = true;
-			}
+            public bool IsHandled { get; set; }
 
-			// Unit test fails if this is uncommented; seems to me that this should
-			// be made to pass, but it looks like a design decision based on commit
-			// revision 1210.
-			//public void Handle(TestMessage message) {
-			//    throw new System.Exception("Shouldn't call this.");
-			//}
+            void IMessageHandler<TestMessage>.Handle(TestMessage message)
+            {
+                IsHandled = true;
+            }
 
-		}
+            // Unit test fails if this is uncommented; seems to me that this should
+            // be made to pass, but it looks like a design decision based on commit
+            // revision 1210.
+            //public void Handle(TestMessage message) {
+            //    throw new System.Exception("Shouldn't call this.");
+            //}
+
+        }
 
     }
 
-    public class DataBusMessageHandler:IHandleMessages<MessageWithDataBusProperty>
+    public class DataBusMessageHandler : IHandleMessages<MessageWithDataBusProperty>
     {
         public void Handle(MessageWithDataBusProperty message)
         {
-            
+
         }
     }
 

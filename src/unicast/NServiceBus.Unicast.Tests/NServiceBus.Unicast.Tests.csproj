@@ -92,6 +92,7 @@
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
+    <Compile Include="Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
     <Compile Include="Timing.cs" />
     <Compile Include="Receiving.cs" />

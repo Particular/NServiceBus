@@ -11,7 +11,7 @@ namespace MyServer.Common
 
         public void Handle(MyMessage message)
         {
-            var numOfRetries = message.GetHeader(SecondLevelRetriesHeaders.Retries);
+            var numOfRetries = message.GetHeader(Headers.Retries);
 
             if (numOfRetries != null)
             {                
