@@ -1,7 +1,4 @@
-using System;
 using NUnit.Framework;
-using Raven.Client;
-using Raven.Client.Document;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
@@ -22,8 +19,7 @@ namespace NServiceBus.Persistence.Raven.Tests
         [Test]
         public void It_should_configure_the_document_store_with_the_connection_string_lambda()
         {
-            var s = store as DocumentStore;
-            Assert.AreEqual("http://localhost:8080", s.Url);
+            Assert.AreEqual("http://localhost:8080", store.Url);
         }
     }
 }

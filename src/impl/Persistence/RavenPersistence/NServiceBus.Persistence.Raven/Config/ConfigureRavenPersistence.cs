@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Configuration;
     using Persistence.Raven;
     using Persistence.Raven.Installation;
+    using Raven.Abstractions.Data;
     using Raven.Client.Extensions;
 
     public static class ConfigureRavenPersistence
@@ -43,43 +44,36 @@ namespace NServiceBus
 
             //use existing config if we can find one
             if (connectionStringEntry != null)
-                return RavenPersistenceWithConnectionString(config, connectionStringEntry.ConnectionString, null);
-
-            var store = new DocumentStore
-            {
-                Url = RavenPersistenceConstants.DefaultUrl,
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                DefaultDatabase = databaseNamingConvention()
-            };
+                return RavenPersistenceInternal(config, connectionStringEntry.ConnectionString);
 
             //if we have no master node we should have our own local ravendb
             installRavenIfNeeded = string.IsNullOrEmpty(config.GetMasterNode());
 
-            return RavenPersistence(config, store);
+            return RavenPersistenceInternal(config);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
             var connectionStringEntry = GetRavenConnectionString(connectionStringName);
-            return RavenPersistenceWithConnectionString(config, connectionStringEntry, null);
+            return RavenPersistenceInternal(config, connectionStringEntry);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
         {
             var connectionString = GetRavenConnectionString(connectionStringName);
-            return RavenPersistenceWithConnectionString(config, connectionString, database);
+            return RavenPersistenceInternal(config, connectionString, database);
         }
 
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
-            return RavenPersistenceWithConnectionString(config, connectionString, null);
+            return RavenPersistenceInternal(config, connectionString);
         }
 
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
-            return RavenPersistenceWithConnectionString(config, connectionString, database);
+            return RavenPersistenceInternal(config, connectionString, database);
         }
 
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
@@ -109,51 +103,63 @@ namespace NServiceBus
             return connectionStringEntry.ConnectionString;
         }
 
-        static Configure RavenPersistenceWithConnectionString(Configure config, string connectionStringValue, string database)
+        static Configure RavenPersistenceInternal(Configure config, string connectionStringValue = null, string defaultDatabase = null)
         {
-            var store = new DocumentStore
+            var url = RavenPersistenceConstants.DefaultUrl;
+
+            if (connectionStringValue != null)
             {
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId
-            };
+                var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
+                connectionStringParser.Parse();
+                url = connectionStringParser.ConnectionStringOptions.Url;
+                if (defaultDatabase == null)
+                {
+                    defaultDatabase = connectionStringParser.ConnectionStringOptions.DefaultDatabase;
+                }
+            }
 
-            store.ParseConnectionString(connectionStringValue);
-
-            if (!string.IsNullOrEmpty(database))
-                store.DefaultDatabase = database;
-
-            if (store.DefaultDatabase == null)
-                store.DefaultDatabase = databaseNamingConvention();
-
-            return RavenPersistence(config, store);
-        }
-
-        static Configure RavenPersistence(this Configure config, IDocumentStore store)
-        {
-            if (config == null) throw new ArgumentNullException("config");
-            if (store == null) throw new ArgumentNullException("store");
-
-            var conventions = new RavenConventions();
-
-            store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
+            if (defaultDatabase == null)
+            {
+                defaultDatabase = databaseNamingConvention();
+            }
             
-
-            EnsureDatabaseExists((DocumentStore)store);
-            store.Initialize();
-
-			//We need to turn compression off to make us compatible with Raven616
-            store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+            EnsureDatabaseExists(url, defaultDatabase);
 
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
             if (!String.IsNullOrEmpty(ravenMaxNumberOfRequestsPerSession))
             {
-                if(!Int32.TryParse(ravenMaxNumberOfRequestsPerSession, out maxNumberOfRequestsPerSession))
+                if (!Int32.TryParse(ravenMaxNumberOfRequestsPerSession, out maxNumberOfRequestsPerSession))
                     throw new ConfigurationErrorsException(string.Format("Cannot configure RavenDB MaxNumberOfRequestsPerSession. Cannot convert value '{0}' in <appSettings> with key 'NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession' to a numeric value.", ravenMaxNumberOfRequestsPerSession));
             }
-            store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
 
-            config.Configurer.RegisterSingleton<IDocumentStore>(store);
+            config.Configurer.ConfigureComponent(() =>
+            {
+                var store = new DocumentStore
+                    {
+                        Url = url,
+                        ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                        DefaultDatabase = defaultDatabase,
+                        Conventions = {FindTypeTagName = tagNameConvention ?? new RavenConventions().FindTypeTagName}
+                    };
 
+                if (connectionStringValue != null)
+                {
+                    store.ParseConnectionString(connectionStringValue);
+                }
+
+                // If default database is assigned in code then we use that even if a default database has been assigned in the connection string
+                store.DefaultDatabase = defaultDatabase;
+
+                store.Initialize();
+
+                //We need to turn compression off to make us compatible with Raven616
+                store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+                store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
+
+                return store;
+
+            }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
@@ -163,7 +169,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(Message ="This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]
-        static void EnsureDatabaseExists(DocumentStore store)
+        static void EnsureDatabaseExists(string url, string defaultDatabase)
         {
             if (!AutoCreateDatabase)
                 return;
@@ -171,7 +177,7 @@ namespace NServiceBus
             //we need to do a little trick here to be compatible with Raven 616
 
             //First we create a new store without a specific database
-            using(var dummyStore = new DocumentStore{Url = store.Url})
+            using(var dummyStore = new DocumentStore{Url = url})
             {
                 //that allows us to initalize without talking to the db
                 dummyStore.Initialize();
@@ -182,7 +188,7 @@ namespace NServiceBus
                 try
                 {
                     //and then make sure that the database the user asked for is created
-                    dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);    
+                    dummyStore.DatabaseCommands.EnsureDatabaseExists(defaultDatabase);    
                 }
                 catch (System.Net.WebException)
                 {
@@ -225,9 +231,7 @@ namespace NServiceBus
 
         static bool installRavenIfNeeded;
 
-
         static bool ravenInstallEnabled = true;
-
 
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
@@ -237,7 +241,6 @@ namespace NServiceBus
         }
 
         static Func<string> databaseNamingConvention = () => Configure.EndpointName;
-
 
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {

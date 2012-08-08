@@ -1,7 +1,5 @@
 using System;
 using NUnit.Framework;
-using Raven.Client;
-using Raven.Client.Document;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
@@ -13,7 +11,7 @@ namespace NServiceBus.Persistence.Raven.Tests
 
         protected override void Initialize(Configure config)
         {
-            connectionStringFunc = () => "Url = http://localhost:8080";
+            connectionStringFunc = () => "Url = http://localhost:8080; DefaultDatabase=MyDB";
             database = "CustomDatabase";
 
             config.RavenPersistence(connectionStringFunc, database);
@@ -36,7 +34,6 @@ namespace NServiceBus.Persistence.Raven.Tests
         {
             Assert.AreEqual(database, store.DefaultDatabase);
         }
-
 
         [Test]
         public void It_should_use_the_default_resourcemanager_id_if_not_specified_in_the_string()
