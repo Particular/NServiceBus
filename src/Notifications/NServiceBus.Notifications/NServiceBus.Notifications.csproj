@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureNotifications.cs" />
+    <Compile Include="MailMessage.cs" />
     <Compile Include="RegisterSystemMessages.cs" />
     <Compile Include="BusExtensions.cs" />
     <Compile Include="SendEmail.cs" />
