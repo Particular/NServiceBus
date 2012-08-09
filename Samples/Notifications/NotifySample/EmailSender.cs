@@ -1,7 +1,6 @@
 namespace NotifySample
 {
     using System;
-    using System.Net.Mail;
     using NServiceBus;
 
     public class EmailSender : IWantToRunWhenBusStartsAndStops

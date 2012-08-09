@@ -40,7 +40,7 @@
         {
             get
             {
-                return BusExtensions.NotificationAddess;
+                return BusExtensions.NotificationAddress;
             }
         }
 
