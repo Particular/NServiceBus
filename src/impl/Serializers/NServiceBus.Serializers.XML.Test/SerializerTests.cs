@@ -425,7 +425,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 
 
-        [Test]
+        [Test,Ignore("We're not supporting this type")]
         public void System_classes_with_non_default_ctors_should_be_supported()
         {
             var message = new MailMessage("from@gmail.com", "to@hotmail.com")
@@ -447,7 +447,7 @@ namespace NServiceBus.Serializers.XML.Test
 
         }
 
-        [Test]
+        [Test,Ignore("We're currently not supporting polymorphic properties")]
         public void Messages_with_polymorphic_properties_should_be_supported()
         {
             var message = new PolyMessage
