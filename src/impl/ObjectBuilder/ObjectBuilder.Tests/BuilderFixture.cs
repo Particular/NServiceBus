@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.CastleWindsor;
+using NServiceBus.ObjectBuilder.MugenInjection;
 using NServiceBus.ObjectBuilder.Ninject;
 using NServiceBus.ObjectBuilder.Spring;
 using NServiceBus.ObjectBuilder.StructureMap;
 using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
 using StructureMap;
-using IContainer=NServiceBus.ObjectBuilder.Common.IContainer;
+using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 using Ninject;
 using Ninject.Extensions.ContextPreservation;
 using Ninject.Extensions.NamedScope;
@@ -27,13 +28,13 @@ namespace ObjectBuilder.Tests
 
         private IList<IContainer> objectBuilders;
 
-        protected void ForAllBuilders(Action<IContainer> assertion,params Type[] containersToIgnore)
+        protected void ForAllBuilders(Action<IContainer> assertion, params Type[] containersToIgnore)
         {
-            foreach (var builder in objectBuilders.Where(b=>!containersToIgnore.Contains(b.GetType())))
+            foreach (var builder in objectBuilders.Where(b => !containersToIgnore.Contains(b.GetType())))
             {
                 assertion(builder);
             }
-         }
+        }
 
         [SetUp]
         public void SetUp()
@@ -47,6 +48,7 @@ namespace ObjectBuilder.Tests
                                      new UnityObjectBuilder(),
                                      new SpringObjectBuilder(),
                                      new NinjectObjectBuilder(new StandardKernel(new NinjectSettings{LoadExtensions = false}, new ContextPreservationModule(), new NamedScopeModule())),
+                                     new MugenInjectionObjectBuilder()
                                  };
 
             DefaultInstances.Clear();
@@ -62,7 +64,7 @@ namespace ObjectBuilder.Tests
                 catch (NotSupportedException)
                 {
                     // this is expected for SpringBuilder and Unity when running Configure<T>(Func<T>)                    
-                }                
+                }
             }
         }
     }

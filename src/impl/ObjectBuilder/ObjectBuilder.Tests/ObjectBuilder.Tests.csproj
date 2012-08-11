@@ -121,6 +121,10 @@
       <Project>{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}</Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ObjectBuilder.MugenInjection\ObjectBuilder.MugenInjection.csproj">
+      <Project>{d38b0536-44a9-4ea6-8158-a13d54e76006}</Project>
+      <Name>ObjectBuilder.MugenInjection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Ninject\ObjectBuilder.Ninject.csproj">
       <Project>{C35AE1C7-C785-4629-A73D-977E0325D8B0}</Project>
       <Name>ObjectBuilder.Ninject</Name>
