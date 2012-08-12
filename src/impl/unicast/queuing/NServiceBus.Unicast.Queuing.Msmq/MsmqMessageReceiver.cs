@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Messaging;
 using System.Security.Principal;
 using NServiceBus.Utils;
@@ -41,50 +40,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 myQueue.Purge();
         }
 
-      
-        [DebuggerNonUserCode]
-        public bool HasMessage()
-        {
-            try
-            {
-                var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait));
-                return m != null;
-            }
-            catch (MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                    return false;
-                string errorMessage;
-                switch(mqe.MessageQueueErrorCode)
-                {
-                    case MessageQueueErrorCode.AccessDenied:
-                        errorMessage = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue. Exception: [{2}]",
-                            myQueue.FormatName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user", mqe);
-                        break;
-                    
-                    case MessageQueueErrorCode.QueueNotFound:
-                        errorMessage = string.Format("Queue [{0}] was not found while peeking queue. Exception: [{1}]", myQueue.FormatName, mqe);
-                        break;
-                    
-                    default:
-                        errorMessage = string.Format("Error while while peeking queue: [{0}], exception: [{1}]", myQueue.FormatName, mqe);        
-                        break;
-                }
-                Logger.Fatal(errorMessage);
-                throw new InvalidOperationException(errorMessage, mqe);
-            }
-            catch (ObjectDisposedException objectDisposedException)
-            {
-                var errorMessage = string.Format("Queue has been disposed. Cannot continue operation. Please restart this process. Exception: {0}", objectDisposedException);
-                Logger.Fatal(errorMessage);
-                throw new InvalidOperationException(errorMessage, objectDisposedException);
-            }
-            catch (Exception e)
-            {
-                Logger.Fatal("Unknown exception", e);
-                throw;
-            }
 
+        bool IReceiveMessages.HasMessage()
+        {
+            return true;
         }
 
         public TransportMessage Receive()

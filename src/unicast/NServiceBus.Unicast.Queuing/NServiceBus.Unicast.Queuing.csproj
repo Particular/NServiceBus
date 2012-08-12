@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
@@ -47,6 +48,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -59,6 +63,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurePurging.cs" />
@@ -78,4 +83,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(SolutionDir)\..\..\Tools\Fody\Fody.targets" />
 </Project>

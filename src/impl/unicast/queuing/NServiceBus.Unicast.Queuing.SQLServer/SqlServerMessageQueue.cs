@@ -77,20 +77,9 @@
             currentEndpointName = address.ToString();
         }
 
-        private string SQL_PEEK = @"SELECT TOP 1 Id
-	                                FROM [{0}] WITH (UPDLOCK, READPAST)	                                      
-	                                ORDER BY TimeStamp ASC";
-        public bool HasMessage()
-        {            
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                var sql = string.Format(SQL_PEEK, currentEndpointName);
-                connection.Open();
-                using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
-                {                                                                            
-                    return command.ExecuteScalar() != null;                    
-                }
-            }        
+        bool IReceiveMessages.HasMessage()
+        {
+            return true;
         }
 
         private string SQL_RECEIVE = @" declare @NextId [uniqueidentifier]                                        

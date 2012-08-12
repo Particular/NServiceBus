@@ -1,6 +1,4 @@
-﻿using System;
-using NServiceBus.Unicast.Transport;
-namespace NServiceBus.Unicast.Queuing
+﻿namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
     /// Abstraction of a the capability to receive messages
@@ -18,6 +16,7 @@ namespace NServiceBus.Unicast.Queuing
         /// Returns true if there's a message ready to be received at the address passed in the Init method.
         /// </summary>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         bool HasMessage();
 
         /// <summary>
