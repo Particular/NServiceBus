@@ -27,8 +27,8 @@ namespace NServiceBus.Persistence.Raven
         {
             get
             {
-                var resourceManagerId = Configure.EndpointName + "@" + Environment.MachineName;
-
+                var resourceManagerId = Address.Local + "-" + Configure.DefineEndpointVersionRetriever() ;
+                
                 return DeterministicGuidBuilder(resourceManagerId);
             }
         }

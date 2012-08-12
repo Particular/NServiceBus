@@ -441,7 +441,12 @@ namespace NServiceBus
         /// <summary>
         /// The function used to get the name of this endpoint
         /// </summary>
-        public static Func<string> GetEndpointNameAction = () => DefaultEndpointName.Get();
+        public static Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
+
+        /// <summary>
+        /// The function used to get the version of this endpoint
+        /// </summary>
+        public static Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
 
         private static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {

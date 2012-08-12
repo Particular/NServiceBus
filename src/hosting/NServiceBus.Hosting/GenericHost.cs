@@ -150,7 +150,7 @@ namespace NServiceBus.Hosting
         {
             this.specifier = specifier;
             Configure.GetEndpointNameAction = () => endpointName;
-
+            Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
             List<Assembly> assembliesToScan;
 
             if (scannableAssembliesFullName == null)

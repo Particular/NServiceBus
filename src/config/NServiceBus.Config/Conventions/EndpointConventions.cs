@@ -26,7 +26,7 @@ namespace NServiceBus
         /// <param name="name"></param>
         public static Configure DefineEndpointName(this Configure config, string name)
         {
-            Configure.GetEndpointNameAction = ()=> name;
+            Configure.GetEndpointNameAction = () => name;
             return config;
         }
 

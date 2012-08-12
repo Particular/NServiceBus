@@ -53,7 +53,7 @@ namespace NServiceBus.Hosting.Windows
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
 
             var endpointName = GetEndpointName(endpointConfigurationType, arguments);
-            var endpointVersion = GetEndpointVersion(endpointConfigurationType);
+            var endpointVersion = FileVersionRetriever.GetFileVersion(endpointConfigurationType);
 
             var serviceName = endpointName;
 
@@ -139,14 +139,6 @@ namespace NServiceBus.Hosting.Windows
 
             var installer = new Installer<Installation.Environments.Windows>(WindowsIdentity.GetCurrent());
             installer.InstallInfrastructureInstallers();
-        }
-
-        static string GetEndpointVersion(Type endpointConfigurationType)
-        {
-            var fileVersion = FileVersionInfo.GetVersionInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name));
-
-            //build a semver compliant version
-            return string.Format("{0}.{1}.{2}", fileVersion.FileMajorPart, fileVersion.FileMinorPart, fileVersion.FileBuildPart);
         }
 
         static void DisplayHelpContent()

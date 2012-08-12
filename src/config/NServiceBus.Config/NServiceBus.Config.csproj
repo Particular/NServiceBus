@@ -97,7 +97,7 @@
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Conventions\EndpointConventions.cs" />
-    <Compile Include="Conventions\DefaultEndpointName.cs" />
+    <Compile Include="Conventions\EndpointHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
