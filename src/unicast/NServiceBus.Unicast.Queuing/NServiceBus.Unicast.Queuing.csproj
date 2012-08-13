@@ -32,7 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
       <Private>False</Private>
@@ -48,7 +47,7 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Obsolete">
+    <Reference Include="Obsolete, Version=0.9.0.0, Culture=neutral, PublicKeyToken=1fa521d45b9ea671, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -74,6 +73,9 @@
     <Compile Include="QueueNotFoundException.cs" />
     <Compile Include="IReceiveMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
