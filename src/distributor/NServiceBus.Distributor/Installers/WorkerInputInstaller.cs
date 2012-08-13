@@ -2,7 +2,6 @@
 {
     using System.Security.Principal;
     using Unicast.Queuing;
-    using NServiceBus.Config;
 
     public class WorkerInputInstaller : IWantQueuesCreated<Installation.Environments.Windows>
     {
@@ -18,7 +17,7 @@
                 return;
 
             //create the worker queue
-            Creator.CreateQueueIfNecessary(Address.Local.SubScope("Worker"), identity.Name, Endpoint.IsVolatile);
+            Creator.CreateQueueIfNecessary(Address.Local.SubScope("Worker"), identity.Name);
         }
     }
 }

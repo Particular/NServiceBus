@@ -2,7 +2,6 @@ namespace NServiceBus.Gateway.Installation
 {
     using System.Security.Principal;
     using Unicast.Queuing;
-    using NServiceBus.Config;
 
     public class Installer : IWantQueuesCreated<NServiceBus.Installation.Environments.Windows>
     {
@@ -11,7 +10,7 @@ namespace NServiceBus.Gateway.Installation
         public void Create(WindowsIdentity identity)
         {
             if (ConfigureGateway.GatewayInputAddress != null)
-                Creator.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name, Endpoint.IsVolatile);            
+                Creator.CreateQueueIfNecessary(ConfigureGateway.GatewayInputAddress, identity.Name);
         }
     }
 }

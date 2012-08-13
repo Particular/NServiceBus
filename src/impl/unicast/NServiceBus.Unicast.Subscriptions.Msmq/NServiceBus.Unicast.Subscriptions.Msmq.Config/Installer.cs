@@ -1,7 +1,6 @@
 using System.Security.Principal;
 using NServiceBus.Installation;
 using NServiceBus.Utils;
-using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
 {
@@ -16,7 +15,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
         /// <param name="identity"></param>
         public void Install(WindowsIdentity identity)
         {
-            MsmqUtilities.CreateQueueIfNecessary(ConfigureMsmqSubscriptionStorage.Queue, identity.Name, Endpoint.IsVolatile);
+            MsmqUtilities.CreateQueueIfNecessary(ConfigureMsmqSubscriptionStorage.Queue, identity.Name);
         }
     }
 }

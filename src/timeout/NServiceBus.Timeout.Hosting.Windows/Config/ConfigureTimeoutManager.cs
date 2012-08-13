@@ -51,7 +51,7 @@
             if ((!installQueue) || (IsDisabled) || (TimeoutManagerAddress == null))
                 return;
             
-            QueueCreator.CreateQueueIfNecessary(TimeoutManagerAddress, identity.Name, Endpoint.IsVolatile);
+            QueueCreator.CreateQueueIfNecessary(TimeoutManagerAddress, identity.Name);
         }
     }
 }
