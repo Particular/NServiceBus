@@ -128,7 +128,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// If set to true the transaction scope will be suppressed to avoid the use of DTC
         /// </summary>
-        public bool SupressDTC { get; set; }
+        public bool SuppressDTC { get; set; }
 
         private int numberOfWorkerThreads = 1;
 
@@ -265,7 +265,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (m == null)
                 return;
 
-            if(SupressDTC)
+            if(SuppressDTC)
             {
                 using(new TransactionScope(TransactionScopeOption.Suppress))
                     ProcessMessage(m);

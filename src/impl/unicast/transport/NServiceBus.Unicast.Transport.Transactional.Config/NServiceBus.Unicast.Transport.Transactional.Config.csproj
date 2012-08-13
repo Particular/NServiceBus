@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
@@ -62,11 +63,15 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Msmq.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="Microsoft.CSharp" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedTransactionalConfig.cs" />
@@ -90,4 +95,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(SolutionDir)\..\..\..\..\Tools\Fody\Fody.targets" />
 </Project>
