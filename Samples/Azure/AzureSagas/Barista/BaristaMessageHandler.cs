@@ -38,7 +38,7 @@ namespace Barista
             Data.OrderId = message.OrderId;
             Data.Size = message.DrinkSize;
 
-            RequestUtcTimeout(TimeSpan.FromMinutes(1), new TimeoutMessage(TimeSpan.FromMinutes(1), Data, null));
+            RequestTimeout(TimeSpan.FromMinutes(1), new TimeoutMessage(TimeSpan.FromMinutes(1), Data, null));
                         
             for(var i=0; i<10; i++)
             {

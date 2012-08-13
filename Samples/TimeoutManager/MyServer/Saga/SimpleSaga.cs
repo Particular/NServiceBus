@@ -12,7 +12,7 @@
             Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
-            RequestUtcTimeout<MyTimeOutState>(TimeSpan.FromSeconds(10), t => t.SomeValue = someState);
+            RequestTimeout<MyTimeOutState>(TimeSpan.FromSeconds(10), t => t.SomeValue = someState);
         }
 
         public override void ConfigureHowToFindSaga()
