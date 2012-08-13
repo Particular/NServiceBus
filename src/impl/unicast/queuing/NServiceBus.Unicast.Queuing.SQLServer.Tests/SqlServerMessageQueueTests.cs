@@ -5,6 +5,7 @@ using System.Threading;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serializers.XML;
 using NUnit.Framework;
+using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 {
@@ -35,7 +36,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
                       };
 
             var creator = new SqlServerQueueCreator {ConnectionString = ConStr};
-            creator.CreateQueueIfNecessary(_address, "test", ConfigureVolatileQueues.IsVolatileQueues);
+            creator.CreateQueueIfNecessary(_address, "test");
         }
 
         private readonly Address _address = new Address("send", "testhost");

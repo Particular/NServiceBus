@@ -4,7 +4,7 @@ using NServiceBus.Unicast.Config;
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     using Unicast.Queuing;
-
+    using NServiceBus.Config;
     /// <summary>
     /// Handles configuration related to the server role
     /// </summary>
@@ -22,7 +22,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
 
             return Configure.Instance
                 .Sagas()
-                .IsTransactional(!ConfigureVolatileQueues.IsVolatileQueues)
+                .IsTransactional(!Endpoint.IsVolatile)
                 .PurgeOnStartup(false)
                 .UnicastBus()
                 .ImpersonateSender(true);

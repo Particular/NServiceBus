@@ -1,11 +1,11 @@
 namespace NServiceBus.Notifications
 {
-    using System.Security.Principal;
     using Config;
+    using System.Security.Principal;
     using Installation.Environments;
     using Unicast.Queuing;
 
-    public class NotifierQueueInstaller:IWantQueuesCreated<Windows>
+    public class NotifierQueueInstaller : IWantQueuesCreated<Windows>
     {
         public ICreateQueues Creator { get; set; }
 
@@ -14,7 +14,7 @@ namespace NServiceBus.Notifications
             if (ConfigureNotifications.NotificationsDisabled)
                 return;
 
-            Creator.CreateQueueIfNecessary(BusExtensions.NotificationAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            Creator.CreateQueueIfNecessary(BusExtensions.NotificationAddress, identity.Name);
         }
     }
 }

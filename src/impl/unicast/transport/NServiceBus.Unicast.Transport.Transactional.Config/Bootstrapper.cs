@@ -14,8 +14,8 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             var transportConfig = Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(
                 DependencyLifecycle.SingleInstance);
 
-            if(IsTransactional)
-                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues;
+            if (IsTransactional)
+                IsTransactional = !Endpoint.IsVolatile;
             
             transportConfig.ConfigureProperty(t => t.IsTransactional, IsTransactional);
             transportConfig.ConfigureProperty(t => t.IsolationLevel, IsolationLevel);

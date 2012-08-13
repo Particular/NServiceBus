@@ -2,6 +2,7 @@ using System;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
 using NServiceBus.Utils;
+using NServiceBus.Config;
 
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
@@ -66,7 +67,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             storageQueue = new MessageQueue(path);
 
-            if ((!storageQueue.Transactional) && (!ConfigureVolatileQueues.IsVolatileQueues))
+            if ((!storageQueue.Transactional) && (!Endpoint.IsVolatile))
                 throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
         }
 

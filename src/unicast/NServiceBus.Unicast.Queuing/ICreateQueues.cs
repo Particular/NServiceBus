@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="address"></param>
         /// <param name="account"></param>
-        /// <param name="volatileQueues">If true create a volatile (non-durable) queue</param>
-        void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false);
+        //void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false);
+        void CreateQueueIfNecessary(Address address, string account);
     }
 }

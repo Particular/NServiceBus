@@ -52,7 +52,6 @@
     </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>

@@ -90,6 +90,7 @@
     <Compile Include="ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Conventions\MessageConventions.cs" />
     <Compile Include="Conventions\SystemMessageConventions.cs" />
+    <Compile Include="Endpoint.cs" />
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="INeedInitialization.cs" />

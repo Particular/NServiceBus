@@ -3,6 +3,7 @@
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
     using Unicast.Queuing;
+    using Config;
 
     ///<summary>
     /// Creates the queue to store worker availability information.
@@ -22,7 +23,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             var m = Configure.Instance.Builder.Build<MsmqWorkerAvailabilityManager>();
 
-            Creator.CreateQueueIfNecessary(m.StorageQueueAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            Creator.CreateQueueIfNecessary(m.StorageQueueAddress, identity.Name, Endpoint.IsVolatile);
         }
     }
 }

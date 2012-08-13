@@ -1,9 +1,9 @@
-﻿using System;
-using System.Security.Principal;
-using NServiceBus.Config;
-
-namespace NServiceBus.Unicast.Queuing.Installers
+﻿namespace NServiceBus.Unicast.Queuing.Installers
 {
+    using System;
+    using System.Security.Principal;
+    using NServiceBus.Config;
+
     public class EndpointInputQueueCreator : IWantQueuesCreated<Installation.Environments.Windows>
     {
         public static bool Enabled { get; set; }
@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
                 throw new Exception("No QueueCreator is configured and the EndpointInputQueueCreator is enabled!");
             }
 
-            QueueCreator.CreateQueueIfNecessary(Address.Local, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            QueueCreator.CreateQueueIfNecessary(Address.Local, identity.Name);
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
 
             if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
             {
-                QueueCreator.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+                QueueCreator.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name);
             }
         }
     }

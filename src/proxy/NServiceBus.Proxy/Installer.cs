@@ -10,7 +10,7 @@ namespace NServiceBus.Proxy
         public void Create(WindowsIdentity identity)
         {
             var s = Configure.Instance.Builder.Build<MsmqProxyDataStorage>();
-            Creator.CreateQueueIfNecessary(s.StorageQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            Creator.CreateQueueIfNecessary(s.StorageQueue, identity.Name);
         }
     }
 }

@@ -5,6 +5,7 @@ using NServiceBus.Unicast.Queuing;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Transactional;
+using NServiceBus.Config;
 
 namespace NServiceBus.Satellites
 {
@@ -22,7 +23,7 @@ namespace NServiceBus.Satellites
         {
             var nt = 1; // MainTransport != null ? MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads : 1;
             var mr = MainTransport != null ? MainTransport.MaxRetries : 1;
-            var tx = MainTransport != null ? MainTransport.IsTransactional : !ConfigureVolatileQueues.IsVolatileQueues;
+            var tx = MainTransport != null ? MainTransport.IsTransactional : !Endpoint.IsVolatile;
 
             var fm = MainTransport != null
                          ? Builder.Build(MainTransport.FailureManager.GetType()) as IManageMessageFailures

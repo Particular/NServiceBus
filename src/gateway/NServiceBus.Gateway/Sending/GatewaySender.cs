@@ -13,6 +13,7 @@ namespace NServiceBus.Gateway.Sending
     using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Transport;
     using NServiceBus.Unicast.Transport.Transactional;
+    using NServiceBus.Config;
     using Receiving;
 
     public class GatewaySender:IDisposable
@@ -39,7 +40,7 @@ namespace NServiceBus.Gateway.Sending
             transport = new TransactionalTransport
                             {
                                 MessageReceiver = settings.Receiver,
-                                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
+                                IsTransactional = !Endpoint.IsVolatile,
                                 NumberOfWorkerThreads = settings.NumberOfWorkerThreads,
                                 MaxRetries = settings.MaxRetries,
                                 FailureManager = settings.FailureManager

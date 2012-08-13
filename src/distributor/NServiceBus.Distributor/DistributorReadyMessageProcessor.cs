@@ -8,6 +8,7 @@ namespace NServiceBus.Distributor
     using Unicast.Queuing.Msmq;
     using Faults;
     using Unicast.Transport;
+    using NServiceBus.Config;
 
     public class DistributorReadyMessageProcessor : IWantToRunWhenBusStartsAndStops
     {
@@ -24,7 +25,7 @@ namespace NServiceBus.Distributor
         
             controlTransport = new TransactionalTransport
             {
-                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
+                IsTransactional = !Endpoint.IsVolatile,
                 FailureManager = MessageFailureManager,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 5,

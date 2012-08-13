@@ -1,10 +1,11 @@
-﻿using System;
-using System.Messaging;
-using System.Transactions;
-using NServiceBus.Utils;
-
-namespace NServiceBus.Unicast.Queuing.Msmq
+﻿namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using System;
+    using System.Messaging;
+    using System.Transactions;
+    using Utils;
+    using Config;
+
     public class MsmqMessageSender : ISendMessages
     {
         void ISendMessages.Send(TransportMessage message, Address address)
@@ -67,7 +68,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if(ConfigureVolatileQueues.IsVolatileQueues)
+            if(Endpoint.IsVolatile)
                 return MessageQueueTransactionType.None;
             
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;

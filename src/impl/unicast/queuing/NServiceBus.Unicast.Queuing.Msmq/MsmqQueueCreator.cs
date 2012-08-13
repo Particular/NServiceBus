@@ -1,12 +1,13 @@
-﻿using NServiceBus.Utils;
-
-namespace NServiceBus.Unicast.Queuing.Msmq
+﻿namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using Utils;
+    using Config;
+
     public class MsmqQueueCreator : ICreateQueues
     {
-        public void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false)
+        public void CreateQueueIfNecessary(Address address, string account)
         {
-            MsmqUtilities.CreateQueueIfNecessary(address, account, volatileQueues);
+            MsmqUtilities.CreateQueueIfNecessary(address, account, Endpoint.IsVolatile);
         }
     }
 }

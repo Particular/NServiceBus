@@ -1,7 +1,7 @@
-﻿using System;
-using NServiceBus.Unicast.Distributor;
+﻿using NServiceBus.Unicast.Distributor;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Transport.Transactional;
+using NServiceBus.Config;
 
 namespace NServiceBus.Distributor
 {
@@ -31,7 +31,7 @@ namespace NServiceBus.Distributor
             var dataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
-                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
+                IsTransactional = !Endpoint.IsVolatile,
                 MessageReceiver = new MsmqMessageReceiver(),
                 MaxRetries = 5,
                 FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures

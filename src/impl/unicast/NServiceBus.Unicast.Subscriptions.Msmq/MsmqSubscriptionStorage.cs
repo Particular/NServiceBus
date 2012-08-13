@@ -20,12 +20,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Messaging;
 using NServiceBus.Logging;
 using System.Transactions;
 using NServiceBus.Utils;
-
+using NServiceBus.Config;
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
 	/// <summary>
@@ -50,7 +49,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
             }
 
-            if (!transactional && !ConfigureVolatileQueues.IsVolatileQueues)
+            if (!transactional && !Endpoint.IsVolatile)
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
             var mpf = new MessagePropertyFilter();
@@ -173,7 +172,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
-            if(ConfigureVolatileQueues.IsVolatileQueues)
+            if(Endpoint.IsVolatile)
                 return MessageQueueTransactionType.None;
 
             if (ConfigurationIsWrong())

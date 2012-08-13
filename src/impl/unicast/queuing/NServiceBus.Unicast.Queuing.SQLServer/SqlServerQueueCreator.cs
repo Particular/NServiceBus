@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                     
                   END";
 
-        public void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false)
+        public void CreateQueueIfNecessary(Address address, string account)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {

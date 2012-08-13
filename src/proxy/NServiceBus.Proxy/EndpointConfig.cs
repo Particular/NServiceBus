@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using NServiceBus.Logging;
-using NServiceBus.ObjectBuilder;
+using NServiceBus.Config;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Unicast.Subscriptions.Msmq;
 using NServiceBus.Unicast.Transport.Transactional;
@@ -20,7 +20,7 @@ namespace NServiceBus.Proxy
               {
                   NumberOfWorkerThreads = numberOfThreads,
                   MaxRetries = maxRetries,
-                  IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
+                  IsTransactional = !Endpoint.IsVolatile,
                   MessageReceiver = new MsmqMessageReceiver()
               };
 
@@ -28,7 +28,7 @@ namespace NServiceBus.Proxy
             {
                 NumberOfWorkerThreads = numberOfThreads,
                 MaxRetries = maxRetries,
-                IsTransactional = !ConfigureVolatileQueues.IsVolatileQueues,
+                IsTransactional = !Endpoint.IsVolatile,
                 MessageReceiver = new MsmqMessageReceiver()
             };
 

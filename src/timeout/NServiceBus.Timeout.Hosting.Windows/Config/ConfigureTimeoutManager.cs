@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus
 {
+    using Config;
     using Timeout.Core;
     using Timeout.Core.Dispatch;
     using System.Security.Principal;
     using Unicast.Queuing;
     using Timeout.Hosting.Windows;
-
+    
     public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueuesCreated<Installation.Environments.Windows>
     {
         public static bool IsDisabled;
@@ -50,7 +51,7 @@
             if ((!installQueue) || (IsDisabled) || (TimeoutManagerAddress == null))
                 return;
             
-            QueueCreator.CreateQueueIfNecessary(TimeoutManagerAddress, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            QueueCreator.CreateQueueIfNecessary(TimeoutManagerAddress, identity.Name, Endpoint.IsVolatile);
         }
     }
 }

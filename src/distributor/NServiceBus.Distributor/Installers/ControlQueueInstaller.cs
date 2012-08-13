@@ -2,6 +2,7 @@ namespace NServiceBus.Distributor.Installers
 {
     using System.Security.Principal;
     using Unicast.Queuing;
+    using NServiceBus.Config;
 
     public class ControlQueueInstaller : IWantQueuesCreated<Installation.Environments.Windows>
     {
@@ -15,7 +16,7 @@ namespace NServiceBus.Distributor.Installers
             //create the control queue
             var m = Configure.Instance.Builder.Build<DistributorReadyMessageProcessor>();
 
-            Creator.CreateQueueIfNecessary(m.ControlQueue, identity.Name, ConfigureVolatileQueues.IsVolatileQueues);
+            Creator.CreateQueueIfNecessary(m.ControlQueue, identity.Name, Endpoint.IsVolatile);
         }
     }
 }
