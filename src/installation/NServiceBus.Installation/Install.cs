@@ -144,8 +144,11 @@ namespace NServiceBus
                 return;
 
             GetInstallers<T>(typeof(INeedToInstallSomething<>))
-                .ForEach(t => ((INeedToInstallSomething)Activator.CreateInstance(t)).Install(winIdentity));
-            
+                .ForEach(t => Configure.Instance.Configurer.ConfigureComponent(t,DependencyLifecycle.InstancePerCall));
+
+            Configure.Instance.Builder.BuildAll<INeedToInstallSomething>().ToList()
+                .ForEach(i=>i.Install(winIdentity));
+
             installedOthersInstallers = true;
         }
 
