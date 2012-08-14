@@ -1,5 +1,4 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Faults.InMemory
@@ -19,6 +18,10 @@ namespace NServiceBus.Faults.InMemory
             logger.Error("Message processing always fails for message with ID " + message.IdForCorrelation + ".", e);
         }
 
+        /// <summary>
+        /// Initializes the fault manager
+        /// </summary>
+        /// <param name="address">The address of the message source</param>
         public void Init(Address address)
         {
             

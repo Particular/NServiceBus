@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Config
 {
     /// <summary>
-    /// COnfiguration class for Endpoint attributes.
+    /// Configuration class for Endpoint attributes.
     /// </summary>
     public static class Endpoint
     {
         /// <summary>
-        /// Requests that queues will be created as Volatile (non-transactional) hence sending & receiving will be outside a transaction
+        /// Requests that queues will be created as Volatile (non-transactional) hence sending and receiving will be outside a transaction
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>

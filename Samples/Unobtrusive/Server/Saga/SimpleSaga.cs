@@ -13,7 +13,7 @@ namespace Server.Saga
             Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
-            RequestUtcTimeout(TimeSpan.FromSeconds(10), someState);
+            RequestTimeout(TimeSpan.FromSeconds(10), someState);
             LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
         }
 
@@ -25,7 +25,7 @@ namespace Server.Saga
             var someState = new Random().Next(10);
 
             LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
-            RequestUtcTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
+            RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
                                                         {
                                                             SomeValue = someState
                                                         });

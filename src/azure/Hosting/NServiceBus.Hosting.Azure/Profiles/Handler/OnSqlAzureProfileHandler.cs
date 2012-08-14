@@ -9,7 +9,7 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
             if (Config is AsA_Worker)
             {
                 Configure.Instance
-                    .DBSubscriptionStorage()
+                    .UseNHibernateSubscriptionPersister()
                     .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork();
             }
 
