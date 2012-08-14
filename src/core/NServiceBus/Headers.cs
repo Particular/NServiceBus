@@ -100,5 +100,10 @@
         /// Type of the saga that sent this message
         /// </summary>
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
+
+        /// <summary>
+        /// The number of retries that has been performed for this message
+        /// </summary>
+        public const string Retries = "NServiceBus.Retries";
     }
 }

@@ -74,11 +74,18 @@
     <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
+    <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\lib\rhino.mocks\Rhino.Mocks.dll</HintPath>
+    <Reference Include="nunit.mocks">
+      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="pnunit.framework">
+      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -86,7 +93,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InMemoryDataBus.cs" />
+    <Compile Include="MessageWithDataBusProperty.cs" />
+    <Compile Include="MessageWithExplicitTimeToLive.cs" />
+    <Compile Include="MessageWithNonSerializableDataBusProperty.cs" />
+    <Compile Include="MessageWithoutDataBusProperty.cs" />
     <Compile Include="on_the_bus.cs" />
+    <Compile Include="When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
     <Compile Include="When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_nservicebus_is_initalizing.cs" />
@@ -113,6 +125,9 @@
       <Project>{EDFCAFE5-9C1D-4339-9DC5-2CD899E9E605}</Project>
       <Name>NServiceBus.DataBus</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

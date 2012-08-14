@@ -5,7 +5,7 @@ namespace Client
     using Messages;
     using NServiceBus;
 
-    class CommandSender : IWantToRunWhenBusStartsAndStops
+    public class CommandSender : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
@@ -14,6 +14,9 @@ namespace Client
             Console.WriteLine("Press 'C' to send a command");
             Console.WriteLine("Press 'R' to send a request");
             Console.WriteLine("Press 'S' to start the saga");
+            Console.WriteLine("Press 'E' to send a message that is marked as Express");
+            Console.WriteLine("Press 'D' to send a large message that is marked to be sent using Data Bus");
+            Console.WriteLine("Press 'X' to send a message that is marked with expiration time.");
             Console.WriteLine("To exit, press Ctrl + C");
 
             while (true)
@@ -24,27 +27,75 @@ namespace Client
                     case "c":
                         SendCommand();
                         break;
+
                     case "r":
                         SendRequest();
                         break;
+
                     case "s":
                         StartSaga();
+                        break;
+
+                    case "e":
+                        Express();
+                        break;
+
+                    case "d":
+                        Data();
+                        break;
+
+                    case "x":
+                        Expiration();
                         break;
                 }
             }
         }
 
+        /// <summary>
+        /// Shut down server before sending this message, after 30 seconds, the message will be moved to Transactional dead-letter messages queue.
+        /// </summary>
+        private void Expiration()
+        {
+            Bus.Send<MessageThatExpires>(m => m.RequestId = new Guid());
+            Console.WriteLine("message with expiration was sent");
+        }
+
+        private void Data()
+        {
+            var requestId = Guid.NewGuid();
+
+            Bus.Send<LargeMessage>(m =>
+                                         {
+                                             m.RequestId = requestId;
+                                             m.LargeDataBus = new byte[1024 * 1024 * 5];
+                                         });
+
+            Console.WriteLine("Request sent id: " + requestId);
+        }
+
+        private void Express()
+        {
+            var requestId = Guid.NewGuid();
+
+            Bus.Send<RequestExpress>(m =>
+                                         {
+                                             m.RequestId = requestId;
+                                         });
+
+            Console.WriteLine("Request sent id: " + requestId);
+        }
+
         void StartSaga(string tennant = "")
         {
             var message = new StartSagaMessage
-            {
-                OrderId = Guid.NewGuid()
-            };
+                              {
+                                  OrderId = Guid.NewGuid()
+                              };
             if (!string.IsNullOrEmpty(tennant))
                 message.SetHeader("tennant", tennant);
 
             Bus.Send(message);
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"));
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent");
         }
 
         void SendRequest()
@@ -52,11 +103,11 @@ namespace Client
             var requestId = Guid.NewGuid();
 
             Bus.Send<Request>(m =>
-            {
-                m.RequestId = requestId;
-            });
+                                  {
+                                      m.RequestId = requestId;
+                                  });
 
-            Console.WriteLine("Request sent id: " + requestId); 
+            Console.WriteLine("Request sent id: " + requestId);
         }
 
         void SendCommand()
@@ -64,14 +115,14 @@ namespace Client
             var commandId = Guid.NewGuid();
 
             Bus.Send<MyCommand>(m =>
-            {
-                m.CommandId = commandId;
-                m.EncryptedString = "Some sensitive information";
-            })
-            .Register<CommandStatus>(outcome=> Console.WriteLine("Server returned status: " + outcome));
+                                    {
+                                        m.CommandId = commandId;
+                                        m.EncryptedString = "Some sensitive information";
+                                    })
+                .Register<CommandStatus>(outcome => Console.WriteLine("Server returned status: " + outcome));
 
             Console.WriteLine("Command sent id: " + commandId);
-            
+
         }
 
         public void Stop()

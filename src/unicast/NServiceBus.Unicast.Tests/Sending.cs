@@ -7,6 +7,26 @@
     using Transport;
 
     [TestFixture]
+    public class When_sending_a_message_with_databusproperty : using_the_unicastbus
+    {
+        [Test]
+        public void Should_throw_if_more_than_one_is_sent_in_the_same_send()
+        {
+            RegisterMessageType<CommandWithDataBusPropertyMessage>();
+
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage(), new CommandWithDataBusPropertyMessage()));
+        }
+
+        [Test]
+        public void Should_sent_if_only_one_message_is_in_the_same_send()
+        {
+            RegisterMessageType<CommandWithDataBusPropertyMessage>();
+
+            bus.Send(new CommandWithDataBusPropertyMessage());
+        }
+    }
+
+    [TestFixture]
     public class When_sending_a_event_message : using_the_unicastbus
     {
         [Test]
@@ -16,6 +36,7 @@
             Assert.Throws<InvalidOperationException>(() => bus.Send(new EventMessage()));
         }
     }
+
     [TestFixture]
     public class When_sending_a_event_message_to_sites : using_the_unicastbus
     {
@@ -49,7 +70,6 @@
         }
     }
 
-
     [TestFixture]
     public class When_sending_a_message_that_has_no_configured_address : using_the_unicastbus
     {
@@ -70,10 +90,9 @@
             
             bus.Send(new CommandMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable == true), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
         }
     }
-
 
     [TestFixture]
     public class When_sending_a_interface_message : using_the_unicastbus

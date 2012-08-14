@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast
         {
             if (messages.Any(m => m.IsCommand() || m.IsEvent()))
                 throw new InvalidOperationException(
-                    "Reply is neither supported for Commands nor Events. Commands should be be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
+                    "Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
         }
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by Bus.Reply.
@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast
         {
             if (messageType.IsCommandType() || messageType.IsEventType())
                 throw new InvalidOperationException(
-                    "Reply is neither supported for Commands nor Events. Commands should be be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
+                    "Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
         }
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by pubsub bus methods (subscribe, unsubscribe and publish)..

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace NServiceBus
 {
     [Serializable]
-	public class DataBusProperty<T> : IDataBusProperty,ISerializable where T : class
+	public class DataBusProperty<T> : IDataBusProperty, ISerializable where T : class
     {
         T value;
     	

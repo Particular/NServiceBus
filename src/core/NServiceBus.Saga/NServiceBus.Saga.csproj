@@ -56,7 +56,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Obsolete">
       <HintPath>..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>

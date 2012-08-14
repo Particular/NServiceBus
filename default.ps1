@@ -80,6 +80,17 @@ task InitEnvironment -description "Initializes the environment for build" {
 			echo ".Net 4.0 build requested - $script:msBuild" 
 
 			$script:ilmergeTargetFramework  = "/targetplatform:v4," + $netfxCurrent
+
+			$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+			if(test-path $ilMergeTargetFrameworkPath) {
+				$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath		
+			} else {
+				$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles(x86)').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+
+				if(test-path $ilMergeTargetFrameworkPath) {
+					$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath
+				}
+			}
 			
 			$script:msBuildTargetFramework ="/p:TargetFrameworkVersion=v4.0 /ToolsVersion:4.0"
 			
@@ -535,7 +546,7 @@ task CompileSamples -depends InitEnvironment -description "Compiles all the samp
 		}
 	}
 
-task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples -description "Compiles all the sample projects after compiling the full Sourc in order." {}  
+task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples -description "Compiles all the sample projects after compiling the full Source in order." {}  
 
 task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
 	

@@ -1,5 +1,4 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
     using System;
     using Messages;
@@ -19,7 +18,6 @@ namespace Tests
 
             Test.Initialize();
         }
-
 
         [Test]
         public void ReplyWithResponseIdEqualToRequestId()

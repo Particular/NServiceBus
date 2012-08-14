@@ -63,7 +63,7 @@ namespace NServiceBus.Management.Retries
         void Defer(TimeSpan defer, TransportMessage message)
         {
             TransportMessageHelpers.SetHeader(message, Headers.Expire, (DateTime.UtcNow + defer).ToWireFormattedString());
-            TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
+            TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.OriginalReplyToAddress) && message.ReplyToAddress != null)
             {

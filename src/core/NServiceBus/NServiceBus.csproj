@@ -72,6 +72,7 @@
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="CompletionResult.cs" />
+    <Compile Include="DataBusProperty.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="IAuthorizeSubscriptions.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
     <Compile Include="INeedInitialization.cs" />
+    <Compile Include="IMessageSerializer.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />

@@ -49,7 +49,6 @@
             }
         }
 
-
         [TestFixture]
         public class When_applying_message_conventions_to_commands
         {
