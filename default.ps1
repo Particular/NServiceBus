@@ -1,16 +1,10 @@
 properties {
 	$ProductVersion = "4.0"
-	$BuildNumber = "0";
-	$PatchVersion = "0"
-	$PreRelease = "alpha"	
-	$PackageNameSuffix = ""
+    $PatchVersion = "0"
+	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
+	$PreRelease = "alpha"
 	$TargetFramework = "net-4.0"
-	$UploadPackage = $false;
-	$NugetKey = ""
-	$PackageIds = ""
-	$DownloadDependentPackages = $false
 	$buildConfiguration = "Debug"
-	
 }
 
 $baseDir  = resolve-path .
@@ -31,13 +25,11 @@ $nugetExec = "$toolsDir\NuGet\NuGet.exe"
 $zipExec = "$toolsDir\zip\7za.exe"
 $ilMergeKey = "$srcDir\NServiceBus.snk"
 $ilMergeExclude = "$toolsDir\IlMerge\ilmerge.exclude"
-$script:architecture = "x86"
 $script:ilmergeTargetFramework = ""
 $script:msBuildTargetFramework = ""	
 $script:nunitTargetFramework = "/framework=4.0";
 $script:msBuild = ""
 $script:isEnvironmentInitialized = $false
-$script:packageVersion = "3.2.0-local"
 $script:releaseVersion = ""
 
 include $toolsDir\psake\buildutils.ps1
@@ -110,7 +102,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 	}
 }
 
-task Init -depends Clean, InstallDependentPackages, DetectOperatingSystemArchitecture -description "Initializes the build" {
+task Init -depends Clean, InstallDependentPackages -description "Initializes the build" {
    	
 	echo "Creating build directory at the following path $buildBase"
 	Delete-Directory $buildBase
@@ -531,7 +523,7 @@ function Prepare-Binaries{
 	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
-task PrepareBinariesWithGeneratedAssemblyIno -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs the unit tests and prepare the binaries and Core-only binaries" {}
+task PrepareBinariesWithGeneratedAssemblyInfo -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs the unit tests and prepare the binaries and Core-only binaries" {}
 
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
@@ -590,228 +582,6 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
 
-task CreatePackages {
-
-	if(($UploadPackage) -and ($NugetKey -eq "")){
-		throw "Could not find the NuGet access key Package Cannot be uploaded without access key"
-	}
-		
-	import-module $toolsDir\NuGet\packit.psm1
-	Write-Output "Loading the module for packing.............."
-	$packit.push_to_nuget = $UploadPackage 
-	$packit.nugetKey  = $NugetKey
-	
-	$packit.framework_Isolated_Binaries_Loc = "$baseDir\release"
-	$packit.PackagingArtifactsRoot = "$baseDir\release\PackagingArtifacts"
-	$packit.packageOutPutDir = "$artifactsDir"
-
-	$packit.targeted_Frameworks = "net40";
-
-
-	#region Packing NServiceBus
-	$packageNameNsb = "NServiceBus" + $PackageNameSuffix 	
-	$packit.package_description = "The most popular open-source service bus for .net"
-	invoke-packit $packageNameNsb $script:packageVersion @{} "binaries\NServiceBus.dll", "binaries\NServiceBus.Core.dll", "binaries\NServiceBus.xml", "binaries\NServiceBus.Core.xml" @{} 
-	#endregion
-	
-	#region Packing NServiceBus.Interfaces
-	$packageName = "NServiceBus.Interfaces" + $PackageNameSuffix 	
-	$packit.package_description = "The Interfaces for NServiceBus Implementation"
-	invoke-packit $packageName $script:packageVersion @{} "binaries\NServiceBus.dll", "binaries\NServiceBus.xml"  @{} 
-	#endregion
-	
-    #region Packing NServiceBus.Host
-	
-	$appConfigTranformContent = "<?xml version=`"1.0`"?>
-<configuration>
-  <configSections>
-    <section name=`"MessageForwardingInCaseOfFaultConfig`" type=`"NServiceBus.Config.MessageForwardingInCaseOfFaultConfig, NServiceBus.Core`" />
-   </configSections>
-  <MessageForwardingInCaseOfFaultConfig ErrorQueue=`"error`"/>
-</configuration>
-"
-    $installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
-	
-    `$project.Save()
-    
-	`$directoryName  = [system.io.Path]::GetDirectoryName(`$project.FullName)	
-	`$appConfigFile = `$directoryName + `"\App.config`"
-	if((Test-Path -Path `$appConfigFile) -eq `$true){
-		[xml] `$appConfig = Get-Content `$appConfigFile
-		`$selectedNodes = Select-Xml -XPath `"/configuration/nr:trueessageForwardingInCaseOfFaultConfig`" -Xml `$appConfig
-		if(`$selectedNodes -ne `$null){
-			`$selectedNodes.Count
-			if(`$selectedNodes.Count -gt 1){
-				`$selectedNode = Select-Xml -XPath `"/configuration/nr:trueessageForwardingInCaseOfFaultConfig[@ErrorQueue='error' ]`" -Xml `$appConfig
-				`$appConfig | select-xml -xpath `"/configuration`" | % {`$_.node.removechild(`$selectedNode.node)}
-				`$writerSettings = new-object System.Xml.XmlWriterSettings
-				`$writerSettings.OmitXmlDeclaration = `$false
-				`$writerSettings.NewLineOnAttributes = `$false
-				`$writerSettings.Indent = `$true			
-				`$writer = [System.Xml.XmlWriter]::Create(`$appConfigFile, `$writerSettings)
-				`$appConfig.WriteTo(`$writer)
-				`$writer.Flush()
-				`$writer.Close()
-			}
-		}
-	}
-	
-	[xml] `$prjXml = Get-Content `$project.FullName
-	`$proceed = `$true
-	foreach(`$PropertyGroup in `$prjXml.project.ChildNodes)
-	{
-	  if(`$PropertyGroup.StartAction -ne `$null)
-	  {
-		`$proceed = `$false
-	  }
-	}
-
-	if (`$proceed -eq `$true){
-		`$propertyGroupElement = `$prjXml.CreateElement(`"PropertyGroup`", `$prjXml.Project.GetAttribute(`"xmlns`"));
-		`$startActionElement = `$prjXml.CreateElement(`"StartAction`", `$prjXml.Project.GetAttribute(`"xmlns`"));
-		`$propertyGroupElement.AppendChild(`$startActionElement)
-		`$propertyGroupElement.StartAction = `"Program`"
-		`$startProgramElement = `$prjXml.CreateElement(`"StartProgram`", `$prjXml.Project.GetAttribute(`"xmlns`"));
-		`$propertyGroupElement.AppendChild(`$startProgramElement)
-		`$propertyGroupElement.StartProgram = `"```$(ProjectDir)```$(OutputPath)NServiceBus.Host.exe`"
-		`$prjXml.project.AppendChild(`$propertyGroupElement);
-		`$writerSettings = new-object System.Xml.XmlWriterSettings
-		`$writerSettings.OmitXmlDeclaration = `$false
-		`$writerSettings.NewLineOnAttributes = `$false
-		`$writerSettings.Indent = `$true
-		`$projectFilePath = Resolve-Path -Path `$project.FullName
-		`$writer = [System.Xml.XmlWriter]::Create(`$projectFilePath, `$writerSettings)
-		`$prjXml.WriteTo(`$writer)
-		`$writer.Flush()
-		`$writer.Close()
-	} 
-"
-	$appConfigTranformFile = "$releaseRoot\content\app.config.transform"
-	$installPs1File = "$releaseRoot\tools\install.ps1"
-	Create-Directory "$releaseRoot\content"
-	Write-Output $appConfigTranformContent > $appConfigTranformFile	
-
-	Write-Output $installPs1Content > $installPs1File	
-	
-	$packageName = "NServiceBus.Host" + $PackageNameSuffix
-	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host.*"="lib\net40";
-																									 ".\release\content\*.*"="content";
-																									  ".\release\tools\install.ps1*"="tools"}
-	#endregion
-
-	#region Packing NServiceBus.Host32
-	$packageName = "NServiceBus.Host32" + $PackageNameSuffix
-	$packit.package_description = "The hosting template for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "" @{".\release\net40\binaries\NServiceBus.Host32.*"="lib\net40\x86";
-																									 ".\release\content\*.*"="content";
-																									  ".\release\tools\install.ps1*"="tools"}
-	Remove-Item -Force $appConfigTranformFile -ErrorAction SilentlyContinue
-	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
-	Delete-Directory "$releaseRoot\content"
-	#endregion
-	
-	#region Packing NServiceBus.Testing
-	$packageName = "NServiceBus.Testing" + $PackageNameSuffix
-	$packit.package_description = "The testing for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Testing.dll"
-	#endregion
-	
-	#region Packing NServiceBus.Tools
-	$runMeFirstFileContent = ".\msmqutils\runner.exe %1"
-	$runMeFirstFile = "$releaseRoot\tools\RunMeFirst.bat"
-	Write-Output $runMeFirstFileContent > $runMeFirstFile
-	
-	$installPs1Content = "param(`$installPath, `$toolsPath, `$package, `$project)
-    echo `"The Tools Path (`$toolsPath) has been added to the env:PATH. Please use RunMeFirst.bat and returntosourcequeue.exe directly in Package Manager Console`"
-"
-	$installPs1File = "$releaseRoot\tools\init.ps1"
-	$installPs1Content > $installPs1File
-	$packageName = "NServiceBus.Tools" + $PackageNameSuffix
-	$packit.package_description = "The tools to configure the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{} "" @{".\release\tools\msmqutils\*.*"="tools\msmqutils";
-															   ".\release\tools\*.dll"="tools";".\release\tools\*.*"="tools";}
-	
-	Remove-Item -Force $runMeFirstFile -ErrorAction SilentlyContinue
-	Remove-Item -Force $installPs1File -ErrorAction SilentlyContinue
-	#endregion
-	
-	#region Packing NServiceBus.Integration.WebServices
-	$packageName = "NServiceBus.Integration.WebServices" + $PackageNameSuffix
-	$packit.package_description = "The WebServices Integration for the nservicebus, The most popular open-source service bus for .net"
-	invoke-packit $packageName $script:packageVersion @{$packageNameNsb=$script:packageVersion} "binaries\NServiceBus.Integration.WebServices.dll"
-	#endregion
-
-	#region Packing NServiceBus.Autofac
-	$packageName = "NServiceBus.Autofac" + $PackageNameSuffix
-	$packit.package_description = "The Autofac Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Autofac"="2.6.1.841"} "" @{".\release\net40\binaries\containers\autofac\*.*"="lib\net40"}
-	#endregion
-		
-	#region Packing NServiceBus.CastleWindsor
-	$packageName = "NServiceBus.CastleWindsor" + $PackageNameSuffix
-	$packit.package_description = "The CastleWindsor Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Castle.Windsor"="3.0.0.2001"} "" @{".\release\net40\binaries\containers\castle\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.StructureMap
-	$packageName = "NServiceBus.StructureMap" + $PackageNameSuffix
-	$packit.package_description = "The StructureMap Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"structuremap"="2.6.3"} "" @{".\release\net40\binaries\containers\StructureMap\*.*"="lib\net40"}
-	#endregion		
-	
-	#region Packing NServiceBus.Unity
-	$packageName = "NServiceBus.Unity" + $PackageNameSuffix
-	$packit.package_description = "The Unity Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Unity"="2.1.505.0";"Unity.Interception"="2.1.505.0"} "" @{".\release\net40\binaries\containers\Unity\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.Ninject
-	$packageName = "NServiceBus.Ninject" + $PackageNameSuffix
-	$packit.package_description = "The Ninject Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Ninject"="3.0.0.15";"Ninject.Extensions.ContextPreservation"="3.0.0.8";"Ninject.Extensions.NamedScope"="3.0.0.5"} "" @{".\release\net40\binaries\containers\Ninject\*.*"="lib\net40"}
-	#endregion
-	
-	#region Packing NServiceBus.Spring
-	$packageName = "NServiceBus.Spring" + $PackageNameSuffix
-	$packit.package_description = "The Spring Container for the nservicebus"
-	invoke-packit $packageName $script:packageVersion @{"Spring.Core"="1.3.2"} "" @{".\release\net40\binaries\containers\spring\*.*"="lib\net40"}
-	#endregion	
-	
-	#region Packing NServiceBus.NHibernate
-	$packageNameNHibernate = "NServiceBus.NHibernate" + $PackageNameSuffix
-	$packit.package_description = "The NHibernate for the NServicebus"
-	invoke-packit $packageNameNHibernate $script:packageVersion @{"NHibernate"="3.3.1.4000"} "binaries\NServiceBus.NHibernate.dll"
-	#endregion	
-		
-	#region Packing NServiceBus.Azure
-	$packageNameAzure = "NServiceBus.Azure" + $PackageNameSuffix
-	$packit.package_description = "Azure support for NServicebus"
-	invoke-packit $packageNameAzure $script:packageVersion @{$packageNameNsb=$script:packageVersion; $packageNameNHibernate=$script:packageVersion; "Common.Logging"="2.0.0";"Newtonsoft.Json"="4.0.5";"WindowsAzure.Storage"="1.7.0.0" } "binaries\NServiceBus.Azure.dll", 
-	"..\..\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll", "..\..\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll", "..\..\lib\azure\Microsoft.ServiceBus.dll","..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll","..\..\lib\Ionic.Zip.dll" 
-	#endregion	
-	
-	#region Packing NServiceBus.Hosting.Azure
-	$packageNameHostingAzure = "NServiceBus.Hosting.Azure" + $PackageNameSuffix
-	$packit.package_description = "The Azure Host for NServicebus"
-	invoke-packit $packageNameHostingAzure $script:packageVersion @{$packageNameAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.dll" @{}
-	#endregion
-	
-	#region Packing NServiceBus.Timeout.Hosting.Azure
-	$packageNameTimeoutHostingAzure = "NServiceBus.Timeout.Hosting.Azure" + $PackageNameSuffix
-	$packit.package_description = "The Azure Host for the timeout manager on NServicebus"
-	invoke-packit $packageNameTimeoutHostingAzure $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Timeout.Hosting.Azure.dll" @{}
-	#endregion
-	
-	#region Packing NServiceBus.Hosting.Azure.HostProcess
-	$packageNameHostingAzureHostProcess = "NServiceBus.Hosting.Azure.HostProcess" + $PackageNameSuffix
-	$packit.package_description = "The process used when sharing an azure instance between multiple NServicebus endpoints"
-	invoke-packit $packageNameHostingAzureHostProcess $script:packageVersion @{$packageNameHostingAzure=$script:packageVersion; } "binaries\NServiceBus.Hosting.Azure.HostProcess.exe"
-	#endregion
-		"done!"
-	remove-module packit
- }
-
 task PrepareReleaseWithoutSamples -depends PrepareBinaries -description "Prepare release without compiling the sample projects"  {
 	
 	if(Test-Path $releaseRoot){
@@ -841,41 +611,28 @@ task PrepareReleaseWithoutSamples -depends PrepareBinaries -description "Prepare
 	Copy-Item -Force -Recurse "$baseDir\docs" $releaseRoot\docs -ErrorAction SilentlyContinue
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
-
-task DetectOperatingSystemArchitecture -description "Detects the OS architecture " {
-	if (IsWow64 -eq $true)
-	{
-		$script:architecture = "x64"
-	}
-    echo "Machine Architecture is $script:architecture"
-}
   
 task GenerateAssemblyInfo -description "Generates assembly info for all the projects with version" {
-	if($env:BUILD_NUMBER -ne $null) {
-    	$BuildNumber = $env:BUILD_NUMBER
-	}
+
 	Write-Output "Build Number: $BuildNumber"
 	
 	$asmVersion =  $ProductVersion + ".0.0"
 
 	if($PreRelease -eq "") {
-		$fileVersion = $ProductVersion + "." + $BuildNumber + ".0" 
-		$infoVersion = $fileVersion
-		$script:packageVersion = $ProductVersion + "." + $BuildNumber
-	}
-	else {
+		$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
+		$infoVersion = $ProductVersion + "." + $PatchVersion
+	} else {
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 
-		$script:packageVersion = $infoVersion
+		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
 	}
-	
-	$script:releaseVersion = $script:packageVersion
+    
+    $script:releaseVersion = $infoVersion
 		
 	Write-Output "##teamcity[buildNumber '$script:releaseVersion']"
 	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
 	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
-
+    
 	foreach($projectFile in $projectFiles) {
 
 		$projectDir = [System.IO.Path]::GetDirectoryName($projectFile)
@@ -959,27 +716,19 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 }
 
 task InstallDependentPackages -description "Installs dependent packages in the environment if required" {
-	cd "$baseDir\packages"
-	$files =  dir -Exclude *.config
-	cd $baseDir
-	$installDependentPackages = $DownloadDependentPackages;
-	if($installDependentPackages -eq $false){
-		$installDependentPackages = ((($files -ne $null) -and ($files.count -gt 0)) -eq $false)
-	}
-	if($installDependentPackages){
+	
     $packageNames = @{}
     
     dir -recurse -include ('packages.config') | ForEach-Object {
-			$packageconfig = [io.path]::Combine($_.directory,$_.name)
-
-      $packagexml = [xml] (gc $packageconfig)
+        $packageconfig = [io.path]::Combine($_.directory,$_.name)
+        $packagexml = [xml] (gc $packageconfig)
     
-      foreach ($pelem in $packagexml.packages.package) {
-        if ($pelem.id -eq $null) { continue }
-      
-        $packageNames["{0}-{1}" -f $pelem.id, $pelem.version] = $pelem
-      }
-		}
+        foreach ($pelem in $packagexml.packages.package) {
+            if ($pelem.id -eq $null) { continue }
+          
+            $packageNames["{0}-{1}" -f $pelem.id, $pelem.version] = $pelem
+        }
+    }
 
     $template = [xml] ("<packages></packages>")
 
@@ -987,26 +736,30 @@ task InstallDependentPackages -description "Installs dependent packages in the e
 
     $template.Save( (Join-Path (pwd) packages\packages.config) )
     exec { &$nugetExec install packages\packages.config -o packages }
-    rm packages\packages.config
-  }
- }
+    rm packages\packages.config 
+}
 
 task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
     if(Test-Path -Path $releaseDir)
 	{
         del -Path $releaseDir -Force -recurse
-	}	
-	echo "Release completed for NServiceBus." + $script:releaseVersion 
+	}
+    	
+	Write-Output "Release completed for NServiceBus v$script:releaseVersion"
 	
 	Stop-Process -Name "nunit-agent.exe" -ErrorAction SilentlyContinue -Force
 	Stop-Process -Name "nunit-console.exe" -ErrorAction SilentlyContinue -Force
+}
+
+task CreatePackages {
+    Invoke-psake .\Nuget.ps1 -properties @{PreRelease=$PreRelease;buildConfiguration=$buildConfiguration;PatchVersion=$PatchVersion;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;NugetKey=$NugetKey;UploadPackage=$UploadPackage}
 }
 
 task ZipOutput -description "Ziping artifacts directory for releasing"  {	
 	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
 	
 	if(Test-Path -Path $packagingArtifacts ){
-		Delete-Directory $packagingArtifacts
+        del ($packagingArtifacts + '\*.zip')
 	}
 	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
 	
@@ -1018,23 +771,4 @@ task ZipOutput -description "Ziping artifacts directory for releasing"  {
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
 	
-}
-
-task UpdatePackages -description "Updates the packages in packages.config of all the solutions"  {
-	dir -recurse -include ('packages.config') |ForEach-Object {
-		$packageconfig = [io.path]::Combine($_.directory,$_.name)
-
-		write-host $packageconfig
-
-		if($PackageIds -ne "")
-		{
-			write-host "Doing an unsafe update of" $PackageIds 
-			&$nugetExec update $packageconfig -RepositoryPath packages -Id $PackageIds
-		}
-		else
-		{	
-			write-host "Doing a safe update of all packages" $PackageIds 
-			&$nugetExec update -Safe $packageconfig -RepositoryPath packages
-		}
-	}
 }
