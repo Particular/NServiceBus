@@ -169,7 +169,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     TimeToBeReceived = m.TimeToBeReceived,
                     Headers = m.Headers,
                     MessageIntent = m.MessageIntent,
-                    TimeSent = m.TimeSent,
                     IdForCorrelation = m.IdForCorrelation
                 };
 
@@ -317,7 +316,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     TimeToBeReceived = message.TimeToBeReceived,
                     Headers = message.Headers,
                     MessageIntent = message.MessageIntent,
-                    TimeSent = message.TimeSent,
                     IdForCorrelation = message.IdForCorrelation
                 };
 
@@ -349,7 +347,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
     internal class MessageWrapper : IMessage
     {
         public string IdForCorrelation { get; set; }
-        public DateTime TimeSent { get; set; }
         public string Id { get; set; }
         public MessageIntentEnum MessageIntent { get; set; }
         public string ReplyToAddress { get; set; }

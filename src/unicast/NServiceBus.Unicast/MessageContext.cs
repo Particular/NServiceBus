@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NServiceBus.Unicast.Transport;
+﻿using System.Collections.Generic;
 
 namespace NServiceBus.Unicast
 {
@@ -9,7 +7,7 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class MessageContext : IMessageContext
     {
-        private TransportMessage transportMessage;
+        private readonly TransportMessage transportMessage;
 
         /// <summary>
         /// Initializes message context from the transport message.
@@ -30,19 +28,9 @@ namespace NServiceBus.Unicast
             get { return transportMessage.IdForCorrelation; }
         }
 
-        string IMessageContext.ReturnAddress
-        {
-            get { return transportMessage.ReplyToAddress.ToString(); }
-        }
-
         Address IMessageContext.ReplyToAddress
         {
             get { return transportMessage.ReplyToAddress; }
-        }
-
-        DateTime IMessageContext.TimeSent
-        {
-            get { return transportMessage.TimeSent;  }
         }
     }
 }

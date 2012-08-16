@@ -121,7 +121,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                                        //Id = "11111",
                                        Recoverable = true,
                                        ReplyToAddress= Address.Parse("response"),
-                                       TimeSent = DateTime.Now,
                                        TimeToBeReceived = TimeSpan.FromHours(1)
                                    };
                 AddTestMessage(original);
@@ -137,7 +136,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                 Assert.NotNull(result.Id);
                 Assert.AreEqual(result.Recoverable,original.Recoverable);
                 Assert.AreEqual(result.ReplyToAddress,original.ReplyToAddress);
-                Assert.AreEqual(result.TimeSent,original.TimeSent);
                 Assert.AreEqual(result.TimeToBeReceived,original.TimeToBeReceived);
 
             }

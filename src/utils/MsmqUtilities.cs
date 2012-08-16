@@ -331,7 +331,6 @@ namespace NServiceBus.Utils
                          : m.CorrelationId),
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                TimeSent = m.SentTime,
                 ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
                 MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
             };

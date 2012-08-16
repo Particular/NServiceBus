@@ -30,12 +30,6 @@ namespace NServiceBus
 		/// </summary>
         public string CorrelationId { get; set; }
 
-		/// <summary>
-		/// Gets/sets the return address of the message bundle.
-		/// </summary>
-		[Obsolete("Use 'ReplyToAddress' instead.", true)]
-        public string ReturnAddress { get; set; }
-
         /// <summary>
         /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
         /// </summary>
@@ -63,12 +57,6 @@ namespace NServiceBus
             get { return timeToBeReceived; }
             set { timeToBeReceived = value; }
         }
-
-        /// <summary>
-        /// Gets/sets the time that the message was sent by the source machine.
-        /// </summary>
-        [Obsolete("Use the 'TimeSent' header instead.")]
-        public DateTime TimeSent { get; set; }
 
         /// <summary>
         /// Gets/sets other applicative out-of-band information.
