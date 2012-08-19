@@ -105,14 +105,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ConfigureDistributor.cs" />
-    <Compile Include="Installers\ControlQueueInstaller.cs" />
+    <Compile Include="QueueCreators\ControlQueueCreator.cs" />
     <Compile Include="DistributorBootstrapper.cs" />
     <Compile Include="Config\DistributorInitializer.cs" />
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="LicenseConfig.cs" />
     <Compile Include="ReadyMessages\Headers.cs" />
     <Compile Include="Config\WorkerInitializer.cs" />
-    <Compile Include="Installers\WorkerInputInstaller.cs" />
+    <Compile Include="QueueCreators\WorkerQueueCreator.cs" />
     <Compile Include="ReadyMessages\ReadyMessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadyMessages\ReturnAddressRewriter.cs" />

@@ -78,12 +78,11 @@
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.Msmq">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NServiceBus.Utils">
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -95,7 +94,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Installer.cs" />
+    <Compile Include="SubscriptionsQueueCreator.cs" />
     <Compile Include="ConfigureMsmqSubscriptionStorage.cs" />
     <Compile Include="MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

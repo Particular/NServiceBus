@@ -42,7 +42,6 @@
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,7 +53,6 @@
     <Compile Include="INeedToInstallInfrastructure.cs" />
     <Compile Include="INeedToInstallSomething.cs" />
     <Compile Include="Install.cs" />
-    <Compile Include="IWantQueuesCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

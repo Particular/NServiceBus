@@ -52,11 +52,38 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core">
-      <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
+    <Reference Include="NServiceBus.Config">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Host">
-      <HintPath>..\..\..\build\output\host\NServiceBus.Host.exe</HintPath>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Monitoring">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Monitoring.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.Msmq">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Subscriptions.Msmq">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.Msmq.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Transactional">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -69,7 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Installer.cs" />
+    <Compile Include="ProxyQueueCreator.cs" />
     <Compile Include="IProxyDataStorage.cs" />
     <Compile Include="MsmqProxyDataStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

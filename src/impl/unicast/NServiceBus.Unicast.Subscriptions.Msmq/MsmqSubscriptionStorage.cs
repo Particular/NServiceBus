@@ -23,11 +23,12 @@ using System.Collections.Generic;
 using System.Messaging;
 using NServiceBus.Logging;
 using System.Transactions;
-using NServiceBus.Utils;
 using NServiceBus.Config;
+using NServiceBus.Unicast.Queuing.Msmq;
+
 namespace NServiceBus.Unicast.Subscriptions.Msmq
 {
-	/// <summary>
+    /// <summary>
 	/// Provides functionality for managing message subscriptions
 	/// using MSMQ.
 	/// </summary>

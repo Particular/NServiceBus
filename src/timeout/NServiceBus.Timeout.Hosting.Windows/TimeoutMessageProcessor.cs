@@ -14,7 +14,7 @@
         ILog Logger = LogManager.GetLogger("TimeoutMessageProcessor");
         public IBuilder Builder { get; set; }
         public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
-        public Address InputAddress { get; private set; }
+        public Address InputAddress { get; set; }
         public bool Disabled { get; set; }
         public ISendMessages MessageSender { get; set; }       
 

@@ -43,6 +43,9 @@
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Config">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Config.dll</HintPath>
     </Reference>
@@ -56,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointInputQueueCreator.cs" />
+    <Compile Include="ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

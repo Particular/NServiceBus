@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Messaging;
-using System.Text;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Utils;
+using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus.Faults.Forwarder
 {

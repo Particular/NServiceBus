@@ -1,26 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Messaging;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Security.Principal;
-using System.Xml.Serialization;
-using NServiceBus.Logging;
-using NServiceBus.Unicast.Transport;
-
-namespace NServiceBus.Utils
+namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Messaging;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Xml.Serialization;
+    using Transport;
+
     ///<summary>
     /// MSMQ-related utility functions
     ///</summary>
     public class MsmqUtilities
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
-        private static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
         private static string accountToBeAssignedQueuePermissions;
 
         /// <summary>
@@ -30,89 +24,6 @@ namespace NServiceBus.Utils
         public static void AccountToBeAssignedQueuePermissions(string account)
         {
             accountToBeAssignedQueuePermissions = account;
-        }
-
-        ///<summary>
-        /// Utility method for creating a queue if it does not exist.
-        ///</summary>
-        ///<param name="address">Queue path to create</param>
-        ///<param name="account">The account to be given permissions to the queue</param>
-        /// <param name="volatileQueues">Queues are volatile (non-durable), that is create the queue as non-transactional</param>
-        public static void CreateQueueIfNecessary(Address address, string account, bool volatileQueues = false)
-        {
-            if (address == null)
-                return;
-
-            var q = GetFullPathWithoutPrefix(address);
-
-            var isRemote = address.Machine != Environment.MachineName.ToLower();
-            if (isRemote)
-            {
-                Logger.Debug("Queue is on remote machine.");
-                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
-            }
-
-            Logger.Debug(string.Format("Checking if queue exists: {0}.", address));
-
-            try
-            {
-                if (MessageQueue.Exists(q))
-                {
-                    Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(q, accountToBeAssignedQueuePermissions ?? account);
-                    return;
-                }
-
-                Logger.Warn("Queue " + q + " does not exist.");
-                Logger.Debug("Going to create queue: " + q);
-
-                CreateQueue(q, account, volatileQueues);
-            }
-            catch (MessageQueueException ex)
-            {
-                if (isRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
-                {
-                    return;
-                }
-                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(string.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
-            }
-        }
-
-        ///<summary>
-        /// Create named message queue
-        ///</summary>
-        ///<param name="queueName">Queue path</param>
-        ///<param name="account">The account to be given permissions to the queue</param>
-        /// <param name="volatileQueues">If volatileQueues is true then create a non-transactional message queue</param>
-        public static void CreateQueue(string queueName, string account, bool volatileQueues)
-        {
-            MessageQueue.Create(queueName, !volatileQueues);
-
-            SetPermissionsForQueue(queueName, accountToBeAssignedQueuePermissions ?? account);
-
-            Logger.DebugFormat("Created queue, path: [{0}], account: [{2}], transactional: [{2}]", queueName, account, !volatileQueues);
-        }
-
-        /// <summary>
-        /// Sets default permissions for queue.
-        /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="account"></param>
-        public static void SetPermissionsForQueue(string queue, string account)
-        {
-            var q = new MessageQueue(queue);
-
-            q.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
-            q.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-
-            q.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
-            q.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
         }
 
         private static string getFullPath(string value)
@@ -130,9 +41,9 @@ namespace NServiceBus.Utils
         {
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
-                return PREFIX_TCP + GetFullPathWithoutPrefix(value);
+                return PREFIX_TCP + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
 
-            return PREFIX + GetFullPathWithoutPrefix(value);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
         /// <summary>
@@ -171,7 +82,7 @@ namespace NServiceBus.Utils
                 return PREFIX_TCP + localIp + PRIVATE + value.Queue;
             }
                 
-            return PREFIX + GetFullPathWithoutPrefix(value);
+            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
         static string LocalIpAddress(IPAddress targetIpAddress)
@@ -212,16 +123,7 @@ namespace NServiceBus.Utils
             return getMachineNameFromLogicalName(value) + PRIVATE + getQueueNameFromLogicalName(value);
         }
 
-        /// <summary>
-        /// Returns the full path without Format or direct os
-        /// from an address.
-        /// </summary>
-        /// <param name="address"></param>
-        /// <returns></returns>
-        public static string GetFullPathWithoutPrefix(Address address)
-        {
-            return address.Machine + PRIVATE + address.Queue;
-        }
+
 
         private static string getMachineNameFromLogicalName(string logicalName)
         {
@@ -305,8 +207,9 @@ namespace NServiceBus.Utils
         public static int GetNumberOfPendingMessages(string queueName)
         {
             var q = new MessageQueue(getFullPath(queueName));
-
+            
             var qMgmt = new MSMQ.MSMQManagementClass();
+
             object machine = Environment.MachineName;
             var missing = Type.Missing;
             object formatName = q.FormatName;
@@ -345,7 +248,7 @@ namespace NServiceBus.Utils
                 var stream = new MemoryStream(m.Extension);
                 var o = headerSerializer.Deserialize(stream);
 
-                foreach (var pair in o as List<HeaderInfo>)
+                foreach (var pair in o as List<Utils.HeaderInfo>)
                     if (pair.Key != null)
                         result.Headers.Add(pair.Key, pair.Value);
             }
@@ -418,7 +321,7 @@ namespace NServiceBus.Utils
 
             using (var stream = new MemoryStream())
             {
-                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
+                headerSerializer.Serialize(stream, message.Headers.Select(pair => new Utils.HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
                 result.Extension = stream.GetBuffer();
             }
 
@@ -448,9 +351,7 @@ namespace NServiceBus.Utils
         private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-        private const string PRIVATE = "\\private$\\";
-
-        private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
-
+        private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<Utils.HeaderInfo>));
+        internal const string PRIVATE = "\\private$\\";
     }
 }

@@ -18,7 +18,7 @@ namespace NServiceBus
                 config.Configurer.ConfigureComponent<TimeoutMessageProcessor>(DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(p => p.Disabled, true);
 
-            TimeoutManagerConfiguration.IsDisabled = true;
+            TimeoutManagerConfiguration.Disabled = true;
 
             return config;
         }
@@ -29,7 +29,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure UseInMemoryTimeoutPersister(this Configure config)
         {
-            if (TimeoutManagerConfiguration.IsDisabled)
+            if (TimeoutManagerConfiguration.Disabled)
                 return config;
             config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.SingleInstance);
             return config;
@@ -53,7 +53,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure UseRavenTimeoutPersister(this Configure config)
         {
-            if (TimeoutManagerConfiguration.IsDisabled)
+            if (TimeoutManagerConfiguration.Disabled)
                 return config;
             if (!config.Configurer.HasComponent<IDocumentStore>())
                 config.RavenPersistence();

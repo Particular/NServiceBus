@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Security.Principal;
 using NServiceBus.Faults.Forwarder;
-using NServiceBus.Installation;
 using NServiceBus.Management.Retries;
 using NServiceBus.Unicast.Queuing;
-using NServiceBus.Utils;
 
 namespace NServiceBus.Config
 {        
-    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueuesCreated<Installation.Environments.Windows>
+    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueueCreated
     {
-        public static bool IsDisabled;
         static bool installQueue;
-        
+        public static bool Disabled;
         private static Address retriesQueueAddress;
-
         public ICreateQueues QueueCreator { get; set; }
 
         public void Run()
         {
             // disabled by configure api
-            if (IsDisabled)
+            if (Disabled)
             {
                 installQueue = false;
                 return;
@@ -86,12 +81,20 @@ namespace NServiceBus.Config
             }
         }
 
-        public void Create(WindowsIdentity identity)
+        /// <summary>
+        /// Address of queue the implementer requires.
+        /// </summary>
+        public Address Address
         {
-            if (!installQueue)
-                return;
+            get { return RetriesQueueAddress; }
+        }
 
-            QueueCreator.CreateQueueIfNecessary(RetriesQueueAddress, identity.Name);
+        /// <summary>
+        /// True if no need to create queue
+        /// </summary>
+        public bool IsDisabled
+        {
+            get { return !installQueue; }
         }
     }
 }

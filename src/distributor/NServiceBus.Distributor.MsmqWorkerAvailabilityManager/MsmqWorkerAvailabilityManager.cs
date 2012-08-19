@@ -1,11 +1,12 @@
 using System;
 using NServiceBus.Unicast.Distributor;
 using System.Messaging;
-using NServiceBus.Utils;
 using NServiceBus.Config;
 
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
+    using Unicast.Queuing.Msmq;
+
     /// <summary>
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
     /// with the <see cref="Distributor"/> class.

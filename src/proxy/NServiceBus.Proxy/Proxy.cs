@@ -1,12 +1,11 @@
-using System;
-using NServiceBus.Logging;
-using NServiceBus.Unicast.Queuing;
-using NServiceBus.Unicast.Subscriptions;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Unicast;
-
 namespace NServiceBus.Proxy
 {
+    using System;
+    using Logging;
+    using Unicast;
+    using Unicast.Queuing;
+    using Unicast.Subscriptions;
+    using Unicast.Transport;
     using System.Linq;
     using Unicast.Monitoring;
     using MessageType = Unicast.Subscriptions.MessageType;

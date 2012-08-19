@@ -8,21 +8,31 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Proxy
 {
-    class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
+    class EndpointConfig : IWantToRunWhenBusStartsAndStops // IConfigureThisEndpoint, IWantCustomInitialization
     {
         public void Init()
+        {
+
+        }
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointConfig));
+
+        /// <summary>
+        /// Method called at startup.
+        /// </summary>
+        public void Start()
         {
             var numberOfThreads = int.Parse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"]);
             var maxRetries = int.Parse(ConfigurationManager.AppSettings["MaxRetries"]);
             var remoteServer = ConfigurationManager.AppSettings["RemoteServer"];
 
             var externalTransport = new TransactionalTransport
-              {
-                  NumberOfWorkerThreads = numberOfThreads,
-                  MaxRetries = maxRetries,
-                  IsTransactional = !Endpoint.IsVolatile,
-                  MessageReceiver = new MsmqMessageReceiver()
-              };
+            {
+                NumberOfWorkerThreads = numberOfThreads,
+                MaxRetries = maxRetries,
+                IsTransactional = !Endpoint.IsVolatile,
+                MessageReceiver = new MsmqMessageReceiver()
+            };
 
             var internalTransport = new TransactionalTransport
             {
@@ -32,19 +42,19 @@ namespace NServiceBus.Proxy
                 MessageReceiver = new MsmqMessageReceiver()
             };
 
-            var configure = Configure.With().DefaultBuilder();
+            //var configure = Configure.With().DefaultBuilder();
 
-            configure.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
+            Configure.Instance.Configurer.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.Queue, "NServiceBus_Proxy_Subscriptions");
 
-            configure.Configurer.ConfigureComponent<MsmqProxyDataStorage>(DependencyLifecycle.SingleInstance)
+            Configure.Instance.Configurer.ConfigureComponent<MsmqProxyDataStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.StorageQueue, "NServiceBus_Proxy_Storage");
 
-            configure.Configurer.ConfigureComponent<Proxy>(DependencyLifecycle.SingleInstance)
+            Configure.Instance.Configurer.ConfigureComponent<Proxy>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(x => x.RemoteServer, Address.Parse(remoteServer));
-            Logger.Info("Proxy configured for remoteserver: " +  remoteServer);
+            Logger.Info("Proxy configured for remoteserver: " + remoteServer);
 
-            var proxy = configure.Builder.Build<Proxy>();
+            var proxy = Configure.Instance.Builder.Build<Proxy>();
             proxy.ExternalTransport = externalTransport;
             proxy.ExternalMessageSender = new MsmqMessageSender();
             proxy.InternalTransport = internalTransport;
@@ -67,6 +77,12 @@ namespace NServiceBus.Proxy
             Logger.Info("Proxy successfully started");
         }
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointConfig));
+        /// <summary>
+        /// Method called on shutdown.
+        /// </summary>
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
