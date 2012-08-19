@@ -109,7 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureFaultsForwarder.cs" />
-    <Compile Include="Installer.cs" />
+    <Compile Include="FaultsQueueCreator.cs" />
     <Compile Include="MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

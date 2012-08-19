@@ -1,11 +1,10 @@
-using NServiceBus.Unicast.Transport;
-
 namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 {
     using System;
     using System.Messaging;
     using System.Transactions;
-    using Utils;
+    using Unicast.Queuing.Msmq;
+    using Unicast.Transport;
 
     public class ErrorManager
     {

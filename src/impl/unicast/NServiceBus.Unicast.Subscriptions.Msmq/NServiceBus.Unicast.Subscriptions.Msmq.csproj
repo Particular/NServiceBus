@@ -73,6 +73,9 @@
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>NServiceBus.Unicast.Subscriptions.Msmq.Config\bin\Debug\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.Msmq">
+      <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Msmq.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
       <Private>False</Private>

@@ -38,6 +38,9 @@
     <Reference Include="NServiceBus.Config, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Installation, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MessageInterfaces">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>

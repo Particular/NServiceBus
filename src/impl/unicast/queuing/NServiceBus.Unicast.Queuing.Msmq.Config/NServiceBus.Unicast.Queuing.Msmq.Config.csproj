@@ -43,7 +43,6 @@
     </Reference>
     <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>

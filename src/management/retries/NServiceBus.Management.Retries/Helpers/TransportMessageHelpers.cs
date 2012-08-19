@@ -1,9 +1,10 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Utils;
+
 
 namespace NServiceBus.Management.Retries.Helpers
 {
+    using Unicast.Queuing.Msmq;
+
     public static class TransportMessageHelpers
     {
         public static Address GetReplyToAddress(TransportMessage message)

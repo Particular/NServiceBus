@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Messaging;
 using System.Security.Principal;
-using NServiceBus.Utils;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq

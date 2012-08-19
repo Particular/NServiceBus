@@ -32,6 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Interop.MSMQ">
+      <HintPath>..\..\..\..\..\lib\Interop.MSMQ.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Logging">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
@@ -73,6 +80,7 @@
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="MsmqMessageReceiver.cs" />
     <Compile Include="MsmqMessageSender.cs" />
+    <Compile Include="MsmqUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,15 +1,13 @@
 ﻿namespace NServiceBus
 {
-    using Config;
     using Timeout.Core;
     using Timeout.Core.Dispatch;
-    using System.Security.Principal;
     using Unicast.Queuing;
     using Timeout.Hosting.Windows;
     
-    public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueuesCreated<Installation.Environments.Windows>
+    public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueueCreated
     {
-        public static bool IsDisabled;
+        public static bool Disabled;
         static bool installQueue;
         private static Address timeoutManagerAddress;
         public ICreateQueues QueueCreator { get; set; }
@@ -17,13 +15,13 @@
         public void Run()
         {
             // disabled by configure api
-            if (IsDisabled)
+            if (Disabled)
             {
                 installQueue = false;
                 return;
             }
 
-            IsDisabled = false;
+            Disabled = false;
             installQueue = true;
             Configure.Instance.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
@@ -46,12 +44,23 @@
             }
         }
 
-        public void Create(WindowsIdentity identity)
+        /// <summary>
+        /// Address of queue the implementer requires.
+        /// </summary>
+        public Address Address
         {
-            if ((!installQueue) || (IsDisabled) || (TimeoutManagerAddress == null))
-                return;
-            
-            QueueCreator.CreateQueueIfNecessary(TimeoutManagerAddress, identity.Name);
+            get { return TimeoutManagerAddress; }
+        }
+
+        /// <summary>
+        /// True if no need to create queue
+        /// </summary>
+        public bool IsDisabled
+        {
+            get
+            {
+                return ((!installQueue) || (Disabled) || (TimeoutManagerAddress == null));
+            }
         }
     }
 }

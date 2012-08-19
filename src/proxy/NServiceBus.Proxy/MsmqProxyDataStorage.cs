@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Messaging;
-using NServiceBus.Utils;
+using NServiceBus.Unicast.Queuing.Msmq;
 
 namespace NServiceBus.Proxy
 {

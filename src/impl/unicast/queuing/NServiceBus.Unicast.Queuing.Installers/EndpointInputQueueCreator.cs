@@ -1,35 +1,25 @@
 ﻿namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using System;
-    using System.Security.Principal;
-    using NServiceBus.Config;
+    using Unicast.Queuing;
 
-    public class EndpointInputQueueCreator : IWantQueuesCreated<Installation.Environments.Windows>
+    public class EndpointInputQueueCreator : IWantQueueCreated
     {
         public static bool Enabled { get; set; }
-        public ICreateQueues QueueCreator { get; set; }
 
-        public void Create(WindowsIdentity identity)
+        /// <summary>
+        /// Endpoint input name
+        /// </summary>
+        public Address Address
         {
-            if (!Enabled)
-                return;
+            get { return Address.Local; }
+        }
 
-            if (QueueCreator == null)
-            {
-                throw new Exception("No QueueCreator is configured and the EndpointInputQueueCreator is enabled!");
-            }
-
-            QueueCreator.CreateQueueIfNecessary(Address.Local, identity.Name);
-
-            var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
-
-            if (unicastConfig == null) 
-                return;
-
-            if (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                QueueCreator.CreateQueueIfNecessary(Address.Parse(unicastConfig.ForwardReceivedMessagesTo), identity.Name);
-            }
+        /// <summary>
+        /// True if no need to create queue
+        /// </summary>
+        public bool IsDisabled
+        {
+            get { return !Enabled; }
         }
     }
 }
