@@ -1,11 +1,8 @@
 ﻿using System;
-using NServiceBus.Gateway.Persistence.Sql;
 
 namespace SiteB
 {
     using Headquarter.Messages;
-    using log4net.Appender;
-    using log4net.Core;
     using NServiceBus;
     using NServiceBus.Config;
     using NServiceBus.Installation.Environments;
@@ -15,7 +12,6 @@ namespace SiteB
         static void Main(string[] args)
         {
             Configure.With()
-                .Log4Net<ColoredConsoleAppender>(a => { a.Threshold = Level.Warn; })
                 .DefaultBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
