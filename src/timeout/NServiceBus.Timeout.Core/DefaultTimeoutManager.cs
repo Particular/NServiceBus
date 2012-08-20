@@ -2,108 +2,157 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
+    using System.Transactions;
+    using Unicast.Queuing;
+    using Unicast.Transport;
+    using Utils;
     using log4net;
 
-    /// <summary>
-    /// Thread-safe timeout management class.
-    /// </summary>
     public class DefaultTimeoutManager : IManageTimeouts
     {
-        public event EventHandler<TimeoutData> SagaTimedOut;
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+        static readonly ILog Logger = LogManager.GetLogger("DefaultTimeoutManager");
 
-        void IManageTimeouts.Init(TimeSpan interval)
+        readonly Thread workerThread;
+        readonly object lockObject = new object();
+        private volatile bool stopRequested;
+        private DateTime nextRetrieval = DateTime.UtcNow;
+        private volatile bool timeoutPushed;
+
+        public IPersistTimeouts TimeoutsPersister { get; set; }
+
+        public ISendMessages MessageSender { get; set; }
+
+        public DefaultTimeoutManager()
         {
-            duration = interval;
+            workerThread = new Thread(Poll) { IsBackground = true };
         }
 
-        void IManageTimeouts.PushTimeout(TimeoutData timeout)
+        public void DispatchTimeout(TimeoutData timeoutData)
         {
-            lock (data)
-            {
-                if (!data.ContainsKey(timeout.Time))
-                    data[timeout.Time] = new List<TimeoutData>();
+            var message = MapToTransportMessage(timeoutData);
 
-                data[timeout.Time].Add(timeout);
+            MessageSender.Send(message, timeoutData.Destination);
+        }
+
+        public void PushTimeout(TimeoutData timeout)
+        {
+            TimeoutsPersister.Add(timeout);
+
+            lock (lockObject)
+            {
+                if (nextRetrieval > timeout.Time)
+                {
+                    nextRetrieval = timeout.Time;
+                }
+                timeoutPushed = true;
             }
         }
 
-        void IManageTimeouts.PopTimeout()
+        public void RemoveTimeout(string timeoutId)
         {
-            var pair = new KeyValuePair<DateTime, List<TimeoutData>>(DateTime.MinValue, null);
-            var now = DateTime.UtcNow;
+            TimeoutsPersister.Remove(timeoutId);
+        }
 
-            lock (data)
+        public void RemoveTimeoutBy(Guid sagaId)
+        {
+            TimeoutsPersister.RemoveTimeoutBy(sagaId);
+        }
+
+        public void Start()
+        {
+            stopRequested = false;
+            workerThread.Start();
+        }
+
+        public void Stop()
+        {
+            stopRequested = true;
+            workerThread.Join();
+        }
+
+        void Poll()
+        {
+            var transactionWrapper = new TransactionWrapper();
+
+            while (!stopRequested)
             {
-                if (data.Count > 0)
+                if (nextRetrieval.AddMilliseconds(-200) > DateTime.UtcNow)
                 {
-                    var next = data.ElementAt(0);
-                    if (next.Key - now < duration)
+                    Thread.Sleep(1);
+                    continue;
+                }
+
+                try
+                {
+                    DateTime nextExpiredTimeout;
+                    var timeoutDatas = TimeoutsPersister.GetNextChunk(out nextExpiredTimeout);
+
+                    //RavenDB 616 doesn't work with Parallel, but in v4 (Raven960) we should be able to use it :)  
+                    //Parallel.ForEach(timeoutDatas, timeoutData =>
+                    foreach (var timeoutData in timeoutDatas)
+                        {
+                            if (timeoutData.Time <= DateTime.UtcNow)
+                            {
+                                var data = timeoutData;
+                                transactionWrapper.RunInTransaction(() =>
+                                    {
+                                        RemoveTimeout(data.Id);
+                                        DispatchTimeout(data);
+                                    }, IsolationLevel.ReadCommitted, TimeSpan.FromSeconds(60));
+                            }
+                        }
+                    //);
+
+                    lock (lockObject)
                     {
-                        pair = next;
-                        data.Remove(pair.Key);
+                        //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
+                        if (timeoutPushed && nextExpiredTimeout < nextRetrieval)
+                        {
+                            nextRetrieval = nextExpiredTimeout;
+                        }
+                        timeoutPushed = false;
                     }
                 }
+                catch (Exception ex)
+                {
+                    //intentionally swallow here to avoid this bringing the entire endpoint down.
+                    //remove this when our sattelite support is introduced
+                    Logger.Error("Polling of timeouts failed.", ex);
+                }
+            }
+        }
+
+        static TransportMessage MapToTransportMessage(TimeoutData timeoutData)
+        {
+            var replyToAddress = Address.Local;
+           if(timeoutData.Headers.ContainsKey(OriginalReplyToAddress))
+           {
+                replyToAddress = Address.Parse(timeoutData.Headers[OriginalReplyToAddress]);
+                timeoutData.Headers.Remove(OriginalReplyToAddress);
             }
 
-            if (pair.Key == DateTime.MinValue)
+            var transportMessage = new TransportMessage
+                {
+                    ReplyToAddress = replyToAddress,
+                    Headers = new Dictionary<string, string>(),
+                    Recoverable = true,
+                    MessageIntent = MessageIntentEnum.Send,
+                    CorrelationId = timeoutData.CorrelationId,
+                    Body = timeoutData.State
+                };
+
+            if (timeoutData.Headers != null)
             {
-                Thread.Sleep(duration);
-                return;
+                transportMessage.Headers = timeoutData.Headers;
             }
-
-            if (pair.Key > now)
-                Thread.Sleep(pair.Key - now);
-            
-            DispatchTimeouts(pair.Value);
-        }
-
-        void IManageTimeouts.ClearTimeout(Guid sagaId)
-        {
-            lock(data)
+            else if (timeoutData.SagaId != Guid.Empty)
             {
-                data.Where(time => time.Value.Any(t => t.SagaId == sagaId)).ToList()
-                    .ForEach(time =>
-                                 {
-                                     time.Value.RemoveAll(t => t.SagaId == sagaId);
-
-                                     if (!time.Value.Any())
-                                         data.Remove(time.Key);
-                                 });
+                transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
             }
+
+            return transportMessage;
         }
-
-        void DispatchTimeouts(List<TimeoutData> value)
-        {
-            var exceptions = new List<Exception>();
-
-            value.ForEach(timeout =>
-                              {
-                                  try
-                                  {
-                                      OnSagaTimedOut(timeout);
-                                  }
-                                  catch (Exception ex)
-                                  {
-                                      Logger.Error("Failed to dispatch timeout " + timeout,ex);
-                                      exceptions.Add(ex);
-                                  }
-                              });
-
-            if(exceptions.Any())
-                throw new InvalidOperationException("Failed to dispatch the following timeouts:" + string.Join(";",value));
-        }
-
-        void OnSagaTimedOut(TimeoutData timeoutData)
-        {
-            if (SagaTimedOut != null)
-                SagaTimedOut(null, timeoutData);
-        }
-
-        readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
-
-        TimeSpan duration = TimeSpan.FromSeconds(1);
-        static ILog Logger = LogManager.GetLogger("Timeouts");
     }
 }

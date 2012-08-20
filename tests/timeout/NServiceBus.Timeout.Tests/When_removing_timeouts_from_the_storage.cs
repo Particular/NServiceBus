@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Timeout.Tests
 {
+    using System;
+    using System.Linq;
     using System.Transactions;
     using Core;
     using NUnit.Framework;
@@ -10,35 +12,34 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData();
+            using (var tx = new TransactionScope())
+            {
+                var t1 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+                persister.Add(t1);
+                tx.Complete();
+            }
 
-            persister.Add(t1);
+            using (var tx = new TransactionScope())
+            {
+                var t2 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+                persister.Add(t2);
+                tx.Complete();
+            }
 
-            var t2 = new TimeoutData();
+            var timouts = GetNextChunk().ToList();
 
-            persister.Add(t2);
-
-            var t = persister.GetAll();
-
-            foreach (var timeoutData in t)
+            foreach (var timeoutData in timouts)
             {
                 using (var tx = new TransactionScope())
                 {
-                    //other tx stuff like pop a message from MSMQ
-
                     persister.Remove(timeoutData.Id);
-
                     tx.Complete();
                 }
             }
 
-            using (var session = store.OpenSession())
-            {
-                session.Advanced.AllowNonAuthoritativeInformation = false;
-                
-                Assert.Null(session.Load<TimeoutData>(t1.Id));
-                Assert.Null(session.Load<TimeoutData>(t2.Id));
-            }
+            timouts = GetNextChunk().ToList();
+            
+            Assert.AreEqual(0, timouts.Count);
         }
     }
 }

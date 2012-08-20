@@ -9,7 +9,7 @@ namespace NServiceBus.Timeout.Tests
     public class When_fetching_timeouts_from_storage_with_InMemoryTimeoutPersister : WithInMemoryTimeoutPersister
     {
         [Test]
-        public void Should_return_the_complete_list_of_timeouts()
+        public void Should_only_return_timeouts_for_time_slice()
         {
             const int numberOfTimeoutsToAdd = 10;
 
@@ -17,11 +17,19 @@ namespace NServiceBus.Timeout.Tests
             {
                 persister.Add(new TimeoutData
                                   {
-                                      Time = DateTime.UtcNow.AddHours(1)
+                                      Time = DateTime.UtcNow.AddHours(-1)
                                   });
             }
 
-            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetAll().Count());
+            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
+            {
+                persister.Add(new TimeoutData
+                {
+                    Time = DateTime.UtcNow.AddHours(1)
+                });
+            }
+
+            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
         }
     }
 }

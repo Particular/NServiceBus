@@ -1,5 +1,7 @@
 namespace NServiceBus.Timeout.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using Core;
     using Hosting.Windows.Persistence;
     using NUnit.Framework;
@@ -19,11 +21,18 @@ namespace NServiceBus.Timeout.Tests
 
             store = new EmbeddableDocumentStore { RunInMemory = true };
             //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "MyServer" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites; //This turns on WaitForNonStaleResults() on queries globally
+            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.MonotonicRead;
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
 
             persister = new RavenTimeoutPersistence(store);
+        }
+
+        public List<TimeoutData> GetNextChunk()
+        {
+            DateTime nextTimeToRunQuery = DateTime.MinValue;
+
+            return persister.GetNextChunk(out nextTimeToRunQuery);
         }
     }
 }

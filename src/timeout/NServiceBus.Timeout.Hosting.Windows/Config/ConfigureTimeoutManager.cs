@@ -2,13 +2,13 @@
 {
     using Raven.Client;
     using Timeout.Core;
-    using Timeout.Core.Dispatch;
     using Timeout.Hosting.Windows.Config;
     using Timeout.Hosting.Windows.Persistence;
 
 
     public static class ConfigureTimeoutManager
     {
+        private static bool disabledTimeoutManagerCalledExplicitly;
         private static bool timeoutManagerEnabled;
 
         public static bool IsTimeoutManagerEnabled(this Configure config)
@@ -38,11 +38,6 @@
             TimeoutManagerAddress = config.GetTimeoutManagerAddress();
 
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<TimeoutDispatchHandler>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<TimeoutTransportMessageHandler>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<TimeoutDispatcher>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(d => d.TimeoutManagerAddress, TimeoutManagerAddress);
 
             return config;
         }
@@ -84,18 +79,19 @@
             return config;
         }
 
+
         /// <summary>
         /// As Timeout manager is turned on by default for server roles, use DisableTimeoutManager method to turn off Timeout manager
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static bool disabledTimeoutManagerCalledExplicitly;
         public  static Configure DisableTimeoutManager(this Configure config)
         {
             timeoutManagerEnabled = false;
             disabledTimeoutManagerCalledExplicitly = true;
             return config;
         }
+
         public static Address TimeoutManagerAddress { get; set; }
     }
 }

@@ -12,24 +12,26 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
-        IEnumerable<TimeoutData> IPersistTimeouts.GetAll()
+        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
         {
             var result = (from c in context.TimeoutData
                           where c.PartitionKey == "TimeoutData"
                           select c).ToList();
 
+            nextTimeToRunQuery = DateTime.UtcNow;
+
             return result.Select(c => new TimeoutData
-                    {
-                        Destination = Address.Parse(c.Destination),
-                        SagaId = c.SagaId,
-                        State = Deserialize(c.StateAddress),
-                        Time = c.Time,
-                        CorrelationId = c.CorrelationId,
-                        Id = c.RowKey
-                    });
+            {
+                Destination = Address.Parse(c.Destination),
+                SagaId = c.SagaId,
+                State = Deserialize(c.StateAddress),
+                Time = c.Time,
+                CorrelationId = c.CorrelationId,
+                Id = c.RowKey
+            }).ToList();
         }
 
-        void IPersistTimeouts.Add(TimeoutData timeout)
+        public void Add(TimeoutData timeout)
         {
             var hash = Hash(timeout);
             TimeoutDataEntity timeoutDataEntity;
@@ -53,7 +55,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public void Remove(string timeoutId)
         {
             TimeoutDataEntity timeoutDataEntity;
-            if (!TryGetTimeoutData(timeoutId, out timeoutDataEntity)) return;
+            if (!TryGetTimeoutData(timeoutId, out timeoutDataEntity)) 
+                return;
 
             RemoveSerializedState(timeoutDataEntity.StateAddress);
             context.DeleteObject(timeoutDataEntity);
@@ -61,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             context.SaveChanges();
         }
 
-        public void ClearTimeoutsFor(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId)
         {
             try
             {

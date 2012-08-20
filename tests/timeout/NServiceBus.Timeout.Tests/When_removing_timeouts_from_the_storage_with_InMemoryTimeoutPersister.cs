@@ -19,7 +19,7 @@ namespace NServiceBus.Timeout.Tests
 
             persister.Add(t2);
 
-            var t = persister.GetAll();
+            var t = GetNextChunk();
 
             foreach (var timeoutData in t)
             {
@@ -31,7 +31,8 @@ namespace NServiceBus.Timeout.Tests
                 }
             }
 
-            t = persister.GetAll();
+            t = GetNextChunk();
+
             Assert.AreEqual(0, t.Count());
         }
     }

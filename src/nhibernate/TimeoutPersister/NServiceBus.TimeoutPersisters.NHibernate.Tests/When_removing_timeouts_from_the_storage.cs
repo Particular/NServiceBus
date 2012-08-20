@@ -11,13 +11,14 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
 
             persister.Add(t1);
             persister.Add(t2);
 
-            var t = persister.GetAll();
+            DateTime nextTimeToRunQuery;
+            var t = persister.GetNextChunk(out nextTimeToRunQuery);
 
             foreach (var timeoutData in t)
             {
@@ -43,10 +44,9 @@
             persister.Add(t2);
 
 
-            persister.ClearTimeoutsFor(sagaId1);
-            persister.ClearTimeoutsFor(sagaId2);
+            persister.RemoveTimeoutBy(sagaId1);
+            persister.RemoveTimeoutBy(sagaId2);
             
-
             using (var session = sessionFactory.OpenSession())
             {
                 Assert.Null(session.Get<TimeoutEntity>(new Guid(t1.Id)));

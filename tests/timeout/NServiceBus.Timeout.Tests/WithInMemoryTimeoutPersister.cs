@@ -1,5 +1,7 @@
 namespace NServiceBus.Timeout.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using Core;
     using Hosting.Windows.Persistence;
     using NUnit.Framework;
@@ -14,6 +16,12 @@ namespace NServiceBus.Timeout.Tests
             Configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = new InMemoryTimeoutPersistence();
+        }
+
+        public List<TimeoutData> GetNextChunk()
+        {
+            DateTime nextTimeToRunQuery;
+            return persister.GetNextChunk(out nextTimeToRunQuery);
         }
     }
 }

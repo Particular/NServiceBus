@@ -18,7 +18,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             {
                 persister.Add(new TimeoutData
                                   {
-                                      Time = DateTime.UtcNow.AddHours(1),
+                                      Time = DateTime.UtcNow.AddHours(-1),
                                       CorrelationId = "boo",
                                       Destination = new Address("timeouts", Environment.MachineName),
                                       SagaId = Guid.NewGuid(),
@@ -27,8 +27,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                       OwningTimeoutManager = Configure.EndpointName,
                                   });
             }
-
-            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetAll().Count());
+            DateTime nextTimeToRunQuery;
+            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetNextChunk(out nextTimeToRunQuery).Count());
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             {
                 persister.Add(new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(1),
+                    Time = DateTime.UtcNow.AddHours(-1),
                     CorrelationId = "boo",
                     Destination = new Address("timeouts", Environment.MachineName),
                     SagaId = Guid.NewGuid(),
@@ -51,7 +51,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                 });
             }
 
-            var timeouts = persister.GetAll();
+            DateTime nextTimeToRunQuery;
+            var timeouts = persister.GetNextChunk(out nextTimeToRunQuery);
             foreach (var timeoutData in timeouts)
             {
                 CollectionAssert.AreEqual(headers, timeoutData.Headers);

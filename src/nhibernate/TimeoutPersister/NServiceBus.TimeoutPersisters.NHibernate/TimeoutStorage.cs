@@ -13,27 +13,62 @@
     {
         public ISessionFactory SessionFactory { get; set; }
 
-        public IEnumerable<TimeoutData> GetAll()
+        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
         {
+            const int maxRecords = 200;
+
+            DateTime now = DateTime.UtcNow;
+            
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var timeoutEntities = session.QueryOver<TimeoutEntity>()
-                    .Where(x => x.Endpoint == Configure.EndpointName)
+                    .Where(x => x.Endpoint == Configure.EndpointName && x.Time <= now)
+                    .OrderBy(x => x.Time).Asc
+                    .Take(maxRecords + 1)
                     .List();
+
+                var results = timeoutEntities
+                    .Take(maxRecords)
+                    .Select(te => new TimeoutData
+                        {
+                            CorrelationId = te.CorrelationId,
+                            Destination = te.Destination,
+                            Id = te.Id.ToString(),
+                            SagaId = te.SagaId,
+                            State = te.State,
+                            Time = te.Time,
+                            Headers = ConvertStringToDictionary(te.Headers),
+                        })
+                    .ToList();
+
+                if (timeoutEntities.Count > maxRecords)
+                {
+                    nextTimeToRunQuery = DateTime.UtcNow;
+                }
+                else
+                {
+                    //Retrieve next time we need to run query
+                    var startOfNextChunk = session.QueryOver<TimeoutEntity>()
+                        .Where(x => x.Endpoint == Configure.EndpointName && x.Time <= now)
+                        .OrderBy(x => x.Time).Asc
+                        .Take(1)
+                        .SingleOrDefault();
+                        
+
+                    if (startOfNextChunk != null)
+                    {
+                        nextTimeToRunQuery = startOfNextChunk.Time;
+                    }
+                    else //If no more documents in database then re-query in 30 minutes
+                    {
+                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(30);
+                    }
+                }
 
                 tx.Commit();
 
-                return timeoutEntities.Select(te => new TimeoutData
-                                                        {
-                                                            CorrelationId = te.CorrelationId,
-                                                            Destination = te.Destination,
-                                                            Id = te.Id.ToString(),
-                                                            SagaId = te.SagaId,
-                                                            State = te.State,
-                                                            Time = te.Time,
-                                                            Headers = ConvertStringToDictionary(te.Headers),
-                                                        });
+                return results;
             }
         }
 
@@ -70,14 +105,14 @@
                 var queryString = string.Format("delete {0} where Id = :timeoutId",
                                         typeof(TimeoutEntity));
                 session.CreateQuery(queryString)
-                       .SetParameter("timeoutId", Guid.Parse(timeoutId))
-                       .ExecuteUpdate();
+                    .SetParameter("timeoutId", Guid.Parse(timeoutId))
+                    .ExecuteUpdate();
 
                 tx.Commit();
             }
         }
 
-        public void ClearTimeoutsFor(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))

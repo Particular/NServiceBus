@@ -46,36 +46,50 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         }
 
-        public IEnumerable<TimeoutData> GetAll()
+        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
         {
             try
             {
-                var skip = 0;
-                var results = new List<TimeoutData>();
-                var numberOfRequestsExecutedSoFar = 0;
-                RavenQueryStatistics stats;
-                var timeFetchWasRequested = DateTime.UtcNow;
-                do
+                DateTime now = DateTime.UtcNow;
+                using (var session = OpenSession())
                 {
-                    using (var session = OpenSession())
-                    {
-                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
-                            // we'll wait for nonstale results up until the point in time that we start fetching
-                            // since other timeouts that has arrived in the meantime will have been added to the 
-                            // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA
-                            .Where(t => t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName)
-                            .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested))
-                            .Statistics(out stats);
-                        do
-                        {
-                            results.AddRange(query.Skip(skip).Take(1024));
-                            skip += 1024;
-                        }
-                        while (skip < stats.TotalResults && ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
-                    }
-                } while (skip < stats.TotalResults);
+                    session.Advanced.AllowNonAuthoritativeInformation = false;
 
-                return results;
+                    RavenQueryStatistics stats;
+                    const int maxRecords = 200;
+                    var results = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                        .Where(t => (t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName) && t.Time <= now)
+                        .OrderBy(t => t.Time)
+                        .Customize(c => c.WaitForNonStaleResultsAsOf(now))
+                        .Statistics(out stats)
+                        .Take(maxRecords)
+                        .ToList();
+
+                    if (stats.TotalResults > maxRecords)
+                    {
+                        nextTimeToRunQuery = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        //Retrieve next time we need to run query
+                        var startOfNextChunk = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                            .Where(t => (t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName) && t.Time > now)
+                            .OrderBy(t => t.Time)
+                            .Customize(c => c.WaitForNonStaleResultsAsOf(now))
+                            .FirstOrDefault();
+
+                        if (startOfNextChunk != null)
+                        {
+                            nextTimeToRunQuery = startOfNextChunk.Time;
+                        }
+                        else //If no more documents in database then re-query in 30 minutes
+                        {
+                            nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(30);
+                        }
+                    }
+
+                    return results;
+                }
             }
             catch (Exception)
             {
@@ -111,10 +125,10 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             }
         }
 
-        public void ClearTimeoutsFor(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = OpenSession())
-            {
+            { 
                 var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
@@ -126,8 +140,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         IDocumentSession OpenSession()
         {
             var session = store.OpenSession();
-
-            session.Advanced.AllowNonAuthoritativeInformation = false;
 
             return session;
         }

@@ -9,7 +9,7 @@ namespace NServiceBus.Timeout.Tests
     public class When_fetching_timeouts_from_storage : WithRavenTimeoutPersister
     {
         [Test]
-        public void Should_return_the_complete_list_of_timeouts()
+        public void Should_only_return_timeouts_for_time_slice()
         {
             const int numberOfTimeoutsToAdd = 10;
 
@@ -17,14 +17,24 @@ namespace NServiceBus.Timeout.Tests
             {
                 persister.Add(new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(1)
+                    OwningTimeoutManager = String.Empty,
+                    Time = DateTime.UtcNow.AddHours(-1)
                 });
             }
 
-            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetAll().Count());
+            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
+            {
+                persister.Add(new TimeoutData
+                {
+                    OwningTimeoutManager = String.Empty,
+                    Time = DateTime.UtcNow.AddHours(1)
+                });
+            }
+            
+            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
         }
 
-        [Test,Explicit("Until we can make it run reliable on the build server")]
+        [Test]
         public void Should_only_return_timeouts_for_this_specific_endpoint_and_any_ones_without_a_owner()
         {
             const int numberOfTimeoutsToAdd = 3;
@@ -33,7 +43,7 @@ namespace NServiceBus.Timeout.Tests
             {
                 var d = new TimeoutData
                             {
-                                Time = DateTime.UtcNow.AddHours(1),
+                                Time = DateTime.UtcNow.AddHours(-1),
                                 OwningTimeoutManager = Configure.EndpointName
                             };
 
@@ -42,34 +52,40 @@ namespace NServiceBus.Timeout.Tests
 
             persister.Add(new TimeoutData
             {
-                Time = DateTime.UtcNow.AddHours(1),
+                Time = DateTime.UtcNow.AddHours(-1),
                 OwningTimeoutManager = "MyOtherTM"
             });
 
 
             persister.Add(new TimeoutData
             {
-                Time = DateTime.UtcNow.AddHours(1),
+                Time = DateTime.UtcNow.AddHours(-1),
             });
 
 
-            Assert.AreEqual(numberOfTimeoutsToAdd+1, persister.GetAll().Count());
+            Assert.AreEqual(numberOfTimeoutsToAdd + 1, GetNextChunk().Count());
         }
 
         [Test]
-        public void Should_return_the_complete_list_of_timeouts_without_hitting_the_maximum_number_of_requests_allowed_for_this_session_has_been_reached()
+        public void Should_return_all_timeouts_that_expire_now_and_set_the_next_run_to_now()
         {
-            var numberOfTimeoutsToAdd = (store.Conventions.MaxNumberOfRequestsPerSession + 1) * 1024;
+            const int numberOfTimeoutsToAdd = 500;
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
-                persister.Add(new TimeoutData
+                var d = new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(1)
-                });
+                    Time = DateTime.UtcNow.AddHours(-1),
+                    OwningTimeoutManager = Configure.EndpointName
+                };
+
+                persister.Add(d);
             }
 
-            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetAll().Count());
+            DateTime nextTimeToRunQuery;
+            persister.GetNextChunk(out nextTimeToRunQuery);
+
+            Assert.True((DateTime.UtcNow - nextTimeToRunQuery).TotalMilliseconds < 200);
         }
     }
 }
