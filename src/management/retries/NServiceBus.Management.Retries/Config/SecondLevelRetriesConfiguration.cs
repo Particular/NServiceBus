@@ -5,17 +5,17 @@ using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Config
 {        
-    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueueCreated
+    public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized
     {
         static bool installQueue;
-        public static bool Disabled;
+        public static bool IsDisabled;
         private static Address retriesQueueAddress;
         public ICreateQueues QueueCreator { get; set; }
 
         public void Run()
         {
             // disabled by configure api
-            if (Disabled)
+            if (IsDisabled)
             {
                 installQueue = false;
                 return;
@@ -79,22 +79,6 @@ namespace NServiceBus.Config
             {
                 return retriesQueueAddress ?? (retriesQueueAddress = Address.Parse(Configure.EndpointName).SubScope("Retries"));
             }
-        }
-
-        /// <summary>
-        /// Address of queue the implementer requires.
-        /// </summary>
-        public Address Address
-        {
-            get { return RetriesQueueAddress; }
-        }
-
-        /// <summary>
-        /// True if no need to create queue
-        /// </summary>
-        public bool IsDisabled
-        {
-            get { return !installQueue; }
         }
     }
 }

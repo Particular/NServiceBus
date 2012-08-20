@@ -5,9 +5,9 @@
     using Unicast.Queuing;
     using Timeout.Hosting.Windows;
     
-    public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized, IWantQueueCreated
+    public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized
     {
-        public static bool Disabled;
+        public static bool IsDisabled;
         static bool installQueue;
         private static Address timeoutManagerAddress;
         public ICreateQueues QueueCreator { get; set; }
@@ -15,13 +15,13 @@
         public void Run()
         {
             // disabled by configure api
-            if (Disabled)
+            if (IsDisabled)
             {
                 installQueue = false;
                 return;
             }
 
-            Disabled = false;
+            IsDisabled = false;
             installQueue = true;
             Configure.Instance.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
@@ -41,25 +41,6 @@
             get
             {
                 return timeoutManagerAddress ?? (timeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts"));
-            }
-        }
-
-        /// <summary>
-        /// Address of queue the implementer requires.
-        /// </summary>
-        public Address Address
-        {
-            get { return TimeoutManagerAddress; }
-        }
-
-        /// <summary>
-        /// True if no need to create queue
-        /// </summary>
-        public bool IsDisabled
-        {
-            get
-            {
-                return ((!installQueue) || (Disabled) || (TimeoutManagerAddress == null));
             }
         }
     }

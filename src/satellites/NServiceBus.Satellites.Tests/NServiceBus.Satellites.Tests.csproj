@@ -43,6 +43,9 @@
     <Reference Include="NServiceBus.Faults.InMemory">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.InMemory.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Installation">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>

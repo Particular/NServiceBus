@@ -65,7 +65,6 @@
     <Compile Include="BusExtensions.cs" />
     <Compile Include="SendEmail.cs" />
     <Compile Include="NotificationSatellite.cs" />
-    <Compile Include="NotifierQueueCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
