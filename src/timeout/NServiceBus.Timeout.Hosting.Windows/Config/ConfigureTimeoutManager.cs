@@ -7,22 +7,11 @@
     
     public class TimeoutManagerConfiguration : IWantToRunBeforeConfigurationIsFinalized
     {
-        public static bool IsDisabled;
-        static bool installQueue;
         private static Address timeoutManagerAddress;
         public ICreateQueues QueueCreator { get; set; }
         
         public void Run()
         {
-            // disabled by configure api
-            if (IsDisabled)
-            {
-                installQueue = false;
-                return;
-            }
-
-            IsDisabled = false;
-            installQueue = true;
             Configure.Instance.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<TimeoutRunner>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<TimeoutDispatchHandler>(DependencyLifecycle.InstancePerCall);
