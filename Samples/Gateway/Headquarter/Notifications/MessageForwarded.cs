@@ -10,7 +10,7 @@
  
         void MessageNotifier_MessageForwarded(object sender, MessageReceivedOnChannelArgs e)
         {
-            Console.WriteLine(string.Format("Message with id {0} arrived on channel {1} and was forwarded onto {2}",e.Message.Id,e.FromChannel,e.ToChannel));
+            Console.WriteLine(string.Format("Message with id {0} arrived on {1} and was forwarded onto a {2} channel",e.Message.Id,e.FromChannel,e.ToChannel));
         }
 
 
