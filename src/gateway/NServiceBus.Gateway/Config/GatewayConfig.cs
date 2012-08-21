@@ -70,7 +70,8 @@
                                {
                                    Address = channel.Address,
                                    Type = channel.ChannelType,
-                                   NumberOfWorkerThreads = channel.NumberOfWorkerThreads
+                                   NumberOfWorkerThreads = channel.NumberOfWorkerThreads,
+                                   Default = channel.Default
                                });
             }
 
