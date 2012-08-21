@@ -20,7 +20,8 @@ namespace Headquarter
                 {
                     ProductId = 2,
                     NewPrice = 100.0,
-                    ValidFrom = DateTime.Today
+                    ValidFrom = DateTime.Today,
+                    SomeLargeString = new DataBusProperty<string>("This is a random large string " + Guid.NewGuid())
                 });
 
                 Console.WriteLine("Message sent, check the output in the remote sites");
