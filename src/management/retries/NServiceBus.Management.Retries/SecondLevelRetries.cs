@@ -56,7 +56,6 @@ namespace NServiceBus.Management.Retries
         {
             Logger.InfoFormat("Send message to error queue, {0}", FaultManager.ErrorQueue);
 
-            message.ReplyToAddress = TransportMessageHelpers.GetOriginalReplyToAddressAndRemoveItFromHeaders(message);
             MessageSender.Send(message, FaultManager.ErrorQueue);
         }
 
@@ -65,12 +64,8 @@ namespace NServiceBus.Management.Retries
             TransportMessageHelpers.SetHeader(message, Headers.Expire, (DateTime.UtcNow + defer).ToWireFormattedString());
             TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
-            if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.OriginalReplyToAddress) && message.ReplyToAddress != null)
-            {
-                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.OriginalReplyToAddress, message.ReplyToAddress.ToString());
-            }
-
-            message.ReplyToAddress = TransportMessageHelpers.GetReplyToAddress(message);
+            //tell the TM to route this message to the endpoint where this message failed
+            TransportMessageHelpers.SetHeader(message, Headers.RouteExpiredTimeoutTo, TransportMessageHelpers.GetAddressOfFaultingEndpoint(message).ToString());
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {

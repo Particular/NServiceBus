@@ -22,7 +22,7 @@ namespace MyServer.Common
                 {
                     case "s":
                         var m = new MyMessage{Id = Guid.NewGuid()};
-                        Bus.SendLocal(m);
+                        Bus.Send("myserver",m);
                         break;
                 }                
             }
