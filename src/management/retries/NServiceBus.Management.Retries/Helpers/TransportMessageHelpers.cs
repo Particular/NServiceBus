@@ -7,7 +7,7 @@ namespace NServiceBus.Management.Retries.Helpers
 
     public static class TransportMessageHelpers
     {
-        public static Address GetReplyToAddress(TransportMessage message)
+        public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
         {
             var failedQ = GetHeader(message, Faults.FaultsHeaderKeys.FailedQ);
 
@@ -58,20 +58,6 @@ namespace NServiceBus.Management.Retries.Helpers
                 }
             }
             return 0;
-        }
-
-        public static Address GetOriginalReplyToAddressAndRemoveItFromHeaders(TransportMessage message)
-        {
-            var originalReplyToAddress = GetHeader(message, SecondLevelRetriesHeaders.OriginalReplyToAddress);
-
-            if (originalReplyToAddress == null)
-            {
-                return message.ReplyToAddress;
-            }
-
-            SetHeader(message, SecondLevelRetriesHeaders.OriginalReplyToAddress, null);
-
-            return Address.Parse(originalReplyToAddress);
         }
     }
 }
