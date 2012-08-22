@@ -317,6 +317,18 @@ namespace NServiceBus.Unicast.Config
         }
 
         /// <summary>
+        /// Causes the bus to not deserialize incoming messages. This means that no handlers are called and 
+        /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
+        /// your self.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus SkipDeserialization()
+        {
+            busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
+            return this;
+        }
+
+        /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
         /// <returns></returns>
