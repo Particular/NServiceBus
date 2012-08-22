@@ -6,6 +6,7 @@
     using System.Messaging;
     using System.Transactions;
     using NServiceBus;
+    using NServiceBus.Config;
     using NServiceBus.Saga;
     using NServiceBus.Unicast.Queuing.Msmq;
 

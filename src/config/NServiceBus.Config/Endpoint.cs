@@ -21,5 +21,21 @@
         /// True queues should be created as Transactional (hence also sending will be within a transaction).
         /// </summary>
         public static bool IsVolatile { get; private set; }
+
+        /// <summary>
+        /// Initialized the bus in send only mode
+        /// </summary>
+        /// <returns></returns>
+        public static IBus SendOnly(this Configure config)
+        {
+            IsSendOnly = true;
+            config.Initialize();
+            return config.Builder.Build<IBus>();
+        }
+
+        /// <summary>
+        /// True if this endpoint is operating in send only mode
+        /// </summary>
+        public static bool IsSendOnly { get; private set; }
     }
 }

@@ -21,6 +21,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MessageForwardingInCaseOfFault(this Configure config)
         {
+            if (Endpoint.IsSendOnly)
+                return config;
             var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
             if (section != null)
             {
@@ -65,7 +67,7 @@ namespace NServiceBus
     {
         public void Init()
         {
-            if (!Configure.SendOnlyMode && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!Endpoint.IsSendOnly && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.MessageForwardingInCaseOfFault();
         }
     }

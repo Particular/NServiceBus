@@ -11,6 +11,7 @@ using NServiceBus.Logging;
 namespace NServiceBus.Hosting
 {
     using System.Linq;
+    using Config;
     using Installation;
 
     /// <summary>
@@ -28,7 +29,7 @@ namespace NServiceBus.Hosting
                 PerformConfiguration();
 
                 bus = Configure.Instance.CreateBus();
-                if (bus != null)
+                if ((bus != null) && (!Endpoint.IsSendOnly))
                     bus.Start();
 
                 configManager.Startup();

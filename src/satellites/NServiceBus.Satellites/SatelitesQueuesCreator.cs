@@ -4,6 +4,7 @@
     using System.Security.Principal;
     using Installation;
     using Installation.Environments;
+    using NServiceBus.Config;
     using Unicast.Queuing;
 
     /// <summary>
@@ -19,6 +20,8 @@
         /// <param name="identity">The user for whom permissions will be given.</param>
         public void Install(WindowsIdentity identity)
         {
+            if (Endpoint.IsSendOnly)
+                return;
             var satellites = Configure.Instance.Builder
                  .BuildAll<ISatellite>()
                  .ToList();

@@ -3,6 +3,8 @@ using NServiceBus;
 
 namespace SendOnlyEndpoint.Custom
 {
+    using NServiceBus.Config;
+
     public class Program
     {
         static void Main()
@@ -22,9 +24,5 @@ namespace SendOnlyEndpoint.Custom
             Console.ReadKey();
         }
     }
-
-
-    public class TestMessage : IMessage
-    {
-    }
+    public class TestMessage : IMessage{}
 }

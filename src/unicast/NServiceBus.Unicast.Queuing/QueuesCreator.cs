@@ -2,9 +2,11 @@
 {
     using System.Linq;
     using System.Security.Principal;
+    using Config;
     using Installation;
     using Installation.Environments;
     using Logging;
+    using INeedInitialization = NServiceBus.INeedInitialization;
 
     /// <summary>
     /// Iterating over all implementers of IWantQueueCreated and creating queue for each.
@@ -18,6 +20,9 @@
         /// <param name="identity">The user for under which the queue will be created.</param>
         public void Install(WindowsIdentity identity)
         {
+            if (Endpoint.IsSendOnly)
+                return;
+
             var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>();
 
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
