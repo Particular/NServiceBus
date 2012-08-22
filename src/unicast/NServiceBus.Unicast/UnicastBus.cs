@@ -955,7 +955,7 @@ namespace NServiceBus.Unicast
 
         void ValidateConfiguration()
         {
-            if (MessageSerializer == null)
+            if (!SkipDeserialization && MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
 
@@ -1045,7 +1045,7 @@ namespace NServiceBus.Unicast
         {
             var messages = new object[0];
 
-            if (!m.IsControlMessage())
+            if (!m.IsControlMessage() && !SkipDeserialization)
             {
                 messages = Extract(m);
 
@@ -1212,6 +1212,11 @@ namespace NServiceBus.Unicast
         /// The list of message dispatcher factories to use
         /// </summary>
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
+
+        /// <summary>
+        /// True if no deseralization should be performed. This means that no handlers will be called
+        /// </summary>
+        public bool SkipDeserialization { get; set; }
 
 
         /// <summary>
