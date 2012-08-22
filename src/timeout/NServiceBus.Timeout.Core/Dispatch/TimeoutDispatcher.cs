@@ -22,9 +22,19 @@
 
         static TransportMessage MapToTransportMessage(TimeoutData timeoutData)
         {
+            var replyToAddress = Address.Local;
+
+            if(timeoutData.Headers.ContainsKey(TimeoutTransportMessageHandler.OriginalReplyToAddress))
+            {
+                replyToAddress =
+                    Address.Parse(timeoutData.Headers[TimeoutTransportMessageHandler.OriginalReplyToAddress]);
+
+                timeoutData.Headers.Remove(TimeoutTransportMessageHandler.OriginalReplyToAddress);
+            }
+
             var transportMessage = new TransportMessage
             {
-                ReplyToAddress = Address.Local,
+                ReplyToAddress = replyToAddress,
                 Headers = new Dictionary<string, string>(),
                 Recoverable = true,
                 MessageIntent = MessageIntentEnum.Send,

@@ -22,6 +22,9 @@ namespace NServiceBus.Timeout.Core.Dispatch
             message.Headers.Remove(TimeoutDispatcher.TimeoutIdToDispatchHeader);
             message.Headers.Remove(TimeoutDispatcher.TimeoutDestinationHeader);
 
+            if(message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+                destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+
             MessageSender.Send(message,destination);
             
             Persister.Remove(timeoutId);

@@ -5,6 +5,7 @@ namespace NServiceBus.Timeout.Core
 
     public class TimeoutTransportMessageHandler
     {
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public IPersistTimeouts Persister { get; set; }
         
         public IManageTimeouts Manager { get; set; }
@@ -40,6 +41,10 @@ namespace NServiceBus.Timeout.Core
                                    Headers = message.Headers,
                                    OwningTimeoutManager = Configure.EndpointName
                                };
+
+                //add a temp header so that we can make sure to restore the ReplyToAddress
+                if(message.ReplyToAddress != null)
+                    data.Headers[OriginalReplyToAddress] = message.ReplyToAddress.ToString();
 
                 Persister.Add(data);
                 Manager.PushTimeout(data);
