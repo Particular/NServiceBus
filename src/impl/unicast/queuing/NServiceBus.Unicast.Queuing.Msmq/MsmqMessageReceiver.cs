@@ -8,6 +8,8 @@ using Common.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using Transport.Transactional.Config;
+
     public class MsmqMessageReceiver : IReceiveMessages
     {
         public void Init(string address, bool transactional)
@@ -128,7 +130,14 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         
         private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
-            return useTransactions ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
+            if(!useTransactions)
+                return MessageQueueTransactionType.None;
+
+            //in 4.0 this line would be Endpoint.DontUseDistributedTransactions
+            if(Bootstrapper.SupressDTC)
+                return MessageQueueTransactionType.Single;
+
+            return MessageQueueTransactionType.Automatic;
         }
 
 
