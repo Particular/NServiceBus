@@ -4,6 +4,7 @@
     using Contexts;
     using NServiceBus;
     using NUnit.Framework;
+    using Transport;
 
     [TestFixture]
     public class When_sending_a_message_in_send_only_mode : using_a_configured_unicastbus
@@ -36,7 +37,54 @@
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<TestMessage>());
         }
     }
+    [TestFixture]
+    public class When_replying_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastbus
+    {
+        [Test]
+        public void Should_blow()
+        {
+            RegisterMessageType<TestMessage>();
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
+            ReceiveMessage(receivedMessage);
+            Assert.True(ResultingException.GetType() == typeof (TransportMessageHandlingFailedException));
+        }
+    }
+    [TestFixture]
+    public class When_returning_to_a_message_that_was_sent_with_null_reply_to_address : using_the_unicastbus
+    {
+        [Test]
+        public void Should_blow()
+        {
+            RegisterMessageType<TestMessage>();
+            var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
+            RegisterMessageHandlerType<HandlerThatReturns>();
+            ReceiveMessage(receivedMessage);
+            Assert.True(ResultingException.GetType() == typeof(TransportMessageHandlingFailedException));
+        }
+    }
+
     public class TestMessage : IMessage
     {
     }
+    
+    class HandlerThatRepliesWithACommandToAMessage : IHandleMessages<TestMessage>
+    {
+        public IBus Bus { get; set; }
+
+        public void Handle(TestMessage message)
+        {
+            Bus.Reply(new TestMessage());
+        }
+    }
+    class HandlerThatReturns : IHandleMessages<TestMessage>
+    {
+        public IBus Bus { get; set; }
+
+        public void Handle(TestMessage message)
+        {
+            Bus.Return(1);
+        }
+    }
+
 }
