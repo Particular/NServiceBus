@@ -13,7 +13,7 @@
         public static Configure Volatile(this Configure config)
         {
             IsVolatile = true;
-
+            DontUseDistributedTransactions = true;
             return config;
         }
 
@@ -37,5 +37,10 @@
         /// True if this endpoint is operating in send only mode
         /// </summary>
         public static bool IsSendOnly { get; private set; }
+
+        /// <summary>
+        /// True if distributed transactions should not be used
+        /// </summary>
+        public static bool DontUseDistributedTransactions{ get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             transportConfig.ConfigureProperty(t => t.IsTransactional, IsTransactional);
             transportConfig.ConfigureProperty(t => t.IsolationLevel, IsolationLevel);
             transportConfig.ConfigureProperty(t => t.TransactionTimeout, TransactionTimeout);
-            transportConfig.ConfigureProperty(t => t.SuppressDTC, SuppressDTC);
+            transportConfig.ConfigureProperty(t => t.SuppressDTC, Endpoint.DontUseDistributedTransactions);
 
             var cfg = Configure.GetConfigSection<MsmqTransportConfig>();
 
@@ -53,7 +53,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         public static bool IsTransactional { get; set; }
         public static IsolationLevel IsolationLevel { get; set; }
         public static TimeSpan TransactionTimeout { get; set; }
-        public static bool SuppressDTC { get; set; }
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper).Namespace);
     }
 }

@@ -1,5 +1,7 @@
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
+    using NServiceBus.Config;
+
     public static class AdvancedTransactionalConfig
     {
         /// <summary>
@@ -22,7 +24,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         /// <returns>The <see cref="Configure"/></returns>
         public static Configure SuppressDTC(this Configure config)
         {
-            Bootstrapper.SuppressDTC = true;
+            Endpoint.DontUseDistributedTransactions = true;
             return config;
         }
     }

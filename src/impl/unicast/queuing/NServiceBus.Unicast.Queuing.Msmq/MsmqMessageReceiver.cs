@@ -5,13 +5,10 @@ using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using Config;
+
     public class MsmqMessageReceiver : IReceiveMessages
     {
-        public void Init(string address, bool transactional)
-        {
-            Init(Address.Parse(address), transactional);
-        }
-
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
@@ -85,7 +82,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         
         private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
-            return useTransactions ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
+            if(!useTransactions)
+                return MessageQueueTransactionType.None;
+
+            if(Endpoint.DontUseDistributedTransactions)
+                return MessageQueueTransactionType.Single;
+
+            return MessageQueueTransactionType.Automatic;
         }
 
 
@@ -96,17 +99,17 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
 
-        private int secondsToWait = 1;
+        int secondsToWait = 1;
         public int SecondsToWaitForMessage
         {
             get { return secondsToWait;  }
             set { secondsToWait = value; }
         }
 
-        private MessageQueue myQueue;
+        MessageQueue myQueue;
 
-        private bool useTransactions;
+        bool useTransactions;
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqMessageReceiver));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqMessageReceiver));
     }
 }
