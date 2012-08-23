@@ -1,27 +1,43 @@
+# Helper script for those who want to run psake without importing the module.
+# Example:
+# .\psake.ps1 "default.ps1" "BuildHelloWord" "4.0" 
+
+# Must match parameter definitions for psake.psm1/invoke-psake 
+# otherwise named parameter binding fails
 param(
     [Parameter(Position=0,Mandatory=0)]
-    [string[]]$taskList = @(),
-    [Parameter(Position=1, Mandatory=0)]
+    [string]$buildFile = 'default.ps1',
+    [Parameter(Position=1,Mandatory=0)]
+    [string[]]$taskList = @("PrepareBinaries"),
+    [Parameter(Position=2,Mandatory=0)]
+    [string]$framework,
+    [Parameter(Position=3,Mandatory=0)]
+    [switch]$docs = $false,
+    [Parameter(Position=4,Mandatory=0)]
+    [System.Collections.Hashtable]$parameters = @{},
+    [Parameter(Position=5, Mandatory=0)]
     [System.Collections.Hashtable]$properties = @{},
-	[Parameter(Position=2, Mandatory=0)]
-    [switch]$desc = $false
-  )
+    [Parameter(Position=6, Mandatory=0)]
+    [switch]$nologo = $false,
+    [Parameter(Position=7, Mandatory=0)]
+    [switch]$help = $false,
+    [Parameter(Position=8, Mandatory=0)]
+    [string]$scriptPath = '.\tools\psake\'
+)
 
-if(($taskList -eq $null) -or ($args -eq $null)){
-	$taskList = @("PrepareBinaries")
+# '[p]sake' is the same as 'psake' but $Error is not polluted
+remove-module [p]sake
+import-module (join-path $scriptPath psake.psm1)
+if ($help) {
+  Get-Help Invoke-psake -full
+  return
 }
-elseif($taskList.Count -le 0){
-	$taskList = @("PrepareBinaries")
-}
 
+if (-not(test-path $buildFile)) {
+    $absoluteBuildFile = (join-path $scriptPath $buildFile)
+    if (test-path $absoluteBuildFile)	{
+        $buildFile = $absoluteBuildFile
+    }
+} 
 
-Import-Module .\tools\psake\psake.psm1 -ErrorAction SilentlyContinue
-
-if($desc){
-	Invoke-psake .\default.ps1 -docs
-}
-else{
-
-	Invoke-psake .\default.ps1 -taskList $taskList  -properties $properties
-}
-Remove-Module psake -ErrorAction SilentlyContinue
+invoke-psake $buildFile $taskList $framework $docs $parameters $properties $nologo
