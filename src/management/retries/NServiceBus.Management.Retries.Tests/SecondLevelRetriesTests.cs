@@ -124,14 +124,14 @@ namespace NServiceBus.Management.Retries.Tests
         }
 
         [Test]
-        public void The_original_failing_handler_address_should_be_used_as_ReplyToAddress()
+        public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
             TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
 
             _satellite.Handle(_message);
 
-            Assert.AreEqual(ORIGINAL_QUEUE, _message.ReplyToAddress);            
+            Assert.AreEqual(ORIGINAL_QUEUE.ToString(), _message.Headers[Headers.RouteExpiredTimeoutTo]);            
         }
     }
 
