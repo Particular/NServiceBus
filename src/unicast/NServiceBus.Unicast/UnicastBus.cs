@@ -23,6 +23,7 @@ namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
     using System.Threading.Tasks;
+    using Config;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -495,6 +496,8 @@ namespace NServiceBus.Unicast
         void IBus.Reply(params object[] messages)
         {
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
+            if (_messageBeingHandled.ReplyToAddress == null)
+                throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://nservicebus.com/OnewaySendonlyendpoints.aspx");
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
         }
 
@@ -505,6 +508,9 @@ namespace NServiceBus.Unicast
 
         void IBus.Return<T>(T errorCode)
         {
+            if (_messageBeingHandled.ReplyToAddress == null)
+                throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://nservicebus.com/OnewaySendonlyendpoints.aspx");
+
             var returnMessage = ControlMessage.Create();
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
@@ -512,7 +518,6 @@ namespace NServiceBus.Unicast
             returnMessage.MessageIntent = MessageIntentEnum.Send;
 
             InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
-
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
@@ -1524,7 +1529,8 @@ namespace NServiceBus.Unicast
                                  ReplyToAddress = Address.Local,
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
-            toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
+            if (m.ReplyToAddress != null)
+                toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
@@ -1568,7 +1574,9 @@ namespace NServiceBus.Unicast
         protected TransportMessage MapTransportMessageFor(object[] rawMessages, TransportMessage result)
         {
             result.Headers = new Dictionary<string, string>();
-            result.ReplyToAddress = Address.Local;
+            
+            if(!Endpoint.IsSendOnly)
+                result.ReplyToAddress = Address.Local;
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
@@ -1792,8 +1800,7 @@ namespace NServiceBus.Unicast
 
             _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
-
-
+        
         #endregion
 
         #region Fields
