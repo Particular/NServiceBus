@@ -58,7 +58,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Reference Include="Obsolete">
-      <HintPath>..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.0.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

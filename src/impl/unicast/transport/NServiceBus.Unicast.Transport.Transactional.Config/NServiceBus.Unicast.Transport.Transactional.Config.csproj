@@ -63,8 +63,8 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Msmq.Config.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Obsolete, Version=0.9.0.0, Culture=neutral, PublicKeyToken=1fa521d45b9ea671, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Obsolete.Fody.0.9.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\..\..\packages\Obsolete.Fody.1.0.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
