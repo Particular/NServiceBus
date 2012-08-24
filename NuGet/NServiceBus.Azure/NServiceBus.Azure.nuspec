@@ -15,11 +15,9 @@
     <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="4.0.5" />
-      <dependency id="Common.Logging" version="2.0.0" />
       <dependency id="NServiceBus.NHibernate" version="4.0.0-alpha0" />
-      <dependency id="NServiceBus" version="4.0.0-alpha0" />
       <dependency id="WindowsAzure.Storage" version="1.7.0.0" />
+      <dependency id="log4net" version="1.2.10" />
     </dependencies>
   </metadata>
   <files>
@@ -28,6 +26,5 @@
     <file src="\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll" target="lib\net40" />
     <file src="\lib\azure\Microsoft.ServiceBus.dll" target="lib\net40" />
     <file src="\lib\NHibernate.Drivers.Azure.TableStorage.dll" target="lib\net40" />
-    <file src="\lib\Ionic.Zip.dll" target="lib\net40" />
   </files>
 </package>
