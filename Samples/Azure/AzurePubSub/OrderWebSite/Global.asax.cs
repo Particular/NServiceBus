@@ -22,11 +22,14 @@ namespace OrderWebSite
                 .DefaultBuilder()
                 .AzureConfigurationSource()
                 .AzureMessageQueue()
-                    .JsonSerializer()
+                    //.JsonSerializer()
+                    .BinarySerializer()
                     .QueuePerInstance()
                 .UnicastBus()
                     .LoadMessageHandlers()
                     .IsTransactional(true)
+                    .DisableSecondLevelRetries()
+                    .DisableTimeoutManager()
                 .CreateBus()
 				.Start();
 

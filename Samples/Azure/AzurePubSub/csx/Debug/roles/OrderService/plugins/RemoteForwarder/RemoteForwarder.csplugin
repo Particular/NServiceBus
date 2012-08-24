@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<RoleModule namespace="Microsoft.WindowsAzure.Plugins.RemoteForwarder"
+ xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <Startup priority="-1">
+    <Task commandLine="install.cmd" executionContext="elevated" taskType="simple">
+      <Environment>
+        <Variable name="IsEmulated">
+          <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+        </Variable>
+      </Environment>
+    </Task>
+  </Startup>
+  <ConfigurationSettings>
+    <Setting name="Enabled" />
+  </ConfigurationSettings>
+  <Endpoints>
+    <InputEndpoint name="RdpInput" protocol="tcp" port="3389" localPort="*" ignoreRoleInstanceStatus="true" />
+  </Endpoints>
+</RoleModule>

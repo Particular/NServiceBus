@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuntimeSetup>
+  <Operation type="Path" path="base\x64" />
+  <Operation type="Path" path="base\x86" />
+  <Operation type="Path" path="diagnostics\x64" />
+  <PermissionLevels>
+    <StoredCert name="Stored0Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" permissionLevel="elevated" />
+  </PermissionLevels>
+  <AdditionalRoleIdentities>
+    <Identity username="NetworkService" domain="NT AUTHORITY" />
+  </AdditionalRoleIdentities>
+</RuntimeSetup>

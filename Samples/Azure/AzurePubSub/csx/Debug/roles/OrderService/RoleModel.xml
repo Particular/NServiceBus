@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RoleModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="OrderService" version="1.7.30602.1703" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <Startup>
+    <Task commandLine="RemoteAccessAgent.exe" executionContext="elevated" taskType="background" relativePath="plugins\RemoteAccess">
+      <Environment>
+        <Variable name="RdModuleName" value="RemoteAccess" />
+        <Variable name="WaRoleType" value="WorkerRole" />
+      </Environment>
+    </Task>
+    <Task commandLine="RemoteAccessAgent.exe /blockStartup" executionContext="elevated" relativePath="plugins\RemoteAccess">
+      <Environment>
+        <Variable name="RdModuleName" value="RemoteAccess" />
+        <Variable name="WaRoleType" value="WorkerRole" />
+      </Environment>
+    </Task>
+    <Task commandLine="install.cmd" executionContext="elevated" relativePath="plugins\RemoteForwarder">
+      <Environment>
+        <Variable name="IsEmulated">
+          <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+        </Variable>
+        <Variable name="RdModuleName" value="RemoteForwarder" />
+        <Variable name="WaRoleType" value="WorkerRole" />
+      </Environment>
+    </Task>
+  </Startup>
+  <Runtime>
+    <EntryPoint>
+      <NetFxEntryPoint assemblyName="OrderService.dll" targetFrameworkVersion="v3.5" />
+    </EntryPoint>
+  </Runtime>
+  <ConfigurationSettings>
+    <Setting name="Enabled" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountUsername" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountEncryptedPassword" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountExpiration" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="Enabled" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteForwarder" />
+  </ConfigurationSettings>
+  <Properties>
+    <Property name="TargetFrameworkVersion" value="v4.0" />
+    <Property name="RoleType" value="Worker" />
+    <Property name="RoleName" value="OrderService" />
+    <Property name="ProjectName" value="OrderService" />
+    <Property name="Configuration" value="Debug" />
+    <Property name="Platform" value="AnyCPU" />
+    <Property name="RoleTargetFramework" value="v4.0" />
+    <Property name="OutputDir" value="D:\Github.com\NServiceBus-3.2.8\Samples\Azure\AzurePubSub\obj\Debug\OrderService\" />
+    <Property name="EntryPoint" value="OrderService.dll" />
+    <Property name="SourceDir" value="" />
+    <Property name="SitePhysicalPath" value="" />
+    <Property name="TargetRuntimeVersion" value="v4.0" />
+  </Properties>
+</RoleModel>

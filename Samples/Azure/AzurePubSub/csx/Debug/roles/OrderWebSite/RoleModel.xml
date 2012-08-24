@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RoleModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="OrderWebSite" version="1.7.30602.1703" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <Startup>
+    <Task commandLine="RemoteAccessAgent.exe" executionContext="elevated" taskType="background" relativePath="plugins\RemoteAccess">
+      <Environment>
+        <Variable name="RdModuleName" value="RemoteAccess" />
+        <Variable name="WaRoleType" value="IISWebRole" />
+      </Environment>
+    </Task>
+    <Task commandLine="RemoteAccessAgent.exe /blockStartup" executionContext="elevated" relativePath="plugins\RemoteAccess">
+      <Environment>
+        <Variable name="RdModuleName" value="RemoteAccess" />
+        <Variable name="WaRoleType" value="IISWebRole" />
+      </Environment>
+    </Task>
+  </Startup>
+  <Runtime>
+    <EntryPoint>
+      <NetFxEntryPoint assemblyName="OrderWebSite.dll" targetFrameworkVersion="v3.5" />
+    </EntryPoint>
+  </Runtime>
+  <ConfigurationSettings>
+    <Setting name="Enabled" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountUsername" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountEncryptedPassword" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+    <Setting name="AccountExpiration" nameSpace="Microsoft.WindowsAzure.Plugins.RemoteAccess" />
+  </ConfigurationSettings>
+  <Properties>
+    <Property name="TargetFrameworkVersion" value="v4.0" />
+    <Property name="RoleType" value="Web" />
+    <Property name="RoleName" value="OrderWebSite" />
+    <Property name="ProjectName" value="OrderWebSite" />
+    <Property name="Configuration" value="Debug" />
+    <Property name="Platform" value="AnyCPU" />
+    <Property name="RoleTargetFramework" value="v4.0" />
+    <Property name="OutputDir" value="D:\Github.com\NServiceBus-3.2.8\Samples\Azure\AzurePubSub\obj\Debug\OrderWebSite\" />
+    <Property name="EntryPoint" value="OrderWebSite.dll" />
+    <Property name="SourceDir" value="D:\Github.com\NServiceBus-3.2.8\Samples\Azure\AzurePubSub\OrderWebSite\" />
+    <Property name="SitePhysicalPath" value="D:\Github.com\NServiceBus-3.2.8\Samples\Azure\AzurePubSub\OrderWebSite\" />
+    <Property name="TargetRuntimeVersion" value="v4.0" />
+  </Properties>
+  <Sites>
+    <Site name="Web" physicalDirectory="D:\Github.com\NServiceBus-3.2.8\Samples\Azure\AzurePubSub\OrderWebSite\">
+      <Bindings>
+        <Binding name="HttpIn" endpointName="HttpIn" />
+      </Bindings>
+    </Site>
+  </Sites>
+</RoleModel>
