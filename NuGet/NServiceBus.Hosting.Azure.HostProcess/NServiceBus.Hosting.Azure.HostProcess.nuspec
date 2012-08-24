@@ -16,6 +16,7 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="NServiceBus.Hosting.Azure" version="4.0.0-alpha0" />
+      <dependency id="CommonServiceLocator" version="1.0" />
     </dependencies>
   </metadata>
   <files>

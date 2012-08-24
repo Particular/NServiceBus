@@ -16,6 +16,7 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="structuremap" version="2.6.3" />
+      <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>
   <files>
