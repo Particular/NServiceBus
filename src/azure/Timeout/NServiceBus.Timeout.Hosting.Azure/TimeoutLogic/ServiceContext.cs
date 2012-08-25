@@ -11,6 +11,16 @@ namespace NServiceBus.Timeout.Hosting.Azure
         {
         }
 
+        public const string TimeoutManagerDataEntityTableName = "TimeoutManagerData";
+
+        public IQueryable<TimeoutManagerDataEntity> TimeoutManagerData
+        {
+            get
+            {
+                return this.CreateQuery<TimeoutManagerDataEntity>(TimeoutManagerDataEntityTableName);
+            }
+        }
+
         public const string TimeoutDataEntityTableName = "TimeoutData";
 
         public IQueryable<TimeoutDataEntity> TimeoutData
@@ -20,5 +30,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 return this.CreateQuery<TimeoutDataEntity>(TimeoutDataEntityTableName);
             }
         }
+
     }
 }

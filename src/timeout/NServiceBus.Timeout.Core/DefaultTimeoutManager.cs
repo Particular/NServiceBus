@@ -108,7 +108,7 @@
                     lock (lockObject)
                     {
                         //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                        if (timeoutPushed && nextExpiredTimeout < nextRetrieval)
+                        if (!timeoutPushed && nextExpiredTimeout > nextRetrieval)
                         {
                             nextRetrieval = nextExpiredTimeout;
                         }
