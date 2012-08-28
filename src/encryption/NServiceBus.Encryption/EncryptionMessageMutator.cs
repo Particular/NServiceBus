@@ -8,11 +8,12 @@ namespace NServiceBus.Encryption
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Reflection;
+    using Config;
 
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
     /// </summary>
-    public class EncryptionMessageMutator:IMessageMutator
+    public class EncryptionMessageMutator : IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
 
@@ -24,7 +25,7 @@ namespace NServiceBus.Encryption
             {
                 if (EncryptionService == null)
                     throw new InvalidOperationException(String.Format("Cannot encrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-              
+
                 var valueToEncrypt = encryptedProperty.GetValue(message, null);
 
 
@@ -32,15 +33,25 @@ namespace NServiceBus.Encryption
                     continue;
 
                 if (valueToEncrypt is WireEncryptedString)
-                    EncryptWireEncryptedString((WireEncryptedString) valueToEncrypt);
+                {
+                    var encryptedString = (WireEncryptedString) valueToEncrypt;
+                    EncryptWireEncryptedString(encryptedString);
+                    
+                    if (!ConfigureEncryption.EnsureCompatibilityWithNSB2)
+                    {
+                        //we clear the properties to avoid having the extra data serialized
+                        encryptedString.EncryptedBase64Value = null;
+                        encryptedString.Base64Iv = null;
+                    }
+
+                }
                 else
                 {
-                    encryptedProperty.SetValue(message, EncryptUserSpecifiedProperty(valueToEncrypt),null);
+                    encryptedProperty.SetValue(message, EncryptUserSpecifiedProperty(valueToEncrypt), null);
                 }
-                    
-            
+
                 Log.Debug(encryptedProperty.Name + " encrypted successfully");
-    
+
             }
             return message;
         }
@@ -54,17 +65,17 @@ namespace NServiceBus.Encryption
             {
                 if (EncryptionService == null)
                     throw new InvalidOperationException(String.Format("Cannot decrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-               
+
                 var encryptedValue = encryptedProperty.GetValue(message, null);
 
-                if(encryptedValue == null)
+                if (encryptedValue == null)
                     continue;
 
                 if (encryptedValue is WireEncryptedString)
-                    Decrypt((WireEncryptedString) encryptedValue);
+                    Decrypt((WireEncryptedString)encryptedValue);
                 else
                 {
-                    encryptedProperty.SetValue(message, DecryptUserSpecifiedProperty(encryptedValue), null);             
+                    encryptedProperty.SetValue(message, DecryptUserSpecifiedProperty(encryptedValue), null);
                 }
 
                 Log.Debug(encryptedProperty.Name + " decrypted successfully");
@@ -85,7 +96,7 @@ namespace NServiceBus.Encryption
             {
                 EncryptedBase64Value = parts[0],
                 Base64Iv = parts[1]
-            }); 
+            });
         }
 
         void Decrypt(WireEncryptedString encryptedValue)
@@ -111,21 +122,21 @@ namespace NServiceBus.Encryption
             wireEncryptedString.Value = null;
 
         }
-        
+
         static IEnumerable<PropertyInfo> GetEncryptedProperties(object message)
         {
             var messageType = message.GetType();
 
             if (!cache.ContainsKey(messageType))
-               cache[messageType] = messageType.GetProperties()
-                .Where(property => property.IsEncryptedProperty())
-                .ToList();
+                cache[messageType] = messageType.GetProperties()
+                 .Where(property => property.IsEncryptedProperty())
+                 .ToList();
 
             return cache[messageType];
         }
 
-        readonly static IDictionary<Type,IEnumerable<PropertyInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>(); 
-      
+        readonly static IDictionary<Type, IEnumerable<PropertyInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+
         readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
     }
 }
