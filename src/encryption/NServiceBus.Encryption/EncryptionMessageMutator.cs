@@ -35,7 +35,7 @@ namespace NServiceBus.Encryption
                     continue;
                 }
 
-                if (property.PropertyType.IsPrimitive)
+                if (property.PropertyType.IsPrimitive || IsSystemType(property.PropertyType))
                     continue;
 
                 //recurse
@@ -94,12 +94,19 @@ namespace NServiceBus.Encryption
                     continue;
                 }
 
-                if (property.PropertyType.IsPrimitive)
+                if (property.PropertyType.IsPrimitive || IsSystemType(property.PropertyType))
                     continue;
 
                 //recurse
                 DecryptObject(property.GetValue(target, null));
             }
+        }
+
+        bool IsSystemType(Type propertyType)
+        {
+            var nameOfContainingAssembly = propertyType.Assembly.FullName.ToLower();
+
+            return nameOfContainingAssembly.StartsWith("mscorlib") || nameOfContainingAssembly.StartsWith("system.core");
         }
 
         void DecryptProperty(object target, PropertyInfo property)
