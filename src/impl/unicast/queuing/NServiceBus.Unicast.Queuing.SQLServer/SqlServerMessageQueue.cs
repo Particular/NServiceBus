@@ -52,8 +52,11 @@
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {
                     command.Parameters.Add("IdForCorrelation", SqlDbType.VarChar).Value = GetValue(message.IdForCorrelation);
-                    command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId); 
-	                command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString()); 
+                    command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
+                    if (message.ReplyToAddress == null) // Sendonly endpoint
+                        command.Parameters.AddWithValue("ReplyToAddress", string.Empty); 
+                    else
+                        command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString()); 
 	                command.Parameters.AddWithValue("Recoverable", message.Recoverable); 
 	                command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString()); 
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
