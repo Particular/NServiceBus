@@ -36,7 +36,6 @@
             timeoutManagerEnabled = true;
 
             TimeoutManagerAddress = config.GetTimeoutManagerAddress();
-
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
 
             return config;

@@ -9,7 +9,7 @@
 
         void Add(TimeoutData timeout);
 
-        void Remove(string timeoutId);
+        bool TryRemove(string timeoutId);
 
         void RemoveTimeoutBy(Guid sagaId);
     }

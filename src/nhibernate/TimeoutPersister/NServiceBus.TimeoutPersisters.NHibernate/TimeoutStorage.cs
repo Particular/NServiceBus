@@ -60,9 +60,9 @@
                     {
                         nextTimeToRunQuery = startOfNextChunk.Time;
                     }
-                    else //If no more documents in database then re-query in 30 minutes
+                    else //If no more documents in database then re-query in 1 minutes
                     {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(30);
+                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
                     }
                 }
 
@@ -97,18 +97,20 @@
             timeout.Id = newId.ToString();
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var queryString = string.Format("delete {0} where Id = :timeoutId",
                                         typeof(TimeoutEntity));
-                session.CreateQuery(queryString)
+                int result = session.CreateQuery(queryString)
                     .SetParameter("timeoutId", Guid.Parse(timeoutId))
                     .ExecuteUpdate();
 
                 tx.Commit();
+
+                return result > 0;
             }
         }
 

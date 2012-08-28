@@ -12,8 +12,11 @@
 
     public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts, IDisposable 
     {
+        const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
+
+        ITransport inputTransport;
 
         public ISendMessages MessageSender { get; set; }
 
@@ -28,7 +31,9 @@
         public void Run()
         {
             if (!Configure.Instance.IsTimeoutManagerEnabled())
+            {
                 return;
+            }
 
             var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
 
@@ -44,14 +49,14 @@
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;
 
             inputTransport.Start(ConfigureTimeoutManager.TimeoutManagerAddress);
-            TimeoutsManager.Start();
         }
 
         public void Dispose()
         {
-            TimeoutsManager.Stop();
             if (inputTransport != null)
+            {
                 inputTransport.Dispose();
+            }
         }
 
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
@@ -117,13 +122,11 @@
                 //add a temp header so that we can make sure to restore the ReplyToAddress
                 if (message.ReplyToAddress != null)
                 {
-                    data.Headers[DefaultTimeoutManager.OriginalReplyToAddress] = message.ReplyToAddress.ToString();
+                    data.Headers[OriginalReplyToAddress] = message.ReplyToAddress.ToString();
                 }
 
                 TimeoutsManager.PushTimeout(data);
             }
         }
-
-        ITransport inputTransport;
     }
 }

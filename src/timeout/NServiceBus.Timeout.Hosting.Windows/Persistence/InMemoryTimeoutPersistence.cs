@@ -12,17 +12,12 @@
 
         public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
         {
-            nextTimeToRunQuery = DateTime.UtcNow;
-
             lock (lockObject)
             {
                 var timeouts = new List<TimeoutData>(storage.Where(data => data.Time <= DateTime.UtcNow));
-
                 var nextTimeout = storage.Where(data => data.Time > DateTime.UtcNow).OrderBy(data => data.Time).FirstOrDefault();
-                if (nextTimeout != null)
-                {
-                    nextTimeToRunQuery = nextTimeout.Time;
-                }
+
+                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
 
                 return timeouts;
             }
@@ -37,11 +32,18 @@
             }
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
             lock (lockObject)
             {
-                storage.Remove(storage.Single(t => t.Id == timeoutId));
+                var timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
+                
+                if (timeoutData == null)
+                {
+                    return false;
+                }
+
+                return storage.Remove(timeoutData);
             }
         }
 

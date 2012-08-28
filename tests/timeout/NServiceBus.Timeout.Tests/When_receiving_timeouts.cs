@@ -11,7 +11,7 @@ namespace NServiceBus.Timeout.Tests
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture]
+    [TestFixture, Ignore]
     public class When_receiving_timeouts_with_raven : When_receiving_timeouts
     {
         public override IPersistTimeouts TimeoutPersister
@@ -29,7 +29,7 @@ namespace NServiceBus.Timeout.Tests
         }
     }
 
-    [TestFixture]
+    [TestFixture, Ignore]
     public class When_receiving_timeouts_with_inmemory : When_receiving_timeouts
     {
         public override IPersistTimeouts TimeoutPersister
@@ -64,13 +64,11 @@ namespace NServiceBus.Timeout.Tests
                     MessageSender = messageSender,
                 };
             
-            manager.Start();
         }
 
         [TearDown]
         public void Cleanup()
         {
-            manager.Stop();
         }
 
         [Test]

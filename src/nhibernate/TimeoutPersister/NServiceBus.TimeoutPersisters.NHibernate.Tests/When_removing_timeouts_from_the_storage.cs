@@ -22,7 +22,7 @@
 
             foreach (var timeoutData in t)
             {
-                persister.Remove(timeoutData.Id);
+                persister.TryRemove(timeoutData.Id);
             }
 
             using (var session = sessionFactory.OpenSession())

@@ -26,14 +26,6 @@
         /// <param name="sagaId">The sagaId to be removed</param>
         void RemoveTimeoutBy(Guid sagaId);
 
-        /// <summary>
-        /// Starts the monitoring of timeouts.
-        /// </summary>
-        void Start();
-
-        /// <summary>
-        /// Stops monitoring.
-        /// </summary>
-        void Stop();
+        event EventHandler<TimeoutData> TimeoutPushed;
     }
 }

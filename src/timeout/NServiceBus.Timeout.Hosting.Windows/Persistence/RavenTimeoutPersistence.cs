@@ -4,7 +4,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Collections.Generic;
     using System.Linq;
     using Core;
-    using Raven.Abstractions.Commands;
     using Raven.Abstractions.Indexing;
     using Raven.Client;
     using Raven.Client.Indexes;
@@ -13,6 +12,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
+        object deleteLock = new object();
         readonly IDocumentStore store;
 
         public RavenTimeoutPersistence(IDocumentStore store)
@@ -50,42 +50,27 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         {
             try
             {
-                DateTime now = DateTime.UtcNow;
+                var now = DateTime.UtcNow;
+
                 using (var session = OpenSession())
                 {
-                    session.Advanced.AllowNonAuthoritativeInformation = false;
-
+                    session.Advanced.AllowNonAuthoritativeInformation = true;
                     RavenQueryStatistics stats;
                     const int maxRecords = 200;
                     var results = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
                         .Where(t => (t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName) && t.Time <= now)
                         .OrderBy(t => t.Time)
-                        .Customize(c => c.WaitForNonStaleResultsAsOf(now))
                         .Statistics(out stats)
                         .Take(maxRecords)
                         .ToList();
 
-                    if (stats.TotalResults > maxRecords)
+                    if (stats.TotalResults > maxRecords || stats.IsStale)
                     {
                         nextTimeToRunQuery = DateTime.UtcNow;
                     }
                     else
                     {
-                        //Retrieve next time we need to run query
-                        var startOfNextChunk = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
-                            .Where(t => (t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName) && t.Time > now)
-                            .OrderBy(t => t.Time)
-                            .Customize(c => c.WaitForNonStaleResultsAsOf(now))
-                            .FirstOrDefault();
-
-                        if (startOfNextChunk != null)
-                        {
-                            nextTimeToRunQuery = startOfNextChunk.Time;
-                        }
-                        else //If no more documents in database then re-query in 30 minutes
-                        {
-                            nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(30);
-                        }
+                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
                     }
 
                     return results;
@@ -116,12 +101,22 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             }
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
-            using (var session = OpenSession())
+            lock (deleteLock)
             {
-                session.Advanced.Defer(new DeleteCommandData { Key = timeoutId });
-                session.SaveChanges();
+                using (var session = OpenSession())
+                {
+                    var timeoutData = session.Load<TimeoutData>(timeoutId);
+
+                    if (timeoutData == null)
+                        return false;
+
+                    session.Delete(timeoutData);
+                    session.SaveChanges();
+
+                    return true;
+                }
             }
         }
 
@@ -140,6 +135,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         IDocumentSession OpenSession()
         {
             var session = store.OpenSession();
+
+            session.Advanced.AllowNonAuthoritativeInformation = false;
+            session.Advanced.UseOptimisticConcurrency = true;
 
             return session;
         }

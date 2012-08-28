@@ -38,6 +38,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\RavenTimeoutPersistence.cs" />
     <Compile Include="TimeoutMessageProcessor.cs" />
+    <Compile Include="TimeoutDispatcherProcessor.cs" />
+    <Compile Include="TimeoutPersisterReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Timeout.Core\NServiceBus.Timeout.Core.csproj">

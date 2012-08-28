@@ -106,14 +106,14 @@ namespace NServiceBus.Timeout.Hosting.Azure
             context.SaveChanges();
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
             var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
             try
             {
                 TimeoutDataEntity timeoutDataEntity;
                 if (!TryGetTimeoutData(context, timeoutId, string.Empty, out timeoutDataEntity))
-                    return;
+                    return false;
 
                 TimeoutDataEntity timeoutDataEntityBySaga;
                 if (TryGetTimeoutData(context, timeoutDataEntity.SagaId.ToString(), timeoutId, out timeoutDataEntityBySaga))
@@ -134,6 +134,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
             {
                 // make sure to add logging here
             }
+
+            return true;
         }
 
         public void RemoveTimeoutBy(Guid sagaId)

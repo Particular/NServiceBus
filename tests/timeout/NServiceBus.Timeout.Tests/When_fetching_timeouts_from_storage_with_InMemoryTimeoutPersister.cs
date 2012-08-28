@@ -5,7 +5,7 @@ namespace NServiceBus.Timeout.Tests
     using Core;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixture, Ignore]
     public class When_fetching_timeouts_from_storage_with_InMemoryTimeoutPersister : WithInMemoryTimeoutPersister
     {
         [Test]

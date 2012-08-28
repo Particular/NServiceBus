@@ -43,7 +43,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (PurgeOnStartup)
                 myQueue.Purge();
         }
-
       
         [DebuggerNonUserCode]
         public bool HasMessage()
