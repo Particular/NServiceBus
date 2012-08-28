@@ -9,6 +9,7 @@
     using Serializers.Binary;
     using Serialization;
     using Serializers.Json;
+    using Transport;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
@@ -151,7 +152,8 @@
                                 Headers = headers,
                                 Body = body
                             };
-
+                            
+                            message.IdForCorrelation = message.GetIdForCorrelation();
                             return message;
                         }
                     }
