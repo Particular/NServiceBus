@@ -24,7 +24,11 @@ namespace Client
             Console.WriteLine("Press 'Enter' to send a message.");
             while (Console.ReadLine() != null)
             {
-                Bus.Send<MessageWithSecretData>(m => m.Secret = "betcha can't guess my secret");
+                Bus.Send<MessageWithSecretData>(m =>
+                                                    {
+                                                        m.Secret = "betcha can't guess my secret";
+                                                        m.SubProperty = new MySecretSubProperty {Secret = "My sub secret"};
+                                                    });
             }
         }
 
