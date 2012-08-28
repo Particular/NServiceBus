@@ -18,7 +18,7 @@ namespace Server
     {
         public void Handle(MessageWithSecretData message)
         {
-            Console.WriteLine("I know your secret - it's '" + message.Secret + "'.");
+            Console.WriteLine("I know your secret - it's '" + message.Secret + "'. And the subsecret is: " + message.SubProperty.Secret );
         }
     }
 }
