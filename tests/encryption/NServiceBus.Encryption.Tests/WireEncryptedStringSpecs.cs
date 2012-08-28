@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Encryption.Tests
 {
     using System;
+    using Config;
     using NUnit.Framework;
 
     [TestFixture]
@@ -18,6 +19,27 @@
             Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value,"encrypted value");
         }
     }
+
+    [TestFixture]
+    public class When_sending_a_message_with_2x_compatibility_disabled : WireEncryptedStringContext
+    {
+        [Test]
+        public void Should_clear_the_compatibility_properties()
+        {
+            ConfigureEncryption.DisableCompatibilityWithNSB2(null);
+
+            var message = new SecureMessage
+            {
+                Secret = "A secret"
+            };
+            mutator.MutateOutgoing(message);
+
+            Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value, "encrypted value");
+            Assert.AreEqual(message.Secret.EncryptedBase64Value,null);
+            Assert.AreEqual(message.Secret.Base64Iv, null);
+        }
+    }
+
     [TestFixture]
     public class When_receiving_a_message_using_the_default_convention : WireEncryptedStringContext
     {
