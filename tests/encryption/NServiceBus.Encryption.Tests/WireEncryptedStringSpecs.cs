@@ -153,6 +153,8 @@
         public MySecretSubProperty SubProperty { get; set; }
 
         public WireEncryptedString SecretThatIsNull { get; set; }
+
+        public DateTime DateTime { get; set; }
     }
 
 
