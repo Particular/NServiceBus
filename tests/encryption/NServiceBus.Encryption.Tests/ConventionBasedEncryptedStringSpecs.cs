@@ -15,7 +15,7 @@
                               };
             mutator.MutateOutgoing(message);
 
-            Assert.AreEqual(string.Format("{0}@{1}", "encrypted value", "initialization_vector"), message.EncryptedSecret);
+            Assert.AreEqual(string.Format("{0}@{1}", "encrypted value", "init_vector"), message.EncryptedSecret);
         }
     }
     [TestFixture]
@@ -26,7 +26,7 @@
         {
             var message = new ConventionBasedSecureMessage()
             {
-                EncryptedSecret = "encrypted_value@init_vector"
+                EncryptedSecret = "encrypted value@init_vector"
             };
             mutator.MutateIncoming(message);
 
@@ -56,18 +56,11 @@
     }
 
 
-    public class UserDefinedConventionContext
+    public class UserDefinedConventionContext : WireEncryptedStringContext
     {
-        protected EncryptionMessageMutator mutator;
-
         [SetUp]
         public void SetUp()
         {
-            mutator = new EncryptionMessageMutator
-            {
-                EncryptionService = new FakeEncryptionService("encrypted value")
-            };
-
             MessageConventionExtensions.IsEncryptedPropertyAction = (p) => p.Name.StartsWith("Encrypted");
         }
     }

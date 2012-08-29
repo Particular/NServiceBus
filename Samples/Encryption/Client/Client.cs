@@ -4,6 +4,7 @@ using Messages;
 
 namespace Client
 {
+    using System.Collections.Generic;
     using NServiceBus.Encryption.Config;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Client {}
@@ -12,8 +13,8 @@ namespace Client
     {
         public void Init()
         {
-            Configure.Instance.RijndaelEncryptionService()
-             .DisableCompatibilityWithNSB2();//remove this line if you need to be compatible with a 2.X server
+            Configure.Instance.RijndaelEncryptionService();
+             //.DisableCompatibilityWithNSB2();//uncomment this line to turn off compatibility with2.X endpoints
         }
     }
 
@@ -28,6 +29,11 @@ namespace Client
                                                     {
                                                         m.Secret = "betcha can't guess my secret";
                                                         m.SubProperty = new MySecretSubProperty {Secret = "My sub secret"};
+                                                        m.CreditCards = new List<CreditCardDetails>
+                                                                                  {
+                                                                                      new CreditCardDetails{ValidTo = DateTime.UtcNow.AddYears(1), Number = "312312312312312"},
+                                                                                      new CreditCardDetails{ValidTo = DateTime.UtcNow.AddYears(2), Number = "543645546546456"}
+                                                                                  };
                                                     });
             }
         }
