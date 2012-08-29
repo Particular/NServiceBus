@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Encryption.Tests
 {
     using System;
+    using Config;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,13 +12,37 @@
         {
             var message = new SecureMessage
                               {
-                                  Secret="A secret"
+                                  Secret="A secret",
+                                  SubProperty = new MySecretSubProperty{Secret = "A secret"}
+                                  
                               };
             mutator.MutateOutgoing(message);
 
             Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value,"encrypted value");
+            Assert.AreEqual(message.SubProperty.Secret.EncryptedValue.EncryptedBase64Value, "encrypted value");
         }
     }
+
+    [TestFixture]
+    public class When_sending_a_message_with_2x_compatibility_disabled : WireEncryptedStringContext
+    {
+        [Test]
+        public void Should_clear_the_compatibility_properties()
+        {
+            ConfigureEncryption.DisableCompatibilityWithNSB2(null);
+
+            var message = new SecureMessage
+            {
+                Secret = "A secret"
+            };
+            mutator.MutateOutgoing(message);
+
+            Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value, "encrypted value");
+            Assert.AreEqual(message.Secret.EncryptedBase64Value,null);
+            Assert.AreEqual(message.Secret.Base64Iv, null);
+        }
+    }
+
     [TestFixture]
     public class When_receiving_a_message_using_the_default_convention : WireEncryptedStringContext
     {
@@ -33,11 +58,24 @@
                                                           EncryptedBase64Value ="encrypted_value",
                                                           Base64Iv = "init_vector"
                                                       }
-                             }
+                             },
+                SubProperty = new MySecretSubProperty
+                {
+                    Secret = new WireEncryptedString
+                    {
+                        EncryptedValue = new EncryptedValue
+                        {
+                            EncryptedBase64Value = "encrypted_value",
+                            Base64Iv = "init_vector"
+                        }
+                    }
+                }
+
             };
             mutator.MutateIncoming(message);
 
             Assert.AreEqual(message.Secret.Value, "A secret");
+            Assert.AreEqual(message.SubProperty.Secret.Value, "A secret");
         }
     }
 
@@ -48,7 +86,7 @@
         public void Should_throw_an_exception()
         {
             mutator.EncryptionService = null;
-            Assert.Throws<InvalidOperationException>(()=>mutator.MutateOutgoing(new SecureMessage()));
+            Assert.Throws<InvalidOperationException>(()=>mutator.MutateOutgoing(new SecureMessage{Secret ="x"}));
         }
     }
 
@@ -59,7 +97,7 @@
         public void Should_throw_an_exception()
         {
             mutator.EncryptionService = null;
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(new SecureMessage()));
+            Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(new SecureMessage{Secret = "x"}));
         }
     }
 
@@ -84,22 +122,6 @@
             mutator.EncryptionService = null;
 
             Assert.DoesNotThrow(() => mutator.MutateIncoming(new NonSecureMessage()));
-        }
-    }
-
-    [TestFixture]
-    public class When_processing_messages : WireEncryptedStringContext
-    {
-        [Test]
-        public void Should_cache_the_properties_for_better_performance()
-        {
-            var message = new NonSecureMessage();
-
-            mutator.MutateIncoming(message);
-
-            MessageConventionExtensions.IsEncryptedPropertyAction = property => { throw new Exception("Should be cached"); };
-
-            mutator.MutateIncoming(message);
         }
     }
 
@@ -128,7 +150,16 @@
     {
         public WireEncryptedString Secret { get; set; }
 
-        
+        public MySecretSubProperty SubProperty { get; set; }
+
         public WireEncryptedString SecretThatIsNull { get; set; }
+
+        public DateTime DateTime { get; set; }
+    }
+
+
+    public class MySecretSubProperty
+    {
+        public WireEncryptedString Secret { get; set; }
     }
 }

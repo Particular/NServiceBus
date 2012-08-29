@@ -17,7 +17,8 @@
         [Test]
         public void Should_enable_raven_install()
         {
-            Configure.With()
+            ConfigureRavenPersistence.AutoCreateDatabase = false; 
+            Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName(() => "Test")
                 .DefaultBuilder()
                 .RavenPersistence();
@@ -36,8 +37,8 @@
         public void Should_disable_raven_install()
         {
             TestMasterNodeOverride.FakeMasterNode = ()=> "some_other_server";
-
-            Configure.With()
+            ConfigureRavenPersistence.AutoCreateDatabase = false;
+            Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName(() => "Test")
                 .DefaultBuilder()
                 .RavenPersistence();
@@ -57,7 +58,7 @@
         [Test]
         public void Should_disable_raven_install()
         {
-            Configure.With()
+            Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName(() => "Test")
                 .DefaultBuilder()
                 .RavenPersistence("Raven");

@@ -8,68 +8,127 @@ namespace NServiceBus.Encryption
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Reflection;
+    using Config;
 
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
     /// </summary>
-    public class EncryptionMessageMutator:IMessageMutator
+    public class EncryptionMessageMutator : IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
 
         public object MutateOutgoing(object message)
         {
-            var encryptedProperties = GetEncryptedProperties(message);
+            EncryptObject(message);
+            return message;
+        }
 
-            foreach (var encryptedProperty in encryptedProperties)
+        void EncryptObject(object target)
+        {
+            var properties = GetAllProperties(target);
+
+            foreach (var property in properties)
             {
-                if (EncryptionService == null)
-                    throw new InvalidOperationException(String.Format("Cannot encrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-              
-                var valueToEncrypt = encryptedProperty.GetValue(message, null);
+                if (property.IsEncryptedProperty())
+                {
+                    EncryptProperty(target, property);
+                    continue;
+                }
 
-
-                if (valueToEncrypt == null)
+                if (property.PropertyType.IsPrimitive || IsSystemType(property.PropertyType))
                     continue;
 
-                if (valueToEncrypt is WireEncryptedString)
-                    EncryptWireEncryptedString((WireEncryptedString) valueToEncrypt);
-                else
-                {
-                    encryptedProperty.SetValue(message, EncryptUserSpecifiedProperty(valueToEncrypt),null);
-                }
-                    
-            
-                Log.Debug(encryptedProperty.Name + " encrypted successfully");
-    
+                //recurse
+                EncryptObject(property.GetValue(target, null));
             }
-            return message;
+        }
+
+        void EncryptProperty(object target, PropertyInfo encryptedProperty)
+        {
+            var valueToEncrypt = encryptedProperty.GetValue(target, null);
+
+            if (valueToEncrypt == null)
+                return;
+
+            if (EncryptionService == null)
+                throw new InvalidOperationException(
+                    String.Format("Cannot encrypt field {0} because no encryption service was configured.",
+                                  encryptedProperty.Name));
+
+            if (valueToEncrypt is WireEncryptedString)
+            {
+                var encryptedString = (WireEncryptedString) valueToEncrypt;
+                EncryptWireEncryptedString(encryptedString);
+
+                if (!ConfigureEncryption.EnsureCompatibilityWithNSB2)
+                {
+                    //we clear the properties to avoid having the extra data serialized
+                    encryptedString.EncryptedBase64Value = null;
+                    encryptedString.Base64Iv = null;
+                }
+            }
+            else
+            {
+                encryptedProperty.SetValue(target, EncryptUserSpecifiedProperty(valueToEncrypt), null);
+            }
+
+            Log.Debug(encryptedProperty.Name + " encrypted successfully");
         }
 
 
         public object MutateIncoming(object message)
         {
-            var encryptedProperties = GetEncryptedProperties(message);
+            DecryptObject(message);
+            return message;
+        }
 
-            foreach (var encryptedProperty in encryptedProperties)
+        void DecryptObject(object target)
+        {
+            var properties = GetAllProperties(target);
+
+            foreach (var property in properties)
             {
-                if (EncryptionService == null)
-                    throw new InvalidOperationException(String.Format("Cannot decrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-               
-                var encryptedValue = encryptedProperty.GetValue(message, null);
-
-                if(encryptedValue == null)
-                    continue;
-
-                if (encryptedValue is WireEncryptedString)
-                    Decrypt((WireEncryptedString) encryptedValue);
-                else
+                if (property.IsEncryptedProperty())
                 {
-                    encryptedProperty.SetValue(message, DecryptUserSpecifiedProperty(encryptedValue), null);             
+                    DecryptProperty(target, property);
+                    continue;
                 }
 
-                Log.Debug(encryptedProperty.Name + " decrypted successfully");
+                if (property.PropertyType.IsPrimitive || IsSystemType(property.PropertyType))
+                    continue;
+
+                //recurse
+                DecryptObject(property.GetValue(target, null));
             }
-            return message;
+        }
+
+        bool IsSystemType(Type propertyType)
+        {
+            var nameOfContainingAssembly = propertyType.Assembly.FullName.ToLower();
+
+            return nameOfContainingAssembly.StartsWith("mscorlib") || nameOfContainingAssembly.StartsWith("system.core");
+        }
+
+        void DecryptProperty(object target, PropertyInfo property)
+        {
+          
+            var encryptedValue = property.GetValue(target, null);
+
+            if (encryptedValue == null)
+                return;
+
+            if (EncryptionService == null)
+                throw new InvalidOperationException(
+                    String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
+
+            if (encryptedValue is WireEncryptedString)
+                Decrypt((WireEncryptedString) encryptedValue);
+            else
+            {
+                property.SetValue(target, DecryptUserSpecifiedProperty(encryptedValue), null);
+            }
+
+            Log.Debug(property.Name + " decrypted successfully");
         }
 
         string DecryptUserSpecifiedProperty(object encryptedValue)
@@ -85,7 +144,7 @@ namespace NServiceBus.Encryption
             {
                 EncryptedBase64Value = parts[0],
                 Base64Iv = parts[1]
-            }); 
+            });
         }
 
         void Decrypt(WireEncryptedString encryptedValue)
@@ -111,21 +170,21 @@ namespace NServiceBus.Encryption
             wireEncryptedString.Value = null;
 
         }
-        
-        static IEnumerable<PropertyInfo> GetEncryptedProperties(object message)
+        static IEnumerable<PropertyInfo> GetAllProperties(object target)
         {
-            var messageType = message.GetType();
+            if (target == null)
+                return new List<PropertyInfo>();
+
+            var messageType = target.GetType();
 
             if (!cache.ContainsKey(messageType))
-               cache[messageType] = messageType.GetProperties()
-                .Where(property => property.IsEncryptedProperty())
-                .ToList();
+                cache[messageType] = messageType.GetProperties()
+                 .ToList();
 
             return cache[messageType];
         }
+        readonly static IDictionary<Type, IEnumerable<PropertyInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
-        readonly static IDictionary<Type,IEnumerable<PropertyInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>(); 
-      
         readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
     }
 }
