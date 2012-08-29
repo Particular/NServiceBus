@@ -157,7 +157,7 @@ namespace NServiceBus
             return config;
         }
 
-        [ObsoleteEx(Replacement ="This can be removed when we drop support for Raven 616",RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]
         static void EnsureDatabaseExists(DocumentStore store)
         {
             if (!AutoCreateDatabase)
@@ -193,7 +193,7 @@ namespace NServiceBus
             return config;
         }
         
-        [ObsoleteEx(Replacement = "RequestCompression will be on by default in NServiceBus 5.0",TreatAsErrorFromVersion = "5.0",RemoveInVersion = "6.0")]
+        [ObsoleteEx(Message = "RequestCompression will be on by default from v5.0.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public static Configure EnableRequestCompression(this Configure config)
         {
             enableRequestCompression = true;
