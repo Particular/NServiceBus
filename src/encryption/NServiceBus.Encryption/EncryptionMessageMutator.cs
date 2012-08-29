@@ -5,71 +5,127 @@ using NServiceBus.MessageMutator;
 
 namespace NServiceBus.Encryption
 {
+    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Reflection;
+    using Config;
 
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
     /// </summary>
-    public class EncryptionMessageMutator:IMessageMutator
+    public class EncryptionMessageMutator : IMessageMutator
     {
         public IEncryptionService EncryptionService { get; set; }
 
         public object MutateOutgoing(object message)
         {
-            var encryptedProperties = GetEncryptedProperties(message);
+            ForEachMember(message, EncryptMember, IsEncryptedMember);
 
-            foreach (var encryptedProperty in encryptedProperties)
-            {
-                if (EncryptionService == null)
-                    throw new InvalidOperationException(String.Format("Cannot encrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-              
-                var valueToEncrypt = encryptedProperty.GetValue(message, null);
-
-
-                if (valueToEncrypt == null)
-                    continue;
-
-                if (valueToEncrypt is WireEncryptedString)
-                    EncryptWireEncryptedString((WireEncryptedString) valueToEncrypt);
-                else
-                {
-                    encryptedProperty.SetValue(message, EncryptUserSpecifiedProperty(valueToEncrypt),null);
-                }
-                    
-            
-                Log.Debug(encryptedProperty.Name + " encrypted successfully");
-    
-            }
             return message;
         }
 
 
         public object MutateIncoming(object message)
         {
-            var encryptedProperties = GetEncryptedProperties(message);
+            ForEachMember(message, DecryptMember, IsEncryptedMember);
+            return message;
+        }
 
-            foreach (var encryptedProperty in encryptedProperties)
+        bool IsEncryptedMember(MemberInfo arg)
+        {
+            if (arg is PropertyInfo)
+                return ((PropertyInfo)arg).IsEncryptedProperty();
+
+            if (arg is FieldInfo)
+                return ((FieldInfo)arg).FieldType == typeof(WireEncryptedString);
+
+            return false;
+
+        }
+        void ForEachMember(object root, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
+        {
+            if (root == null || visitedMembers.Contains(root))
+                return;
+
+            visitedMembers.Add(root);
+
+            var members = GetFieldsAndProperties(root);
+
+            foreach (var member in members)
             {
-                if (EncryptionService == null)
-                    throw new InvalidOperationException(String.Format("Cannot decrypt field {0} because no encryption service was configured.", encryptedProperty.Name));
-               
-                var encryptedValue = encryptedProperty.GetValue(message, null);
 
-                if(encryptedValue == null)
+                if (appliesTo(member))
+                    action(root, member);
+
+                //don't recurse over primitives and system types
+                if (member.ReflectedType.IsPrimitive || member.ReflectedType.IsSystemType())
                     continue;
 
-                if (encryptedValue is WireEncryptedString)
-                    Decrypt((WireEncryptedString) encryptedValue);
-                else
-                {
-                    encryptedProperty.SetValue(message, DecryptUserSpecifiedProperty(encryptedValue), null);             
-                }
+                var child = member.GetValue(root);
 
-                Log.Debug(encryptedProperty.Name + " decrypted successfully");
+                if (child is IEnumerable)
+                    foreach (var item in (IEnumerable)child)
+                        ForEachMember(item, action, appliesTo);
+                else
+                    ForEachMember(child, action, appliesTo);
             }
-            return message;
+        }
+
+
+        void EncryptMember(object target, MemberInfo member)
+        {
+            var valueToEncrypt = member.GetValue(target);
+
+            if (valueToEncrypt == null)
+                return;
+
+            if (EncryptionService == null)
+                throw new InvalidOperationException(
+                    String.Format("Cannot encrypt field {0} because no encryption service was configured.",
+                                  member.Name));
+
+            if (valueToEncrypt is WireEncryptedString)
+            {
+                var encryptedString = (WireEncryptedString)valueToEncrypt;
+                EncryptWireEncryptedString(encryptedString);
+
+                if (!ConfigureEncryption.EnsureCompatibilityWithNSB2)
+                {
+                    //we clear the properties to avoid having the extra data serialized
+                    encryptedString.EncryptedBase64Value = null;
+                    encryptedString.Base64Iv = null;
+                }
+            }
+            else
+            {
+                member.SetValue(target, EncryptUserSpecifiedProperty(valueToEncrypt));
+            }
+
+            Log.Debug(member.Name + " encrypted successfully");
+        }
+
+
+        void DecryptMember(object target, MemberInfo property)
+        {
+
+            var encryptedValue = property.GetValue(target);
+
+            if (encryptedValue == null)
+                return;
+
+            if (EncryptionService == null)
+                throw new InvalidOperationException(
+                    String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
+
+            if (encryptedValue is WireEncryptedString)
+                Decrypt((WireEncryptedString)encryptedValue);
+            else
+            {
+                property.SetValue(target, DecryptUserSpecifiedProperty(encryptedValue));
+            }
+
+            Log.Debug(property.Name + " decrypted successfully");
         }
 
         string DecryptUserSpecifiedProperty(object encryptedValue)
@@ -85,11 +141,14 @@ namespace NServiceBus.Encryption
             {
                 EncryptedBase64Value = parts[0],
                 Base64Iv = parts[1]
-            }); 
+            });
         }
 
         void Decrypt(WireEncryptedString encryptedValue)
         {
+            if (encryptedValue.EncryptedValue == null)
+                throw new InvalidOperationException("Encrypted property is missing encryption data");
+
             encryptedValue.Value = EncryptionService.Decrypt(encryptedValue.EncryptedValue);
         }
 
@@ -111,21 +170,56 @@ namespace NServiceBus.Encryption
             wireEncryptedString.Value = null;
 
         }
-        
-        static IEnumerable<PropertyInfo> GetEncryptedProperties(object message)
+        static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
         {
-            var messageType = message.GetType();
+            if (target == null)
+                return new List<MemberInfo>();
+
+            var messageType = target.GetType();
 
             if (!cache.ContainsKey(messageType))
-               cache[messageType] = messageType.GetProperties()
-                .Where(property => property.IsEncryptedProperty())
-                .ToList();
+                cache[messageType] = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                  .Where(m => m is FieldInfo || m is PropertyInfo)
+                 .ToList();
 
             return cache[messageType];
         }
 
-        readonly static IDictionary<Type,IEnumerable<PropertyInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>(); 
-      
+        readonly HashSet<object> visitedMembers = new HashSet<object>();
+
+        readonly static IDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
+
         readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
+    }
+
+
+    public static class TypeExtensions
+    {
+        public static bool IsSystemType(this Type propertyType)
+        {
+            var nameOfContainingAssembly = propertyType.Assembly.FullName.ToLower();
+
+            return nameOfContainingAssembly.StartsWith("mscorlib") || nameOfContainingAssembly.StartsWith("system.core");
+        }
+    }
+
+    public static class MemberInfoExtensions
+    {
+        public static object GetValue(this MemberInfo member, object source)
+        {
+            if (member is FieldInfo)
+                return ((FieldInfo)member).GetValue(source);
+
+            return ((PropertyInfo)member).GetValue(source, null);
+        }
+
+        public static void SetValue(this MemberInfo member, object target, object value)
+        {
+            if (member is FieldInfo)
+                ((FieldInfo)member).SetValue(target, value);
+            else
+                ((PropertyInfo)member).SetValue(target, value, null);
+        }
+
     }
 }

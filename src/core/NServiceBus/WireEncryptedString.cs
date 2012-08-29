@@ -32,7 +32,47 @@ namespace NServiceBus
         /// <summary>
         /// The encrypted value of this string
         /// </summary>
-        public EncryptedValue EncryptedValue { get; set; }
+        public EncryptedValue EncryptedValue
+        {
+            get
+            {
+                if (encryptedValue != null)
+                    return encryptedValue;
+
+                if(EncryptedBase64Value != null)
+                    return new EncryptedValue
+                               {
+                                   EncryptedBase64Value = EncryptedBase64Value,
+                                   Base64Iv =  Base64Iv
+                               };
+                return null;
+            }
+            set
+            {
+                encryptedValue = value;
+
+                if(encryptedValue != null)
+                {
+                    EncryptedBase64Value = encryptedValue.EncryptedBase64Value;
+                    Base64Iv = encryptedValue.Base64Iv;
+                }
+            }
+        }
+        EncryptedValue encryptedValue;
+        
+        //**** we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
+
+        /// <summary>
+        /// Only keept for backwards compatibility reasons
+        /// </summary>
+        public string EncryptedBase64Value { get; set; }
+
+        /// <summary>
+        /// Only keept for backwards compatibility reasons
+        /// </summary>
+        public string Base64Iv { get; set; }
+        
+        //****
 
         /// <summary>
         /// Gets the string value from the WireEncryptedString.
