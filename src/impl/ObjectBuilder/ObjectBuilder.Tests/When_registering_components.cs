@@ -41,7 +41,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void A_registration_should_be_allowed_to_be_updated()
         {
-
+         
             ForAllBuilders((builder) =>
             {
                 builder.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
@@ -76,15 +76,15 @@ namespace ObjectBuilder.Tests
                 builder.Configure(typeof(ComponentThatDependsOnMultiSingeltons), DependencyLifecycle.InstancePerCall);
 
                 var dep =
-                    builder.Build(typeof(ComponentThatDependsOnMultiSingeltons)) as
+                    builder.Build(typeof (ComponentThatDependsOnMultiSingeltons)) as
                     ComponentThatDependsOnMultiSingeltons;
 
-                Assert.NotNull(dep.Singleton1);
+                Assert.NotNull(dep.Singleton1); 
                 Assert.NotNull(dep.Singleton2);
 
                 Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
-            }, typeof(SpringObjectBuilder));
+            },typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace ObjectBuilder.Tests
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
                 Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-
+                
             });
         }
 
@@ -161,16 +161,16 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders(builder =>
                                {
-                                   builder.Configure(typeof(ComponentWithMultipleInterfaces),
+                                   builder.Configure(typeof (ComponentWithMultipleInterfaces),
                                                      DependencyLifecycle.InstancePerCall);
 
-                                   Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+                                   Assert.True(builder.HasComponent(typeof (ISomeInterface)));
 
-                                   Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+                                   Assert.True(builder.HasComponent(typeof (ISomeOtherInterface)));
 
-                                   Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+                                   Assert.True(builder.HasComponent(typeof (IYetAnotherInterface)));
 
-                                   Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+                                   Assert.AreEqual(1, builder.BuildAll(typeof (IYetAnotherInterface)).Count());
                                }
                 );
         }
@@ -191,7 +191,7 @@ namespace ObjectBuilder.Tests
                 Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
 
             }
-            , typeof(WindsorObjectBuilder));
+            ,typeof(WindsorObjectBuilder));
         }
 
         [Test]
@@ -199,10 +199,10 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders(builder =>
                                {
-                                   builder.Configure(typeof(ComponentWithGenericInterface),
+                                   builder.Configure(typeof (ComponentWithGenericInterface),
                                                      DependencyLifecycle.InstancePerCall);
 
-                                   Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
+                                   Assert.True(builder.HasComponent(typeof (ISomeGenericInterface<string>)));
                                }
                 );
         }
@@ -212,11 +212,11 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders(builder =>
                                {
-                                   builder.Configure(typeof(ComponentWithSystemInterface),
+                                   builder.Configure(typeof (ComponentWithSystemInterface),
                                                      DependencyLifecycle.InstancePerCall);
 
-                                   Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));
-                                   Assert.False(builder.HasComponent(typeof(IDisposable)));
+                                   Assert.False(builder.HasComponent(typeof (IGrouping<string, string>)));
+                                   Assert.False(builder.HasComponent(typeof (IDisposable)));
                                }
                 );
         }
@@ -248,7 +248,7 @@ namespace ObjectBuilder.Tests
     {
     }
 
-    public class ComponentWithSystemInterface : IGrouping<string, string>, IDisposable
+    public class ComponentWithSystemInterface : IGrouping<string, string>,IDisposable
     {
         public IEnumerator<string> GetEnumerator()
         {
