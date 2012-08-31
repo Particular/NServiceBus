@@ -17,7 +17,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
-        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
             TimeoutManagerDataEntity lastSuccessfullReadEntity;
@@ -37,17 +37,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
             nextTimeToRunQuery = futureTimeouts.Count == 0 ? lastSuccessfullRead.AddMinutes(1) : futureTimeouts.First().Time;
 
-            var results = pastTimeouts.Select(c => new TimeoutData
-            {
-                Destination = Address.Parse(c.Destination),
-                SagaId = c.SagaId,
-                State = Download(c.StateAddress),
-                Time = c.Time,
-                CorrelationId = c.CorrelationId,
-                Id = c.RowKey,
-                OwningTimeoutManager = c.OwningTimeoutManager,
-                Headers = Deserialize(c.Headers)
-            }).ToList();
+            var results = pastTimeouts
+                .Select(c => new Tuple<String, DateTime>(c.RowKey, c.Time))
+                .ToList();
 
             UpdateSuccesfullRead(context, lastSuccessfullReadEntity);
 
@@ -106,25 +98,44 @@ namespace NServiceBus.Timeout.Hosting.Azure
             context.SaveChanges();
         }
 
-        public bool TryRemove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
+            timeoutData = null;
+
             var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
             try
             {
                 TimeoutDataEntity timeoutDataEntity;
                 if (!TryGetTimeoutData(context, timeoutId, string.Empty, out timeoutDataEntity))
+                {
                     return false;
+                }
+
+                timeoutData = new TimeoutData
+                    {
+                        Destination = Address.Parse(timeoutDataEntity.Destination),
+                        SagaId = timeoutDataEntity.SagaId,
+                        State = Download(timeoutDataEntity.StateAddress),
+                        Time = timeoutDataEntity.Time,
+                        CorrelationId = timeoutDataEntity.CorrelationId,
+                        Id = timeoutDataEntity.RowKey,
+                        OwningTimeoutManager = timeoutDataEntity.OwningTimeoutManager,
+                        Headers = Deserialize(timeoutDataEntity.Headers)
+                    };
 
                 TimeoutDataEntity timeoutDataEntityBySaga;
                 if (TryGetTimeoutData(context, timeoutDataEntity.SagaId.ToString(), timeoutId, out timeoutDataEntityBySaga))
+                {
                     context.DeleteObject(timeoutDataEntityBySaga);
+                }
 
                 TimeoutDataEntity timeoutDataEntityByTime;
                 if (TryGetTimeoutData(context, timeoutDataEntity.Time.ToString("yyyMMddHH"), timeoutId, out timeoutDataEntityByTime))
+                {
                     context.DeleteObject(timeoutDataEntityByTime);
+                }
 
                 RemoveState(timeoutDataEntity.StateAddress);
-                
                 
                 context.DeleteObject(timeoutDataEntity);
 

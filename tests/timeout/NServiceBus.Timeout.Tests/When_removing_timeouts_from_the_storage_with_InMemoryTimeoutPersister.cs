@@ -19,21 +19,22 @@ namespace NServiceBus.Timeout.Tests
 
             persister.Add(t2);
 
-            var t = GetNextChunk();
+            var timeouts = GetNextChunk();
 
-            foreach (var timeoutData in t)
+            foreach (var timeout in timeouts)
             {
                 using (var tx = new TransactionScope())
                 {
-                    persister.TryRemove(timeoutData.Id);
+                    TimeoutData timeoutData;
+                    persister.TryRemove(timeout.Item1, out timeoutData);
 
                     tx.Complete();
                 }
             }
 
-            t = GetNextChunk();
+            timeouts = GetNextChunk();
 
-            Assert.AreEqual(0, t.Count());
+            Assert.AreEqual(0, timeouts.Count());
         }
     }
 }

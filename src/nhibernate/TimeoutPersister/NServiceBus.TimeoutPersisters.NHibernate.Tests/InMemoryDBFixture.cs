@@ -25,6 +25,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
         [SetUp]
         public void SetupContext()
         {
+            HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
 #if USESQL
             var sqlBuilder = new SqlConnectionStringBuilder();
             sqlBuilder.DataSource = @".\SQLEXPRESS";

@@ -1,7 +1,6 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using Core;
     using Unicast.Queuing;
@@ -10,8 +9,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     public class TimeoutPersisterReceiver
     {
-        const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
-
         static readonly ILog Logger = LogManager.GetLogger("TimeoutPersisterReceiver");
 
         readonly object lockObject = new object();
@@ -57,27 +54,30 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         void Poll()
         {
-            int pollingFailuresCount = 0;
+            var pollingFailuresCount = 0;
+            var startSlice = DateTime.UtcNow.AddYears(-10);
 
             while (!stopRequested)
             {
-                if (nextRetrieval.AddMilliseconds(-200) > DateTime.UtcNow)
+                if (nextRetrieval.AddSeconds(-1) > DateTime.UtcNow)
                 {
-                    Thread.Sleep(1);
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
                     continue;
                 }
 
                 try
                 {
                     DateTime nextExpiredTimeout;
-                    var timeoutDatas = TimeoutsPersister.GetNextChunk(out nextExpiredTimeout);
+                    var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
 
                     foreach (var timeoutData in timeoutDatas)
                     {
-                        if (timeoutData.Time <= DateTime.UtcNow)
+                        if (startSlice < timeoutData.Item2)
                         {
-                            MessageSender.Send(MapToTransportMessage(timeoutData), TimeoutDispatcherProcessor.TimeoutDispatcherAddress);
+                            startSlice = timeoutData.Item2;
                         }
+
+                        MessageSender.Send(CreateTransportMessage(timeoutData.Item1), TimeoutDispatcherProcessor.TimeoutDispatcherAddress);
                     }
 
                     lock (lockObject)
@@ -99,49 +99,24 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Polling of timeouts failed.", ex);
-
                     if (pollingFailuresCount >= 10)
                     {
+                        Logger.Fatal("Polling of timeouts has failed the maximum number of times.", ex);
                         throw; //This should bring down the whole endpoint
                     }
+
+                    Logger.Error("Polling of timeouts failed.", ex);
 
                     pollingFailuresCount++;
                 }
             }
         }
 
-        static TransportMessage MapToTransportMessage(TimeoutData timeoutData)
+        static TransportMessage CreateTransportMessage(string timeoutData)
         {
-            var replyToAddress = Address.Local;
-            if (timeoutData.Headers != null && timeoutData.Headers.ContainsKey(OriginalReplyToAddress))
-            {
-                replyToAddress = Address.Parse(timeoutData.Headers[OriginalReplyToAddress]);
-                timeoutData.Headers.Remove(OriginalReplyToAddress);
-            }
+            var transportMessage = ControlMessage.Create();
 
-            var transportMessage = new TransportMessage
-                {
-                    ReplyToAddress = replyToAddress,
-                    Headers = new Dictionary<string, string>(),
-                    Recoverable = true,
-                    MessageIntent = MessageIntentEnum.Send,
-                    CorrelationId = timeoutData.CorrelationId,
-                    Body = timeoutData.State
-                };
-
-            if (timeoutData.Headers != null)
-            {
-                transportMessage.Headers = timeoutData.Headers;
-            }
-            else if (timeoutData.SagaId != Guid.Empty)
-            {
-                transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
-            }
-
-            //Add extra header so we don't need to convert again to TimeoutData
-            transportMessage.Headers["Timeout.Destination"] = timeoutData.Destination.ToString();
-            transportMessage.Headers["Timeout.Id"] = timeoutData.Id;
+            transportMessage.Headers["Timeout.Id"] = timeoutData;
 
             return transportMessage;
         }

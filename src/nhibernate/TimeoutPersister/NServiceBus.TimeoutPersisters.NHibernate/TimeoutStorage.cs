@@ -13,7 +13,7 @@
     {
         public ISessionFactory SessionFactory { get; set; }
 
-        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             const int maxRecords = 200;
 
@@ -23,23 +23,17 @@
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var timeoutEntities = session.QueryOver<TimeoutEntity>()
-                    .Where(x => x.Endpoint == Configure.EndpointName && x.Time <= now)
+                    .Where(x => x.Endpoint == Configure.EndpointName)
+                    .And(x => x.Time >= startSlice && x.Time <= now)
                     .OrderBy(x => x.Time).Asc
+                    .Select(x => x.Id, x => x.Time)
                     .Take(maxRecords + 1)
-                    .List();
+                    .List <object[]>()
+                    .Select(properties => new Tuple<string, DateTime>(((Guid)properties[0]).ToString(), (DateTime) properties[1]))
+                    .ToList();
 
                 var results = timeoutEntities
                     .Take(maxRecords)
-                    .Select(te => new TimeoutData
-                        {
-                            CorrelationId = te.CorrelationId,
-                            Destination = te.Destination,
-                            Id = te.Id.ToString(),
-                            SagaId = te.SagaId,
-                            State = te.State,
-                            Time = te.Time,
-                            Headers = ConvertStringToDictionary(te.Headers),
-                        })
                     .ToList();
 
                 if (timeoutEntities.Count > maxRecords)
@@ -50,19 +44,19 @@
                 {
                     //Retrieve next time we need to run query
                     var startOfNextChunk = session.QueryOver<TimeoutEntity>()
-                        .Where(x => x.Endpoint == Configure.EndpointName && x.Time <= now)
+                        .Where(x => x.Endpoint == Configure.EndpointName)
+                        .Where(x => x.Time > now)
                         .OrderBy(x => x.Time).Asc
                         .Take(1)
                         .SingleOrDefault();
-                        
 
                     if (startOfNextChunk != null)
                     {
                         nextTimeToRunQuery = startOfNextChunk.Time;
                     }
-                    else //If no more documents in database then re-query in 1 minutes
+                    else
                     {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
+                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
                     }
                 }
 
@@ -97,20 +91,34 @@
             timeout.Id = newId.ToString();
         }
 
-        public bool TryRemove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            using (var session = SessionFactory.OpenStatelessSession())
+            using (var session = SessionFactory.OpenSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
-                var queryString = string.Format("delete {0} where Id = :timeoutId",
-                                        typeof(TimeoutEntity));
-                int result = session.CreateQuery(queryString)
-                    .SetParameter("timeoutId", Guid.Parse(timeoutId))
-                    .ExecuteUpdate();
+                var te = session.Get<TimeoutEntity>(new Guid(timeoutId));
 
+                if (te == null)
+                {
+                    timeoutData = null;
+                    return false;
+                }
+
+                timeoutData = new TimeoutData
+                    {
+                        CorrelationId = te.CorrelationId,
+                        Destination = te.Destination,
+                        Id = te.Id.ToString(),
+                        SagaId = te.SagaId,
+                        State = te.State,
+                        Time = te.Time,
+                        Headers = ConvertStringToDictionary(te.Headers),
+                    };
+
+                session.Delete(te);
                 tx.Commit();
 
-                return result > 0;
+                return true;
             }
         }
 

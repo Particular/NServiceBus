@@ -83,7 +83,7 @@ namespace NServiceBus.Timeout.Tests
             }
 
             DateTime nextTimeToRunQuery;
-            persister.GetNextChunk(out nextTimeToRunQuery);
+            persister.GetNextChunk(DateTime.UtcNow.AddYears(3), out nextTimeToRunQuery);
 
             Assert.True((DateTime.UtcNow - nextTimeToRunQuery).TotalMilliseconds < 200);
         }

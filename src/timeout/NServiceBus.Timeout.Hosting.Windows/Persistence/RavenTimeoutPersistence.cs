@@ -12,7 +12,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {
-        object deleteLock = new object();
         readonly IDocumentStore store;
 
         public RavenTimeoutPersistence(IDocumentStore store)
@@ -46,7 +45,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
         }
 
-        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             try
             {
@@ -58,19 +57,40 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     RavenQueryStatistics stats;
                     const int maxRecords = 200;
                     var results = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
-                        .Where(t => (t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName) && t.Time <= now)
+                        .Where(t => t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName)
+                        .Where(t => t.Time >= startSlice && t.Time <= now)
                         .OrderBy(t => t.Time)
                         .Statistics(out stats)
                         .Take(maxRecords)
+                        .ToList()
+                        .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
                         .ToList();
 
-                    if (stats.TotalResults > maxRecords || stats.IsStale)
+                    if (stats.TotalResults > maxRecords)
                     {
                         nextTimeToRunQuery = DateTime.UtcNow;
                     }
                     else
                     {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
+                        //Retrieve next time we need to run query
+                        var startOfNextChunk =
+                            session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                                .Where(
+                                    t =>
+                                    t.OwningTimeoutManager == String.Empty ||
+                                    t.OwningTimeoutManager == Configure.EndpointName)
+                                .Where(t => t.Time > now)
+                                .OrderBy(t => t.Time)
+                                .FirstOrDefault();
+
+                        if (startOfNextChunk != null)
+                        {
+                            nextTimeToRunQuery = startOfNextChunk.Time;
+                        }
+                        else
+                        {
+                            nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                        }
                     }
 
                     return results;
@@ -101,22 +121,19 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             }
         }
 
-        public bool TryRemove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            lock (deleteLock)
+            using (var session = OpenSession())
             {
-                using (var session = OpenSession())
-                {
-                    var timeoutData = session.Load<TimeoutData>(timeoutId);
+                timeoutData = session.Load<TimeoutData>(timeoutId);
 
-                    if (timeoutData == null)
-                        return false;
+                if (timeoutData == null)
+                    return false;
 
-                    session.Delete(timeoutData);
-                    session.SaveChanges();
+                session.Delete(timeoutData);
+                session.SaveChanges();
 
-                    return true;
-                }
+                return true;
             }
         }
 

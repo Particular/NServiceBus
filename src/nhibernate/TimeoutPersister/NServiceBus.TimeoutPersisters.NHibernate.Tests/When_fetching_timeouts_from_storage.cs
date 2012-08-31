@@ -28,35 +28,31 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                   });
             }
             DateTime nextTimeToRunQuery;
-            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetNextChunk(out nextTimeToRunQuery).Count());
+            Assert.AreEqual(numberOfTimeoutsToAdd, persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery).Count());
         }
 
         [Test]
-        public void Should_return_the_correct_headers()
+        public void Should_return_the_next_time_of_retrieval()
         {
-            const int numberOfTimeoutsToAdd = 10;
-            var headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } };
+            var nextTime = DateTime.UtcNow.AddHours(1);
 
-            for (var i = 0; i < numberOfTimeoutsToAdd; i++)
+            persister.Add(new TimeoutData
             {
-                persister.Add(new TimeoutData
-                {
-                    Time = DateTime.UtcNow.AddHours(-1),
-                    CorrelationId = "boo",
-                    Destination = new Address("timeouts", Environment.MachineName),
-                    SagaId = Guid.NewGuid(),
-                    State = new byte[] { 1, 1, 133, 200 },
-                    Headers = headers,
-                    OwningTimeoutManager = Configure.EndpointName,
-                });
-            }
+                Time = nextTime,
+                CorrelationId = "boo",
+                Destination = new Address("timeouts", Environment.MachineName),
+                SagaId = Guid.NewGuid(),
+                State = new byte[] { 0, 0, 133 },
+                Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } },
+                OwningTimeoutManager = Configure.EndpointName,
+            });
+            
+
 
             DateTime nextTimeToRunQuery;
-            var timeouts = persister.GetNextChunk(out nextTimeToRunQuery);
-            foreach (var timeoutData in timeouts)
-            {
-                CollectionAssert.AreEqual(headers, timeoutData.Headers);
-            }
+            persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
+
+            Assert.IsTrue((nextTime - nextTimeToRunQuery).TotalSeconds < 1);
         }
     }
 }

@@ -10,16 +10,24 @@
         readonly IList<TimeoutData> storage = new List<TimeoutData>();
         readonly object lockObject = new object();
 
-        public List<TimeoutData> GetNextChunk(out DateTime nextTimeToRunQuery)
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             lock (lockObject)
             {
-                var timeouts = new List<TimeoutData>(storage.Where(data => data.Time <= DateTime.UtcNow));
-                var nextTimeout = storage.Where(data => data.Time > DateTime.UtcNow).OrderBy(data => data.Time).FirstOrDefault();
+                var results = storage
+                    .Where(data => data.Time >= startSlice && data.Time <= DateTime.UtcNow)
+                    .OrderBy(data => data.Time)
+                    .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
+                    .ToList();
+
+                var nextTimeout = storage
+                    .Where(data => data.Time > DateTime.UtcNow)
+                    .OrderBy(data => data.Time)
+                    .FirstOrDefault();
 
                 nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
 
-                return timeouts;
+                return results;
             }
         }
 
@@ -32,18 +40,13 @@
             }
         }
 
-        public bool TryRemove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
             lock (lockObject)
             {
-                var timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
+                timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
                 
-                if (timeoutData == null)
-                {
-                    return false;
-                }
-
-                return storage.Remove(timeoutData);
+                return timeoutData != null && storage.Remove(timeoutData);
             }
         }
 

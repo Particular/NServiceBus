@@ -28,11 +28,10 @@ namespace NServiceBus.Timeout.Tests
             persister = new RavenTimeoutPersistence(store);
         }
 
-        public List<TimeoutData> GetNextChunk()
+        public List<Tuple<string, DateTime>> GetNextChunk()
         {
-            DateTime nextTimeToRunQuery = DateTime.MinValue;
-
-            return persister.GetNextChunk(out nextTimeToRunQuery);
+            DateTime nextTimeToRunQuery;
+            return persister.GetNextChunk(DateTime.UtcNow.AddYears(3), out nextTimeToRunQuery);
         }
     }
 }

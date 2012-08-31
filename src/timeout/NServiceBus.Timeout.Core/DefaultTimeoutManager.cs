@@ -9,7 +9,6 @@
     {
         const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
 
-
         public IPersistTimeouts TimeoutsPersister { get; set; }
 
         public ISendMessages MessageSender { get; set; }
@@ -18,7 +17,7 @@
 
         public void PushTimeout(TimeoutData timeout)
         {
-            if (timeout.Time <= DateTime.UtcNow)
+            if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
                 MessageSender.Send(MapToTransportMessage(timeout), timeout.Destination);
                 return;
@@ -27,12 +26,14 @@
             TimeoutsPersister.Add(timeout);
 
             if (TimeoutPushed != null)
+            {
                 TimeoutPushed.BeginInvoke(this, timeout, ar => {}, null);
+            }
         }
 
         public void RemoveTimeout(string timeoutId)
         {
-            TimeoutsPersister.TryRemove(timeoutId);
+            //TimeoutsPersister.TryRemove(timeoutId);
         }
 
         public void RemoveTimeoutBy(Guid sagaId)

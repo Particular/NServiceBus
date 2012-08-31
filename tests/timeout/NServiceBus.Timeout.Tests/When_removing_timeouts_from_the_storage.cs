@@ -28,11 +28,12 @@
 
             var timouts = GetNextChunk().ToList();
 
-            foreach (var timeoutData in timouts)
+            foreach (var timeout in timouts)
             {
                 using (var tx = new TransactionScope())
                 {
-                    persister.TryRemove(timeoutData.Id);
+                    TimeoutData timeoutData;
+                    persister.TryRemove(timeout.Item1, out timeoutData);
                     tx.Complete();
                 }
             }
