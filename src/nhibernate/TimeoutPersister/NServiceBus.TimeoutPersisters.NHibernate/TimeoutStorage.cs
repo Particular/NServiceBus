@@ -15,49 +15,35 @@
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            const int maxRecords = 200;
-
             DateTime now = DateTime.UtcNow;
             
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
-                var timeoutEntities = session.QueryOver<TimeoutEntity>()
+                var results = session.QueryOver<TimeoutEntity>()
                     .Where(x => x.Endpoint == Configure.EndpointName)
                     .And(x => x.Time >= startSlice && x.Time <= now)
                     .OrderBy(x => x.Time).Asc
                     .Select(x => x.Id, x => x.Time)
-                    .Take(maxRecords + 1)
                     .List <object[]>()
                     .Select(properties => new Tuple<string, DateTime>(((Guid)properties[0]).ToString(), (DateTime) properties[1]))
                     .ToList();
 
-                var results = timeoutEntities
-                    .Take(maxRecords)
-                    .ToList();
+               //Retrieve next time we need to run query
+                var startOfNextChunk = session.QueryOver<TimeoutEntity>()
+                    .Where(x => x.Endpoint == Configure.EndpointName)
+                    .Where(x => x.Time > now)
+                    .OrderBy(x => x.Time).Asc
+                    .Take(1)
+                    .SingleOrDefault();
 
-                if (timeoutEntities.Count > maxRecords)
+                if (startOfNextChunk != null)
                 {
-                    nextTimeToRunQuery = DateTime.UtcNow;
+                    nextTimeToRunQuery = startOfNextChunk.Time;
                 }
                 else
                 {
-                    //Retrieve next time we need to run query
-                    var startOfNextChunk = session.QueryOver<TimeoutEntity>()
-                        .Where(x => x.Endpoint == Configure.EndpointName)
-                        .Where(x => x.Time > now)
-                        .OrderBy(x => x.Time).Asc
-                        .Take(1)
-                        .SingleOrDefault();
-
-                    if (startOfNextChunk != null)
-                    {
-                        nextTimeToRunQuery = startOfNextChunk.Time;
-                    }
-                    else
-                    {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
-                    }
+                    nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
                 }
 
                 tx.Commit();
