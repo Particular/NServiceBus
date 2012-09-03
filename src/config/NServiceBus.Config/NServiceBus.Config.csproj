@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="AddressInitializer.cs" />
     <Compile Include="AllAssemblies.cs" />
+    <Compile Include="CheckNetBiosNameLength.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
