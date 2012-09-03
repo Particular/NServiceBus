@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Validates that NetBIOS name is shorter than 15 characters.
-    /// See <a href="http://social.msdn.microsoft.com/Forums/en/windowstransactionsprogramming/thread/1ddb9665-1a28-4d3e-bddd-50de2f07543a"></a>
+    /// See <a href="http://nservicebus.com/faq/DTCPIngWARNING.aspx">Unusual DTCPing result</a>
     /// </summary>
     public class CheckNetBiosNameLength : IWantToRunBeforeConfiguration
     {
@@ -15,7 +15,7 @@
         {
             var netBiosName = System.Environment.MachineName;
             if (netBiosName.Length < 15) return;
-            throw new ConfigurationErrorsException(string.Format("NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work.", netBiosName));
+            throw new ConfigurationErrorsException(string.Format("NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: unusual DTCPing result. See http://nservicebus.com/faq/DTCPIngWARNING.aspx", netBiosName));
         }
     }
 }
