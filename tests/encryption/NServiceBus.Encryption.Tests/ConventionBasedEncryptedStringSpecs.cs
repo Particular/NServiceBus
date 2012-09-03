@@ -11,13 +11,14 @@
         {    
             var message = new ConventionBasedSecureMessage()
                               {
-                                  EncryptedSecret="A secret"
+                                  EncryptedSecret = "A secret"
                               };
             mutator.MutateOutgoing(message);
 
             Assert.AreEqual(string.Format("{0}@{1}", "encrypted value", "init_vector"), message.EncryptedSecret);
         }
     }
+
     [TestFixture]
     public class When_receiving_a_message_with_user_defined_convention : UserDefinedConventionContext
     {
@@ -30,11 +31,9 @@
             };
             mutator.MutateIncoming(message);
 
-            Assert.AreEqual("A secret",message.EncryptedSecret);
+            Assert.AreEqual("A secret", message.EncryptedSecret);
         }
     }
-
-   
 
     [TestFixture]
     public class When_encrypting_a_property_that_is_not_a_string:UserDefinedConventionContext
@@ -45,6 +44,7 @@
             Assert.Throws<InvalidOperationException>(() => mutator.MutateOutgoing(new MessageWithNonStringSecureProperty()));
         }
     }
+
     [TestFixture]
     public class When_decrypting_a_property_that_is_not_a_string : UserDefinedConventionContext
     {
@@ -54,7 +54,6 @@
             Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(new MessageWithNonStringSecureProperty()));
         }
     }
-
 
     public class UserDefinedConventionContext : WireEncryptedStringContext
     {
