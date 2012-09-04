@@ -125,25 +125,59 @@
     }
 
     [TestFixture]
-    public class When_checking_a_message_for_whether_it_needs_to_be_encrypted_or_not : WireEncryptedStringContext
+    public class Mailing_list_complex_dto : WireEncryptedStringContext
     {
         [Test]
-        public void Should_support_enums_as_a_dictionary_key()
+        public void This_whould_work()
         {
-            var message = new MessageWithindexdProperties();
+            var message = new TestDto();
 
-            message.Dictionary = new Dictionary<DayOfWeek, Dictionary<string, string>>();
-            message.Dictionary.Add(DayOfWeek.Friday, new Dictionary<string, string> { { "Key1", "Value1" }, { "Key2", "Value2" } });
+            var dict = message.Options[TestEnum.EnumValue1];
+            dict["test"] = "asdf";
+
+            message.Options[TestEnum.EnumValue1]["test"] = "asdf";
 
             mutator.MutateOutgoing(message);
 
-            Assert.AreEqual(1, message.Dictionary.Count);
-            Assert.AreEqual("Value2", message.Dictionary[DayOfWeek.Friday]["Key2"]);
+            Assert.True(message.Options.ContainsKey(TestEnum.EnumValue1));
         }
 
-        public class MessageWithindexdProperties : IMessage
+        public enum TestEnum
         {
-            public Dictionary<DayOfWeek, Dictionary<string, string>> Dictionary { get; set; }
+            EnumValue1
+        }
+
+        public class TestOptions
+        {
+            private readonly Dictionary<TestEnum, Dictionary<string, string>> _dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
+            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return _dictionary; } }
+
+            public bool ContainsKey(TestEnum key)
+            {
+                return _dictionary.ContainsKey(key);
+            }
+
+            public IEnumerable<TestEnum> Keys { get { return _dictionary.Keys; } }
+
+            public Dictionary<string, string> this[TestEnum appEnum]
+            {
+                get
+                {
+                    return _dictionary.ContainsKey(appEnum)
+                        ? _dictionary[appEnum]
+                        : _dictionary[appEnum] = new Dictionary<string, string>();
+                }
+            }
+        }
+
+        public class TestDto
+        {
+            public TestDto()
+            {
+                Options = new TestOptions();
+            }
+
+            public TestOptions Options { get; set; }
         }
     }
 
@@ -153,7 +187,7 @@
         [Test]
         public void Should_decrypt_the_property_correctly()
         {
-            var message = new MessageWithindexdProperties()
+            var message = new MessageWithIndexProperties()
                 {
                     Secret = Create()
                 };
@@ -168,7 +202,7 @@
             Assert.AreEqual(MySecretMessage, message.Secret.Value);
         }
 
-        public class MessageWithindexdProperties : IMessage
+        public class MessageWithIndexProperties : IMessage
         {
             private readonly string[] indexedList = new string[2];
 
