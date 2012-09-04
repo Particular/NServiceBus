@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Services.Client;
-using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Script.Serialization;
@@ -32,7 +30,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                           select c).ToList().OrderBy(c => c.Time);
 
             var allTimeouts = result.ToList();
-            var pastTimeouts = allTimeouts.Where(c => c.Time <= DateTime.UtcNow).ToList();
+            var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= DateTime.UtcNow).ToList();
             var futureTimeouts = allTimeouts.Where(c => c.Time > DateTime.UtcNow).ToList();
 
             nextTimeToRunQuery = futureTimeouts.Count == 0 ? lastSuccessfullRead.AddMinutes(1) : futureTimeouts.First().Time;
