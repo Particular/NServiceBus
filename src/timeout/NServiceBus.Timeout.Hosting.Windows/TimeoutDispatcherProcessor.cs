@@ -45,7 +45,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             inputTransport = new TransactionalTransport
                 {
-                    MessageReceiver = new MsmqMessageReceiver(),
+                    MessageReceiver = TimeoutMessageProcessor.MessageReceiverFactory != null ? TimeoutMessageProcessor.MessageReceiverFactory() : new MsmqMessageReceiver(),
                     IsTransactional = true,
                     NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                     MaxRetries = MainTransport.MaxRetries,
