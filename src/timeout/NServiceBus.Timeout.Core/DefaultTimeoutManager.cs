@@ -33,7 +33,9 @@
 
         public void RemoveTimeout(string timeoutId)
         {
-            //TimeoutsPersister.TryRemove(timeoutId);
+            TimeoutData timeoutData;
+
+            TimeoutsPersister.TryRemove(timeoutId, out timeoutData);
         }
 
         public void RemoveTimeoutBy(Guid sagaId)

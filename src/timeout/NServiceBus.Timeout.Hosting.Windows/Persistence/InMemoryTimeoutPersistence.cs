@@ -15,7 +15,7 @@
             lock (lockObject)
             {
                 var results = storage
-                    .Where(data => data.Time >= startSlice && data.Time <= DateTime.UtcNow)
+                    .Where(data => data.Time > startSlice && data.Time <= DateTime.UtcNow)
                     .OrderBy(data => data.Time)
                     .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
                     .ToList();

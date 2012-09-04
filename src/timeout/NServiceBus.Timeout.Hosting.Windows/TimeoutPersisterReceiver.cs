@@ -20,10 +20,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
+        public int SecondsToSleepBetweenPolls { get; set; }
 
         public TimeoutPersisterReceiver(IManageTimeouts timeoutsManager)
         {
             timeoutsManager.TimeoutPushed += TimeoutsManagerOnTimeoutPushed;
+            
+            SecondsToSleepBetweenPolls = 5;
 
             workerThread = new Thread(Poll) { IsBackground = true };
         }
@@ -59,14 +62,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             while (!stopRequested)
             {
-                if (nextRetrieval.AddSeconds(-1) > DateTime.UtcNow)
+                if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    Thread.Sleep(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
                     continue;
                 }
 
                 try
                 {
+                    Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+
                     DateTime nextExpiredTimeout;
                     var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
 
@@ -94,6 +99,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                         timeoutPushed = false;
                     }
+
+                    Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
 
                     pollingFailuresCount = 0;
                 }
