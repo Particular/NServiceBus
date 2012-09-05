@@ -21,7 +21,7 @@ namespace NServiceBus.Timeout.Tests
             store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
-
+           
             return new RavenTimeoutPersistence(store);
         }
 

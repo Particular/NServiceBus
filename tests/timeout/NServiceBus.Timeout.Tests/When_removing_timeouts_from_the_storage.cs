@@ -20,7 +20,7 @@
         {
             store = new EmbeddableDocumentStore {RunInMemory = true};
             //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.MonotonicRead;
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
 
@@ -62,34 +62,19 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            using (var tx = new TransactionScope())
-            {
-                var t1 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
-                persister.Add(t1);
-                tx.Complete();
-            }
+            var t1 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+            persister.Add(t1);
 
-            using (var tx = new TransactionScope())
-            {
-                var t2 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
-                persister.Add(t2);
-                tx.Complete();
-            }
+            var t2 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+            persister.Add(t2);
 
             var timeouts = GetNextChunk();
 
             foreach (var timeout in timeouts)
             {
-                using (var tx = new TransactionScope())
-                {
-                    TimeoutData timeoutData;
-                    persister.TryRemove(timeout.Item1, out timeoutData);
-                    tx.Complete();
-                }
+                TimeoutData timeoutData;
+                persister.TryRemove(timeout.Item1, out timeoutData);
             }
-
-            //Wait for transactions to catch up
-            Thread.Sleep(5000);
 
             Assert.AreEqual(0, GetNextChunk().Count);
         }
