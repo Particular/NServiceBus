@@ -9,6 +9,8 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 {
+    using System.Threading.Tasks;
+
     [TestFixture, Ignore]
     public class SqlServerMessageQueueTests
     {
@@ -16,7 +18,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
         private XmlMessageSerializer _xmlMessageSerializer;
         private MessageMapper _messageMapper;
 
-        private const string ConStr = "Server=MIKNOR8540WW7\\sqlexpress;Database=NSB;Trusted_Connection=True;";
+        private const string ConStr = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=SiteB;Integrated Security=True;";
 
         [SetUp]
         public void SetUp()
@@ -177,7 +179,24 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
             Assert.AreEqual(m1.TimeToBeReceived, m2.TimeToBeReceived);
 
         }
+        [Test]
+        public void MultiThreadedReceiver()
+        {
+            const int expects = 100;
+            Init();
+            Parallel.For(0, expects, i => Send());
+            var result = 0;
 
+            Parallel.For(0, expects + expects, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
+            {
+                if (_mq.Receive() != null)
+                {
+                    Interlocked.Increment(ref result);
+                };
+            });
+
+            Assert.AreEqual(expects, result);
+        }
         static TransportMessage CreateNewTransportMessage()
         {
             var message = new TransportMessage

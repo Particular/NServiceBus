@@ -21,12 +21,9 @@
 
         #region ISendMessages
 
-        private string SQL_SEND = @" DECLARE @NextId [uniqueidentifier] = NEWID();
-                                     
-                                     INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                     VALUES (@NextId,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body);
-	                                 
-                                     SELECT @NextId";
+        private string SQL_SEND = @"INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    OUTPUT inserted.Id 
+                                    VALUES (NEWID(),@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
 
         public void Send(TransportMessage message, Address address)
         {
@@ -86,25 +83,10 @@
             return true;
         }
 
-        private string SQL_RECEIVE = @" declare @NextId [uniqueidentifier]                                        
-                                        declare @IdForCorrelation [varchar](255) 
-                                        declare @CorrelationId [varchar](255)                                        
-                                        declare @ReplyToAddress [varchar](255) 
-                                        declare @Recoverable [bit]
-                                        declare @MessageIntent [varchar](16)
-                                        declare @TimeToBeReceived [bigint]                                        
-                                        declare @Headers [varchar](8000)
-                                        declare @Body [varchar](max)
-
-                                        SELECT TOP 1 @NextId=[Id],@IdForCorrelation=IdForCorrelation,@CorrelationId=CorrelationId,@ReplyToAddress=ReplyToAddress,@Recoverable=Recoverable,@MessageIntent=MessageIntent,@TimeToBeReceived=TimeToBeReceived,@Headers=Headers,@Body=Body
-                                        FROM [{0}] WITH (UPDLOCK, READPAST)	                                         
-                                        ORDER BY TimeStamp ASC;
-
-                                        IF (@NextId IS NOT NULL)
-                                        BEGIN		
-	                                        SELECT @NextId,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body
-	                                        DELETE FROM [{0}] WHERE Id = @NextId
-                                        END";
+        private string SQL_RECEIVE = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.IdForCorrelation, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
         
         public TransportMessage Receive()
         {
