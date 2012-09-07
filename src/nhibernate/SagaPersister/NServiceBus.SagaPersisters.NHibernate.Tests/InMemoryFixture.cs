@@ -1,12 +1,16 @@
-using System.IO;
-using NHibernate;
-using NServiceBus.SagaPersisters.NHibernate.Config.Internal;
-using NServiceBus.UnitOfWork;
-using NUnit.Framework;
-
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.Configuration;
+    using System.IO;
+    using System.Security.Principal;
+    using Config.Installer;
+    using NUnit.Framework;
+    using Persistence.NHibernate;
+    using UnitOfWork;
     using UnitOfWork.NHibernate;
+    using global::NHibernate;
 
     public class InMemoryFixture
     {
@@ -14,17 +18,47 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         protected SagaPersister SagaPersister;
         protected ISessionFactory SessionFactory;
 
+        private const string dialect = "NHibernate.Dialect.SQLiteDialect";
+
         [SetUp]
         public void SetUp()
         {
-            var nhibernateProperties = SQLiteConfiguration.UsingFile(Path.GetTempFileName());
+            string connectionString = String.Format(@"Data Source={0};Version=3;New=True;", Path.GetTempFileName());
 
-            SessionFactory = new SessionFactoryBuilder(typeof(TestSaga).Assembly.GetTypes())
-                .Build(nhibernateProperties, true);
+            Configure.ConfigurationSource = new FakeConfigurationSource();
+
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
+                                                               {
+                                                                   {"NServiceBus/Persistence/NHibernate/dialect", dialect}
+                                                               };
+
+            NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
+                                                                     {
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate/Saga", connectionString)
+                                                                     };
+
+            ConfigureNHibernate.Init();
+
+
+            Configure.With(typeof(TestSaga).Assembly.GetTypes())
+                .DefineEndpointName("Foo")
+                .DefaultBuilder()
+                .Sagas()
+                .UseNHibernateSagaPersister();
+
+            SessionFactory = Configure.Instance.Builder.Build<ISessionFactory>();
 
             SagaPersister = new SagaPersister { SessionFactory = SessionFactory };
 
             UnitOfWork = new UnitOfWorkManager { SessionFactory = SessionFactory };
+
+            new Installer().Install(WindowsIdentity.GetCurrent());
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            SessionFactory.Close();
         }
     }
 }

@@ -1,8 +1,8 @@
-using System;
-using NUnit.Framework;
-
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using System;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_persisting_sagas_on_non_transactional_endpoints : InMemoryFixture
     {

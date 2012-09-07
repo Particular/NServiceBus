@@ -1,10 +1,10 @@
-using System.Linq;
-using NHibernate;
-using NServiceBus.UnitOfWork.NHibernate;
-using NUnit.Framework;
-
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using System.Linq;
+    using NUnit.Framework;
+    using UnitOfWork.NHibernate;
+    using global::NHibernate;
+
     [TestFixture]
     public class When_configuring_the_saga_persister_from_appconfig
     {
@@ -13,7 +13,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [SetUp]
         public void SetUp()
         {
-
             config = Configure.With(new[] { typeof(MySaga).Assembly })
                 .DefineEndpointName("xyz")
                 .DefaultBuilder()

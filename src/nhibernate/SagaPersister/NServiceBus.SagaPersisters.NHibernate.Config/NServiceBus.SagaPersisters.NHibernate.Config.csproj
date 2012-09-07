@@ -45,16 +45,20 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\..\packages\Obsolete.Fody.1.0.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureNHibernateSagaPersister.cs" />
+    <Compile Include="Installer\Installer.cs" />
     <Compile Include="Internal\SessionFactoryBuilder.cs" />
-    <Compile Include="Internal\SQLiteConfiguration.cs" />
     <Compile Include="NHibernateSagaPersisterConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -96,4 +100,5 @@
   <PropertyGroup>
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\..\build\nhibernate\"</notused>
   </PropertyGroup>
+  <Import Project="$(ProjectPath)\..\..\..\..\..\Tools\Fody\Fody.targets" />
 </Project>

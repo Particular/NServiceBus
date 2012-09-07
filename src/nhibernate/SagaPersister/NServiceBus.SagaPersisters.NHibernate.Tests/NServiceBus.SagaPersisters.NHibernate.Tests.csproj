@@ -90,8 +90,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeConfigurationSource.cs" />
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="MySaga.cs" />
+    <Compile Include="SQLiteConfiguration.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_automapping_sagas.cs" />
     <Compile Include="When_building_the_sessionfactory.cs" />
@@ -103,6 +105,10 @@
     <Compile Include="When_persisting_sagas_on_transactional_endpoints.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\NServiceBus.Persistence.NHibernate\NServiceBus.Persistence.NHibernate.csproj">
+      <Project>{C01D0E0E-4712-4A5B-9C79-7E0424811703}</Project>
+      <Name>NServiceBus.Persistence.NHibernate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\UnitOfWork\NServiceBus.UnitOfWork.NHibernate.Config\NServiceBus.UnitOfWork.NHibernate.Config.csproj">
       <Project>{EC6FD140-4970-4414-A972-AE3D3576328E}</Project>
       <Name>NServiceBus.UnitOfWork.NHibernate.Config</Name>

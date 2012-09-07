@@ -1,7 +1,6 @@
 ﻿using System;
 using NHibernate.Exceptions;
 using NServiceBus.Saga;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests

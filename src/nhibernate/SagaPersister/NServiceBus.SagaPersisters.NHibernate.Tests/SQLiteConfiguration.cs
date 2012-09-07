@@ -1,8 +1,8 @@
-namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
+namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using System.Collections.Generic;
     using global::NHibernate.Cfg;
-    
+
     /// <summary>
     /// SQLite Configuration
     /// </summary>

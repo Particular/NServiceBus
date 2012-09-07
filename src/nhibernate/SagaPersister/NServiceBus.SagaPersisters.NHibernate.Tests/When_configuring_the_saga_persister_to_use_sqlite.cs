@@ -1,8 +1,8 @@
-﻿using NHibernate;
-using NUnit.Framework;
-
-namespace NServiceBus.SagaPersisters.NHibernate.Tests
+﻿namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using NUnit.Framework;
+    using global::NHibernate;
+
     [TestFixture]
     public class When_configuring_the_saga_persister_to_use_sqlite
     {
@@ -12,9 +12,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void SetUp()
         {
             config = Configure.With(new[] { typeof(MySaga).Assembly})
+                .DefineEndpointName("Foo")
                 .DefaultBuilder()
                 .Sagas()
-                .NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration();
+                .UseNHibernateSagaPersister();
         }
 
         [Test]
@@ -22,7 +23,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var persister = config.Builder.Build<SagaPersister>();
 
-            Assert.AreNotEqual(persister,config.Builder.Build<SagaPersister>());
+            Assert.AreNotEqual(persister, config.Builder.Build<SagaPersister>());
         }
 
         [Test]
@@ -31,7 +32,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var sessionFactory = config.Builder.Build<ISessionFactory>();
 
             Assert.NotNull(sessionFactory);
-            Assert.AreEqual(sessionFactory,config.Builder.Build<ISessionFactory>());
+            Assert.AreEqual(sessionFactory, config.Builder.Build<ISessionFactory>());
         }
     }
 }
