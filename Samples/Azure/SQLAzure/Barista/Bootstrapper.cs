@@ -24,17 +24,18 @@ namespace Barista
         {
 
             Configure.With()
-               .Log4Net()
-               .StructureMapBuilder(ObjectFactory.Container)
-               .AzureMessageQueue().JsonSerializer()
-               .UseNHibernateSubscriptionPersister()
-               .Sagas()
-                .NHibernateSagaPersister().NHibernateUnitOfWork()
-               .UnicastBus()
-               .LoadMessageHandlers()
-               .IsTransactional(true)
-               .CreateBus()
-               .Start();
+                .Log4Net()
+                .StructureMapBuilder(ObjectFactory.Container)
+                .AzureMessageQueue().JsonSerializer()
+                .UseNHibernateSubscriptionPersister()
+                .Sagas()
+                .UseNHibernateSagaPersister()
+                .NHibernateUnitOfWork()
+                .UnicastBus()
+                .LoadMessageHandlers()
+                .IsTransactional(true)
+                .CreateBus()
+                .Start();
         }
     }
 }
