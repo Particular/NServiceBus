@@ -2,13 +2,17 @@ namespace NServiceBus.Notifications
 {
     using NServiceBus;
 
-    public class RegisterSystemMessages:IWantToRunBeforeConfiguration
+    /// <summary>
+    /// Registers send email notifications.
+    /// </summary>
+    public class RegisterSystemMessages : IWantToRunBeforeConfiguration
     {
+        /// <summary>
+        /// Invoked before configuration starts.
+        /// </summary>
         public void Init()
         {
-            MessageConventionExtensions.AddSystemMessagesConventions(t=>typeof(SendEmail) == t);
+            MessageConventionExtensions.AddSystemMessagesConventions(t => typeof (SendEmail) == t);
         }
-
-        
     }
 }

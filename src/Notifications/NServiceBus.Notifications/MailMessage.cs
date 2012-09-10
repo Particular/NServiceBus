@@ -203,7 +203,7 @@ namespace NServiceBus
         /// Converts <see cref="MailMessage"/> to <see cref="System.Net.Mail.MailMessage"/>.
         /// </summary>
         /// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
-        public System.Net.Mail.MailMessage ToMailMessage()
+        internal System.Net.Mail.MailMessage ToMailMessage()
         {
             var mail = new System.Net.Mail.MailMessage();
             if (From != null)

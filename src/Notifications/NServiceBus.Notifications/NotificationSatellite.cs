@@ -8,16 +8,26 @@
     using Satellites;
     using Serialization;
 
+    /// <summary>
+    /// Satellite implementation to handle <see cref="SendEmail"/> messages.
+    /// </summary>
     public class NotificationSatellite : ISatellite
     {
-        public IMessageSerializer MessageSerializer { get; set; }
+        private readonly IMessageSerializer messageSerializer;
+
+        public NotificationSatellite( IMessageSerializer messageSerializer)
+        {
+            this.messageSerializer = messageSerializer;
+        }
 
         public void Handle(TransportMessage message)
         {
             SendEmail sendEmail;
 
             using (var stream = new MemoryStream(message.Body))
-                sendEmail = (SendEmail)MessageSerializer.Deserialize(stream).First();
+            {
+                sendEmail = (SendEmail)messageSerializer.Deserialize(stream).First();
+            }
 
             using (var c = new SmtpClient())
             using (var mailMessage = sendEmail.Message.ToMailMessage())

@@ -4,6 +4,9 @@ namespace NServiceBus
     using Config;
     using Notifications;
 
+    /// <summary>
+    /// Extension methods for notifications
+    /// </summary>
     public static class BusExtensions
     {
         /// <summary>
@@ -22,6 +25,6 @@ namespace NServiceBus
                                              });
         }
    
-        public static Address NotificationAddress = Address.Local.SubScope("Notifications");
+        internal static readonly Address NotificationAddress = Address.Local.SubScope("Notifications");
     }
 }
