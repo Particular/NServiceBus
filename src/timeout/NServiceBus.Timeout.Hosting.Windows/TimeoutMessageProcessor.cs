@@ -12,7 +12,6 @@
 
     public class TimeoutMessageProcessor : IWantToRunWhenTheBusStarts, IDisposable 
     {
-        const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
@@ -24,7 +23,7 @@
 
         public IBuilder Builder { get; set; }
 
-        public IManageTimeouts TimeoutsManager { get; set; }
+        public IManageTimeouts TimeoutManager { get; set; }
 
         public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
 
@@ -83,7 +82,7 @@
                 destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
             }
 
-            TimeoutsManager.RemoveTimeout(timeoutId);
+            TimeoutManager.RemoveTimeout(timeoutId);
             MessageSender.Send(message, destination);
         }
 
@@ -101,7 +100,7 @@
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                TimeoutsManager.RemoveTimeoutBy(sagaId);
+                TimeoutManager.RemoveTimeoutBy(sagaId);
             }
             else
             {
@@ -122,10 +121,10 @@
                 //add a temp header so that we can make sure to restore the ReplyToAddress
                 if (message.ReplyToAddress != null)
                 {
-                    data.Headers[OriginalReplyToAddress] = message.ReplyToAddress.ToString();
+                    data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress.ToString();
                 }
 
-                TimeoutsManager.PushTimeout(data);
+                TimeoutManager.PushTimeout(data);
             }
         }
     }

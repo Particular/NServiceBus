@@ -119,11 +119,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        static TransportMessage CreateTransportMessage(string timeoutData)
+        static TransportMessage CreateTransportMessage(string timeoutId)
         {
-            var transportMessage = ControlMessage.Create();
+            //use the dispatcher as the replytoaddress so that retries go back to the dispatcher q
+            // instead of the main endpoint q
+            var transportMessage = ControlMessage.Create(TimeoutDispatcherProcessor.TimeoutDispatcherAddress);
 
-            transportMessage.Headers["Timeout.Id"] = timeoutData;
+            transportMessage.Headers["Timeout.Id"] = timeoutId;
 
             return transportMessage;
         }

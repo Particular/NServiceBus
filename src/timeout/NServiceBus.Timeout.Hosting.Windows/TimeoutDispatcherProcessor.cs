@@ -1,7 +1,6 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
-    using System.Collections.Generic;
     using Core;
     using Faults;
     using ObjectBuilder;
@@ -65,41 +64,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if(TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(MapToTransportMessage(timeoutData), timeoutData.Destination);
+                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
             }
-        }
-
-        private const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
-
-        static TransportMessage MapToTransportMessage(TimeoutData timeoutData)
-        {
-            var replyToAddress = Address.Local;
-            if (timeoutData.Headers != null && timeoutData.Headers.ContainsKey(OriginalReplyToAddress))
-            {
-                replyToAddress = Address.Parse(timeoutData.Headers[OriginalReplyToAddress]);
-                timeoutData.Headers.Remove(OriginalReplyToAddress);
-            }
-
-            var transportMessage = new TransportMessage
-            {
-                ReplyToAddress = replyToAddress,
-                Headers = new Dictionary<string, string>(),
-                Recoverable = true,
-                MessageIntent = MessageIntentEnum.Send,
-                CorrelationId = timeoutData.CorrelationId,
-                Body = timeoutData.State
-            };
-
-            if (timeoutData.Headers != null)
-            {
-                transportMessage.Headers = timeoutData.Headers;
-            }
-            else if (timeoutData.SagaId != Guid.Empty)
-            {
-                transportMessage.Headers[Headers.SagaId] = timeoutData.SagaId.ToString();
-            }
-
-            return transportMessage;
         }
 
         public void Dispose()
