@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Configuration\EndpointSLAAttribute.cs" />
+    <Compile Include="Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Helpers\AssemblyScanner.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="GenericHost.cs" />

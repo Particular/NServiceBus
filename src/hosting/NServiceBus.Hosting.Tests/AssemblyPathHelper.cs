@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
+namespace NServiceBus.Hosting.Tests
+{
+    public class AssemblyPathHelper
+    {
+        public static List<Assembly> GetAllAssemblies()
+        {
+            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var uri = new UriBuilder(codeBase);
+            var path = Uri.UnescapeDataString(uri.Path);
+            var directoryName = Path.GetDirectoryName(path);
+            var files = Directory.EnumerateFiles(directoryName, "*.dll").ToList();
+
+            var allAssemblies = files
+                .Select(Assembly.LoadFrom)
+                .ToList();
+
+            return allAssemblies;
+        }
+    }
+}

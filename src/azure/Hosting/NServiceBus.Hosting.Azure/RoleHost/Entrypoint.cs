@@ -51,11 +51,11 @@ namespace NServiceBus.Hosting.Azure
 
             if (specifier is AsA_Host)
             {
-                host = new DynamicHostController(specifier, requestedProfiles, new[] { typeof(Development) }, endpointName);
+                host = new DynamicHostController(specifier, requestedProfiles, new List<Type> { typeof(Development) }, endpointName);
             }
             else
             {
-                host = new GenericHost(specifier, requestedProfiles, new[] { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
+                host = new GenericHost(specifier, requestedProfiles, new List<Type> { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
             }
 
             return true;

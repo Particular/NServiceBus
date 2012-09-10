@@ -12,7 +12,7 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            roleManager = new RoleManager(new[] { typeof(RoleManagerTests).Assembly });
+            roleManager = new RoleManager(new[] {typeof (RoleManagerTests).Assembly});
         }
 
         [Test]
@@ -32,9 +32,9 @@ namespace NServiceBus.Hosting.Tests
         }
     }
 
-    internal class ConfigurationWithTestRole:IConfigureThisEndpoint,TestRole
+    internal class ConfigurationWithTestRole : IConfigureThisEndpoint, TestRole
     {
-        
+
     }
 
     internal class ConfigurationWithInheritedRole : IConfigureThisEndpoint, InheritedRole
@@ -42,11 +42,15 @@ namespace NServiceBus.Hosting.Tests
 
     }
 
-    public interface TestRole:IRole{}
+    public interface TestRole : IRole
+    {
+    }
 
-    public interface InheritedRole : TestRole { }
+    public interface InheritedRole : TestRole
+    {
+    }
 
-    public class TestRoleConfigurer:IConfigureRole<TestRole>
+    public class TestRoleConfigurer : IConfigureRole<TestRole>
     {
         public static bool ConfigureCalled = false;
 

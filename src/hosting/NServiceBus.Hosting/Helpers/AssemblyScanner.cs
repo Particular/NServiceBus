@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using NServiceBus.Utils.Reflection;
 
 namespace NServiceBus.Hosting.Helpers
 {
@@ -22,17 +20,18 @@ namespace NServiceBus.Hosting.Helpers
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         public static AssemblyScannerResults GetScannableAssemblies()
         {
-            var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.dll", SearchOption.AllDirectories)
-                .Union(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.exe", SearchOption.AllDirectories));
+            var baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var assemblyFiles = baseDir.GetFiles("*.dll", SearchOption.AllDirectories)
+                .Union(baseDir.GetFiles("*.exe", SearchOption.AllDirectories));
             var results = new AssemblyScannerResults();
             foreach (var assemblyFile in assemblyFiles)
             {
                 try
                 {
-                    Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                    var assembly = Assembly.LoadFrom(assemblyFile.FullName);
 
                     //will throw if assembly cannot be loaded
-                    assembly.GetTypes();
+                    //assembly.GetTypes();
                     results.Assemblies.Add(assembly);
                 }
                 catch (BadImageFormatException bif)
@@ -57,35 +56,5 @@ namespace NServiceBus.Hosting.Helpers
             }
             return results;
         }
-    }
-
-    internal static class AssemblyListExtensions
-    {
-        public static IEnumerable<Type> AllTypes(this IEnumerable<Assembly> assemblies)
-        {
-            foreach (var assembly in assemblies)
-                foreach (var type in assembly.GetTypes())
-                {
-                    yield return type;
-                }
-        }
-
-
-        public static IEnumerable<Type> AllTypesAssignableTo<T>(this IEnumerable<Assembly> assemblies)
-        {
-            return assemblies.AllTypesAssignableTo(typeof(T));
-        }
-
-        public static IEnumerable<Type> AllTypesAssignableTo(this IEnumerable<Assembly> assemblies, Type type)
-        {
-            return assemblies.AllTypes().Where(type.IsAssignableFrom);
-        }
-
-        public static IEnumerable<Type> AllTypesClosing(this IEnumerable<Assembly> assemblies, Type openGenericType, Type genericArg)
-        {
-            return assemblies.AllTypes().Where(type => type.GetGenericallyContainedType(openGenericType, genericArg) != null);
-        }
-
-
     }
 }

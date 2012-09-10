@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
+using NServiceBus.Hosting.Helpers;
 using NServiceBus.Logging;
 using NServiceBus.Utils.Reflection;
 
@@ -14,7 +15,7 @@ namespace NServiceBus.Hosting.Profiles
     public class ProfileManager
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
-        private readonly IEnumerable<Type> activeProfiles;
+        internal readonly List<Type> activeProfiles;
         private readonly IConfigureThisEndpoint specifier;
 
         /// <summary>
@@ -24,14 +25,18 @@ namespace NServiceBus.Hosting.Profiles
         /// <param name="specifier"></param>
         /// <param name="args"></param>
         /// <param name="defaultProfiles"></param>
-        public ProfileManager(IEnumerable<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, IEnumerable<Type> defaultProfiles)
+        public ProfileManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles)
         {
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
-            var profiles = new List<Type>(GetProfilesFrom(assembliesToScan).Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower())));
 
-            if (profiles.Count() == 0)
-                profiles = defaultProfiles.ToList().ConvertAll(p => p);
+            var profiles = assembliesToScan
+                .AllTypesAssignableTo<IProfile>()
+                .Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower()))
+                .ToList();
+
+            if (profiles.Count == 0)
+                profiles = defaultProfiles;
 
             var implements = new List<Type>(profiles);
             foreach (var interfaces in profiles.Select(p => p.GetInterfaces()))
@@ -126,15 +131,6 @@ namespace NServiceBus.Hosting.Profiles
             profileHandlers.ForEach(hp => hp.ProfileActivated());
         }
 
-        private static IEnumerable<Type> GetProfilesFrom(IEnumerable<Assembly> assembliesToScan)
-        {
-            IEnumerable<Type> profiles = new List<Type>();
-
-            foreach (var assembly in assembliesToScan)
-                profiles = profiles.Union(assembly.GetTypes().Where(t => typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile)));
-
-            return profiles;
-        }
 
         private static ILog Logger = LogManager.GetLogger("NServiceBus.Host");
     }

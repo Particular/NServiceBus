@@ -28,7 +28,7 @@ namespace NServiceBus.Hosting.Windows
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Production) }, endpointName, scannableAssembliesFullName);
+            genericHost = new GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 
