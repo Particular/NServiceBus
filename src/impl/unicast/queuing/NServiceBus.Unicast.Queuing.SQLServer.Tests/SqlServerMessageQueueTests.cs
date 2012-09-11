@@ -172,7 +172,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
             Assert.AreEqual(m1.CorrelationId, m2.CorrelationId);
             Assert.AreEqual(m1.Headers, m2.Headers);
             Assert.AreEqual(m1.Id, m2.Id);
-            Assert.AreEqual(m1.IdForCorrelation, m2.IdForCorrelation);
+            Assert.AreEqual(m1.Id, m2.IdForCorrelation);
             Assert.AreEqual(m1.MessageIntent, m2.MessageIntent);
             Assert.AreEqual(m1.Recoverable, m2.Recoverable);
             Assert.AreEqual(m1.ReplyToAddress, m2.ReplyToAddress);
