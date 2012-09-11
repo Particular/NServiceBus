@@ -46,11 +46,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         {
             try
             {
-                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive());
-                if (m == null)
-                    return null;
+                using (var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive()))
+                {
+                    if (m == null)
+                        return null;
 
-                return MsmqUtilities.Convert(m);
+                    return MsmqUtilities.Convert(m);
+                }
             }
             catch (MessageQueueException mqe)
             {

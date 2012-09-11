@@ -3,7 +3,6 @@
     using System;
     using System.Messaging;
     using System.Transactions;
-    using Utils;
     using Config;
 
     public class MsmqMessageSender : ISendMessages
@@ -13,19 +12,20 @@
             var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
-                using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
+                using (var q = new MessageQueue(queuePath, false, true,  QueueAccessMode.Send))
                 {
-                    var toSend = MsmqUtilities.Convert(message);
+                    using (Message toSend = MsmqUtilities.Convert(message))
+                    {
+                        toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+                        toSend.UseJournalQueue = UseJournalQueue;
 
-                    toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                    toSend.UseJournalQueue = UseJournalQueue;
+                        if (message.ReplyToAddress != null)
+                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
-                    if (message.ReplyToAddress != null)
-                        toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
+                        q.Send(toSend, GetTransactionTypeForSend());
 
-                    q.Send(toSend, GetTransactionTypeForSend());
-
-                    message.Id = toSend.Id;
+                        message.Id = toSend.Id;
+                    }
                 }
             }
             catch (MessageQueueException ex)
