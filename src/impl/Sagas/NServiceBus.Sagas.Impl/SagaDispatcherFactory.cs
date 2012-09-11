@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Logging;
+    using Logging;
     using Finders;
     using ObjectBuilder;
     using Saga;
     using Unicast;
+    using Utils;
 
     /// <summary>
     /// Dispatch factory that can dispatch messages to sagas

@@ -89,7 +89,6 @@
     </Compile>
     <Compile Include="ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Finders\HeaderSagaIdFinder.cs" />
-    <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="Finders\NullSagaFinder.cs" />
     <Compile Include="MessageExtensions.cs" />
     <Compile Include="OriginatingSagaHeaderMutator.cs" />

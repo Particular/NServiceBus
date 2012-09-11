@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DtcUtil.cs" />
+    <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="HeaderInfo.cs" />
     <Compile Include="MsmqInstallation.cs" />
     <Compile Include="ProcessUtil.cs" />

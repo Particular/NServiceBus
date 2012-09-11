@@ -1,7 +1,7 @@
-using System;
-
-namespace NServiceBus.Sagas.Impl
+namespace NServiceBus.Utils
 {
+    using System;
+
     /// <summary>
     /// Generates <see cref="System.Guid"/> values 
     /// using a strategy suggested Jimmy Nilsson's 
