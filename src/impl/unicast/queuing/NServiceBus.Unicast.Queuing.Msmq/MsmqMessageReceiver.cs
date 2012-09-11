@@ -1,14 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Messaging;
-using System.Security.Principal;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Utils;
-using Common.Logging;
-
-namespace NServiceBus.Unicast.Queuing.Msmq
+﻿namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using System;
+    using System.Diagnostics;
+    using System.Messaging;
+    using System.Security.Principal;
+    using Common.Logging;
+    using Transport;
     using Transport.Transactional.Config;
+    using Utils;
 
     public class MsmqMessageReceiver : IReceiveMessages
     {
@@ -49,8 +48,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         {
             try
             {
-                var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait));
-                return m != null;
+                using (var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait)))
+                {
+                    return m != null;
+                }
             }
             catch (MessageQueueException mqe)
             {
@@ -86,18 +87,19 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 Logger.Fatal(e);
                 throw;
             }
-
         }
 
         public TransportMessage Receive()
         {
             try
             {
-                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive());
-                if (m == null)
-                    return null;
+                using (var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive()))
+                {
+                    if (m == null)
+                        return null;
 
-                return MsmqUtilities.Convert(m);
+                    return MsmqUtilities.Convert(m);
+                }
             }
             catch (MessageQueueException mqe)
             {
@@ -139,20 +141,19 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return MessageQueueTransactionType.Automatic;
         }
 
-
         /// <summary>
         /// Sets whether or not the transport should purge the input
         /// queue when it is started.
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
-
-        private int secondsToWait = 1;
         public int SecondsToWaitForMessage
         {
             get { return secondsToWait;  }
             set { secondsToWait = value; }
         }
+
+        private int secondsToWait = 1;
 
         private MessageQueue myQueue;
 
