@@ -31,7 +31,7 @@
         public byte[] State { get; set; }
 
         /// <summary>
-        /// The time at which the saga ID expired.
+        /// The time at which the timeout expires.
         /// </summary>
         public DateTime Time { get; set; }
 
