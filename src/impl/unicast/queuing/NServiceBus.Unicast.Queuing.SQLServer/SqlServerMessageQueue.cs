@@ -10,20 +10,22 @@
     using Serialization;
     using Serializers.Json;
     using Transport;
+    using Utils;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
         private string currentEndpointName;
-        static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+
+        private const string SqlReceive = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.IdForCorrelation, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
+        private const string SqlSend = @"INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@Id,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
 
         public string ConnectionString { get; set; }
-        public IMessageSerializer MessageSerializer { get; set; }  
-
-        #region ISendMessages
-
-        private string SQL_SEND = @"INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    OUTPUT inserted.Id 
-                                    VALUES (NEWID(),@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
+        public IMessageSerializer MessageSerializer { get; set; }
 
         public void Send(TransportMessage message, Address address)
         {
@@ -44,10 +46,13 @@
             
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var sql = string.Format(SQL_SEND, address); 
+                var sql = string.Format(SqlSend, address); 
                 connection.Open();                
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {
+                    var id = GuidCombGenerator.Generate();
+
+                    command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = id;
                     command.Parameters.Add("IdForCorrelation", SqlDbType.VarChar).Value = GetValue(message.IdForCorrelation);
                     command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
                     if (message.ReplyToAddress == null) // Sendonly endpoint
@@ -57,22 +62,21 @@
 	                command.Parameters.AddWithValue("Recoverable", message.Recoverable); 
 	                command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString()); 
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
-                    command.Parameters.AddWithValue("Headers", serializer.SerializeObject(message.Headers));
-                    command.Parameters.AddWithValue("Body", body); 
+                    command.Parameters.AddWithValue("Headers", Serializer.SerializeObject(message.Headers));
+                    command.Parameters.AddWithValue("Body", body);
 
-                    message.Id = command.ExecuteScalar().ToString();
+                    command.ExecuteNonQuery();
+
+                    message.Id = id.ToString();
                 }
             }                           
         }
 
-        private object GetValue(object value)
+        private static object GetValue(object value)
         {
             return value ?? DBNull.Value;
         }
 
-        #endregion
-
-        #region IReceiveMessages
         public void Init(Address address, bool transactional)
         {
             currentEndpointName = address.ToString();
@@ -83,16 +87,11 @@
             return true;
         }
 
-        private string SQL_RECEIVE = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
-			DELETE FROM message 
-			OUTPUT deleted.Id, deleted.IdForCorrelation, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
-        
         public TransportMessage Receive()
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var sql = string.Format(SQL_RECEIVE, currentEndpointName);
+                var sql = string.Format(SqlReceive, currentEndpointName);
                 connection.Open();
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {                    
@@ -111,7 +110,7 @@
                             Enum.TryParse(dataReader.GetString(5), out messageIntent);
 
                             var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));
-                            var headers = serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(7));
+                            var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(7));
                             var tmpBody = dataReader.GetString(8);
                             
                             byte[] body;
@@ -144,8 +143,8 @@
                     }
                 }
             }
+
             return null;
         }
-        #endregion        
     }
 }

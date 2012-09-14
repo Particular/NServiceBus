@@ -5,7 +5,6 @@ using System.Threading;
 using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Serializers.XML;
 using NUnit.Framework;
-using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 {
