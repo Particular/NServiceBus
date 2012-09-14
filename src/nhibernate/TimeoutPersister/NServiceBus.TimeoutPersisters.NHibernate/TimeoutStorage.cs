@@ -7,6 +7,7 @@
     using System.Linq;
     using Serializers.Json;
     using Timeout.Core;
+    using Utils;
     using global::NHibernate;
 
     /// <summary>
@@ -53,7 +54,7 @@
         /// <param name="timeout">Timeout to add.</param>
         public void Add(TimeoutData timeout)
         {
-            var newId = Guid.NewGuid();
+            var newId = GuidCombGenerator.Generate();
 
             using (var session = SessionFactory.OpenSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
