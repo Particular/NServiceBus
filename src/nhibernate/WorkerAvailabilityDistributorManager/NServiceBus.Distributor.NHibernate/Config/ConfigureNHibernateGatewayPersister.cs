@@ -46,7 +46,7 @@ namespace NServiceBus
             ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(ConfigureNHibernate.DistributorPersisterProperties);
 
             var properties = ConfigureNHibernate.DistributorPersisterProperties;
-            var configuration = new Configuration().AddProperties(properties);
+            var configuration = ConfigureNHibernate.CreateConfigurationWith(properties);
 
             return config.UseNHibernateDistributorInternal(configuration);
         }

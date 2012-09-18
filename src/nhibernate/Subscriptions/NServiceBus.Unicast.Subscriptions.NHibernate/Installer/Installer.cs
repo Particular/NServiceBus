@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.Unicast.Subscriptions.NHibernate.Installer
 {
+    using System;
     using System.Security.Principal;
     using Config;
-    using NServiceBus.Installation;
-    using NServiceBus.Installation.Environments;
-    using NServiceBus.Persistence.NHibernate;
-    using global::NHibernate.Cfg;
+    using NServiceBus.Config;
+    using Installation;
+    using Installation.Environments;
+    using Persistence.NHibernate;
     using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
@@ -26,9 +27,25 @@
         {
             if (RunInstaller)
             {
+                var configSection = Configure.GetConfigSection<DBSubscriptionStorageConfig>();
+
+                if (configSection != null)
+                {
+                    if (configSection.NHibernateProperties.Count == 0)
+                    {
+                        throw new InvalidOperationException(
+                            "No NHibernate properties found. Please specify NHibernateProperties in your DBSubscriptionStorageConfig section");
+                    }
+
+                    foreach (var property in configSection.NHibernateProperties.ToProperties())
+                    {
+                        ConfigureNHibernate.SubscriptionStorageProperties[property.Key] = property.Value;
+                    }
+                }
+
                 ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.SubscriptionStorageProperties);
-                
-                var configuration = new Configuration().AddProperties(ConfigureNHibernate.SubscriptionStorageProperties);
+
+                var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.SubscriptionStorageProperties);
                 ConfigureNHibernate.AddMappings<SubscriptionMap>(configuration);
                 new SchemaUpdate(configuration).Execute(false, true);
             }

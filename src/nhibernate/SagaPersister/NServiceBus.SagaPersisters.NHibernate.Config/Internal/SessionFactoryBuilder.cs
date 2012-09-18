@@ -6,7 +6,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
     using System.Linq;
     using AutoPersistence;
     using global::NHibernate;
+    using global::NHibernate.Cfg.MappingSchema;
     using global::NHibernate.Context;
+    using global::NHibernate.Mapping.ByCode;
     using Configuration = global::NHibernate.Cfg.Configuration;
 
     /// <summary>
@@ -40,8 +42,11 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
                 new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
             var mapping = modelMapper.Compile();
-
+            var s = mapping.AsString();
+            
             nhibernateConfiguration.AddMapping(mapping);
+
+            //nhibernateConfiguration.CreateMappings(HbmDialectScope).
 
             ApplyDefaultsTo(nhibernateConfiguration);
 

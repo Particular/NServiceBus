@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
             Configure.With(Enumerable.Empty<Type>())
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
-                .DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
+                .DBSubcriptionStorageWithSQLiteAndAutomaticSchemaGeneration();
 
             var expected = new Dictionary<string, string>
                                {
@@ -74,7 +74,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                                    {"connection.connection_string", "Data Source=.\\NServiceBus.Subscriptions.sqlite;Version=3;New=True;"},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
 
         class FakeConfigurationSource : IConfigurationSource

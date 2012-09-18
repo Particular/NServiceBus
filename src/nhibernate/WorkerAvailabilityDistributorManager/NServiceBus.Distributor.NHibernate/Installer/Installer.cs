@@ -2,10 +2,9 @@
 {
     using System.Security.Principal;
     using Config;
-    using NServiceBus.Installation;
-    using NServiceBus.Installation.Environments;
-    using NServiceBus.Persistence.NHibernate;
-    using global::NHibernate.Cfg;
+    using Installation;
+    using Installation.Environments;
+    using Persistence.NHibernate;
     using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
@@ -28,7 +27,7 @@
             {
                 ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.DistributorPersisterProperties);
 
-                var configuration = new Configuration().AddProperties(ConfigureNHibernate.DistributorPersisterProperties);
+                var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.DistributorPersisterProperties);
                 ConfigureNHibernate.AddMappings<DistributorMessageMap>(configuration);
                 new SchemaUpdate(configuration).Execute(false, true);
             }

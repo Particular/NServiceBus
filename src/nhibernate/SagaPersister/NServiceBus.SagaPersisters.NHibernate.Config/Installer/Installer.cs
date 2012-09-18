@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus.SagaPersisters.NHibernate.Config.Installer
 {
+    using System;
     using System.Linq;
     using System.Security.Principal;
     using AutoPersistence;
     using Installation;
     using Installation.Environments;
+    using NServiceBus.Config;
     using Persistence.NHibernate;
-    using global::NHibernate.Cfg;
     using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
@@ -27,9 +28,25 @@
         {
             if (RunInstaller)
             {
+                var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
+
+                if (configSection != null)
+                {
+                    if (configSection.NHibernateProperties.Count == 0)
+                    {
+                        throw new InvalidOperationException(
+                            "No NHibernate properties found. Please specify NHibernateProperties in your NHibernateSagaPersisterConfig section");
+                    }
+
+                    foreach (var property in configSection.NHibernateProperties.ToProperties())
+                    {
+                        ConfigureNHibernate.SagaPersisterProperties[property.Key] = property.Value;
+                    }
+                }
+
                 ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.SagaPersisterProperties);
 
-                var configuration = new Configuration().AddProperties(ConfigureNHibernate.SagaPersisterProperties);
+                var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.SagaPersisterProperties);
                 var typesToScan = Configure.TypesToScan.ToList();
                 var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
 
@@ -40,7 +57,7 @@
 
                 var modelMapper = new SagaModelMapper(typesToScan.Except(configuration.ClassMappings.Select(x => x.MappedClass)));
                 var mapping = modelMapper.Compile();
-
+                
                 configuration.AddMapping(mapping);
 
                 new SchemaUpdate(configuration).Execute(false, true);

@@ -2,10 +2,9 @@
 {
     using System.Security.Principal;
     using Config;
-    using NServiceBus.Installation;
-    using NServiceBus.Installation.Environments;
+    using Installation;
+    using Installation.Environments;
     using Persistence.NHibernate;
-    using global::NHibernate.Cfg;
     using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
@@ -28,7 +27,7 @@
             {
                 ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.GatewayPersisterProperties);
 
-                var configuration = new Configuration().AddProperties(ConfigureNHibernate.GatewayPersisterProperties);
+                var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.GatewayPersisterProperties);
                 ConfigureNHibernate.AddMappings<GatewayMessageMap>(configuration);
                 new SchemaUpdate(configuration).Execute(false, true);
             }

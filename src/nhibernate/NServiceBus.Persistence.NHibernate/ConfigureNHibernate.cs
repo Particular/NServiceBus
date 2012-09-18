@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Configuration;
+    using System.IO;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using System.Xml;
     using Logging;
     using global::NHibernate.Mapping.ByCode;
     using Configuration = global::NHibernate.Cfg.Configuration;
@@ -56,7 +58,7 @@ Here is an example of what is required:
                                                  new ConnectionStringSettingsCollection();
 
             var defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence/NHibernate");
-            var configurationProperties = new Dictionary<string, string>();
+            var configurationProperties = new Dictionary<string, string>(new Configuration().Properties);
 
             var appSettingsSection = NHibernateSettingRetriever.AppSettings() ?? new NameValueCollection();
             foreach (string appSetting in appSettingsSection)
@@ -64,12 +66,12 @@ Here is an example of what is required:
                 var match = PropertyRetrievalRegex.Match(appSetting);
                 if (match.Success)
                 {
-                    configurationProperties.Add(match.Groups[1].Value, appSettingsSection[appSetting]);
+                    configurationProperties[match.Groups[1].Value] = appSettingsSection[appSetting];
                 }
             }
             if (!String.IsNullOrEmpty(defaultConnectionString))
             {
-                configurationProperties.Add("connection.connection_string", defaultConnectionString);
+                configurationProperties["connection.connection_string"] = defaultConnectionString;
             }
 
             TimeoutPersisterProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
@@ -155,6 +157,11 @@ PM> Install-Package System.Data.SQLite.{1}
 
             properties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
             properties.Add("connection.connection_string", @"Data Source=.\NServiceBus.sqllite;Version=3;New=True;");
+        }
+
+        public static Configuration CreateConfigurationWith(IDictionary<string, string> properties)
+        {
+            return new Configuration().SetProperties(properties);
         }
 
         private static string GetConfigFileIfExists()

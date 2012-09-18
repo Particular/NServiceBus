@@ -57,7 +57,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                    {"connection.connection_string", "Data Source=.\\NServiceBus.Timeouts.sqlite;Version=3;New=True;"},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         class FakeConfigurationSource : IConfigurationSource

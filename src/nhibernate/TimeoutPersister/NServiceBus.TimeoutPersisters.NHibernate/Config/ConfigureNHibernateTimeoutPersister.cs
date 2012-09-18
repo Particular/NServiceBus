@@ -65,7 +65,7 @@ namespace NServiceBus
 
             var properties = ConfigureNHibernate.TimeoutPersisterProperties;
 
-            return config.UseNHibernateTimeoutPersisterInternal(new Configuration().AddProperties(properties),
+            return config.UseNHibernateTimeoutPersisterInternal(ConfigureNHibernate.CreateConfigurationWith(properties),
                                                                 configSection == null || configSection.UpdateSchema);
         }
 
@@ -119,11 +119,10 @@ namespace NServiceBus
         [ObsoleteEx(Replacement = "UseNHibernateTimeoutPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                        
         public static Configure UseNHibernateTimeoutPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            ConfigureNHibernate.TimeoutPersisterProperties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
-            ConfigureNHibernate.TimeoutPersisterProperties.Add("connection.connection_string", "Data Source=.\\NServiceBus.Timeouts.sqlite;Version=3;New=True;");
+            ConfigureNHibernate.TimeoutPersisterProperties["dialect"] = "NHibernate.Dialect.SQLiteDialect";
+            ConfigureNHibernate.TimeoutPersisterProperties["connection.connection_string"] = "Data Source=.\\NServiceBus.Timeouts.sqlite;Version=3;New=True;";
 
-            var configuration = new Configuration()
-                .AddProperties(ConfigureNHibernate.TimeoutPersisterProperties);
+            var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.TimeoutPersisterProperties);
 
             return config.UseNHibernateTimeoutPersisterInternal(configuration, true);
         }

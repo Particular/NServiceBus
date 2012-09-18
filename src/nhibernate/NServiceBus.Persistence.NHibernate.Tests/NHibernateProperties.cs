@@ -32,11 +32,11 @@ namespace NServiceBus.Persistence.NHibernate.Tests
                                    {"connection.connection_string", connectionString}
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.DistributorPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.GatewayPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SagaPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.DistributorPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.GatewayPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SagaPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -67,11 +67,11 @@ namespace NServiceBus.Persistence.NHibernate.Tests
                                           {"connection.connection_string", connectionString}
                                       };
 
-            CollectionAssert.AreEquivalent(expectedDefault, ConfigureNHibernate.DistributorPersisterProperties);
-            CollectionAssert.AreEquivalent(expectedDefault, ConfigureNHibernate.GatewayPersisterProperties);
-            CollectionAssert.AreEquivalent(expectedDefault, ConfigureNHibernate.SagaPersisterProperties);
-            CollectionAssert.AreEquivalent(expectedDefault, ConfigureNHibernate.SubscriptionStorageProperties);
-            CollectionAssert.AreEquivalent(expectedForTimeout, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expectedDefault, ConfigureNHibernate.DistributorPersisterProperties);
+            CollectionAssert.IsSubsetOf(expectedDefault, ConfigureNHibernate.GatewayPersisterProperties);
+            CollectionAssert.IsSubsetOf(expectedDefault, ConfigureNHibernate.SagaPersisterProperties);
+            CollectionAssert.IsSubsetOf(expectedDefault, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expectedForTimeout, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -99,11 +99,11 @@ namespace NServiceBus.Persistence.NHibernate.Tests
                                    {"connection.driver_class", "driver_class"},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.DistributorPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.GatewayPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SagaPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.DistributorPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.GatewayPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SagaPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
         [Test]
@@ -129,11 +129,11 @@ namespace NServiceBus.Persistence.NHibernate.Tests
                                    {"connection.connection_string", connectionString},
                                };
 
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.DistributorPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.GatewayPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SagaPersisterProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.SubscriptionStorageProperties);
-            CollectionAssert.AreEquivalent(expected, ConfigureNHibernate.TimeoutPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.DistributorPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.GatewayPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SagaPersisterProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
+            CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
     }
 }

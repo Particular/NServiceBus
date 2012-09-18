@@ -71,7 +71,7 @@
 
             var properties = ConfigureNHibernate.SagaPersisterProperties;
 
-            return config.UseNHibernateSagaPersisterInternal(new Configuration().AddProperties(properties),
+            return config.UseNHibernateSagaPersisterInternal(ConfigureNHibernate.CreateConfigurationWith(properties),
                                                                 configSection == null || configSection.UpdateSchema);
         }
 
@@ -147,11 +147,10 @@
         [ObsoleteEx(Replacement = "UseNHibernateSagaPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                                
         public static Configure NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            ConfigureNHibernate.SubscriptionStorageProperties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
-            ConfigureNHibernate.SubscriptionStorageProperties.Add("connection.connection_string", "Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;");
+            ConfigureNHibernate.SubscriptionStorageProperties["dialect"] = "NHibernate.Dialect.SQLiteDialect";
+            ConfigureNHibernate.SubscriptionStorageProperties["connection.connection_string"] = "Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;";
 
-            var configuration = new Configuration()
-                .AddProperties(ConfigureNHibernate.SagaPersisterProperties);
+            var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.SagaPersisterProperties);
 
             return config.UseNHibernateSagaPersisterInternal(configuration, true);
         }
@@ -175,7 +174,7 @@
                 ConfigureNHibernate.SagaPersisterProperties[property.Key] = property.Value;
             }
 
-            return config.UseNHibernateSagaPersisterInternal(new Configuration().AddProperties(ConfigureNHibernate.SagaPersisterProperties), autoUpdateSchema);
+            return config.UseNHibernateSagaPersisterInternal(ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.SagaPersisterProperties), autoUpdateSchema);
         }
     }
 }
