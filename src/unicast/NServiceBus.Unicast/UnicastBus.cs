@@ -22,6 +22,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
+    using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Config;
 
@@ -1053,7 +1054,7 @@ namespace NServiceBus.Unicast
             if (!m.IsControlMessage() && !SkipDeserialization)
             {
                 messages = Extract(m);
-
+                
                 if (messages == null || messages.Length == 0)
                 {
                     Log.Warn("Received an empty message - ignoring.");
@@ -1077,6 +1078,7 @@ namespace NServiceBus.Unicast
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
                 var canDispatch = true;
+
                 foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
                 {
                     if (condition(messageToHandle)) continue;
@@ -1103,6 +1105,7 @@ namespace NServiceBus.Unicast
                     LogPipelineInfo(messageToHandle, handlers);
                 }
             }
+
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
 
@@ -1122,11 +1125,14 @@ namespace NServiceBus.Unicast
 
         private object[] Extract(TransportMessage m)
         {
+            
+            if (m.Body == null || m.Body.Length == 0)
+            {
+                return null;
+            }    
+            
             try
             {
-                if (m.Body == null || m.Body.Length == 0)
-                    return null;
-
                 return MessageSerializer.Deserialize(new MemoryStream(m.Body));
             }
             catch (Exception e)
@@ -1135,12 +1141,12 @@ namespace NServiceBus.Unicast
                 {
                     FailureManager.SerializationFailedForMessage(m, e);
                 }
-                catch (Exception exception)
+                catch (Exception)
                 {
                     Configure.Instance.OnCriticalError();
                 }
 
-                return null;
+                throw new SerializationException("Could not deserialize message.", e);
             }
         }
 
@@ -1150,7 +1156,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="builder">The builder used to construct the handlers.</param>
         /// <param name="toHandle">The message to dispatch to the handlers.</param>
-        /// <param name="messageType">The message type by which to locate the correct handlers.</param>
         /// <returns></returns>
         /// <remarks>
         /// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
