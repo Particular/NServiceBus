@@ -1250,9 +1250,10 @@ namespace NServiceBus.Unicast
                 {
                     // lets make sure, the stacktrace is not rewritten on throw
                     var exception = exceptionsToThrow.First();
-                    MethodInfo preserveStackTrace = typeof(Exception).GetMethod("InternalPreserveStackTrace",
-                    BindingFlags.Instance | BindingFlags.NonPublic);
-                    preserveStackTrace.Invoke(exception, null);
+                    typeof(Exception)
+                        .GetMethod("InternalPreserveStackTrace", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .Invoke(exception, null);
+
                     throw exception; 
                 }
 
