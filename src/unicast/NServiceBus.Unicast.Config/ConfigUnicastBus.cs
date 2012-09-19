@@ -8,8 +8,6 @@ using System.Linq;
 
 namespace NServiceBus.Unicast.Config
 {
-    using System.Reflection;
-
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
@@ -40,6 +38,8 @@ namespace NServiceBus.Unicast.Config
             RegisterLocalMessages();
 
             RegisterMessageOwnersAndBusAddress();
+
+            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
 
         void RegisterMessageModules()
@@ -63,80 +63,29 @@ namespace NServiceBus.Unicast.Config
             TypesToScan
                 .Where(t => t.IsMessageType())
                 .ToList()
-                .ForEach(t => typesToEndpoints[t] = Address.Undefined);
+                .ForEach(t => MapTypeToAddress(t, Address.Undefined));
         }
 
         void RegisterMessageOwnersAndBusAddress()
         {
-            var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
-            ConfigureBusProperties(unicastBusConfig);
-        }
+            var unicastConfig = GetConfigSection<UnicastBusConfig>();
 
-        void ConfigureBusProperties(UnicastBusConfig unicastConfig)
-        {
-            if (unicastConfig != null)
+            if (unicastConfig == null) return;
+
+            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
+            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
+
+            foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
             {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
-                busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-                foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
-                {
-                    try
-                    {
-                        var messageType = Type.GetType(mapping.Messages, false);
-                        if (messageType != null)
-                        {
-                            typesToEndpoints[messageType] = Address.Parse(mapping.Endpoint);
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Problem loading message type: " + mapping.Messages, ex);
-                    }
-
-                    var split = mapping.Messages.Split(new[] { ".*," }, StringSplitOptions.RemoveEmptyEntries);
-
-                    string assemblyName;
-                    string ns;
-
-                    switch (split.Length)
-                    {
-                        case 1:
-                            ns = null;
-                            assemblyName = mapping.Messages;
-                            break;
-                        case 2:
-                            ns = split[0].Trim();
-                            assemblyName = split[1].Trim();
-                            break;
-                        default:
-                            throw new ArgumentException("Message mapping configuration is invalid: " + mapping.Messages);
-                    }
-
-                    try
-                    {
-                        var a = Assembly.Load(assemblyName);
-                        var messageTypes = a.GetTypes().AsQueryable();
-
-                        if (!string.IsNullOrEmpty(ns))
-                            messageTypes = messageTypes.Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
-
-                        foreach (var t in messageTypes)
-                            typesToEndpoints[t] = Address.Parse(mapping.Endpoint);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ArgumentException("Problem loading message assembly: " + mapping.Messages, ex);
-                    }
-                }
+                mapping.Configure(MapTypeToAddress);
             }
-
-            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
-
-
-
+        
+        private void MapTypeToAddress(Type messagesType, Address address)
+        {
+            typesToEndpoints[messagesType] = address;
+        }
+        
         /// <summary>
         /// Used to configure the bus.
         /// </summary>
