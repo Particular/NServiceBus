@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
@@ -121,6 +122,10 @@
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
       <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
       <Name>NServiceBus.Unicast.Subscriptions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Unicast.Tests.Messages\NServiceBus.Unicast.Tests.Messages.csproj">
+      <Project>{50C0CD53-6C74-4554-8D8A-A529943A7409}</Project>
+      <Name>NServiceBus.Unicast.Tests.Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast\NServiceBus.Unicast.csproj">
       <Project>{EB2C42A2-70FD-4469-959B-C577470B001B}</Project>

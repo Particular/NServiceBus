@@ -1,4 +1,8 @@
+using System;
 using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace NServiceBus.Config
 {
@@ -10,7 +14,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// A string defining the message assembly, or single message type.
         /// </summary>
-        [ConfigurationProperty("Messages", IsRequired = true, IsKey = true)]
+        [ConfigurationProperty("Messages", IsRequired = false)]
         public string Messages
         {
             get
@@ -26,7 +30,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// The endpoint named according to "queue@machine".
         /// </summary>
-        [ConfigurationProperty("Endpoint", IsRequired = true, IsKey = true)]
+        [ConfigurationProperty("Endpoint", IsRequired = true)]
         public string Endpoint
         {
             get
@@ -36,6 +40,151 @@ namespace NServiceBus.Config
             set
             {
                 this["Endpoint"] = value;
+            }
+        }
+
+        /// <summary>
+        /// The message assembly for the endpoint mapping.
+        /// </summary>
+        [ConfigurationProperty("Assembly", IsRequired = false)]
+        public string AssemblyName
+        {
+            get
+            {
+                return (string)this["Assembly"];
+            }
+            set
+            {
+                this["Assembly"] = value;
+            }
+        }
+
+        /// <summary>
+        /// The fully qualified name of the message type. Define this if you want to map a single message type to the endpoint.
+        /// </summary>
+        /// <remarks>Type will take preference above namespace</remarks>
+        [ConfigurationProperty("Type", IsRequired = false)]
+        public string TypeFullName
+        {
+            get
+            {
+                return (string)this["Type"];
+            }
+            set
+            {
+                this["Type"] = value;
+            }
+        }
+
+        /// <summary>
+        /// The message type. Define this if you want to map all the types in the namespace to the endpoint.
+        /// </summary>
+        /// <remarks>Sub-namespaces will not be mapped.</remarks>
+        [ConfigurationProperty("Namespace", IsRequired = false)]
+        public string Namespace
+        {
+            get
+            {
+                return (string)this["Namespace"];
+            }
+            set
+            {
+                this["Namespace"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Uses the configuration properties to configure the endpoint mapping
+        /// </summary>
+        /// <param name="mapTypeToEndpoint"></param>
+        public void Configure(Action<Type, Address> mapTypeToEndpoint)
+        {
+            if (!string.IsNullOrWhiteSpace(this.Messages))
+            {
+                ConfigureEndpointMappingUsingMessagesProperty(mapTypeToEndpoint);
+                return;
+            }
+
+            var address = Address.Parse(this.Endpoint);
+            var assemblyName = this.AssemblyName;
+            var ns = this.Namespace;
+            var typeFullName = this.TypeFullName;
+
+            if (string.IsNullOrWhiteSpace(assemblyName))
+                throw new ArgumentException("Could not process message endpoint mapping. The Assembly property is not defined. Either the Assembly or Messages property is required.");
+
+            var a = GetMessageAssembly(assemblyName);
+
+            if (!string.IsNullOrWhiteSpace(typeFullName))
+            {
+                try
+                {
+                    var t = a.GetType(typeFullName, false);
+
+                    if (t == null)
+                        throw new ArgumentException(string.Format("Could not process message endpoint mapping. Cannot find the type '{0}' in the assembly '{1}'. Ensure that you are using the full name for the type.", typeFullName, assemblyName));
+
+                    mapTypeToEndpoint(t, address);
+
+                    return;
+                }
+                catch (BadImageFormatException ex)
+                {
+                    throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{0}' in the assembly '{1}'", typeFullName, assemblyName), ex);
+                }
+                catch (FileLoadException ex)
+                {
+                    throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{0}' in the assembly '{1}'", typeFullName, assemblyName), ex);
+                }
+            }
+
+            var messageTypes = a.GetTypes().AsQueryable();
+
+            if (!string.IsNullOrEmpty(ns))
+                messageTypes = messageTypes.Where(t => !string.IsNullOrWhiteSpace(t.Namespace) && t.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
+
+            foreach (var t in messageTypes)
+                mapTypeToEndpoint(t, address);
+        }
+
+        void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, Address> mapTypeToEndpoint)
+        {
+            var address = Address.Parse(this.Endpoint);
+            var messages = this.Messages;
+
+            try
+            {
+                var messageType = Type.GetType(messages, false);
+                if (messageType != null)
+                {
+                    mapTypeToEndpoint(messageType, address);
+                    return;
+                }
+            }
+            catch (BadImageFormatException ex)
+            {
+                throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type: " + messages), ex);
+            }
+            catch (FileLoadException ex)
+            {
+                throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type: " + messages), ex);
+            }
+
+            var messagesAssembly = GetMessageAssembly(messages);
+
+            foreach (var t in messagesAssembly.GetTypes())
+                mapTypeToEndpoint(t, address);
+        }
+
+        private static Assembly GetMessageAssembly(string assemblyName)
+        {
+            try
+            {
+                return Assembly.Load(assemblyName);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("Could not process message endpoint mapping. Problem loading message assembly: " + assemblyName, ex);
             }
         }
     }

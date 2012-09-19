@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast", "NServiceBus.Unicast\NServiceBus.Unicast.csproj", "{EB2C42A2-70FD-4469-959B-C577470B001B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Subscriptions", "NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj", "{CD9FA43E-A56D-4B62-8245-F911B137EC09}"
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Monitoring", "NServiceBus.Unicast.Monitoring\NServiceBus.Unicast.Monitoring.csproj", "{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.BackwardCompatibility", "NServiceBus.Unicast.BackwardCompatibility\NServiceBus.Unicast.BackwardCompatibility.csproj", "{7D2FC143-FE83-4E88-8295-8A0D4C64A0FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Tests.Messages", "NServiceBus.Unicast.Tests.Messages\NServiceBus.Unicast.Tests.Messages.csproj", "{50C0CD53-6C74-4554-8D8A-A529943A7409}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{7D2FC143-FE83-4E88-8295-8A0D4C64A0FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D2FC143-FE83-4E88-8295-8A0D4C64A0FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D2FC143-FE83-4E88-8295-8A0D4C64A0FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50C0CD53-6C74-4554-8D8A-A529943A7409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50C0CD53-6C74-4554-8D8A-A529943A7409}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50C0CD53-6C74-4554-8D8A-A529943A7409}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50C0CD53-6C74-4554-8D8A-A529943A7409}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
