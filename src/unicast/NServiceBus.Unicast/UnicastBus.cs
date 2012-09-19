@@ -1248,7 +1248,12 @@ namespace NServiceBus.Unicast
 
                 if (exceptionsToThrow.Count == 1)
                 {
-                    throw exceptionsToThrow.First();
+                    // lets make sure, the stacktrace is not rewritten on throw
+                    var exception = exceptionsToThrow.First();
+                    MethodInfo preserveStackTrace = typeof(Exception).GetMethod("InternalPreserveStackTrace",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                    preserveStackTrace.Invoke(exception, null);
+                    throw exception; 
                 }
 
                 throw new AggregateException(exceptionsToThrow);
