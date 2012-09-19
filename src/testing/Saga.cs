@@ -19,11 +19,15 @@ namespace NServiceBus.Testing
         {
             this.saga = saga;
             this.bus = bus;
-
+            if (saga.Entity == null)
+            {
+                var prop = typeof(T).GetProperty("Data");
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+                saga.Entity = sagaData;
+            }
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
             saga.Entity.Originator = "client";
         }
-
         /// <summary>
         /// Provides a way to set external dependencies on the saga under test.
         /// </summary>

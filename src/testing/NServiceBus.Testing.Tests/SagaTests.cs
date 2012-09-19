@@ -87,6 +87,13 @@ namespace NServiceBus.Testing.Tests
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = 200}));
         }
+        [Test]
+        public void TestNullReferenceException()
+        {
+            Test.Initialize();
+            var saga = new MySaga();
+            Assert.DoesNotThrow(() => Test.Saga(saga));
+        }
     }
 
     public class MySaga : Saga.Saga<MySagaData>,
