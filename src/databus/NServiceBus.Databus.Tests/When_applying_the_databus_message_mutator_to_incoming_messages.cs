@@ -13,16 +13,19 @@ namespace NServiceBus.DataBus.Tests
         {
             var message = new MessageWithDataBusProperty
                               {
-                                  DataBusProperty = new DataBusProperty<string>("not used in this test")
+                                  DataBusProperty = new DataBusProperty<string>("not used in this test") { Key = "MyKey" }
+
                               };
+
+            message.SetHeader("NServiceBus.DataBus.MyKey", "Foo");
 
             using (var stream = new MemoryStream())
             {
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                dataBus.Stub(s => s.Get(message.DataBusProperty.Key)).Return(stream);
-
+                dataBus.Stub(s => s.Get("Foo")).Return(stream);
+                
                 message = (MessageWithDataBusProperty) incomingMutator.MutateIncoming(message);
             }
             Assert.AreEqual(message.DataBusProperty.Value, "test");

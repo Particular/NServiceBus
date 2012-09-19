@@ -21,9 +21,9 @@
             ExtensionMethods.GetHeaderAction = headerManager.GetHeader;
 
             dataBus = MockRepository.GenerateMock<IDataBus>();
-
+            
             var databusMutator = new DataBusMessageMutator(dataBus, new DefaultDataBusSerializer());
-
+            
             incomingMutator = databusMutator;
             outgoingMutator = databusMutator;
         }
