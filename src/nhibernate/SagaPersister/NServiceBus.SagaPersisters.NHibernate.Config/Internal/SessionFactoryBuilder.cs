@@ -41,13 +41,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
             var modelMapper =
                 new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-            var mapping = modelMapper.Compile();
-            var s = mapping.AsString();
+            foreach (var stream in modelMapper.Compile())
+            {
+                using (stream)
+                {
+                    nhibernateConfiguration.AddInputStream(stream);
+                }
+            }
             
-            nhibernateConfiguration.AddMapping(mapping);
-
-            //nhibernateConfiguration.CreateMappings(HbmDialectScope).
-
             ApplyDefaultsTo(nhibernateConfiguration);
 
             try

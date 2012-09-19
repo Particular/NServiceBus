@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using NHibernate;
@@ -38,82 +37,94 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
         /// <returns></returns>
         public ISessionFactory Build(IDictionary<string, string> nhibernateProperties, bool updateSchema)
         {
-          var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
+            var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();
 
-          var nhibernateConfiguration = new Configuration().SetProperties(nhibernateProperties);
+            var nhibernateConfiguration = new Configuration().SetProperties(nhibernateProperties);
 
-          foreach (var assembly in scannedAssemblies)
-            nhibernateConfiguration.AddAssembly(assembly);
+            foreach (var assembly in scannedAssemblies)
+                nhibernateConfiguration.AddAssembly(assembly);
 
-          var mapping = new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
+            var mapping =
+                new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-          ApplyConventions(mapping);
+            ApplyConventions(mapping);
 
-          nhibernateConfiguration.AddMapping(mapping.Compile());
+            foreach (var stream in mapping.Compile())
+            {
+                using (stream)
+                {
+                    nhibernateConfiguration.AddInputStream(stream);
+                }
+            }
 
-          ApplyDefaultsTo(nhibernateConfiguration);
+            ApplyDefaultsTo(nhibernateConfiguration);
 
-          if (updateSchema)
-            UpdateDatabaseSchemaUsing(nhibernateConfiguration);
+            if (updateSchema)
+                UpdateDatabaseSchemaUsing(nhibernateConfiguration);
 
-          try
-          {
-            return nhibernateConfiguration.BuildSessionFactory();
-          }
-          catch (Exception e)
-          {
-            if (e.InnerException != null)
-              throw new ConfigurationErrorsException(e.InnerException.Message, e);
+            try
+            {
+                return nhibernateConfiguration.BuildSessionFactory();
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException != null)
+                    throw new ConfigurationErrorsException(e.InnerException.Message, e);
 
-            throw;
-          }
+                throw;
+            }
         }
 
         private static void ApplyConventions(SagaModelMapper hbmMapping)
         {
-          var hbmIdField = typeof(global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId", BindingFlags.Instance | BindingFlags.NonPublic);
+            var hbmIdField = typeof (global::NHibernate.Mapping.ByCode.Impl.IdMapper).GetField("hbmId",
+                                                                                               BindingFlags.Instance |
+                                                                                               BindingFlags.NonPublic);
 
-          hbmMapping.Mapper.AfterMapClass += (mi, t, map) =>
-          {
-            map.Id(idmap =>
-            {
-              var hbmId = (global::NHibernate.Cfg.MappingSchema.HbmId)hbmIdField.GetValue(idmap);
-              hbmId.type1 = typeof(GuidToPartitionKeyAndRowKey).AssemblyQualifiedName;
-              hbmId.type = null;
-              hbmId.column1 = null;
-              hbmId.column = new[]
-                           {
-                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "RowKey"},
-                             new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "PartitionKey"},
-                           };
-            });
-          };
+            hbmMapping.Mapper.AfterMapClass += (mi, t, map) =>
+                {
+                    map.Id(idmap =>
+                        {
+                            var hbmId = (global::NHibernate.Cfg.MappingSchema.HbmId) hbmIdField.GetValue(idmap);
+                            hbmId.type1 = typeof (GuidToPartitionKeyAndRowKey).AssemblyQualifiedName;
+                            hbmId.type = null;
+                            hbmId.column1 = null;
+                            hbmId.column = new[]
+                                {
+                                    new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "RowKey"},
+                                    new global::NHibernate.Cfg.MappingSchema.HbmColumn {name = "PartitionKey"},
+                                };
+                        });
+                };
 
-          hbmMapping.Mapper.AfterMapManyToOne += (mi, type, map) => MapIdColumns(map, type.LocalMember);
-          hbmMapping.Mapper.AfterMapBag += (mi, type, map) => map.Key(km => MapIdColumns(km, type.LocalMember));
-          hbmMapping.Mapper.AfterMapJoinedSubclass += (mi, type, map) => map.Key(km => MapIdColumns(km, type.BaseType));
+            hbmMapping.Mapper.AfterMapManyToOne += (mi, type, map) => MapIdColumns(map, type.LocalMember);
+            hbmMapping.Mapper.AfterMapBag += (mi, type, map) => map.Key(km => MapIdColumns(km, type.LocalMember));
+            hbmMapping.Mapper.AfterMapJoinedSubclass +=
+                (mi, type, map) => map.Key(km => MapIdColumns(km, type.BaseType));
 
-          hbmMapping.Mapper.BeforeMapProperty += (mi, type, map) => {
-             var info = type.LocalMember as PropertyInfo;
-             if (info != null && info.PropertyType == typeof(DateTime)) map.Type<UtcDateTimeUserType>();
-          };
+            hbmMapping.Mapper.BeforeMapProperty += (mi, type, map) =>
+                {
+                    var info = type.LocalMember as PropertyInfo;
+                    if (info != null && info.PropertyType == typeof (DateTime)) map.Type<UtcDateTimeUserType>();
+                };
         }
 
         private static void MapIdColumns(IColumnsMapper map, MemberInfo type)
         {
-          map.Columns(cm => cm.Name(type.Name + "_RowKey"),
-                      cm => cm.Name(type.Name + "_PartitionKey"));
+            map.Columns(cm => cm.Name(type.Name + "_RowKey"),
+                        cm => cm.Name(type.Name + "_PartitionKey"));
         }
 
         private static void UpdateDatabaseSchemaUsing(Configuration configuration)
         {
-          new SchemaUpdate(configuration)
-              .Execute(false, true);
+            new SchemaUpdate(configuration)
+                .Execute(false, true);
         }
 
         private static void ApplyDefaultsTo(Configuration configuration)
         {
-          configuration.SetProperty("current_session_context_class", typeof(ThreadStaticSessionContext).AssemblyQualifiedName);
+            configuration.SetProperty("current_session_context_class",
+                                      typeof (ThreadStaticSessionContext).AssemblyQualifiedName);
         }
     }
 }
