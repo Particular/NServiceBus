@@ -130,7 +130,7 @@ namespace NServiceBus.Unicast
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            var controlMessage = ControlMessage.Create();
+            var controlMessage = ControlMessage.Create(Address.Local);
 
             controlMessage.Headers[Headers.SagaId] = sagaId.ToString();
             controlMessage.Headers[Headers.ClearTimeouts] = true.ToString();
@@ -424,7 +424,7 @@ namespace NServiceBus.Unicast
 
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessage.Create(Address.Local);
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
@@ -460,7 +460,7 @@ namespace NServiceBus.Unicast
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessage.Create(Address.Local);
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
@@ -503,7 +503,7 @@ namespace NServiceBus.Unicast
 
         void IBus.Return<T>(T errorCode)
         {
-            var returnMessage = ControlMessage.Create();
+            var returnMessage = ControlMessage.Create(Address.Local);
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;

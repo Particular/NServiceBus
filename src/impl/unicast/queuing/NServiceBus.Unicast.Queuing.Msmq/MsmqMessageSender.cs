@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Messaging;
-using System.Transactions;
-using System.Xml.Serialization;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Utils;
-
-namespace NServiceBus.Unicast.Queuing.Msmq
+﻿namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using System;
+    using System.Messaging;
+    using System.Transactions;
+    using Transport;
+    using Utils;
+
     public class MsmqMessageSender : ISendMessages
     {
         void ISendMessages.Send(TransportMessage message, Address address)
@@ -15,37 +13,40 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
-                using (var q = new MessageQueue(queuePath, QueueAccessMode.Send))
+                using (var q = new MessageQueue(queuePath, false, true,  QueueAccessMode.Send))
                 {
-                    var toSend = MsmqUtilities.Convert(message);
+                    using (Message toSend = MsmqUtilities.Convert(message))
+                    {
+                        toSend.UseDeadLetterQueue = UseDeadLetterQueue;
+                        toSend.UseJournalQueue = UseJournalQueue;
 
-                    toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                    toSend.UseJournalQueue = UseJournalQueue;
+                        if (message.ReplyToAddress != null)
+                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
-                    if (message.ReplyToAddress != null)
-                        toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
                         q.Send(toSend, GetTransactionTypeForSend());
 
-                    message.Id = toSend.Id;
+                        message.Id = toSend.Id;
+                    }
                 }
             }
             catch (MessageQueueException ex)
             {
-                string msg = string.Empty;
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                    msg = address == null ? "Failed to send message. Target address is null." : string.Format("Failed to send message to address: [{0}]", address);
+                {
+                    var msg = address == null
+                                     ? "Failed to send message. Target address is null."
+                                     : string.Format("Failed to send message to address: [{0}]", address);
 
-                throw new QueueNotFoundException(address, msg, ex);
+                    throw new QueueNotFoundException(address, msg, ex);
+                }
+
+                ThrowFailedToSendException(address, ex);
             }
             catch (Exception ex)
             {
-                if(address == null)
-                    throw new FailedToSendMessageException("Failed to send message.", ex);
-                else
-                    throw new FailedToSendMessageException(string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine),  ex);
+                ThrowFailedToSendException(address, ex);
             }
-
         }
 
         /// <summary>
@@ -58,12 +59,18 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         public bool UseDeadLetterQueue { get; set; }
 
+        private static void ThrowFailedToSendException(Address address, Exception ex)
+        {
+            if (address == null)
+                throw new FailedToSendMessageException("Failed to send message.", ex);
+
+            throw new FailedToSendMessageException(
+                string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
+        }
+
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
         }
-
-        private readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
-
     }
 }
