@@ -5,7 +5,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Config.Internal;
     using NUnit.Framework;
     using global::NHibernate.Cfg;
-    using global::NHibernate.Engine;
     using global::NHibernate.Id;
     using global::NHibernate.Impl;
     using global::NHibernate.Persister.Entity;

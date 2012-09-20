@@ -49,12 +49,9 @@ namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 
             ApplyConventions(mapping);
 
-            foreach (var stream in mapping.Compile())
+            using (var stream = mapping.Compile())
             {
-                using (stream)
-                {
-                    nhibernateConfiguration.AddInputStream(stream);
-                }
+                nhibernateConfiguration.AddInputStream(stream);
             }
 
             ApplyDefaultsTo(nhibernateConfiguration);

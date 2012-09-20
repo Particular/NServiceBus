@@ -95,51 +95,48 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 			map.Column(type.LocalMember.Name + "_id");
 		}
 
-		public IEnumerable<Stream> Compile()
+		public Stream Compile()
 		{
-			var mappings = Mapper.CompileMappingForEach(_entityTypes);
-            
-			foreach (var hbmMapping in mappings)
+            var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+			
+			var setting = new XmlWriterSettings { Indent = true };
+			var serializer = new XmlSerializer(typeof(HbmMapping));
+			using (var memStream = new MemoryStream(2048))
 			{
-				var setting = new XmlWriterSettings { Indent = true };
-				var serializer = new XmlSerializer(typeof(HbmMapping));
-				using (var memStream = new MemoryStream(2048))
+				using (var xmlWriter = XmlWriter.Create(memStream, setting))
 				{
-					using (var xmlWriter = XmlWriter.Create(memStream, setting))
-					{
-						serializer.Serialize(xmlWriter, hbmMapping);
-					}
-					memStream.Position = 0;
-
-					var xmlDoc = new XmlDocument();
-					xmlDoc.Load(memStream);
-
-					var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-					nsmgr.AddNamespace("nh", xmlDoc.DocumentElement.NamespaceURI);
-
-					var classNodes = xmlDoc.DocumentElement.SelectNodes(@"//nh:class", nsmgr);
-
-					if (classNodes != null)
-					{
-						foreach (XmlElement classNode in classNodes)
-						{
-							var optimisticLockAttribute = xmlDoc.CreateAttribute("optimistic-lock");
-							optimisticLockAttribute.Value = "all";
-							classNode.Attributes.Append(optimisticLockAttribute);
-
-							var dynamicUpdateAttribute = xmlDoc.CreateAttribute("dynamic-update");
-							dynamicUpdateAttribute.Value = "true";
-							classNode.Attributes.Append(dynamicUpdateAttribute);
-						}
-					}
-
-				    var memStreamOut = new MemoryStream(2048);
-                    xmlDoc.Save(memStreamOut);
-
-				    memStreamOut.Position = 0;
-
-                    yield return memStreamOut;
+					serializer.Serialize(xmlWriter, hbmMapping);
 				}
+				memStream.Position = 0;
+
+				var xmlDoc = new XmlDocument();
+				xmlDoc.Load(memStream);
+
+				var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+				nsmgr.AddNamespace("nh", xmlDoc.DocumentElement.NamespaceURI);
+
+                var classNodes = xmlDoc.DocumentElement.SelectNodes(@"/nh:hibernate-mapping/nh:class[not(nh:joined-subclass) and not(@name = /nh:hibernate-mapping/nh:joined-subclass/@extends)]", nsmgr);
+
+				if (classNodes != null)
+				{
+					foreach (XmlElement classNode in classNodes)
+					{
+						var optimisticLockAttribute = xmlDoc.CreateAttribute("optimistic-lock");
+						optimisticLockAttribute.Value = "all";
+						classNode.Attributes.Append(optimisticLockAttribute);
+
+						var dynamicUpdateAttribute = xmlDoc.CreateAttribute("dynamic-update");
+						dynamicUpdateAttribute.Value = "true";
+						classNode.Attributes.Append(dynamicUpdateAttribute);
+					}
+				}
+
+				var memStreamOut = new MemoryStream(2048);
+                xmlDoc.Save(memStreamOut);
+                
+				memStreamOut.Position = 0;
+
+                return memStreamOut;
 			}
 		}
 

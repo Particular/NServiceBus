@@ -41,12 +41,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
             var modelMapper =
                 new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-            foreach (var stream in modelMapper.Compile())
+            using (var stream = modelMapper.Compile())
             {
-                using (stream)
-                {
-                    nhibernateConfiguration.AddInputStream(stream);
-                }
+                nhibernateConfiguration.AddInputStream(stream);
             }
             
             ApplyDefaultsTo(nhibernateConfiguration);

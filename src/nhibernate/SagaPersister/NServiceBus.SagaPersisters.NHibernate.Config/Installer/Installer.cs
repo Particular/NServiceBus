@@ -57,12 +57,9 @@
 
                 var modelMapper = new SagaModelMapper(typesToScan.Except(configuration.ClassMappings.Select(x => x.MappedClass)));
                 
-                foreach (var stream in modelMapper.Compile())
+                using (var stream =  modelMapper.Compile())
                 {
-                    using (stream)
-                    {
-                        configuration.AddInputStream(stream);
-                    }
+                    configuration.AddInputStream(stream);
                 }
 
                 new SchemaUpdate(configuration).Execute(false, true);
