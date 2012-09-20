@@ -1379,11 +1379,6 @@ namespace NServiceBus.Unicast
                     }
                 }
 
-                if (exceptionsToThrow.Count == 1)
-                {
-                    throw exceptionsToThrow.First();
-                }
-
                 throw new AggregateException(exceptionsToThrow);
             }
 

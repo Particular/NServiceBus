@@ -3,22 +3,17 @@
 namespace NServiceBus.Unicast.Transport
 {
     /// <summary>
-    /// Exception used to transport exceptions encountered in messagehandlers
+    /// Exception used to transport exceptions encountered in message handlers.
     /// </summary>
     public class TransportMessageHandlingFailedException : Exception
     {
         /// <summary>
-        /// The exception that got thrown from the messagehandler
-        /// </summary>
-        public Exception OriginalException { get; set; }
-
-        /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="originalException"></param>
+        /// <param name="originalException">The exception that got thrown from the message handler.</param>
         public TransportMessageHandlingFailedException(Exception originalException)
+            : base("An exception was thrown by the message handler.", originalException)
         {
-            OriginalException = originalException;
         }
     }
 }

@@ -235,21 +235,16 @@ namespace NServiceBus.Unicast.Transport.Transactional
             catch (AbortHandlingCurrentMessageException)
             {
                 //in case AbortHandlingCurrentMessage was called
-                return; //don't increment failures, we want this message kept around.
+                //don't increment failures, we want this message kept around.
             }
             catch (Exception e)
             {
-                var originalException = e;
-
-                if (e is TransportMessageHandlingFailedException)
-                    originalException = ((TransportMessageHandlingFailedException)e).OriginalException;
-
                 if (IsTransactional)
                 {
-                    IncrementFailuresForMessage(_messageId, originalException);
+                    IncrementFailuresForMessage(_messageId, e);
                 }
 
-                OnFailedMessageProcessing(originalException);
+                OnFailedMessageProcessing(e);
             }
         }
 
