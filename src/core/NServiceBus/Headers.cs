@@ -94,7 +94,7 @@
         /// <summary>
         /// Type of the saga that sent this message
         /// </summary>
-        [Obsolete("Only included for backwards compatibility with < 3.0.4, please use SagaType instead", false)]
+        [ObsoleteEx(Replacement = "SagaType", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public const string SagaEntityType = "NServiceBus.SagaDataType";
 
         /// <summary>

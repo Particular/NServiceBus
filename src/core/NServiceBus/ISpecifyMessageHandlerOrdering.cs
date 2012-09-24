@@ -40,7 +40,7 @@ namespace NServiceBus
         /// Obselete - use SpecifyFirst instead.
         /// </summary>
         /// <typeparam name="TFirst"></typeparam>
-        [Obsolete]
+        [ObsoleteEx(Replacement = "SpecifyFirst<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public void Specify<TFirst>()
         {
             SpecifyFirst<TFirst>();
