@@ -3,24 +3,26 @@ using NServiceBus.Faults.Forwarder;
 using NServiceBus.Management.Retries.Helpers;
 using NServiceBus.Satellites;
 using NServiceBus.Unicast.Queuing;
-using NServiceBus.Unicast.Transport;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Management.Retries
 {
     public class SecondLevelRetries : ISatellite
     {
-        ILog Logger = LogManager.GetLogger("SecondLevelRetries");
+        readonly ILog Logger = LogManager.GetLogger("SecondLevelRetries");
 
         public ISendMessages MessageSender { get; set; }        
         
         public Address InputAddress { get; set; }
+
         public Address TimeoutManagerAddress { get; set; }
+
         public bool Disabled { get; set; }
 
         public FaultManager FaultManager { get; set; }
 
         public static Func<TransportMessage, TimeSpan> RetryPolicy = DefaultRetryPolicy.Validate;
+
         public static Func<TransportMessage, bool> TimeoutPolicy = DefaultRetryPolicy.HasTimedOut;
 
         public void Start()

@@ -2,37 +2,131 @@
 {
     using System;
     using Core;
-    using Core.Dispatch;
+    using Faults;
     using ObjectBuilder;
-    using Satellites;
     using Unicast.Queuing;
-    using System.Configuration;
-    using Logging;
+    using Unicast.Queuing.Msmq;
+    using Unicast.Transport;
+    using Unicast.Transport.Transactional;
 
-    public class TimeoutMessageProcessor : ISatellite
+    public class TimeoutMessageProcessor : IWantToRunWhenBusStartsAndStops 
     {
-        ILog Logger = LogManager.GetLogger("TimeoutMessageProcessor");
+        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
+        const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
+
+        ITransport inputTransport;
+
+        static readonly Address TimeoutManagerAddress;
+
+        public ISendMessages MessageSender { get; set; }
+
+        public TransactionalTransport MainTransport { get; set; }
+
         public IBuilder Builder { get; set; }
+
+        public IManageTimeouts TimeoutManager { get; set; }
+
         public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
-        public Address InputAddress { get; set; }
-        public bool Disabled { get; set; }
-        public ISendMessages MessageSender { get; set; }       
 
-        public void Handle(TransportMessage message)
+        static TimeoutMessageProcessor()
         {
-            if (Disabled)
-            {
-                throw new ConfigurationErrorsException("The TimeoutManager satellite is invoked, but disabled.");
-            }
-
-            //dispatch request will arrive at the same input so we need to make sure to call the correct handler
-            if (message.Headers.ContainsKey(TimeoutDispatcher.TimeoutIdToDispatchHeader))
-                Builder.Build<TimeoutDispatchHandler>().Handle(message);
-            else
-                Builder.Build<TimeoutTransportMessageHandler>().Handle(message);
+            TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");            
         }
 
-        public void Start(){}
-        public void Stop(){}
+        public void Start()
+        {
+            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
+
+            inputTransport = new TransactionalTransport
+            {
+                MessageReceiver = messageReceiver,
+                IsTransactional = true,
+                NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
+                MaxRetries = MainTransport.MaxRetries,
+                FailureManager = Builder.Build(MainTransport.FailureManager.GetType())as IManageMessageFailures
+            };
+
+            inputTransport.TransportMessageReceived += OnTransportMessageReceived;
+
+            inputTransport.Start(TimeoutManagerAddress);
+        }
+
+        public void Stop()
+        {
+            if (inputTransport != null)
+            {
+                inputTransport.Dispose();
+            }
+        }
+
+        void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        {
+            //dispatch request will arrive at the same input so we need to make sure to call the correct handler
+            if (e.Message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
+                HandleBackwardsCompatibility(e.Message);
+            else
+                Handle(e.Message);
+        }
+
+        void HandleBackwardsCompatibility(TransportMessage message)
+        {
+            var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
+
+            var destination = Address.Parse(message.Headers[TimeoutDestinationHeader]);
+
+            //clear headers 
+            message.Headers.Remove(TimeoutIdToDispatchHeader);
+            message.Headers.Remove(TimeoutDestinationHeader);
+
+            if (message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+            {
+                destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+            }
+
+            TimeoutManager.RemoveTimeout(timeoutId);
+            MessageSender.Send(message, destination);
+        }
+
+        void Handle(TransportMessage message)
+        {
+            var sagaId = Guid.Empty;
+
+            if (message.Headers.ContainsKey(Headers.SagaId))
+            {
+                sagaId = Guid.Parse(message.Headers[Headers.SagaId]);
+            }
+
+            if (message.Headers.ContainsKey(Headers.ClearTimeouts))
+            {
+                if (sagaId == Guid.Empty)
+                    throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
+
+                TimeoutManager.RemoveTimeoutBy(sagaId);
+            }
+            else
+            {
+                if (!message.Headers.ContainsKey(Headers.Expire))
+                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
+
+                var data = new TimeoutData
+                {
+                    Destination = message.ReplyToAddress,
+                    SagaId = sagaId,
+                    State = message.Body,
+                    Time = message.Headers[Headers.Expire].ToUtcDateTime(),
+                    CorrelationId = message.CorrelationId,
+                    Headers = message.Headers,
+                    OwningTimeoutManager = Configure.EndpointName
+                };
+
+                //add a temp header so that we can make sure to restore the ReplyToAddress
+                if (message.ReplyToAddress != null)
+                {
+                    data.Headers[TimeoutData.OriginalReplyToAddress] = message.ReplyToAddress.ToString();
+                }
+
+                TimeoutManager.PushTimeout(data);
+            }
+        }
     }
 }

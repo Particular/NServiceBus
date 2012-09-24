@@ -10,7 +10,9 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
             {
                 Configure.Instance
                     .UseNHibernateSubscriptionPersister()
-                    .Sagas().NHibernateSagaPersister().NHibernateUnitOfWork();
+                    .Sagas()
+                    .UseNHibernateSagaPersister()
+                    .NHibernateUnitOfWork();
             }
 
         }

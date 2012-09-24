@@ -8,6 +8,7 @@
     using NUnit.Framework;
     using Persistence;
     using Persistence.Raven;
+    using global::Raven.Client.Document;
     using global::Raven.Client.Embedded;
 
     public class in_the_raven_storage
@@ -34,12 +35,13 @@
 
         protected bool Store(TestMessage message)
         {
-            using (var scope = new TransactionScope())
+            //todo: The TXScope causes raven to return null on later loads so we keep it out for now
+            //using (var scope = new TransactionScope())
             using (var msgStream = new MemoryStream(message.OriginalMessage))
             {
                 var result = ravenPersister.InsertMessage(message.ClientId, message.TimeReceived, msgStream, message.Headers);
                
-                scope.Complete();
+                //scope.Complete();
 
                 return result;
             }

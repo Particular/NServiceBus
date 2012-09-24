@@ -36,5 +36,31 @@ namespace NServiceBus.Timeout.Hosting.Azure
         /// The correlation id
         /// </summary>
         public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// The timeout manager that owns this particular timeout
+        /// </summary>
+        public string OwningTimeoutManager { get; set; }
+
+        /// <summary>
+        /// The serialized headers
+        /// </summary>
+        public string Headers { get; set; }
+    }
+
+    public class TimeoutManagerDataEntity : TableServiceEntity
+    {
+        public TimeoutManagerDataEntity() { }
+
+        public TimeoutManagerDataEntity(string partitionKey, string rowKey)
+            : base(partitionKey, rowKey)
+        {
+        }
+        
+        /// <summary>
+        /// The last successfull chunk read.
+        /// </summary>
+        public DateTime LastSuccessfullRead { get; set; }
+        
     }
 }

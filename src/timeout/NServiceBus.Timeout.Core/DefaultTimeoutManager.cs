@@ -1,110 +1,66 @@
-﻿using NServiceBus.Logging;
-
-namespace NServiceBus.Timeout.Core
+﻿namespace NServiceBus.Timeout.Core
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
+    using Unicast.Queuing;
 
     /// <summary>
-    /// Thread-safe timeout management class.
+    /// Default implementation for <see cref="IManageTimeouts"/>
     /// </summary>
     public class DefaultTimeoutManager : IManageTimeouts
     {
-        public event EventHandler<TimeoutData> SagaTimedOut;
+        /// <summary>
+        /// The timeout persister.
+        /// </summary>
+        public IPersistTimeouts TimeoutsPersister { get; set; }
 
-        void IManageTimeouts.Init(TimeSpan interval)
+        /// <summary>
+        /// Messages sender.
+        /// </summary>
+        public ISendMessages MessageSender { get; set; }
+
+        /// <summary>
+        /// Fires when a timeout is added.
+        /// </summary>
+        public event EventHandler<TimeoutData> TimeoutPushed;
+
+        /// <summary>
+        /// Adds a new timeout to be monitored.
+        /// </summary>
+        /// <param name="timeout"><see cref="TimeoutData"/> to be added.</param>
+        public void PushTimeout(TimeoutData timeout)
         {
-            duration = interval;
-        }
-
-        void IManageTimeouts.PushTimeout(TimeoutData timeout)
-        {
-            lock (data)
+            if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
-                if (!data.ContainsKey(timeout.Time))
-                    data[timeout.Time] = new List<TimeoutData>();
-
-                data[timeout.Time].Add(timeout);
-            }
-        }
-
-        void IManageTimeouts.PopTimeout()
-        {
-            var pair = new KeyValuePair<DateTime, List<TimeoutData>>(DateTime.MinValue, null);
-            var now = DateTime.UtcNow;
-
-            lock (data)
-            {
-                if (data.Count > 0)
-                {
-                    var next = data.ElementAt(0);
-                    if (next.Key - now < duration)
-                    {
-                        pair = next;
-                        data.Remove(pair.Key);
-                    }
-                }
-            }
-
-            if (pair.Key == DateTime.MinValue)
-            {
-                Thread.Sleep(duration);
+                MessageSender.Send(timeout.ToTransportMessage(), timeout.Destination);
                 return;
             }
 
-            if (pair.Key > now)
-                Thread.Sleep(pair.Key - now);
-            
-            DispatchTimeouts(pair.Value);
-        }
+            TimeoutsPersister.Add(timeout);
 
-        void IManageTimeouts.ClearTimeout(Guid sagaId)
-        {
-            lock(data)
+            if (TimeoutPushed != null)
             {
-                data.Where(time => time.Value.Any(t => t.SagaId == sagaId)).ToList()
-                    .ForEach(time =>
-                                 {
-                                     time.Value.RemoveAll(t => t.SagaId == sagaId);
-
-                                     if (!time.Value.Any())
-                                         data.Remove(time.Key);
-                                 });
+                TimeoutPushed.BeginInvoke(this, timeout, ar => {}, null);
             }
         }
 
-        void DispatchTimeouts(List<TimeoutData> value)
+        /// <summary>
+        /// Removes a timeout from being monitored.
+        /// </summary>
+        /// <param name="timeoutId">The timeout id to be removed.</param>
+        public void RemoveTimeout(string timeoutId)
         {
-            var exceptions = new List<Exception>();
+            TimeoutData timeoutData;
 
-            value.ForEach(timeout =>
-                              {
-                                  try
-                                  {
-                                      OnSagaTimedOut(timeout);
-                                  }
-                                  catch (Exception ex)
-                                  {
-                                      Logger.Error("Failed to dispatch timeout " + timeout,ex);
-                                      exceptions.Add(ex);
-                                  }
-                              });
-
-            if(exceptions.Any())
-                throw new InvalidOperationException("Failed to dispatch the following timeouts:" + string.Join(";",value));
+            TimeoutsPersister.TryRemove(timeoutId, out timeoutData);
         }
 
-        void OnSagaTimedOut(TimeoutData timeoutData)
+        /// <summary>
+        /// Clears the timeout for the given <paramref name="sagaId"/>.
+        /// </summary>
+        /// <param name="sagaId">The sagaId to be removed</param>
+        public void RemoveTimeoutBy(Guid sagaId)
         {
-            if (SagaTimedOut != null)
-                SagaTimedOut(null, timeoutData);
+            TimeoutsPersister.RemoveTimeoutBy(sagaId);
         }
-
-        readonly SortedDictionary<DateTime, List<TimeoutData>> data = new SortedDictionary<DateTime, List<TimeoutData>>();
-
-        TimeSpan duration = TimeSpan.FromSeconds(1);
-        static ILog Logger = LogManager.GetLogger("Timeouts");
     }
 }

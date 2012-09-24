@@ -131,6 +131,21 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        public void Setter_dependencies_should_override_container_defaults()
+        {
+            ForAllBuilders((builder) =>
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
+                builder.ConfigureProperty(typeof(ClassWithSetterDependencies), "InterfaceDependency", new SomeOtherClass());
+
+                var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
+
+                Assert.IsInstanceOf(typeof(SomeOtherClass), component.InterfaceDependency, "Explicitly set dependency should be injected, not container's default type");
+            });
+        }
+
+        [Test]
         public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
         {
             ForAllBuilders(builder =>

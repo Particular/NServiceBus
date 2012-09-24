@@ -69,6 +69,7 @@ namespace NServiceBus
         /// Optionally set the namespace to be used in the XML.
         /// </summary>
         /// <param name="config"></param>
+        /// <param name="nameSpace"></param>
         /// <param name="sanitizeInput"></param>
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config, string nameSpace, bool sanitizeInput)

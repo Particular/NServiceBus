@@ -63,14 +63,14 @@ namespace NServiceBus.Persistence.Raven
             }
             catch (global::Raven.Abstractions.Exceptions.ConcurrencyException ex)
             {                
-                throw new ConcurrencyException("A saga with the same Unique property already existed in the storage. See the inner exception for further details",ex);
+                throw new ConcurrencyException("A saga with the same Unique property already existed in the storage. See the inner exception for further details", ex);
             }
         }
 
-        public static Func<IMessageContext, string> GetDatabaseName = (context) => "";
+        public static Func<IMessageContext, string> GetDatabaseName = context => String.Empty;
     }
 
-    public class ConcurrencyException:Exception
+    public class ConcurrencyException : Exception
     {
         public ConcurrencyException(string message, Exception innerException) : base(message, innerException)
         {

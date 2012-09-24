@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Config\ConfigureEncryption.cs" />
     <Compile Include="EncryptionMessageMutator.cs" />
     <Compile Include="IEncryptionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

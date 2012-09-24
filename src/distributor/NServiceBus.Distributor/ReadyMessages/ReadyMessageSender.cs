@@ -40,9 +40,8 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         void SendReadyMessage(int capacityAvailable, bool isStarting = false)
         {
-            var readyMessage = ControlMessage.Create();
-
-            readyMessage.ReplyToAddress = Bus.InputAddress; //we use the actual address to make sure that the worker inside the masternode will check in correctly
+            //we use the actual address to make sure that the worker inside the masternode will check in correctly
+            var readyMessage = ControlMessage.Create(Bus.InputAddress);
 
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
 

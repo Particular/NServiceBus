@@ -4,8 +4,14 @@ namespace NServiceBus.Timeout.Core
     using MessageMutator;
     using Saga;
 
+    /// <summary>
+    /// Timeout converter.
+    /// </summary>
     public class TimeoutMessageConverter : IMessageMutator, INeedInitialization
     {
+        /// <summary>
+        /// The bus.
+        /// </summary>
         public IBus Bus { get; set; }
 
         /// <summary>
@@ -49,10 +55,12 @@ namespace NServiceBus.Timeout.Core
             return message;
         }
 
+        /// <summary>
+        /// Implementers will include custom initialization code here.
+        /// </summary>
         public void Init()
         {
             Configure.Instance.Configurer.ConfigureComponent<TimeoutMessageConverter>(DependencyLifecycle.InstancePerCall);
         }
-
     }
 }

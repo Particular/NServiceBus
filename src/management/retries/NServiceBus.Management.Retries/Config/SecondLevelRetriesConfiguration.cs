@@ -1,45 +1,37 @@
 ﻿using System;
 using NServiceBus.Faults.Forwarder;
 using NServiceBus.Management.Retries;
-using NServiceBus.Unicast.Queuing;
 
 namespace NServiceBus.Config
 {        
     public class SecondLevelRetriesConfiguration : IWantToRunBeforeConfigurationIsFinalized
     {
-        static bool installQueue;
         public static bool IsDisabled;
         private static Address retriesQueueAddress;
-        public ICreateQueues QueueCreator { get; set; }
 
         public void Run()
         {
             // disabled by configure api
             if (IsDisabled)
             {
-                installQueue = false;
                 return;
             }
             // if we're not using the Fault Forwarder, we should act as if SLR is disabled
             if (!Configure.Instance.Configurer.HasComponent<FaultManager>())
             {
                 DisableSecondLevelRetries();
-                installQueue = false;
                 return;
             }
 
             var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
-            var enabled = retriesConfig != null ? retriesConfig.Enabled : true;
+            var enabled = retriesConfig == null || retriesConfig.Enabled;
 
             // if SLR is disabled from app.config, we should disable SLR, but install the queue
             if (!enabled)
             {
                 DisableSecondLevelRetries();
-                installQueue = true;
                 return;
             }
-
-            installQueue = true;
 
             SetUpRetryPolicy(retriesConfig);
                             

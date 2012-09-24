@@ -297,8 +297,13 @@ namespace NServiceBus.Testing
                 if (messages[0] is TimeoutMessage)
                 {
                     timeoutManager.Push(delayOrProcessAt, (messages[0] as TimeoutMessage).State);
+                    if(typeof(T) == typeof(DateTime))
+                        return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>),
+                                                       new Dictionary<string, object> { { "Value", delayOrProcessAt } },
+                                                       (messages[0] as TimeoutMessage).State);
 
-                    return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>),
+                    if(typeof(T) == typeof(TimeSpan))
+                        return ProcessInvocation<TimeSpan>(typeof(DeferMessageInvocation<,>),
                                                        new Dictionary<string, object> { { "Value", delayOrProcessAt } },
                                                        (messages[0] as TimeoutMessage).State);
                 }

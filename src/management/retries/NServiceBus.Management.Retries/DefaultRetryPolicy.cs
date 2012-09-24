@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus.Management.Retries.Helpers;
-using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Management.Retries
 {

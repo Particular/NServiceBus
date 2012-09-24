@@ -131,7 +131,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
             registration.AddProperty(
                 new PropertySet(propertyInfo, 
-                    new DependencyModel(property, propertyInfo.PropertyType, false, true, value )));
+                    new DependencyModel(property, value.GetType(), false, true, value )));
         }
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)

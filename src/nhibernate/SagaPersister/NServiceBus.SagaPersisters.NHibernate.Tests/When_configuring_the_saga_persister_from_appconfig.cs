@@ -17,7 +17,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
                 .DefineEndpointName("xyz")
                 .DefaultBuilder()
                 .Sagas()
-                .NHibernateSagaPersister();
+                .UseNHibernateSagaPersister();
         }
 
         [Test]
