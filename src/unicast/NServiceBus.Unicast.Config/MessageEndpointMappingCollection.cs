@@ -1,6 +1,5 @@
 using System;
 using System.Configuration;
-using System.Collections;
 
 namespace NServiceBus.Config
 {
@@ -37,8 +36,7 @@ namespace NServiceBus.Config
         /// <returns></returns>
         protected override ConfigurationElement CreateNewElement(string elementName)
         {
-            MessageEndpointMapping result = new MessageEndpointMapping();
-            result.Messages = elementName;
+            var result = new MessageEndpointMapping {Messages = elementName};
 
             return result;
         }
@@ -50,7 +48,9 @@ namespace NServiceBus.Config
         /// <returns></returns>
         protected override Object GetElementKey(ConfigurationElement element)
         {
-            return ((MessageEndpointMapping)element).Messages;
+            var messageEndpointMapping = (MessageEndpointMapping) element;
+
+            return String.Format("{0}{1}{2}{3}", messageEndpointMapping.Messages, messageEndpointMapping.AssemblyName, messageEndpointMapping.TypeFullName, messageEndpointMapping.Namespace);
         }
 
         /// <summary>
