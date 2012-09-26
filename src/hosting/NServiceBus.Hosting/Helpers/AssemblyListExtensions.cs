@@ -21,7 +21,7 @@ namespace NServiceBus.Hosting.Helpers
         public static IEnumerable<Type> AllTypesAssignableTo<T>(this IEnumerable<Assembly> assemblies)
         {
             var type = typeof(T);
-            return assemblies.Where(type.Assembly.IsReferencedBy)
+            return assemblies.Where(type.Assembly.IsReferencedByOrEquals)
                 .AllTypes()
                 .Where(type.IsAssignableFrom);
         }
@@ -33,15 +33,15 @@ namespace NServiceBus.Hosting.Helpers
 
         public static IEnumerable<Type> AllTypesClosing(this IEnumerable<Assembly> assemblies, Type openGenericType, Type genericArg)
         {
-            return assemblies.Where(openGenericType.Assembly.IsReferencedBy)
+            return assemblies.Where(openGenericType.Assembly.IsReferencedByOrEquals)
                 .AllTypes()
                 .Where(type => type.GetGenericallyContainedType(openGenericType, genericArg) != null);
         }
 
-        static bool IsReferencedBy(this Assembly referenceAssembly, Assembly targetAssembly)
+        static bool IsReferencedByOrEquals(this Assembly referenceAssembly, Assembly targetAssembly)
         {
             var name = referenceAssembly.GetName().Name;
-            return targetAssembly.GetReferencedAssemblies().Any(y => y.Name == name);
+            return targetAssembly.GetName().Name == name || targetAssembly.GetReferencedAssemblies().Any(y => y.Name == name);
         }
     }
 }
