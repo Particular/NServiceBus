@@ -9,6 +9,12 @@ namespace NServiceBus
   {
     public static Configure JsonSerializer(this Configure config)
     {
+		if (!Configure.BuilderIsConfigured())
+		{
+			SetJsonSerializerAsDefault.UseJsonSerializer = true;
+			return config;
+		}
+
       ConfigureMessageMapper(config);
 
       config.Configurer.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance);
@@ -18,6 +24,12 @@ namespace NServiceBus
 
     public static Configure BsonSerializer(this Configure config)
     {
+		if (!Configure.BuilderIsConfigured())
+		{
+			SetBsonSerializerAsDefault.UseBsonSerializer = true;
+			return config;
+		}
+
       ConfigureMessageMapper(config);
 
       config.Configurer.ConfigureComponent<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);

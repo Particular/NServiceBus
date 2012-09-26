@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.XML.Config
         public XmlMessageSerializer Serializer { get; set; }
         public void Run()
         {
-            if (Mapper == null)
+            if ((Mapper == null) || (Serializer == null))
                 return;
 
             var messageTypes = Configure.TypesToScan.Where(t => MessageConventionExtensions.IsMessageType(t)).ToList();

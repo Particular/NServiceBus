@@ -62,6 +62,8 @@
   <ItemGroup>
     <Compile Include="BsonMessageSerializer.cs" />
     <Compile Include="Config\ConfigureJsonSerializer.cs" />
+    <Compile Include="Config\SetBsonSerializerAsDefault.cs" />
+    <Compile Include="Config\SetJsonSerializerAsDefault.cs" />
     <Compile Include="Internal\MessageContractResolver.cs" />
     <Compile Include="Internal\MessageSerializationBinder.cs" />
     <Compile Include="JsonMessageSerializer.cs" />
