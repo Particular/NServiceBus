@@ -5,7 +5,6 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="orderwebsiteinputqueue" />
-      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Diagnostics.Level" value="Verbose" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
@@ -27,6 +26,7 @@
       <Setting name="AzureQueueConfig.QueueName" value="orderserviceinputqueue" />
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureSubscriptionStorageConfig.TableName" value="MySubscriptions" />
       <Setting name="Diagnostics.Level" value="Verbose" />
       <Setting name="Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="UnicastBusConfig.LocalAddress" value="orderserviceinputqueue" />

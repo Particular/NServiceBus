@@ -11,7 +11,9 @@ namespace OrderService
         {
             Configure.Instance
                 .DisableSecondLevelRetries()
-                .DisableTimeoutManager();
+                .UseInMemoryTimeoutPersister()
+                //.DisableTimeoutManager()
+                ;
         }
     }
 

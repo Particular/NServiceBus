@@ -32,7 +32,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("No configuration section for NHibernate Azure Subscription Storage found. Please add a NHibernateAzureSubscriptionStorageConfig section to you configuration file");
             }
 
-            return AzureSubcriptionStorage(config,  configSection.ConnectionString, configSection.CreateSchema);
+            return AzureSubcriptionStorage(config, configSection.ConnectionString, configSection.CreateSchema, configSection.TableName);
         }
 
         /// <summary>
@@ -42,10 +42,12 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="connectionString"></param>
         /// <param name="createSchema"></param>
+        /// <param name="tableName"> </param>
         /// <returns></returns>
         public static Configure AzureSubcriptionStorage(this Configure config,
             string connectionString,
-            bool createSchema)
+            bool createSchema, 
+            string tableName)
         {
 
           var cfg = new Configuration()
@@ -57,9 +59,11 @@ namespace NServiceBus
                                      x.Driver<TableStorageDriver>();
                                    });
 
+          SubscriptionMap.TableName = tableName;
+
           var mapper = new ModelMapper();
           mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
-          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
+          var faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
           cfg.AddMapping(faultMappings);
           

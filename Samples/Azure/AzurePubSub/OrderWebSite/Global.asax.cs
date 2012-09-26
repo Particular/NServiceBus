@@ -29,7 +29,8 @@ namespace OrderWebSite
                     .LoadMessageHandlers()
                     .IsTransactional(true)
                     .DisableSecondLevelRetries()
-                    .DisableTimeoutManager()
+                    .UseInMemoryTimeoutPersister()
+                   // .DisableTimeoutManager()
                 .CreateBus()
 				.Start();
 
