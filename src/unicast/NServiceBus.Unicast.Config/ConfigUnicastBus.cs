@@ -75,7 +75,9 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
-            foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
+            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>().ToList();
+            messageEndpointMappings.Sort();
+            foreach (var mapping in messageEndpointMappings)
             {
                 mapping.Configure(MapTypeToAddress);
             }
@@ -83,6 +85,11 @@ namespace NServiceBus.Unicast.Config
         
         private void MapTypeToAddress(Type messagesType, Address address)
         {
+            if (typesToEndpoints.ContainsKey(messagesType) && typesToEndpoints[messagesType] != Address.Undefined)
+            {
+                return;
+            }
+            
             typesToEndpoints[messagesType] = address;
         }
         
@@ -186,7 +193,6 @@ namespace NServiceBus.Unicast.Config
             }
 
             busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
-
 
             var availableDispatcherFactories = TypesToScan
               .Where(

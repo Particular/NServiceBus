@@ -7,8 +7,21 @@ using NServiceBus.Unicast.Tests.Messages.ANamespace;
 using NServiceBus.Unicast.Tests.Messages.ANamespace.ASubNamespace;
 using NUnit.Framework;
 
+namespace NServiceBus.Unicast.Tests.Messages
+{
+    public class MessageE
+    {
+    }
+
+    public class MessageF
+    {
+    }
+}
+
 namespace NServiceBus.Unicast.Tests
 {
+    using NServiceBus.Config.ConfigurationSource;
+
     public class Configuring_message_endpoint_mapping
     {
         public IDictionary<Type, Address> Configure(Action<MessageEndpointMapping> setupMapping)
@@ -29,6 +42,45 @@ namespace NServiceBus.Unicast.Tests
             var mappings = Configure(messageAction).Keys.ToArray();
 
             Assert.That(mappings, Is.EquivalentTo(expected));
+        }
+    }
+
+    [TestFixture]
+    public class The_more_specific_mappings
+    {
+        [Test]
+        public void Should_take_precedence()
+        {
+            Configure.With()
+                .DefineEndpointName("Foo")
+                .DefaultBuilder()
+                .UnicastBus();
+
+            var messageOwners = Configure.Instance.Builder.Build<UnicastBus>().MessageOwners;
+
+            Assert.AreEqual("type", messageOwners[typeof(MessageA)].Queue);
+            Assert.AreEqual("namespace", messageOwners[typeof(MessageB)].Queue);
+            Assert.AreEqual("assembly", messageOwners[typeof(MessageD)].Queue);
+            Assert.AreEqual("messageswithtype", messageOwners[typeof(MessageE)].Queue);
+            Assert.AreEqual("messageswithassembly", messageOwners[typeof(MessageF)].Queue);
+        }
+
+        public class CustomUnicastBusConfig : IProvideConfiguration<UnicastBusConfig>
+        {
+            public UnicastBusConfig GetConfiguration()
+            {
+                var mappingByType = new MessageEndpointMapping { Endpoint = "Type", TypeFullName = "NServiceBus.Unicast.Tests.Messages.MessageA", AssemblyName = "NServiceBus.Unicast.Tests.Messages" };
+                var mappingByNamespace = new MessageEndpointMapping { Endpoint = "Namespace", Namespace = "NServiceBus.Unicast.Tests.Messages", AssemblyName = "NServiceBus.Unicast.Tests.Messages" };
+                var mappingByAssembly = new MessageEndpointMapping { Endpoint = "Assembly", AssemblyName = "NServiceBus.Unicast.Tests.Messages" };
+                var mappingByMessagesWithType = new MessageEndpointMapping { Endpoint = "MessagesWithType", Messages = "NServiceBus.Unicast.Tests.Messages.MessageE, NServiceBus.Unicast.Tests" };
+                var mappingByMessagesWithAssemblyName = new MessageEndpointMapping { Endpoint = "MessagesWithAssembly", Messages = "NServiceBus.Unicast.Tests" };
+                var mappings = new MessageEndpointMappingCollection { mappingByNamespace, mappingByMessagesWithAssemblyName, mappingByType, mappingByAssembly, mappingByMessagesWithType };
+
+                return new UnicastBusConfig
+                {
+                    MessageEndpointMappings = mappings
+                };
+            }
         }
     }
 

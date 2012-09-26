@@ -64,6 +64,9 @@
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Serializers.XML">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.XML.dll</HintPath>
     </Reference>
