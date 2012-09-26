@@ -224,7 +224,10 @@ namespace NServiceBus.Unicast
                 value.ToList()
                     .ForEach((k) => RegisterMessageType(k.Key, k.Value));
             }
-            get { return null; }
+            get
+            {
+                return new Dictionary<Type, Address>(messageTypeToDestinationLookup);
+            }
         }
 
         /// <summary>

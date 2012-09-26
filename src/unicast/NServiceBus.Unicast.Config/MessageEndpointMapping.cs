@@ -9,7 +9,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// A configuration element representing which message types map to which endpoint.
     /// </summary>
-    public class MessageEndpointMapping : ConfigurationElement
+    public class MessageEndpointMapping : ConfigurationElement, IComparable<MessageEndpointMapping>
     {
         /// <summary>
         /// A string defining the message assembly, or single message type.
@@ -186,6 +186,47 @@ namespace NServiceBus.Config
             {
                 throw new ArgumentException("Could not process message endpoint mapping. Problem loading message assembly: " + assemblyName, ex);
             }
+        }
+
+        public int CompareTo(MessageEndpointMapping other)
+        {
+            if (!String.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
+            {
+                if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                    return 0;
+
+                return -1;
+            }
+
+            if (!String.IsNullOrWhiteSpace(Namespace))
+            {
+                if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                    return 1;
+
+                if (!String.IsNullOrWhiteSpace(other.Namespace))
+                    return 0;
+                
+                return -1;
+            }
+
+            if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                return 1;
+
+            if (!String.IsNullOrWhiteSpace(other.Namespace))
+                return 1;
+
+            if (!String.IsNullOrWhiteSpace(other.AssemblyName) || !String.IsNullOrWhiteSpace(other.Messages))
+                return 0; 
+
+            return -1;
+        }
+
+        private static bool HaveMessagesMappingWithType(MessageEndpointMapping mapping)
+        {
+            if (String.IsNullOrWhiteSpace(mapping.Messages))
+                return false;
+
+            return Type.GetType(mapping.Messages, false) != null;
         }
     }
 }
