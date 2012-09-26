@@ -2,18 +2,34 @@ using System;
 using System.Threading;
 using System.Web;
 using System.Web.UI;
-using System.Web.Mvc;
 
 namespace NServiceBus.Unicast
 {
-    using System.Web.Mvc.Async;
+    using System.Linq;
 
     /// <summary>
-    /// Implementation of the ICallback interface for the unicast bus/
+    /// Implementation of the ICallback interface for the unicast bus.
     /// </summary>
     public class Callback : ICallback
     {
+        static readonly Type AsyncControllerType;
+
         private readonly string messageId;
+
+        static Callback()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in assemblies.Where(assembly => assembly.GetName().Name == "System.Web.Mvc"))
+            {
+                AsyncControllerType = assembly.GetType("System.Web.Mvc.AsyncController", false);
+            }
+
+            if (AsyncControllerType == null)
+            {
+                //We just initialize it to any type so we don't need to check for nulls.
+                AsyncControllerType = typeof(BusAsyncResultEventArgs);
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of the callback object storing the given message id.
@@ -37,8 +53,6 @@ namespace NServiceBus.Unicast
             get { return messageId; }
         }
 
-        #region ICallback Members
-
         IAsyncResult ICallback.Register(AsyncCallback callback, object state)
         {
             var result = new BusAsyncResult(callback, state);
@@ -58,10 +72,9 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var controller = callback.Target as AsyncController;
-            if (controller != null)
+            if (AsyncControllerType.IsInstanceOfType(callback.Target))
             {
-                (this as ICallback).Register(callback, controller);
+                (this as ICallback).Register(callback, callback.Target);
                 return;
             }
 
@@ -94,28 +107,28 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            if (synchronizer is AsyncController)
+            if (AsyncControllerType.IsInstanceOfType(synchronizer))
             {
-                var am = (synchronizer as AsyncController).AsyncManager;
-                am.OutstandingOperations.Increment();
+                dynamic asyncController = synchronizer;
+                asyncController.AsyncManager.OutstandingOperations.Increment();
 
-                (this as ICallback).Register(GetMvcCallbackInvocationActionFrom(callback,am), null);
+                (this as ICallback).Register(GetMvcCallbackInvocationActionFrom(callback, asyncController.AsyncManager), null);
 
                 return;
             }
 
-            if (synchronizer is SynchronizationContext)
+            var synchronizationContext = synchronizer as SynchronizationContext;
+            if (synchronizationContext != null)
             {
                 (this as ICallback).Register(
-                    ar => (synchronizer as SynchronizationContext).Post(
-                              x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
+                    ar => synchronizationContext.Post(
+                        x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
                     null
                     );
-                return;
             }
         }
 
-        static AsyncCallback GetMvcCallbackInvocationActionFrom<T>(Action<T> callback, AsyncManager am)
+        static AsyncCallback GetMvcCallbackInvocationActionFrom<T>(Action<T> callback, dynamic am)
         {
             return asyncResult =>
             {
@@ -123,8 +136,6 @@ namespace NServiceBus.Unicast
                 am.OutstandingOperations.Decrement();
             };
         }
-
-        #endregion
 
         static AsyncCallback GetCallbackInvocationActionFrom<T>(Action<T> callback)
         {
@@ -136,10 +147,15 @@ namespace NServiceBus.Unicast
             var cr = asyncResult.AsyncState as CompletionResult;
             if (cr == null) return;
 
-            if (typeof (T) == typeof (int))
-                (callback as Action<int>).Invoke(cr.ErrorCode);
+            var action = callback as Action<int>;
+            if (action != null)
+            {
+                action.Invoke(cr.ErrorCode);
+            }
             else
+            {
                 callback((T) Enum.ToObject(typeof (T), cr.ErrorCode));
+            }
         }
     }
 

@@ -11,7 +11,6 @@ namespace WebApplication1
         protected void Application_Start(object sender, EventArgs e)
         {
             Bus = Configure.With()
-                .Log4Net()
                 .DefaultBuilder()
                 .XmlSerializer()
                 .MsmqTransport()
