@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
+namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 {
     using System;
     using System.Collections.Generic;

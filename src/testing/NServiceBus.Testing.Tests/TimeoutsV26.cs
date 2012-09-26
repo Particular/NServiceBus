@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Testing.Tests
+namespace NServiceBus.Testing.Tests
 {
     using System;
     using System.Reflection;
