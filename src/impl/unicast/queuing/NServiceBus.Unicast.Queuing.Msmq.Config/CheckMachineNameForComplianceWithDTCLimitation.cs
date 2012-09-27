@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Unicast.Queuing.Msmq.Config
+﻿using NServiceBus.Logging;
+
+namespace NServiceBus.Unicast.Queuing.Msmq.Config
 {
     using System.Configuration;
     using System.Runtime.InteropServices;
@@ -27,6 +29,8 @@
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern bool GetComputerNameEx(COMPUTER_NAME_FORMAT nameType, [Out] StringBuilder lpBuffer, ref uint lpnSize);
 
+        static readonly ILog Logger = LogManager.GetLogger(typeof(CheckMachineNameForComplianceWithDtcLimitation));
+
         /// <summary>
         /// Method invoked to run custom code.
         /// </summary>
@@ -42,7 +46,7 @@
             var netbiosName = buffer.ToString();
             if (netbiosName.Length < 15) return;
 
-            throw new ConfigurationErrorsException(string.Format(
+            Logger.Warn(string.Format(
                 "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: http://nservicebus.com/faq/DTCPIngWARNING.aspx", netbiosName));
         }
     }
