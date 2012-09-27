@@ -226,17 +226,26 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             // For each constructor parameter, get corresponding (by name similarity) property and get its value
             var args = new object[longestCtor.GetParameters().Length];
             int pos = 0;
-            foreach (var attrPropInfo in longestCtor.GetParameters().
-                Select(consParamInfo => customAttribute.GetType().GetProperty(consParamInfo.Name,
-                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)))
+            foreach (var consParamInfo in longestCtor.GetParameters())
             {
+                var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (attrPropInfo != null)
                     args[pos] = attrPropInfo.GetValue(customAttribute, null);
                 else
+                {
                     args[pos] = null;
+                    var attrFieldInfo = customAttribute.GetType().GetField(consParamInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (attrFieldInfo == null)
+                    {
+                        if (consParamInfo.ParameterType.IsValueType)
+                            args[pos] = Activator.CreateInstance(consParamInfo.ParameterType);
+                    }
+                    else
+                        args[pos] = attrFieldInfo.GetValue(customAttribute);
+                }
                 ++pos;
             }
-            
+
             var propList = new List<PropertyInfo>();
             var propValueList = new List<object>();
             foreach (var attrPropInfo in customAttribute.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
