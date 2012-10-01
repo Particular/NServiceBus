@@ -1,9 +1,9 @@
 param($installPath, $toolsPath, $package, $project)
 
 #Import the nservicebus ps-commandlets
-if($installPath){
-	Import-Module (Join-Path $installPath nservicebus.dll)
-}
+#if($installPath){
+#	Import-Module (Join-Path $installPath nservicebus.dll)
+#}
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePrepared = $false
