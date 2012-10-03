@@ -1,9 +1,13 @@
 param($installPath, $toolsPath, $package, $project)
 
+#default to build dir when debugging
+if(!$toolsPath){
+	$toolsPath = "..\..\..\build\nservicebus.core\"
+}
+
 #Import the nservicebus ps-commandlets
-#if($installPath){
-#	Import-Module (Join-Path $installPath nservicebus.dll)
-#}
+Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
+
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePrepared = $false
@@ -19,6 +23,32 @@ if($preparedInVersion.value){
   
 if($machinePrepared -or $dontCheckMachineSetup.value)
 {
+	exit
+}
+
+$perfCountersInstalled = Install-PerformanceCounters -WhatIf
+$msmqInstalled = Install-Msmq -WhatIf
+$dtcInstalled = Install-Dtc -WhatIf
+$ravenDBInstalled = Install-RavenDB -WhatIf
+
+if(!$perfCountersInstalled){
+	"Performance counters needs to be setup"
+}
+
+if(!$msmqInstalled){
+	"Msmq needs to be setup"
+}
+if(!$dtcInstalled){
+	"DTC needs to be setup"
+}
+if(!$ravenDBInstalled){
+	"RavenDB needs to be setup"
+}
+
+if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
+	"Required infrastructure is all setup no need to continue"
+
+	#todo - set the machine is prepared flag in the registry
 	exit
 }
 
@@ -71,19 +101,34 @@ $form.Topmost = $True
 $form.Add_Shown({$form.Activate()})
 [void] $form.ShowDialog()
 
-
-if($dontBotherMeAgain){
-
-	New-Item -Path $nserviceBusKeyPath -Force
-	New-ItemProperty -Path $nserviceBusKeyPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
-}
-
 if($tellMeMore){
 	start 'http://nservicebus.com/RequiredInfrastructure'
 }
 
 if($autoSetup){
-	# TODO - enable this when the cmd-let is done
-	#Install-Infrastructure 
+	if(!$perfCountersInstalled){
+		Install-PerformanceCounters
+	}
+	if(!$msmqInstalled){
+		$success = Install-Msmq
+		if(!$success){
+			#TODO - ask users if we should force a update
+			if($false){
+				Install-Msmq -Force
+			}
+		}
+	}
+	if(!$dtcInstalled){
+		Install-Dtc
+	}
+	if(!$ravenDBInstalled){
+		Install-RavenDB
+	}
+}
+
+if($dontBotherMeAgain){
+
+	New-Item -Path $nserviceBusKeyPath -Force
+	New-ItemProperty -Path $nserviceBusKeyPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
 }
 	

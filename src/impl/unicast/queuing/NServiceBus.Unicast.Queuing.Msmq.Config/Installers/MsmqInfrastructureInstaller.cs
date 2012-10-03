@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
 {
     using System.Security.Principal;
     using Installation;
-    using Utils;
+    using Setup.Windows.Msmq;
 
     public class MsmqInfrastructureInstaller : INeedToInstallInfrastructure<Installation.Environments.Windows>
     {
@@ -18,7 +18,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
             if (!Enabled)
                 return;
 
-            MsmqInstallation.StartMsmqIfNecessary();
+            //allow reinstall to be backwards compatible
+            MsmqSetup.StartMsmqIfNecessary(true);
         }
     }
 }

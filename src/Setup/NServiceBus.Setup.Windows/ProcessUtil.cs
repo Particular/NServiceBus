@@ -1,15 +1,21 @@
-﻿using System;
-using System.ServiceProcess;
-using Common.Logging;
-using System.ComponentModel;
-
-namespace NServiceBus.Utils
+﻿namespace NServiceBus.Setup.Windows
 {
+    using System;
+    using System.Security.Principal;
+    using System.ServiceProcess;
+    using System.ComponentModel;
+    using System.Threading;
+
     /// <summary>
     /// Utility class for changing a windows service's status.
     /// </summary>
     public static class ProcessUtil
     {
+        public static bool IsRunningWithElevatedPriviliges()
+        {
+            return Thread.CurrentPrincipal.IsInRole(WindowsBuiltInRole.Administrator.ToString());
+        }
+
         /// <summary>
         /// Checks the status of the given controller, and if it isn't the requested state,
         /// performs the given action, and checks the state again.
@@ -21,11 +27,11 @@ namespace NServiceBus.Utils
         {
             if (controller.Status == status)
             {
-                Logger.Debug(controller.ServiceName + " status is good: " + Enum.GetName(typeof(ServiceControllerStatus), status));
+                Console.Out.WriteLine(controller.ServiceName + " status is good: " + Enum.GetName(typeof(ServiceControllerStatus), status));
                 return;
             }
 
-            Logger.Debug(controller.ServiceName + " status is NOT " + Enum.GetName(typeof(ServiceControllerStatus), status) + ". Changing status...");
+           Console.Out.WriteLine((controller.ServiceName + " status is NOT " + Enum.GetName(typeof(ServiceControllerStatus), status) + ". Changing status..."));
 
             try
             {
@@ -43,7 +49,7 @@ namespace NServiceBus.Utils
             var timeout = TimeSpan.FromSeconds(3);
             controller.WaitForStatus(status, timeout);
             if (controller.Status == status)
-                Logger.Debug(controller.ServiceName + " status changed successfully.");
+                Console.Out.WriteLine((controller.ServiceName + " status changed successfully."));
             else
                 ThrowUnableToChangeStatus(controller.ServiceName, status);
         }
@@ -64,7 +70,5 @@ namespace NServiceBus.Utils
 
             throw new InvalidOperationException(message, exception);
         }
-
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Utils");
     }
 }

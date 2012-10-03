@@ -24,5 +24,7 @@
   </metadata>
   <files>
     <file src="\binaries\NServiceBus.Core.???" target="lib\net40" />
+    <file src="\build\NServiceBus.Core\NServiceBus.PowerShell.dll" target="tools" />
+    <file src="\build\NServiceBus.Core\NServiceBus.Setup.Windows.dll" target="tools" />
   </files>
 </package>

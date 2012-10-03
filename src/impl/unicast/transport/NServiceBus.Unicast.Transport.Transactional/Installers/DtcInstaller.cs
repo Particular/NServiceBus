@@ -3,7 +3,7 @@
     using System.Security.Principal;
     using Installation;
     using Installation.Environments;
-    using Utils;
+    using Setup.Windows.Dtc;
 
     public class DtcInstaller:INeedToInstallInfrastructure<Windows>
     {
@@ -19,7 +19,7 @@
             if(!IsEnabled)
                 return;
             
-            DtcUtil.StartDtcIfNecessary();
+            DtcSetup.StartDtcIfNecessary();
         }
     }
 }
