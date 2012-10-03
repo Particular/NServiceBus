@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     /// <summary>
-    /// Indicates that this class contains logic that need to be excuted before other configuration
+    /// Indicates that this class contains logic that need to be executed before other configuration
     /// </summary>
     public interface IWantToRunBeforeConfiguration
     {

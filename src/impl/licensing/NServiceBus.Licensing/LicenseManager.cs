@@ -1,78 +1,279 @@
-﻿using System;
-using System.Configuration;
-using System.Reflection;
-using Common.Logging;
-using Rhino.Licensing;
-
-namespace NServiceBus.Licensing
+﻿namespace NServiceBus.Licensing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Reflection;
+    using System.Threading;
+    using System.Windows.Forms;
+    using Common.Logging;
+    using Forms;
+    using Microsoft.Win32;
+    using Rhino.Licensing;
+
     public class LicenseManager
     {
-        public const string LicenseTypeKey = "LicenseType";
-        public const string LicenseVersionKey = "LicenseVersion";
+        private const string LicenseTypeKey = "LicenseType";
+        private const string LicenseVersionKey = "LicenseVersion";
+        private const string MaxMessageThroughputPerSecondLicenseKey = "MaxMessageThroughputPerSecond";
+        private const string MaxMessageThroughputPerSecond = "Max";
+        private const int OneMessagePerSecondThroughput = 1;
+        private const string WorkerThreadsLicenseKey = "WorkerThreads";
+        private const string MaxWorkerThreads = "Max";
+        private const int SingleWorkerThread = 1;
+        private const int MaxNumberOfWorkerThreads = 1024;
+        private const string AllowedNumberOfWorkerNodesLicenseKey = "AllowedNumberOfWorkerNodes";
+        private const string UnlimitedNumberOfWorkerNodes = "Max";
+        private const int MinNumberOfWorkerNodes = 2;
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (LicenseManager));
+        public static readonly Version SoftwareVersion = GetNServiceBusVersion();
+
+        private License license;
+        private bool trialPeriodHasExpired;
+        private AbstractLicenseValidator validator;
+
         public LicenseManager()
         {
-            Validator = CreateValidator();
+            validator = CreateValidator();
+
+            Validate();
         }
 
-        private LicenseValidator CreateValidator()
+        /// <summary>
+        ///     Get current NServiceBus licensing information
+        /// </summary>
+        public License CurrentLicense
         {
-            return new LicenseValidator(LicenseDescriptor.PublicKey, LicenseDescriptor.LocalLicenseFile);
+            get { return license; }
         }
 
-        internal bool Validate()
+        public void PromptUserForLicenseIfTrialHasExpired()
+        {
+            if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
+            {
+                //We only prompt user if user is in debugging mode and we are running in interactive mode
+                return;
+            }
+
+            bool createdNew;
+            using (new Mutex(true, string.Format("NServiceBus-{0}", SoftwareVersion.ToString(2)), out createdNew))
+            {
+                if (!createdNew)
+                {
+                    //Dialog already displaying for this software version by another process, so we just use the already assigned license.
+                    return;
+                }
+
+                //prompt user for license file
+                if (trialPeriodHasExpired)
+                {
+                    bool validLicense;
+
+                    using (var form = new TrialExpired())
+                    {
+                        form.CurrentLicenseExpireDate = license.ExpirationDate;
+
+                        form.ValidateLicenseFile = (f, s) =>
+                            {
+                                StringLicenseValidator licenseValidator = null;
+
+                                try
+                                {
+                                    string selectedLicenseText = File.ReadAllText(s);
+                                    licenseValidator = new StringLicenseValidator(LicenseDescriptor.PublicKey,
+                                                                                  selectedLicenseText);
+                                    licenseValidator.AssertValidLicense();
+
+                                    using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", SoftwareVersion.ToString(2))))
+                                    {
+                                        if (registryKey == null)
+                                        {
+                                            return false;
+                                        }
+
+                                        registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
+                                    }
+
+                                    return true;
+                                }
+                                catch (LicenseExpiredException)
+                                {
+                                    if (licenseValidator != null)
+                                    {
+                                        f.DisplayExpiredLicenseError(licenseValidator.ExpirationDate);
+                                    }
+                                    else
+                                    {
+                                        f.DisplayError();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    f.DisplayError();
+                                }
+
+                                return false;
+                            };
+
+                        validLicense = form.ShowDialog() == DialogResult.OK;
+                    }
+
+                    if (validLicense)
+                    {
+                        //if user specifies a valid license file then run with that license
+                        validator = CreateValidator();
+                        Validate();
+                    }
+                }
+            }
+        }
+
+        private void Validate()
         {
             Logger.Info("Checking available license...");
 
-            try
-            {
-                Validator.AssertValidLicense();
-
-                Logger.InfoFormat("Found a {0} license.", Validator.LicenseType);
-                Logger.InfoFormat("Registered to {0}", Validator.Name);
-                Logger.InfoFormat("Expires on {0}", Validator.ExpirationDate);
-                if ((Validator.LicenseAttributes != null) && (Validator.LicenseAttributes.Count > 0))
-                    foreach (var licenseAttribute in Validator.LicenseAttributes)
-                        Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
-
-                CheckIfNServiceBusVersionIsNewerThanLicenseVersion();
-                
-                SetNServiceBusLicense();
-
-                return true;
-            }
-            catch (LicenseNotFoundException)
-            {
-                Logger.Error("The installed license is not valid");
-                throw;
-            }
-            catch (LicenseFileNotFoundException)
-            {
-                Logger.Warn("No valid license file was found. The host will be limited to a throughput of 1msg/s.");
-            }
-            
-            SetNServiceBusLicense();
-            return false;
-        }
-        //if NServiceBus version > license version, throw an exception
-        private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
-        {
-            if(Validator.LicenseType == Rhino.Licensing.LicenseType.None)
-                return;
-
-            if (Validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
+            if (validator != null)
             {
                 try
                 {
-                    var semver = GetNServiceBusVersion();
-                    var licenseVersion = Version.Parse(Validator.LicenseAttributes[LicenseVersionKey]);
+                    validator.AssertValidLicense();
+
+                    Logger.InfoFormat("Found a {0} license.", validator.LicenseType);
+                    Logger.InfoFormat("Registered to {0}", validator.Name);
+                    Logger.InfoFormat("Expires on {0}", validator.ExpirationDate);
+                    if ((validator.LicenseAttributes != null) && (validator.LicenseAttributes.Count > 0))
+                        foreach (var licenseAttribute in validator.LicenseAttributes)
+                            Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
+
+                    CheckIfNServiceBusVersionIsNewerThanLicenseVersion();
+
+                    ConfigureNServiceBusLicense();
+
+                    return;
+                }
+                catch (LicenseNotFoundException)
+                {
+                    Logger.Warn("No valid license found.");
+                }
+                catch (LicenseFileNotFoundException)
+                {
+                    Logger.Warn("No valid license found.");
+                }
+            }
+
+            ConfigureNServiceBusToRunInTrialMode();
+        }
+
+        private void ConfigureNServiceBusToRunInTrialMode()
+        {
+            string trialStartDateString;
+
+            //If first time run, configure expire date
+            using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", SoftwareVersion.ToString(2))))
+            {
+                if (registryKey == null)
+                {
+                    return;
+                }
+
+                if ((trialStartDateString = (string) registryKey.GetValue("TrialStart", null)) == null)
+                {
+                    trialStartDateString = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                    registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
+                }
+            }
+
+            var trialStartDate = DateTime.ParseExact(trialStartDateString, "yyyy-MM-dd",
+                                                          CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+
+            var trialExpirationDate = trialStartDate.Date.AddDays(21);
+
+            //Check trial is still valid
+            if (trialExpirationDate >  DateTime.UtcNow.Date)
+            {
+                //Run in unlimited mode during trail period
+                license = new License {LicenseType = LicenseType.Trial};
+                license.ExpirationDate = trialExpirationDate;
+                ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
+                    {
+                        {AllowedNumberOfWorkerNodesLicenseKey, UnlimitedNumberOfWorkerNodes},
+                        {WorkerThreadsLicenseKey, MaxWorkerThreads},
+                        {MaxMessageThroughputPerSecondLicenseKey, MaxMessageThroughputPerSecond},
+                    });
+            }
+            else
+            {
+                trialPeriodHasExpired = true;
+
+                //if trial expired, run in Basic1
+                license = new License {LicenseType = LicenseType.Basic1};
+                license.ExpirationDate = trialExpirationDate;
+                ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
+                    {
+                        {
+                            AllowedNumberOfWorkerNodesLicenseKey,
+                            MinNumberOfWorkerNodes.ToString(CultureInfo.InvariantCulture)
+                        },
+                        {WorkerThreadsLicenseKey, SingleWorkerThread.ToString(CultureInfo.InvariantCulture)},
+                        {
+                            MaxMessageThroughputPerSecondLicenseKey,
+                            OneMessagePerSecondThroughput.ToString(CultureInfo.InvariantCulture)
+                        },
+                    });
+            }
+        }
+
+        private static AbstractLicenseValidator CreateValidator()
+        {
+            string licenseText = String.Empty;
+
+            if (!String.IsNullOrEmpty(LicenseDescriptor.AppConfigLicenseString))
+            {
+                licenseText = LicenseDescriptor.AppConfigLicenseString;
+            }
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.AppConfigLicenseFile))
+            {
+                if (File.Exists(LicenseDescriptor.AppConfigLicenseFile))
+                {
+                    licenseText = File.ReadAllText(LicenseDescriptor.AppConfigLicenseFile);
+                }
+            }
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.LocalLicenseFile) && File.Exists(LicenseDescriptor.AppConfigLicenseFile))
+            {
+                licenseText = File.ReadAllText(LicenseDescriptor.LocalLicenseFile);
+            }
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.RegistryLicense))
+            {
+                licenseText = LicenseDescriptor.RegistryLicense;
+            }
+
+            return String.IsNullOrEmpty(licenseText) ? null : new StringLicenseValidator(LicenseDescriptor.PublicKey, licenseText);
+        }
+
+        //if NServiceBus version > license version, throw an exception
+        private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
+        {
+            if (validator.LicenseType == Rhino.Licensing.LicenseType.None)
+                return;
+
+            if (validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
+            {
+                try
+                {
+                    Version semver = GetNServiceBusVersion();
+                    Version licenseVersion = Version.Parse(validator.LicenseAttributes[LicenseVersionKey]);
                     if (licenseVersion >= semver)
                         return;
                 }
                 catch (Exception exception)
                 {
                     throw new ConfigurationErrorsException(
-                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.", exception);
+                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.",
+                        exception);
                 }
             }
 
@@ -82,87 +283,142 @@ namespace NServiceBus.Licensing
 
         private static Version GetNServiceBusVersion()
         {
-            string appName = Assembly.GetAssembly(typeof(LicenseManager)).Location;
-            var assembyVersion = AssemblyName.GetAssemblyName(appName).Version;
+            Version assembyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
             return new Version(assembyVersion.Major, assembyVersion.Minor);
         }
 
         /// <summary>
-        /// Set NSeriviceBus license information.
+        ///     Set NSeriviceBus license information.
         /// </summary>
-        private void SetNServiceBusLicense()
+        private void ConfigureNServiceBusLicense()
         {
             license = new License();
-            switch (Validator.LicenseType)
+
+            switch (validator.LicenseType)
             {
                 case Rhino.Licensing.LicenseType.None:
                     license.LicenseType = LicenseType.Basic1;
                     break;
                 case Rhino.Licensing.LicenseType.Standard:
-                    GetLicenseType(LicenseType.Standard);
+                    SetLicenseType(LicenseType.Standard);
                     break;
                 case Rhino.Licensing.LicenseType.Trial:
-                    GetLicenseType(LicenseType.Trial);
+                    SetLicenseType(LicenseType.Trial);
                     break;
                 default:
-                    Logger.ErrorFormat("Got unexpected license type [{0}], setting Basic1 free license type.", 
-                        Validator.LicenseType.ToString());
+                    Logger.ErrorFormat("Got unexpected license type [{0}], setting Basic1 free license type.",
+                                       validator.LicenseType.ToString());
                     license.LicenseType = LicenseType.Basic1;
                     break;
             }
 
-            if (Validator.LicenseAttributes != null)
-                license.LicenseAttributes = Validator.LicenseAttributes;
+            license.ExpirationDate = validator.ExpirationDate;
+
+            ConfigureLicenseBasedOnAttribute(license.LicenseType, validator.LicenseAttributes);
         }
 
-        private void GetLicenseType(string defaultLicenseType)
+        private void ConfigureLicenseBasedOnAttribute(string licenseType, IDictionary<string, string> attributes)
         {
-            if ((Validator.LicenseAttributes == null) || (!Validator.LicenseAttributes.ContainsKey(LicenseTypeKey)) ||
-                (string.IsNullOrEmpty(Validator.LicenseAttributes[LicenseTypeKey])))
-                license.LicenseType = defaultLicenseType;
-            else
-                license.LicenseType = Validator.LicenseAttributes[LicenseTypeKey];
+            license.MaxThroughputPerSecond = GetMaxThroughputPerSecond(licenseType, attributes);
+            license.AllowedNumberOfThreads = GetAllowedNumberOfThreads(licenseType, attributes);
+            license.AllowedNumberOfWorkerNodes = GetAllowedNumberOfWorkerNodes(license.LicenseType, attributes);
         }
 
-        internal LicenseValidator Validator
+        private static int GetAllowedNumberOfWorkerNodes(string licenseType, IDictionary<string, string> attributes)
         {
-            get; private set;
-        }
-
-        private static License license ;
-        /// <summary>
-        /// Get current NServiceBus licensing information
-        /// </summary>
-        public static License CurrentLicense
-        {
-            get
+            if (licenseType == LicenseType.Basic1)
             {
-                if (license == null)
+                return MinNumberOfWorkerNodes;
+            }
+
+            if (attributes.ContainsKey(AllowedNumberOfWorkerNodesLicenseKey))
+            {
+                string allowedNumberOfWorkerNodes = attributes[AllowedNumberOfWorkerNodesLicenseKey];
+                if (allowedNumberOfWorkerNodes == UnlimitedNumberOfWorkerNodes)
                 {
-                    var licenseManager = new LicenseManager();
-                    licenseManager.Validate();
-                    Configure.Instance.Configurer.RegisterSingleton<LicenseManager>(licenseManager);
-                    ChangeRhinoLicensingLogLevelToWarn();
+                    return int.MaxValue;
                 }
-                return license;
+
+                int allowedWorkerNodes;
+                if (int.TryParse(allowedNumberOfWorkerNodes, out allowedWorkerNodes))
+                {
+                    return allowedWorkerNodes;
+                }
+            }
+
+            return MinNumberOfWorkerNodes;
+        }
+
+        private static int GetAllowedNumberOfThreads(string licenseType, IDictionary<string, string> attributes)
+        {
+            if (licenseType == LicenseType.Basic1)
+            {
+                return SingleWorkerThread;
+            }
+
+            if (attributes.ContainsKey(WorkerThreadsLicenseKey))
+            {
+                string workerThreadsInLicenseFile = attributes[WorkerThreadsLicenseKey];
+
+                if (string.IsNullOrWhiteSpace(workerThreadsInLicenseFile))
+                {
+                    return SingleWorkerThread;
+                }
+
+                if (workerThreadsInLicenseFile == MaxWorkerThreads)
+                {
+                    return MaxNumberOfWorkerThreads;
+                }
+
+                int workerThreads;
+                if (int.TryParse(workerThreadsInLicenseFile, out workerThreads))
+                {
+                    return workerThreads;
+                }
+            }
+
+            return SingleWorkerThread;
+        }
+
+        private static int GetMaxThroughputPerSecond(string licenseType, IDictionary<string, string> attributes)
+        {
+            // Basic1 means there is no License file, so set throughput to one message per second.
+            if (licenseType == LicenseType.Basic1)
+            {
+                return OneMessagePerSecondThroughput;
+            }
+
+            if (attributes.ContainsKey(MaxMessageThroughputPerSecondLicenseKey))
+            {
+                string maxMessageThroughputPerSecond = attributes[MaxMessageThroughputPerSecondLicenseKey];
+                if (maxMessageThroughputPerSecond == MaxMessageThroughputPerSecond)
+                {
+                    return 0;
+                }
+
+                int messageThroughputPerSecond;
+                if (int.TryParse(maxMessageThroughputPerSecond, out messageThroughputPerSecond))
+                {
+                    return messageThroughputPerSecond;
+                }
+            }
+
+            return OneMessagePerSecondThroughput;
+        }
+
+        private void SetLicenseType(string defaultLicenseType)
+        {
+            if ((validator.LicenseAttributes == null) ||
+                (!validator.LicenseAttributes.ContainsKey(LicenseTypeKey)) ||
+                (string.IsNullOrEmpty(validator.LicenseAttributes[LicenseTypeKey])))
+            {
+                license.LicenseType = defaultLicenseType;
+            }
+            else
+            {
+                license.LicenseType = validator.LicenseAttributes[LicenseTypeKey];
             }
         }
-        private static void ChangeRhinoLicensingLogLevelToWarn()
-        {
-            Assembly rhinoLicensingAssembly = Assembly.GetAssembly(typeof(Rhino.Licensing.LicenseValidator));
-            if (rhinoLicensingAssembly == null) return;
-            log4net.Repository.ILoggerRepository rhinoLicensingRepository =
-                log4net.LogManager.GetRepository(rhinoLicensingAssembly);
-
-            if (rhinoLicensingRepository == null) return;
-
-            var hier = (log4net.Repository.Hierarchy.Hierarchy)rhinoLicensingRepository;
-            var licenseValidatorLogger = hier.GetLogger("Rhino.Licensing.LicenseValidator");
-            if (licenseValidatorLogger == null) return;
-
-            ((log4net.Repository.Hierarchy.Logger)licenseValidatorLogger).Level = hier.LevelMap["WARN"];
-
-        }
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
     }
 }

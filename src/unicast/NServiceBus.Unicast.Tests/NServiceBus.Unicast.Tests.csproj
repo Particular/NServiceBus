@@ -46,6 +46,9 @@
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Licensing, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
