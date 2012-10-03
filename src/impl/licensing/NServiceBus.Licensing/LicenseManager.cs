@@ -170,6 +170,10 @@
 
         private void ConfigureNServiceBusToRunInTrialMode()
         {
+            Logger.Info("No valid license found.");
+            Logger.Info("Configuring NServiceBus to run in trial mode.");
+
+
             string trialStartDateString;
 
             //If first time run, configure expire date
@@ -184,6 +188,8 @@
                 {
                     trialStartDateString = DateTime.UtcNow.ToString("yyyy-MM-dd");
                     registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
+
+                    Logger.DebugFormat("First time running NServiceBus v{0}, setting trial start.", SoftwareVersion.ToString(2));
                 }
             }
 
@@ -195,6 +201,8 @@
             //Check trial is still valid
             if (trialExpirationDate >  DateTime.UtcNow.Date)
             {
+                Logger.DebugFormat("Trial for NServiceBus v{0} is still active, trial expires on {0}.", SoftwareVersion.ToString(2), trialExpirationDate.ToLocalTime().ToShortDateString());
+
                 //Run in unlimited mode during trail period
                 license = new License {LicenseType = LicenseType.Trial};
                 license.ExpirationDate = trialExpirationDate;
@@ -207,6 +215,8 @@
             }
             else
             {
+                Logger.DebugFormat("Trial for NServiceBus v{0} has expired, showing user dialog.", SoftwareVersion.ToString(2));
+
                 trialPeriodHasExpired = true;
 
                 //if trial expired, run in Basic1

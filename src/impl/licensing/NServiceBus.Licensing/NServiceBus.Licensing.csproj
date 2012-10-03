@@ -45,7 +45,7 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Forms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="NServiceBus.Forms">
       <HintPath>..\..\..\..\build\nservicebus.core\NServiceBus.Forms.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
