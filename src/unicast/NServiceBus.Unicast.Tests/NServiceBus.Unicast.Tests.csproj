@@ -46,26 +46,22 @@
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Licensing, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Licensing">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.MessageInterfaces">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Serializers.XML">
