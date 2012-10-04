@@ -43,6 +43,13 @@
             Validate();
         }
 
+        public LicenseManager(string licenseText)
+        {
+            validator = CreateValidator(licenseText);
+
+            Validate();
+        }
+
         /// <summary>
         ///     Get current NServiceBus licensing information
         /// </summary>
@@ -83,7 +90,7 @@
 
                                 try
                                 {
-                                    string selectedLicenseText = File.ReadAllText(s);
+                                    string selectedLicenseText = ReadAllTextWithoutLocking(s);
                                     licenseValidator = new StringLicenseValidator(LicenseDescriptor.PublicKey,
                                                                                   selectedLicenseText);
                                     licenseValidator.AssertValidLicense();
@@ -129,6 +136,15 @@
                         Validate();
                     }
                 }
+            }
+        }
+
+        internal static string ReadAllTextWithoutLocking(string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var textReader = new StreamReader(fileStream))
+            {
+                return textReader.ReadToEnd();
             }
         }
 
@@ -237,27 +253,35 @@
             }
         }
 
-        private static AbstractLicenseValidator CreateValidator()
+        private static AbstractLicenseValidator CreateValidator(string licenseText = "")
         {
-            string licenseText = String.Empty;
+            if (!String.IsNullOrEmpty(licenseText))
+            {
+                Logger.Info(@"Using license supplied via fluent API.");
+                return new StringLicenseValidator(LicenseDescriptor.PublicKey, licenseText);
+            }
 
             if (!String.IsNullOrEmpty(LicenseDescriptor.AppConfigLicenseString))
             {
+                Logger.Info(@"Using embedded license supplied via config file AppSettings/NServiceBus/License.");
                 licenseText = LicenseDescriptor.AppConfigLicenseString;
             }
             else if (!String.IsNullOrEmpty(LicenseDescriptor.AppConfigLicenseFile))
             {
                 if (File.Exists(LicenseDescriptor.AppConfigLicenseFile))
                 {
-                    licenseText = File.ReadAllText(LicenseDescriptor.AppConfigLicenseFile);
+                    Logger.InfoFormat(@"Using license supplied via config file AppSettings/NServiceBus/LicensePath ({0}).", LicenseDescriptor.AppConfigLicenseFile);
+                    licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.AppConfigLicenseFile);
                 }
             }
-            else if (!String.IsNullOrEmpty(LicenseDescriptor.LocalLicenseFile) && File.Exists(LicenseDescriptor.AppConfigLicenseFile))
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.LocalLicenseFile) && File.Exists(LicenseDescriptor.LocalLicenseFile))
             {
-                licenseText = File.ReadAllText(LicenseDescriptor.LocalLicenseFile);
+                Logger.InfoFormat(@"Using license in current folder ({0}).", LicenseDescriptor.LocalLicenseFile);
+                licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.LocalLicenseFile);
             }
             else if (!String.IsNullOrEmpty(LicenseDescriptor.RegistryLicense))
             {
+                Logger.InfoFormat(@"Using embeded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", SoftwareVersion.ToString(2));
                 licenseText = LicenseDescriptor.RegistryLicense;
             }
 

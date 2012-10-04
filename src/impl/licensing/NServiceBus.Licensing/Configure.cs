@@ -7,10 +7,13 @@
     {
         public void Init()
         {
-            var licenseManager = new LicenseManager();
+            if (!NServiceBus.Configure.Instance.Configurer.HasComponent<LicenseManager>())
+            {
+                var licenseManager = new LicenseManager();
 
-            NServiceBus.Configure.Instance.Configurer.RegisterSingleton<LicenseManager>(licenseManager);
-            
+                NServiceBus.Configure.Instance.Configurer.RegisterSingleton<LicenseManager>(licenseManager);
+            }
+
             ChangeRhinoLicensingLogLevelToWarn();
         }
 
