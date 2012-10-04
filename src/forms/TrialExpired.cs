@@ -18,19 +18,18 @@
 
         public void DisplayError()
         {
-            selectedFileExpirationDataLabel.Visible = false;
+            selectedFileExpirationDateLabel.Visible = false;
             errorMessageLabel.Visible = true;
-            selectedFileExpirationDataLabel.Text = "The file you have selected is not valid.";
-
-            Height = 305;
+            errorMessageLabel.Text = "The file you have selected is not valid.";
+            Height = 363;
         }
 
         public void DisplayExpiredLicenseError(DateTime expirationDate)
         {
-            Height = 330;
             errorMessageLabel.Text = "The license file you have selected is expired.";
-            selectedFileExpirationDataLabel.Visible = errorMessageLabel.Visible = true;
-            selectedFileExpirationDataLabel.Text = String.Format("Expiration Date: {0}", expirationDate.ToLocalTime().ToShortDateString());
+            selectedFileExpirationDateLabel.Visible = errorMessageLabel.Visible = true;
+            selectedFileExpirationDateLabel.Text = String.Format("Expiration Date: {0}", expirationDate.ToLocalTime().ToShortDateString());
+            Height = 386;
         }
 
         private void requestLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -40,36 +39,22 @@
 
         private void browseButton_Click(object sender, EventArgs e)
         {
-            try
+            using (var openDialog = new OpenFileDialog())
             {
-                TopMost = false;
+                openDialog.InitializeLifetimeService();
+                openDialog.Filter = "License files (*.xml)|*.xml|All files (*.*)|*.*";
+                openDialog.Title = "Select License file";
 
-                using (var openDialog = new OpenFileDialog())
+                if (ShowDialogInSTA(openDialog) == DialogResult.OK)
                 {
-                    openDialog.InitializeLifetimeService();
-                    openDialog.Filter = "License files (*.xml)|*.xml|All files (*.*)|*.*";
-                    openDialog.Title = "Select License file";
+                    string licenseFileSelected = openDialog.FileName;
 
-                    if (ShowDialogInSTA(openDialog) == DialogResult.OK)
+                    if (ValidateLicenseFile(this, licenseFileSelected))
                     {
-                        string licenseFileSelected = openDialog.FileName;
-
-                        if (ValidateLicenseFile(this, licenseFileSelected))
-                        {
-                            DialogResult = DialogResult.OK;
-                        }
+                        DialogResult = DialogResult.OK;
                     }
                 }
             }
-            finally
-            {
-                TopMost = true;
-            }
-        }
-
-        private void TrialExpired_Load(object sender, EventArgs e)
-        {
-            currentLicenseExpiredDateLabel.Text = String.Format("Expiration Date: {0}", CurrentLicenseExpireDate.ToLocalTime().ToShortDateString());
         }
 
         //When calling a OpenFileDialog it needs to be done from an STA thread model otherwise it throws:
@@ -88,6 +73,17 @@
             thread.Join();
 
             return result;
+        }
+
+        private void ignoreLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+        }
+
+        private void notTopMostTimer_Tick(object sender, EventArgs e)
+        {
+            TopMost = false;
+            notTopMostTimer.Enabled = false;
         }
     }
 }
