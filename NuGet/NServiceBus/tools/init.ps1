@@ -10,11 +10,14 @@ Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
 
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
+$machinePreparedKey = "MachinePrepared"
 $machinePrepared = $false
+$nservicebusVersion = Get-NServiceBusVersion
+$nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
 
 #Figure out if this machine is properly setup
-$a = get-itemproperty -path $nserviceBusKeyPath -ErrorAction silentlycontinue
-$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq "MachinePreparedByVersion" }
+$a = get-itemproperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
+$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
 $dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
 
 if($preparedInVersion.value){
@@ -48,7 +51,8 @@ if(!$ravenDBInstalled){
 if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
 	"Required infrastructure is all setup no need to continue"
 
-	#todo - set the machine is prepared flag in the registry
+	New-Item -Path $nserviceBusVersionPath -Force
+	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
 	exit
 }
 $formsPath = Join-Path $toolsPath nservicebus.forms.dll
@@ -85,7 +89,7 @@ if($prepareMachineDialog.AllowPrepare){
 
 if($prepareMachineDialog.DontBotherMeAgain){
 
-	New-Item -Path $nserviceBusKeyPath -Force
-	New-ItemProperty -Path $nserviceBusKeyPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
+	New-Item -Path $nserviceBusVersionPath -Force
+	New-ItemProperty -Path $nserviceBusVersionPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
 }
 	

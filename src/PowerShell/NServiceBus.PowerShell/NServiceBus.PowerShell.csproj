@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GetNServiceBusVersion.cs" />
     <Compile Include="InstallPerformanceCounters.cs" />
     <Compile Include="InstallDtc.cs" />
     <Compile Include="InstallMsmq.cs" />
@@ -57,6 +58,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
     <None Include="Examples\Install-Dtc.ps1" />
     <None Include="Examples\Install-Msmq.ps1" />
