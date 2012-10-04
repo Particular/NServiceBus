@@ -38,6 +38,8 @@
 
         public LicenseManager()
         {
+            ChangeRhinoLicensingLogLevelToWarn();
+
             validator = CreateValidator();
 
             Validate();
@@ -45,6 +47,8 @@
 
         public LicenseManager(string licenseText)
         {
+            ChangeRhinoLicensingLogLevelToWarn();
+
             validator = CreateValidator(licenseText);
 
             Validate();
@@ -150,8 +154,6 @@
 
         private void Validate()
         {
-            Logger.Info("Checking available license...");
-
             if (validator != null)
             {
                 try
@@ -173,23 +175,25 @@
                 }
                 catch (LicenseNotFoundException)
                 {
-                    Logger.Warn("No valid license found.");
+                    Logger.Error("License could not be loaded.");
                 }
                 catch (LicenseFileNotFoundException)
                 {
-                    Logger.Warn("No valid license found.");
+                    Logger.Error("License could not be loaded.");
                 }
+
+                Logger.Warn("Falling back to run in Basic1 license mode.");
+                RunInBasic1Mode(DateTime.UtcNow);
+
+                return;
             }
 
+            Logger.Info("No valid license found.");
             ConfigureNServiceBusToRunInTrialMode();
         }
 
         private void ConfigureNServiceBusToRunInTrialMode()
         {
-            Logger.Info("No valid license found.");
-            Logger.Info("Configuring NServiceBus to run in trial mode.");
-
-
             string trialStartDateString;
 
             //If first time run, configure expire date
@@ -205,7 +209,7 @@
                     trialStartDateString = DateTime.UtcNow.ToString("yyyy-MM-dd");
                     registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
 
-                    Logger.DebugFormat("First time running NServiceBus v{0}, setting trial start.", SoftwareVersion.ToString(2));
+                    Logger.DebugFormat("First time running NServiceBus v{0}, setting trial license start.", SoftwareVersion.ToString(2));
                 }
             }
 
@@ -218,6 +222,7 @@
             if (trialExpirationDate >  DateTime.UtcNow.Date)
             {
                 Logger.DebugFormat("Trial for NServiceBus v{0} is still active, trial expires on {0}.", SoftwareVersion.ToString(2), trialExpirationDate.ToLocalTime().ToShortDateString());
+                Logger.Info("Configuring NServiceBus to run in trial mode.");
 
                 //Run in unlimited mode during trail period
                 license = new License {LicenseType = LicenseType.Trial};
@@ -231,26 +236,56 @@
             }
             else
             {
-                Logger.DebugFormat("Trial for NServiceBus v{0} has expired, showing user dialog.", SoftwareVersion.ToString(2));
+                Logger.DebugFormat("Trial for NServiceBus v{0} has expired.", SoftwareVersion.ToString(2));
+                Logger.Warn("Falling back to run in Basic1 license mode.");
 
                 trialPeriodHasExpired = true;
 
                 //if trial expired, run in Basic1
-                license = new License {LicenseType = LicenseType.Basic1};
-                license.ExpirationDate = trialExpirationDate;
-                ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
-                    {
-                        {
-                            AllowedNumberOfWorkerNodesLicenseKey,
-                            MinNumberOfWorkerNodes.ToString(CultureInfo.InvariantCulture)
-                        },
-                        {WorkerThreadsLicenseKey, SingleWorkerThread.ToString(CultureInfo.InvariantCulture)},
-                        {
-                            MaxMessageThroughputPerSecondLicenseKey,
-                            OneMessagePerSecondThroughput.ToString(CultureInfo.InvariantCulture)
-                        },
-                    });
+                RunInBasic1Mode(trialExpirationDate);
             }
+        }
+
+        private void RunInBasic1Mode(DateTime trialExpirationDate)
+        {
+            license = new License {LicenseType = LicenseType.Basic1};
+            license.ExpirationDate = trialExpirationDate;
+            ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
+                {
+                    {
+                        AllowedNumberOfWorkerNodesLicenseKey,
+                        MinNumberOfWorkerNodes.ToString(CultureInfo.InvariantCulture)
+                    },
+                    {WorkerThreadsLicenseKey, SingleWorkerThread.ToString(CultureInfo.InvariantCulture)},
+                    {
+                        MaxMessageThroughputPerSecondLicenseKey,
+                        OneMessagePerSecondThroughput.ToString(CultureInfo.InvariantCulture)
+                    },
+                });
+        }
+
+        private static void ChangeRhinoLicensingLogLevelToWarn()
+        {
+            var rhinoLicensingAssembly = Assembly.GetAssembly(typeof(LicenseValidator));
+            if (rhinoLicensingAssembly == null)
+            {
+                return;
+            }
+
+            var rhinoLicensingRepository = log4net.LogManager.GetRepository(rhinoLicensingAssembly);
+            if (rhinoLicensingRepository == null)
+            {
+                return;
+            }
+
+            var hier = (log4net.Repository.Hierarchy.Hierarchy)rhinoLicensingRepository;
+            var licenseValidatorLogger = hier.GetLogger("Rhino.Licensing.LicenseValidator");
+            if (licenseValidatorLogger == null)
+            {
+                return;
+            }
+
+            ((log4net.Repository.Hierarchy.Logger)licenseValidatorLogger).Level = hier.LevelMap["FATAL"];
         }
 
         private static AbstractLicenseValidator CreateValidator(string licenseText = "")
