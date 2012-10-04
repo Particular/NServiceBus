@@ -132,7 +132,8 @@
 
             sagaEntity.Id = GuidCombGenerator.Generate();
 
-            sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();
+            if (Bus.CurrentMessageContext.ReplyToAddress != null)
+                sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();
             sagaEntity.OriginalMessageId = Bus.CurrentMessageContext.Id;
 
             return sagaEntity;
