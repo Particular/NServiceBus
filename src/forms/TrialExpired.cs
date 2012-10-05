@@ -18,27 +18,24 @@
 
         public void DisplayError()
         {
-            selectedFileExpirationDateLabel.Visible = false;
-            errorMessageLabel.Visible = true;
+            errorPanel.Visible = true;
             errorMessageLabel.Text = "The file you have selected is not valid.";
-            Height = 363;
+            selectedFileExpirationDateLabel.Text = String.Empty;
+            Height = 376;
         }
 
         public void DisplayExpiredLicenseError(DateTime expirationDate)
         {
+            errorPanel.Visible = true;
             errorMessageLabel.Text = "The license file you have selected is expired.";
-            selectedFileExpirationDateLabel.Visible = errorMessageLabel.Visible = true;
             selectedFileExpirationDateLabel.Text = String.Format("Expiration Date: {0}", expirationDate.ToLocalTime().ToShortDateString());
-            Height = 386;
-        }
-
-        private void requestLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start("http://www.nservicebus.com/License.aspx");
+            Height = 376;
         }
 
         private void browseButton_Click(object sender, EventArgs e)
         {
+            var close = false;
+
             using (var openDialog = new OpenFileDialog())
             {
                 openDialog.InitializeLifetimeService();
@@ -51,9 +48,26 @@
 
                     if (ValidateLicenseFile(this, licenseFileSelected))
                     {
-                        DialogResult = DialogResult.OK;
+                        close = true;
                     }
                 }
+            }
+
+            if (close)
+            {
+                browseButton.Enabled = false;
+                errorPanel.Visible = false;
+                completePanel.Visible = true;
+                Height = 376;
+
+                timer.Tick += delegate
+                    {
+                        timer.Enabled = false;
+                        DialogResult = DialogResult.OK;
+                    };
+
+                timer.Interval = 5000;
+                timer.Enabled = true;
             }
         }
 
@@ -75,15 +89,22 @@
             return result;
         }
 
-        private void ignoreLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void timer_Tick(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
+            Activate();
+            timer.Enabled = false;
+
+            timer.Tick -= timer_Tick;
         }
 
-        private void notTopMostTimer_Tick(object sender, EventArgs e)
+        private void requestButton_Click(object sender, EventArgs e)
         {
-            TopMost = false;
-            notTopMostTimer.Enabled = false;
+            Process.Start("http://www.nservicebus.com/License.aspx");
+        }
+
+        private void ignoreButton_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
         }
     }
 }

@@ -60,6 +60,20 @@ namespace NServiceBus.Forms.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap complete {
+            get {
+                object obj = ResourceManager.GetObject("complete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap error {
+            get {
+                object obj = ResourceManager.GetObject("error", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Icon form_icon {
             get {
                 object obj = ResourceManager.GetObject("form_icon", resourceCulture);
