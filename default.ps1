@@ -1,6 +1,6 @@
 properties {
-	$ProductVersion = "3.2"
-	$PatchVersion = "8"
+	$ProductVersion = "3.3"
+	$PatchVersion = "0"
 	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
 	$PreRelease = "alpha"
 	$TargetFramework = "net-4.0"
