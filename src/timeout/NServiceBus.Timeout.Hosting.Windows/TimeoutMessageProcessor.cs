@@ -107,9 +107,16 @@
                 if (!message.Headers.ContainsKey(Headers.Expire))
                     throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
 
+                var destination = message.ReplyToAddress;
+
+                if (message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+                {
+                    destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+                }
+
                 var data = new TimeoutData
                 {
-                    Destination = message.ReplyToAddress,
+                    Destination = destination,
                     SagaId = sagaId,
                     State = message.Body,
                     Time = message.Headers[Headers.Expire].ToUtcDateTime(),
