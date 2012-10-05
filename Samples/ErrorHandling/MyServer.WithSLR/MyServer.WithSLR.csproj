@@ -8,8 +8,8 @@
     <ProjectGuid>{58851E2C-AC34-42EF-A44A-58E99F18E7FB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyServer</RootNamespace>
-    <AssemblyName>MyServer</AssemblyName>
+    <RootNamespace>MyServerWithSLR</RootNamespace>
+    <AssemblyName>MyServerWithSLR</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

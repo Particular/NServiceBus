@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using NServiceBus;
-using NServiceBus.Management.Retries;
-
-namespace MyServer.Common
+﻿namespace MyServer.Common
 {
+    using System;
+    using System.Collections.Concurrent;
+    using NServiceBus;
+
     public class MyMessageHandler : IHandleMessages<MyMessage>
     {
         private static readonly ConcurrentDictionary<Guid, string> Last = new ConcurrentDictionary<Guid, string>();

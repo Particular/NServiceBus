@@ -1,8 +1,8 @@
-﻿using System;
-using NServiceBus;
-
-namespace MyServer.Common
+﻿namespace MyServer.Common
 {
+    using System;
+    using NServiceBus;
+
     public class Application : IWantToRunAtStartup
     {
         public IBus Bus { get; set; }
@@ -22,7 +22,7 @@ namespace MyServer.Common
 
                         var m = new MyMessage {Id = Guid.NewGuid()};
 
-                        Bus.Send("myserver", m);
+                        Bus.Send(m);
                         break;
                 }
             }
