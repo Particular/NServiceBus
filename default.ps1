@@ -40,22 +40,18 @@ task Clean -description "Cleans the eviorment for the build" {
 
 	if(Test-Path $buildBase){
 		Delete-Directory $buildBase
-		
 	}
 	
 	if(Test-Path $artifactsDir){
 		Delete-Directory $artifactsDir
-		
 	}
 	
 	if(Test-Path $binariesDir){
 		Delete-Directory $binariesDir
-		
 	}
 	
 	if(Test-Path $coreOnlyDir){
 		Delete-Directory $coreOnlyDir
-		
 	}
 }
 
@@ -94,10 +90,13 @@ task InitEnvironment -description "Initializes the environment for build" {
 			$script:isEnvironmentInitialized = $true
 		}
 	}
-	$binariesExists = Test-Path $binariesDir;
-	if($binariesExists -eq $false){	
+
+	if(-not (Test-Path $binariesDir)){	
 		Create-Directory $binariesDir
-		echo "created binaries"
+	}
+
+	if(-not (Test-Path $artifactsDir)){	
+		Create-Directory $artifactsDir
 	}
 }
 
@@ -759,31 +758,17 @@ task CreatePackages {
 
 task ZipOutput -description "Ziping artifacts directory for releasing"  {	
 	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
-	$packageOutPutDir = "$releaseRoot\packages"
 	
 	if(Test-Path -Path $packagingArtifacts ){
         del ($packagingArtifacts + '\*.zip')
 	}
 	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
-	Copy-Item -Force -Recurse $releaseDir\packages "$releaseRoot\packages"  -ErrorAction SilentlyContinue  
 	
 	Delete-Directory $releaseDir
 			
-	if((Test-Path -Path $packageOutPutDir) -and ($UploadPackage) ){
-        Delete-Directory $packageOutPutDir
-	}
-
-	if((Test-Path -Path $artifactsDir) -eq $true)
-	{
-		Delete-Directory $artifactsDir
-	}
-	
-    Create-Directory $artifactsDir
-	
 	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
 	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
-	
 }
