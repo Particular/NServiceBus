@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmdletBase.cs" />
     <Compile Include="GetNServiceBusVersion.cs" />
     <Compile Include="InstallPerformanceCounters.cs" />
     <Compile Include="InstallDtc.cs" />

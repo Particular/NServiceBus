@@ -5,7 +5,7 @@
     using Setup.Windows.Dtc;
 
     [Cmdlet(VerbsLifecycle.Install, "Dtc")]
-    public class InstallDtc : PSCmdlet
+    public class InstallDtc : CmdletBase
     {
 
         [Parameter(HelpMessage = "Checks if DTC is setup properly without fixing any potential issues")]

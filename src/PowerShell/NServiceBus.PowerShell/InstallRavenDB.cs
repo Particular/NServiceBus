@@ -3,7 +3,7 @@
     using System.Management.Automation;
 
     [Cmdlet(VerbsLifecycle.Install, "RavenDB")]
-    public class InstallRavenDB : PSCmdlet
+    public class InstallRavenDB : CmdletBase
     {
         [Parameter(HelpMessage = "Port number to be used, Default: 8080")]
         public int Port { get; set; }

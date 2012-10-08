@@ -8,7 +8,6 @@ if(!$toolsPath){
 #Import the nservicebus ps-commandlets
 Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
 
-
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
 $machinePrepared = $false
@@ -55,8 +54,26 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
 	exit
 }
+
+
 $formsPath = Join-Path $toolsPath nservicebus.forms.dll
 [void] [System.Reflection.Assembly]::LoadFile($formsPath) 
+
+#make sure that we're admin
+If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
+    [Security.Principal.WindowsBuiltInRole] "Administrator"))
+{
+	$needElevatedPriviliges = New-Object NServiceBus.Forms.Confirm
+	$needElevatedPriviliges.ConfirmText = "You need to run with elevated priviliges in order to let NServiceBus to prepare your machine. Please reopen visual studio as administrator"
+	$needElevatedPriviliges.OkOnly = $true
+	$needElevatedPriviliges.ShowDialog()
+			
+    Break
+}
+else {
+    "Admin priviliges detected"
+}
+
 
 $prepareMachineDialog = New-Object NServiceBus.Forms.PrepareMachine
 
@@ -72,7 +89,9 @@ if($prepareMachineDialog.AllowPrepare){
 		if(!$success){
 			$confirmReinstallOfMsmq = New-Object NServiceBus.Forms.Confirm
 
-			$confirmReinstallOfMsmq.DialogText = "NServiceBus needs to reinstall Msmq on this machine. This will cause all local queues to be deleted. Do you want to proceed?"
+			$confirmReinstallOfMsmq.ConfirmText = "NServiceBus needs to reinstall Msmq on this machine. This will cause all local queues to be deleted. Do you want to proceed?"
+
+			$confirmReinstallOfMsmq.ShowDialog()
 
 			if($confirmReinstallOfMsmq.Ok){
 				Install-Msmq -Force
@@ -85,6 +104,11 @@ if($prepareMachineDialog.AllowPrepare){
 	if(!$ravenDBInstalled){
 		Install-RavenDB
 	}
+
+	$installCompleted = New-Object NServiceBus.Forms.Confirm
+	$installCompleted.ConfirmText = "Your machine is not setup to run NServiceBus"
+	$installCompleted.OkOnly = $true
+	$installCompleted.ShowDialog()
 }
 
 if($prepareMachineDialog.DontBotherMeAgain){

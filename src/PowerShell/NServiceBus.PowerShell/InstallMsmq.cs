@@ -5,7 +5,7 @@
     using Setup.Windows.Msmq;
 
     [Cmdlet(VerbsLifecycle.Install, "Msmq")]
-    public class InstallMsmq : PSCmdlet
+    public class InstallMsmq : CmdletBase
     {
 
         [Parameter(HelpMessage = "Checks if msmq is good without fixing any potential issues")]

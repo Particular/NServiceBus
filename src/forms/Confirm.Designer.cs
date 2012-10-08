@@ -63,7 +63,7 @@
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(27, 93);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(348, 60);
+            this.label1.Size = new System.Drawing.Size(352, 106);
             this.label1.TabIndex = 2;
             this.label1.Text = "The thing we need to confirm";
             // 
@@ -72,9 +72,9 @@
             this.okButton.BackColor = System.Drawing.Color.White;
             this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.okButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.okButton.Location = new System.Drawing.Point(31, 173);
+            this.okButton.Location = new System.Drawing.Point(31, 215);
             this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(346, 31);
+            this.okButton.Size = new System.Drawing.Size(128, 31);
             this.okButton.TabIndex = 4;
             this.okButton.Text = "Ok";
             this.okButton.UseVisualStyleBackColor = false;
@@ -85,9 +85,9 @@
             this.cancelButton.BackColor = System.Drawing.Color.White;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cancelButton.Location = new System.Drawing.Point(31, 210);
+            this.cancelButton.Location = new System.Drawing.Point(226, 215);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(346, 31);
+            this.cancelButton.Size = new System.Drawing.Size(140, 31);
             this.cancelButton.TabIndex = 5;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = false;

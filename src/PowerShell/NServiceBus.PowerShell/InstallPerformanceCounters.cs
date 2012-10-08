@@ -5,7 +5,7 @@
     using Setup.Windows.PerformanceCounters;
 
     [Cmdlet(VerbsLifecycle.Install, "PerformanceCounters")]
-    public class InstallPerformanceCounters : PSCmdlet
+    public class InstallPerformanceCounters : CmdletBase
     {
 
         [Parameter(HelpMessage = "Checks if the NServiceBus performance counters is setup properly without fixing any potential issues")]
@@ -25,7 +25,7 @@
                 WriteObject(coutersIsGood);
                 return;
             }
-
+            
             coutersIsGood = PerformanceCounterSetup.SetupCounters(true);
 
             WriteObject(coutersIsGood);
