@@ -526,8 +526,6 @@ function Prepare-Binaries{
 	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
-task PrepareBinariesWithGeneratedAssemblyInfo -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs the unit tests and prepare the binaries and Core-only binaries" {}
-
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
 						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln")
@@ -543,7 +541,7 @@ task CompileSamples -depends InitEnvironment -description "Compiles all the samp
 
 task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples -description "Compiles all the sample projects after compiling the full Sourc in order." {}  
 
-task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
+task PrepareReleaseWithoutGeneratingAssemblyInfos -depends PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
 	
 	if(Test-Path $releaseRoot){
 		Delete-Directory $releaseRoot	
@@ -584,6 +582,8 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
+
+task PrepareRelease -depends GenerateAssemblyInfo, PrepareReleaseWithoutGeneratingAssemblyInfos -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts"
 
 task PrepareReleaseWithoutSamples -depends PrepareBinaries -description "Prepare release without compiling the sample projects"  {
 	
@@ -742,7 +742,7 @@ task InstallDependentPackages -description "Installs dependent packages in the e
     rm packages\packages.config 
 }
 
-task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
+task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, CreateMSI, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
     if(Test-Path -Path $releaseDir)
 	{
         del -Path $releaseDir -Force -recurse
@@ -773,4 +773,8 @@ task ZipOutput -description "Ziping artifacts directory for releasing"  {
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
+}
+
+task CreateMSI {
+    Invoke-psake .\MSI.ps1 -properties @{PatchVersion=$PatchVersion;ProductVersion=$ProductVersion;BuildNumber=$BuildNumber}
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <Property Id="VS2010_VSIXINSTALLER">
+    <RegistrySearch Id="VS2010DevEnvForExtensionsSearch" Type="directory" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS" Name="EnvironmentDirectory">
+      <DirectorySearch Id="VS2010DevEnv">
+        <FileSearch Name="VSIXInstaller.exe" />
+      </DirectorySearch>
+    </RegistrySearch>
+  </Property>
+
+    <CustomAction Id="CA_SetMyVsixInstallCommand" Property="MYVSIX_INSTALL_COMMAND" Value="&quot;[#NServiceBusStudio.vsix]&quot;" />
+    <CustomAction Id="CA_InstallMyVsix_2010" Property="VS2010_VSIXINSTALLER" ExeCommand="/q [MYVSIX_INSTALL_COMMAND]" Execute="deferred" Return="ignore" Impersonate="yes" />
+
+    <InstallExecuteSequence>
+      <Custom Action="CA_SetMyVsixInstallCommand" After="InstallInitialize">
+        <![CDATA[VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED]]>
+      </Custom>
+      <Custom Action="CA_InstallMyVsix_2010" Before="InstallFinalize">
+        <![CDATA[VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED AND VS2010_VSIXINSTALLER AND (&VSIXFeature=3) AND NOT (REMOVE="ALL")]]>
+      </Custom>
+    </InstallExecuteSequence>
+</Include>

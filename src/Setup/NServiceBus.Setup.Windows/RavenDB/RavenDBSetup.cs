@@ -104,25 +104,35 @@
 
             Console.WriteLine("Installing RavenDB as a windows service");
 
-
-            var process = Process.Start(new ProcessStartInfo
+            var startInfo = new ProcessStartInfo
             {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                WorkingDirectory = Path.GetTempPath(),
                 Verb = "runas",
                 Arguments = "/install",
                 FileName = Path.Combine(installPath, "Raven.Server.exe")
-            });
-            process.WaitForExit();
+            };
 
-            if (process.ExitCode != 0)
+            using (var process = Process.Start(startInfo))
             {
-                Console.WriteLine("The RavenDB service failed to start service, exit code: {0}", process.ExitCode);
-                return false;
-            }
+                process.WaitForExit(20000);
 
+                var line = process.StandardOutput.ReadToEnd();
+                Console.WriteLine(line);
+
+                if (process.ExitCode != 0)
+                {
+                    Console.WriteLine("The RavenDB service failed to start service, exit code: {0}", process.ExitCode);
+                    return false;
+                }
+            }
+            
             Console.WriteLine("RavenDB service started");
             return true;
         }
-
+        
         const string DefaultDirectoryName = "NServiceBus.Persistence";
     }
 }

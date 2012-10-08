@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+        <DirectoryRef Id="INSTALLLOCATION">
+          <Directory Id="dir6C038A0D9A9C88FCB393FA6550B48592" Name="Tools">
+            <Component Id="cmpC5896C88B51A4450471FF45254C9290B" Guid="{7B15648A-1A3F-4F88-BA22-203B23189553}">
+              <File Id="NServiceBusStudio.vsix" KeyPath="yes" Source="$(var.VSIXPATH)\NServiceBusStudio.vsix" />
+            </Component>
+          </Directory>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="VSIXFiles">
+            <ComponentRef Id="cmpC5896C88B51A4450471FF45254C9290B" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>
