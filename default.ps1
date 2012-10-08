@@ -5,6 +5,8 @@ properties {
 	$PreRelease = "alpha"
 	$TargetFramework = "net-4.0"
 	$buildConfiguration = "Debug"
+	$NugetKey = ""
+	$UploadPackage = $false
 }
 
 $baseDir  = resolve-path .
