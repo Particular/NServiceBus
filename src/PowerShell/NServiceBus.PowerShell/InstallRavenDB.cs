@@ -22,7 +22,7 @@
 
             var setup = new Setup.Windows.RavenDB.RavenDBSetup();
 
-            var isGood = setup.Install(null, Port, InstallPath,WhatIf);
+            var isGood = setup.Install(null, Port, InstallPath,!WhatIf);
 
             WriteObject(isGood);
         }
