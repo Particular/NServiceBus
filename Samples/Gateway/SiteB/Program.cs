@@ -29,7 +29,7 @@ namespace SiteB
                 //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
                 .CreateBus()
                 .Start();
-           
+
             Console.WriteLine("Waiting for price updates from the headquarter - press any key to exit");
 
             Console.ReadLine();
@@ -60,9 +60,15 @@ namespace SiteB
         public InMemoryPersistence MemoryPersistence { get; set; }
         public void Run()
         {
-            Schedule.Every(TimeSpan.FromMinutes(1))
-                //delete all ID's older than 30 minutes
-                .Action(()=> MemoryPersistence.DeleteDeliveredMessages(DateTime.UtcNow.AddMinutes(30)));
+            Schedule.Every(TimeSpan.FromSeconds(10))
+                //delete all ID's older than 1 minute
+                .Action(() =>
+                    {
+                        var numberOfDeletedMessages =
+                            MemoryPersistence.DeleteDeliveredMessages(DateTime.UtcNow.AddMinutes(1));
+
+                        Console.Out.WriteLine("InMemory store cleared, number of items deleted: {0}", numberOfDeletedMessages);
+                    });
         }
     }
 }

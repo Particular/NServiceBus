@@ -69,13 +69,13 @@
         {
             lock(storage)
             {
-                var toDelete = storage.Where(m => m.At < until);
+                var toDelete = storage.Where(m => m.At < until).ToList();
 
-                toDelete.ToList()
-                    .ForEach(m=>storage.Remove(m));
+                var numberOfDeletedItems = toDelete.Count();
+                
+                toDelete.ForEach(m=>storage.Remove(m));
 
-
-                return toDelete.Count();
+                return numberOfDeletedItems;
             }
         }
     }
