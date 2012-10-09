@@ -769,8 +769,11 @@ namespace NServiceBus.Serializers.XML
                 {
                     Type baseType = typeof(object);
 
+                    Type[] interfaces = type.GetInterfaces();
+                    if (type.IsInterface) interfaces = interfaces.Union(new[] { type }).ToArray();
+                    
                     //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
-                    foreach (Type interfaceType in type.GetInterfaces())
+                    foreach (Type interfaceType in interfaces)
                     {
                         Type[] arr = interfaceType.GetGenericArguments();
                         if (arr.Length == 1)
@@ -783,7 +786,7 @@ namespace NServiceBus.Serializers.XML
 
 
                     foreach (object obj in ((IEnumerable)value))
-                        if (obj.GetType().IsSimpleType())
+                        if (obj != null && obj.GetType().IsSimpleType())
                             WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
                         else
                             WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
