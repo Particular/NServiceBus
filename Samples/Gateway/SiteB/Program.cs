@@ -4,6 +4,8 @@ using NServiceBus.Gateway.Persistence.Sql;
 namespace SiteB
 {
     using Headquarter.Messages;
+    using NServiceBus.Gateway.Persistence;
+    using NServiceBus.Unicast;
     using log4net.Appender;
     using log4net.Core;
     using NServiceBus;
@@ -22,6 +24,7 @@ namespace SiteB
                 .UnicastBus()
                 .FileShareDataBus(".\\databus")
                 .RunGateway()//this line configures the gateway.
+                .RunTimeoutManagerWithInMemoryPersistence()
                 .UseInMemoryGatewayPersister() //this tells nservicebus to use Raven to store messages ids for deduplication. If omitted RavenDB will be used by default
                 //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
                 .CreateBus()
@@ -49,6 +52,17 @@ namespace SiteB
         {
             Console.WriteLine("Price update received");
             Console.WriteLine("DataBusProperty: " + message.SomeLargeString.Value);
+        }
+    }
+
+    public class DeduplicationCleanup : IWantToRunWhenTheBusStarts
+    {
+        public InMemoryPersistence MemoryPersistence { get; set; }
+        public void Run()
+        {
+            Schedule.Every(TimeSpan.FromMinutes(1))
+                //delete all ID's older than 30 minutes
+                .Action(()=> MemoryPersistence.DeleteDeliveredMessages(DateTime.UtcNow.AddMinutes(30)));
         }
     }
 }
