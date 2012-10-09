@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using NServiceBus.Timeout.Hosting.Azure;
 
 namespace OrderService
 {
@@ -6,7 +7,9 @@ namespace OrderService
     {
         public void Init()
         {
-            Configure.Instance.UseInMemoryTimeoutPersister();
+            Configure.Instance.UseAzureTimeoutPersister()
+                .ListenOnAzureServiceBusQueues();
+
             Configure.Instance.Configurer.RegisterSingleton<OrderList>(new OrderList());
         }
     }

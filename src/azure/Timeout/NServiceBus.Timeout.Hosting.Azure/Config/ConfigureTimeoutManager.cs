@@ -1,6 +1,7 @@
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.StorageClient;
+using NServiceBus.Timeout.Core;
 using NServiceBus.Timeout.Hosting.Windows;
 using NServiceBus.Timeout.Hosting.Windows.Persistence;
 using NServiceBus.Unicast.Queuing.Azure;
@@ -19,6 +20,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
         public static Configure UseAzureTimeoutPersister(this Configure config)
         {
             var configSection = Configure.GetConfigSection<AzureTimeoutPersisterConfig>() ?? new AzureTimeoutPersisterConfig();
+
+            NServiceBus.ConfigureTimeoutManager.TimeoutManagerAddress = config.GetTimeoutManagerAddress();
+            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall).ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString);
             return config;

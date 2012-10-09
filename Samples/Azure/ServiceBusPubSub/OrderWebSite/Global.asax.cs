@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web;
 using NServiceBus.Integration.Azure;
+using NServiceBus.Timeout.Hosting.Azure;
 using log4net;
 using MyMessages;
 using NServiceBus;
@@ -25,10 +26,19 @@ namespace OrderWebSite
                 .AzureServiceBusMessageQueue()
                     .QueuePerInstance()
                 .JsonSerializer()
+
+                // this should not be here imho, 
+                // and neither should the reference to the hosting.azure.timeouts assembly exists
+                // but, timeouts can't be disabled anymore
+                .UseAzureTimeoutPersister()
+                    .ListenOnAzureServiceBusQueues()
+            
                 .UnicastBus()
                 .LoadMessageHandlers()
                 .IsTransactional(true)
-                .UseInMemoryTimeoutPersister()
+                
+
+                
                 .CreateBus()
 				.Start();
 
