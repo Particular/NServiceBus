@@ -6,6 +6,7 @@ namespace OrderService
     {
         public void Init()
         {
+            Configure.Instance.UseInMemoryTimeoutPersister();
             Configure.Instance.Configurer.RegisterSingleton<OrderList>(new OrderList());
         }
     }

@@ -28,6 +28,7 @@ namespace OrderWebSite
                 .UnicastBus()
                 .LoadMessageHandlers()
                 .IsTransactional(true)
+                .UseInMemoryTimeoutPersister()
                 .CreateBus()
 				.Start();
 

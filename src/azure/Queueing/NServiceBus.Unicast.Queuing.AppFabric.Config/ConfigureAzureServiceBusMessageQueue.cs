@@ -19,6 +19,8 @@ namespace NServiceBus
 
             Address.InitializeAddressMode(AddressMode.Remote);
 
+            ServiceBusEnvironment.SystemConnectivity.Mode = (ConnectivityMode) Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
+
             var credentials = TokenProvider.CreateSharedSecretTokenProvider(configSection.IssuerName, configSection.IssuerKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri("sb", configSection.ServiceNamespace, string.Empty);
             var namespaceClient = new NamespaceManager(serviceUri, credentials);

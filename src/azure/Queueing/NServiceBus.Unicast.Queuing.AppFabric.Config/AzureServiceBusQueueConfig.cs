@@ -200,5 +200,18 @@ namespace NServiceBus.Config
                 this["ServerWaitTime"] = value;
             }
         }
+
+        [ConfigurationProperty("ConnectivityMode", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultConnectivityMode)]
+        public string ConnectivityMode
+        {
+            get
+            {
+                return (string)this["ConnectivityMode"];
+            }
+            set
+            {
+                this["ConnectivityMode"] = value;
+            }
+        }
    }
 }
