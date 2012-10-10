@@ -81,32 +81,47 @@ $prepareMachineDialog = New-Object NServiceBus.Forms.PrepareMachine
 
 
 if($prepareMachineDialog.AllowPrepare){
-	if(!$perfCountersInstalled){
-		Install-PerformanceCounters
-	}
-	if(!$msmqInstalled){
-		$success = Install-Msmq
-		if(!$success){
-			$confirmReinstallOfMsmq = New-Object NServiceBus.Forms.Confirm
+	try{
+		if(!$perfCountersInstalled){
+			Install-PerformanceCounters
+		}
+		if(!$msmqInstalled){
+			$success = Install-Msmq
+			if(!$success){
+				$confirmReinstallOfMsmq = New-Object NServiceBus.Forms.Confirm
 
-			$confirmReinstallOfMsmq.ConfirmText = "NServiceBus needs to reinstall Msmq on this machine. This will cause all local queues to be deleted. Do you want to proceed?"
+				$confirmReinstallOfMsmq.ConfirmText = "NServiceBus needs to reinstall Msmq on this machine. This will cause all local queues to be deleted. Do you want to proceed?"
 
-			$confirmReinstallOfMsmq.ShowDialog()
+				$confirmReinstallOfMsmq.ShowDialog()
 
-			if($confirmReinstallOfMsmq.Ok){
-				Install-Msmq -Force
+				if($confirmReinstallOfMsmq.Ok){
+					Install-Msmq -Force
+				}
 			}
 		}
+		if(!$dtcInstalled){
+			Install-Dtc
+		}
+		if(!$ravenDBInstalled){
+			Install-RavenDB
+		}
+
+		New-Item -Path $nserviceBusVersionPath -Force
+		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
 	}
-	if(!$dtcInstalled){
-		Install-Dtc
-	}
-	if(!$ravenDBInstalled){
-		Install-RavenDB
+	catch {
+		$installError = $error[0]
 	}
 
 	$installCompleted = New-Object NServiceBus.Forms.Confirm
-	$installCompleted.ConfirmText = "Your machine is not setup to run NServiceBus"
+	
+	
+	if($installError){
+		$installCompleted.ConfirmText = "There was a problem configuring this machine - " + $installError
+	}
+	else {
+		$installCompleted.ConfirmText = "Your machine is now setup to run NServiceBus"
+	}
 	$installCompleted.OkOnly = $true
 	$installCompleted.ShowDialog()
 }
@@ -117,3 +132,6 @@ if($prepareMachineDialog.DontBotherMeAgain){
 	New-ItemProperty -Path $nserviceBusVersionPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
 }
 	
+
+	
+

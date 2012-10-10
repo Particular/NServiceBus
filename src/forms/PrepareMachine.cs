@@ -18,7 +18,7 @@
 
         private void requestLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("http://nservicebus.com/RequiredInfrastructure");
+            Process.Start("http://nservicebus.com/RequiredInfrastructure/Windows");
         }
 
 

@@ -31,6 +31,9 @@
                 return true;
             }
 
+            if (!allowInstall)
+                return false;
+
             //Check if the port is available, if so let the installer setup raven if its beeing run
             if (port > 0 && !RavenHelpers.EnsureCanListenToWhenInNonAdminContext(port))
             {
@@ -38,10 +41,7 @@
                 return false;
 
             }
-
-            if (!allowInstall)
-                return false;
-
+         
             if (!Directory.Exists(installPath))
                 Directory.CreateDirectory(installPath);
 
