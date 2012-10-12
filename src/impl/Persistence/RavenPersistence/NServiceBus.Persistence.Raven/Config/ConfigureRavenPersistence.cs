@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Configuration;
     using Persistence.Raven;
     using Persistence.Raven.Installation;
+    using Raven.Abstractions.Data;
     using Raven.Client.Extensions;
 
     public static class ConfigureRavenPersistence
@@ -107,17 +108,33 @@ namespace NServiceBus
         
         static Configure RavenPersistenceWithConnectionString(Configure config, string connectionStringValue, string database)
         {
+            var url = RavenPersistenceConstants.DefaultUrl;
+            Guid resourceManagerId = Guid.Empty;
+
+            if (connectionStringValue != null)
+            {
+                var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
+                connectionStringParser.Parse();
+
+                url = connectionStringParser.ConnectionStringOptions.Url;
+                resourceManagerId = connectionStringParser.ConnectionStringOptions.ResourceManagerId;
+                if (database == null)
+                {
+                    database = connectionStringParser.ConnectionStringOptions.DefaultDatabase;
+                }
+            }
+
+            if (database == null)
+            {
+                database = databaseNamingConvention();
+            }
+
             var store = new DocumentStore
             {
-                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId
+                Url = url,
+                DefaultDatabase = database,
+                ResourceManagerId = resourceManagerId == Guid.Empty ? RavenPersistenceConstants.DefaultResourceManagerId : resourceManagerId,
             };
-
-            store.ParseConnectionString(connectionStringValue);
-
-            if (!string.IsNullOrEmpty(database))
-                store.DefaultDatabase = database;
-            else if (!connectionStringValue.Contains("DefaultDatabase"))
-                store.DefaultDatabase = databaseNamingConvention();
             
             return RavenPersistence(config, store);
         }
