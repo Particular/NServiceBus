@@ -60,12 +60,12 @@ namespace SiteB
         public InMemoryPersistence MemoryPersistence { get; set; }
         public void Run()
         {
-            Schedule.Every(TimeSpan.FromSeconds(10))
-                //delete all ID's older than 1 minute
+            Schedule.Every(TimeSpan.FromMinutes(1))
+                //delete all ID's older than 5 minutes
                 .Action(() =>
                     {
                         var numberOfDeletedMessages =
-                            MemoryPersistence.DeleteDeliveredMessages(DateTime.UtcNow.AddMinutes(1));
+                            MemoryPersistence.DeleteDeliveredMessages(DateTime.UtcNow.AddMinutes(-5));
 
                         Console.Out.WriteLine("InMemory store cleared, number of items deleted: {0}", numberOfDeletedMessages);
                     });
