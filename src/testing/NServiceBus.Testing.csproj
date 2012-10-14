@@ -66,7 +66,7 @@
       <HintPath>..\..\build\output\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete">
-      <HintPath>..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
+      <HintPath>..\..\packages\Obsolete.Fody.1.2.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

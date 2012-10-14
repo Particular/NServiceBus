@@ -63,7 +63,7 @@
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete">
-      <HintPath>..\..\..\..\..\packages\Obsolete.Fody.0.8.0.0\Lib\NET40\Obsolete.dll</HintPath>
+      <HintPath>..\..\..\..\..\packages\Obsolete.Fody.1.2.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\lib\RavenDB\RavenDB.Client.975\Raven.Abstractions.dll</HintPath>
