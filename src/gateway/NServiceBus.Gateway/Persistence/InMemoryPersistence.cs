@@ -68,7 +68,7 @@
         {
             lock(storage)
             {
-                var toDelete = storage.Where(m => m.At < until);
+                var toDelete = storage.Where(m => m.At < until).ToList();
 
                 return toDelete.Count(m => storage.Remove(m));
             }
