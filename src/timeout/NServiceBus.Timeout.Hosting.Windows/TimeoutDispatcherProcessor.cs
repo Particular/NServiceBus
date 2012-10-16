@@ -2,18 +2,18 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using Faults;
     using ObjectBuilder;
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
+    using log4net.Repository.Hierarchy;
 
     public class TimeoutDispatcherProcessor : IWantToRunWhenTheBusStarts, IDisposable
     {
-        TimeoutPersisterReceiver timeoutPersisterReceiver;
-        ITransport inputTransport;
+        private TimeoutPersisterReceiver timeoutPersisterReceiver;
+        private ITransport inputTransport;
 
         public static readonly Address TimeoutDispatcherAddress;
 
@@ -44,11 +44,15 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             inputTransport = new TransactionalTransport
                 {
-                    MessageReceiver = TimeoutMessageProcessor.MessageReceiverFactory != null ? TimeoutMessageProcessor.MessageReceiverFactory() : new MsmqMessageReceiver(),
+                    MessageReceiver =
+                        TimeoutMessageProcessor.MessageReceiverFactory != null
+                            ? TimeoutMessageProcessor.MessageReceiverFactory()
+                            : new MsmqMessageReceiver(),
                     IsTransactional = true,
-                    NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
+                    NumberOfWorkerThreads =
+                        MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                     MaxRetries = MainTransport.MaxRetries,
-                    FailureManager = Builder.Build(MainTransport.FailureManager.GetType()) as IManageMessageFailures //Need to change this!
+                    FailureManager = new ManageMessageFailuresWithoutSlr(MainTransport.FailureManager),
                 };
 
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;
@@ -62,7 +66,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             var timeoutId = transportMessage.Headers["Timeout.Id"];
             TimeoutData timeoutData;
 
-            if(TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
                 MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
             }

@@ -62,10 +62,10 @@
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+            var t1 = new TimeoutData {Id = "1", Time = DateTime.UtcNow.AddHours(-1)};
             persister.Add(t1);
 
-            var t2 = new TimeoutData {Time = DateTime.UtcNow.AddHours(-1)};
+            var t2 = new TimeoutData {Id = "2", Time = DateTime.UtcNow.AddHours(-1)};
             persister.Add(t2);
 
             var timeouts = GetNextChunk();
