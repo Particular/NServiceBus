@@ -37,6 +37,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\System.Management.Automation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdletBase.cs" />
+    <Compile Include="GetMessage.cs" />
     <Compile Include="GetNServiceBusVersion.cs" />
     <Compile Include="InstallPerformanceCounters.cs" />
     <Compile Include="InstallDtc.cs" />
@@ -59,6 +61,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Examples\Get-Message.ps1" />
     <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
     <None Include="Examples\Install-Dtc.ps1" />
