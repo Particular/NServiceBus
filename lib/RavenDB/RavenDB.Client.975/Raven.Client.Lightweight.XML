@@ -764,14 +764,6 @@
             <param name="fromTxId">From tx id.</param>
             <returns></returns>
         </member>
-        <member name="M:Raven.Client.Connection.IDatabaseCommands.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
-            <summary>
-            Stores the recovery information
-            </summary>
-            <param name="resourceManagerId">The resource manager Id for this transaction</param>
-            <param name="txId">The tx id.</param>
-            <param name="recoveryInformation">The recovery information.</param>
-        </member>
         <member name="M:Raven.Client.Connection.IDatabaseCommands.With(System.Net.ICredentials)">
             <summary>
             Returns a new <see cref="T:Raven.Client.Connection.IDatabaseCommands"/> using the specified credentials
@@ -1496,14 +1488,6 @@
             </summary>
             <param name="fromTxId">From tx id.</param>
             <returns></returns>
-        </member>
-        <member name="M:Raven.Client.Connection.ServerClient.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
-            <summary>
-            Stores the recovery information.
-            </summary>
-            <param name="resourceManagerId">The resource manager Id for this transaction</param>
-            <param name="txId">The tx id.</param>
-            <param name="recoveryInformation">The recovery information.</param>
         </member>
         <member name="M:Raven.Client.Connection.ServerClient.With(System.Net.ICredentials)">
             <summary>
@@ -6131,14 +6115,6 @@
             <param name="fromTxId">From tx id.</param>
             <returns>The token representing the distributed transaction</returns>
         </member>
-        <member name="M:Raven.Client.ITransactionalDocumentSession.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
-            <summary>
-            Stores the recovery information for the specified transaction
-            </summary>
-            <param name="resourceManagerId">The resource manager Id for this transaction</param>
-            <param name="txId">The tx id.</param>
-            <param name="recoveryInformation">The recovery information.</param>
-        </member>
         <member name="P:Raven.Client.ITransactionalDocumentSession.ResourceManagerId">
             <summary>
             The transaction resource manager identifier
@@ -6402,14 +6378,6 @@
             </summary>
             <param name="fromTxId">From tx id.</param>
             <returns>The token representing the distributed transaction</returns>
-        </member>
-        <member name="M:Raven.Client.Document.DocumentSession.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
-            <summary>
-            Stores the recovery information for the specified transaction
-            </summary>
-            <param name="resourceManagerId">The resource manager Id for this transaction</param>
-            <param name="txId">The tx id.</param>
-            <param name="recoveryInformation">The recovery information.</param>
         </member>
         <member name="M:Raven.Client.Document.DocumentSession.Query``1">
             <summary>
@@ -8765,14 +8733,6 @@
             </summary>
             <param name="fromTxId">From tx id.</param>
             <returns>The token representing the distributed transaction</returns>
-        </member>
-        <member name="M:Raven.Client.Shard.ShardedDocumentSession.StoreRecoveryInformation(System.Guid,System.Guid,System.Byte[])">
-            <summary>
-            Stores the recovery information for the specified transaction
-            </summary>
-            <param name="resourceManagerId">The resource manager Id for this transaction</param>
-            <param name="txId">The tx id.</param>
-            <param name="recoveryInformation">The recovery information.</param>
         </member>
         <member name="M:Raven.Client.Shard.ShardedDocumentSession.Load``1(System.Collections.Generic.IEnumerable{System.String},System.Action{``0[]})">
             <summary>

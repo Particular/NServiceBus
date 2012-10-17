@@ -1,6 +1,7 @@
 ﻿namespace MyServer.Common
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus;
 
     public class Application : IWantToRunAtStartup
@@ -20,9 +21,13 @@
                 {
                     case "s":
 
-                        var m = new MyMessage {Id = Guid.NewGuid()};
+                        Parallel.For(0, 100, (s, r) =>
+                            {
+                                var m = new MyMessage {Id = Guid.NewGuid()};
 
-                        Bus.Send(m);
+                                Bus.Send(m);
+                            });
+              
                         break;
                 }
             }
