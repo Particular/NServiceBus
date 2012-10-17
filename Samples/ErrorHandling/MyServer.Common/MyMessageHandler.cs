@@ -9,6 +9,7 @@
         private static readonly ConcurrentDictionary<Guid, string> Last = new ConcurrentDictionary<Guid, string>();
 
         public IBus Bus{ get; set; }
+
         public void Handle(MyMessage message)
         {
             Console.WriteLine("ReplyToAddress: " + Bus.CurrentMessageContext.ReplyToAddress);
