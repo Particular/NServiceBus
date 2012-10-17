@@ -93,12 +93,13 @@ namespace NServiceBus.Encryption
 
                 if (IsIndexedProperty(member))
                     continue;
-
+                
                 var child = member.GetValue(root);
 
-                if (child is IEnumerable)
+                var items = child as IEnumerable;
+                if (items != null)
                 {
-                    foreach (var item in (IEnumerable)child)
+                    foreach (var item in items)
                     {
                         ForEachMember(item, action, appliesTo);
                     }
@@ -253,12 +254,19 @@ namespace NServiceBus.Encryption
                 return ((FieldInfo)member).GetValue(source);
             }
 
-            return ((PropertyInfo)member).GetValue(source, null);
-        }
+            var propertyInfo = (PropertyInfo) member;
+            
+            if (!propertyInfo.CanRead)
+            {
+                if (propertyInfo.PropertyType.IsValueType)
+                {
+                    return Activator.CreateInstance(propertyInfo.PropertyType);
+                }
 
-        public static object GetValue(this PropertyInfo member, object source, int index)
-        {
-            return member.GetValue(source, new object[] {index});
+                return null;
+            }
+            
+            return propertyInfo.GetValue(source, null);
         }
 
         public static void SetValue(this MemberInfo member, object target, object value)
