@@ -3,6 +3,7 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    [Serializable]
     public class SagaWithUniqueProperty : ISagaEntity
     {
         public virtual Guid Id { get; set; }
@@ -15,6 +16,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public virtual string UniqueString { get; set; }
     }
 
+    [Serializable]
     public class SagaWithTwoUniqueProperties : ISagaEntity
     {
         public virtual Guid Id { get; set; }
@@ -29,6 +31,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public virtual int UniqueInt { get; set; }
     }
 
+    [Serializable]
     public class AnotherSagaWithTwoUniqueProperties : ISagaEntity
     {
         public virtual Guid Id { get; set; }
@@ -42,5 +45,4 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         [Unique]
         public virtual int UniqueInt { get; set; }
     }
-
 }
