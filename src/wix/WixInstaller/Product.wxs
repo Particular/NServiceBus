@@ -11,7 +11,7 @@
              Keywords="Installer"
              ShortNames ="no"
              InstallPrivileges="elevated" 
-             InstallScope="perUser" />
+             InstallScope="perMachine" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.PRODUCTNAME) is already installed." />
 
