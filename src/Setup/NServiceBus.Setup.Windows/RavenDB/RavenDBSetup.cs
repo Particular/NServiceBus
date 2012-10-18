@@ -109,8 +109,7 @@
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
-                WorkingDirectory = Path.GetTempPath(),
-                Verb = "runas",
+                WorkingDirectory = installPath,
                 Arguments = "/install",
                 FileName = Path.Combine(installPath, "Raven.Server.exe")
             };
