@@ -4,6 +4,7 @@ using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    [Serializable]
     public class TestSaga : ISagaEntity
     {
         public virtual Guid Id { get; set; }
@@ -35,6 +36,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         }
     }
 
+    [Serializable]
     public static class EqualityExtensions
     {
         public static bool EqualTo<T>(this T item, object obj, Func<T, T, bool> equals)
@@ -52,7 +54,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             return equals(item, x);
         }
     }
-    
+
+    [Serializable]
     public class PolymorpicProperty : PolymorpicPropertyBase
     {
         public virtual int SomeInt { get; set; }
@@ -68,16 +71,19 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         }
     }
 
+    [Serializable]
     public class PolymorpicPropertyBase
     {
         public virtual Guid Id { get; set; }
     }
 
+    [Serializable]
     public enum StatusEnum
     {
         SomeStatus, AnotherStatus
     }
 
+    [Serializable]
     public class TestComponent
     {
         public string Property { get; set; }
@@ -86,8 +92,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public override bool Equals(object obj)
         {
             return this.EqualTo(obj, (x, y) =>
-                x.Property == y.Property &&
-                x.AnotherProperty == y.AnotherProperty);
+                 x.Property == y.Property &&
+                 x.AnotherProperty == y.AnotherProperty);
         }
 
         public override int GetHashCode()
@@ -96,6 +102,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         }
     }
 
+    [Serializable]
     public class OrderLine
     {
         public virtual Guid Id { get; set; }
@@ -104,6 +111,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
     }
 
+    [Serializable]
     public class RelatedClass
     {
         public virtual Guid Id { get; set; }

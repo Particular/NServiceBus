@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NServiceBus.Saga;
+using NServiceBus.Serializers.Binary;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     class When_completing_a_saga_with_unique_property_with_InMemory_persister
     {
+        [TestFixtureSetUp]
+        public void FixtureSetUp()
+        {
+            InMemorySagaPersister.ConfigureSerializer = () => { return new MessageSerializer(); };
+        }
+
         [Test]
         public void Should_delete_the_saga()
         {
