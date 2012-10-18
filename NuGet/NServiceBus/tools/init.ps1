@@ -103,11 +103,20 @@ if($prepareMachineDialog.AllowPrepare){
 			Install-Dtc
 		}
 		if(!$ravenDBInstalled){
-			Install-RavenDB
-		}
 
-		New-Item -Path $nserviceBusVersionPath -Force
-		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
+  			$confirmRavenInstall = New-Object NServiceBus.Forms.Confirm
+
+			$confirmRavenInstall.ConfirmText = "NServiceBus uses RavenDB as its default storage, do you want to setup a RavenDB server now?"
+
+			$confirmRavenInstall.ShowDialog()
+
+			if($confirmRavenInstall.Ok){
+				Install-RavenDB
+			}
+			else{
+				"Raven install aborted by user"
+			}			
+		}
 	}
 	catch {
 		$installError = $error[0]
@@ -120,8 +129,12 @@ if($prepareMachineDialog.AllowPrepare){
 		$installCompleted.ConfirmText = "There was a problem configuring this machine - " + $installError
 	}
 	else {
+		New-Item -Path $nserviceBusVersionPath -Force
+		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
+
 		$installCompleted.ConfirmText = "Your machine is now setup to run NServiceBus"
 	}
+	
 	$installCompleted.OkOnly = $true
 	$installCompleted.ShowDialog()
 }
