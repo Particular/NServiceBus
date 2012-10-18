@@ -15,20 +15,9 @@ if($dontSuggestGettingStarted.value)
     exit
 }
 
-$formsPath = Join-Path $toolsPath nservicebus.forms.dll
-[void] [System.Reflection.Assembly]::LoadFile($formsPath) 
 
-$firstTimeUserDialog = New-Object NServiceBus.Forms.FirstTimeUser
+$dte.ExecuteCommand("View.URL", "http://nservicebus.com/GettingStarted/NuGet")
 
-[void] $firstTimeUserDialog.ShowDialog()
-
-if($firstTimeUserDialog.OpenGettingStartedGuide){
-    start 'http://nservicebus.com/GettingStarted/NuGet'
-}
-
-if($firstTimeUserDialog.DontBotherMeAgain){
-
-    New-Item -Path $nserviceBusKeyPath -Force
-    New-ItemProperty -Path $nserviceBusKeyPath -Name "DontSuggestGettingStarted" -PropertyType String -Value "true" -Force
-}
+New-Item -Path $nserviceBusKeyPath -Force
+New-ItemProperty -Path $nserviceBusKeyPath -Name "DontSuggestGettingStarted" -PropertyType String -Value "true" -Force
 

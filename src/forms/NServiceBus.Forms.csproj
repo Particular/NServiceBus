@@ -57,12 +57,6 @@
     <Compile Include="Confirm.Designer.cs">
       <DependentUpon>Confirm.cs</DependentUpon>
     </Compile>
-    <Compile Include="FirstTimeUser.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FirstTimeUser.Designer.cs">
-      <DependentUpon>FirstTimeUser.cs</DependentUpon>
-    </Compile>
     <Compile Include="PrepareMachine.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,10 +72,6 @@
     </Compile>
     <EmbeddedResource Include="Confirm.resx">
       <DependentUpon>Confirm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FirstTimeUser.resx">
-      <DependentUpon>FirstTimeUser.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PrepareMachine.resx">
