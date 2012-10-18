@@ -1,18 +1,25 @@
 using System;
 using NServiceBus.Saga;
+using NServiceBus.Serializers.Binary;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     public class When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating
     {
+        [TestFixtureSetUp]
+        public void FixtureSetUp()
+        {
+            InMemorySagaPersister.ConfigureSerializer = () => { return new MessageSerializer(); };
+        }
+
         [Test]
         public void It_should_persist_successfully()
         {
-            var saga1 = new SagaWithUniqueProperty{Id = Guid.NewGuid(), UniqueString = "whatever"};
-            var saga2 = new SagaWithUniqueProperty{Id = Guid.NewGuid(), UniqueString = "whatever"};
+            var saga1 = new SagaWithUniqueProperty { Id = Guid.NewGuid(), UniqueString = "whatever" };
+            var saga2 = new SagaWithUniqueProperty { Id = Guid.NewGuid(), UniqueString = "whatever" };
             var inMemorySagaPersister = new InMemorySagaPersister() as ISagaPersister;
-            
+
             inMemorySagaPersister.Save(saga1);
             saga1 = inMemorySagaPersister.Get<SagaWithUniqueProperty>(saga1.Id);
             saga1.UniqueString = "whatever2";
