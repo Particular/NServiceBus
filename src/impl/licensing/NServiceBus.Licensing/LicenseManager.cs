@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using System.Security.Principal;
     using System.Threading;
     using System.Windows.Forms;
     using Common.Logging;
@@ -111,6 +112,11 @@
 
                                     return true;
                                 }
+                                catch (UnauthorizedAccessException ex)
+                                {
+                                    Logger.Debug("Could not write to the registry.", ex);
+                                    f.DisplayError();
+                                }
                                 catch (LicenseExpiredException)
                                 {
                                     if (licenseValidator != null)
@@ -194,39 +200,64 @@
 
         private void ConfigureNServiceBusToRunInTrialMode()
         {
-            string trialStartDateString;
+            var trialExpirationDate = DateTime.UtcNow.Date;
 
-            //If first time run, configure expire date
-            using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", SoftwareVersion.ToString(2))))
+            var windowsIdentity = WindowsIdentity.GetCurrent();
+            if (windowsIdentity != null && windowsIdentity.User != null &&
+                !windowsIdentity.User.IsWellKnown(WellKnownSidType.LocalSystemSid))
             {
-                if (registryKey == null)
+                //If first time run, configure expire date
+                try
                 {
-                    return;
+                    string trialStartDateString;
+                    using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", SoftwareVersion.ToString(2))))
+                    {
+                        if (registryKey == null)
+                        {
+                            Logger.Warn("Falling back to run in Basic1 license mode.");
+
+                            trialPeriodHasExpired = true;
+
+                            //if trial expired, run in Basic1
+                            RunInBasic1Mode(trialExpirationDate);
+                        }
+
+                        if ((trialStartDateString = (string) registryKey.GetValue("TrialStart", null)) == null)
+                        {
+                            trialStartDateString = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                            registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
+
+                            Logger.DebugFormat("First time running NServiceBus v{0}, setting trial license start.",
+                                               SoftwareVersion.ToString(2));
+                        }
+                    }
+
+                    var trialStartDate = DateTime.ParseExact(trialStartDateString, "yyyy-MM-dd",
+                                                             CultureInfo.InvariantCulture,
+                                                             DateTimeStyles.AssumeUniversal);
+
+                    trialExpirationDate = trialStartDate.Date.AddDays(21);
                 }
-
-                if ((trialStartDateString = (string) registryKey.GetValue("TrialStart", null)) == null)
+                catch (UnauthorizedAccessException ex)
                 {
-                    trialStartDateString = DateTime.UtcNow.ToString("yyyy-MM-dd");
-                    registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
-
-                    Logger.DebugFormat("First time running NServiceBus v{0}, setting trial license start.", SoftwareVersion.ToString(2));
+                    Logger.Debug("Could not write to the registry. Because we didn't find a license file we assume the trial has expired.", ex);
                 }
             }
 
-            var trialStartDate = DateTime.ParseExact(trialStartDateString, "yyyy-MM-dd",
-                                                          CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
-
-            var trialExpirationDate = trialStartDate.Date.AddDays(21);
-
             //Check trial is still valid
-            if (trialExpirationDate >  DateTime.UtcNow.Date)
+            if (trialExpirationDate > DateTime.UtcNow.Date)
             {
-                Logger.DebugFormat("Trial for NServiceBus v{0} is still active, trial expires on {0}.", SoftwareVersion.ToString(2), trialExpirationDate.ToLocalTime().ToShortDateString());
+                Logger.DebugFormat("Trial for NServiceBus v{0} is still active, trial expires on {1}.",
+                                   SoftwareVersion.ToString(2), trialExpirationDate.ToLocalTime().ToShortDateString());
                 Logger.Info("Configuring NServiceBus to run in trial mode.");
 
                 //Run in unlimited mode during trail period
-                license = new License {LicenseType = LicenseType.Trial};
-                license.ExpirationDate = trialExpirationDate;
+                license = new License
+                    {
+                        LicenseType = LicenseType.Trial,
+                        ExpirationDate = trialExpirationDate
+                    };
+
                 ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
                     {
                         {AllowedNumberOfWorkerNodesLicenseKey, UnlimitedNumberOfWorkerNodes},
@@ -248,8 +279,12 @@
 
         private void RunInBasic1Mode(DateTime trialExpirationDate)
         {
-            license = new License {LicenseType = LicenseType.Basic1};
-            license.ExpirationDate = trialExpirationDate;
+            license = new License
+                {
+                    LicenseType = LicenseType.Basic1, 
+                    ExpirationDate = trialExpirationDate
+                };
+
             ConfigureLicenseBasedOnAttribute(license.LicenseType, new Dictionary<string, string>
                 {
                     {
