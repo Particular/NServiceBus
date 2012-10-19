@@ -1,11 +1,12 @@
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
-using NServiceBus.MessageInterfaces;
-
 namespace NServiceBus.Serializers.Json
 {
-  public class JsonMessageSerializer : JsonMessageSerializerBase
+    using System;
+    using System.IO;
+    using System.Text;
+    using MessageInterfaces;
+    using Newtonsoft.Json;
+
+    public class JsonMessageSerializer : JsonMessageSerializerBase
   {
     public JsonMessageSerializer(IMessageMapper messageMapper) : base(messageMapper)
     {
@@ -26,6 +27,11 @@ namespace NServiceBus.Serializers.Json
     public T DeserializeObject<T>(string value)
     {
         return JsonConvert.DeserializeObject<T>(value);
+    }
+
+    public object DeserializeObject(string value, Type type)
+    {
+        return JsonConvert.DeserializeObject(value, type);
     }
 
     public string SerializeObject(object value)
