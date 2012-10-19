@@ -36,6 +36,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Serializers.Json">
+      <HintPath>..\..\..\..\..\build\nsevicebus.core\NServiceBus.Serializers.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MessageInterfaces">
+      <HintPath>..\..\..\..\..\build\nsevicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Config, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
