@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Include>
-  <Property Id="ApplicationFolderName" Value="NServiceBus SDK\v$(var.VERSION)" />
+  <Property Id="ApplicationFolderName" Value="NServiceBus\v$(var.VERSION)" />
   <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
   <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
   <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />

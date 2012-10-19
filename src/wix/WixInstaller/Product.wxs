@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension" xmlns:util="http://schemas.microsoft.com/wix/WixVSExtension">
-  <Product Id="{1EFFDCD2-4B4B-439E-8296-651795EE0299}" Name="$(var.PRODUCTNAME) SDK $(var.VERSION)" Language="1033" Version="$(var.VERSION)" Manufacturer="$(var.MANUFACTURER)" Codepage="1252" UpgradeCode="6bf2f238-54fb-4300-ab68-2416491af29f">
+  <Product Id="{1EFFDCD2-4B4B-439E-8296-651795EE0299}" Name="$(var.PRODUCTNAME) $(var.VERSION)" Language="1033" Version="$(var.VERSION)" Manufacturer="$(var.MANUFACTURER)" Codepage="1252" UpgradeCode="6bf2f238-54fb-4300-ab68-2416491af29f">
     <Package Description="$(var.PRODUCTNAME) - The most popular open-source service bus for .Net"
              InstallerVersion="200"
              Languages="1033"
@@ -25,7 +25,7 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="ProductFolder" Name="NServiceBus SDK">
+        <Directory Id="ProductFolder" Name="NServiceBus">
           <Directory Id="APPLICATIONFOLDER" Name="v$(var.VERSION)">
             <Component Id="WeNeedThisToGetAroundBug" KeyPath="yes" Guid="{AAAA0CE8-74B4-4813-AF73-A1544231E9E0}"/>
           </Directory>
@@ -33,7 +33,7 @@
       </Directory>
     </Directory>
 
-    <Feature Id="MainTree" Title="$(var.PRODUCTNAME) SDK" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
+    <Feature Id="MainTree" Title="$(var.PRODUCTNAME)" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentGroupRef Id="RootFiles" />
       <ComponentGroupRef Id="DocFiles" />
       <ComponentGroupRef Id="BinaryFiles" />
@@ -65,15 +65,19 @@
         <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         <Feature Id="Install_DTC" Title="Install DTC" Absent="allow"
                 AllowAdvertise="no" Level="1">
+          <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_MSMQ" Title="Install MSMQ" Absent="allow"
                 AllowAdvertise="no" Level="1">
+          <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_RavenDb" Title="Install RavenDb" Absent="allow"
                 AllowAdvertise="no" Level="1">
+          <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_PerformanceCounters" Title="Install Performance Counters" Absent="allow"
                 AllowAdvertise="no" Level="1">
+          <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
       </Feature>
     </Feature>
