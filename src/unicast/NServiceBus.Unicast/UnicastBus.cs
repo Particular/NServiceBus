@@ -1196,7 +1196,7 @@ namespace NServiceBus.Unicast
                 catch (Exception e)
                 {
                     var innerEx = GetInnermostException(e);
-                    Log.Warn(handlerType.Name + " failed handling message.", GetInnermostException(innerEx));
+                    Log.Warn(handlerType.Name + " failed handling message.", innerEx);
 
                     throw new TransportMessageHandlingFailedException(innerEx);
                 }
