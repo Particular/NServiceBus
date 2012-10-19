@@ -1242,21 +1242,12 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private static Exception GetInnermostException(Exception e)
         {
-            if (e.InnerException == null)
-                return e;
+					while(e.InnerException !=null && !e.Source.ToLower().Equals("mscorlib"))
+					{
+						e = e.InnerException;
+					}
 
-            var result = e;
-
-            do
-            {
-                if (!result.Source.ToLower().Equals("mscorlib"))
-                    return result;
-
-                result = result.InnerException;
-
-            } while (result.InnerException != null);
-
-            return result;
+	        return e;
         }
 
         /// <summary>
