@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-        <DirectoryRef Id="INSTALLLOCATION">
+        <DirectoryRef Id="APPLICATIONFOLDER">
           <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48599" Name="Samples">
             <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B485A0" Name="AsyncPages">
                 <Component Id="cmpAC2C55E7C8C996BEBCC91AE8E4EC2653" Guid="{A330AA34-945C-43EE-AFCC-2C3DAE57FA73}">

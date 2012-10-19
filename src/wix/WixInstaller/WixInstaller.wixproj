@@ -27,16 +27,23 @@
     <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Fragments\AddRemove.wxs" />
     <Compile Include="Fragments\BinaryFilesFragment.wxs" />
+    <Compile Include="Fragments\PopBrowser.wxs" />
+    <Compile Include="Fragments\PrepMachineActions.wxs" />
     <Compile Include="Fragments\VSIXFragment.wxs" />
     <Compile Include="Fragments\DocFilesFragment.wxs" />
     <Compile Include="Fragments\RootFilesFragment.wxs" />
     <Compile Include="Fragments\SampleFilesFragment.wxs" />
     <Compile Include="Fragments\ToolsFilesFragment.wxs" />
-    <Content Include="Includes\VSIX.wxi" />
+    <Content Include="Includes\UI.wxi" />
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>..\..\..\..\..\Program Files (x86)\WiX Toolset v3.6\bin\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
     <WixExtension Include="WixVSExtension">
       <HintPath>$(WixExtDir)\WixVSExtension.dll</HintPath>
       <Name>WixVSExtension</Name>
@@ -54,7 +61,6 @@
     <Content Include="banner.bmp" />
     <Content Include="dialog.bmp" />
     <Content Include="icon.ico" />
-    <Content Include="Includes\ControlPanel.wxi" />
     <Content Include="License.rtf" />
   </ItemGroup>
   <ItemGroup>

@@ -10,12 +10,10 @@
              AdminImage="no"
              Keywords="Installer"
              ShortNames ="no"
-             InstallPrivileges="elevated" 
-             InstallScope="perMachine" />
+             InstallScope="perMachine"
+              InstallPrivileges="elevated"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.PRODUCTNAME) is already installed." />
-
-    <?include $(sys.CURRENTDIR)\Includes\ControlPanel.wxi ?>
 
     <Media Id="1" CompressionLevel="high" Cabinet="NSB" EmbedCab="yes" />
 
@@ -24,78 +22,66 @@
       Installed OR NETFRAMEWORK40FULL
     </Condition>
     <PropertyRef Id="VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED"/>
-    <PropertyRef Id="VS2010_ROOT_FOLDER"/>
 
-    <?include $(sys.CURRENTDIR)\Includes\VSIX.wxi ?>
-
-    <Binary Id="NServiceBus.Wix.CustomActions.dll" SourceFile="$(var.NServiceBus.Wix.CustomActions.TargetDir)$(var.NServiceBus.Wix.CustomActions.TargetName).CA.dll" />
-    <CustomAction Id="InstallMsmqAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallMsmq" Execute="immediate" Return="check" />
-    <CustomAction Id="InstallRavenDbAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallRavenDb" Execute="immediate" Return="check" />
-    <CustomAction Id="InstallDtcAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallDtc" Execute="immediate" Return="check" />
-    <CustomAction Id="InstallPerformanceCountersAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallPerformanceCounters" Execute="immediate" Return="check" />
-    <InstallExecuteSequence>
-      <Custom Action="InstallDtcAction" After="InstallFinalize"> <![CDATA[&Install_DTC=3]]> </Custom>
-      <Custom Action="InstallMsmqAction" After="InstallFinalize"> <![CDATA[&Install_MSMQ=3]]> </Custom>
-      <Custom Action="InstallRavenDbAction" After="InstallFinalize"> <![CDATA[&Install_RavenDb=3]]> </Custom>
-      <Custom Action="InstallPerformanceCountersAction" After="InstallFinalize"> <![CDATA[&Install_PerformanceCounters=3]]> </Custom>
-    </InstallExecuteSequence>
-    
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="NServiceBus SDK">
-          
+        <Directory Id="ProductFolder" Name="NServiceBus SDK">
+          <Directory Id="APPLICATIONFOLDER" Name="v$(var.VERSION)">
+            <Component Id="WeNeedThisToGetAroundBug" KeyPath="yes" Guid="{AAAA0CE8-74B4-4813-AF73-A1544231E9E0}"/>
+          </Directory>
         </Directory>
       </Directory>
     </Directory>
-    
-    <Feature Id="MainTree" Title="$(var.PRODUCTNAME) SDK" Absent="allow" AllowAdvertise="no" Display="hidden" ConfigurableDirectory="INSTALLLOCATION">
+
+    <Feature Id="MainTree" Title="$(var.PRODUCTNAME) SDK" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentGroupRef Id="RootFiles" />
       <ComponentGroupRef Id="DocFiles" />
       <ComponentGroupRef Id="BinaryFiles" />
-    </Feature>
-    <Feature Id="ToolsFeature"
-              Title="Tools"
-              Absent="allow"
-              AllowAdvertise="no" ConfigurableDirectory="INSTALLLOCATION">
-      <ComponentGroupRef Id="ToolsFiles" />
-    </Feature>
-      
-    <Feature Id="SampleFeature"
-              Title="Samples"
-              Absent="allow"
-              AllowAdvertise="no">
-      <ComponentGroupRef Id="SampleFiles" />
+
+      <Feature Id="ToolsFeature"
+                Title="Tools"
+                Absent="allow"
+                AllowAdvertise="no">
+        <ComponentGroupRef Id="ToolsFiles" />
+      </Feature>
+
+      <Feature Id="SampleFeature"
+                Title="Samples"
+                Absent="allow"
+                AllowAdvertise="no">
+        <ComponentGroupRef Id="SampleFiles" />
+      </Feature>
+
+      <Feature Id="VSIXFeature"
+                Title="$(var.PRODUCTNAME) Studio"
+                Absent="allow"
+                AllowAdvertise="no">
+        <Condition Level="1">VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
+        <ComponentGroupRef Id="VSIXFiles" />
+      </Feature>
+    
+      <Feature Id="PrepMachine" Title="Prep My Machine" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        <ComponentRef Id="WeNeedThisToGetAroundBug"/>
+        <Feature Id="Install_DTC" Title="Install DTC" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        </Feature>
+        <Feature Id="Install_MSMQ" Title="Install MSMQ" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        </Feature>
+        <Feature Id="Install_RavenDb" Title="Install RavenDb" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        </Feature>
+        <Feature Id="Install_PerformanceCounters" Title="Install Performance Counters" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        </Feature>
+      </Feature>
     </Feature>
 
-    <Feature Id="VSIXFeature"
-              Title="$(var.PRODUCTNAME) Studio"
-              Absent="allow"
-              AllowAdvertise="no">
-      <Condition Level="1">VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
-      <ComponentGroupRef Id="VSIXFiles" />
-    </Feature>
-
-    <Feature Id="PrepMachine" Title="Prep My Machine" Absent="allow"
-              AllowAdvertise="no" Level="1">
-      <Feature Id="Install_DTC" Title="Install DTC" Absent="allow"
-              AllowAdvertise="no" Level="1">
-      </Feature>
-      <Feature Id="Install_MSMQ" Title="Install MSMQ" Absent="allow"
-              AllowAdvertise="no" Level="1">
-      </Feature>
-      <Feature Id="Install_RavenDb" Title="Install RavenDb" Absent="allow"
-              AllowAdvertise="no" Level="1">
-      </Feature>
-      <Feature Id="Install_PerformanceCounters" Title="Install Performance Counters" Absent="allow"
-              AllowAdvertise="no" Level="1">
-      </Feature>
-    </Feature>
-
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
-    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
-    <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
-    <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
-    <UIRef Id="WixUI_FeatureTree" />
-    <UIRef Id="WixUI_ErrorProgressText" />
+    <CustomActionRef Id="SetARPINSTALLLOCATION" />
+    <CustomActionRef Id="InstallMsmqAction" />
+    <CustomActionRef Id="OpenURL" />
+    
+    <?include $(sys.CURRENTDIR)\Includes\UI.wxi ?>
   </Product>
 </Wix>

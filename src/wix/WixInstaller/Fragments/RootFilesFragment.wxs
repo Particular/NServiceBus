@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-        <DirectoryRef Id="INSTALLLOCATION">
+        <DirectoryRef Id="APPLICATIONFOLDER">
             <Component Id="cmp9E6EA2CB27E2101E2C2C2E9FBC6E0CEA" Guid="{C59D1065-8DEF-4566-A424-E313DA4C7C66}">
               <File Id="filC992FB3C5AA035D71B1A28E79CAB43E1" KeyPath="yes" Source="$(var.SOURCEPATH)\acknowledgements.txt" />
               <File Id="filC992FB3C5AA035D71B1A28E79CAB43E2" Source="$(var.SOURCEPATH)\readme.txt" />

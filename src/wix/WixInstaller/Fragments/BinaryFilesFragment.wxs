@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-        <DirectoryRef Id="INSTALLLOCATION">
+        <DirectoryRef Id="APPLICATIONFOLDER">
           <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48596" Name="Binaries">
             <Component Id="cmpE5C01B5677C30D575CC15B4B558A57E0" Guid="{30EB0CE8-74B4-4813-AF73-A1544231E9E0}">
                 <File Id="filD17F9AFAC4DF3D7A44817DFBA8510C1A" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\log4net.dll" />

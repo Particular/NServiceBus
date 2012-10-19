@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-        <DirectoryRef Id="INSTALLLOCATION">
+        <DirectoryRef Id="APPLICATIONFOLDER">
           <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48592" Name="Tools">
             <Component Id="cmp85F967A58332E054CB5378C3DFD9D914" Guid="{C855CFAA-C9A4-496E-A758-078A04A77723}">
                 <File Id="filBC916EC0AF0C50E8E8711D261867C14C" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\NServiceBus.Core.dll" />

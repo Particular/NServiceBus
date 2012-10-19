@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-        <DirectoryRef Id="INSTALLLOCATION">
+        <DirectoryRef Id="APPLICATIONFOLDER">
           <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48598" Name="Docs">
             <Component Id="cmpB809BD32F4B1FF315CD8F902178A2728" Guid="{964830C1-7C26-40FF-BF09-94B4D9681B76}">
               <File Id="fil9BBD61090C6F0702115AC8DDAE0FC519" KeyPath="yes" Source="$(var.SOURCEPATH)\Docs\basic_pubsub.png" />
