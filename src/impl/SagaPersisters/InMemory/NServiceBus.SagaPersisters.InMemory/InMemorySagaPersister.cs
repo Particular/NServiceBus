@@ -2,6 +2,11 @@
 using System.Linq;
 using System.Collections.Generic;
 using NServiceBus.Saga;
+using System.Threading;
+using NServiceBus.Serialization;
+using NServiceBus.Serializers.Json;
+using System.IO;
+using System.Reflection;
 
 namespace NServiceBus.SagaPersisters.InMemory
 {
@@ -22,13 +27,16 @@ namespace NServiceBus.SagaPersisters.InMemory
         {
             lock (syncRoot)
             {
-                var values = data.Values.Where(x => x is T);
+                var values = data.Values.Where(x => x.SagaEntity is T);
                 foreach (var entity in values)
                 {
-                    var prop = entity.GetType().GetProperty(property);
+                    var prop = entity.SagaEntity.GetType().GetProperty(property);
                     if (prop != null)
-                        if (prop.GetValue(entity, null).Equals(value))
-                            return (T) entity;
+                        if (prop.GetValue(entity.SagaEntity, null).Equals(value))
+                        {
+                            entity.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
+                            return (T)DeepClone(entity.SagaEntity);
+                        }
                 }
             }
             return default(T);
@@ -38,10 +46,13 @@ namespace NServiceBus.SagaPersisters.InMemory
         {
             lock(syncRoot)
             {
-                ISagaEntity result;
+                VersionedSagaEntity result;
                 data.TryGetValue(sagaId, out result);
-                if((result != null) && (result is T))
-                    return (T)result;
+                if((result != null) && (result.SagaEntity is T))
+                {
+                    result.ReadByThreadId.Add(Thread.CurrentThread.ManagedThreadId);
+                    return (T)DeepClone(result.SagaEntity);
+                }
             }
             return default(T);
         }
@@ -51,7 +62,11 @@ namespace NServiceBus.SagaPersisters.InMemory
             lock(syncRoot)
             {
                 ValidateUniqueProperties(saga);
-                data[saga.Id] = saga;
+
+                if (data.ContainsKey(saga.Id))
+                    data[saga.Id].ConcurrencyCheck();
+
+                data[saga.Id] = new VersionedSagaEntity { SagaEntity = DeepClone(saga) };
             }
         }
         
@@ -67,7 +82,7 @@ namespace NServiceBus.SagaPersisters.InMemory
 
             var sagasFromSameType = from s in data
                                     where
-                                        ((s.Value as ISagaEntity).GetType() == saga.GetType() && (s.Key != saga.Id))
+                                        ((s.Value.SagaEntity as ISagaEntity).GetType() == saga.GetType() && (s.Key != saga.Id))
                                     select s.Value;
 
             foreach (var storedSaga in sagasFromSameType)
@@ -76,19 +91,45 @@ namespace NServiceBus.SagaPersisters.InMemory
                     if (uniqueProperty.CanRead)
                     {
                         var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
-                        var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga, null);
+                        var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
                         if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
                             throw new
                                 InvalidOperationException(
-                                string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", storedSaga.Id, uniqueProperty.ToString(), storedSagaPropertyValue));
+                                string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.",
+                                               storedSaga.SagaEntity.Id, uniqueProperty.ToString(), storedSagaPropertyValue));
                     }
                 }
         }
 
+        private class VersionedSagaEntity
+        {
+            public ISagaEntity SagaEntity;
 
+	        public void ConcurrencyCheck()
+	        {
+                if (!ReadByThreadId.Contains(Thread.CurrentThread.ManagedThreadId))
+                    throw new InvalidOperationException(
+	                    string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved by [Worker.{1}]",
+	                    SagaEntity.Id, SavedByThreadId));
+	        }
 
-        
-        private readonly IDictionary<Guid, ISagaEntity> data = new Dictionary<Guid, ISagaEntity>();
+	        readonly public IList<int> ReadByThreadId = new List<int>();
+	        readonly public int SavedByThreadId = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        private ISagaEntity DeepClone(ISagaEntity source)
+        {
+            var data = serializer.SerializeObject(source);
+
+            //dynamic invoke used as JsonMessageSerializer doesn't de-serialize to an interface
+            return typeof(JsonMessageSerializer)
+	            .GetMethod("DeserializeObject")
+	            .MakeGenericMethod(source.GetType())
+	            .Invoke(serializer, new[] { data }) as ISagaEntity;
+        }
+
+        private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        private readonly IDictionary<Guid, VersionedSagaEntity> data = new Dictionary<Guid, VersionedSagaEntity>();
         private readonly object syncRoot = new object();
     }
 }
