@@ -6,7 +6,7 @@
     <ProductVersion>3.6</ProductVersion>
     <ProjectGuid>{64a388c5-6913-44d8-b342-6b609a8e9689}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>NServiceBus SDK</OutputName>
+    <OutputName>NServiceBus</OutputName>
     <OutputType>Package</OutputType>
   </PropertyGroup>
   <PropertyGroup>
