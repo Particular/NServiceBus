@@ -1,13 +1,12 @@
-﻿using System;
-using Raven.Client;
-using Raven.Client.Document;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
     using System.Configuration;
     using Persistence.Raven;
     using Persistence.Raven.Installation;
     using Raven.Abstractions.Data;
+    using Raven.Client;
+    using Raven.Client.Document;
     using Raven.Client.Extensions;
 
     public static class ConfigureRavenPersistence
@@ -114,7 +113,9 @@ namespace NServiceBus
             {
                 store.ParseConnectionString(connectionStringValue);
 
-                if (!connectionStringValue.Contains("ResourceManagerId"))
+                var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
+                connectionStringParser.Parse();
+                if (connectionStringParser.ConnectionStringOptions.ResourceManagerId == Guid.Empty)
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
             else
@@ -133,9 +134,6 @@ namespace NServiceBus
                 store.DefaultDatabase = database;
             }
 
-            if (store.ResourceManagerId == Guid.Empty)
-                store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
-
             return RavenPersistence(config, store);
         }
 
@@ -147,7 +145,6 @@ namespace NServiceBus
             var conventions = new RavenConventions();
 
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
-
 
             EnsureDatabaseExists((DocumentStore)store);
             store.Initialize();

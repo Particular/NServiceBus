@@ -1,6 +1,4 @@
 using NUnit.Framework;
-using Raven.Client;
-using Raven.Client.Document;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
