@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.PowerShell
 {
-    using System;
     using System.Management.Automation;
     using Setup.Windows.Dtc;
 
@@ -16,8 +15,8 @@
             bool dtcIsGood;
             if (WhatIf)
             {
-                dtcIsGood = DtcSetup.StartDtcIfNecessary(false);
-                Console.Out.WriteLine(dtcIsGood
+                dtcIsGood = DtcSetup.StartDtcIfNecessary();
+                Host.UI.WriteLine(dtcIsGood
                                           ? "DTC is setup and ready for use with NServiceBus"
                                           : "DTC is not properly configured, if you rerun the command without -WhatIf DTC will be setup automatically for you");
 

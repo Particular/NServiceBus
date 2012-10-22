@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.PowerShell
 {
-    using System;
     using System.Management.Automation;
     using Setup.Windows.PerformanceCounters;
 
@@ -16,9 +15,9 @@
             bool coutersIsGood;
             if (WhatIf)
             {
-                coutersIsGood = PerformanceCounterSetup.SetupCounters(false);
+                coutersIsGood = PerformanceCounterSetup.SetupCounters();
 
-                Console.Out.WriteLine(coutersIsGood
+                Host.UI.WriteLine(coutersIsGood
                                           ? "Performance Counters is setup and ready for use with NServiceBus"
                                           : "Performance Counters is not properly configured, if you rerun the command without -WhatIf they will be setup automatically for you");
 

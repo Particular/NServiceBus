@@ -14,7 +14,6 @@
         [Parameter(HelpMessage = "Checks if the RavenDB needs to be installed")]
         public SwitchParameter WhatIf { get; set; }
 
-
         protected override void ProcessRecord()
         {
             if (Port == 0)

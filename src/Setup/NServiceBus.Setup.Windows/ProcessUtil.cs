@@ -4,7 +4,6 @@
     using System.Security.Principal;
     using System.ServiceProcess;
     using System.ComponentModel;
-    using System.Threading;
 
     /// <summary>
     /// Utility class for changing a windows service's status.
@@ -13,7 +12,7 @@
     {
         public static bool IsRunningWithElevatedPriviliges()
         {
-            return Thread.CurrentPrincipal.IsInRole(WindowsBuiltInRole.Administrator.ToString());
+            return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         /// <summary>
