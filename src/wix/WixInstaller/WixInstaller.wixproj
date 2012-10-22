@@ -38,6 +38,7 @@
     <Compile Include="Fragments\ToolsFilesFragment.wxs" />
     <Content Include="Includes\UI.wxi" />
     <Compile Include="Product.wxs" />
+    <Content Include="Welcome.html" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">

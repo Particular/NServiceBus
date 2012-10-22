@@ -24,6 +24,10 @@
     <PropertyRef Id="VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED"/>
 
     <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolderNServiceBus" Name="NServiceBus v$(var.VERSION)">
+        </Directory>
+      </Directory>
       <Directory Id="ProgramFilesFolder">
         <Directory Id="ProductFolder" Name="NServiceBus">
           <Directory Id="APPLICATIONFOLDER" Name="v$(var.VERSION)">
@@ -33,11 +37,20 @@
       </Directory>
     </Directory>
 
+    <DirectoryRef Id="ApplicationProgramsFolderNServiceBus">
+      <Component Id="ApplicationShortcut" Guid="{BBBB0CE8-74B4-4813-AF73-A1544231EEE0}">
+        <Shortcut Id="NSBShortcut" Name="Welcome to $(var.PRODUCTNAME)" Icon="icon.ico" Description="Start page for $(var.PRODUCTNAME)" Target="[APPLICATIONFOLDER]Welcome.html" />
+        <RemoveFolder Id="ApplicationProgramsFolderNServiceBus" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\NServiceBus" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
     <Feature Id="MainTree" Title="$(var.PRODUCTNAME)" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
       <ComponentGroupRef Id="RootFiles" />
       <ComponentGroupRef Id="DocFiles" />
       <ComponentGroupRef Id="BinaryFiles" />
-
+      <ComponentRef Id="ApplicationShortcut"/>
+      
       <Feature Id="ToolsFeature"
                 Title="Tools"
                 Absent="allow"
