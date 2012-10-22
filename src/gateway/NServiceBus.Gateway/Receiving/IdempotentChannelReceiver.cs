@@ -64,7 +64,7 @@
             return new TransactionScope(TransactionScopeOption.Required,
                                         new TransactionOptions
                                             {
-                                                IsolationLevel = IsolationLevel.ReadCommitted,
+                                                IsolationLevel = Transaction.Current != null ? Transaction.Current.IsolationLevel : IsolationLevel.ReadCommitted,
                                                 Timeout = TimeSpan.FromSeconds(30)
                                             });
         }
