@@ -37,42 +37,56 @@
       </Directory>
     </Directory>
 
+    <Property Id="INSTALLSTARTMENUSHORTCUT" Value="1" Secure="yes"/>
+
     <DirectoryRef Id="ApplicationProgramsFolderNServiceBus">
       <Component Id="ApplicationShortcut" Guid="{BBBB0CE8-74B4-4813-AF73-A1544231EEE0}">
+        <Condition>INSTALLSTARTMENUSHORTCUT</Condition>
         <Shortcut Id="NSBShortcut" Name="Welcome to $(var.PRODUCTNAME)" Icon="icon.ico" Description="Start page for $(var.PRODUCTNAME)" Target="[APPLICATIONFOLDER]Welcome.html" />
         <RemoveFolder Id="ApplicationProgramsFolderNServiceBus" On="uninstall"/>
         <RegistryValue Root="HKCU" Key="Software\Microsoft\NServiceBus" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
 
-    <Feature Id="MainTree" Title="$(var.PRODUCTNAME)" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER">
+    <Feature Id="MainTree" Title="$(var.PRODUCTNAME)" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER"
+             Description="$(var.PRODUCTNAME) installs a rich set of tools and samples that help you develop small to enterprise level solutions.">
       <ComponentGroupRef Id="RootFiles" />
       <ComponentGroupRef Id="DocFiles" />
       <ComponentGroupRef Id="BinaryFiles" />
       <ComponentRef Id="ApplicationShortcut"/>
-      
+
       <Feature Id="ToolsFeature"
                 Title="Tools"
                 Absent="allow"
-                AllowAdvertise="no">
+                AllowAdvertise="no" Description="A series of useful tools for management of messages.">
         <ComponentGroupRef Id="ToolsFiles" />
       </Feature>
 
       <Feature Id="SampleFeature"
                 Title="Samples"
                 Absent="allow"
-                AllowAdvertise="no">
+                AllowAdvertise="no" Description="Sample applications to get familiar on how to perform daily NServiceBus tasks.">
         <ComponentGroupRef Id="SampleFiles" />
       </Feature>
 
-      <Feature Id="VSIXFeature"
+      <Feature Id="IDEINTEGRATION" Title="IDE Integration" Absent="allow"
+                AllowAdvertise="no" Level="1">
+        <ComponentRef Id="WeNeedThisToGetAroundBug"/>
+
+        <Feature Id="IDEINTEGRATION_VS2010" Title="Visual Studio 2010" Absent="allow"
+                        AllowAdvertise="no" Level="1">
+          <ComponentRef Id="WeNeedThisToGetAroundBug"/>
+          <Feature Id="IDEINTEGRATION_VS2010_NSB_STUDIO"
                 Title="$(var.PRODUCTNAME) Studio"
                 Absent="allow"
-                AllowAdvertise="no">
-        <Condition Level="1">VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
-        <ComponentGroupRef Id="VSIXFiles" />
+                AllowAdvertise="no"
+               Description="Visual Studio integrated modelling tools for NServiceBus allow you to graphically design your distributed solution.">
+            <Condition Level="1">VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
+            <ComponentGroupRef Id="VSIXFiles" />
+          </Feature>
+        </Feature>
       </Feature>
-    
+
       <Feature Id="PrepMachine" Title="Prep My Machine" Absent="allow"
                 AllowAdvertise="no" Level="1">
         <ComponentRef Id="WeNeedThisToGetAroundBug"/>
@@ -98,7 +112,7 @@
     <CustomActionRef Id="SetARPINSTALLLOCATION" />
     <CustomActionRef Id="InstallMsmqAction" />
     <CustomActionRef Id="OpenURL" />
-    
+
     <?include $(sys.CURRENTDIR)\Includes\UI.wxi ?>
   </Product>
 </Wix>

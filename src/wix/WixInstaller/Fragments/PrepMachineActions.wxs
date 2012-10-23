@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Fragment>
-    <Binary Id="NServiceBus.Wix.CustomActions.dll" SourceFile="$(var.NServiceBus.Wix.CustomActions.TargetDir)$(var.NServiceBus.Wix.CustomActions.TargetName).CA.dll" />
-    <CustomAction Id="InstallMsmqAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallMsmq" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallRavenDbAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallRavenDb" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallDtcAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallDtc" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallPerformanceCountersAction" BinaryKey="NServiceBus.Wix.CustomActions.dll" DllEntry="InstallPerformanceCounters" Execute="deferred" Return="check" Impersonate="no" />
+    <Binary Id="CustomActions.dll" SourceFile="$(var.NServiceBus.Wix.CustomActions.TargetDir)$(var.NServiceBus.Wix.CustomActions.TargetName).CA.dll" />
+    <CustomAction Id="InstallMsmqAction" BinaryKey="CustomActions.dll" DllEntry="InstallMsmq" Execute="deferred" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallRavenDbAction" BinaryKey="CustomActions.dll" DllEntry="InstallRavenDb" Execute="deferred" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallDtcAction" BinaryKey="CustomActions.dll" DllEntry="InstallDtc" Execute="deferred" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallPerformanceCountersAction" BinaryKey="CustomActions.dll" DllEntry="InstallPerformanceCounters" Execute="deferred" Return="check" Impersonate="no" />
     <InstallExecuteSequence>
       <Custom Action="InstallDtcAction" Before="InstallFinalize"> <![CDATA[&Install_DTC=3]]> </Custom>
       <Custom Action="InstallMsmqAction" Before="InstallFinalize"> <![CDATA[&Install_MSMQ=3]]> </Custom>

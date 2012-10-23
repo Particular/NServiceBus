@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-    <Property Id="MyURL"><![CDATA[http://www.nservicebus.com/MSI]]></Property>
-    <CustomAction Id="SetOpenURL" Property="WixShellExecTarget" Value="[MyURL]" />
+    <CustomAction Id="SetOpenURLWithStudio" Property="WixShellExecTarget" Value="http://www.nservicebus.com/MSI?studio=true" />
+    <CustomAction Id="SetOpenURLWithoutStudio" Property="WixShellExecTarget" Value="http://www.nservicebus.com/MSI?studio=false" />
     <CustomAction Id="OpenURL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
 
     <InstallExecuteSequence>
-      <Custom Action="SetOpenURL" After="InstallFinalize"><![CDATA[NOT (REMOVE="ALL")]]></Custom>
-      <Custom Action="OpenURL" After="SetOpenURL"><![CDATA[NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="SetOpenURLWithStudio" Before="InstallFinalize"><![CDATA[(&IDEINTEGRATION_VS2010_NSB_STUDIO=3) AND NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="SetOpenURLWithoutStudio" Before="InstallFinalize"><![CDATA[(&IDEINTEGRATION_VS2010_NSB_STUDIO<>3) AND NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="OpenURL" After="InstallFinalize"><![CDATA[NOT (REMOVE="ALL")]]></Custom>
     </InstallExecuteSequence>
   </Fragment>
 </Wix>
