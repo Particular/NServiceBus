@@ -51,7 +51,6 @@
     <Feature Id="MainTree" Title="$(var.PRODUCTNAME)" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="APPLICATIONFOLDER"
              Description="$(var.PRODUCTNAME) installs a rich set of tools and samples that help you develop small to enterprise level solutions.">
       <ComponentGroupRef Id="RootFiles" />
-      <ComponentGroupRef Id="DocFiles" />
       <ComponentGroupRef Id="BinaryFiles" />
       <ComponentRef Id="ApplicationShortcut"/>
 
@@ -70,11 +69,13 @@
       </Feature>
 
       <Feature Id="IDEINTEGRATION" Title="IDE Integration" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+               Description="Visual Studion IDE integration tools.">
         <ComponentRef Id="WeNeedThisToGetAroundBug"/>
 
         <Feature Id="IDEINTEGRATION_VS2010" Title="Visual Studio 2010" Absent="allow"
-                        AllowAdvertise="no" Level="1">
+                        AllowAdvertise="no" Level="1"
+                 Description="Visual Studio 2010 IDE integration tools.">
           <ComponentRef Id="WeNeedThisToGetAroundBug"/>
           <Feature Id="IDEINTEGRATION_VS2010_NSB_STUDIO"
                 Title="$(var.PRODUCTNAME) Studio"
@@ -88,22 +89,27 @@
       </Feature>
 
       <Feature Id="PrepMachine" Title="Prep My Machine" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+               Description="Scripts to prepare your machine to run NServiceBus.">
         <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         <Feature Id="Install_DTC" Title="Install DTC" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+                 Description="Installs Distributed Transaction Coordinator if required.">
           <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_MSMQ" Title="Install MSMQ" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+                 Description="Installs Message Queuing if required.">
           <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_RavenDb" Title="Install RavenDb" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+                 Description="Installs RavenDB as a service into ProgramFiles\NServiceBus.Persistence and listening on port 8080.">
           <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
         <Feature Id="Install_PerformanceCounters" Title="Install Performance Counters" Absent="allow"
-                AllowAdvertise="no" Level="1">
+                AllowAdvertise="no" Level="1"
+                 Description="Registers NServiceBus performance counters.">
           <ComponentRef Id="WeNeedThisToGetAroundBug"/>
         </Feature>
       </Feature>

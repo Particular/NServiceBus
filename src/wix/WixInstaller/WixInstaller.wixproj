@@ -32,7 +32,6 @@
     <Compile Include="Fragments\PopBrowser.wxs" />
     <Compile Include="Fragments\PrepMachineActions.wxs" />
     <Compile Include="Fragments\VSIXFragment.wxs" />
-    <Compile Include="Fragments\DocFilesFragment.wxs" />
     <Compile Include="Fragments\RootFilesFragment.wxs" />
     <Compile Include="Fragments\SampleFilesFragment.wxs" />
     <Compile Include="Fragments\ToolsFilesFragment.wxs" />
