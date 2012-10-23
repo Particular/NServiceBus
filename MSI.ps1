@@ -26,7 +26,12 @@ task Clean {
 
 task Init {
 	
-		$sdkInstallRoot = Get-RegistryValue "HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A" "InstallationFolder"
+		$sdkInstallRoot = Get-RegistryValue "HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1" "InstallationFolder"
+        echo "skdpath" $sdkInstallRoot
+		if($sdkInstallRoot -eq $null) {
+			$sdkInstallRoot = Get-RegistryValue "HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A" "InstallationFolder"
+		}
+
 		$netfxInstallroot = "" 
 		$netfxInstallroot =	Get-RegistryValue "HKLM:\SOFTWARE\Microsoft\.NETFramework\" "InstallRoot" 
 			
