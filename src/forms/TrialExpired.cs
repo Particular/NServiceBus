@@ -99,7 +99,7 @@
 
         private void requestButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://www.nservicebus.com/License.aspx");
+            Process.Start("http://www.nservicebus.com/LicenseExpired");
         }
 
         private void ignoreButton_Click(object sender, EventArgs e)
