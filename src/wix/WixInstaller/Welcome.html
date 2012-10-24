@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>NServiceBus</title>
-    <style>
+    <style type="text/css">
         BODY
         {
             font-family: Calibri, sans-serif;
@@ -42,25 +42,26 @@
         <li><a href="./Samples/">Samples</a> - Sample applications to get familiar on how to
             perform daily NServiceBus tasks.</li>
     </ul>
-    <h4>
-        Tools description:</h4>
+    <h4>Tools description:</h4>
     <ul>
         <li>
             <div>
                 <a href="./Tools/migration/">TimeoutMigrator.exe</a></div>
-            This tool will extract your version 2.6 Timeouts and send them over to the new 3.0 TM that will be responsible for managing them. </li>
+            This tool will extract your version 2.6 Timeouts and send them over to the new 3.0
+            TM that will be responsible for managing them. </li>
         <li>
             <div>
                 <a href="./Tools/">ReturnToSourceQueue.exe</a></div>
-            This tool sends messages from the error queue back to its original queue so that they can be processed again. </li>
-            <li>
+            This tool sends messages from the error queue back to its original queue so that
+            they can be processed again. </li>
+        <li>
             <div>
                 <a href="./Tools/">XsdGenerator.exe</a></div>
-            Allows you to take your message schema classes and generate an XSD that will allow developers on other platforms to use to send messages with (though those messages would likely be coming in over HTTP via the gateway). </li>
+            Allows you to take your message schema classes and generate an XSD that will allow
+            developers on other platforms to use to send messages with (though those messages
+            would likely be coming in over HTTP via the gateway). </li>
     </ul>
-
-    <h4>
-        Samples description:</h4>
+    <h4>Samples description:</h4>
     <ul>
         <li>
             <div>
@@ -71,10 +72,11 @@
         <li>
             <div>
                 <a href="./Samples/AsyncPagesMVC3/">AsyncPages MVC3</a></div>
-            Similar to <a href="./Samples/AsyncPages/">AsyncPages</a>, this sample illustrates the use of NServiceBus in a ASP.NET
-            MVC 3 web application. What you'll see is how to configure NServiceBus for use in
-            a web application, how to use the bus to send a message, both in synchronous and
-            asynchronous mode. and how to handle the response. </li>
+            Similar to <a href="./Samples/AsyncPages/">AsyncPages</a>, this sample illustrates
+            the use of NServiceBus in a ASP.NET MVC 3 web application. What you'll see is how
+            to configure NServiceBus for use in a web application, how to use the bus to send
+            a message, both in synchronous and asynchronous mode. and how to handle the response.
+        </li>
         <li>
             <div>
                 <a href="./Samples/Encryption/">Encryption</a></div>
@@ -124,10 +126,13 @@
             Unobtrusive mode messages allows you to pass in your own conventions to determine
             which types are message definitions instead of using the IMessage interface. Other
             than the sample, you can read more about it here. </li>
-        <li><div><a href="./Samples/DataBus/">Data Bus</a></div> Large chunks of data, such as images
-            or video files can be transported using NServiceBus V3 data bus. The only thing
-            you have to do is put an attribute over your large property and NServiceBus will
-            take care of the rest. See how it works in the sample. </li>
+        <li>
+            <div>
+                <a href="./Samples/DataBus/">Data Bus</a></div>
+            Large chunks of data, such as images or video files can be transported using NServiceBus
+            V3 data bus. The only thing you have to do is put an attribute over your large property
+            and NServiceBus will take care of the rest. See how it works in the sample.
+        </li>
         <li>
             <div>
                 <a href="./Samples/ScaleOut/">Scale out</a></div>
@@ -137,33 +142,84 @@
         <li>
             <div>
                 <a href="./Samples/Azure/AzureAsyncPagesMVC3">Azure AsyncPages MVC3</a></div>
-            Similar to <a href="./Samples/AsyncPagesMVC3/">AsyncPages MVC3</a>, but this time we use Azure.</li>
+            Similar to <a href="./Samples/AsyncPagesMVC3/">AsyncPages MVC3</a>, but this time
+            we use Windows Azure Cloud Services as a host and Windows Azure Queue Storage as
+            a transport.</li>
         <li>
             <div>
                 <a href="./Samples/Azure/AzureBlobStorageDataBus">Azure Blob Storage Data Bus</a></div>
-            Similar to <a href="./Samples/DataBus/">Data Bus</a>, on Azure.</li>
+            Similar to <a href="./Samples/DataBus/">Data Bus</a>, using Windows Azure Queue
+            Storage as a transport and Windows Azure Blob Storage as a Data Bus implementation.</li>
         <li>
             <div>
                 <a href="./Samples/Azure/AzureFullDuplex">Azure Full Duplex</a></div>
-            Similar to <a href="./Samples/FullDuplex/">Full Duplex</a>, using Azure.</li>
+            Similar to <a href="./Samples/FullDuplex/">Full Duplex</a>, using Windows Azure
+            Cloud Services as a host and Windows Azure Queue Storage as a transport.</li>
         <li>
             <div>
                 <a href="./Samples/Azure/AzureHost">Azure Host</a></div>
-            Similar to <a href="./Samples/GenericHost/">Generic Host</a>, but this time the Host is running on Azure.</li>
+            This sample demonstrates how you can use NServicebus and it's AsA_Host role to achieve
+            high density hosting of worker roles on Windows Azure Cloud Services.</li>
         <li>
             <div>
                 <a href="./Samples/Azure/AzurePubSub">Azure PubSub</a></div>
-            Similar to <a href="./Samples/PubSub/">Generic Host</a>, using Azure.</li>
+            Similar to <a href="./Samples/PubSub/">Generic Host</a>, but this time we use Windows
+            Azure Cloud Services as a host, Windows Azure Queue Storage as a transport and Windows
+            Azure Table Storage as a subscription persistence implementation.</li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/AzureSagas">Azure Sagas</a></div>
+            Similar to <a href="./Samples/Starbucks/">Starbucks</a>, using Windows Azure Table
+            Storage as a saga persistence implementation. </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/AzureThumbnailCreator">Azure Thumbnail Creator</a></div>
+            This sample shows you how all of the Windows Azure Queue Storage can be combined
+            into a full application. </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/ServiceBusAsyncPagesMVC3">ServiceBus AsyncPages MVC3</a></div>
+            Similar to <a href="./Samples/AsyncPagesMVC3/">AsyncPages MVC3</a>, but this time
+            we use Windows Azure Cloud Services as a host and Windows Azure Service Bus Queues
+            as a transport. </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/ServiceBusFullDuplex">ServiceBus FullDuplex</a></div>
+            Similar to <a href="./Samples/FullDuplex/">Full Duplex</a>, using Windows Azure
+            Cloud Serivces as a host and Windows Azure Service Bus Queues as a transport.
+        </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/ServiceBusPubSub">ServiceBus PubSub</a></div>
+            Similar to <a href="./Samples/PubSub/">Generic Host</a>, but this time we use Windows
+            Azure Cloud Services as a host, Windows Azure Service Bus Queues as a transport
+            and Windows Azure Table Storage as a subscription persistence implementation.
+        </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/SQLAzure">SQL Azure</a></div>
+            Similar to <a href="./Samples/Starbucks/">Starbucks</a>, using Windows Azure Database
+            as a saga persistence implementation. </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/TimeoutManagerListeningOnServiceBusQueues">TimeoutManager Listening
+                    On ServiceBus Queues</a></div>
+            Similar to <a href="./Samples/TimeoutManager/">Timeout Manager</a>, using Windows
+            Azure Service Bus Queues as a transport. </li>
+        <li>
+            <div>
+                <a href="./Samples/Azure/TimeoutManagerListeningOnStorageQueues">TimeoutManager Listening
+                    On Storage Queues</a></div>
+            Similar to <a href="./Samples/TimeoutManager/">Timeout Manager</a>, using Windows
+            Azure Queue Storage as a transport. </li>
     </ul>
-    <h3>
-        Other resources online:</h3>
+    <h3>Other resources online:</h3>
     <ul>
         <li><a href="http://www.nservicebus.com/Documentation.aspx">Online Documentation</a>
             - API documentation, overviews, tutorials, etc.</li>
-        <li><a href="http://www.nservicebus.com/Community.aspx">NServiceBus Community</a>
-            - Join our support forum.</li>
+        <li><a href="http://www.nservicebus.com/Community.aspx">NServiceBus Community</a> -
+            Join our support forum.</li>
     </ul>
-    <p>
-        © 2010-2012 NServiceBus Ltd. All rights reserved.</p>
+    <p>© 2010-2012 NServiceBus Ltd. All rights reserved.</p>
 </body>
 </html>
