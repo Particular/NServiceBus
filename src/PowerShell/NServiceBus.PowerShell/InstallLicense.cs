@@ -10,11 +10,11 @@
     public class InstallLicense : PSCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "License file path")]
-        public string LicenseFilePath { get; set; }
+        public string Path { get; set; }
 
         protected override void ProcessRecord()
         {
-            string selectedLicenseText = ReadAllTextWithoutLocking(LicenseFilePath);
+            string selectedLicenseText = ReadAllTextWithoutLocking(Path);
 
             using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
             {
