@@ -30,6 +30,8 @@
         private const string UnlimitedNumberOfWorkerNodes = "Max";
         private const int MinNumberOfWorkerNodes = 2;
 
+        private const int TRIAL_DAYS = 14;
+
         private static readonly ILog Logger = LogManager.GetLogger(typeof (LicenseManager));
         public static readonly Version SoftwareVersion = GetNServiceBusVersion();
 
@@ -174,10 +176,15 @@
                             Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
 
                     CheckIfNServiceBusVersionIsNewerThanLicenseVersion();
-
+                    
                     ConfigureNServiceBusLicense();
 
                     return;
+                }
+                catch (LicenseExpiredException)
+                {
+                    trialPeriodHasExpired = true;
+                    Logger.Error("License has expired.");
                 }
                 catch (LicenseNotFoundException)
                 {
@@ -236,7 +243,7 @@
                                                              CultureInfo.InvariantCulture,
                                                              DateTimeStyles.AssumeUniversal);
 
-                    trialExpirationDate = trialStartDate.Date.AddDays(21);
+                    trialExpirationDate = trialStartDate.Date.AddDays(TRIAL_DAYS);
                 }
                 catch (UnauthorizedAccessException ex)
                 {
@@ -251,7 +258,7 @@
                                    SoftwareVersion.ToString(2), trialExpirationDate.ToLocalTime().ToShortDateString());
                 Logger.Info("Configuring NServiceBus to run in trial mode.");
 
-                //Run in unlimited mode during trail period
+                //Run in unlimited mode during trial period
                 license = new License
                     {
                         LicenseType = LicenseType.Trial,
