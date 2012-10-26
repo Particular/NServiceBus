@@ -8,9 +8,9 @@
     <CustomAction Id="OpenURL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
 
     <InstallExecuteSequence>
-      <Custom Action="SetOpenURLWithStudio" Before="InstallFinalize"><![CDATA[VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED AND (&IDEINTEGRATION_VS2010_NSB_STUDIO=3) AND NOT (REMOVE="ALL")]]></Custom>
-      <Custom Action="SetOpenURLWithoutStudio" Before="InstallFinalize"><![CDATA[((NOT VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED) OR (&IDEINTEGRATION_VS2010_NSB_STUDIO<>3)) AND NOT (REMOVE="ALL")]]></Custom>
-      <Custom Action="OpenURL" After="InstallFinalize"><![CDATA[VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED AND NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="SetOpenURLWithStudio" Before="InstallFinalize"><![CDATA[VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED AND (&NSB_IDEINTEGRATION_VS2010_NSB_STUDIO=3) AND NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="SetOpenURLWithoutStudio" Before="InstallFinalize"><![CDATA[((NOT VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED) OR (&NSB_IDEINTEGRATION_VS2010_NSB_STUDIO<>3)) AND NOT (REMOVE="ALL")]]></Custom>
+      <Custom Action="OpenURL" After="InstallFinalize"><![CDATA[(UILevel<>2) AND VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED AND NOT (REMOVE="ALL")]]></Custom>
     </InstallExecuteSequence>
   </Fragment>
 </Wix>

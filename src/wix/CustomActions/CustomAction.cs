@@ -5,7 +5,9 @@
     using System.Security.Principal;
     using System.Text;
     using Microsoft.Deployment.WindowsInstaller;
+    using Setup.Windows.Dtc;
     using Setup.Windows.Msmq;
+    using Setup.Windows.PerformanceCounters;
     using Setup.Windows.RavenDB;
 
     public class CustomActions
@@ -15,19 +17,26 @@
         {
             session.Log("Installing/Starting MSMQ if necessary.");
 
-            CaptureOut(() =>
-                {
-                    if (MsmqSetup.StartMsmqIfNecessary(true))
+            try
+            {
+                CaptureOut(() =>
                     {
-                        session.Log("MSMQ installed and configured.");
-                    }
-                    else
-                    {
-                        session.Log("MSMQ already properly configured.");
-                    }
-                }, session);
+                        if (MsmqSetup.StartMsmqIfNecessary(true))
+                        {
+                            session.Log("MSMQ installed and configured.");
+                        }
+                        else
+                        {
+                            session.Log("MSMQ already properly configured.");
+                        }
+                    }, session);
 
-            return ActionResult.Success;
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
         }
 
         [CustomAction]
@@ -35,19 +44,26 @@
         {
             session.Log("Installing/Starting DTC if necessary.");
 
-            CaptureOut(() =>
-                {
-                    if (Setup.Windows.Dtc.DtcSetup.StartDtcIfNecessary(true))
+            try
+            {
+                CaptureOut(() =>
                     {
-                        session.Log("DTC installed and configured.");
-                    }
-                    else
-                    {
-                        session.Log("DTC already properly configured.");
-                    }
-                }, session);
+                        if (DtcSetup.StartDtcIfNecessary(true))
+                        {
+                            session.Log("DTC installed and configured.");
+                        }
+                        else
+                        {
+                            session.Log("DTC already properly configured.");
+                        }
+                    }, session);
 
-            return ActionResult.Success;
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
         }
 
         [CustomAction]
@@ -55,20 +71,27 @@
         {
             session.Log("Installing RavenDB if necessary.");
 
-            CaptureOut(() =>
-                {
-                    var ravenDbSetup = new RavenDBSetup();
-                    if (ravenDbSetup.Install(WindowsIdentity.GetCurrent(), allowInstall: true))
+            try
+            {
+                CaptureOut(() =>
                     {
-                        session.Log("RavenDB installed and configured.");
-                    }
-                    else
-                    {
-                        session.Log("RavenDB could not be installed.");
-                    }
-                }, session);
+                        var ravenDbSetup = new RavenDBSetup();
+                        if (ravenDbSetup.Install(WindowsIdentity.GetCurrent(), allowInstall: true))
+                        {
+                            session.Log("RavenDB installed and configured.");
+                        }
+                        else
+                        {
+                            session.Log("RavenDB could not be installed.");
+                        }
+                    }, session);
 
-            return ActionResult.Success;
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
         }
 
         [CustomAction]
@@ -76,25 +99,32 @@
         {
             session.Log("Installing NSB performance counters.");
 
-            CaptureOut(() =>
-                {
-                    if (Setup.Windows.PerformanceCounters.PerformanceCounterSetup.SetupCounters(true))
+            try
+            {
+                CaptureOut(() =>
                     {
-                        session.Log("NSB performance counters installed.");
-                    }
-                    else
-                    {
-                        session.Log("NSB performance counters already installed.");
-                    }
-                }, session);
+                        if (PerformanceCounterSetup.SetupCounters(true))
+                        {
+                            session.Log("NSB performance counters installed.");
+                        }
+                        else
+                        {
+                            session.Log("NSB performance counters already installed.");
+                        }
+                    }, session);
 
-            return ActionResult.Success;
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
         }
 
         private static void CaptureOut(Action execute, Session session)
         {
             var sb = new StringBuilder();
-            var standardOut = Console.Out;
+            TextWriter standardOut = Console.Out;
             using (var stringWriter = new StringWriter(sb))
             {
                 Console.SetOut(stringWriter);
