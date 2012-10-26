@@ -1,7 +1,6 @@
 properties {
 	$ProductVersion = "4.0"
 	$PatchVersion = "0"
-	$BuildNumber = "0"
 	$VsixFilePath = if($env:VSIX_PATH -ne $null) { $env:VSIX_PATH } else { "C:\Projects" }
 	$SignFile = if($env:SIGN_CER_PATH -ne $null) { $env:SIGN_CER_PATH } else { "" }
 }
@@ -44,7 +43,7 @@ task Init {
 }
 
 task Build -depends Clean, Init {
-	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion.$BuildNumber" /p:VsixPath="$VsixFilePath" }
+	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" }
 	copy $buildWixPath*.msi $packageOutPutDir\
 }
 
