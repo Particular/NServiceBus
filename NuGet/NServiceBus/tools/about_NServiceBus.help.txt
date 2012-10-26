@@ -42,7 +42,9 @@ Sample Commands
     A slight more complex NServiceBus retrieve message commands might resemble 
     the following command:
 
-	C:\PS> Get-Message -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" } | group Value | where Count -gt 1
+	C:\PS> Get-Message -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" }
+   
+    The above command lists all messages that have a header with key "NServiceBus.RelatedToTimeoutId"
 
 SEE ALSO
     Install-License
