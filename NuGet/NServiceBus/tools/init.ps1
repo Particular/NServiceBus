@@ -2,11 +2,13 @@ param($installPath, $toolsPath, $package, $project)
 
 #default to build dir when debugging
 if(!$toolsPath){
-	$toolsPath = $pwd.path + "\..\..\..\build\nservicebus.core\"
+	$toolsPath = "..\..\NServiceBus.PowerShell\bin\Debug"
 }
 
-#Import the nservicebus ps-commandlets
 Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
+
+Write-Host
+Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
@@ -34,117 +36,24 @@ $dtcInstalled = Install-Dtc -WhatIf
 $ravenDBInstalled = Install-RavenDB -WhatIf
 
 if(!$perfCountersInstalled){
-	"Performance counters needs to be setup"
+	Write-Verbose "Performance counters are not installed."
 }
-
 if(!$msmqInstalled){
-	"Msmq needs to be setup"
+	Write-Verbose "Msmq is not installed or correctly setup."
 }
 if(!$dtcInstalled){
-	"DTC needs to be setup"
+	Write-Verbose "DTC is not installed or started."
 }
 if(!$ravenDBInstalled){
-	"RavenDB needs to be setup"
+	Write-Verbose "RavenDB is not installed."
 }
 
 if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
-	"Required infrastructure is all setup no need to continue"
+	Write-Verbose "Required infrastructure is all setup correctly."
 
-	New-Item -Path $nserviceBusVersionPath -Force
-	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
+	New-Item -Path $nserviceBusVersionPath -Force | Out-Null
+	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force | Out-Null
 	exit
 }
 
-
-$formsPath = Join-Path $toolsPath nservicebus.forms.dll
-[void] [System.Reflection.Assembly]::LoadFile($formsPath) 
-
-#make sure that we're admin
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
-    [Security.Principal.WindowsBuiltInRole] "Administrator"))
-{
-	$needElevatedPriviliges = New-Object NServiceBus.Forms.Confirm
-	$needElevatedPriviliges.ConfirmText = "You need to run with elevated priviliges in order to let NServiceBus to prepare your machine. Please reopen visual studio as administrator"
-	$needElevatedPriviliges.OkOnly = $true
-	$needElevatedPriviliges.ShowDialog()
-			
-    Break
-}
-else {
-    "Admin priviliges detected"
-}
-
-
-$prepareMachineDialog = New-Object NServiceBus.Forms.PrepareMachine
-
-[void] $prepareMachineDialog.ShowDialog()
-
-
-if($prepareMachineDialog.AllowPrepare){
-	try{
-		if(!$perfCountersInstalled){
-			Install-PerformanceCounters
-		}
-		if(!$msmqInstalled){
-			$success = Install-Msmq
-			if(!$success){
-				$confirmReinstallOfMsmq = New-Object NServiceBus.Forms.Confirm
-
-				$confirmReinstallOfMsmq.ConfirmText = "NServiceBus needs to reinstall Msmq on this machine. This will cause all local queues to be deleted. Do you want to proceed?"
-
-				$confirmReinstallOfMsmq.ShowDialog()
-
-				if($confirmReinstallOfMsmq.Ok){
-					Install-Msmq -Force
-				}
-			}
-		}
-		if(!$dtcInstalled){
-			Install-Dtc
-		}
-		if(!$ravenDBInstalled){
-
-  			$confirmRavenInstall = New-Object NServiceBus.Forms.Confirm
-
-			$confirmRavenInstall.ConfirmText = "NServiceBus uses RavenDB as its default storage, do you want to setup a RavenDB server now?"
-
-			$confirmRavenInstall.ShowDialog()
-
-			if($confirmRavenInstall.Ok){
-				Install-RavenDB
-			}
-			else{
-				"Raven install aborted by user"
-			}			
-		}
-	}
-	catch {
-		$installError = $error[0]
-	}
-
-	$installCompleted = New-Object NServiceBus.Forms.Confirm
-	
-	
-	if($installError){
-		$installCompleted.ConfirmText = "There was a problem configuring this machine - " + $installError
-	}
-	else {
-		New-Item -Path $nserviceBusVersionPath -Force
-		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force
-
-		$installCompleted.ConfirmText = "Your machine is now setup to run NServiceBus"
-	}
-	
-	$installCompleted.OkOnly = $true
-	$installCompleted.ShowDialog()
-}
-
-if($prepareMachineDialog.DontBotherMeAgain){
-
-	New-Item -Path $nserviceBusVersionPath -Force
-	New-ItemProperty -Path $nserviceBusVersionPath -Name "DontCheckMachineSetup" -PropertyType String -Value "true" -Force
-}
-	
-
-	
-
+$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)

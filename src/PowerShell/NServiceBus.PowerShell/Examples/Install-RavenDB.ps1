@@ -4,7 +4,7 @@ Remove-Item c:\temp\nservicebus.persistence -recurse -force
 
 Get-Help Install-RavenDB
 
-$ravenIsGood = Install-RavenDB -WhatIf -installpath c:\temp\nservicebus.persistence
+$ravenIsGood = Install-RavenDB -WhatIf -Path c:\temp\nservicebus.persistence
 "RavenDB is good: " + $ravenIsGood 
 
-Install-RavenDB -port 8888 -installpath c:\temp\nservicebus.persistence
+Install-RavenDB -Port 8888 -Path c:\MyPath\Nservicebus.Persistence

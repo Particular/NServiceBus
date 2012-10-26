@@ -1,25 +1,22 @@
 ﻿namespace NServiceBus.PowerShell
 {
+    using System;
     using System.Management.Automation;
     using Setup.Windows.PerformanceCounters;
 
-    [Cmdlet(VerbsLifecycle.Install, "PerformanceCounters")]
+    [Cmdlet(VerbsLifecycle.Install, "PerformanceCounters", SupportsShouldProcess = true)]
     public class InstallPerformanceCounters : CmdletBase
     {
-
-        [Parameter(HelpMessage = "Checks if the NServiceBus performance counters is setup properly without fixing any potential issues")]
-        public SwitchParameter WhatIf { get; set; }
-
-        protected override void ProcessRecord()
+        protected override void Process()
         {
             bool coutersIsGood;
-            if (WhatIf)
+            if (!ShouldProcess(Environment.MachineName))
             {
                 coutersIsGood = PerformanceCounterSetup.SetupCounters();
 
                 Host.UI.WriteLine(coutersIsGood
                                           ? "Performance Counters is setup and ready for use with NServiceBus"
-                                          : "Performance Counters is not properly configured, if you rerun the command without -WhatIf they will be setup automatically for you");
+                                          : "Performance Counters is not properly configured");
 
                 WriteObject(coutersIsGood);
                 return;

@@ -13,7 +13,7 @@
 
     public class RavenDBSetup
     {
-        public bool Install(WindowsIdentity identity, int port = 0, string installPath = null,bool allowInstall = false)
+        public bool Install(WindowsIdentity identity, int port = 0, string installPath = null, bool allowInstall = false)
         {
             if (string.IsNullOrEmpty(installPath))
                 installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), DefaultDirectoryName);

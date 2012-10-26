@@ -16,7 +16,7 @@ if($dontSuggestGettingStarted.value)
 }
 
 
-$dte.ExecuteCommand("View.URL", "http://nservicebus.com/GettingStarted/NuGet")
+$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/GettingStarted/NuGet")
 
 New-Item -Path $nserviceBusKeyPath -Force
 New-ItemProperty -Path $nserviceBusKeyPath -Name "DontSuggestGettingStarted" -PropertyType String -Value "true" -Force
