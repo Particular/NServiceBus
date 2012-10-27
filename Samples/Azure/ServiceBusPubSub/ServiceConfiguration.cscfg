@@ -22,12 +22,12 @@
     </Certificates>
   </Role>
   <Role name="OrderService">
-    <Instances count="2" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="AzureServiceBusQueueConfig.IssuerKey" value="yourkey" />
       <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!-- Http if behind proxy -->
+      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!--Http if behind proxy--> 
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />

@@ -43,6 +43,7 @@
       <Private>True</Private>
       <RoleType>Worker</RoleType>
       <RoleName>OrderService</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
     <ProjectReference Include="OrderWebSite\OrderWebSite.csproj">
       <Name>OrderWebSite</Name>
