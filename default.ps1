@@ -776,5 +776,5 @@ task ZipOutput -description "Ziping artifacts directory for releasing"  {
 }
 
 task CreateMSI {
-    Invoke-psake .\MSI.ps1 -properties @{PatchVersion=$PatchVersion;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
+    Invoke-psake .\MSI.ps1 -properties @{ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
 }
