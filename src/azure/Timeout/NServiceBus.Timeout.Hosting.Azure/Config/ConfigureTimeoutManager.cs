@@ -71,7 +71,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                     MaxDeliveryCount = queue.MaxDeliveryCount,
                     EnableBatchedOperations = queue.EnableBatchedOperations,
                     Factory = queue.Factory,
-                    NamespaceClient = queue.NamespaceClient
+                    NamespaceClient = queue.NamespaceClient,
+                    ServerWaitTime = queue.ServerWaitTime
                 };
             };
             return config;
