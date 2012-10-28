@@ -18,9 +18,11 @@
             <Component Id="cmpC5896CB5B51AE850471FF45254C9290B" Guid="{7B15648A-1A3F-4FAC-BA22-203B23189E43}">
                 <File Id="filF21A55D3FEC89821C9FBDC4A2A7F5E51" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\XsdGenerator.exe" />
             </Component>
-            <Component Id="cmpBBB96CB5B51AE850471FF45254C9290B" Guid="{BBB5648A-1A3F-4FAC-BA22-203B23189E43}">
-                <File Id="filBBBA55D3FEC89821C9FBDC4A2A7F5E51" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\licenseinstaller\LicenseInstaller.exe" />
-            </Component>
+            <Directory Id="dirEEE1101473287193165DE0048BB94FDA" Name="licenseinstaller">
+              <Component Id="cmpBBB96CB5B51AE850471FF45254C9290B" Guid="{BBB5648A-1A3F-4FAC-BA22-203B23189E43}">
+                  <File Id="filBBBA55D3FEC89821C9FBDC4A2A7F5E51" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\licenseinstaller\LicenseInstaller.exe" />
+              </Component>
+            </Directory>
             <Directory Id="dir2B71101473287193165DE0048BB94FDA" Name="migration">
                 <Component Id="cmp4C052383CF70BCFF55A7ECD7D29BA6E5" Guid="{58A69214-2C92-454F-960C-53054351246D}">
                     <File Id="filB9C23EA4437D53FF5DC998EB5573B1C2" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\log4net.dll" />
