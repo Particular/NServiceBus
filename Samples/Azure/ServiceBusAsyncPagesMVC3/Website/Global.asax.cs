@@ -25,6 +25,7 @@ namespace Website
                     .JsonSerializer()
                     .QueuePerInstance()
                     .PurgeOnStartup(true)
+                  .UseInMemoryTimeoutPersister()
                   .UnicastBus()
                       .LoadMessageHandlers()
                       .IsTransactional(true)

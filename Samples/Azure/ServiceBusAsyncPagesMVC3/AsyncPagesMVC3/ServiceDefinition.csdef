@@ -11,31 +11,25 @@
     <Endpoints>
       <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
-    <Imports>
-      <Import moduleName="Diagnostics" />
-    </Imports>
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="Worker" vmsize="Small">
-    <Imports>
-      <Import moduleName="Diagnostics" />
-    </Imports>
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
       <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

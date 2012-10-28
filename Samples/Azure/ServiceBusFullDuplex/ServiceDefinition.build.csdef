@@ -18,8 +18,7 @@
       </Site>
     </Sites>
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
@@ -33,8 +32,7 @@
   </WebRole>
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
       <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />

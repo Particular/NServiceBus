@@ -4,6 +4,6 @@ namespace Worker
 {
     public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Worker
     {
-
+        
     }
 }

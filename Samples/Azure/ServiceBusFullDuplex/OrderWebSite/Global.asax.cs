@@ -40,6 +40,7 @@ namespace OrderWebSite
                .AzureConfigurationSource()
                .AzureServiceBusMessageQueue()
                .JsonSerializer()
+               .UseInMemoryTimeoutPersister()
                .UnicastBus()
                    .DoNotAutoSubscribe()
                    .LoadMessageHandlers()

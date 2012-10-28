@@ -3,8 +3,7 @@
   <Role name="Website">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" value="yourkey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="websiteinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
@@ -15,8 +14,7 @@
   <Role name="Worker">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.IssuerKey" value="yourkey" />
-      <Setting name="AzureServiceBusQueueConfig.ServiceNamespace" value="yournamespace" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="workerinputqueue" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
