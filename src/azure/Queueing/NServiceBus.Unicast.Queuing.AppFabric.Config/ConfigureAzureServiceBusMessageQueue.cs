@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
@@ -21,12 +23,29 @@ namespace NServiceBus
 
             ServiceBusEnvironment.SystemConnectivity.Mode = (ConnectivityMode) Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
 
-            var credentials = TokenProvider.CreateSharedSecretTokenProvider(configSection.IssuerName, configSection.IssuerKey);
-            var serviceUri = ServiceBusEnvironment.CreateServiceUri("sb", configSection.ServiceNamespace, string.Empty);
-            var namespaceClient = new NamespaceManager(serviceUri, credentials);
-            var factory = MessagingFactory.Create(serviceUri, credentials);
-
+            if(string.IsNullOrEmpty(configSection.ConnectionString) && (string.IsNullOrEmpty(configSection.IssuerKey) || string.IsNullOrEmpty(configSection.ServiceNamespace) ))
+            {
+                throw new ConfigurationErrorsException("No Servicebus Connection information specified, either set the ConnectionString or set the IssuerKey and ServiceNamespace properties");
+            }
+        
+            NamespaceManager namespaceClient;
+            MessagingFactory factory;
+            Uri serviceUri;
+            if(!string.IsNullOrEmpty(configSection.ConnectionString))
+            {
+                namespaceClient = NamespaceManager.CreateFromConnectionString(configSection.ConnectionString);
+                serviceUri = namespaceClient.Address;
+                factory = MessagingFactory.CreateFromConnectionString(configSection.ConnectionString);
+            }
+            else
+            {
+                var credentials = TokenProvider.CreateSharedSecretTokenProvider(configSection.IssuerName, configSection.IssuerKey);
+                serviceUri = ServiceBusEnvironment.CreateServiceUri("sb", configSection.ServiceNamespace, string.Empty);
+                namespaceClient = new NamespaceManager(serviceUri, credentials);
+                factory = MessagingFactory.Create(serviceUri, credentials);
+            }
             Address.OverrideDefaultMachine(serviceUri.ToString());
+            
 
             config.Configurer.RegisterSingleton<NamespaceManager>(namespaceClient); 
             config.Configurer.RegisterSingleton<MessagingFactory>(factory);

@@ -3,7 +3,7 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourHost]/ServiceBusDefaultNamespace;StsEndpoint=https://[yourHost]:9355/ServiceBusDefaultNamespace;RuntimePort=9354;ManagementPort=9355;WindowsUsername=[yourUsername];WindowsPassword=[yourPassword];WindowsDomain=[yourPCorDomainName]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
       <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!-- Http if behind proxy -->
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
@@ -23,7 +23,7 @@
   <Role name="OrderService">
     <Instances count="2" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourHost]/ServiceBusDefaultNamespace;StsEndpoint=https://[yourHost]:9355/ServiceBusDefaultNamespace;RuntimePort=9354;ManagementPort=9355;WindowsUsername=[yourUsername];WindowsPassword=[yourPassword];WindowsDomain=[yourPCorDomainName]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
       <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!--Http if behind proxy--> 
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />

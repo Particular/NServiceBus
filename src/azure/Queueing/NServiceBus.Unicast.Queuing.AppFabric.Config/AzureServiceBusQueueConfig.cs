@@ -18,7 +18,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("IssuerKey", IsRequired = true)]
+        [ConfigurationProperty("IssuerKey", IsRequired = false)]
         public string IssuerKey
         {
             get
@@ -31,7 +31,7 @@ namespace NServiceBus.Config
             }
         }
 
-        [ConfigurationProperty("ServiceNamespace", IsRequired = true)]
+        [ConfigurationProperty("ServiceNamespace", IsRequired = false)]
         public string ServiceNamespace
         {
             get
@@ -54,6 +54,19 @@ namespace NServiceBus.Config
             set
             {
                 this["IssuerName"] = value;
+            }
+        }
+
+        [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultConnectionString)]
+        public string ConnectionString
+        {
+            get
+            {
+                return (string)this["ConnectionString"];
+            }
+            set
+            {
+                this["ConnectionString"] = value;
             }
         }
 

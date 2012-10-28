@@ -27,6 +27,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const int DefaultBackoffTimeInSeconds = 10;
         public const int DefaultServerWaitTime = 300;
         public const string DefaultConnectivityMode = "Tcp";
+        public const string DefaultConnectionString = "";
         
         private bool useTransactions;
         private QueueClient queueClient;
