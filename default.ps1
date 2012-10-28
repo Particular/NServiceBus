@@ -529,7 +529,7 @@ task PrepareBinariesWithGeneratedAssemblyInfo -depends GenerateAssemblyInfo, Pre
 
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
-						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln")
+						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
 	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
