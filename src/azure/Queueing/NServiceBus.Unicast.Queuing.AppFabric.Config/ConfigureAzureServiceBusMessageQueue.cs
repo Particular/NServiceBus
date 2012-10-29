@@ -6,6 +6,7 @@ using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
+using NServiceBus.ObjectBuilder;
 using NServiceBus.Unicast.Queuing.Azure.ServiceBus;
 
 namespace NServiceBus
@@ -36,6 +37,21 @@ namespace NServiceBus
                 namespaceClient = NamespaceManager.CreateFromConnectionString(configSection.ConnectionString);
                 serviceUri = namespaceClient.Address;
                 factory = MessagingFactory.CreateFromConnectionString(configSection.ConnectionString);
+
+                config.Configurer.ConfigureComponent<AzureServiceBusMessageQueueCreator>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.ConnectionString, configSection.ConnectionString);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.NamespaceClient, namespaceClient);
+
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.LockDuration, TimeSpan.FromMilliseconds(configSection.LockDuration));
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.MaxSizeInMegabytes, configSection.MaxSizeInMegabytes);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.RequiresDuplicateDetection, configSection.RequiresDuplicateDetection);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.RequiresSession, configSection.RequiresSession);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.DefaultMessageTimeToLive, TimeSpan.FromMilliseconds(configSection.DefaultMessageTimeToLive));
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.EnableDeadLetteringOnMessageExpiration, configSection.EnableDeadLetteringOnMessageExpiration);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.DuplicateDetectionHistoryTimeWindow, TimeSpan.FromMilliseconds(configSection.DuplicateDetectionHistoryTimeWindow));
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
+                config.Configurer.ConfigureProperty<AzureServiceBusMessageQueueCreator>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
+
             }
             else
             {
@@ -70,7 +86,7 @@ namespace NServiceBus
                                                           ? QueueIndividualizer.Individualize(configSection.QueueName)
                                                           : configSection.QueueName);
             }
-            else if (RoleEnvironment.IsAvailable)
+            else if (string.IsNullOrEmpty(configSection.ConnectionString) && RoleEnvironment.IsAvailable)
             {
                 Configure.Instance.DefineEndpointName(RoleEnvironment.CurrentRoleInstance.Role.Name);
             }
