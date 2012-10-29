@@ -21,7 +21,7 @@ namespace NServiceBus.Encryption.Tests
             if (encryptedValue.Base64Iv == hardcodedValue.Base64Iv && encryptedValue.EncryptedBase64Value == hardcodedValue.EncryptedBase64Value)
              return "A secret";
 
-            throw new InvalidOperationException("Failed to deencrypt");
+            throw new InvalidOperationException("Failed to decrypt");
         }
 
     }

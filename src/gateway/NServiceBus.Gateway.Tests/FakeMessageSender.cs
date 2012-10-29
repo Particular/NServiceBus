@@ -25,7 +25,7 @@
 
         public SendDetails GetResultingMessage()
         {
-            messageReceived.WaitOne(TimeSpan.FromSeconds(10));
+            messageReceived.WaitOne(TimeSpan.FromSeconds(200));
             return details;
         }
 

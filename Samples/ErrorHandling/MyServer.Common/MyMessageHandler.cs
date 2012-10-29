@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Concurrent;
-using NServiceBus;
-using NServiceBus.Management.Retries;
-
-namespace MyServer.Common
+﻿namespace MyServer.Common
 {
+    using System;
+    using System.Collections.Concurrent;
+    using NServiceBus;
+
     public class MyMessageHandler : IHandleMessages<MyMessage>
     {
         private static readonly ConcurrentDictionary<Guid, string> Last = new ConcurrentDictionary<Guid, string>();
 
+        public IBus Bus{ get; set; }
+
         public void Handle(MyMessage message)
         {
+            Console.WriteLine("ReplyToAddress: " + Bus.CurrentMessageContext.ReplyToAddress);
             var numOfRetries = message.GetHeader(Headers.Retries);
 
             if (numOfRetries != null)
@@ -20,7 +22,7 @@ namespace MyServer.Common
 
                 if (numOfRetries != value)
                 {
-                    Console.WriteLine("This is second level retry number {0}", numOfRetries);
+                    Console.WriteLine("This is second level retry number {0}, MessageId: {1} (Notice that NSB keeps the ID consistent for all retries)", numOfRetries,Bus.CurrentMessageContext.Id);
                     Last.AddOrUpdate(message.Id, numOfRetries, (key, oldValue) => numOfRetries);
                 }
             }            

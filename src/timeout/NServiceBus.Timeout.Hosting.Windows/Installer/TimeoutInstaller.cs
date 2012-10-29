@@ -13,7 +13,10 @@
         public void Install(WindowsIdentity identity)
         {
             if ((ConfigureTimeoutManager.TimeoutManagerAddress != null) && (Configure.Instance.IsTimeoutManagerEnabled()))
+            {
                 MsmqUtilities.CreateQueueIfNecessary(ConfigureTimeoutManager.TimeoutManagerAddress, identity.Name);
+                MsmqUtilities.CreateQueueIfNecessary(TimeoutDispatcherProcessor.TimeoutDispatcherAddress, identity.Name);
+            }
         }
     }
 }

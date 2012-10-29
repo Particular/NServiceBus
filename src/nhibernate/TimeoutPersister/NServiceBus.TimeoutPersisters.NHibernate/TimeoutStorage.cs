@@ -13,27 +13,42 @@
     {
         public ISessionFactory SessionFactory { get; set; }
 
-        public IEnumerable<TimeoutData> GetAll()
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
+            DateTime now = DateTime.UtcNow;
+            
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
-                var timeoutEntities = session.QueryOver<TimeoutEntity>()
+                var results = session.QueryOver<TimeoutEntity>()
                     .Where(x => x.Endpoint == Configure.EndpointName)
-                    .List();
+                    .And(x => x.Time >= startSlice && x.Time <= now)
+                    .OrderBy(x => x.Time).Asc
+                    .Select(x => x.Id, x => x.Time)
+                    .List <object[]>()
+                    .Select(properties => new Tuple<string, DateTime>(((Guid)properties[0]).ToString(), (DateTime) properties[1]))
+                    .ToList();
+
+               //Retrieve next time we need to run query
+                var startOfNextChunk = session.QueryOver<TimeoutEntity>()
+                    .Where(x => x.Endpoint == Configure.EndpointName)
+                    .Where(x => x.Time > now)
+                    .OrderBy(x => x.Time).Asc
+                    .Take(1)
+                    .SingleOrDefault();
+
+                if (startOfNextChunk != null)
+                {
+                    nextTimeToRunQuery = startOfNextChunk.Time;
+                }
+                else
+                {
+                    nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                }
 
                 tx.Commit();
 
-                return timeoutEntities.Select(te => new TimeoutData
-                                                        {
-                                                            CorrelationId = te.CorrelationId,
-                                                            Destination = te.Destination,
-                                                            Id = te.Id.ToString(),
-                                                            SagaId = te.SagaId,
-                                                            State = te.State,
-                                                            Time = te.Time,
-                                                            Headers = ConvertStringToDictionary(te.Headers),
-                                                        });
+                return results;
             }
         }
 
@@ -62,22 +77,38 @@
             timeout.Id = newId.ToString();
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            using (var session = SessionFactory.OpenStatelessSession())
+            using (var session = SessionFactory.OpenSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
-                var queryString = string.Format("delete {0} where Id = :timeoutId",
-                                        typeof(TimeoutEntity));
-                session.CreateQuery(queryString)
-                       .SetParameter("timeoutId", Guid.Parse(timeoutId))
-                       .ExecuteUpdate();
+                var te = session.Get<TimeoutEntity>(new Guid(timeoutId));
 
+                if (te == null)
+                {
+                    timeoutData = null;
+                    return false;
+                }
+
+                timeoutData = new TimeoutData
+                    {
+                        CorrelationId = te.CorrelationId,
+                        Destination = te.Destination,
+                        Id = te.Id.ToString(),
+                        SagaId = te.SagaId,
+                        State = te.State,
+                        Time = te.Time,
+                        Headers = ConvertStringToDictionary(te.Headers),
+                    };
+
+                session.Delete(te);
                 tx.Commit();
+
+                return true;
             }
         }
 
-        public void ClearTimeoutsFor(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))

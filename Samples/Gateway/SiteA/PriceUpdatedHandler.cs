@@ -11,7 +11,7 @@ namespace SiteA
 
         public void Handle(PriceUpdated message)
         {
-            Console.WriteLine("Price update for product: " + message.ProductId +  " received. Going to reply");
+            Console.WriteLine("Price update for product: " + message.ProductId +  " received. Going to reply over channel: " + message.GetHeader(Headers.OriginatingSite));
 
 
             //this shows how the gateway rewrites the return address to marshal replies to and from remote sites

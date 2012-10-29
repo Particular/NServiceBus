@@ -21,6 +21,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
+    using Licensing;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -103,11 +104,6 @@ namespace NServiceBus.Unicast
         public Address TimeoutManagerAddress { get; set; }
 
         /// <summary>
-        /// Throttling message receiving speed according to NServiceBus licensing model.
-        /// </summary>
-        public int MaxThroughputPerSecond { get; set; }
-
-        /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
         /// </summary>
@@ -130,7 +126,7 @@ namespace NServiceBus.Unicast
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            var controlMessage = ControlMessage.Create();
+            var controlMessage = ControlMessage.Create(Address.Local);
 
             controlMessage.Headers[Headers.SagaId] = sagaId.ToString();
             controlMessage.Headers[Headers.ClearTimeouts] = true.ToString();
@@ -220,7 +216,10 @@ namespace NServiceBus.Unicast
                 value.ToList()
                     .ForEach((k) => RegisterMessageType(k.Key, k.Value));
             }
-            get { return null; }
+            get
+            {
+                return new Dictionary<Type, Address>(messageTypeToDestinationLookup);
+            }
         }
 
         /// <summary>
@@ -424,7 +423,7 @@ namespace NServiceBus.Unicast
 
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessage.Create(Address.Local);
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
@@ -460,7 +459,7 @@ namespace NServiceBus.Unicast
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
-            var subscriptionMessage = ControlMessage.Create();
+            var subscriptionMessage = ControlMessage.Create(Address.Local);
 
             subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
@@ -503,7 +502,7 @@ namespace NServiceBus.Unicast
 
         void IBus.Return<T>(T errorCode)
         {
-            var returnMessage = ControlMessage.Create();
+            var returnMessage = ControlMessage.Create(Address.Local);
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
@@ -796,6 +795,8 @@ namespace NServiceBus.Unicast
 
         IBus IStartableBus.Start(Action startupAction)
         {
+            var license = ValidateLicense();
+
             if (started)
                 return this;
 
@@ -820,7 +821,7 @@ namespace NServiceBus.Unicast
 
                 if (!DoNotStartTransport)
                 {
-                    transport.MaxThroughputPerSecond = MaxThroughputPerSecond;
+                    transport.MaxThroughputPerSecond = license.MaxThroughputPerSecond;
                     transport.Start(InputAddress);
                 }
 
@@ -836,6 +837,14 @@ namespace NServiceBus.Unicast
                 Started(this, null);
 
             return this;
+        }
+
+        License ValidateLicense()
+        {
+            var licenseManager = Builder.Build<LicenseManager>();
+            licenseManager.PromptUserForLicenseIfTrialHasExpired();
+
+            return licenseManager.CurrentLicense;
         }
 
         /// <summary>
@@ -904,7 +913,7 @@ namespace NServiceBus.Unicast
 
         void ValidateConfiguration()
         {
-            if (MessageSerializer == null)
+            if (!SkipDeserialization && MessageSerializer == null)
                 throw new InvalidOperationException("No message serializer has been configured.");
         }
 
@@ -963,7 +972,7 @@ namespace NServiceBus.Unicast
         {
             var messages = new object[0];
 
-            if (!m.IsControlMessage())
+            if (!m.IsControlMessage() && !SkipDeserialization)
             {
                 messages = Extract(m);
 
@@ -1130,6 +1139,11 @@ namespace NServiceBus.Unicast
         /// The list of message dispatcher factories to use
         /// </summary>
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
+
+        /// <summary>
+        /// True if no deseralization should be performed. This means that no handlers will be called
+        /// </summary>
+        public bool SkipDeserialization { get; set; }
 
 
         /// <summary>

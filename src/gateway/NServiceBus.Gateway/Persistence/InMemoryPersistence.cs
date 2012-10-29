@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.IO;
     using System.Linq;
 
@@ -69,13 +68,9 @@
         {
             lock(storage)
             {
-                var toDelete = storage.Where(m => m.At < until);
+                var toDelete = storage.Where(m => m.At < until).ToList();
 
-                toDelete.ToList()
-                    .ForEach(m=>storage.Remove(m));
-
-
-                return toDelete.Count();
+                return toDelete.Count(m => storage.Remove(m));
             }
         }
     }

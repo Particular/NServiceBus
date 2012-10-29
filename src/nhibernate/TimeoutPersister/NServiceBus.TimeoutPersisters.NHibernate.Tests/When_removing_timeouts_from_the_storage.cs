@@ -9,19 +9,38 @@
     public class When_removing_timeouts_from_the_storage : InMemoryDBFixture
     {
         [Test]
+        public void Should_return_the_correct_headers()
+        {
+            var headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } };
+
+            var timeout = new TimeoutData
+                {
+                    Time = DateTime.UtcNow.AddHours(-1), CorrelationId = "boo", Destination = new Address("timeouts", Environment.MachineName), SagaId = Guid.NewGuid(), State = new byte[] {1, 1, 133, 200}, Headers = headers, OwningTimeoutManager = Configure.EndpointName,
+                };
+            persister.Add(timeout);
+
+            TimeoutData timeoutData;
+            persister.TryRemove(timeout.Id, out timeoutData);
+
+            CollectionAssert.AreEqual(headers, timeoutData.Headers);
+        }
+
+        [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
 
             persister.Add(t1);
             persister.Add(t2);
 
-            var t = persister.GetAll();
+            DateTime nextTimeToRunQuery;
+            var timeouts = persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
 
-            foreach (var timeoutData in t)
+            foreach (var timeout in timeouts)
             {
-                persister.Remove(timeoutData.Id);
+                TimeoutData timeoutData;
+                persister.TryRemove(timeout.Item1, out timeoutData);
             }
 
             using (var session = sessionFactory.OpenSession())
@@ -43,10 +62,9 @@
             persister.Add(t2);
 
 
-            persister.ClearTimeoutsFor(sagaId1);
-            persister.ClearTimeoutsFor(sagaId2);
+            persister.RemoveTimeoutBy(sagaId1);
+            persister.RemoveTimeoutBy(sagaId2);
             
-
             using (var session = sessionFactory.OpenSession())
             {
                 Assert.Null(session.Get<TimeoutEntity>(new Guid(t1.Id)));

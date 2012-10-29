@@ -5,11 +5,12 @@
 
     public interface IPersistTimeouts
     {
-        IEnumerable<TimeoutData> GetAll();
+        List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery);
 
         void Add(TimeoutData timeout);
 
-        void Remove(string timeoutId);
-        void ClearTimeoutsFor(Guid sagaId);
+        bool TryRemove(string timeoutId, out TimeoutData timeoutData);
+
+        void RemoveTimeoutBy(Guid sagaId);
     }
 }

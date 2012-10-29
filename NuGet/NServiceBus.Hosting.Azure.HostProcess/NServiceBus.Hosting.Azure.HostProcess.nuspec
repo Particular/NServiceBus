@@ -1,0 +1,25 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Hosting.Azure.HostProcess</id>
+    <title>NServiceBus Hosting Azure HostProcess</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
+    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
+    <projectUrl>http://nservicebus.com/</projectUrl>
+    <iconUrl>http://a2.twimg.com/profile_images/1203939022/nServiceBus_Twitter_Logo_reasonably_small.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The process used when sharing an azure instance between multiple NServicebus endpoints</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies>
+      <dependency id="NServiceBus.Hosting.Azure" version="4.0.0-alpha0" />
+      <dependency id="CommonServiceLocator" version="1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="\binaries\NServiceBus.Hosting.Azure.HostProcess.???" target="lib\net40" />
+  </files>
+</package>

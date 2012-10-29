@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Tests.Idempotency.Raven
 {
     using System.Collections.Generic;
+    using System.Threading;
     using NUnit.Framework;
 
     [TestFixture]
@@ -16,7 +17,6 @@
             byte[] msg;
 
             IDictionary<string, string> headers;
-
             ravenPersister.AckMessage(message.ClientId, out msg, out headers);
 
             Assert.False(ravenPersister.AckMessage(message.ClientId, out msg, out headers));

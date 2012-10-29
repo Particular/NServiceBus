@@ -1,0 +1,30 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Azure</id>
+    <title>NServiceBus Azure</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
+    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
+    <projectUrl>http://nservicebus.com/</projectUrl>
+    <iconUrl>http://a2.twimg.com/profile_images/1203939022/nServiceBus_Twitter_Logo_reasonably_small.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Azure support for NServicebus</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies>
+      <dependency id="NServiceBus.NHibernate" version="4.0.0-alpha0" />
+      <dependency id="WindowsAzure.Storage" version="1.7.0.0" />
+      <dependency id="log4net" version="1.2.10" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="\binaries\NServiceBus.Azure.???" target="lib\net40" />
+    <file src="\lib\azure\Microsoft.WindowsAzure.Diagnostics.dll" target="lib\net40" />
+    <file src="\lib\azure\Microsoft.WindowsAzure.ServiceRuntime.dll" target="lib\net40" />
+    <file src="\lib\azure\Microsoft.ServiceBus.dll" target="lib\net40" />
+    <file src="\lib\NHibernate.Drivers.Azure.TableStorage.dll" target="lib\net40" />
+  </files>
+</package>

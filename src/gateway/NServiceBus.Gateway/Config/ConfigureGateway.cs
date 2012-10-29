@@ -134,7 +134,7 @@ namespace NServiceBus
         {
             config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)

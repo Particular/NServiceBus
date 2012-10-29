@@ -1,8 +1,9 @@
 namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
 {
+    using System;
     using System.Security.Principal;
     using Installation;
-    using Utils;
+    using Setup.Windows.Msmq;
 
     public class MsmqInfrastructureInstaller : INeedToInstallInfrastructure<Installation.Environments.Windows>
     {
@@ -18,7 +19,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
             if (!Enabled)
                 return;
 
-            MsmqInstallation.StartMsmqIfNecessary();
+            if(!MsmqSetup.StartMsmqIfNecessary(false))
+                throw new Exception("Failed to setup MSMQ since it needs to be reinstalled. A reinstall will remove any local queues. Please go to http://nservicebus.com/RequiredInfrastructure/Windows for instructions on how to remedy the situation");
         }
     }
 }

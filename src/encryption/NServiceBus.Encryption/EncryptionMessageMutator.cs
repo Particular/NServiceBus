@@ -25,24 +25,53 @@ namespace NServiceBus.Encryption
             return message;
         }
 
-
         public object MutateIncoming(object message)
         {
             ForEachMember(message, DecryptMember, IsEncryptedMember);
+
             return message;
         }
 
-        bool IsEncryptedMember(MemberInfo arg)
+        static bool IsIndexedProperty(MemberInfo member)
         {
-            if (arg is PropertyInfo)
-                return ((PropertyInfo)arg).IsEncryptedProperty();
+            var propertyInfo = member as PropertyInfo;
 
-            if (arg is FieldInfo)
-                return ((FieldInfo)arg).FieldType == typeof(WireEncryptedString);
+            if (propertyInfo != null)
+            {
+                return propertyInfo.GetIndexParameters().Length > 0;
+            }
 
             return false;
-
         }
+
+        static bool IsEncryptedMember(MemberInfo arg)
+        {
+            
+            var propertyInfo = arg as PropertyInfo;
+            if (propertyInfo != null)
+            {
+                if (propertyInfo.GetIndexParameters().Length > 0)
+                {
+                    if (propertyInfo.IsEncryptedProperty())
+                    {
+                        throw new NotSupportedException("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
+                    }
+
+                    return false;
+                }
+
+                return propertyInfo.IsEncryptedProperty();
+            }
+
+            var fieldInfo = arg as FieldInfo;
+            if (fieldInfo != null)
+            {
+                return fieldInfo.FieldType == typeof(WireEncryptedString);
+            }
+
+            return false;
+        }
+
         void ForEachMember(object root, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
         {
             if (root == null || visitedMembers.Contains(root))
@@ -54,24 +83,34 @@ namespace NServiceBus.Encryption
 
             foreach (var member in members)
             {
-
                 if (appliesTo(member))
+                {
                     action(root, member);
+                }
 
-                //don't recurse over primitives and system types
+                //don't recurse over primitives or system types
                 if (member.ReflectedType.IsPrimitive || member.ReflectedType.IsSystemType())
                     continue;
 
+                if (IsIndexedProperty(member))
+                    continue;
+                
                 var child = member.GetValue(root);
 
-                if (child is IEnumerable)
-                    foreach (var item in (IEnumerable)child)
+                var items = child as IEnumerable;
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
                         ForEachMember(item, action, appliesTo);
+                    }
+                }
                 else
+                {
                     ForEachMember(child, action, appliesTo);
+                }
             }
         }
-
 
         void EncryptMember(object target, MemberInfo member)
         {
@@ -105,10 +144,8 @@ namespace NServiceBus.Encryption
             Log.Debug(member.Name + " encrypted successfully");
         }
 
-
         void DecryptMember(object target, MemberInfo property)
         {
-
             var encryptedValue = property.GetValue(target);
 
             if (encryptedValue == null)
@@ -119,7 +156,9 @@ namespace NServiceBus.Encryption
                     String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
 
             if (encryptedValue is WireEncryptedString)
+            {
                 Decrypt((WireEncryptedString)encryptedValue);
+            }
             else
             {
                 property.SetValue(target, DecryptUserSpecifiedProperty(encryptedValue));
@@ -173,14 +212,18 @@ namespace NServiceBus.Encryption
         static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
         {
             if (target == null)
+            {
                 return new List<MemberInfo>();
+            }
 
             var messageType = target.GetType();
 
             if (!cache.ContainsKey(messageType))
+            {
                 cache[messageType] = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                  .Where(m => m is FieldInfo || m is PropertyInfo)
-                 .ToList();
+                    .Where(m => m is FieldInfo || m is PropertyInfo)
+                    .ToList();
+            }
 
             return cache[messageType];
         }
@@ -193,33 +236,58 @@ namespace NServiceBus.Encryption
     }
 
 
-    public static class TypeExtensions
+    static class TypeExtensions
     {
+        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+
+        static bool IsClrType(byte[] a1)
+        {
+            IStructuralEquatable eqa1 = a1;
+            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+        }
+
         public static bool IsSystemType(this Type propertyType)
         {
-            var nameOfContainingAssembly = propertyType.Assembly.FullName.ToLower();
+            var nameOfContainingAssembly = propertyType.Assembly.GetName().GetPublicKeyToken();
 
-            return nameOfContainingAssembly.StartsWith("mscorlib") || nameOfContainingAssembly.StartsWith("system.core");
+            return IsClrType(nameOfContainingAssembly);
         }
     }
 
-    public static class MemberInfoExtensions
+    static class MemberInfoExtensions
     {
         public static object GetValue(this MemberInfo member, object source)
         {
             if (member is FieldInfo)
+            {
                 return ((FieldInfo)member).GetValue(source);
+            }
 
-            return ((PropertyInfo)member).GetValue(source, null);
+            var propertyInfo = (PropertyInfo) member;
+            
+            if (!propertyInfo.CanRead)
+            {
+                if (propertyInfo.PropertyType.IsValueType)
+                {
+                    return Activator.CreateInstance(propertyInfo.PropertyType);
+                }
+
+                return null;
+            }
+            
+            return propertyInfo.GetValue(source, null);
         }
 
         public static void SetValue(this MemberInfo member, object target, object value)
         {
             if (member is FieldInfo)
+            {
                 ((FieldInfo)member).SetValue(target, value);
+            }
             else
+            {
                 ((PropertyInfo)member).SetValue(target, value, null);
+            }
         }
-
     }
 }

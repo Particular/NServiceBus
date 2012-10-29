@@ -46,24 +46,26 @@
     <Reference Include="NServiceBus.Faults">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.Licensing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.MessageInterfaces">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.MessageMutator">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Serializers.XML">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.XML.dll</HintPath>
@@ -91,6 +93,7 @@
   <ItemGroup>
     <Compile Include="AutoSubscriptions.cs" />
     <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Contexts\CommandMessage.cs" />
     <Compile Include="Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Contexts\EventMessage.cs" />
@@ -128,6 +131,10 @@
     <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
       <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
       <Name>NServiceBus.Unicast.Subscriptions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Unicast.Tests.Messages\NServiceBus.Unicast.Tests.Messages.csproj">
+      <Project>{50C0CD53-6C74-4554-8D8A-A529943A7409}</Project>
+      <Name>NServiceBus.Unicast.Tests.Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast\NServiceBus.Unicast.csproj">
       <Project>{EB2C42A2-70FD-4469-959B-C577470B001B}</Project>

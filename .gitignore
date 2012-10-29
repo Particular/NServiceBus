@@ -15,7 +15,6 @@ _UpgradeReport.*
 *.user
 TestResult.xml
 results
-nuget
 CommonAssemblyInfo.cs
 lib/sqlite/System.Data.SQLite.dll
 *.orig
@@ -25,3 +24,4 @@ PrecompiledWeb
 core-only
 Release
 Artifacts
+csx
