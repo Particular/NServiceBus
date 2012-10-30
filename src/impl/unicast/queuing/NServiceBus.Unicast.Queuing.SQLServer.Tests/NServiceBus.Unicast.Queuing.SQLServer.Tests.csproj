@@ -34,10 +34,10 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Config, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Installation, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.MessageInterfaces">
