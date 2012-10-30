@@ -21,6 +21,7 @@
 *.pdb 	-text -diff
 *.pptx	-text -diff
 *.xap	-text -diff
+*.ico	-text -diff
 
 *.cs text diff=csharp
 *.config text diff=csharp
@@ -67,3 +68,4 @@
 *.suo 	-text -diff
 *.snk 	-text -diff
 *.cub 	-text -diff
+*.wixlib	-text -diff
