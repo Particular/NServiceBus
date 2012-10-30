@@ -1,7 +1,7 @@
 namespace MyServer.Common
 {
     using System;
-    using NServiceBus.Unicast;
+    using NServiceBus;
     using NServiceBus.Unicast.Transport.Transactional;
 
     internal class TransactionalTransportFailedMessageMonitor : IWantToRunWhenBusStartsAndStops

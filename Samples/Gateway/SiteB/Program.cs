@@ -4,14 +4,13 @@ namespace SiteB
 {
     using Headquarter.Messages;
     using NServiceBus.Gateway.Persistence;
-    using NServiceBus.Unicast;
     using NServiceBus;
     using NServiceBus.Config;
     using NServiceBus.Installation.Environments;
 
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Configure.With()
                 .DefaultBuilder()
@@ -20,7 +19,7 @@ namespace SiteB
                 .UnicastBus()
                 .FileShareDataBus(".\\databus")
                 .RunGateway()//this line configures the gateway.
-                .RunTimeoutManagerWithInMemoryPersistence()
+                .UseInMemoryTimeoutPersister()
                 .UseInMemoryGatewayPersister() //this tells nservicebus to use Raven to store messages ids for deduplication. If omitted RavenDB will be used by default
                 //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
                 .CreateBus()
@@ -51,10 +50,10 @@ namespace SiteB
         }
     }
 
-    public class DeduplicationCleanup : IWantToRunWhenTheBusStarts
+    public class DeduplicationCleanup : IWantToRunWhenBusStartsAndStops
     {
         public InMemoryPersistence MemoryPersistence { get; set; }
-        public void Run()
+        public void Start()
         {
             Schedule.Every(TimeSpan.FromMinutes(1))
                 //delete all ID's older than 5 minutes
@@ -65,6 +64,10 @@ namespace SiteB
 
                         Console.Out.WriteLine("InMemory store cleared, number of items deleted: {0}", numberOfDeletedMessages);
                     });
+        }
+
+        public void Stop()
+        {
         }
     }
 }
