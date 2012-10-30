@@ -9,6 +9,7 @@ $baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 $packageOutPutDir = "$baseDir\artifacts"
 $toolsDir = "$baseDir\tools"
 $buildWixPath = "$baseDir\build\wix\"
+$heat = "$toolsDir\WiX\3.6\heat.exe"
 
 include $toolsDir\psake\buildutils.ps1
 
@@ -42,9 +43,15 @@ task Init {
 		echo ".Net 4.0 build requested - $script:msBuild" 
 }
 
-task Build -depends Clean, Init {
+task Build -depends Clean, Init, RunHeat {
 	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" }
 	copy $buildWixPath*.msi $packageOutPutDir\
+}
+
+task RunHeat {
+	exec { &$heat dir "$baseDir\Release\Samples" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\SampleFilesFragment.wxs -var var.SOURCEPATH.SAMPLES -sfrag -cg "SampleFiles" }
+	exec { &$heat dir "$baseDir\Release\net40\Binaries" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\BinaryFilesFragment.wxs -var var.SOURCEPATH.BINARIES -sfrag -cg "BinaryFiles" }
+	exec { &$heat dir "$baseDir\Release\Tools" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\ToolsFilesFragment.wxs -var var.SOURCEPATH.TOOLS -sfrag -cg "ToolsFiles" }
 }
 
 task Sign -depends Init {
