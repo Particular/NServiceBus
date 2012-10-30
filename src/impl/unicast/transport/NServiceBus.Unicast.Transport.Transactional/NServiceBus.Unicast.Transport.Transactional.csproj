@@ -50,6 +50,9 @@
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Setup.Windows">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Setup.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
     </Reference>

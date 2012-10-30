@@ -20,9 +20,13 @@
     </frameworkAssemblies>
     <dependencies>
       <dependency id="NServiceBus.Interfaces" version="4.0.0-alpha0" />
+      <dependency id="log4net" version="[1.2.10]" />
     </dependencies>
   </metadata>
   <files>
     <file src="\binaries\NServiceBus.Core.???" target="lib\net40" />
+    <file src="\build\NServiceBus.Core\NServiceBus.PowerShell.dll" target="tools" />
+    <file src="\build\NServiceBus.Core\NServiceBus.Setup.Windows.dll" target="tools" />
+    <file src="\build\NServiceBus.Core\NServiceBus.Forms.dll" target="tools" />
   </files>
 </package>

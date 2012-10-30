@@ -93,6 +93,9 @@
                 transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
             }
 
+
+            transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
+
             return transportMessage;
         }
 

@@ -42,7 +42,6 @@ task Clean -description "Cleans the environment for the build" {
 
 	if(Test-Path $buildBase){
 		Delete-Directory $buildBase
-		
 	}
 	
 	if(Test-Path $artifactsDir){
@@ -51,12 +50,10 @@ task Clean -description "Cleans the environment for the build" {
 	
 	if(Test-Path $binariesDir){
 		Delete-Directory $binariesDir
-		
 	}
 	
 	if(Test-Path $coreOnlyDir){
 		Delete-Directory $coreOnlyDir
-		
 	}
 }
 
@@ -95,6 +92,7 @@ task InitEnvironment -description "Initializes the environment for build" {
 			Set-Item -path env:COMPLUS_Version -value "v4.0.30319"
 		}
 	}
+
 	if(-not (Test-Path $binariesDir)){	
 		Create-Directory $binariesDir
 	}
@@ -145,7 +143,7 @@ task TestMain -depends CompileMain -description "Builds NServiceBus.dll, keeps t
 
 task CompileCore -depends InitEnvironment -description "Builds NServiceBus.Core.dll and keeps the output in \binaries" { 
 
-$coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "messageInterfaces", "impl\messageInterfaces", "config", "logging.config",  "Impl\ObjectBuilder.Common", "installation", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers", "impl\licensing", "unicast", "headers", "impersonation", "impl\unicast\transport", "impl\unicast\queuing", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "scheduling", "satellites", "management\retries", "timeout", "Notifications"
+	$coreDirs = "logging", "unicastTransport", "ObjectBuilder", "config", "faults", "utils", "setup", "powershell", "messageInterfaces", "impl\messageInterfaces", "config", "logging.config",  "Impl\ObjectBuilder.Common", "installation", "messagemutator", "encryption", "unitofwork", "masterNode", "impl\installation", "impl\unicast\NServiceBus.Unicast.Msmq", "impl\Serializers","forms", "impl\licensing", "unicast", "headers", "impersonation", "impl\unicast\transport", "impl\unicast\queuing", "impl\unicast\NServiceBus.Unicast.Subscriptions.Msmq", "impl\unicast\NServiceBus.Unicast.Subscriptions.InMemory", "impl\faults", "impl\encryption", "databus", "impl\Sagas", "impl\SagaPersisters\InMemory", "impl\SagaPersisters\RavenSagaPersister", "impl\unicast\NServiceBus.Unicast.Subscriptions.Raven", "integration", "impl\databus", "distributor", "gateway", "scheduling", "satellites", "management\retries", "timeout", "Notifications"
 	$coreDirs | % {
 		$solutionDir = Resolve-Path "$srcDir\$_"
 		cd 	$solutionDir
@@ -400,7 +398,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 }
 
 task CompileTools -depends InitEnvironment -description "Builds the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe." {
-	$toolsDirs = "testing", "claims", "timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\"
+	$toolsDirs = "testing", "claims", "timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\", "tools\licenseinstaller\"
 	
 	$toolsDirs | % {				
 	 	$solutions = dir "$srcDir\$_\*.sln"
@@ -525,8 +523,6 @@ function Prepare-Binaries{
 	Copy-Item $buildBase\nservicebus.core\BouncyCastle.Crypto.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 }
 
-task PrepareBinariesWithGeneratedAssemblyInfo -depends GenerateAssemblyInfo, PrepareBinaries -description "Builds all the source code except samples in order, runs the unit tests and prepare the binaries and Core-only binaries" {}
-
 task CompileSamples -depends InitEnvironment -description "Compiles all the sample projects." {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
 						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
@@ -542,7 +538,7 @@ task CompileSamples -depends InitEnvironment -description "Compiles all the samp
 
 task CompileSamplesFull -depends InitEnvironment, PrepareBinaries, CompileSamples -description "Compiles all the sample projects after compiling the full Source in order." {}  
 
-task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
+task PrepareReleaseWithoutGeneratingAssemblyInfos -depends PrepareBinaries, CompileSamples -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts" {
 	
 	if(Test-Path $releaseRoot){
 		Delete-Directory $releaseRoot	
@@ -583,6 +579,8 @@ task PrepareRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileSampl
 	
 	Copy-Item -Force -Recurse "$baseDir\binaries" $releaseDir\binaries -ErrorAction SilentlyContinue  
 }
+
+task PrepareRelease -depends GenerateAssemblyInfo, PrepareReleaseWithoutGeneratingAssemblyInfos -description "Compiles all the source code in order, runs the unit tests, prepare the binaries and Core-only binaries, compiles all the sample projects and prepares for the release artifacts"
 
 task PrepareReleaseWithoutSamples -depends PrepareBinaries -description "Prepare release without compiling the sample projects"  {
 	
@@ -741,7 +739,7 @@ task InstallDependentPackages -description "Installs dependent packages in the e
     rm packages\packages.config 
 }
 
-task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
+task ReleaseNServiceBus -depends PrepareRelease, CreatePackages, CreateMSI, ZipOutput -description "After preparing for Release creates the nuget packages, if UploadPackage is set to true then publishes the packages to Nuget gallery and compress and release artifacts "  {
     if(Test-Path -Path $releaseDir)
 	{
         del -Path $releaseDir -Force -recurse
@@ -766,11 +764,13 @@ task ZipOutput -description "Ziping artifacts directory for releasing"  {
 	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
 	
 	Delete-Directory $releaseDir
-	
 	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
 	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
-	
+}
+
+task CreateMSI {
+    Invoke-psake .\MSI.ps1 -properties @{ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
 }

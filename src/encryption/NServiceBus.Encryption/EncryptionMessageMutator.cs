@@ -63,9 +63,10 @@ namespace NServiceBus.Encryption
                 return propertyInfo.IsEncryptedProperty();
             }
 
-            if (arg is FieldInfo)
+            var fieldInfo = arg as FieldInfo;
+            if (fieldInfo != null)
             {
-                return ((FieldInfo)arg).FieldType == typeof(WireEncryptedString);
+                return fieldInfo.FieldType == typeof(WireEncryptedString);
             }
 
             return false;
@@ -87,18 +88,19 @@ namespace NServiceBus.Encryption
                     action(root, member);
                 }
 
-                //don't recurse over primitives and system types
+                //don't recurse over primitives or system types
                 if (member.ReflectedType.IsPrimitive || member.ReflectedType.IsSystemType())
                     continue;
 
                 if (IsIndexedProperty(member))
                     continue;
-
+                
                 var child = member.GetValue(root);
 
-                if (child is IEnumerable)
+                var items = child as IEnumerable;
+                if (items != null)
                 {
-                    foreach (var item in (IEnumerable)child)
+                    foreach (var item in items)
                     {
                         ForEachMember(item, action, appliesTo);
                     }
@@ -236,11 +238,19 @@ namespace NServiceBus.Encryption
 
     static class TypeExtensions
     {
+        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+
+        static bool IsClrType(byte[] a1)
+        {
+            IStructuralEquatable eqa1 = a1;
+            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+        }
+
         public static bool IsSystemType(this Type propertyType)
         {
-            var nameOfContainingAssembly = propertyType.Assembly.FullName.ToLower();
+            var nameOfContainingAssembly = propertyType.Assembly.GetName().GetPublicKeyToken();
 
-            return nameOfContainingAssembly.StartsWith("mscorlib") || nameOfContainingAssembly.StartsWith("system.core");
+            return IsClrType(nameOfContainingAssembly);
         }
     }
 
@@ -253,12 +263,19 @@ namespace NServiceBus.Encryption
                 return ((FieldInfo)member).GetValue(source);
             }
 
-            return ((PropertyInfo)member).GetValue(source, null);
-        }
+            var propertyInfo = (PropertyInfo) member;
+            
+            if (!propertyInfo.CanRead)
+            {
+                if (propertyInfo.PropertyType.IsValueType)
+                {
+                    return Activator.CreateInstance(propertyInfo.PropertyType);
+                }
 
-        public static object GetValue(this PropertyInfo member, object source, int index)
-        {
-            return member.GetValue(source, new object[] {index});
+                return null;
+            }
+            
+            return propertyInfo.GetValue(source, null);
         }
 
         public static void SetValue(this MemberInfo member, object target, object value)

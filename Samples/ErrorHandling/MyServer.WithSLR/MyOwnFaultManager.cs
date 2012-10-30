@@ -2,7 +2,7 @@
 using NServiceBus;
 using NServiceBus.Faults;
 
-namespace MyServer
+namespace MyServerWithSLR
 {
     public class MyOwnFaultManager : IManageMessageFailures, INeedInitialization
     {

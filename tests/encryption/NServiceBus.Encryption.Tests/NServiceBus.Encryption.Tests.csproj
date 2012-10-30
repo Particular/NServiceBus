@@ -58,6 +58,8 @@
   <ItemGroup>
     <Compile Include="ConventionBasedEncryptedStringSpecs.cs" />
     <Compile Include="FakeEncryptionService.cs" />
+    <Compile Include="Issue_701.cs" />
+    <Compile Include="Mailing_list_complex_dto.cs" />
     <Compile Include="WireEncryptedStringSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

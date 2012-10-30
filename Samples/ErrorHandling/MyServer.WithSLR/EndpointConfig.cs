@@ -1,6 +1,6 @@
 ﻿using NServiceBus;
 
-namespace MyServer
+namespace MyServerWithSLR
 {
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server { }
 }

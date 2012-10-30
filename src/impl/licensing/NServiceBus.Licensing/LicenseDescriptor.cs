@@ -1,13 +1,44 @@
-﻿using System;
-using System.IO;
-
-namespace NServiceBus.Licensing
+﻿namespace NServiceBus.Licensing
 {
+    using System;
+    using System.Configuration;
+    using System.IO;
+    using Microsoft.Win32;
+
     public class LicenseDescriptor
     {
         public static string LocalLicenseFile
         {
-            get { return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"License\License.xml"); }
+            get
+            {
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"License\License.xml");
+            }
+        }
+
+        public static string RegistryLicense
+        {
+            get
+            {
+                using (var registryKey = Registry.CurrentUser.OpenSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", LicenseManager.SoftwareVersion.ToString(2))))
+                {
+                    if (registryKey != null)
+                    {
+                        return (string)registryKey.GetValue("License", null);
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        public static string AppConfigLicenseFile
+        {
+            get { return ConfigurationManager.AppSettings["NServiceBus/LicensePath"]; }
+        }
+
+        public static string AppConfigLicenseString
+        {
+            get { return ConfigurationManager.AppSettings["NServiceBus/License"]; }
         }
 
         public static string PublicKey

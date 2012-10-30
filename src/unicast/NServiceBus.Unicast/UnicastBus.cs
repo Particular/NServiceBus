@@ -22,9 +22,7 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using System.Threading.Tasks;
-    using Config;
+    using Licensing;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -105,11 +103,6 @@ namespace NServiceBus.Unicast
         /// Information regarding the current TimeoutManager node
         /// </summary>
         public Address TimeoutManagerAddress { get; set; }
-
-        /// <summary>
-        /// Throttling message receiving speed according to NServiceBus licensing model.
-        /// </summary>
-        public int MaxThroughputPerSecond { get; set; }
 
         /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
@@ -812,6 +805,8 @@ namespace NServiceBus.Unicast
 
         IBus IStartableBus.Start(Action startupAction)
         {
+            var license = ValidateLicense();
+
             if (started)
                 return this;
 
@@ -836,7 +831,7 @@ namespace NServiceBus.Unicast
 
                 if (!DoNotStartTransport)
                 {
-                    transport.MaxThroughputPerSecond = MaxThroughputPerSecond;
+                    transport.MaxThroughputPerSecond = license.MaxThroughputPerSecond;
                     transport.Start(InputAddress);
                 }
 
@@ -896,6 +891,14 @@ namespace NServiceBus.Unicast
             
             // Wait for a period here otherwise the process may be killed too early!
             Task.WaitAll(tasks, TimeSpan.FromSeconds(20));
+        }
+
+        License ValidateLicense()
+        {
+            var licenseManager = Builder.Build<LicenseManager>();
+            licenseManager.PromptUserForLicenseIfTrialHasExpired();
+
+            return licenseManager.CurrentLicense;
         }
 
         /// <summary>

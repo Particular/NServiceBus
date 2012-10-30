@@ -105,7 +105,6 @@
     <Compile Include="ConfigUnicastBus.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="IWantToRunWhenTheBusStarts.cs" />
-    <Compile Include="LicenseConfig.cs" />
     <Compile Include="MessageEndpointMapping.cs" />
     <Compile Include="MessageEndpointMappingCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

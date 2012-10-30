@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using NServiceBus;
-using NServiceBus.Management.Retries;
-
-namespace MyServer.Common
+﻿namespace MyServer.Common
 {
+    using System;
+    using System.Collections.Concurrent;
+    using NServiceBus;
+
     public class MyMessageHandler : IHandleMessages<MyMessage>
     {
         private static readonly ConcurrentDictionary<Guid, string> Last = new ConcurrentDictionary<Guid, string>();
 
         public IBus Bus{ get; set; }
+
         public void Handle(MyMessage message)
         {
             Console.WriteLine("ReplyToAddress: " + Bus.CurrentMessageContext.ReplyToAddress);

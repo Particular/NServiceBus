@@ -96,7 +96,6 @@ namespace NServiceBus.Faults.Forwarder
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
             message.Headers["NServiceBus.TimeOfFailure"] = DateTime.UtcNow.ToWireFormattedString();
-
         }
 
         /// <summary>

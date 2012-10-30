@@ -64,7 +64,7 @@ namespace NServiceBus.Persistence.Raven.Tests
     {
         protected override void Initialize(Configure config)
         {
-            config.RavenPersistence("RavenWithDatabaseSet");
+            config.RavenPersistence("RavenWithDefaultDBSetUsingDataBase");
         }
 
         [Test]

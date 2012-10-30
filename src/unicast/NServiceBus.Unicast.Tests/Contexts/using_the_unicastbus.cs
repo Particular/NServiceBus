@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Threading;
     using Helpers;
     using Faults;
+    using Licensing;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
@@ -79,6 +80,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
+            FuncBuilder.Register<LicenseManager>(() => new LicenseManager());
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }

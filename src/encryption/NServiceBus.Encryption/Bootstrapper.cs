@@ -1,13 +1,12 @@
-﻿using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
-
-namespace NServiceBus.Encryption
+﻿namespace NServiceBus.Encryption
 {
+    using NServiceBus.Config;
+
     class Bootstrapper : INeedInitialization
     {
         public void Init()
         {
-            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<EncryptionMessageMutator>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<EncryptionMessageMutator>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

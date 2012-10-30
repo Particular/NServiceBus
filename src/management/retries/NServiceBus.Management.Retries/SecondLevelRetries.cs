@@ -66,15 +66,17 @@ namespace NServiceBus.Management.Retries
             TransportMessageHelpers.SetHeader(message, Headers.Expire, (DateTime.UtcNow + defer).ToWireFormattedString());
             TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
+            var faultingEndpointAddress = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
+
             //tell the TM to route this message to the endpoint where this message failed
-            TransportMessageHelpers.SetHeader(message, Headers.RouteExpiredTimeoutTo, TransportMessageHelpers.GetAddressOfFaultingEndpoint(message).ToString());
+            TransportMessageHelpers.SetHeader(message, Headers.RouteExpiredTimeoutTo, faultingEndpointAddress.ToString());
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
                 TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTime.UtcNow.ToWireFormattedString());
-            }            
-            
-            Logger.InfoFormat("Defer message and send it to {0} using the timeout manager at {1}", message.ReplyToAddress, TimeoutManagerAddress);            
+            }
+
+            Logger.DebugFormat("Defer message and send it to {0} using the timeout manager at {1}", faultingEndpointAddress, TimeoutManagerAddress);            
 
             MessageSender.Send(message, TimeoutManagerAddress);
         }

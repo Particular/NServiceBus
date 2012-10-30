@@ -20,6 +20,7 @@ namespace NServiceBus.Persistence.Raven.Tests
         public void It_should_configure_the_document_store_with_the_connection_string()
         {
             Assert.AreEqual("http://localhost:8080", store.Url);
+            Assert.AreEqual("b5058088-3a5d-4f35-8a64-49b06719d6ef", store.ApiKey);
         }
     }
 }

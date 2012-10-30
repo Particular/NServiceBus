@@ -1,0 +1,56 @@
+TOPIC
+    about_NServiceBus
+
+SHORT DESCRIPTION
+    Provides information about NServiceBus commands.
+
+LONG DESCRIPTION
+    This topic describes the NServiceBus commands. NServiceBus is developer friendly
+    .NET ESB framework.
+
+    The following NServiceBus cmdlets are included.
+	
+        Cmdlet				Description
+        -----------------   		-----------------------------------------------
+        Install-License			Install a NServiceBus license file into
+					HKCU\SOFTWARE\NServiceBus\[VERSION].
+
+        Get-Message			Displays all messages in a queue.
+
+        Get-NServiceBusVersion		Displays the NServiceBus installed version.
+
+        Install-Dtc      		Install DTC on the machine.
+		
+        Install-RavenDB      		Install RavenDB on the machine.
+		
+        Install-PerformanceCounters	Install NServiceBus performance counters
+					on the machine.
+		
+        Install-Msmq      		Install MSMQ on the machine.
+
+Sample Commands
+   
+    To checks the status of the NServiceBus performance counters on this box:
+		
+	C:\PS> $countersAreInstalled = Install-PerformanceCounters -WhatIf
+	C:\PS> "PerformanceCounters is good: " + $countersAreInstalled
+		
+    To install RavenDB onto a specific path and listening on a different port:
+     
+	C:\PS> Install-RavenDB -Port 8888 -Installpath "C:\MyPath\Nservicebus.Persistence"
+
+    A slight more complex NServiceBus retrieve message commands might resemble 
+    the following command:
+
+	C:\PS> Get-Message -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" }
+   
+    The above command lists all messages that have a header with key "NServiceBus.RelatedToTimeoutId"
+
+SEE ALSO
+    Install-License
+    Get-Message
+    Get-NServiceBusVersion
+    Install-Dtc
+    Install-RavenDB
+    Install-PerformanceCounters
+    Install-Msmq

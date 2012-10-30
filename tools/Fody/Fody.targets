@@ -9,10 +9,9 @@
 	  TaskName="Fody.WeavingTask" 
 	  AssemblyFile="$(MSBuildThisFileDirectory)Fody.dll" />
   <Target 
-	  AfterTargets="CopyFilesToOutputDirectory" 
+	  AfterTargets="CopyFilesToOutputDirectory"
 	  Name="FodyTarget">
     <Fody.WeavingTask 
-      AddinSearchPaths="$(FodyAddinSearchPaths)"
 		  AssemblyPath="$(TargetPath)" 
 		  IntermediateDir="$(IntermediateDir)"
 		  KeyFilePath="$(KeyOriginatorFile)" 
@@ -33,4 +32,11 @@
 		  DestinationFolder="$(IntermediateDir)" 
 		  Condition="Exists('$(TargetDir)$(TargetName).mdb')"/>
   </Target>
+
+
+  <!--Support for ncrunch-->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)*.*" />
+  </ItemGroup>
+  
 </Project>

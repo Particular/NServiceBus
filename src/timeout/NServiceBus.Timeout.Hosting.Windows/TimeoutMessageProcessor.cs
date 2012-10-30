@@ -43,7 +43,7 @@
                 IsTransactional = true,
                 NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
                 MaxRetries = MainTransport.MaxRetries,
-                FailureManager = Builder.Build(MainTransport.FailureManager.GetType())as IManageMessageFailures
+                FailureManager = new ManageMessageFailuresWithoutSlr(MainTransport.FailureManager),
             };
 
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;
@@ -108,9 +108,16 @@
                 if (!message.Headers.ContainsKey(Headers.Expire))
                     throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
 
+                var destination = message.ReplyToAddress;
+
+                if (message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+                {
+                    destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+                }
+                
                 var data = new TimeoutData
                 {
-                    Destination = message.ReplyToAddress,
+                    Destination = destination,
                     SagaId = sagaId,
                     State = message.Body,
                     Time = message.Headers[Headers.Expire].ToUtcDateTime(),

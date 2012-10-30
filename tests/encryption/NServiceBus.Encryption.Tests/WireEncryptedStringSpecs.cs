@@ -125,63 +125,6 @@
     }
 
     [TestFixture]
-    public class Mailing_list_complex_dto : WireEncryptedStringContext
-    {
-        [Test]
-        public void This_whould_work()
-        {
-            var message = new TestDto();
-
-            var dict = message.Options[TestEnum.EnumValue1];
-            dict["test"] = "asdf";
-
-            message.Options[TestEnum.EnumValue1]["test"] = "asdf";
-
-            mutator.MutateOutgoing(message);
-
-            Assert.True(message.Options.ContainsKey(TestEnum.EnumValue1));
-        }
-
-        public enum TestEnum
-        {
-            EnumValue1
-        }
-
-        public class TestOptions
-        {
-            private readonly Dictionary<TestEnum, Dictionary<string, string>> _dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
-            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return _dictionary; } }
-
-            public bool ContainsKey(TestEnum key)
-            {
-                return _dictionary.ContainsKey(key);
-            }
-
-            public IEnumerable<TestEnum> Keys { get { return _dictionary.Keys; } }
-
-            public Dictionary<string, string> this[TestEnum appEnum]
-            {
-                get
-                {
-                    return _dictionary.ContainsKey(appEnum)
-                        ? _dictionary[appEnum]
-                        : _dictionary[appEnum] = new Dictionary<string, string>();
-                }
-            }
-        }
-
-        public class TestDto
-        {
-            public TestDto()
-            {
-                Options = new TestOptions();
-            }
-
-            public TestOptions Options { get; set; }
-        }
-    }
-
-    [TestFixture]
     public class When_decrypting_a_message_with_indexed_properties : WireEncryptedStringContext
     {
         [Test]

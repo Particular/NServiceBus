@@ -73,6 +73,9 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="NServiceBus.Licensing">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.MasterNode">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
     </Reference>

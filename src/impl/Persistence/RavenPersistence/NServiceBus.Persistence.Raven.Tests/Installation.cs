@@ -88,8 +88,9 @@
         [Test, Explicit("")]
         public void It_should_unpack_and_install_ravendb()
         {
-            if (Directory.Exists(RavenDBInstaller.RavenInstallPath))
-                Directory.Delete(RavenDBInstaller.RavenInstallPath, true);
+            var installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "NServiceBus.Persistence");
+            if (Directory.Exists(installPath))
+                Directory.Delete(installPath, true);
 
 
 
