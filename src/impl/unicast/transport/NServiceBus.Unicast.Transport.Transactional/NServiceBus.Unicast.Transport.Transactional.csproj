@@ -71,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
-    <Compile Include="Installers\DtcInstaller.cs" />
     <Compile Include="TransactionalTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

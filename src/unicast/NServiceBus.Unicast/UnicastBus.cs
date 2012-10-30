@@ -22,6 +22,9 @@ using NServiceBus.UnitOfWork;
 namespace NServiceBus.Unicast
 {
     using System.Diagnostics;
+    using System.Runtime.Serialization;
+    using System.Threading.Tasks;
+    using Config;
     using Licensing;
 
     /// <summary>

@@ -84,7 +84,6 @@
   <ItemGroup>
     <Compile Include="CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
-    <Compile Include="Installers\MsmqInfrastructureInstaller.cs" />
     <Compile Include="MsmqMessageQueueConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

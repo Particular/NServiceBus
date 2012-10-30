@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Licensing
 {
-    using Config;
-
     class Configure : INeedInitialization 
     {
         public void Init()

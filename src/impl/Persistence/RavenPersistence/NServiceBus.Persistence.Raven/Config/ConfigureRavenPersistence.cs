@@ -3,7 +3,6 @@
     using System;
     using System.Configuration;
     using Persistence.Raven;
-    using Persistence.Raven.Installation;
     using Raven.Abstractions.Data;
     using Raven.Client;
     using Raven.Client.Document;
@@ -35,44 +34,44 @@
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
-            //If it's already configured don't do it again!
-            if (config.Configurer.HasComponent<IDocumentStore>())
-                return config;
-
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
             //use existing config if we can find one
             if (connectionStringEntry != null)
-                return RavenPersistenceInternal(config, connectionStringEntry.ConnectionString);
+                return RavenPersistenceWithConnectionString(config, connectionStringEntry.ConnectionString, null);
 
-            //if we have no master node we should have our own local ravendb
-            installRavenIfNeeded = string.IsNullOrEmpty(config.GetMasterNode());
+            var store = new DocumentStore
+            {
+                Url = RavenPersistenceConstants.DefaultUrl,
+                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                DefaultDatabase = databaseNamingConvention()
+            };
 
-            return RavenPersistenceInternal(config);
+            return RavenPersistence(config, store);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
             var connectionStringEntry = GetRavenConnectionString(connectionStringName);
-            return RavenPersistenceInternal(config, connectionStringEntry);
+            return RavenPersistenceWithConnectionString(config, connectionStringEntry, null);
         }
 
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
         {
             var connectionString = GetRavenConnectionString(connectionStringName);
-            return RavenPersistenceInternal(config, connectionString, database);
+            return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
-            return RavenPersistenceInternal(config, connectionString);
+            return RavenPersistenceWithConnectionString(config, connectionString, null);
         }
 
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
-            return RavenPersistenceInternal(config, connectionString, database);
+            return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
@@ -102,6 +101,8 @@
             return connectionStringEntry.ConnectionString;
         }
 
+        static Configure RavenPersistenceWithConnectionString(Configure config, string connectionStringValue, string database)
+        {
             var store = new DocumentStore();
 
             if (connectionStringValue != null)
@@ -114,35 +115,35 @@
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
             else
+            {
                 if (database == null)
                 {
                     database = databaseNamingConvention();
                 }
+
                 store.Url = RavenPersistenceConstants.DefaultUrl;
                 store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
 
             if (database != null)
             {
+                store.DefaultDatabase = database;
             }
 
+            return RavenPersistence(config, store);
+        }
 
-        static Configure RavenPersistenceInternal(Configure config, string connectionStringValue = null, string defaultDatabase = null)
+        static Configure RavenPersistence(this Configure config, IDocumentStore store)
         {
-            var url = RavenPersistenceConstants.DefaultUrl;
+            if (config == null) throw new ArgumentNullException("config");
+            if (store == null) throw new ArgumentNullException("store");
 
-            if (connectionStringValue != null)
-            {
-                var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
-                connectionStringParser.Parse();
-                url = connectionStringParser.ConnectionStringOptions.Url;
-                if (defaultDatabase == null)
-                {
-                    defaultDatabase = connectionStringParser.ConnectionStringOptions.DefaultDatabase;
-                }
-            }
+            var conventions = new RavenConventions();
 
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
+
+            EnsureDatabaseExists((DocumentStore)store);
+            store.Initialize();
 
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
@@ -151,38 +152,15 @@
                 if (!Int32.TryParse(ravenMaxNumberOfRequestsPerSession, out maxNumberOfRequestsPerSession))
                     throw new ConfigurationErrorsException(string.Format("Cannot configure RavenDB MaxNumberOfRequestsPerSession. Cannot convert value '{0}' in <appSettings> with key 'NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession' to a numeric value.", ravenMaxNumberOfRequestsPerSession));
             }
+            store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
 
-            config.Configurer.ConfigureComponent(() =>
-            {
-                var store = new DocumentStore
-                    {
-                        Url = url,
-                        ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                        DefaultDatabase = defaultDatabase,
-                        Conventions = {FindTypeTagName = tagNameConvention ?? new RavenConventions().FindTypeTagName}
-                    };
+            //We need to turn compression off to make us compatible with Raven616
+            store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
-                if (connectionStringValue != null)
-                {
-                    store.ParseConnectionString(connectionStringValue);
-                }
+            config.Configurer.RegisterSingleton<IDocumentStore>(store);
 
-                // If default database is assigned in code then we use that even if a default database has been assigned in the connection string
-                store.DefaultDatabase = defaultDatabase;
-
-                store.Initialize();
-
-                //We need to turn compression off to make us compatible with Raven616
-                store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
-                store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
-
-                return store;
-
-            }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
-
-            RavenDBInstaller.InstallEnabled = installRavenIfNeeded && ravenInstallEnabled;
 
             return config;
         }
@@ -216,22 +194,21 @@
             }
         }
 
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DisableRavenInstall(this Configure config)
         {
-            ravenInstallEnabled = false;
             AutoCreateDatabase = false;
 
             return config;
         }
 
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure InstallRavenIfNeeded(this Configure config)
         {
-            installRavenIfNeeded = true;
-
             return config;
         }
 
-        [ObsoleteEx(Message = "RequestCompression will be on by default in NServiceBus 5.0.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(Message = "RequestCompression will be on by default from v5.0.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public static Configure EnableRequestCompression(this Configure config)
         {
             enableRequestCompression = true;
@@ -247,10 +224,6 @@
         }
 
         static bool enableRequestCompression;
-
-        static bool installRavenIfNeeded;
-
-        static bool ravenInstallEnabled = true;
 
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {

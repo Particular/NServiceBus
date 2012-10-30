@@ -112,7 +112,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Installation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string.cs" />
     <Compile Include="When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database.cs" />

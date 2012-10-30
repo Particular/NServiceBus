@@ -6,7 +6,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
-    using log4net.Repository.Hierarchy;
 
     public class TimeoutDispatcherProcessor : IWantToRunWhenBusStartsAndStops
     {

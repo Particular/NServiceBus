@@ -2,9 +2,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Faults;
+    using Logging;
     using Unicast.Queuing;
     using Unicast.Transport;
-    using log4net;
 
     internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {

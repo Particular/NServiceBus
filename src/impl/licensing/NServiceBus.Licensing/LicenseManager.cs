@@ -10,8 +10,8 @@
     using System.Security.Principal;
     using System.Threading;
     using System.Windows.Forms;
-    using Common.Logging;
     using Forms;
+    using Logging;
     using Microsoft.Win32;
     using Rhino.Licensing;
 

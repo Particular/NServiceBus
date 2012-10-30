@@ -2,11 +2,9 @@
 using System.Configuration;
 using System.Transactions;
 using NServiceBus.Config;
-using NServiceBus.Logging;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
-    using Installers;
     public class Bootstrapper : INeedInitialization
     {
         public void Init()
@@ -40,8 +38,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             }
             // Limit all transactional transport users (gateway, distributer, timeout)
             transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
-
-            DtcInstaller.IsEnabled = IsTransactional;
         }
 
         public static bool IsTransactional { get; set; }
