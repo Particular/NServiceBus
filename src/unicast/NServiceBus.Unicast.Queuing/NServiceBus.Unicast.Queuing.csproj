@@ -46,7 +46,9 @@
     <Reference Include="NServiceBus.Installation.Windows">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Installation.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Logging, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="NServiceBus.Logging">
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
