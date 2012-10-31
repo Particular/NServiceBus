@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureServiceBusMessageQueue.cs" />
+    <Compile Include="AzureServiceBusMessageQueueCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveResourceManager.cs" />
     <Compile Include="SendResourceManager.cs" />
