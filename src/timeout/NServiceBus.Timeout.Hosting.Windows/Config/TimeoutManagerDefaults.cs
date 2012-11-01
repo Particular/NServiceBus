@@ -11,7 +11,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
         public void Run()
         {
             if (Configure.Instance.IsTimeoutManagerEnabled() && !Configure.Instance.Configurer.HasComponent<IPersistTimeouts>())
+            {
                 DefaultPersistence();
+            }
         }
     }
 }

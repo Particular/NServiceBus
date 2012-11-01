@@ -30,5 +30,20 @@ namespace NServiceBus.Config
                 this["CreateSchema"] = value;
             }
         }
+
+        [ConfigurationProperty("TableName", IsRequired = false, DefaultValue = "Subscription")]
+        public string TableName
+        {
+            get
+            {
+
+                return (string)this["TableName"];
+            }
+            set
+            {
+                this["TableName"] = value;
+            }
+        }
+
     }
 }

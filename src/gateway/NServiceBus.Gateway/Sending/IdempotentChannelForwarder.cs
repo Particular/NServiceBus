@@ -55,7 +55,7 @@
         {
             var headersToSend = new Dictionary<string, string>(headers);
 
-            foreach (string headerKey in headers.Keys.Where(headerKey => headerKey.StartsWith(DATABUS_PREFIX)))
+            foreach (string headerKey in headers.Keys.Where(headerKey => headerKey.Contains(DATABUS_PREFIX)))
             {
                 if (DataBus == null)
                     throw new InvalidOperationException(
@@ -63,7 +63,9 @@
 
                 headersToSend[GatewayHeaders.DatabusKey] = headerKey;
 
-                using (var stream = DataBus.Get(headers[headerKey]))
+                var databusKeyForThisProperty = headers[headerKey];
+
+                using (var stream = DataBus.Get(databusKeyForThisProperty))
                     Transmit(channelSender, targetSite, CallType.DatabusProperty, headersToSend, stream);
             }
         }

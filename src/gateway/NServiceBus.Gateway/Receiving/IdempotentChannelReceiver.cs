@@ -127,7 +127,9 @@
             using (callInfo.Data)
                 newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
 
-            persister.UpdateHeader(callInfo.ClientId, callInfo.Headers[GatewayHeaders.DatabusKey], newDatabusKey);
+            var specificDataBusHeaderToUpdate = callInfo.Headers[GatewayHeaders.DatabusKey];
+
+            persister.UpdateHeader(callInfo.ClientId, specificDataBusHeaderToUpdate, newDatabusKey);
         }
 
         void HandleAck(CallInfo callInfo)

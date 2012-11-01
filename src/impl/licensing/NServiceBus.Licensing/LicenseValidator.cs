@@ -1,60 +1,41 @@
 ﻿using System;
-using System.IO;
-using Common.Logging;
 using Rhino.Licensing;
 
 namespace NServiceBus.Licensing
 {
-    internal class LicenseValidator : AbstractLicenseValidator
+    /// <summary>
+    /// Validates content of a license file
+    /// </summary>
+    internal class StringLicenseValidator : AbstractLicenseValidator
     {
-        internal LicenseValidator(string publicKey, string licensePath) : base(publicKey)
+        /// <summary>
+        /// Creates a new instance of <seealso cref="StringLicenseValidator"/>
+        /// </summary>
+        /// <param name="publicKey">public key</param>
+        /// <param name="license">license content</param>
+        public StringLicenseValidator(string publicKey, string license)
+            : base(publicKey)
         {
-            _licensePath = licensePath;
+            License = license;
         }
 
-        protected override string License
+        /// <summary>
+        /// License content
+        /// </summary>
+        protected override sealed string License
         {
-            get
-            {
-                return _inMemoryLicense ?? File.ReadAllText(_licensePath);
-            }
-            set
-            {
-                try
-                {
-                    File.WriteAllText(_licensePath, value);
-                }
-                catch (Exception ex)
-                {
-                    _inMemoryLicense = value;
-                    Logger.Warn("Could not write new license value to disk, using in-memory license instead", ex);
-                }
-            }
-        }
-
-        internal bool IsExpired
-        {
-            get { return (LicenseType == Rhino.Licensing.LicenseType.Trial && ExpirationDate.Date < DateTime.Today); }
+            get;
+            set;
         }
 
         public override void AssertValidLicense()
         {
-            if (!File.Exists(_licensePath))
+            if (String.IsNullOrEmpty(License))
             {
-                Logger.InfoFormat("Could not find license file: {0}", _licensePath);
-                throw new LicenseFileNotFoundException();
+                throw new LicenseNotFoundException();
             }
-            
+
             base.AssertValidLicense();
         }
-
-        public override void RemoveExistingLicense()
-        {
-            File.Delete(_licensePath);
-        }
-
-        private string _inMemoryLicense;
-        private readonly string _licensePath;
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager).Namespace);
     }
 }

@@ -1,26 +1,13 @@
 using NUnit.Framework;
-using Raven.Client;
-using Raven.Client.Document;
 
 namespace NServiceBus.Persistence.Raven.Tests
 {
     [TestFixture]
     public class When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string : WithRavenDbServer
     {
-        string connectionStringName;
-        IDocumentStore store;
-
-        [TestFixtureSetUp]
-        public void SetUp()
+        protected override void Initialize(Configure config)
         {
-            connectionStringName = "Raven";
-
-            var config = Configure.With(new[] { GetType().Assembly })
-                .DefineEndpointName("UnitTests")
-                .DefaultBuilder()
-                .RavenPersistence(connectionStringName);
-
-            store = config.Builder.Build<IDocumentStore>();
+            config.RavenPersistence("Raven");
         }
 
         [Test]
@@ -32,8 +19,8 @@ namespace NServiceBus.Persistence.Raven.Tests
         [Test]
         public void It_should_configure_the_document_store_with_the_connection_string()
         {
-            var s = store as DocumentStore;
-            Assert.AreEqual("http://localhost:8080", s.Url);
+            Assert.AreEqual("http://localhost:8080", store.Url);
+            Assert.AreEqual("b5058088-3a5d-4f35-8a64-49b06719d6ef", store.ApiKey);
         }
     }
 }

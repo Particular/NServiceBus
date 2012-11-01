@@ -8,8 +8,6 @@ using System.Linq;
 
 namespace NServiceBus.Unicast.Config
 {
-    using System.Reflection;
-
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
@@ -31,8 +29,7 @@ namespace NServiceBus.Unicast.Config
             Configurer = config.Configurer;
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress())
-                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress())
-                .ConfigureProperty(p => p.MaxThroughputPerSecond, LicenseConfig.GetMaxThroughputPerSecond());
+                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
 
             ConfigureSubscriptionAuthorization();
 
@@ -41,6 +38,8 @@ namespace NServiceBus.Unicast.Config
             RegisterLocalMessages();
 
             RegisterMessageOwnersAndBusAddress();
+
+            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
 
         void RegisterMessageModules()
@@ -64,57 +63,36 @@ namespace NServiceBus.Unicast.Config
             TypesToScan
                 .Where(t => t.IsMessageType())
                 .ToList()
-                .ForEach(t => typesToEndpoints[t] = Address.Undefined);
+                .ForEach(t => MapTypeToAddress(t, Address.Undefined));
         }
 
         void RegisterMessageOwnersAndBusAddress()
         {
-            var unicastBusConfig = GetConfigSection<UnicastBusConfig>();
-            ConfigureBusProperties(unicastBusConfig);
-        }
+            var unicastConfig = GetConfigSection<UnicastBusConfig>();
 
-        void ConfigureBusProperties(UnicastBusConfig unicastConfig)
-        {
-            if (unicastConfig != null)
+            if (unicastConfig == null) return;
+
+            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
+            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
+
+            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>().ToList();
+            messageEndpointMappings.Sort();
+            foreach (var mapping in messageEndpointMappings)
             {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
-                busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-                foreach (MessageEndpointMapping mapping in unicastConfig.MessageEndpointMappings)
-                {
-                    try
-                    {
-                        var messageType = Type.GetType(mapping.Messages, false);
-                        if (messageType != null)
-                        {
-                            typesToEndpoints[messageType] = Address.Parse(mapping.Endpoint);
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Problem loading message type: " + mapping.Messages, ex);
-                    }
-
-                    try
-                    {
-                        var a = Assembly.Load(mapping.Messages);
-                        foreach (var t in a.GetTypes())
-                            typesToEndpoints[t] = Address.Parse(mapping.Endpoint);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ArgumentException("Problem loading message assembly: " + mapping.Messages, ex);
-                    }
-
-                }
+                mapping.Configure(MapTypeToAddress);
             }
-
-            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
         }
-
-
-
+        
+        private void MapTypeToAddress(Type messagesType, Address address)
+        {
+            if (typesToEndpoints.ContainsKey(messagesType) && typesToEndpoints[messagesType] != Address.Undefined)
+            {
+                return;
+            }
+            
+            typesToEndpoints[messagesType] = address;
+        }
+        
         /// <summary>
         /// Used to configure the bus.
         /// </summary>
@@ -216,7 +194,6 @@ namespace NServiceBus.Unicast.Config
 
             busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
 
-
             var availableDispatcherFactories = TypesToScan
               .Where(
                   factory =>
@@ -228,18 +205,18 @@ namespace NServiceBus.Unicast.Config
             //configure the message dispatcher for each handler
             busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
 
-            availableDispatcherFactories.ToList().ForEach(factory=> Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
-            
+            availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
+
             return this;
         }
 
-        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers,IEnumerable<Type> messageDispatcherFactories)
+        IDictionary<Type, Type> GetDispatcherFactories(IEnumerable<Type> handlers, IEnumerable<Type> messageDispatcherFactories)
         {
             var result = new Dictionary<Type, Type>();
 
             var customFactories = messageDispatcherFactories
-                .Where(t=>t!= defaultDispatcherFactory)
-                .Select(t => (IMessageDispatcherFactory) Activator.CreateInstance(t)).ToList();
+                .Where(t => t != defaultDispatcherFactory)
+                .Select(t => (IMessageDispatcherFactory)Activator.CreateInstance(t)).ToList();
 
 
             foreach (var handler in handlers)
@@ -313,6 +290,18 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
             busConfig.ConfigureProperty(b => b.AllowSubscribeToSelf, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Causes the bus to not deserialize incoming messages. This means that no handlers are called and 
+        /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
+        /// your self.
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus SkipDeserialization()
+        {
+            busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
             return this;
         }
 

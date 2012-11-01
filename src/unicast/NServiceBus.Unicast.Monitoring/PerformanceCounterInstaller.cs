@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Unicast.Monitoring
 {
     using System;
-    using System.Diagnostics;
     using System.Security.Principal;
     using Installation;
     using Installation.Environments;
+    using Setup.Windows.PerformanceCounters;
 
     /// <summary>
     /// Performs installation of the performance counters 
@@ -15,25 +15,7 @@
         {
             Console.WriteLine("Starting installation of PerformanceCounters ");
 
-            var categoryName = "NServiceBus";
-
-            if (PerformanceCounterCategory.Exists(categoryName))
-            {
-                Console.WriteLine("Category " + categoryName + " already exist, going to delete first");
-                PerformanceCounterCategory.Delete(categoryName);
-            }
-
-
-            var data = new CounterCreationDataCollection();
-
-            data.Add(new CounterCreationData("Critical Time", "Age of the oldest message in the queue",
-                                             PerformanceCounterType.NumberOfItems32));
-
-            data.Add(new CounterCreationData("SLA violation countdown", "Seconds until the SLA for this endpoint is breached",
-                                            PerformanceCounterType.NumberOfItems32));
-
-            PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
-                                              PerformanceCounterCategoryType.MultiInstance, data);
+            PerformanceCounterSetup.SetupCounters(true);
 
             Console.WriteLine("Installation of PerformanceCounters successful.");
         }

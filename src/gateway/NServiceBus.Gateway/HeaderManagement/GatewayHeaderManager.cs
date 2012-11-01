@@ -36,7 +36,7 @@
                 return;
 
             transportMessage.Headers[Headers.HttpTo] = returnInfo.HttpFrom;
-            transportMessage.Headers[Headers.DestinationSites] = returnInfo.OriginatingSite;
+            transportMessage.Headers[Headers.OriginatingSite] = returnInfo.OriginatingSite;
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
                 transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.ToString();

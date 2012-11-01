@@ -63,7 +63,7 @@ namespace NServiceBus.Utils
                 }
 
                 Logger.Warn("Queue " + q + " does not exist.");
-                Logger.Debug("Going to create queue: " + q);
+                Logger.Info("Going to create queue: " + q);
 
                 CreateQueue(q, account);
             }

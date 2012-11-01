@@ -1,13 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.Messaging;
-using System.Security.Principal;
-using NServiceBus.Unicast.Transport;
-using NServiceBus.Utils;
-using Common.Logging;
-
-namespace NServiceBus.Unicast.Queuing.Msmq
+﻿namespace NServiceBus.Unicast.Queuing.Msmq
 {
+    using System;
+    using System.Diagnostics;
+    using System.Messaging;
+    using System.Security.Principal;
+    using Common.Logging;
+    using Transport;
+    using Transport.Transactional.Config;
+    using Utils;
+
     public class MsmqMessageReceiver : IReceiveMessages
     {
         public void Init(string address, bool transactional)
@@ -41,15 +42,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (PurgeOnStartup)
                 myQueue.Purge();
         }
-
       
         [DebuggerNonUserCode]
         public bool HasMessage()
         {
             try
             {
-                var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait));
-                return m != null;
+                using (var m = myQueue.Peek(TimeSpan.FromSeconds(secondsToWait)))
+                {
+                    return m != null;
+                }
             }
             catch (MessageQueueException mqe)
             {
@@ -85,18 +87,19 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 Logger.Fatal(e);
                 throw;
             }
-
         }
 
         public TransportMessage Receive()
         {
             try
             {
-                var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive());
-                if (m == null)
-                    return null;
+                using (var m = myQueue.Receive(TimeSpan.FromSeconds(secondsToWait), GetTransactionTypeForReceive()))
+                {
+                    if (m == null)
+                        return null;
 
-                return MsmqUtilities.Convert(m);
+                    return MsmqUtilities.Convert(m);
+                }
             }
             catch (MessageQueueException mqe)
             {
@@ -128,9 +131,15 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         
         private MessageQueueTransactionType GetTransactionTypeForReceive()
         {
-            return useTransactions ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.None;
-        }
+            if(!useTransactions)
+                return MessageQueueTransactionType.None;
 
+            //in 4.0 this line would be Endpoint.DontUseDistributedTransactions
+            if(Bootstrapper.SupressDTC)
+                return MessageQueueTransactionType.Single;
+
+            return MessageQueueTransactionType.Automatic;
+        }
 
         /// <summary>
         /// Sets whether or not the transport should purge the input
@@ -138,13 +147,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
-
-        private int secondsToWait = 1;
         public int SecondsToWaitForMessage
         {
             get { return secondsToWait;  }
             set { secondsToWait = value; }
         }
+
+        private int secondsToWait = 1;
 
         private MessageQueue myQueue;
 

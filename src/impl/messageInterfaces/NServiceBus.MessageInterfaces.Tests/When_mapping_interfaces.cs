@@ -81,7 +81,17 @@ namespace NServiceBus.MessageInterfaces.Tests
             Assert.AreEqual(typeof(InterfaceWithProperties).Namespace, mapper.CreateInstance(typeof(InterfaceWithProperties)).GetType().Namespace);
         }
 
-
+        [Test]
+        public void Accept_attributes_with_value_attibute()
+        {
+            mapper.Initialize(new[] { typeof(IMyEventWithAttributeWithBoolProperty) });
+            var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));
+            var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(CustomAttributeWithValueProperties), true);
+            var attr = attributes[0] as CustomAttributeWithValueProperties;
+            Assert.AreEqual(attr != null && attr.FlagIsSet, true);
+            if (attr != null) Assert.AreEqual(attr.MyAge, 21);
+        }
+        
         private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
@@ -142,5 +152,44 @@ namespace NServiceBus.MessageInterfaces.Tests
     {
         [CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters("Blah", "Second Blah")]
         string SomeProperty { get; set; }
+    }
+    
+    public class CustomAttributeWithValueProperties : Attribute
+    {
+        private string name;
+        private bool flag;
+        private int age;
+
+        public CustomAttributeWithValueProperties(){}
+
+        public CustomAttributeWithValueProperties(string name, bool flag, int age)
+        {
+            this.name = name;
+            this.flag = flag;
+            this.age = age;
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public bool FlagIsSet
+        {
+            get { return flag; }
+            set { flag = value; }
+        }
+        public int MyAge
+        {
+            get { return age; }
+            set { age = value; }
+        }
+
+    }
+    public interface IMyEventWithAttributeWithBoolProperty
+    {
+        [CustomAttributeWithValueProperties("bla bla", true, 21)]
+        Guid EventId { get; set; }
     }
 }

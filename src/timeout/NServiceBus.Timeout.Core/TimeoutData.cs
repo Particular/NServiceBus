@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus;
+    using Unicast.Transport;
 
     /// <summary>
     /// Holds timeout information.
@@ -30,7 +31,7 @@
         public byte[] State { get; set; }
 
         /// <summary>
-        /// The time at which the saga ID expired.
+        /// The time at which the timeout expires.
         /// </summary>
         public DateTime Time { get; set; }
 
@@ -53,5 +54,41 @@
         {
             return string.Format("Timeout({0}) - Expires:{1}, SagaId:{2}",Id,Time,SagaId);
         }
+
+        public TransportMessage ToTransportMessage()
+        {
+            var replyToAddress = Address.Local;
+            if (Headers != null && Headers.ContainsKey(OriginalReplyToAddress))
+            {
+                replyToAddress = Address.Parse(Headers[OriginalReplyToAddress]);
+                Headers.Remove(OriginalReplyToAddress);
+            }
+
+            var transportMessage = new TransportMessage
+            {
+                ReplyToAddress = replyToAddress,
+                Headers = new Dictionary<string, string>(),
+                Recoverable = true,
+                MessageIntent = MessageIntentEnum.Send,
+                CorrelationId = CorrelationId,
+                Body = State
+            };
+
+            if (Headers != null)
+            {
+                transportMessage.Headers = Headers;
+            }
+            else if (SagaId != Guid.Empty)
+            {
+                transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
+            }
+
+
+            transportMessage.Headers["NServiceBus.RelatedToTimeoutId"] = Id;
+
+            return transportMessage;
+        }
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+
     }
 }

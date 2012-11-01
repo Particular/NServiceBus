@@ -54,6 +54,5 @@ namespace NServiceBus.Timeout.Core
         {
             Configure.Instance.Configurer.ConfigureComponent<TimeoutMessageConverter>(DependencyLifecycle.InstancePerCall);
         }
-
     }
 }

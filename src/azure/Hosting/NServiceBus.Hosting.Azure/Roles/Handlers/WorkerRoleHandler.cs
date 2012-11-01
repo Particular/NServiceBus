@@ -1,6 +1,7 @@
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
+using NServiceBus.Serialization;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
@@ -24,8 +25,10 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 instance.AzureConfigurationSource();
             }
 
+            if (!instance.Configurer.HasComponent<IMessageSerializer>())
+                instance.JsonSerializer();
+            
             return instance
-                .JsonSerializer()
                 .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()

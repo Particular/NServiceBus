@@ -11,11 +11,11 @@
         /// Creates Transport Message
         /// </summary>
         /// <returns>Transport Message</returns>
-        public static TransportMessage Create()
+        public static TransportMessage Create(Address replyToAddress)
         {
             var transportMessage = new TransportMessage
                                        {
-                                           ReplyToAddress = Address.Local,
+                                           ReplyToAddress = replyToAddress,
                                            Headers = new Dictionary<string, string>(),
                                            Recoverable = true,
                                            MessageIntent = MessageIntentEnum.Send

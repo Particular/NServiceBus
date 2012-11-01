@@ -42,21 +42,14 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                 }
             }
             // Limit all transactional transport users (gateway, distributer, timeout)
-            var numberOfWorkerThreads = LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig);
-            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, numberOfWorkerThreads);
-
-            Logger.Debug("Number of worker threads is set to: " + numberOfWorkerThreads);
-            if (numberOfWorkerThreads < 1)
-                Logger.Warn("Number of worker threads is set to zero hence no messages will be processed.");
+            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
 
             DtcInstaller.IsEnabled = IsTransactional;
         }
-        
 
         public static bool IsTransactional { get; set; }
         public static IsolationLevel IsolationLevel { get; set; }
         public static TimeSpan TransactionTimeout { get; set; }
         public static bool SupressDTC { get; set; }
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper).Namespace);
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<configuration>
+  <configSections>
+    <section name="MessageForwardingInCaseOfFaultConfig" type="NServiceBus.Config.MessageForwardingInCaseOfFaultConfig, NServiceBus.Core" />
+   </configSections>
+  <MessageForwardingInCaseOfFaultConfig ErrorQueue="error"/>
+</configuration>
+

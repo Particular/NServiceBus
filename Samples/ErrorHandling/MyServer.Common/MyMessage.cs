@@ -1,9 +1,9 @@
-﻿using System;
-using NServiceBus;
-
-namespace MyServer.Common
+﻿namespace MyServer.Common
 {
-    public class MyMessage : IMessage
+    using System;
+    using NServiceBus;
+
+    public class MyMessage : ICommand
     {
         public Guid Id { get; set; }
     }

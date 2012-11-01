@@ -1,0 +1,21 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Interfaces</id>
+    <title>NServiceBus Interfaces</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
+    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
+    <projectUrl>http://nservicebus.com/</projectUrl>
+    <iconUrl>http://a2.twimg.com/profile_images/1203939022/nServiceBus_Twitter_Logo_reasonably_small.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The Interfaces for NServiceBus Implementation</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+  </metadata>
+  <files>
+    <file src="\binaries\NServiceBus.???" target="lib\net40\" />
+  </files>
+</package>

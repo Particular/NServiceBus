@@ -4,7 +4,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Collections.Generic;
     using System.Linq;
     using Core;
-    using Raven.Abstractions.Commands;
     using Raven.Abstractions.Indexing;
     using Raven.Client;
     using Raven.Client.Indexes;
@@ -18,7 +17,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
-
+            
             store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
                                             new IndexDefinitionBuilder<TimeoutData>
                                                 {
@@ -37,51 +36,92 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                                                                 {doc => doc.Time, FieldStorage.No}
                                                             }
                                                 }, true);
-
+            
             store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
                                                                         {
                                                                             Map = docs => from doc in docs
                                                                                           select new { doc.SagaId }
                                                                         }, true);
-
+            
         }
 
-        public IEnumerable<TimeoutData> GetAll()
+        public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             try
             {
+                var now = DateTime.UtcNow;
                 var skip = 0;
-                var results = new List<TimeoutData>();
+                var results = new List<Tuple<string, DateTime>>();
                 var numberOfRequestsExecutedSoFar = 0;
                 RavenQueryStatistics stats;
-                var timeFetchWasRequested = DateTime.UtcNow;
+
                 do
                 {
                     using (var session = OpenSession())
                     {
+                        session.Advanced.AllowNonAuthoritativeInformation = true;
+
                         var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
-                            // we'll wait for nonstale results up until the point in time that we start fetching
-                            // since other timeouts that has arrived in the meantime will have been added to the 
-                            // cache anyway. If we not do this there is a risk that we'll miss them and breaking their SLA
-                            .Where(t => t.OwningTimeoutManager == String.Empty || t.OwningTimeoutManager == Configure.EndpointName)
-                            .Customize(c => c.WaitForNonStaleResultsAsOf(timeFetchWasRequested))
+                            .Where(
+                                t =>
+                                    t.OwningTimeoutManager == String.Empty ||
+                                    t.OwningTimeoutManager == Configure.EndpointName)
+                            .Where(
+                                t => 
+                                    t.Time > startSlice && 
+                                    t.Time <= now)
+                            .OrderBy(t => t.Time)
+                            .Select(t => new {t.Id, t.Time})
                             .Statistics(out stats);
                         do
                         {
-                            results.AddRange(query.Skip(skip).Take(1024));
+                            results.AddRange(query
+                                                 .Skip(skip)
+                                                 .Take(1024)
+                                                 .ToList()
+                                                 .Select(arg => new Tuple<string, DateTime>(arg.Id, arg.Time)));
+
                             skip += 1024;
-                        }
-                        while (skip < stats.TotalResults && ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
+                        } while (skip < stats.TotalResults &&
+                                 ++numberOfRequestsExecutedSoFar < session.Advanced.MaxNumberOfRequestsPerSession);
                     }
                 } while (skip < stats.TotalResults);
 
-                return results;
+                using (var session = OpenSession())
+                {
+                    session.Advanced.AllowNonAuthoritativeInformation = true;
+
+                    //Retrieve next time we need to run query
+                    var startOfNextChunk =
+                        session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                            .Where(
+                                t =>
+                                t.OwningTimeoutManager == String.Empty ||
+                                t.OwningTimeoutManager == Configure.EndpointName)
+                            .Where(t => t.Time > now)
+                            .OrderBy(t => t.Time)
+                            .Select(t => new {t.Id, t.Time})
+                            .FirstOrDefault();
+
+                    if (startOfNextChunk != null)
+                    {
+                        nextTimeToRunQuery = startOfNextChunk.Time;
+                    }
+                    else
+                    {
+                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                    }
+
+                    return results;
+                }
             }
             catch (Exception)
             {
-                if ((store == null) || (string.IsNullOrWhiteSpace(store.Identifier)) || (string.IsNullOrWhiteSpace(store.Url)))
+                if ((store == null) || (string.IsNullOrWhiteSpace(store.Identifier)) ||
+                    (string.IsNullOrWhiteSpace(store.Url)))
                 {
-                    Logger.Error("Exception occurred while trying to access Raven Database. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).");
+                    Logger.Error(
+                        "Exception occurred while trying to access Raven Database. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).");
                     throw;
                 }
 
@@ -102,19 +142,29 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             }
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
             using (var session = OpenSession())
             {
-                session.Advanced.Defer(new DeleteCommandData { Key = timeoutId });
+                timeoutData = session.Load<TimeoutData>(timeoutId);
+
+                if (timeoutData == null)
+                    return false;
+
+                timeoutData.Time = DateTime.UtcNow.AddYears(-1);
                 session.SaveChanges();
+
+                session.Delete(timeoutData);
+                session.SaveChanges();
+
+                return true;
             }
         }
 
-        public void ClearTimeoutsFor(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId)
         {
             using (var session = OpenSession())
-            {
+            { 
                 var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
@@ -128,6 +178,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             var session = store.OpenSession();
 
             session.Advanced.AllowNonAuthoritativeInformation = false;
+            session.Advanced.UseOptimisticConcurrency = true;
 
             return session;
         }
