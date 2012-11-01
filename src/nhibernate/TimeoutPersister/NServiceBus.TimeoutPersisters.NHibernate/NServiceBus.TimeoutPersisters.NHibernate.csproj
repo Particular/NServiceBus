@@ -12,6 +12,8 @@
     <AssemblyName>NServiceBus.TimeoutPersisters.NHibernate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -60,14 +62,6 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureNHibernateTimeoutPersister.cs" />
-    <Compile Include="Config\NHibernateProperty.cs" />
-    <Compile Include="Config\NHibernatePropertyCollection.cs" />
-    <Compile Include="Config\TimeoutEntityMap.cs" />
-    <Compile Include="Config\TimeoutPersisterConfig.cs" />
-    <Compile Include="Installer\Installer.cs" />
-    <Compile Include="TimeoutEntity.cs" />
-    <Compile Include="TimeoutStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -90,4 +84,5 @@
   </Target>
   -->
   <Import Project="..\..\..\..\tools\Fody\Fody.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

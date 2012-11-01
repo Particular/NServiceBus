@@ -33,6 +33,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,13 +59,12 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Reference Include="Obsolete">
-      <HintPath>..\..\..\packages\Obsolete.Fody.1.0.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete, Version=1.2.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.2.0.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core"/>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -85,14 +86,33 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
     <Compile Include="INeedInitialization.cs" />
-    <Compile Include="IMessageSerializer.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="MessageConventionException.cs" />
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
+    <Compile Include="MessageMutator\IMessageMutator.cs" />
+    <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saga\HasCompleted.cs" />
+    <Compile Include="Saga\IConfigurable.cs" />
+    <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
+    <Compile Include="Saga\IFindSagas.cs" />
+    <Compile Include="Saga\IHandleReplyingToNullOriginator.cs" />
+    <Compile Include="Saga\IHandleSagaNotFound.cs" />
+    <Compile Include="Saga\IHandleTimeouts.cs" />
+    <Compile Include="Saga\ISaga.cs" />
+    <Compile Include="Saga\ISagaEntity.cs" />
+    <Compile Include="Saga\ISagaMessage.cs" />
+    <Compile Include="Saga\ISagaPersister.cs" />
+    <Compile Include="Saga\ISagaStartedBy.cs" />
+    <Compile Include="Saga\ITimeoutable.cs" />
+    <Compile Include="Saga\ITimeoutState.cs" />
+    <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\TimeoutMessage.cs" />
+    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>
@@ -125,4 +145,5 @@
     <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\"</notused>
   </PropertyGroup>
   <Import Project="..\..\..\tools\Fody\Fody.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

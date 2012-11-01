@@ -10,17 +10,19 @@
 	public class AcceptanceTests
 	{
 		FileShareDataBus dataBus;
-		string basePath = Path.GetTempPath();
+	    readonly string basePath = Path.GetTempPath();
 
 		[SetUp]
 		public void SetUp()
 		{
 			dataBus = new FileShareDataBus(basePath);
+		    dataBus.MaxMessageTimeToLive = TimeSpan.MaxValue;
 		}
+
 		[Test]
 		public void Should_handle_max_ttl()
 		{
-			Put("Test",TimeSpan.MaxValue);
+			Put("Test", TimeSpan.MaxValue);
 			Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_hh"))));
 		}
 
@@ -32,7 +34,6 @@
 			Put("Test", TimeSpan.MaxValue);
 			Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.Now.AddDays(1).ToString("yyyy-MM-dd_hh"))));
 		}
-
 
 		[Test]
 		public void Should_handle_be_able_to_read_stored_values()
@@ -46,10 +47,8 @@
 			}
 		}
 
-
 		string Put(string content,TimeSpan timeToLive)
 		{
-
 			byte[] byteArray = Encoding.ASCII.GetBytes( content);
 			using (var stream = new MemoryStream(byteArray))
 				return dataBus.Put(stream, timeToLive);

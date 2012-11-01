@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
-    using Channels;
     using NUnit.Framework;
 
     [TestFixture]

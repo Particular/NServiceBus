@@ -1,9 +1,10 @@
 ﻿using System;
-using NServiceBus.Saga;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Saga;
+
     public class When_completing_a_saga_with_the_InMemory_persister
     {
         [Test]

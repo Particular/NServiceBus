@@ -8,8 +8,8 @@
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
-    using Notifications;
     using NUnit.Framework;
+    using Notifications;
     using ObjectBuilder;
     using Persistence;
     using Receiving;

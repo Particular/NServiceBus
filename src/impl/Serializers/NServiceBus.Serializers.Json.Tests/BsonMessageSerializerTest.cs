@@ -1,9 +1,10 @@
-﻿using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace NServiceBus.Serializers.Json.Tests
 {
-  [TestFixture]
+    using MessageInterfaces.MessageMapper.Reflection;
+
+    [TestFixture]
   public class BsonMessageSerializerTest : JsonMessageSerializerTestBase
   {
     protected override JsonMessageSerializerBase Serializer { get; set; }

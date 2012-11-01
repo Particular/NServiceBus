@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
 using NServiceBus.Config;
 using NServiceBus.Faults;
-using NServiceBus.Satellites.Config;
 using NUnit.Framework;
 
 namespace NServiceBus.Satellites.Tests
 {
+    using Config;
+
     public abstract class SatelliteLauncherContext
     {
         protected FuncBuilder Builder;
@@ -16,10 +17,12 @@ namespace NServiceBus.Satellites.Tests
         public void SetUp()
         {
             Builder = new FuncBuilder();
-            InMemoryFaultManager = new NServiceBus.Faults.InMemory.FaultManager();
+            InMemoryFaultManager = new Faults.InMemory.FaultManager();
             TransportBuilder = new FakeTransportBuilder();
 
-            Configure.With(new Assembly[0]);
+            Configure.With(new Assembly[0])
+                .DefineEndpointName("Test")
+                .DefaultBuilder();
             Configure.Instance.Builder = Builder;
            
             RegisterTypes();

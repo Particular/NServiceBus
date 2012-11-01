@@ -5,7 +5,6 @@
     using Monitoring;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Transport;
     using UnitOfWork;
 
     [TestFixture]

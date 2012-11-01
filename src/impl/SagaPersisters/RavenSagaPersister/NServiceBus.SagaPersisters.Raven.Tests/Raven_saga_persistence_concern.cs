@@ -1,12 +1,12 @@
 using System;
 using NServiceBus.Persistence.Raven;
-using NServiceBus.Saga;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Embedded;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using Saga;
     using global::Raven.Client.Document;
 
     public abstract class Raven_saga_persistence_concern

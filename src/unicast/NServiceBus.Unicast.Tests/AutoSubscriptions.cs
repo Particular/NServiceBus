@@ -6,8 +6,7 @@
     using NUnit.Framework;
     using Rhino.Mocks;
     using Saga;
-    using Transport;
-    
+
     [TestFixture]
     public class When_starting_an_endpoint_with_autosubscribe_turned_on : using_a_configured_unicastbus
     {

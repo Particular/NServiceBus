@@ -1,12 +1,8 @@
 namespace NServiceBus.Gateway.Tests.HeaderManagement
 {
-    using System;
     using System.Collections.Generic;
-    using MessageHeaders;
-    using NUnit.Framework;
     using Gateway.HeaderManagement;
-    using Rhino.Mocks;
-    using Unicast.Transport;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_receiving_a_message_from_another_site
@@ -31,8 +27,8 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
                 ReplyToAddress = addressOfOriginatingEndpoint
             };
 
-            incomingMessage.Headers[Headers.OriginatingSite]=originatingSite;
-
+            incomingMessage.Headers[Headers.OriginatingSite] = originatingSite;
+            incomingMessage.Headers[Headers.HttpFrom] = originatingSite;
             gatewayHeaderManager = new GatewayHeaderManager();
 
             gatewayHeaderManager.MutateIncoming(incomingMessage);
@@ -42,7 +38,6 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
                 Headers = new Dictionary<string, string>(),
                 CorrelationId = idOfIncommingMessage
             };
-
         }
        
         [Test]
@@ -50,7 +45,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         {      
             gatewayHeaderManager.MutateOutgoing(null, responseMessage);
 
-            Assert.AreEqual(responseMessage.Headers[Headers.DestinationSites],originatingSite);
+            Assert.AreEqual(responseMessage.Headers[Headers.HttpTo], originatingSite);
         }
 
         [Test]

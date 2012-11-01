@@ -1,5 +1,4 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Satellites.Tests

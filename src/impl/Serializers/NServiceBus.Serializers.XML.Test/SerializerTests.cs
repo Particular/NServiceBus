@@ -5,9 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NServiceBus.MessageInterfaces;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Serialization;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Collections;
@@ -18,6 +15,9 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Net.Mail;
     using A;
     using B;
+    using MessageInterfaces;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serialization;
 
     [TestFixture]
     public class SerializerTests

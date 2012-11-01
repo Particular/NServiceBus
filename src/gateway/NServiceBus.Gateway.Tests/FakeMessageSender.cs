@@ -3,9 +3,8 @@
     using System;
     using System.Threading;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
-    public class FakeMessageSender:ISendMessages
+    public class FakeMessageSender : ISendMessages
     {
         public FakeMessageSender()
         {

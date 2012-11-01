@@ -5,7 +5,6 @@ namespace NServiceBus.Gateway.Tests.Routing
     using Channels;
     using Gateway.Routing.Sites;
     using NUnit.Framework;
-    using Unicast.Transport;
 
     [TestFixture]
     public class When_routing_a_reply_message

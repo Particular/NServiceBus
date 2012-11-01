@@ -3,8 +3,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Helpers;
     using Faults;
+    using Helpers;
     using Licensing;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
@@ -13,7 +13,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
-    using Transport;
     using UnitOfWork;
 
     public class using_a_configured_unicastbus

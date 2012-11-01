@@ -1,8 +1,9 @@
 ﻿using System;
-using NServiceBus.Unicast.Transport;
 
 namespace NServiceBus.Satellites.Tests
 {
+    using Unicast.Transport;
+
     public class FakeTransport : ITransport
     {
         public void Dispose()

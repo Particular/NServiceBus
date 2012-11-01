@@ -52,21 +52,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus">
-      <HintPath>..\..\build\output\NServiceBus.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    
-    <Compile Include="ComponentCallModelEnum.cs" />
-    <Compile Include="DependencyLifecycle.cs" />
-    <Compile Include="IBuilder.cs" />
-    <Compile Include="IComponentConfig.cs" />
-    <Compile Include="IConfigureComponents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

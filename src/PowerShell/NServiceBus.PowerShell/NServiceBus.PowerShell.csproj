@@ -38,10 +38,6 @@
       <HintPath>..\..\..\lib\System.Management.Automation.dll</HintPath>
     </Reference>
     <Reference Include="System.Messaging" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -56,18 +52,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Setup\NServiceBus.Setup.Windows\NServiceBus.Setup.Windows.csproj">
-      <Project>{54dab047-c30d-4507-a304-766ddd29bb28}</Project>
-      <Name>NServiceBus.Setup.Windows</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Examples\Get-Message.ps1" />
     <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
     <None Include="Examples\Install-Dtc.ps1" />
     <None Include="Examples\Install-Msmq.ps1" />
     <None Include="Examples\Install-RavenDB.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Setup\NServiceBus.Setup.Windows\NServiceBus.Setup.Windows.csproj">
+      <Project>{54dab047-c30d-4507-a304-766ddd29bb28}</Project>
+      <Name>NServiceBus.Setup.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

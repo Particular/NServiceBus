@@ -13,6 +13,8 @@ namespace NServiceBus.Unicast.Subscriptions.Raven.Tests.Config
         [TestFixtureSetUp]
         public void SetUp()
         {
+            Configure.DefineEndpointVersionRetriever = () => "1.0.0.0";
+
             var config = Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName("MyEndpoint")
                 .DefaultBuilder()
