@@ -1,12 +1,12 @@
-using System;
-using System.Configuration;
-using System.Linq;
-using System.Web.Configuration;
-using System.Web.Hosting;
-using NServiceBus.Config.ConfigurationSource;
-
 namespace NServiceBus.Integration.Azure
 {
+    using System;
+    using System.Configuration;
+    using System.Linq;
+    using System.Web.Configuration;
+    using System.Web.Hosting;
+    using Config.ConfigurationSource;
+
     public class AzureConfigurationSource : IConfigurationSource
     {
         private readonly IAzureConfigurationSettings azureConfigurationSettings;

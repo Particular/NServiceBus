@@ -58,9 +58,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AzureQueueConfig.cs" />
-    <Compile Include="ConfigureAzureMessageQueue.cs" />
-    <Compile Include="QueueIndividualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -71,10 +68,6 @@
     <ProjectReference Include="..\..\..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Azure\NServiceBus.Unicast.Queuing.Azure.csproj">
-      <Project>{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}</Project>
-      <Name>NServiceBus.Unicast.Queuing.Azure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

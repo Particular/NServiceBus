@@ -60,10 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AzureMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReceiveResourceManager.cs" />
-    <Compile Include="SendResourceManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

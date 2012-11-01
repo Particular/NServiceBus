@@ -134,25 +134,9 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Integration\NServiceBus.Integration.Azure\NServiceBus.Integration.Azure.csproj">
-      <Project>{641D0198-FE99-42F4-B6CB-A14D0E9F639E}</Project>
-      <Name>NServiceBus.Integration.Azure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Queueing\NServiceBus.Unicast.Queuing.AppFabric.Config\NServiceBus.Unicast.Queuing.AppFabric.Config.csproj">
-      <Project>{350ca11f-e647-47f6-b9a3-1e1653b8d4b0}</Project>
-      <Name>NServiceBus.Unicast.Queuing.AppFabric.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Queueing\NServiceBus.Unicast.Queuing.Azure.Config\NServiceBus.Unicast.Queuing.Azure.Config.csproj">
-      <Project>{87c365d3-7d4a-4686-a042-5e7b83869cbf}</Project>
-      <Name>NServiceBus.Unicast.Queuing.Azure.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SagaPersister\NServiceBus.SagaPersisters.Azure.Config\NServiceBus.SagaPersisters.Azure.Config.csproj">
-      <Project>{e9bcccdc-5d5d-48ab-bf7a-5a2fe669d353}</Project>
-      <Name>NServiceBus.SagaPersisters.Azure.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SubscriptionStorage\NServiceBus.Unicast.Subscriptions.Azure.TableStorage.csproj">
-      <Project>{fb2acc79-1e04-47ca-8f4b-31327e10b5e3}</Project>
-      <Name>NServiceBus.Unicast.Subscriptions.Azure.TableStorage</Name>
+    <ProjectReference Include="..\..\NServiceBus.Azure\NServiceBus.Azure.csproj">
+      <Project>{12F1D9F1-0A2C-4442-8D18-67DD096C6300}</Project>
+      <Name>NServiceBus.Azure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

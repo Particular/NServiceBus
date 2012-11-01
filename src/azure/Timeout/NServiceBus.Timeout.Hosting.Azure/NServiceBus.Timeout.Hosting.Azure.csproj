@@ -103,17 +103,9 @@
       <Project>{6591ED91-F9A1-4CC3-813E-A33E07439D49}</Project>
       <Name>NServiceBus.Hosting.Azure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Integration\NServiceBus.Integration.Azure\NServiceBus.Integration.Azure.csproj">
-      <Project>{641d0198-fe99-42f4-b6cb-a14d0e9f639e}</Project>
-      <Name>NServiceBus.Integration.Azure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Queueing\NServiceBus.Unicast.Queuing.AppFabric\NServiceBus.Unicast.Queuing.AppFabric.csproj">
-      <Project>{911C5871-B059-4F8D-99B3-86F13CDEFC86}</Project>
-      <Name>NServiceBus.Unicast.Queuing.AppFabric</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Queueing\NServiceBus.Unicast.Queuing.Azure\NServiceBus.Unicast.Queuing.Azure.csproj">
-      <Project>{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}</Project>
-      <Name>NServiceBus.Unicast.Queuing.Azure</Name>
+    <ProjectReference Include="..\..\NServiceBus.Azure\NServiceBus.Azure.csproj">
+      <Project>{12F1D9F1-0A2C-4442-8D18-67DD096C6300}</Project>
+      <Name>NServiceBus.Azure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

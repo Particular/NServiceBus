@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Transactions;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using NServiceBus.Unicast.Transport;
-
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
+    using System.Transactions;
+    using Microsoft.ServiceBus;
+    using Microsoft.ServiceBus.Messaging;
+    using Transport;
+
     public class AzureServiceBusMessageQueueReceiver : IReceiveMessages
     {
         public const string DefaultIssuerName = "owner";

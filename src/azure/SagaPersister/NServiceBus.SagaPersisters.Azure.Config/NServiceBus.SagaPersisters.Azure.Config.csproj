@@ -57,12 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureAzureSagaPersister.cs" />
-    <Compile Include="AzureSagaPersisterConfig.cs" />
-    <Compile Include="Internal\BaseImmutableUserType.cs" />
-    <Compile Include="Internal\SessionFactoryBuilder.cs" />
-    <Compile Include="Internal\MsSqlConfiguration.cs" />
-    <Compile Include="Internal\UtcDateTimeUserType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

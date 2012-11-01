@@ -1,17 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Transactions;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Serialization;
-using NServiceBus.Unicast.Transport;
-
 namespace NServiceBus.Unicast.Queuing.Azure
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Threading;
+    using System.Transactions;
+    using Microsoft.WindowsAzure;
+    using Microsoft.WindowsAzure.StorageClient;
+    using Serialization;
+    using Transport;
+
     public class AzureMessageQueueReceiver : IReceiveMessages
     {
         public const int DefaultMessageInvisibleTime = 30000;

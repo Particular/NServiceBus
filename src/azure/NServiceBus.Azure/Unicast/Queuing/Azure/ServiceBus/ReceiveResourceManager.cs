@@ -1,15 +1,15 @@
-using System;
-using System.Transactions;
-
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
-    public class SendResourceManager : IEnlistmentNotification
-    {
-        private readonly Action onCommit;
+    using System.Transactions;
+    using Microsoft.ServiceBus.Messaging;
 
-        public SendResourceManager(Action onCommit )
+    public class ReceiveResourceManager : IEnlistmentNotification
+    {
+        private readonly BrokeredMessage receivedMessage;
+
+        public ReceiveResourceManager(BrokeredMessage receivedMessage)
         {
-            this.onCommit = onCommit;
+            this.receivedMessage = receivedMessage;
         }
 
         public void Prepare(PreparingEnlistment preparingEnlistment)
@@ -19,12 +19,15 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public void Commit(Enlistment enlistment)
         {
-            onCommit();
+            receivedMessage.SafeComplete();
+           
             enlistment.Done();
         }
 
         public void Rollback(Enlistment enlistment)
         {
+            receivedMessage.SafeAbandon();
+
             enlistment.Done();
         }
 
@@ -32,5 +35,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         {
             enlistment.Done();
         }
+
+
     }
 }

@@ -1,15 +1,15 @@
-using System;
-using System.Diagnostics;
-using log4net.Appender;
-using log4net.Core;
-using log4net.Repository.Hierarchy;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
-using Microsoft.WindowsAzure.Diagnostics.Management;
-using Microsoft.WindowsAzure.ServiceRuntime;
-
 namespace NServiceBus.Integration.Azure
 {
+    using System;
+    using System.Diagnostics;
+    using Microsoft.WindowsAzure;
+    using Microsoft.WindowsAzure.Diagnostics;
+    using Microsoft.WindowsAzure.Diagnostics.Management;
+    using Microsoft.WindowsAzure.ServiceRuntime;
+    using log4net.Appender;
+    using log4net.Core;
+    using log4net.Repository.Hierarchy;
+
     public sealed class AzureAppender : AppenderSkeleton
     {
         private const string ConnectionStringKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";

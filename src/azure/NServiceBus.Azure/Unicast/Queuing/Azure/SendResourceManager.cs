@@ -1,8 +1,8 @@
-using System.Transactions;
-using Microsoft.WindowsAzure.StorageClient;
-
 namespace NServiceBus.Unicast.Queuing.Azure
 {
+    using System.Transactions;
+    using Microsoft.WindowsAzure.StorageClient;
+
     public class SendResourceManager : IEnlistmentNotification
     {
         private readonly CloudQueue queue;

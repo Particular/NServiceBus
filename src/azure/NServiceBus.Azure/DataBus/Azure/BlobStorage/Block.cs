@@ -1,7 +1,7 @@
-using System;
-
 namespace NServiceBus.DataBus.Azure.BlobStorage
 {
+    using System;
+
     public class Block
     {
         public int Offset { get; set; }

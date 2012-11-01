@@ -1,8 +1,8 @@
-using System.Globalization;
-using Microsoft.WindowsAzure.ServiceRuntime;
-
 namespace NServiceBus.Config
 {
+    using System.Globalization;
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
     internal class QueueIndividualizer
     {
         public static string Individualize(string queueName)

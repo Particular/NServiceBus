@@ -1,8 +1,8 @@
-using System.Configuration;
-using NServiceBus.Unicast.Queuing.Azure;
-
 namespace NServiceBus.Config
 {
+    using System.Configuration;
+    using Unicast.Queuing.Azure;
+
     public class AzureQueueConfig : ConfigurationSection
     {
         [ConfigurationProperty("QueueName", IsRequired = false, DefaultValue = null)]

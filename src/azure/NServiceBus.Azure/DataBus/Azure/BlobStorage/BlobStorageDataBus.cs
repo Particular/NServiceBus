@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using log4net;
-using Microsoft.WindowsAzure.StorageClient;
-using Microsoft.WindowsAzure.StorageClient.Protocol;
-
 namespace NServiceBus.DataBus.Azure.BlobStorage
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Threading;
+    using Microsoft.WindowsAzure.StorageClient;
+    using Microsoft.WindowsAzure.StorageClient.Protocol;
+    using log4net;
+
     public class BlobStorageDataBus : IDataBus
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));

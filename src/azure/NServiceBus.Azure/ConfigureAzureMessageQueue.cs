@@ -1,9 +1,7 @@
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus;
 using NServiceBus.Config;
-using NServiceBus.Config.Conventions;
 using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus

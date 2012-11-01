@@ -68,9 +68,9 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Integration.Azure\NServiceBus.Integration.Azure.csproj">
-      <Project>{641d0198-fe99-42f4-b6cb-a14d0e9f639e}</Project>
-      <Name>NServiceBus.Integration.Azure</Name>
+    <ProjectReference Include="..\..\NServiceBus.Azure\NServiceBus.Azure.csproj">
+      <Project>{12F1D9F1-0A2C-4442-8D18-67DD096C6300}</Project>
+      <Name>NServiceBus.Azure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

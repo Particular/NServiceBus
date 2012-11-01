@@ -1,8 +1,8 @@
-using System;
-using Microsoft.WindowsAzure.ServiceRuntime;
-
 namespace NServiceBus.Integration.Azure
 {
+    using System;
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
     public class AzureConfigurationSettings : IAzureConfigurationSettings
     {
         public string GetSetting(string name)

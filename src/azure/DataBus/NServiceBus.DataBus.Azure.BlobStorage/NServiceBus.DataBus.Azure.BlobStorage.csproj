@@ -54,10 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlobStorageDataBus.cs" />
-    <Compile Include="Block.cs" />
-    <Compile Include="Config\AzureDataBusConfig.cs" />
-    <Compile Include="Config\ConfigureAzureBlobStorageDataBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

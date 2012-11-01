@@ -85,14 +85,6 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Azure.Config\NServiceBus.Unicast.Queuing.Azure.Config.csproj">
-      <Project>{87C365D3-7D4A-4686-A042-5E7B83869CBF}</Project>
-      <Name>NServiceBus.Unicast.Queuing.Azure.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.Azure\NServiceBus.Unicast.Queuing.Azure.csproj">
-      <Project>{D12E0534-9C6F-4E39-AC68-4212FF13E7F1}</Project>
-      <Name>NServiceBus.Unicast.Queuing.Azure</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
