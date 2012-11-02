@@ -101,7 +101,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{D252B6C1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Integration.Azure.Tests", "src\azure\Integration\NServiceBus.Integration.Azure.Tests\NServiceBus.Integration.Azure.Tests.csproj", "{CA59C36D-FA35-42B4-99B5-5725C6AF1B01}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{1E44314D-F9DE-4933-9FF7-DB9673992ABC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1E44314D-F9DE-4933-9FF7-DB9673992ABC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NHibernate", "NHibernate", "{A1EA417E-24A7-4088-9028-F0076F5B4978}"
 EndProject
@@ -140,6 +140,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Timeout.Hosting.Azure", "src\azure\Timeout\NServiceBus.Timeout.Hosting.Azure\NServiceBus.Timeout.Hosting.Azure.csproj", "{046FC5EF-EAE3-4306-BA3D-973197F32EB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Azure", "src\azure\NServiceBus.Azure\NServiceBus.Azure.csproj", "{12F1D9F1-0A2C-4442-8D18-67DD096C6300}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Azure.Tests", "src\azure\Queueing\NServiceBus.Unicast.Queuing.Azure.Tests\NServiceBus.Unicast.Queuing.Azure.Tests.csproj", "{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -701,6 +703,16 @@ Global
 		{12F1D9F1-0A2C-4442-8D18-67DD096C6300}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{12F1D9F1-0A2C-4442-8D18-67DD096C6300}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{12F1D9F1-0A2C-4442-8D18-67DD096C6300}.Release|x86.ActiveCfg = Release|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -751,6 +763,7 @@ Global
 		{B32EECEC-326A-45CC-9FDF-9D346204DC43} = {D252B6C1-2A57-43E7-8A7C-A9B33722E7A7}
 		{12F1D9F1-0A2C-4442-8D18-67DD096C6300} = {D252B6C1-2A57-43E7-8A7C-A9B33722E7A7}
 		{CA59C36D-FA35-42B4-99B5-5725C6AF1B01} = {1E44314D-F9DE-4933-9FF7-DB9673992ABC}
+		{D917D6B0-53F0-4D21-BCBD-35BFE19FB4FD} = {1E44314D-F9DE-4933-9FF7-DB9673992ABC}
 		{477F7829-A274-44E5-8D4A-5CAA7407029F} = {A1EA417E-24A7-4088-9028-F0076F5B4978}
 		{281646E3-32E0-4F4D-BCF6-1DC5EFC6C268} = {A1EA417E-24A7-4088-9028-F0076F5B4978}
 		{1DA3FF96-0263-46E7-91DD-A0EBF254FD2E} = {477F7829-A274-44E5-8D4A-5CAA7407029F}

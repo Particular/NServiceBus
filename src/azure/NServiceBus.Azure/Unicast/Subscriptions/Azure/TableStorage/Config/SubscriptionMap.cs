@@ -1,7 +1,7 @@
-using NHibernate.Mapping.ByCode.Conformist;
-
 namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage.Config
 {
+    using global::NHibernate.Mapping.ByCode.Conformist;
+
     public sealed class SubscriptionMap : ClassMapping<Subscription>
     {
         public static string TableName { get; set; }

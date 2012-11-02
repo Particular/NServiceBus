@@ -24,7 +24,7 @@ namespace NServiceBus.Distributor.NHibernate.Config
                                              });
             Property(p => p.Endpoint, pm =>
                                           {
-                                              pm.Index("EndpointIdx");
+                                              pm.Index("DistributorMessages_EndpointIdx");
                                               pm.Length(1024);
                                           });
         }

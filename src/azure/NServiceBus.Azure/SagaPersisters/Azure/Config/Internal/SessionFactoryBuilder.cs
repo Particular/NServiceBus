@@ -1,18 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using NHibernate;
-using NHibernate.Context;
-using NHibernate.Drivers.Azure.TableStorage.Mapping;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence;
-using Configuration=NHibernate.Cfg.Configuration;
-
 namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Linq;
+    using System.Reflection;
+    using NHibernate.AutoPersistence;
+    using global::NHibernate;
+    using global::NHibernate.Context;
+    using global::NHibernate.Drivers.Azure.TableStorage.Mapping;
+    using global::NHibernate.Mapping.ByCode;
+    using global::NHibernate.Tool.hbm2ddl;
+    using Configuration = global::NHibernate.Cfg.Configuration;
+
     /// <summary>
     /// Builder class for the NHibernate Session Factory
     /// </summary>

@@ -1,11 +1,10 @@
-using System;
-using System.Data;
-using System.Globalization;
-using NHibernate;
-using NHibernate.SqlTypes;
-
 namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 {
+    using System;
+    using System.Data;
+    using System.Globalization;
+    using global::NHibernate;
+    using global::NHibernate.SqlTypes;
 
     public class UtcDateTimeUserType : BaseImmutableUserType<DateTime>
     {

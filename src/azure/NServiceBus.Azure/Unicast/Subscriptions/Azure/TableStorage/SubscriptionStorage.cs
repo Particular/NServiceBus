@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Transactions;
-using NHibernate.Criterion;
-
 namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Transactions;
+    using global::NHibernate.Criterion;
+
     /// <summary>
     /// Subscription storage using NHibernate for persistence 
     /// </summary>

@@ -1,10 +1,10 @@
-using System;
-using System.Data;
-using NHibernate.SqlTypes;
-using NHibernate.UserTypes;
-
 namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 {
+    using System;
+    using System.Data;
+    using global::NHibernate.SqlTypes;
+    using global::NHibernate.UserTypes;
+
     public abstract class BaseImmutableUserType<T> : IUserType
     {
         public abstract object NullSafeGet(IDataReader rs, string[] names, object owner);

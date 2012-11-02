@@ -1,17 +1,15 @@
-using System;
-using System.Reflection;
-using NHibernate.Cfg;
-using NHibernate.Cfg.MappingSchema;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.Unicast.Subscriptions.Azure.TableStorage;
-using NServiceBus.Unicast.Subscriptions.Azure.TableStorage.Config;
-using NHibernate.Drivers.Azure.TableStorage;
-using NServiceBus.Config;
-
 namespace NServiceBus
 {
+    using System;
+    using System.Reflection;
+    using Config;
+    using NHibernate.Cfg;
+    using NHibernate.Drivers.Azure.TableStorage;
+    using NHibernate.Mapping.ByCode;
+    using NHibernate.Tool.hbm2ddl;
+    using Unicast.Subscriptions.Azure.TableStorage;
+    using Unicast.Subscriptions.Azure.TableStorage.Config;
+
     /// <summary>
     /// Configuration extensions for the NHibernate subscription storage
     /// </summary>

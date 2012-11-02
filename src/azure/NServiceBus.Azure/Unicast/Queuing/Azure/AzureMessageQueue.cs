@@ -154,7 +154,17 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
-                var m = MessageSerializer.Deserialize(stream).FirstOrDefault() as MessageWrapper;
+                object[] deserializedObjects;
+                try
+                {
+                    deserializedObjects = MessageSerializer.Deserialize(stream);
+                }
+                catch (Exception)
+                {
+                    throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
+                }
+                
+                var m = deserializedObjects.FirstOrDefault() as MessageWrapper;
                 
                 if (m == null)
                     throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
@@ -312,7 +322,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     Body = message.Body,
                     CorrelationId = message.CorrelationId,
                     Recoverable = message.Recoverable,
-                    ReplyToAddress = message.ReplyToAddress.ToString(),
+                    ReplyToAddress = message.ReplyToAddress == null ? Address.Self.ToString() : message.ReplyToAddress.ToString(),
                     TimeToBeReceived = message.TimeToBeReceived,
                     Headers = message.Headers,
                     MessageIntent = message.MessageIntent,

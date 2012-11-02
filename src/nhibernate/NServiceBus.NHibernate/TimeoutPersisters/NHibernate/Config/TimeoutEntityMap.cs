@@ -22,12 +22,12 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Config
                                                  pm.Type<AddressUserType>();
                                                  pm.Length(1024);
                                              });
-            Property(p => p.SagaId, pm => pm.Index("SagaIdIdx"));
+            Property(p => p.SagaId, pm => pm.Index("TimeoutEntity_SagaIdIdx"));
             Property(p => p.Time);
             Property(p => p.Headers, pm => pm.Length(4000));
             Property(p => p.Endpoint, pm =>
                                           {
-                                              pm.Index("EndpointIdx");
+                                              pm.Index("TimeoutEntity_EndpointIdx");
                                               pm.Length(1024);
                                           });
         }

@@ -1,7 +1,7 @@
-﻿using NHibernate;
-
 namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
 {
+    using global::NHibernate;
+
     public class SubscriptionStorageSessionProvider:ISubscriptionStorageSessionProvider
     {
         readonly ISessionFactory sessionFactory;

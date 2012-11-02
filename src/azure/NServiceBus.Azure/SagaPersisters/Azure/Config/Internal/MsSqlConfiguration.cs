@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using NHibernate.Cfg;
-using NHibernate.Drivers.Azure.TableStorage;
-
 namespace NServiceBus.SagaPersisters.Azure.Config.Internal
 {
-  public static class MsSqlConfiguration
+    using System.Collections.Generic;
+    using global::NHibernate.Cfg;
+    using global::NHibernate.Drivers.Azure.TableStorage;
+
+    public static class MsSqlConfiguration
   {
     public static IDictionary<string, string> Azure(string connectionString)
     {

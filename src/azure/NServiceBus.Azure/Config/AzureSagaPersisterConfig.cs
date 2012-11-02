@@ -1,8 +1,7 @@
-using System.Collections.Generic;
-using System.Configuration;
-
 namespace NServiceBus.Config
 {
+    using System.Configuration;
+
     /// <summary>
     /// Config section for the Azure Saga Persister
     /// </summary>
