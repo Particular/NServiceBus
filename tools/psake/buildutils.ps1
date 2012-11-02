@@ -71,10 +71,10 @@ function Ilmerge($key, $directory, $name, $assemblies, $attributeAssembly, $exte
     new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
 	
 	if($attributeAssembly -ne ""){
-    	&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath /attr:$attributeAssembly $ilmergeTargetframework $assemblies /xmldocs
+    	&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /xmldocs /internalize:$excludeFilePath /attr:$attributeAssembly $ilmergeTargetframework $assemblies
 	}
 	else{
-		&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies /xmldocs
+		&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /xmldocs /internalize:$excludeFilePath $ilmergeTargetframework $assemblies
 	}
     Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
     Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
