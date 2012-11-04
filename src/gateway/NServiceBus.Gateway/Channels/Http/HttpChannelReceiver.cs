@@ -23,7 +23,7 @@
         
             listener.Prefixes.Add(address);
 
-            ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
+            scheduler = new Semaphore(numWorkerThreads, numWorkerThreads);
 
             try
             {
@@ -40,6 +40,7 @@
         public void Dispose()
         {
             listener.Stop();
+            scheduler.Dispose();
         }
 
         public void Handle(HttpListenerContext ctx)
@@ -117,20 +118,25 @@
             {
                 try
                 {
+                    scheduler.WaitOne();
                     var ctx = listener.GetContext();
-                    ThreadPool.QueueUserWorkItem(x => Handle(ctx));
+                    ThreadPool.QueueUserWorkItem(x => {
+                        try
+                        {
+                            Handle(ctx);
+                        }
+                        finally
+                        {
+                            scheduler.Release();
+                        }
+                    });
                 }
-                catch (HttpListenerException)
+                catch (Exception e)
                 {
-                    break;
-                }
-                catch (InvalidOperationException)
-                {
+                    Logger.Error("HttpListener failed", e);
                     break;
                 }
             }
-
-            hasStopped.Set();
         }
 
         static void ReportSuccess(HttpListenerContext ctx)
@@ -177,9 +183,8 @@
             }
         }
 
-        readonly ManualResetEvent hasStopped = new ManualResetEvent(false);
-        
         HttpListener listener;
+        Semaphore scheduler;
         
         const int MaximumBytesToRead = 100000;
         
