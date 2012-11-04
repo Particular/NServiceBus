@@ -3,12 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Data.SqlTypes;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
 
     public class SqlPersistence:IPersistMessages
     {
         public string ConnectionString { get; set; }
+        public bool DirectStreaming { get; set; }
 
         public bool InsertMessage(string clientId, DateTime timeReceived, Stream message, IDictionary<string, string> headers)
         {
@@ -31,8 +33,16 @@
 
                     cmd.Parameters.AddWithValue("DateTime", timeReceived);
                     cmd.Parameters.AddWithValue("ClientId", clientId);
-                    cmd.Parameters.AddWithValue("Message", message);
-                    cmd.Parameters.AddWithValue("Headers", stream);
+                    if (DirectStreaming)
+                    {
+                        cmd.Parameters.AddWithValue("Message", message);
+                        cmd.Parameters.AddWithValue("Headers", stream);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("Message", new SqlBytes(message));
+                        cmd.Parameters.AddWithValue("Headers", new SqlBytes(stream));
+                    }
                     results = cmd.ExecuteNonQuery();
 
                     tx.Commit();
@@ -106,7 +116,10 @@
                     var write = cn.CreateCommand();
                     write.CommandText = "UPDATE Messages SET Headers=@Headers WHERE ClientId=@ClientId";
                     write.Parameters.AddWithValue("ClientId", clientId);
-                    write.Parameters.AddWithValue("Headers", writeStream);
+                    if(DirectStreaming)
+                        write.Parameters.AddWithValue("Headers", writeStream);
+                    else
+                        write.Parameters.AddWithValue("Headers", new SqlBytes(writeStream));
                     var result = write.ExecuteNonQuery();
                     tx.Commit();
                 }
