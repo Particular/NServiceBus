@@ -898,10 +898,9 @@ namespace NServiceBus.Unicast
 
         License ValidateLicense()
         {
-            var licenseManager = Builder.Build<LicenseManager>();
-            licenseManager.PromptUserForLicenseIfTrialHasExpired();
+            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
-            return licenseManager.CurrentLicense;
+            return LicenseManager.CurrentLicense;
         }
 
         /// <summary>

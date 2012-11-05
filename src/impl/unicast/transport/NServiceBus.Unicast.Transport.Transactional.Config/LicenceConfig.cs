@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
     {
         internal static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
         {
-            int workerThreadsInLicenseFile = Configure.Instance.Builder.Build<LicenseManager>().CurrentLicense.AllowedNumberOfThreads;
+            int workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
 
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
