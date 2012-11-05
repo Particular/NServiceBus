@@ -24,6 +24,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             NServiceBus.ConfigureTimeoutManager.TimeoutManagerAddress = config.GetTimeoutManagerAddress();
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
 
+            ServiceContext.TimeoutDataTableName = configSection.TimeoutDataTableName;
+            ServiceContext.TimeoutManagerDataTableName = configSection.TimeoutManagerDataTableName;
+
             config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall).ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString);
             return config;
         }
