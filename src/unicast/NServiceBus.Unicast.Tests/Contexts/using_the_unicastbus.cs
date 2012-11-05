@@ -80,7 +80,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-            FuncBuilder.Register<LicenseManager>(() => new LicenseManager());
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }

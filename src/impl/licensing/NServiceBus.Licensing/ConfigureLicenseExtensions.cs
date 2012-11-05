@@ -16,9 +16,7 @@
         /// <returns>The current <see cref="Configure"/>.</returns>
         public static Configure License(this Configure config, string licenseText)
         {
-            var licenseManager = new LicenseManager(licenseText);
-
-            config.Configurer.RegisterSingleton<LicenseManager>(licenseManager);
+            LicenseManager.Parse(licenseText);
 
             return config;
         }
