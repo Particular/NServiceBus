@@ -4,4 +4,9 @@ namespace NServiceBus.DataBus.Tests
     {
         public DataBusProperty<string> DataBusProperty { get; set; }
     }
+
+    public class MessageWithNullDataBusProperty : IMessage
+    {
+        public DataBusProperty<string> DataBusProperty { get; set; }
+    }
 }

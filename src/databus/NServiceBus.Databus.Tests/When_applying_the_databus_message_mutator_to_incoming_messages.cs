@@ -1,5 +1,6 @@
 namespace NServiceBus.DataBus.Tests
 {
+    using System;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
     using NUnit.Framework;
@@ -13,19 +14,21 @@ namespace NServiceBus.DataBus.Tests
         {
             var message = new MessageWithDataBusProperty
                               {
-                                  DataBusProperty = new DataBusProperty<string>("not used in this test") { Key = "MyKey" }
-
+                                  DataBusProperty = new DataBusProperty<string>("not used in this test")
                               };
+            message.DataBusProperty.Key = Guid.NewGuid().ToString();
 
-            message.SetHeader("NServiceBus.DataBus.MyKey", "Foo");
+            var databusKey = Guid.NewGuid().ToString();
 
+            message.SetHeader("NServiceBus.DataBus." + message.DataBusProperty.Key, databusKey);
+                
             using (var stream = new MemoryStream())
             {
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                dataBus.Stub(s => s.Get("Foo")).Return(stream);
-                
+                dataBus.Stub(s => s.Get(databusKey)).Return(stream);
+
                 message = (MessageWithDataBusProperty) incomingMutator.MutateIncoming(message);
             }
             Assert.AreEqual(message.DataBusProperty.Value, "test");
