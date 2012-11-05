@@ -16,8 +16,7 @@ namespace NServiceBus.Distributor
 
         internal static void CheckForLicenseLimitationOnNumberOfWorkerNodes()
         {
-            var license = Configure.Instance.Builder.Build<LicenseManager>().CurrentLicense;
-            allowedWorkerNodes = license.AllowedNumberOfWorkerNodes;
+            allowedWorkerNodes = LicenseManager.CurrentLicense.AllowedNumberOfWorkerNodes;
         }
 
         internal static bool LimitNumberOfWorkers(Address workerAddress)

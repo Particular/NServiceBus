@@ -16,7 +16,8 @@ namespace Headquarter
             {
                 ProductId = message.ProductId,
                 NewPrice = message.NewPrice,
-                ValidFrom = message.ValidFrom
+                ValidFrom = message.ValidFrom,
+                SomeLargeString = new DataBusProperty<string>("A large string to demonstrate that the gateway supports databus properties")
             });
         }
     }

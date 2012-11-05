@@ -92,6 +92,9 @@
 
                     var dataBusKey = message.GetHeader(DATABUS_PREFIX + headerKey);
 
+                    if (string.IsNullOrEmpty(dataBusKey))
+                        continue;
+
                     using (var stream = dataBus.Get(dataBusKey))
                     {
                         var value = serializer.Deserialize(stream);
