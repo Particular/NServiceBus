@@ -9,6 +9,8 @@ using Newtonsoft.Json.Converters;
 
 namespace NServiceBus.Serializers.Json
 {
+    using System.Collections.Generic;
+
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
         private readonly IMessageMapper _messageMapper;
@@ -43,7 +45,7 @@ namespace NServiceBus.Serializers.Json
             jsonWriter.Flush();
         }
 
-        public object[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream,IEnumerable<string> messageTypes = null)
         {
             JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
             jsonSerializer.ContractResolver = new MessageContractResolver(_messageMapper);

@@ -219,7 +219,7 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public object[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream,IEnumerable<string> messageTypes)
         {
             if (stream == null)
                 return null;
@@ -291,7 +291,10 @@ namespace NServiceBus.Serializers.XML
         private object Process(XmlNode node, object parent)
         {
             string name = node.Name;
-            string typeName = defaultNameSpace + "." + name;
+            string typeName = name;
+
+            if(!string.IsNullOrEmpty(defaultNameSpace))
+                typeName = defaultNameSpace + "." + typeName;
 
             if (name.Contains(":"))
             {

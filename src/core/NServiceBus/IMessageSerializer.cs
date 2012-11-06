@@ -2,6 +2,8 @@ using System.IO;
 
 namespace NServiceBus.Serialization
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Interface used for serializing and deserializing messages.
     /// </summary>
@@ -18,7 +20,8 @@ namespace NServiceBus.Serialization
         /// Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream"></param>
+        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be infered from the serialized data</param>
         /// <returns></returns>
-        object[] Deserialize(Stream stream);
+        object[] Deserialize(Stream stream,IEnumerable<string> messageTypes = null);
     }
 }
