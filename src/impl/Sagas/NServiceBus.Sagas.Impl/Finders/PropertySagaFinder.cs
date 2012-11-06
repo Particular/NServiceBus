@@ -37,8 +37,13 @@
             if (SagaPersister == null)
                 throw new InvalidOperationException(
                     "No saga persister configured. Please configure a saga persister if you want to use the nservicebus saga support");
+            
+            var propertyValue = MessageProperty.GetValue(message, null);
+            
+            if(SagaProperty.Name.ToLower() == "id")
+                return SagaPersister.Get<TSaga>((Guid)propertyValue);
 
-            return SagaPersister.Get<TSaga>(SagaProperty.Name, MessageProperty.GetValue(message, null));
+            return SagaPersister.Get<TSaga>(SagaProperty.Name, propertyValue);
         }
     }
 }
