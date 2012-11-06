@@ -55,9 +55,6 @@
     <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MessageMutator">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageMutator.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>

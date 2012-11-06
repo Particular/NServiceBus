@@ -66,7 +66,6 @@
     <Compile Include="CriticalTimeCalculator.cs" />
     <Compile Include="EnclosedMessageTypesMutator.cs" />
     <Compile Include="EstimatedTimeToSLABreachCalculator.cs" />
-    <Compile Include="Headers.cs" />
     <Compile Include="PerformanceCounterInitializer.cs" />
     <Compile Include="ProcessingStatistics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

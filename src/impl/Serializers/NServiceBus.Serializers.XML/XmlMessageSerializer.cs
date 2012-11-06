@@ -219,7 +219,7 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public object[] Deserialize(Stream stream,IEnumerable<string> messageTypes)
+        public object[] Deserialize(Stream stream, IEnumerable<string> messageTypesToDeserialize = null)
         {
             if (stream == null)
                 return null;
@@ -264,7 +264,12 @@ namespace NServiceBus.Serializers.XML
 
             if (doc.DocumentElement.Name.ToLower() != "messages")
             {
-                object m = Process(doc.DocumentElement, null);
+                string nodeTypeString = null;
+
+                if (messageTypesToDeserialize != null)
+                    nodeTypeString = messageTypesToDeserialize.FirstOrDefault();
+
+                object m = Process(doc.DocumentElement, null,nodeTypeString);
 
                 if (m == null)
                     throw new SerializationException("Could not deserialize message.");
@@ -273,13 +278,24 @@ namespace NServiceBus.Serializers.XML
             }
             else
             {
+                int position = 0;
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
                     if (node.NodeType == XmlNodeType.Whitespace)
                         continue;
 
-                    object m = Process(node, null);
+
+                    string nodeTypeString = null;
+
+                    if (messageTypesToDeserialize != null && position < messageTypes.Count())
+                        nodeTypeString = messageTypesToDeserialize.ElementAt(position);
+
+
+                    var m = Process(node, null, nodeTypeString);
+                    
                     result.Add(m);
+                    
+                    position++;
                 }
             }
 
@@ -288,12 +304,26 @@ namespace NServiceBus.Serializers.XML
             return result.ToArray();
         }
 
-        private object Process(XmlNode node, object parent)
+        private object Process(XmlNode node, object parent,string nodeTypeString = null)
+        {
+            Type nodeType = null;
+
+            if(!string.IsNullOrEmpty(nodeTypeString))
+                nodeType = Type.GetType(nodeTypeString, false);
+
+            
+            if(nodeType == null)
+                nodeType = InferNodeType(node, parent);
+
+            return GetObjectOfTypeFromNode(nodeType, node);
+        }
+
+        Type InferNodeType(XmlNode node, object parent)
         {
             string name = node.Name;
             string typeName = name;
 
-            if(!string.IsNullOrEmpty(defaultNameSpace))
+            if (!string.IsNullOrEmpty(defaultNameSpace))
                 typeName = defaultNameSpace + "." + typeName;
 
             if (name.Contains(":"))
@@ -309,41 +339,45 @@ namespace NServiceBus.Serializers.XML
             if (name.Contains("NServiceBus."))
                 typeName = name;
 
+
             if (parent != null)
             {
                 if (parent is IEnumerable)
                 {
                     if (parent.GetType().IsArray)
-                        return GetObjectOfTypeFromNode(parent.GetType().GetElementType(), node);
-
+                        return parent.GetType().GetElementType();
                     var args = parent.GetType().GetGenericArguments();
+
                     if (args.Length == 1)
-                        return GetObjectOfTypeFromNode(args[0], node);
+                        return args[0];
                 }
 
-                PropertyInfo prop = parent.GetType().GetProperty(name);
+                var prop = parent.GetType().GetProperty(name);
+
                 if (prop != null)
-                    return GetObjectOfTypeFromNode(prop.PropertyType, node);
+                    return prop.PropertyType;
             }
 
-            Type t = mapper.GetMappedTypeFor(typeName);
-            if (t == null)
-            {
-                logger.Debug("Could not load " + typeName + ". Trying base types...");
-                foreach (Type baseType in messageBaseTypes)
-                    try
-                    {
-                        logger.Debug("Trying to deserialize message to " + baseType.FullName);
-                        return GetObjectOfTypeFromNode(baseType, node);
-                    }
-                    // ReSharper disable EmptyGeneralCatchClause
-                    catch { } // intentionally swallow exception
-                // ReSharper restore EmptyGeneralCatchClause
+            var mappedType = mapper.GetMappedTypeFor(typeName);
 
-                throw new TypeLoadException("Could not handle type '" + typeName + "'.");
-            }
+            if (mappedType != null)
+                return mappedType;
 
-            return GetObjectOfTypeFromNode(t, node);
+
+            logger.Debug("Could not load " + typeName + ". Trying base types...");
+            foreach (Type baseType in messageBaseTypes)
+                try
+                {
+                    logger.Debug("Trying to deserialize message to " + baseType.FullName);
+                    return baseType;
+                }
+                // ReSharper disable EmptyGeneralCatchClause
+                catch
+                {
+                } // intentionally swallow exception
+            // ReSharper restore EmptyGeneralCatchClause
+
+            throw new TypeLoadException("Could not determine type for node: '" + node.Name + "'.");
         }
 
         private object GetObjectOfTypeFromNode(Type t, XmlNode node)
@@ -774,7 +808,7 @@ namespace NServiceBus.Serializers.XML
 
                     Type[] interfaces = type.GetInterfaces();
                     if (type.IsInterface) interfaces = interfaces.Union(new[] { type }).ToArray();
-                    
+
                     //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
                     foreach (Type interfaceType in interfaces)
                     {

@@ -1141,7 +1141,17 @@ namespace NServiceBus.Unicast
             
             try
             {
-                return MessageSerializer.Deserialize(new MemoryStream(m.Body));
+                IEnumerable<string> messageTypes = null;
+
+                if (m.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+                {
+                    var header = m.Headers[Headers.EnclosedMessageTypes];
+
+                    if (!string.IsNullOrEmpty(header))
+                        messageTypes = header.Split(';');
+                }
+
+                return MessageSerializer.Deserialize(new MemoryStream(m.Body), messageTypes);
             }
             catch (Exception e)
             {

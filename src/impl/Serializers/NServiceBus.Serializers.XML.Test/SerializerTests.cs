@@ -88,6 +88,44 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
+        public void Should_deserialize_a_single_message_with_typename_passed_in_externally()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<WhatEver><Double>23.4</Double></WhatEver>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName });
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+
+            }
+        }
+
+        [Test]
+        public void Should_deserialize_a_batched_messages_with_typename_passed_in_externally()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<Messages><WhatEver><Double>23.4</Double></WhatEver><TheEmptyMessage></TheEmptyMessage></Messages>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble),typeof(EmptyMessage))
+                    .Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName, typeof(EmptyMessage).AssemblyQualifiedName });
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
+
+            }
+        }
+
+
+
+        [Test]
         public void TestMultipleInterfacesDuplicatedPropery()
         {
             IMessageMapper mapper = new MessageMapper();
@@ -483,6 +521,10 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(((ChildOfBase)message.BaseType).ChildProp, ((ChildOfBase)result.BaseType).ChildProp);
         }
 
+    }
+
+    public class EmptyMessage:IMessage
+    {
     }
 
     public class PolyMessage : IMessage
