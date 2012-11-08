@@ -87,6 +87,16 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_without_wrapping_element()
+        {
+            Serializer.ForMessage<EmptyMessage>(new EmptyMessage(), s =>
+                { s.SkipWrappingElementForSingleMessages = true; })
+                .AssertResultingXml(d=> d.DocumentElement.Name == "EmptyMessage","Root should be message typename");
+        }
+
+
         [Test]
         public void Should_deserialize_a_single_message_with_typename_passed_in_externally()
         {

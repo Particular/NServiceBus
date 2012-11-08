@@ -40,6 +40,11 @@ namespace NServiceBus.Serializers.XML
         public bool SanitizeInput { get; set; }
 
         /// <summary>
+        /// Removes the wrapping "<Messages>" element if serializing a single message 
+        /// </summary>
+        public bool SkipWrappingElementForSingleMessages { get; set; }
+
+        /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
         /// <param name="t"></param>
@@ -269,7 +274,7 @@ namespace NServiceBus.Serializers.XML
                 if (messageTypesToDeserialize != null)
                     nodeTypeString = messageTypesToDeserialize.FirstOrDefault();
 
-                object m = Process(doc.DocumentElement, null,nodeTypeString);
+                object m = Process(doc.DocumentElement, null, nodeTypeString);
 
                 if (m == null)
                     throw new SerializationException("Could not deserialize message.");
@@ -292,9 +297,9 @@ namespace NServiceBus.Serializers.XML
 
 
                     var m = Process(node, null, nodeTypeString);
-                    
+
                     result.Add(m);
-                    
+
                     position++;
                 }
             }
@@ -304,15 +309,15 @@ namespace NServiceBus.Serializers.XML
             return result.ToArray();
         }
 
-        private object Process(XmlNode node, object parent,string nodeTypeString = null)
+        private object Process(XmlNode node, object parent, string nodeTypeString = null)
         {
             Type nodeType = null;
 
-            if(!string.IsNullOrEmpty(nodeTypeString))
+            if (!string.IsNullOrEmpty(nodeTypeString))
                 nodeType = Type.GetType(nodeTypeString, false);
 
-            
-            if(nodeType == null)
+
+            if (nodeType == null)
                 nodeType = InferNodeType(node, parent);
 
             return GetObjectOfTypeFromNode(nodeType, node);
@@ -662,27 +667,9 @@ namespace NServiceBus.Serializers.XML
         /// <param name="stream"></param>
         public void Serialize(object[] messages, Stream stream)
         {
-            namespacesToPrefix = new Dictionary<string, string>();
-            namespacesToAdd = new List<Type>();
+            var namespaces = InitializeNamespaces(messages);
 
-            var namespaces = GetNamespaces(messages);
-            for (int i = 0; i < namespaces.Count; i++)
-            {
-                string prefix = "q" + i;
-                if (i == 0)
-                    prefix = "";
-
-                if (namespaces[i] != null)
-                    namespacesToPrefix[namespaces[i]] = prefix;
-            }
-
-            var messageBuilder = new StringBuilder();
-            foreach (var m in messages)
-            {
-                var t = mapper.GetMappedTypeFor(m.GetType());
-
-                WriteObject(t.Name, t, m, messageBuilder);
-            }
+            var messageBuilder = SerializeMessages(messages);
 
             var builder = new StringBuilder();
 
@@ -690,7 +677,19 @@ namespace NServiceBus.Serializers.XML
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
-            builder.Append("<Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"");
+            if (SkipWrappingElementForSingleMessages && messages.Count() == 1)
+                builder.Append(messageBuilder);
+            else
+                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
+
+            byte[] buffer = Encoding.UTF8.GetBytes(builder.ToString());
+            stream.Write(buffer, 0, buffer.Length);
+        }
+
+        void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
+        {
+            builder.Append(
+                "<Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"");
 
             for (int i = 0; i < namespaces.Count; i++)
             {
@@ -715,12 +714,40 @@ namespace NServiceBus.Serializers.XML
 
             builder.Append(">\n");
 
-            builder.Append(messageBuilder.ToString());
+            builder.Append(messageBuilder);
 
             builder.AppendLine("</Messages>");
+        }
 
-            byte[] buffer = Encoding.UTF8.GetBytes(builder.ToString());
-            stream.Write(buffer, 0, buffer.Length);
+        StringBuilder SerializeMessages(object[] messages)
+        {
+            var messageBuilder = new StringBuilder();
+
+            foreach (var m in messages)
+            {
+                var t = mapper.GetMappedTypeFor(m.GetType());
+
+                WriteObject(t.Name, t, m, messageBuilder);
+            }
+            return messageBuilder;
+        }
+
+        List<string> InitializeNamespaces(object[] messages)
+        {
+            namespacesToPrefix = new Dictionary<string, string>();
+            namespacesToAdd = new List<Type>();
+
+            var namespaces = GetNamespaces(messages);
+            for (int i = 0; i < namespaces.Count; i++)
+            {
+                string prefix = "q" + i;
+                if (i == 0)
+                    prefix = "";
+
+                if (namespaces[i] != null)
+                    namespacesToPrefix[namespaces[i]] = prefix;
+            }
+            return namespaces;
         }
 
         private void Write(StringBuilder builder, Type t, object obj)
