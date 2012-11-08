@@ -16,7 +16,6 @@ using NServiceBus.Saga;
 using System.Linq;
 using NServiceBus.Serialization;
 using System.IO;
-using NServiceBus.Faults;
 using NServiceBus.UnitOfWork;
 
 namespace NServiceBus.Unicast
@@ -263,11 +262,6 @@ namespace NServiceBus.Unicast
         /// Object that will be used to authorize subscription requests.
         /// </summary>
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get; set; }
-
-        /// <summary>
-        /// Object that will be used to manage failures.
-        /// </summary>
-        public IManageMessageFailures FailureManager { get; set; }
 
         /// <summary>
         /// Gets or Set AllowSubscribeToSelf 
@@ -1155,15 +1149,6 @@ namespace NServiceBus.Unicast
             }
             catch (Exception e)
             {
-                try
-                {
-                    FailureManager.SerializationFailedForMessage(m, e);
-                }
-                catch (Exception)
-                {
-                    Configure.Instance.OnCriticalError();
-                }
-
                 throw new SerializationException("Could not deserialize message.", e);
             }
         }

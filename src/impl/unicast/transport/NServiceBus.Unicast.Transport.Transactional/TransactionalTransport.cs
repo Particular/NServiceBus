@@ -10,6 +10,9 @@ using NServiceBus.Utils;
 
 namespace NServiceBus.Unicast.Transport.Transactional
 {
+    using System.Linq;
+    using System.Runtime.Serialization;
+
     public class TransactionalTransport : ITransport
     {
         #region config info
@@ -107,7 +110,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
         /// </summary>
-        public int MaxThroughputPerSecond {
+        public int MaxThroughputPerSecond
+        {
             get { return maxThroughputPerSecond; }
             set
             {
@@ -119,7 +123,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     return;
                 }
 
-                if(maxThroughputPerSecond > 0)
+                if (maxThroughputPerSecond > 0)
                     throttlingMilliseconds = (1000 - AverageMessageHandlingTime) / maxThroughputPerSecond;
                 Logger.DebugFormat("Setting throttling to: [{0}] message/s per second, sleep between receiving message: [{1}]", maxThroughputPerSecond, throttlingMilliseconds);
             }
@@ -239,6 +243,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception e)
             {
+                Logger.Info("Failed to process transport message",e);
+
                 if (IsTransactional)
                 {
                     IncrementFailuresForMessage(_messageId, e);
@@ -260,14 +266,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (m == null)
                 return;
 
-            if(SuppressDTC)
+            if (SuppressDTC)
             {
-                using(new TransactionScope(TransactionScopeOption.Suppress))
+                using (new TransactionScope(TransactionScopeOption.Suppress))
                     ProcessMessage(m);
             }
             else
             {
-                ProcessMessage(m);     
+                ProcessMessage(m);
             }
         }
 
@@ -303,9 +309,29 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            if (exceptionFromMessageHandling != null) //cause rollback
-                throw exceptionFromMessageHandling;
-
+            if (exceptionFromMessageHandling != null) 
+            {
+                if(exceptionFromMessageHandling is AggregateException)
+                {
+                    var aggregateException = (AggregateException) exceptionFromMessageHandling;
+                    var serializationException = aggregateException.InnerExceptions.FirstOrDefault(ex => ex.GetType() == typeof (SerializationException));
+                    if (serializationException != null)
+                    {
+                        Logger.Error("Failed to serialize message with ID: " + m.IdForCorrelation, serializationException);
+                        FailureManager.SerializationFailedForMessage(m, serializationException);
+                    }
+                    else
+                    {
+                         throw exceptionFromMessageHandling;//cause rollback    
+                    }
+                }
+                else
+                {
+                    throw exceptionFromMessageHandling;//cause rollback    
+                }
+                
+            }
+                
             if (exceptionFromMessageModules != null) //cause rollback
                 throw exceptionFromMessageModules;
         }
@@ -455,8 +481,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception e)
             {
-                Logger.Warn("Failed raising 'transport message received' event for message with ID=" + msg.Id, e);
-
                 return e;
             }
 

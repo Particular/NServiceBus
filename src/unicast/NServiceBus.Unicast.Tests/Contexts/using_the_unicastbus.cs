@@ -73,8 +73,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Transport = Transport,
                 SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
-                MessageMapper = MessageMapper,
-                FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
+                MessageMapper = MessageMapper
             };
             bus = unicastBus;
 
