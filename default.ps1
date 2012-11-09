@@ -398,7 +398,7 @@ task CompileAzureHosts  -depends InitEnvironment -description "Builds NServiceBu
 }
 
 task CompileTools -depends InitEnvironment -description "Builds the tools XsdGenerator.exe, runner.exe and ReturnToSourceQueue.exe." {
-	$toolsDirs = "testing", "claims", "timeout", "proxy", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\", "tools\licenseinstaller\"
+	$toolsDirs = "testing", "claims", "timeout", "tools\management\Errors\ReturnToSourceQueue\", "utils","tools\migration\", "tools\licenseinstaller\"
 	
 	$toolsDirs | % {				
 	 	$solutions = dir "$srcDir\$_\*.sln"
