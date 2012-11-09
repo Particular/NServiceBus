@@ -21,7 +21,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure IsTransactional(this Configure config, bool value)
         {
-            Bootstrapper.IsTransactional = value;
+            Bootstrapper.TransactionSettings.IsTransactional = value;
             return config;
         }
 
@@ -35,7 +35,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure DontUseTransactions(this Configure config)
         {
-            Bootstrapper.IsTransactional = false;
+            Bootstrapper.TransactionSettings.IsTransactional = false;
             return config;
         }
 
@@ -53,7 +53,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure IsolationLevel(this Configure config, IsolationLevel isolationLevel)
         {
-            Bootstrapper.IsolationLevel = isolationLevel;
+            Bootstrapper. TransactionSettings.IsolationLevel = isolationLevel;
             return config;
         }
 
@@ -72,7 +72,7 @@ namespace NServiceBus
             if(transactionTimeout > maxTimeout)
                 throw new ConfigurationErrorsException("Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
 
-            Bootstrapper.TransactionTimeout = transactionTimeout;
+            Bootstrapper.TransactionSettings.TransactionTimeout = transactionTimeout;
          
             return config;
         }

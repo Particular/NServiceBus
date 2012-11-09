@@ -31,7 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>

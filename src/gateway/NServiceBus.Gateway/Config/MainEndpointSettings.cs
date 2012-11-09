@@ -21,14 +21,6 @@ namespace NServiceBus.Gateway.Config
             this.unicastBus = unicastBus;
         }
 
-        public IReceiveMessages Receiver
-        {
-            get
-            {
-                //todo - use the type + IBuilder to get a fresh instance. This requires the MsmqMessageReceiver to be configured as singlecall, check with Udi
-                return new MsmqMessageReceiver(); 
-            }
-        }
 
         public int NumberOfWorkerThreads
         {
@@ -41,13 +33,6 @@ namespace NServiceBus.Gateway.Config
             }
         }
 
-        public int MaxRetries
-        {
-            get
-            {
-                return masterNodeTransport.MaxRetries;
-            }
-        }
 
         public IManageMessageFailures FailureManager
         {

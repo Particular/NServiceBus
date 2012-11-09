@@ -39,10 +39,7 @@ namespace NServiceBus.Gateway.Sending
 
             transport = new TransactionalTransport
                             {
-                                MessageReceiver = settings.Receiver,
-                                IsTransactional = !Endpoint.IsVolatile,
                                 NumberOfWorkerThreads = settings.NumberOfWorkerThreads,
-                                MaxRetries = settings.MaxRetries,
                                 FailureManager = settings.FailureManager
                             };
 

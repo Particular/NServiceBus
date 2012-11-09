@@ -1,66 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Transactions;
 using NServiceBus.Logging;
 using NServiceBus.Faults;
-using NServiceBus.Unicast.Queuing;
-using NServiceBus.Utils;
 
 namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System.Linq;
     using System.Runtime.Serialization;
+    using DequeueStrategies;
 
     public class TransactionalTransport : ITransport
     {
-        #region config info
 
         /// <summary>
-        /// Sets whether or not the transport is transactional.
+        /// Setings related to the transactionallity of the transport
         /// </summary>
-        public bool IsTransactional { get; set; }
-
-        private int maxRetries = 5;
-
-        /// <summary>
-        /// Sets the maximum number of times a message will be retried
-        /// when an exception is thrown as a result of handling the message.
-        /// This value is only relevant when <see cref="IsTransactional"/> is true.
-        /// </summary>
-        /// <remarks>
-        /// Default value is 5.
-        /// </remarks>
-        public int MaxRetries
+        public TransactionSettings TransactionSettings
         {
-            get { return maxRetries; }
-            set { maxRetries = value; }
+            get
+            {
+                if (transactionSettings != null)
+                    transactionSettings = new TransactionSettings();
+
+                return transactionSettings;
+            }
+            set { transactionSettings = value; }
         }
-
-        /// <summary>
-        /// Property for getting/setting the period of time when the transaction times out.
-        /// Only relevant when <see cref="IsTransactional"/> is set to true.
-        /// </summary>
-        public TimeSpan TransactionTimeout { get; set; }
-
-        /// <summary>
-        /// Property for getting/setting the isolation level of the transaction scope.
-        /// Only relevant when <see cref="IsTransactional"/> is set to true.
-        /// </summary>
-        public IsolationLevel IsolationLevel { get; set; }
-
-        /// <summary>
-        /// Sets the object which will be used for receiving messages.
-        /// </summary>
-        public IReceiveMessages MessageReceiver { get; set; }
+        TransactionSettings transactionSettings;
 
         /// <summary>
         /// Manages failed message processing.
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
-        #endregion
 
         #region ITransport Members
 
@@ -95,47 +69,24 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             get
             {
-                lock (workerThreads)
-                    return workerThreads.Count;
+                return maxDegreeOfParallelism;
             }
             set
             {
-                numberOfWorkerThreads = value;
+                if (isStarted)
+                    throw new InvalidOperationException("Can't set the number of worker threads after the transport has been started. Use ChangeNumberOfWorkerThreads instead");
+
+                maxDegreeOfParallelism = value;
             }
         }
 
-        private int throttlingMilliseconds;
-        private int maxThroughputPerSecond;
-        private const int AverageMessageHandlingTime = 200; // "guessed" time it takes for user code in handler to execute.
+        int maxDegreeOfParallelism;
+
+
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
         /// </summary>
-        public int MaxThroughputPerSecond
-        {
-            get { return maxThroughputPerSecond; }
-            set
-            {
-                maxThroughputPerSecond = value;
-                if (maxThroughputPerSecond == 0)
-                {
-                    throttlingMilliseconds = 0;
-                    Logger.Debug("Throttling on message receiving rate is not limited by licensing policy.");
-                    return;
-                }
-
-                if (maxThroughputPerSecond > 0)
-                    throttlingMilliseconds = (1000 - AverageMessageHandlingTime) / maxThroughputPerSecond;
-                Logger.DebugFormat("Setting throttling to: [{0}] message/s per second, sleep between receiving message: [{1}]", maxThroughputPerSecond, throttlingMilliseconds);
-            }
-        }
-
-        /// <summary>
-        /// If set to true the transaction scope will be suppressed to avoid the use of DTC
-        /// </summary>
-        public bool SuppressDTC { get; set; }
-
-        private int numberOfWorkerThreads = 1;
-
+        public int MaxThroughputPerSecond { get; set; }
 
         /// <summary>
         /// Event raised when a message has been received in the input queue.
@@ -149,29 +100,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <param name="targetNumberOfWorkerThreads"></param>
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            lock (workerThreads)
-            {
-                var current = workerThreads.Count;
+            maxDegreeOfParallelism = targetNumberOfWorkerThreads;
 
-                if (targetNumberOfWorkerThreads == current)
-                    return;
-
-                if (targetNumberOfWorkerThreads < current)
-                {
-                    for (var i = targetNumberOfWorkerThreads; i < current; i++)
-                        workerThreads[i].Stop();
-
-                    return;
-                }
-
-                if (targetNumberOfWorkerThreads > current)
-                {
-                    for (var i = current; i < targetNumberOfWorkerThreads; i++)
-                        AddWorkerThread().Start();
-
-                    return;
-                }
-            }
+            if (isStarted)
+                receiver.ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
         }
 
         void ITransport.Start(string inputqueue)
@@ -181,109 +113,74 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void ITransport.Start(Address address)
         {
-            MessageReceiver.Init(address, IsTransactional);
+            if (isStarted)
+                throw new InvalidOperationException("The transport is already started");
+
             FailureManager.Init(address);
-            Logger.DebugFormat("Going to start [{0}] receiving thread/s for Address [{1}].", numberOfWorkerThreads, address);
-            for (int i = 0; i < numberOfWorkerThreads; i++)
-                AddWorkerThread().Start();
+
+            //todo - remove this when we make the ITransport a intance per call so that we can resolve it from the container
+            receiver = Configure.Instance.Builder.Build<IDequeueMessages>();
+
+            receiver.Init(address, TransactionSettings);
+            receiver.MessageDequeued += Process;
+
+            receiver.Start(maxDegreeOfParallelism);
+
+            isStarted = true;
         }
 
-        #endregion
-
-        #region helper methods
-
-        private WorkerThread AddWorkerThread()
+        void Process(object sender, TransportMessageAvailableEventArgs e)
         {
-            lock (workerThreads)
-            {
-                var result = new WorkerThread(Process);
-
-                workerThreads.Add(result);
-
-                result.Stopped += delegate(object sender, EventArgs e)
-                                      {
-                                          var wt = sender as WorkerThread;
-                                          lock (workerThreads)
-                                              workerThreads.Remove(wt);
-                                      };
-
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Waits for a message to become available on the input queue
-        /// and then receives it.
-        /// </summary>
-        /// <remarks>
-        /// If the queue is transactional the receive operation will be wrapped in a 
-        /// transaction.
-        /// </remarks>
-        private void Process()
-        {
-            if (throttlingMilliseconds > 0)
-                Thread.Sleep(throttlingMilliseconds);
-
+            var message = e.Message;
             _needToAbort = false;
-            _messageId = string.Empty;
 
             try
             {
-                if (IsTransactional)
-                    new TransactionWrapper().RunInTransaction(ReceiveMessage, IsolationLevel, TransactionTimeout);
+                if (TransactionSettings.SuppressDTC)
+                {
+                    using (new TransactionScope(TransactionScopeOption.Suppress))
+                        ProcessMessage(message);
+                }
                 else
-                    ReceiveMessage();
+                {
+                    ProcessMessage(message);
+                }
 
-                ClearFailuresForMessage(_messageId);
+                ClearFailuresForMessage(message.Id);
+
             }
             catch (AbortHandlingCurrentMessageException)
             {
                 //in case AbortHandlingCurrentMessage was called
                 //don't increment failures, we want this message kept around.
             }
-            catch (Exception e)
-            {
-                Logger.Info("Failed to process transport message",e);
-
-                if (IsTransactional)
-                {
-                    IncrementFailuresForMessage(_messageId, e);
-                }
-
-                OnFailedMessageProcessing(e);
-            }
-        }
-
-        /// <summary>
-        /// Receives a message from the input queue.
-        /// </summary>
-        /// <remarks>
-        /// If a message is received the <see cref="TransportMessageReceived"/> event will be raised.
-        /// </remarks>
-        public void ReceiveMessage()
-        {
-            var m = Receive();
-            if (m == null)
-                return;
-
-            if (SuppressDTC)
+            catch (Exception ex)
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress))
-                    ProcessMessage(m);
-            }
-            else
-            {
-                ProcessMessage(m);
+                {
+                    if (TransactionSettings.IsTransactional)
+                    {
+                        IncrementFailuresForMessage(message.Id, ex);
+                    }
+
+                    OnFailedMessageProcessing(ex);
+                }
+
+                //rethrow to cause the message to go back to the queue
+                throw;
             }
         }
+
+        #endregion
+
+        #region helper methods
+
 
         void ProcessMessage(TransportMessage m)
         {
-            _messageId = m.Id;
-
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
-            if (IsTransactional)
+            if (TransactionSettings.IsTransactional)
             {
                 if (HandledMaxRetries(m))
                 {
@@ -309,12 +206,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (_needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
-            if (exceptionFromMessageHandling != null) 
+            if (exceptionFromMessageHandling != null)
             {
-                if(exceptionFromMessageHandling is AggregateException)
+                if (exceptionFromMessageHandling is AggregateException)
                 {
-                    var aggregateException = (AggregateException) exceptionFromMessageHandling;
-                    var serializationException = aggregateException.InnerExceptions.FirstOrDefault(ex => ex.GetType() == typeof (SerializationException));
+                    var aggregateException = (AggregateException)exceptionFromMessageHandling;
+                    var serializationException = aggregateException.InnerExceptions.FirstOrDefault(ex => ex.GetType() == typeof(SerializationException));
                     if (serializationException != null)
                     {
                         Logger.Error("Failed to serialize message with ID: " + m.IdForCorrelation, serializationException);
@@ -322,16 +219,16 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     }
                     else
                     {
-                         throw exceptionFromMessageHandling;//cause rollback    
+                        throw exceptionFromMessageHandling;//cause rollback    
                     }
                 }
                 else
                 {
                     throw exceptionFromMessageHandling;//cause rollback    
                 }
-                
+
             }
-                
+
             if (exceptionFromMessageModules != null) //cause rollback
                 throw exceptionFromMessageModules;
         }
@@ -342,7 +239,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             failuresPerMessageLocker.EnterReadLock();
 
             if (failuresPerMessage.ContainsKey(messageId) &&
-                (failuresPerMessage[messageId] >= maxRetries))
+                (failuresPerMessage[messageId] >= TransactionSettings.MaxRetries))
             {
                 failuresPerMessageLocker.ExitReadLock();
                 failuresPerMessageLocker.EnterWriteLock();
@@ -412,24 +309,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
-        private TransportMessage Receive()
-        {
-            try
-            {
-                return MessageReceiver.Receive();
-            }
-            catch (InvalidOperationException)
-            {
-                Configure.Instance.OnCriticalError();
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Error in receiving messages.", e);
-                return null;
-            }
-        }
+
 
         /// <summary>
         /// Causes the processing of the current message to be aborted.
@@ -505,9 +385,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         #endregion
 
-        #region members
 
-        private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+        bool isStarted;
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
         /// <summary>
@@ -523,25 +402,21 @@ namespace NServiceBus.Unicast.Transport.Transactional
         [ThreadStatic]
         private static volatile bool _needToAbort;
 
-        [ThreadStatic]
-        private static volatile string _messageId;
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
 
-        #endregion
+        IDequeueMessages receiver;
 
-        #region IDisposable Members
 
         /// <summary>
         /// Stops all worker threads.
         /// </summary>
         public void Dispose()
         {
-            lock (workerThreads)
-                for (var i = 0; i < workerThreads.Count; i++)
-                    workerThreads[i].Stop();
+            receiver.Stop();
+            receiver.MessageDequeued -= Process;
+            isStarted = false;
         }
 
-        #endregion
     }
 }

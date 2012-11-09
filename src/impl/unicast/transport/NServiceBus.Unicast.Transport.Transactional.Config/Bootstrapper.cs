@@ -5,20 +5,18 @@ using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
+    using DequeueStrategies;
+    using Queuing;
+
     public class Bootstrapper : INeedInitialization
     {
+        static Bootstrapper()
+        {
+            TransactionSettings = new TransactionSettings();
+        }
+
         public void Init()
         {
-            var transportConfig = Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(
-                DependencyLifecycle.SingleInstance);
-
-            if (IsTransactional)
-                IsTransactional = !Endpoint.IsVolatile;
-            
-            transportConfig.ConfigureProperty(t => t.IsTransactional, IsTransactional);
-            transportConfig.ConfigureProperty(t => t.IsolationLevel, IsolationLevel);
-            transportConfig.ConfigureProperty(t => t.TransactionTimeout, TransactionTimeout);
-            transportConfig.ConfigureProperty(t => t.SuppressDTC, Endpoint.DontUseDistributedTransactions);
 
             var cfg = Configure.GetConfigSection<MsmqTransportConfig>();
 
@@ -26,7 +24,8 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             if (cfg != null)
             {
                 numberOfWorkerThreadsInAppConfig = cfg.NumberOfWorkerThreads;
-                transportConfig.ConfigureProperty(t => t.MaxRetries, cfg.MaxRetries);
+                TransactionSettings.MaxRetries = cfg.MaxRetries;
+
                 if (!string.IsNullOrWhiteSpace(cfg.InputQueue))
                 {
                     throw new
@@ -36,12 +35,26 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                         "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
                 }
             }
-            // Limit all transactional transport users (gateway, distributer, timeout)
-            transportConfig.ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
+
+            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
+                .ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
         }
 
-        public static bool IsTransactional { get; set; }
-        public static IsolationLevel IsolationLevel { get; set; }
-        public static TimeSpan TransactionTimeout { get; set; }
+        public static TransactionSettings TransactionSettings { get; set; }
+    }
+
+    class DefaultDequeueStrategy : IWantToRunBeforeConfigurationIsFinalized
+    {
+        public void Run()
+        {
+            if (Configure.Instance.Configurer.HasComponent<IDequeueMessages>())
+                return;
+
+            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessages>())
+                throw new InvalidOperationException("No message receiver has been specified. Either configure one or add your own DequeueStrategy");
+
+            Configure.Instance.Configurer.ConfigureComponent<PollingDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+        }
     }
 }

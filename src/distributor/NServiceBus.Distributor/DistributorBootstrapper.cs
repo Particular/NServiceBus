@@ -31,9 +31,6 @@ namespace NServiceBus.Distributor
             var dataTransport = new TransactionalTransport
             {
                 NumberOfWorkerThreads = NumberOfWorkerThreads,
-                IsTransactional = !Endpoint.IsVolatile,
-                MessageReceiver = new MsmqMessageReceiver(),
-                MaxRetries = 5,
                 FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures
             };
 

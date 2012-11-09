@@ -26,8 +26,6 @@
 
         public IManageTimeouts TimeoutManager { get; set; }
 
-        public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
-
         static TimeoutMessageProcessor()
         {
             TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");            
@@ -35,15 +33,12 @@
 
         public void Start()
         {
-            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
 
             inputTransport = new TransactionalTransport
             {
-                MessageReceiver = messageReceiver,
-                IsTransactional = true,
                 NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
-                MaxRetries = MainTransport.MaxRetries,
                 FailureManager = new ManageMessageFailuresWithoutSlr(MainTransport.FailureManager),
+                TransactionSettings = MainTransport.TransactionSettings
             };
 
             inputTransport.TransportMessageReceived += OnTransportMessageReceived;

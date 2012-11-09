@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.0.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -56,6 +59,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransportMessageHandlingFailedException.cs" />
     <Compile Include="TransportMessageReceivedEventArgs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
