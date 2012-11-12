@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional.DequeueStrategies
+﻿namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
 

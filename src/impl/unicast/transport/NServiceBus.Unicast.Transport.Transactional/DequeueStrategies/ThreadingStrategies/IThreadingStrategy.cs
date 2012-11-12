@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional.ThreadingStrategies
+﻿namespace NServiceBus.Unicast.Transport.Transactional.DequeueStrategies.ThreadingStrategies
 {
     using System;
 

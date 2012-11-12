@@ -10,7 +10,7 @@
     public class PollingDequeueStrategy:IDequeueMessages
     {
         public IReceiveMessages MessageReceiver { get; set; }
-
+        public IThreadingStrategy ThreadingStrategy { get; set; }
       
         public void Init(Address address, TransactionSettings transactionSettings)
         {
@@ -22,14 +22,12 @@
         {
             MessageReceiver.Init(addressToPoll, settings.IsTransactional);
 
-            threadingStrategy = new StaticThreadingStrategy();
-
-            threadingStrategy.Start(maxDegreeOfParallelism, Poll);
+            ThreadingStrategy.Start(maxDegreeOfParallelism, Poll);
         }
 
         public void ChangeMaxDegreeOfParallelism(int value)
         {
-            threadingStrategy.ChangeMaxDegreeOfParallelism(value);
+            ThreadingStrategy.ChangeMaxDegreeOfParallelism(value);
         }
 
         void Poll()
@@ -82,12 +80,11 @@
 
         public void Stop()
         {
-            threadingStrategy.Stop();
+            ThreadingStrategy.Stop();
         }
 
         public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
 
-        IThreadingStrategy threadingStrategy;
         Address addressToPoll;
         TransactionSettings settings;
 

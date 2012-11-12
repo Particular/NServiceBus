@@ -1,9 +1,7 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional.ThreadingStrategies
+﻿namespace NServiceBus.Unicast.Transport.Transactional.DequeueStrategies.ThreadingStrategies
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
-    using NServiceBus.Logging;
     using NServiceBus.Utils;
 
     public class StaticThreadingStrategy:IThreadingStrategy

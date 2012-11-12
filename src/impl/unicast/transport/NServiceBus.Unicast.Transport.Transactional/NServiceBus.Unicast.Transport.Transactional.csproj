@@ -74,11 +74,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbortHandlingCurrentMessageException.cs" />
-    <Compile Include="DequeueStrategies\IDequeueMessages.cs" />
+    <Compile Include="IDequeueMessages.cs" />
     <Compile Include="DequeueStrategies\PollingDequeueStrategy.cs" />
-    <Compile Include="ThreadingStrategies\PooledThreadingStrategy.cs" />
-    <Compile Include="ThreadingStrategies\IThreadingStrategy.cs" />
-    <Compile Include="ThreadingStrategies\StaticThreadingStrategy.cs" />
+    <Compile Include="DequeueStrategies\ThreadingStrategies\PooledThreadingStrategy.cs" />
+    <Compile Include="DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
+    <Compile Include="DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
     <Compile Include="TransactionalTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransactionSettings.cs" />
