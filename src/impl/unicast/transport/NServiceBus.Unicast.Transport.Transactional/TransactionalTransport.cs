@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System.Linq;
     using System.Runtime.Serialization;
-    using DequeueStrategies;
 
     public class TransactionalTransport : ITransport
     {
@@ -413,6 +412,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public void Dispose()
         {
+            if (!isStarted)
+                return;
+
             receiver.Stop();
             receiver.MessageDequeued -= Process;
             isStarted = false;
