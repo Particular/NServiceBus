@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Msmq", "NServiceBus.Unicast.Queuing.Msmq\NServiceBus.Unicast.Queuing.Msmq.csproj", "{4D4FA577-EFBD-4DFF-BFFC-2DA1A71F36ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Msmq.Config", "NServiceBus.Unicast.Queuing.Msmq.Config\NServiceBus.Unicast.Queuing.Msmq.Config.csproj", "{2702CE9B-839F-40DD-8738-5C1B95170F0B}"
@@ -27,6 +27,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", "{C004A7E9-1EB5-425E-9A74-33730FE5DB13}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.Installers", "NServiceBus.Unicast.Queuing.Installers\NServiceBus.Unicast.Queuing.Installers.csproj", "{00601589-0CFA-41B1-9519-C8F784C6B01F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ActiveMQ", "ActiveMQ", "{B75C0E38-41BE-4F38-8893-37511ECBEEDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.ActiveMQ", "NServiceBus.Unicast.Queuing.ActiveMQ\NServiceBus.Unicast.Queuing.ActiveMQ.csproj", "{6FC67824-B465-4796-828E-76E5BF4F0D54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.ActiveMQ.Tests", "NServiceBus.Unicast.Queuing.ActiveMQ.Tests\NServiceBus.Unicast.Queuing.ActiveMQ.Tests.csproj", "{88485CCA-BE4A-46D7-864A-2ABEF45074BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +72,14 @@ Global
 		{00601589-0CFA-41B1-9519-C8F784C6B01F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00601589-0CFA-41B1-9519-C8F784C6B01F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00601589-0CFA-41B1-9519-C8F784C6B01F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FC67824-B465-4796-828E-76E5BF4F0D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FC67824-B465-4796-828E-76E5BF4F0D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FC67824-B465-4796-828E-76E5BF4F0D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FC67824-B465-4796-828E-76E5BF4F0D54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,5 +93,7 @@ Global
 		{9AFA850B-795E-4AA4-9E14-204ED12D7BD3} = {50820FFE-9984-4C86-8AB5-F08E7AAED000}
 		{C8F43410-6506-4387-A5AF-EB066F582DC0} = {50820FFE-9984-4C86-8AB5-F08E7AAED000}
 		{00601589-0CFA-41B1-9519-C8F784C6B01F} = {C004A7E9-1EB5-425E-9A74-33730FE5DB13}
+		{6FC67824-B465-4796-828E-76E5BF4F0D54} = {B75C0E38-41BE-4F38-8893-37511ECBEEDB}
+		{88485CCA-BE4A-46D7-864A-2ABEF45074BF} = {B75C0E38-41BE-4F38-8893-37511ECBEEDB}
 	EndGlobalSection
 EndGlobal
