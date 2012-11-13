@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Queuing.ActiveMQ.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.Text;
 
@@ -28,7 +29,7 @@
         }
 
         [Test]
-        public void CreateMessage_ShouldUseTextMessage()
+        public void CreateJmsMessage_ShouldUseTextMessage()
         {
             this.SetupMessageCreation();
 
@@ -40,6 +41,25 @@
 
             result.Should().NotBeNull();
             result.Text.Should().Be(ExpectedMessageBody);
+        }
+
+        [Test]
+        public void CreateTransportMessage_ShouldUseTextMessage()
+        {
+            const string ExpectedMessageBody = "Yehaa!";
+            var primitiveMap = new PrimitiveMap();
+            primitiveMap[ActiveMqMessageMapper.MessageIntentKey] = MessageIntentEnum.Send;
+
+            var message = new Mock<ITextMessage>();
+            message.Setup(x => x.Text).Returns(ExpectedMessageBody);
+            message.Setup(x => x.Properties).Returns(primitiveMap);
+            message.Setup(x => x.NMSReplyTo).Returns(Mock.Of<IDestination>);
+
+            TransportMessage expectedTransportMessage = this.CreateTransportMessage(ExpectedMessageBody);
+
+            var result = this.testee.CreateTransportMessage(message.Object);
+
+            result.Body.Should().BeEquivalentTo(expectedTransportMessage.Body);
         }
 
         private void SetupMessageCreation()
@@ -62,6 +82,7 @@
                     Body = body,
                     Headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "FancyHeader" }, },
                     Recoverable = true,
+                    TimeToBeReceived = TimeSpan.FromSeconds(2),
                     ReplyToAddress = new Address("someAddress", "localhorst")
                 };
         }

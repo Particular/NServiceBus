@@ -5,11 +5,10 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
     using System.Text;
 
     using Apache.NMS;
-    using Apache.NMS.Util;
 
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
-        private static string MessageIntentKey = "MessageIntent";
+        internal const string MessageIntentKey = "MessageIntent";
 
         public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
         {
@@ -47,15 +46,20 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public TransportMessage CreateTransportMessage(IMessage message)
         {
+            var messageIntentEnum = (MessageIntentEnum)message.Properties[MessageIntentKey];
+            var replyToAddress = new Address(message.NMSReplyTo.ToString(), string.Empty);
+            byte[] body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
+
             var transportMessage = new TransportMessage
                 {
-                    MessageIntent = (MessageIntentEnum)message.Properties[MessageIntentKey],
-                    ReplyToAddress = new Address(message.NMSReplyTo.ToString(), string.Empty),
+                    MessageIntent = messageIntentEnum,
+                    ReplyToAddress = replyToAddress,
                     CorrelationId = message.NMSCorrelationID,
                     IdForCorrelation = message.NMSCorrelationID,
                     TimeToBeReceived = message.NMSTimeToLive,
+                    Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
                     Id = message.NMSMessageId,
-                    Body = ((IBytesMessage)message).Content,
+                    Body = body,
                     Headers = new Dictionary<string, string>()
                 };
 
