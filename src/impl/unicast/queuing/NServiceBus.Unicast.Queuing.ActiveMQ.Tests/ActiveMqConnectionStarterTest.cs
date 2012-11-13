@@ -35,6 +35,7 @@
             this.testee.Stop();
 
             this.connection.Verify(c => c.Stop());
+            this.connection.Verify(c => c.Dispose());
         }
     }
 }

@@ -19,6 +19,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         public void Stop()
         {
             this.connection.Stop();
+            this.connection.Dispose();
         }
     }
 }
