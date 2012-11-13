@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
                     IdForCorrelation = message.NMSCorrelationID,
                     TimeToBeReceived = message.NMSTimeToLive,
                     Id = message.NMSMessageId,
-                    Body = ((IBytesMessage)message).Content,
+                    Body = ((ITextMessage)message).Content,
                     Headers = new Dictionary<string, string>()
                 };
 
