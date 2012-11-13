@@ -23,8 +23,9 @@
             config.Configurer.ConfigureComponent<ActiveMqMessageMapper>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<TopicEvaluator>(DependencyLifecycle.InstancePerCall);
 
-            config.Configurer.ConfigureComponent<TemporaryImplementationOfAPullingReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<NullQueueCreator>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
 
             var factory = new NetTxConnectionFactory(connectionString)
                 {

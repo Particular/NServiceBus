@@ -62,6 +62,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Transactional, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\NServiceBus.Unicast.Queuing.SQLServer.Config\bin\Debug\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
@@ -75,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveMqMessageDequeueStrategyTests.cs" />
     <Compile Include="ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />

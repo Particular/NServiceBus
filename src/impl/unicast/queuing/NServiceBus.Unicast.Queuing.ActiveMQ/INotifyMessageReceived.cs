@@ -4,9 +4,9 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
     using NServiceBus.Unicast.Transport;
 
-    public interface INotifyMessageReceived
+    public interface INotifyMessageReceived : IDisposable
     {
         event EventHandler<TransportMessageReceivedEventArgs> MessageReceived;
-        void Init(Address address, bool transactional);
+        void Start(Address address);
     }
 }

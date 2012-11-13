@@ -121,7 +121,7 @@
 
             this.consumer = this.SetupCreateConsumer(session, address.Queue);
 
-            this.testee.Init(address, true);
+            this.testee.Start(address);
         }
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)

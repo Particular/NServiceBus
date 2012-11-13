@@ -15,6 +15,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         private readonly INetTxConnection connection;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
         private ISession session;
+        private IMessageConsumer defaultConsumer;
 
         public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived;
 
@@ -28,12 +29,12 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         public string ConsumerName { get; set; }
         public object PurgeOnStartup { get; set; }
 
-        public void Init(Address address, bool transactional)
+        public void Start(Address address)
         {
             this.session = this.connection.CreateNetTxSession();
             var destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
-            var consumer = this.session.CreateConsumer(destination);
-            consumer.Listener += this.OnMessageReceived;
+            this.defaultConsumer = this.session.CreateConsumer(destination);
+            this.defaultConsumer.Listener += this.OnMessageReceived;
             this.connection.Start();
 
             if (address == Address.Local)
@@ -81,6 +82,20 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         {
             var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
             this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+        }
+
+        public void Dispose()
+        {
+            foreach (var messageConsumer in topicConsumers)
+            {
+                messageConsumer.Value.Close();
+                messageConsumer.Value.Dispose();
+            }
+
+            this.defaultConsumer.Close();
+            this.defaultConsumer.Dispose();
+            this.session.Close();
+            this.session.Dispose();
         }
     }
 }
