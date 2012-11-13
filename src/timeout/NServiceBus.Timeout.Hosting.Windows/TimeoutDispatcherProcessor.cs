@@ -61,7 +61,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
-            timeoutPersisterReceiver.Stop();
+            if (timeoutPersisterReceiver != null)
+            {
+                timeoutPersisterReceiver.Stop();
+            }
 
             if (inputTransport != null)
             {
