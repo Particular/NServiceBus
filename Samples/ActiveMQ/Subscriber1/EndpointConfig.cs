@@ -15,7 +15,9 @@ namespace Subscriber1
             var config = Configure.With()
                 //this overrides the NServiceBus default convention of IEvent
                 .DefaultBuilder()
+                
                 .ActiveMqTransport("B", "activemq:tcp://localhost:61616")
+                .XmlSerializer(dontWrapSingleMessages: true)
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("MyMessages"));
 
             Configure.Instance.DisableSecondLevelRetries();

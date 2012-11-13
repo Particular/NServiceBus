@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveMqMessageMapperTest.cs" />
     <Compile Include="ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />

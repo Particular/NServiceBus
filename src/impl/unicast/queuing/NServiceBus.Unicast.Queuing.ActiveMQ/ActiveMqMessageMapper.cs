@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
 
     using Apache.NMS;
     using Apache.NMS.Util;
@@ -17,7 +18,9 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
                 throw new ArgumentException("Messages must have the enclosed message type on the header.");
             }
 
-            var jmsmessage = session.CreateBytesMessage(message.Body);
+            string messageBody = Encoding.UTF8.GetString(message.Body);
+
+            IMessage jmsmessage = session.CreateTextMessage(messageBody);
 
             if (message.IdForCorrelation != null)
             {
@@ -31,7 +34,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
             jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes];
-            jmsmessage.NMSReplyTo = SessionUtil.GetDestination(session, "queue://" + message.ReplyToAddress.Queue);
+            jmsmessage.NMSReplyTo = session.GetQueue(message.ReplyToAddress.Queue);
             jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
 
             foreach (var header in message.Headers)
@@ -53,7 +56,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
                     TimeToBeReceived = message.NMSTimeToLive,
                     Id = message.NMSMessageId,
                     Body = ((IBytesMessage)message).Content,
-                    Headers = new Dictionary<string,string>()
+                    Headers = new Dictionary<string, string>()
                 };
 
             foreach (var key in message.Properties.Keys)
