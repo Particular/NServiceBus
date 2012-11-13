@@ -21,7 +21,6 @@
             this.subscriptionManager = subscriptionManager;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.topicEvaluator = topicEvaluator;
-            this.connection.Start();
         }
 
         public void Send(TransportMessage message, Address address)
@@ -48,7 +47,7 @@
             var messageType = message.Headers[UnicastBus.SubscriptionMessageType];
             var topic = this.topicEvaluator.GetTopicFromMessageType(messageType);
 
-            lock(this.subscriptionManager)
+            lock (this.subscriptionManager)
             {
                 this.subscriptionManager.Subscribe(topic);
             }
@@ -75,12 +74,12 @@
             var typeName = message.Headers[Headers.EnclosedMessageTypes];
             var topic = this.topicEvaluator.GetTopicFromMessageType(typeName);
 
-            SendMessage(message, "topic://" + topic);
+            this.SendMessage(message, "topic://" + topic);
         }
 
         private void SendMessage(TransportMessage message, Address address)
         {
-            SendMessage(message, "queue://" + address.Queue);
+            this.SendMessage(message, "queue://" + address.Queue);
         }
 
         private void SendMessage(TransportMessage message, string destination)

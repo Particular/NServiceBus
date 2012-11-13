@@ -33,7 +33,7 @@
                 };
 
             config.Configurer.ConfigureComponent<INetTxConnectionFactory>(() => factory, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<INetTxConnection>(() => factory.CreateConnection() as INetTxConnection, DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(() => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
 
             return config;
         }

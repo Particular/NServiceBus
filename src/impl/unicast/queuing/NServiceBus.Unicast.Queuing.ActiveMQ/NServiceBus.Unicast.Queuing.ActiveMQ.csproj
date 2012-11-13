@@ -71,6 +71,7 @@
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqSubscriptionStorage.cs" />
     <Compile Include="ConfigureActiveMqMessageQueue.cs" />
+    <Compile Include="ActiveMqConnectionStarter.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="ISubscriptionManager.cs" />

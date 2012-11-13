@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         }
 
         public string ConsumerName { get; set; }
-        public object PurgeOnStartup { get; set; }
+        public bool PurgeOnStartup { get; set; }
 
         public void Init(Address address, bool transactional)
         {
@@ -34,10 +34,11 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
             var destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
             var consumer = this.session.CreateConsumer(destination);
             consumer.Listener += this.OnMessageReceived;
-            this.connection.Start();
 
             if (address == Address.Local)
+            {
                 this.SubscribeTopics();
+            }
         }
 
         private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
