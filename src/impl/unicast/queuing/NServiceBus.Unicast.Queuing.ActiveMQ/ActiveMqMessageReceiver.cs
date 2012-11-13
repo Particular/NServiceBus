@@ -14,6 +14,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
         private readonly INetTxConnection connection;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
+
         private ISession session;
         private IMessageConsumer defaultConsumer;
 
@@ -27,12 +28,20 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
         }
 
         public string ConsumerName { get; set; }
+
         public bool PurgeOnStartup { get; set; }
 
         public void Start(Address address)
         {
             this.session = this.connection.CreateNetTxSession();
-            var destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
+            IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
+
+            if (this.PurgeOnStartup)
+            {
+                // Currently there's no other way to purge the queues
+                this.session.DeleteDestination(destination);
+            }
+
             this.defaultConsumer = this.session.CreateConsumer(destination);
             this.defaultConsumer.Listener += this.OnMessageReceived;
 

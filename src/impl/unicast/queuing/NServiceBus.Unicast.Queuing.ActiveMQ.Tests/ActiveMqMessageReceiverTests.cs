@@ -109,6 +109,26 @@
             topicConsumer.Verify(c => c.Dispose());
         }
 
+        [Test]
+        public void Start_WhenPurgeRequired_ThenPurge()
+        {
+            this.testee.PurgeOnStartup = true;
+
+            this.InitializeWithLocalAddress();
+
+            this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()));
+        }
+
+        [Test]
+        public void Start_WhenPurgeNotRequired_ThenNotPurge()
+        {
+            this.testee.PurgeOnStartup = false;
+
+            this.InitializeWithLocalAddress();
+
+            this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()), Times.Never());
+        }
+
         private void InitializeWithLocalAddress()
         {
             Address.InitializeLocalAddress("somequeue");
