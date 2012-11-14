@@ -25,6 +25,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ.Config
             config.Configurer.ConfigureComponent<ActiveMqMessageMapper>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<TopicEvaluator>(DependencyLifecycle.InstancePerCall);
 
+            config.Configurer.ConfigureComponent<ActiveMqQueueCreator>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
 
@@ -37,7 +38,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ.Config
             config.Configurer.ConfigureComponent<INetTxConnectionFactory>(() => factory, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent(() => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
 
-            EndpointInputQueueCreator.Enabled = false;
+            EndpointInputQueueCreator.Enabled = true;
 
             return config;
         }

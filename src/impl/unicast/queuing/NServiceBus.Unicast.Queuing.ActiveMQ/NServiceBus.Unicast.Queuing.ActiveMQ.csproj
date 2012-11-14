@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
     <Compile Include="ActiveMqMessageReceiver.cs" />
     <Compile Include="ActiveMqMessageSender.cs" />
