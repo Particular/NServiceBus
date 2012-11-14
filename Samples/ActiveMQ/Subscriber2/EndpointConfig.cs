@@ -16,7 +16,7 @@
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
 
-            Configure.Instance.DisableSecondLevelRetries();
+           Configure.Instance.DisableSecondLevelRetries();
         }
     }
 }

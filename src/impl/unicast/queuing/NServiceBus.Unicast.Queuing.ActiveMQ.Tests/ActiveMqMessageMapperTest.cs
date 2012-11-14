@@ -5,6 +5,7 @@
     using System.Text;
 
     using Apache.NMS;
+    using Apache.NMS.ActiveMQ.Commands;
     using Apache.NMS.Util;
 
     using FluentAssertions;
@@ -17,15 +18,15 @@
     public class ActiveMqMessageMapperTest
     {
         private ActiveMqMessageMapper testee;
-
         private Mock<INetTxSession> session;
+        private Mock<IMessageTypeInterpreter> messageTypeInterpreter;
 
         [SetUp]
         public void SetUp()
         {
             this.session = new Mock<INetTxSession>();
-
-            this.testee = new ActiveMqMessageMapper();
+            this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
+            this.testee = new ActiveMqMessageMapper(this.messageTypeInterpreter.Object);
         }
 
         [Test]
@@ -47,19 +48,110 @@
         public void CreateTransportMessage_ShouldUseTextMessage()
         {
             const string ExpectedMessageBody = "Yehaa!";
-            var primitiveMap = new PrimitiveMap();
-            primitiveMap[ActiveMqMessageMapper.MessageIntentKey] = MessageIntentEnum.Send;
+            var expectedTransportMessage = this.CreateTransportMessage(ExpectedMessageBody);
 
-            var message = new Mock<ITextMessage>();
-            message.Setup(x => x.Text).Returns(ExpectedMessageBody);
-            message.Setup(x => x.Properties).Returns(primitiveMap);
-            message.Setup(x => x.NMSReplyTo).Returns(Mock.Of<IDestination>);
+            var message = CreateTextMessage(ExpectedMessageBody);
 
-            TransportMessage expectedTransportMessage = this.CreateTransportMessage(ExpectedMessageBody);
-
-            var result = this.testee.CreateTransportMessage(message.Object);
+            var result = this.testee.CreateTransportMessage(message);
 
             result.Body.Should().BeEquivalentTo(expectedTransportMessage.Body);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfNServiceBusVersioIsDefined_ShouldAssignNSeriveBusVersion()
+        {
+            const string Version = "2.0.0.0";
+            var message = CreateTextMessage("");
+            message.Properties[Headers.NServiceBusVersion] = Version;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfNServiceBusVersioIsNotDefined_ShouldAssignDefaultNServiceBusVersion()
+        {
+            const string Version = "3.0.0.0";
+            var message = CreateTextMessage("");
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfMessageIntentIsDefined_ShouldAssignMessageIntent()
+        {
+            const MessageIntentEnum Intent = MessageIntentEnum.Subscribe;
+            var message = CreateTextMessage("");
+            message.Properties[ActiveMqMessageMapper.MessageIntentKey] = Intent;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.MessageIntent.Should().Be(Intent);
+        }
+
+        [Test]
+        public void CreateTransportMessage_ForPublicationMessage_IfMessageIntentIsNotDefined_ShouldAssignPublishToMessageIntent()
+        {
+            var message = CreateTextMessage("");
+            message.NMSDestination = new ActiveMQTopic("myTopic");
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.MessageIntent.Should().Be(MessageIntentEnum.Publish);
+        }
+
+        [Test]
+        public void CreateTransportMessage_ForSendMessage_IfMessageIntentIsNotDefined_ShouldAssignSendToMessageIntent()
+        {
+            var message = CreateTextMessage("");
+            message.NMSDestination = new ActiveMQQueue("myQueue");
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.MessageIntent.Should().Be(MessageIntentEnum.Send);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfEnclosedMessageTypesIsDefined_ShouldAssignIt()
+        {
+            const string EnclosedMessageTypes = "TheEnclosedMessageTypes";
+            var message = CreateTextMessage("");
+            message.Properties[Headers.EnclosedMessageTypes] = EnclosedMessageTypes;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.EnclosedMessageTypes].Should().Be(EnclosedMessageTypes);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfEnclosedMessageTypesIsNotDefined_ShouldAssignInterpretedTypeFromJmsMessage()
+        {
+            const string ExpectedEnclosedMessageTypes = "TheEnclosedMessageTypes";
+            const string JmsMessageType = "JmsMessageType";
+            var message = CreateTextMessage("");
+            message.NMSType = JmsMessageType;
+
+            this.messageTypeInterpreter
+                .Setup(i => i.GetAssemblyQualifiedName(JmsMessageType))
+                .Returns(ExpectedEnclosedMessageTypes);
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.EnclosedMessageTypes].Should().Be(ExpectedEnclosedMessageTypes);
+        }
+        
+        private static ITextMessage CreateTextMessage(string body)
+        {
+            var message = new Mock<ITextMessage>();
+            message.SetupAllProperties();
+
+            message.Setup(m => m.Properties).Returns(new PrimitiveMap());
+            message.Object.Text = body;
+
+            return message.Object;
         }
 
         private void SetupMessageCreation()

@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B27A2A
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSPublisher", "NMSPublisher\NMSPublisher.csproj", "{F34154FC-B995-4B3C-BD8A-0273655C5206}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSConsumer", "NMSConsumer\NMSConsumer.csproj", "{8116EF80-857D-4A19-846B-9B9EFF0A5E04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{6A699A4E-F2FD-4B71-AF73-199B499482BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A699A4E-F2FD-4B71-AF73-199B499482BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A699A4E-F2FD-4B71-AF73-199B499482BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F34154FC-B995-4B3C-BD8A-0273655C5206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F34154FC-B995-4B3C-BD8A-0273655C5206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F34154FC-B995-4B3C-BD8A-0273655C5206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F34154FC-B995-4B3C-BD8A-0273655C5206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8116EF80-857D-4A19-846B-9B9EFF0A5E04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8116EF80-857D-4A19-846B-9B9EFF0A5E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8116EF80-857D-4A19-846B-9B9EFF0A5E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8116EF80-857D-4A19-846B-9B9EFF0A5E04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

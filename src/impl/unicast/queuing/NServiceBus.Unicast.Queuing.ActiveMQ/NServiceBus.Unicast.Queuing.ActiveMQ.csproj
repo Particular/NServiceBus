@@ -86,11 +86,13 @@
     <Compile Include="ConfigureActiveMqMessageQueue.cs" />
     <Compile Include="ActiveMqConnectionStarter.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
+    <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
     <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="ITopicEvaluator.cs" />
     <Compile Include="ActiveMqMessageMapper.cs" />
+    <Compile Include="MessageTypeInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionManager.cs" />
