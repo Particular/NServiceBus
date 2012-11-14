@@ -96,7 +96,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public void Dispose()
         {
-            foreach (var messageConsumer in topicConsumers)
+            foreach (var messageConsumer in this.topicConsumers)
             {
                 messageConsumer.Value.Close();
                 messageConsumer.Value.Dispose();
