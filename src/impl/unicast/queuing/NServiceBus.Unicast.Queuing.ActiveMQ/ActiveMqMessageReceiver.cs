@@ -29,6 +29,10 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public string ConsumerName { get; set; }
 
+        /// <summary>
+        /// Sets whether or not the transport should purge the input
+        /// queue when it is started.
+        /// </summary>
         public bool PurgeOnStartup { get; set; }
 
         public void Start(Address address)
@@ -96,7 +100,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public void Dispose()
         {
-            foreach (var messageConsumer in topicConsumers)
+            foreach (var messageConsumer in this.topicConsumers)
             {
                 messageConsumer.Value.Close();
                 messageConsumer.Value.Dispose();

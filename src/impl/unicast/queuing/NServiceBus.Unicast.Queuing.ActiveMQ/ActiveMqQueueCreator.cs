@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.Unicast.Queuing.ActiveMQ
+namespace NServiceBus.Unicast.Queuing.ActiveMQ
 {
-    public class NullQueueCreator : ICreateQueues
+    public class ActiveMqQueueCreator : ICreateQueues
     {
-         public void CreateQueueIfNecessary(Address address, string account)
-         {
-         }
+        public void CreateQueueIfNecessary(Address address, string account)
+        {
+            // no op
+        }
     }
 }

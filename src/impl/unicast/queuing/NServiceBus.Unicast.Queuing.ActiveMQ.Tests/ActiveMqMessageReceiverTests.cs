@@ -42,7 +42,7 @@
             this.testee.MessageReceived += (sender, e) => receivedEvent = e;
             this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
 
-            this.Initialize(new Address(Queue, "machine"));
+            this.StartTestee(new Address(Queue, "machine"));
             this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
             receivedEvent.Should().NotBeNull();
@@ -60,7 +60,7 @@
 
             this.testee.MessageReceived += (sender, e) => receivedEvent = e;
             this.testee.ConsumerName = ConsumerName;
-            this.InitializeWithLocalAddress();
+            this.StartTesteeWithLocalAddress();
 
             this.SetupMapMessageToTransportMessage(message, transportMessage);
             var topicConsumer = this.SetupCreateConsumer(session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
@@ -82,7 +82,7 @@
 
             this.testee.MessageReceived += (sender, e) => receivedEvent = e;
             this.testee.ConsumerName = ConsumerName;
-            this.Initialize(new Address("queue", "machine"));
+            this.StartTestee(new Address("queue", "machine"));
 
             var topicConsumer = this.SetupCreateConsumer(session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
@@ -99,7 +99,7 @@
             const string ConsumerName = "A";
 
             this.testee.ConsumerName = ConsumerName;
-            this.InitializeWithLocalAddress();
+            this.StartTesteeWithLocalAddress();
 
             var topicConsumer = this.SetupCreateConsumer(session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
@@ -114,7 +114,7 @@
         {
             this.testee.PurgeOnStartup = true;
 
-            this.InitializeWithLocalAddress();
+            this.StartTesteeWithLocalAddress();
 
             this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()));
         }
@@ -124,18 +124,43 @@
         {
             this.testee.PurgeOnStartup = false;
 
-            this.InitializeWithLocalAddress();
+            this.StartTesteeWithLocalAddress();
 
             this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()), Times.Never());
         }
 
-        private void InitializeWithLocalAddress()
+        [Test]
+        public void Dispose_ShouldReleaseResources()
+        {
+            const string Topic = "SomeTopic";
+            const string ConsumerName = "A";
+
+            this.testee.ConsumerName = ConsumerName;
+            this.StartTesteeWithLocalAddress();
+
+            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+
+            this.RaiseTopicSubscribed(Topic);
+
+            this.testee.Dispose();
+
+            topicConsumer.Verify(c => c.Close());
+            topicConsumer.Verify(c => c.Dispose());
+
+            this.consumer.Verify(c => c.Close());
+            this.consumer.Verify(c => c.Dispose());
+
+            this.session.Verify(s => s.Close());
+            this.session.Verify(s => s.Dispose());
+        }
+
+        private void StartTesteeWithLocalAddress()
         {
             Address.InitializeLocalAddress("somequeue");
-            this.Initialize(Address.Local);
+            this.StartTestee(Address.Local);
         }
         
-        private void Initialize(Address address)
+        private void StartTestee(Address address)
         {
             this.session = this.SetupCreateSession();
 

@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.ActiveMQ.Tests", "NServiceBus.Unicast.Queuing.ActiveMQ.Tests\NServiceBus.Unicast.Queuing.ActiveMQ.Tests.csproj", "{88485CCA-BE4A-46D7-864A-2ABEF45074BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Unicast.Queuing.ActiveMQ.Config", "NServiceBus.Unicast.Queuing.ActiveMQ.Config\NServiceBus.Unicast.Queuing.ActiveMQ.Config.csproj", "{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88485CCA-BE4A-46D7-864A-2ABEF45074BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,5 +101,6 @@ Global
 		{00601589-0CFA-41B1-9519-C8F784C6B01F} = {C004A7E9-1EB5-425E-9A74-33730FE5DB13}
 		{6FC67824-B465-4796-828E-76E5BF4F0D54} = {B75C0E38-41BE-4F38-8893-37511ECBEEDB}
 		{88485CCA-BE4A-46D7-864A-2ABEF45074BF} = {B75C0E38-41BE-4F38-8893-37511ECBEEDB}
+		{9513ABB2-EB6A-4E8E-A803-2442DC3723F3} = {B75C0E38-41BE-4F38-8893-37511ECBEEDB}
 	EndGlobalSection
 EndGlobal

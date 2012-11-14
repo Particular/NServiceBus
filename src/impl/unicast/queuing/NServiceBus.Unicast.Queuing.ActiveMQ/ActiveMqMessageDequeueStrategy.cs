@@ -36,24 +36,24 @@
 
         public void ChangeMaxDegreeOfParallelism(int value)
         {
-            lock (messageReceivers)
+            lock (this.messageReceivers)
             {
-                if (messageReceivers.Count == value)
+                if (this.messageReceivers.Count == value)
                 {
                     return;
                 }
 
-                if (messageReceivers.Count < value)
+                if (this.messageReceivers.Count < value)
                 {
-                    for (int i = messageReceivers.Count; i < value; i++)
+                    for (int i = this.messageReceivers.Count; i < value; i++)
                     {
                         this.CreateAndStartMessageReceiver();
                     }
                 }
 
-                if (messageReceivers.Count > value)
+                if (this.messageReceivers.Count > value)
                 {
-                    for (int i = messageReceivers.Count; i > value; i--)
+                    for (int i = this.messageReceivers.Count; i > value; i--)
                     {
                         var receiver = this.messageReceivers.First();
                         receiver.Dispose();
@@ -65,7 +65,7 @@
 
         public void Stop()
         {
-            lock (messageReceivers)
+            lock (this.messageReceivers)
             {
                 foreach (var messageReceiver in this.messageReceivers)
                 {
@@ -80,7 +80,7 @@
         {
             var receiver = this.notifyMessageReceivedFactory.CreateMessageReceiver();
             receiver.MessageReceived += this.OnMessageReceived;
-            receiver.Start(address);
+            receiver.Start(this.address);
             this.messageReceivers.Add(receiver);
         }
 

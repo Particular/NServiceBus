@@ -1,15 +1,7 @@
-using NServiceBus;
-using NServiceBus.Unicast.Queuing.ActiveMQ;
-
-public interface INotifyMessageReceivedFactory
+namespace NServiceBus.Unicast.Queuing.ActiveMQ
 {
-    INotifyMessageReceived CreateMessageReceiver();
-}
-
-public class NotifyMessageReceivedFactory : INotifyMessageReceivedFactory
-{
-    public INotifyMessageReceived CreateMessageReceiver()
+    public interface INotifyMessageReceivedFactory
     {
-        return Configure.Instance.Builder.Build<INotifyMessageReceived>();
+        INotifyMessageReceived CreateMessageReceiver();
     }
 }

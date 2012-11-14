@@ -56,6 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\build\nservicebus.core\Apache.NMS.dll</HintPath>
     </Reference>
+    <Reference Include="Apache.NMS.ActiveMQ">
+      <HintPath>..\..\..\build\nservicebus.core\Apache.NMS.ActiveMQ.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Core">
       <HintPath>..\..\..\packages\Castle.Core.3.1.0\lib\net40-client\Castle.Core.dll</HintPath>
     </Reference>
@@ -81,9 +84,6 @@
     <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
