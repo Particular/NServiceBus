@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6FC67824-B465-4796-828E-76E5BF4F0D54}</ProjectGuid>
+    <ProjectGuid>{9513ABB2-EB6A-4E8E-A803-2442DC3723F3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Unicast.Queuing.ActiveMQ</RootNamespace>
-    <AssemblyName>NServiceBus.Unicast.Queuing.ActiveMQ</AssemblyName>
+    <RootNamespace>NServiceBus.Unicast.Queuing.ActiveMQ.Config</RootNamespace>
+    <AssemblyName>NServiceBus.Unicast.Queuing.ActiveMQ.Config</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Apache.NMS">
@@ -42,18 +45,14 @@
     <Reference Include="NServiceBus.Config">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Logging, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Unicast">
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Unicast.Queuing">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.Installers">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.Installers.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Subscriptions">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Subscriptions.dll</HintPath>
@@ -64,13 +63,9 @@
     <Reference Include="NServiceBus.Unicast.Transport.Transactional">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Utils, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -78,28 +73,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
-    <Compile Include="ActiveMqMessageReceiver.cs" />
-    <Compile Include="ActiveMqMessageSender.cs" />
-    <Compile Include="ActiveMqSubscriptionStorage.cs" />
-    <Compile Include="ActiveMqConnectionStarter.cs" />
-    <Compile Include="IActiveMqMessageMapper.cs" />
-    <Compile Include="INotifyMessageReceived.cs" />
-    <Compile Include="INotifyMessageReceivedFactory.cs" />
-    <Compile Include="ISubscriptionManager.cs" />
-    <Compile Include="ITopicEvaluator.cs" />
-    <Compile Include="ActiveMqMessageMapper.cs" />
-    <Compile Include="NotifyMessageReceivedFactory.cs" />
+    <Compile Include="ActiveMqTransportConfig.cs" />
+    <Compile Include="ConfigureActiveMqMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SubscriptionEventArgs.cs" />
-    <Compile Include="SubscriptionManager.cs" />
-    <Compile Include="TopicEvaluator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <ProjectReference Include="..\NServiceBus.Unicast.Queuing.ActiveMQ\NServiceBus.Unicast.Queuing.ActiveMQ.csproj">
+      <Project>{6fc67824-b465-4796-828e-76e5bf4f0d54}</Project>
+      <Name>NServiceBus.Unicast.Queuing.ActiveMQ</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
