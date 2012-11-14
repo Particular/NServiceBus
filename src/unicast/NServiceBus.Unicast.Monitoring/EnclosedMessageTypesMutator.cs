@@ -22,12 +22,15 @@
 
         static string SerializeEnclosedMessageTypes(IEnumerable<object> messages)
         {
-            var types = messages.Select(m => m.GetType());
-            
+            var types = messages.Select(m => m.GetType()).ToList();
+
             var interfaces = types.SelectMany(t => t.GetInterfaces())
-                .Where(t=>t.IsMessageType());
-            
-            return string.Join(";", types.Concat(interfaces).Distinct().Select(t=>t.AssemblyQualifiedName));
+                .Where(t => t.IsMessageType());
+
+            var noneProxyTypes = types.Distinct().Where(t => !t.Assembly.IsDynamic); // Exclude proxies
+            var interfacesOrderedByHierarchy = interfaces.Distinct().OrderByDescending(i => i.GetInterfaces().Count()); // Interfaced less interfaces are lower in the hierarchy. 
+
+            return string.Join(";", noneProxyTypes.Concat(interfacesOrderedByHierarchy).Select(t => t.AssemblyQualifiedName));
         }
 
         /// <summary>
