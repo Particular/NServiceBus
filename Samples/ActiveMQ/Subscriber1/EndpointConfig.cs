@@ -2,11 +2,8 @@
 
 namespace Subscriber1
 {
-    using Apache.NMS;
-
-    using NServiceBus.Timeout.Hosting.Windows;
-    using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Queuing.ActiveMQ;
+    using NServiceBus.Unicast.Queuing.ActiveMQ.Config;
 
     class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
     {
@@ -17,7 +14,7 @@ namespace Subscriber1
                 .DefaultBuilder()
                 
                 .ActiveMqTransport("B", "activemq:tcp://localhost:61616")
-                .XmlSerializer(dontWrapSingleMessages: true)
+                .XmlSerializer(dontWrapSingleMessages: false)
                 .UnicastBus()
                     .PurgeOnStartup(true)
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("MyMessages"));
