@@ -11,7 +11,7 @@
                 //this overrides the NServiceBus default convention of IEvent
                 .DefiningEventsAs(t=> t.Namespace != null && t.Namespace.StartsWith("MyMessages"))
                 .CastleWindsorBuilder() // just to show we can mix and match containers
-                .XmlSerializer(dontWrapSingleMessages: false) // crucial for AQ
+                .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
                 .ActiveMqTransport("C", "activemq:tcp://localhost:61616")
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint

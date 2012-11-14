@@ -11,7 +11,7 @@
                 //this overrides the NServiceBus default convention of IEvent
                 .DefaultBuilder()
                 .ActiveMqTransport("A", "activemq:tcp://localhost:61616")
-                .XmlSerializer(dontWrapSingleMessages: false)
+                .XmlSerializer(dontWrapSingleMessages: true)
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("MyMessages"));
         }
     }

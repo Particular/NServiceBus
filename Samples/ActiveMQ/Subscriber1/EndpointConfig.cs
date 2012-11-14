@@ -14,9 +14,9 @@ namespace Subscriber1
                 .DefaultBuilder()
                 
                 .ActiveMqTransport("B", "activemq:tcp://localhost:61616")
-                .XmlSerializer(dontWrapSingleMessages: false)
-                .UnicastBus()
-                    .PurgeOnStartup(true)
+                .XmlSerializer(dontWrapSingleMessages: true)
+//                .UnicastBus()
+//                    .PurgeOnStartup(true)
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("MyMessages"));
 
             Configure.Instance.DisableSecondLevelRetries();
