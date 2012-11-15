@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnotherEventMessageHandler.cs" />
+    <Compile Include="CommandMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="EventMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

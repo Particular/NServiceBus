@@ -8,6 +8,7 @@
     using Apache.NMS.Util;
 
     using MyMessages;
+    using MyMessages.SubscriberNMS;
 
     class Program
     {
@@ -24,10 +25,14 @@
                 connection.Start();
                 using (var session = connection.CreateNetTxSession())
                 {
-                    var destination = SessionUtil.GetDestination(session, "queue://Consumer.NMS.VirtualTopic.EventMessage");
-                    using (var consumer = session.CreateConsumer(destination))
+                    var eventDestination = SessionUtil.GetDestination(session, "queue://Consumer.NMS.VirtualTopic.EventMessage");
+                    var commandDestination = SessionUtil.GetDestination(session, "queue://subscribernms");
+                    using (var eventConsumer = session.CreateConsumer(eventDestination))
+                    using (var commandConsumer = session.CreateConsumer(commandDestination))
                     {
-                        consumer.Listener += OnMessage;
+                        eventConsumer.Listener += OnEventMessage;
+                        commandConsumer.Listener += OnCommandMessage;
+                        
                         Console.WriteLine("Consumer started. Press q to quit");
                         while (Console.ReadKey().KeyChar != 'q')
                         {
@@ -38,14 +43,25 @@
             }
         }
 
-        private static void OnMessage(IMessage message)
+        private static void OnEventMessage(IMessage message)
         {
             using (new TransactionScope())
             {
                 var textMessage = (ITextMessage)message;
-                var eventMessage = (EventMessage)XmlUtil.Deserialize(typeof(EventMessage), textMessage.Text);
+                var messageContent = (EventMessage)XmlUtil.Deserialize(typeof(EventMessage), textMessage.Text);
 
-                Console.WriteLine("Received Message with ID: " + eventMessage.EventId);
+                Console.WriteLine("Received EventMessage with ID: {0}", messageContent.EventId);
+            }
+        }
+
+        private static void OnCommandMessage(IMessage message)
+        {
+            using (new TransactionScope())
+            {
+                var textMessage = (ITextMessage)message;
+                var messageContent = (MyRequestNMS)XmlUtil.Deserialize(typeof(MyRequestNMS), textMessage.Text);
+
+                Console.WriteLine("Received MyRequestNMS with ID: {0}", messageContent.EventId);
             }
         }
     }

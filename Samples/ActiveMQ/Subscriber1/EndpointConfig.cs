@@ -2,6 +2,8 @@
 
 namespace Subscriber1
 {
+    using System.Linq;
+
     using NServiceBus.Unicast.Queuing.ActiveMQ;
     using NServiceBus.Unicast.Queuing.ActiveMQ.Config;
 
@@ -17,7 +19,7 @@ namespace Subscriber1
                 .XmlSerializer(dontWrapSingleMessages: true)
 //                .UnicastBus()
 //                    .PurgeOnStartup(true)
-                .DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("MyMessages"));
+;
 
             Configure.Instance.DisableSecondLevelRetries();
         }
