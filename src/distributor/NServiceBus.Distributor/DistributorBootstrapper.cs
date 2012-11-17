@@ -11,7 +11,6 @@ namespace NServiceBus.Distributor
     public class DistributorBootstrapper : IWantToRunWhenBusStartsAndStops
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
-        public int NumberOfWorkerThreads { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
         public IBuilder Builder { get; set; }
 
@@ -30,7 +29,7 @@ namespace NServiceBus.Distributor
            
             var dataTransport = new TransactionalTransport
             {
-                NumberOfWorkerThreads = NumberOfWorkerThreads,
+                NumberOfWorkerThreads = 1, // will soon be removed
                 FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures
             };
 

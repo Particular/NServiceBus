@@ -12,8 +12,7 @@ namespace NServiceBus.Distributor
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
         public IManageMessageFailures MessageFailureManager { get; set; }
-        public int NumberOfWorkerThreads { get; set; }
-
+     
         public Address ControlQueue { get; set; }
 
         public void Start()
@@ -24,7 +23,7 @@ namespace NServiceBus.Distributor
             controlTransport = new TransactionalTransport
             {
                 FailureManager = MessageFailureManager,
-                NumberOfWorkerThreads = NumberOfWorkerThreads,
+                NumberOfWorkerThreads = 1, //will soon be removed
             };
 
             controlTransport.TransportMessageReceived +=

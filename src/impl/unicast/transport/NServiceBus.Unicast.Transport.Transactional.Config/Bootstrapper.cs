@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Configuration;
-using System.Transactions;
 using NServiceBus.Config;
 
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
     using DequeueStrategies;
     using DequeueStrategies.ThreadingStrategies;
+    using Logging;
     using Queuing;
 
     public class Bootstrapper : INeedInitialization
@@ -18,31 +18,52 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
         public void Init()
         {
-
-            var cfg = Configure.GetConfigSection<MsmqTransportConfig>();
-
-            var numberOfWorkerThreadsInAppConfig = 1;
-            if (cfg != null)
-            {
-                numberOfWorkerThreadsInAppConfig = cfg.NumberOfWorkerThreads;
-                TransactionSettings.MaxRetries = cfg.MaxRetries;
-
-                if (!string.IsNullOrWhiteSpace(cfg.InputQueue))
-                {
-                    throw new
-                        ConfigurationErrorsException(string.Format("'InputQueue' entry in 'MsmqTransportConfig' section is obsolete. " +
-                        "By default the queue name is taken from the class namespace where the configuration is declared. " +
-                        "To override it, use .DefineEndpointName() with either a string parameter as queue name or Func<string> parameter that returns queue name. " +
-                        "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
-                }
-            }
+            var numberOfWorkerThreadsInAppConfig = ConfiguredMaxDegreeOfParallelism();
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
                 .ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
         }
 
+        static int ConfiguredMaxDegreeOfParallelism()
+        {
+        
+            var transportConfig = Configure.GetConfigSection<TransportConfig>();
+            var msmqTransportConfig = Configure.GetConfigSection<MsmqTransportConfig>();
+
+            if (msmqTransportConfig != null)
+                Logger.Warn("'MsmqTransportConfig' section is obsolete. Please update your configuration to use the new 'TransportConfig' section instead. In NServiceBus 4.0 this will be treated as an error");
+  
+            if (transportConfig != null)
+            {
+                TransactionSettings.MaxRetries = transportConfig.MaxRetries;
+
+                return transportConfig.MaxDegreeOfParallelism;
+            }
+
+            if (msmqTransportConfig != null)
+            {
+                TransactionSettings.MaxRetries = msmqTransportConfig.MaxRetries;
+
+                if (!string.IsNullOrWhiteSpace(msmqTransportConfig.InputQueue))
+                {
+                    throw new
+                        ConfigurationErrorsException(
+                        string.Format("'InputQueue' entry in 'MsmqTransportConfig' section is obsolete. " +
+                                      "By default the queue name is taken from the class namespace where the configuration is declared. " +
+                                      "To override it, use .DefineEndpointName() with either a string parameter as queue name or Func<string> parameter that returns queue name. " +
+                                      "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
+                }
+
+                return msmqTransportConfig.NumberOfWorkerThreads;
+            }
+            return 1;
+        }
+
         public static TransactionSettings TransactionSettings { get; set; }
+
+        static readonly ILog Logger = LogManager.GetLogger("Configuration");
+
     }
 
     class DefaultDequeueStrategy : IWantToRunBeforeConfigurationIsFinalized

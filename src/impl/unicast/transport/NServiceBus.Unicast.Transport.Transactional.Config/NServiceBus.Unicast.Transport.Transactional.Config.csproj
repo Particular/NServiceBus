@@ -81,6 +81,7 @@
     <Compile Include="LicenceConfig.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransportConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Unicast.Transport.Transactional\NServiceBus.Unicast.Transport.Transactional.csproj">
