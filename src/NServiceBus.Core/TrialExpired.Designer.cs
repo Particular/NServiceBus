@@ -67,8 +67,8 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::NServiceBus.Forms.Properties.Resources.logo;
-            this.pictureBox1.InitialImage = global::NServiceBus.Forms.Properties.Resources.logo;
+            this.pictureBox1.Image = global::NServiceBus.Properties.Resources.logo;
+            this.pictureBox1.InitialImage = global::NServiceBus.Properties.Resources.logo;
             this.pictureBox1.Location = new System.Drawing.Point(77, 7);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(330, 77);
@@ -254,7 +254,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.errorPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = global::NServiceBus.Forms.Properties.Resources.form_icon;
+            this.Icon = global::NServiceBus.Properties.Resources.form_icon;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "TrialExpired";
