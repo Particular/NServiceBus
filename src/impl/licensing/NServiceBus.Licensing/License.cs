@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Licensing
+namespace NServiceBus.Licensing
 {
     using System;
 

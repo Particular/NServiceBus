@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Installation
+namespace NServiceBus.Installation
 {
     /// <summary>
     /// Interface invoked by the infrastructure when going to install an endpoint.
