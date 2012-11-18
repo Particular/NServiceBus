@@ -4,29 +4,22 @@ namespace NServiceBus.Distributor
 {
     using ReadyMessages;
     using Unicast.Distributor;
-    using Unicast.Transport.Transactional;
-    using Faults;
     using Unicast.Transport;
 
     public class DistributorReadyMessageProcessor : IWantToRunWhenBusStartsAndStops
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
-        public IManageMessageFailures MessageFailureManager { get; set; }
-     
+       
         public Address ControlQueue { get; set; }
+        public ITransport ControlTransport { get; set; }
 
         public void Start()
         {
             if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
         
-            controlTransport = new TransactionalTransport
-            {
-                FailureManager = MessageFailureManager,
-                NumberOfWorkerThreads = 1, //will soon be removed
-            };
-
-            controlTransport.TransportMessageReceived +=
+           
+            ControlTransport.TransportMessageReceived +=
                 (obj, ev) =>
                 {
                     var transportMessage = ev.Message;
@@ -37,7 +30,7 @@ namespace NServiceBus.Distributor
                     HandleControlMessage(transportMessage);
                 };
 
-            controlTransport.Start(ControlQueue);
+            ControlTransport.Start(ControlQueue);
         }
 
         public void Stop()
@@ -68,7 +61,6 @@ namespace NServiceBus.Distributor
             }
         }
 
-        ITransport controlTransport;
         static readonly ILog Logger = LogManager.GetLogger("Distributor."+Configure.EndpointName);
     }
 }

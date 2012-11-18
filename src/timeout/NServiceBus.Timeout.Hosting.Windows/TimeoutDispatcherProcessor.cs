@@ -9,19 +9,15 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     public class TimeoutDispatcherProcessor : IWantToRunWhenBusStartsAndStops
     {
-        private TimeoutPersisterReceiver timeoutPersisterReceiver;
-        private ITransport inputTransport;
+        public TransactionalTransport InputTransport { get; set; }
 
         public static readonly Address TimeoutDispatcherAddress;
 
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
-
-        public TransactionalTransport MainTransport { get; set; }
-
-        public IBuilder Builder { get; set; }
-
+        public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
+      
         static TimeoutDispatcherProcessor()
         {
             TimeoutDispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
@@ -29,22 +25,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
-            timeoutPersisterReceiver = new TimeoutPersisterReceiver(Builder.Build<IManageTimeouts>());
-            timeoutPersisterReceiver.MessageSender = MessageSender;
-            timeoutPersisterReceiver.TimeoutsPersister = TimeoutsPersister;
-            timeoutPersisterReceiver.Start();
+            TimeoutPersisterReceiver.Start();
 
-            inputTransport = new TransactionalTransport
-                {
-                    NumberOfWorkerThreads =
-                        MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
-                    FailureManager = new ManageMessageFailuresWithoutSlr(MainTransport.FailureManager),
-                    TransactionSettings = MainTransport.TransactionSettings
-                };
 
-            inputTransport.TransportMessageReceived += OnTransportMessageReceived;
+            //todo - the line below needs to change when we refactore the slr to be:
+            // transport.DisableSLR() or similar
+            InputTransport.FailureManager = new ManageMessageFailuresWithoutSlr(InputTransport.FailureManager);
 
-            inputTransport.Start(TimeoutDispatcherAddress);
+            InputTransport.TransportMessageReceived += OnTransportMessageReceived;
+
+            InputTransport.Start(TimeoutDispatcherAddress);
         }
 
         private void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
@@ -61,11 +51,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
-            timeoutPersisterReceiver.Stop();
+            TimeoutPersisterReceiver.Stop();
 
-            if (inputTransport != null)
+            if (InputTransport != null)
             {
-                inputTransport.Dispose();
+                InputTransport.Dispose();
             }
         }
     }

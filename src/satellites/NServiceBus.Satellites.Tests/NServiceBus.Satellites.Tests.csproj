@@ -77,7 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FakeTransport.cs" />
-    <Compile Include="FakeTransportBuilder.cs" />
     <Compile Include="FuncBuilder.cs" />
     <Compile Include="SatelliteLauncherContext.cs" />
     <Compile Include="SatelliteLauncherTests.cs" />

@@ -89,6 +89,7 @@ namespace NServiceBus.Unicast
                 transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
                 transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
+            get { return transport; }
         }
 
         /// <summary>

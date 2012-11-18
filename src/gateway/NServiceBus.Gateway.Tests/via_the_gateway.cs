@@ -16,6 +16,7 @@
     using Rhino.Mocks;
     using Sending;
     using Unicast.Queuing;
+    using Unicast.Transport.Transactional;
 
     public class via_the_gateway
     {
@@ -44,9 +45,9 @@
         {
             databusForSiteA = new InMemoryDataBus();
             databusForSiteB = new InMemoryDataBus();
-
-            inMemoryReceiver = new InMemoryReceiver();
-
+            fakeTransport = new FakeTransport();
+            
+         
             var builder = MockRepository.GenerateStub<IBuilder>();
 
             var channelFactory = new ChannelFactory();
@@ -88,13 +89,8 @@
             dispatcherInSiteA = new GatewaySender(builder,
                                                                    channelManager,
                                                                    MockRepository.GenerateStub<IMessageNotifier>(),
-                                                                   MockRepository.GenerateStub<ISendMessages>(),
-                                                                   new FakeDispatcherSettings
-                                                                       {
-                                                                           Receiver = inMemoryReceiver,
-                                                                           FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
-                                                                       });
-
+                                                                   MockRepository.GenerateStub<ISendMessages>());
+            dispatcherInSiteA.Transport = fakeTransport;
             dispatcherInSiteA.Start(GatewayAddressForSiteA);
             receiverInSiteB.Start(GatewayAddressForSiteB);
         }
@@ -122,7 +118,7 @@
 
         protected void SendMessage(TransportMessage message)
         {
-            inMemoryReceiver.Add(message);
+            fakeTransport.RaiseEvent(message);
         }
 
         protected FakeMessageSender.SendDetails GetDetailsForReceivedMessage()
@@ -132,7 +128,7 @@
 
         GatewaySender dispatcherInSiteA;
         GatewayReceiver receiverInSiteB;
-        InMemoryReceiver inMemoryReceiver;
+        FakeTransport fakeTransport;
         FakeMessageSender messageSender;
     }
 }

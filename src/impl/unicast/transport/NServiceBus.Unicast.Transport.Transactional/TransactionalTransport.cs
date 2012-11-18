@@ -12,6 +12,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
     public class TransactionalTransport : ITransport
     {
+        /// <summary>
+        /// The receiver responsible for notifying the transport when new messages are available
+        /// </summary>
+        public IDequeueMessages Receiver { get; set; }
 
         /// <summary>
         /// Setings related to the transactionallity of the transport
@@ -102,28 +106,25 @@ namespace NServiceBus.Unicast.Transport.Transactional
             maxDegreeOfParallelism = targetNumberOfWorkerThreads;
 
             if (isStarted)
-                receiver.ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+                Receiver.ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
         }
 
-        void ITransport.Start(string inputqueue)
+        public void Start(string inputqueue)
         {
             ((ITransport)this).Start(Address.Parse(inputqueue));
         }
 
-        void ITransport.Start(Address address)
+        public void Start(Address address)
         {
             if (isStarted)
                 throw new InvalidOperationException("The transport is already started");
 
             FailureManager.Init(address);
 
-            //todo - remove this when we make the ITransport a intance per call so that we can resolve it from the container
-            receiver = Configure.Instance.Builder.Build<IDequeueMessages>();
+            Receiver.Init(address, TransactionSettings);
+            Receiver.MessageDequeued += Process;
 
-            receiver.Init(address, TransactionSettings);
-            receiver.MessageDequeued += Process;
-
-            receiver.Start(maxDegreeOfParallelism);
+            Receiver.Start(maxDegreeOfParallelism);
 
             isStarted = true;
         }
@@ -404,8 +405,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
 
-        IDequeueMessages receiver;
-
+    
 
         /// <summary>
         /// Stops all worker threads.
@@ -415,8 +415,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (!isStarted)
                 return;
 
-            receiver.Stop();
-            receiver.MessageDequeued -= Process;
+            Receiver.Stop();
+            Receiver.MessageDequeued -= Process;
             isStarted = false;
         }
 

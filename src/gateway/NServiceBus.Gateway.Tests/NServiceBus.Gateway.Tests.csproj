@@ -90,6 +90,10 @@
     <Reference Include="NServiceBus.Unicast.Transport">
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Unicast.Transport.Transactional, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.Transactional.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -138,6 +142,7 @@
     <Compile Include="Config\When_routing_using_the_configuration_source.cs" />
     <Compile Include="FakeDispatcherSettings.cs" />
     <Compile Include="FakeMessageSender.cs" />
+    <Compile Include="FakeTransport.cs" />
     <Compile Include="HeaderManagement\When_receiving_a_message_from_another_site.cs" />
     <Compile Include="Idempotency\Raven\in_the_raven_storage.cs" />
     <Compile Include="Idempotency\Raven\When_acking_an_already_acked_message.cs" />

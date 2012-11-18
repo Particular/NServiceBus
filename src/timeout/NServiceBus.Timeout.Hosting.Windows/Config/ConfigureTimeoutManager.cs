@@ -2,6 +2,7 @@
 {
     using Raven.Client;
     using Timeout.Core;
+    using Timeout.Hosting.Windows;
     using Timeout.Hosting.Windows.Persistence;
 
 
@@ -54,6 +55,8 @@
         private static void SetupTimeoutManager(Configure config)
         {
             TimeoutManagerAddress = config.GetTimeoutManagerAddress();
+
+            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
     }

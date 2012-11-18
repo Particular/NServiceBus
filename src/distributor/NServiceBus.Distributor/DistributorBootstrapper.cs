@@ -7,11 +7,11 @@ namespace NServiceBus.Distributor
 {
     using Faults;
     using ObjectBuilder;
+    using Unicast.Transport;
 
     public class DistributorBootstrapper : IWantToRunWhenBusStartsAndStops
     {
         public IWorkerAvailabilityManager WorkerAvailabilityManager { get; set; }
-        public IManageMessageFailures MessageFailureManager { get; set; }
         public IBuilder Builder { get; set; }
 
         public Address InputQueue { get; set; }
@@ -27,15 +27,10 @@ namespace NServiceBus.Distributor
             if (!Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
                 return;
            
-            var dataTransport = new TransactionalTransport
-            {
-                NumberOfWorkerThreads = 1, // will soon be removed
-                FailureManager = Builder.Build(MessageFailureManager.GetType()) as IManageMessageFailures
-            };
-
+          
             distributor = new Unicast.Distributor.Distributor
             {
-                MessageBusTransport = dataTransport,
+                MessageBusTransport = Builder.Build<ITransport>(),
                 MessageSender = new MsmqMessageSender(),
                 WorkerManager = WorkerAvailabilityManager,
                 DataTransportInputQueue = InputQueue

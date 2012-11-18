@@ -16,21 +16,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
         volatile bool stopRequested;
         volatile bool timeoutPushed;
         DateTime nextRetrieval = DateTime.UtcNow;
-        readonly Thread workerThread;
+        Thread workerThread;
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
-
-        public TimeoutPersisterReceiver(IManageTimeouts timeoutsManager)
-        {
-            timeoutsManager.TimeoutPushed += TimeoutsManagerOnTimeoutPushed;
-            
-            SecondsToSleepBetweenPolls = 5;
-
-            workerThread = new Thread(Poll) { IsBackground = true };
-        }
-        
+        public IManageTimeouts TimeoutManager { get; set; }
+       
         private void TimeoutsManagerOnTimeoutPushed(object sender, TimeoutData timeoutData)
         {
             lock (lockObject)
@@ -45,6 +37,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Start()
         {
+            TimeoutManager.TimeoutPushed += TimeoutsManagerOnTimeoutPushed;
+
+            SecondsToSleepBetweenPolls = 5;
+
+            workerThread = new Thread(Poll) { IsBackground = true };
+        
             workerThread.Start();
         }
 

@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         {
             var numberOfWorkerThreadsInAppConfig = ConfiguredMaxDegreeOfParallelism();
 
-            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.SingleInstance)
+            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
                 .ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
         }
