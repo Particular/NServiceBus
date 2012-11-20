@@ -11,7 +11,6 @@ properties {
 
 $baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 $releaseRoot = "$baseDir\Release"
-$releaseDir = "$releaseRoot\net40"
 $packageOutPutDir = "$baseDir\artifacts"
 $toolsDir = "$baseDir\tools"
 $srcDir = "$baseDir\src"
@@ -19,6 +18,7 @@ $binariesDir = "$baseDir\binaries"
 $coreOnlyDir = "$baseDir\core-only"
 $coreOnlyBinariesDir = "$coreOnlyDir\binaries"
 $outDir = "$baseDir\build"
+$outDir32 = "$baseDir\build32"
 $buildBase = "$baseDir\build"
 $libDir = "$baseDir\lib" 
 $artifactsDir = "$baseDir\artifacts"
@@ -32,7 +32,11 @@ $script:nunitTargetFramework = "/framework=4.0";
 
 include $toolsDir\psake\buildutils.ps1
 
-task default -depends Build
+task default -depends PrepareBinaries
+
+task PrepareBinaries -depends CopyBinaries
+
+task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
 task Clean { 
 	if(Test-Path $binariesDir){
@@ -59,12 +63,12 @@ task Init {
 
 		$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
 		if(test-path $ilMergeTargetFrameworkPath) {
-			$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath		
+			$script:ilmergeTargetFramework = '/targetplatform:v4,' + $ilMergeTargetFrameworkPath
 		} else {
 			$ilMergeTargetFrameworkPath = (get-item 'Env:\ProgramFiles(x86)').value + '\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
 
 			if(test-path $ilMergeTargetFrameworkPath) {
-				$script:ilmergeTargetFramework = "/targetplatform:v4," + $ilMergeTargetFrameworkPath
+				$script:ilmergeTargetFramework = '/targetplatform:v4,' + $ilMergeTargetFrameworkPath
 			}
 		}
 			
@@ -83,9 +87,90 @@ task Init {
 		}
 }
 
-task PrepareBinaries -depends CopyBinaries {
-		
+task GenerateAssemblyInfo -description "Generates assembly info for all the projects with version" {
+
+	Write-Output "Build Number: $BuildNumber"
 	
+	$asmVersion =  $ProductVersion + ".0.0"
+
+	if($PreRelease -eq "") {
+		$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
+		$infoVersion = $ProductVersion + "." + $PatchVersion
+	} else {
+		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
+		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
+	}
+    
+	Write-Output "##teamcity[buildNumber '$infoVersion']"
+	
+	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
+	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
+    
+	foreach($projectFile in $projectFiles) {
+
+		$projectDir = [System.IO.Path]::GetDirectoryName($projectFile)
+		$projectName = [System.IO.Path]::GetFileName($projectDir)
+		$asmInfo = [System.IO.Path]::Combine($projectDir, [System.IO.Path]::Combine("Properties", "AssemblyInfo.cs"))
+		
+		$assemblyTitle = gc $asmInfo | select-string -pattern "AssemblyTitle"
+		
+		if($assemblyTitle -ne $null){
+			$assemblyTitle = $assemblyTitle.ToString()
+			if($assemblyTitle -ne ""){
+				$assemblyTitle = $assemblyTitle.Replace('[assembly: AssemblyTitle("', '') 
+				$assemblyTitle = $assemblyTitle.Replace('")]', '') 
+				$assemblyTitle = $assemblyTitle.Trim()
+				
+			}
+		}
+		else{
+			$assemblyTitle = ""	
+		}
+		
+		$assemblyDescription = gc $asmInfo | select-string -pattern "AssemblyDescription" 
+		if($assemblyDescription -ne $null){
+			$assemblyDescription = $assemblyDescription.ToString()
+			if($assemblyDescription -ne ""){
+				$assemblyDescription = $assemblyDescription.Replace('[assembly: AssemblyDescription("', '') 
+				$assemblyDescription = $assemblyDescription.Replace('")]', '') 
+				$assemblyDescription = $assemblyDescription.Trim()
+			}
+		}
+		else{
+			$assemblyDescription = ""
+		}
+		
+		$assemblyProduct =  gc $asmInfo | select-string -pattern "AssemblyProduct" 
+		
+		if($assemblyProduct -ne $null){
+			$assemblyProduct = $assemblyProduct.ToString()
+			if($assemblyProduct -ne ""){
+				$assemblyProduct = $assemblyProduct.Replace('[assembly: AssemblyProduct("', '') 
+				$assemblyProduct = $assemblyProduct.Replace('")]', '') 
+				$assemblyProduct = $assemblyProduct.Trim()
+			}
+		}
+		else{
+			$assemblyProduct = "NServiceBus"
+		}
+		
+		$notclsCompliant = @("")
+
+		$clsCompliant = (($projectDir.ToString().StartsWith("$srcDir")) -and ([System.Array]::IndexOf($notclsCompliant, $projectName) -eq -1)).ToString().ToLower()
+		
+		Generate-Assembly-Info $assemblyTitle `
+		$assemblyDescription  `
+		$clsCompliant `
+		"" `
+		"release" `
+		"NServiceBus" `
+		$assemblyProduct `
+		"Copyright (C) NServiceBus 2010-2012" `
+		$asmVersion `
+		$fileVersion `
+		$infoVersion `
+		$asmInfo 
+ 	}
 }
 
 task CopyBinaries -depends Merge {
@@ -93,12 +178,12 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Host.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.HostProcess.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.PowerShell.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.Setup.Windows.* $binariesDir -Force -Exclude **Tests.dll
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
@@ -119,8 +204,42 @@ task CopyBinaries -depends Merge {
 	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force	-Exclude **Tests.dll
 }
 
+task CreateReleaseFolder {
+
+	Delete-Directory $releaseRoot
+	Create-Directory $releaseRoot
+
+	Copy-Item $binariesDir $releaseRoot\binaries -Force -Recurse
+
+	Copy-Item "$baseDir\*.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\RunMeFirst.bat" $releaseRoot -Force -ErrorAction SilentlyContinue
+	
+	Create-Directory $releaseRoot\tools\licenseinstaller
+	Copy-Item "$outDir32\LicenseInstaller.exe" -Destination $releaseRoot\tools\licenseinstaller -Force -ErrorAction SilentlyContinue
+
+	Create-Directory $releaseRoot\tools\migration
+	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools\migration -Force 
+	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools\migration -Force 
+	Copy-Item "$outDir\NServiceBus.Compatibility.dll" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
+	Copy-Item "$outDir32\TimeoutMigrator.exe" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
+	
+	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
+	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
+	Copy-Item "$outDir\ReturnToSourceQueue.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
+	Copy-Item "$outDir\XsdGenerator.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
+	
+	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
+	dir "$releaseRoot\samples" -recurse -include ('bin', 'obj', 'packages') | ForEach-Object {
+		write-host deleting $_ 
+		Delete-Directory $_
+	}
+}
+
 task Build -depends Clean, Init {
-	exec { &$script:msBuild $baseDir\NServiceBus.sln /t:"Clean,Build" /p:Configuration=Release /p:OutDir="$outDir\" }
+	exec { &$script:msBuild $baseDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="Any CPU" /p:Configuration=Release /p:OutDir="$outDir\" /m }
+	exec { &$script:msBuild $baseDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="x86" /p:Configuration=Release /p:OutDir="$outDir32\" /m }
+
+	del $binariesDir\*.xml -Recurse
 }
 
 task RunTests -depends Build {
@@ -139,27 +258,54 @@ task RunTests -depends Build {
 	Move-Item -path $buildBase\*.exe -destination $env:temp\filestoexclude\ -Force
 	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\*Tests.dll
+	$testAssemblies +=  dir $buildBase\*Tests.dll -Exclude NServiceBus.Integration.Azure.Tests.dll, NServiceBus.Unicast.Queuing.Azure.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
 
 	Move-Item -path $env:temp\filestoexclude\*.exe -destination $buildBase\ -Force
 }
 
-task Merge -depends Init, RunTests {
+task Merge -depends RunTests {
 
 	$assemblies = @()
-	$assemblies += dir $buildBase\NServiceBus.Core.dll
-	$assemblies += dir $buildBase\NServiceBus.Setup.Windows.dll
-	$assemblies += dir $buildBase\log4net.dll
-	$assemblies += dir $buildBase\Interop.MSMQ.dll
-	$assemblies += dir $buildBase\AutoFac.dll
-	$assemblies += dir $buildBase\NLog.dll
-	$assemblies += dir $buildBase\Raven.Abstractions.dll
-	$assemblies += dir $buildBase\Raven.Client.Lightweight.dll
-	$assemblies += dir $buildBase\rhino.licensing.dll
-	$assemblies += dir $buildBase\Newtonsoft.Json.dll
+	$assemblies += dir $outDir\NServiceBus.Core.dll
+	$assemblies += dir $outDir\NServiceBus.Setup.Windows.dll
+	$assemblies += dir $outDir\log4net.dll
+	$assemblies += dir $outDir\Interop.MSMQ.dll
+	$assemblies += dir $outDir\AutoFac.dll
+	$assemblies += dir $outDir\NLog.dll
+	$assemblies += dir $outDir\Raven.Abstractions.dll
+	$assemblies += dir $outDir\Raven.Client.Lightweight.dll
+	$assemblies += dir $outDir\rhino.licensing.dll
+	$assemblies += dir $outDir\Newtonsoft.Json.dll
 
-	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Core" $assemblies "" "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
+	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Core.dll" $assemblies "library" $script:ilmergeTargetFramework $ilMergeExclude
+
+	$assemblies = @()
+	$assemblies += dir $outDir\NServiceBus.Host.exe
+	$assemblies += dir $outDir\NServiceBus.Hosting.dll
+	$assemblies += dir $outDir\log4net.dll
+	$assemblies += dir $outDir\Topshelf.dll
+	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
+
+	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Host.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
+
+	$assemblies = @()
+	$assemblies += dir $outDir32\NServiceBus.Host.exe
+	$assemblies += dir $outDir32\NServiceBus.Hosting.dll
+	$assemblies += dir $outDir32\log4net.dll
+	$assemblies += dir $outDir32\Topshelf.dll
+	$assemblies += dir $outDir32\Microsoft.Practices.ServiceLocation.dll
+
+	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Host32.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
+
+	$assemblies = @()
+	$assemblies += dir $outDir\NServiceBus.Hosting.Azure.HostProcess.exe
+	$assemblies += dir $outDir\NServiceBus.Hosting.dll
+	$assemblies += dir $outDir\log4net.dll
+	$assemblies += dir $outDir\Topshelf.dll
+	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
+	
+	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Hosting.Azure.HostProcess.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
 }
 
 task CompileSamples -depends CopyBinaries {
@@ -179,20 +325,12 @@ task CreatePackages {
     Invoke-psake .\Nuget.ps1 -properties @{PreRelease=$PreRelease;buildConfiguration=$buildConfiguration;PatchVersion=$PatchVersion;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;NugetKey=$NugetKey;UploadPackage=$UploadPackage}
 }
 
-task ZipOutput -description "Ziping artifacts directory for releasing"  {	
-	$packagingArtifacts = "$releaseRoot\PackagingArtifacts"
+task ZipOutput {	
 	
-	if(Test-Path -Path $packagingArtifacts ){
-        del ($packagingArtifacts + '\*.zip')
-	}
-	Copy-Item -Force -Recurse $releaseDir\binaries "$releaseRoot\binaries"  -ErrorAction SilentlyContinue  
-	
-	Delete-Directory $releaseDir
-	$archive = "$artifactsDir\NServiceBus.$script:releaseVersion.zip"
-	$archiveCoreOnly = "$artifactsDir\NServiceBusCore-Only.$script:releaseVersion.zip"
+	$archive = "$artifactsDir\NServiceBus.$ProductVersion.$PatchVersion.zip"
+
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
-	exec { &$zipExec a -tzip $archiveCoreOnly $coreOnlyDir\** }
 }
 
 task CreateMSI {
