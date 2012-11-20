@@ -8,10 +8,10 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
     /// </summary>
     public class LoggerFactory : ILoggerFactory
     {
-        private static readonly Func<Type, object> GetLoggerByTypeDelegate;
-        private static readonly Func<String, object> GetLoggerByStringDelegate;
+        private readonly Func<Type, object> GetLoggerByTypeDelegate;
+        private readonly Func<String, object> GetLoggerByStringDelegate;
 
-        static LoggerFactory()
+        public LoggerFactory()
         {
             var logManagerType = Type.GetType("log4net.LogManager, log4net");
 

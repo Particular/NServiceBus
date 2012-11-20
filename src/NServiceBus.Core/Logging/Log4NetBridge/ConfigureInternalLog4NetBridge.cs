@@ -8,8 +8,12 @@ namespace NServiceBus.Logging.Log4NetBridge
         {
             if (isConfigured)
                 return;
-            
-            log4net.Config.BasicConfigurator.Configure(new Log4NetBridgeAppender());
+
+            var isLog4NetMerged = typeof(log4net.ILog).Assembly == System.Reflection.Assembly.GetExecutingAssembly();
+
+            if (isLog4NetMerged)
+                log4net.Config.BasicConfigurator.Configure(new Log4NetBridgeAppender());
+
             isConfigured = true;
         }
     }

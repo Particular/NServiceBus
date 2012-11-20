@@ -16,7 +16,7 @@ namespace NServiceBus.Logging.Tests.Log4Net
             var loggerFactory = new LoggerFactory();
 
             global::log4net.LogManager.ResetConfiguration();
-            Configurator.Basic(new ConsoleAppender { Threshold = Level.All });
+            global::log4net.Config.BasicConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
 
             var log = loggerFactory.GetLogger("Test");
 

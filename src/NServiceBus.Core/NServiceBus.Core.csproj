@@ -105,6 +105,7 @@
     <Compile Include="ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="ConfigureJsonSerializer.cs" />
     <Compile Include="ConfigureLicenseExtensions.cs" />
+    <Compile Include="ConfigureLogging.cs" />
     <Compile Include="ConfigureMasterNode.cs" />
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
     <Compile Include="ConfigureMsmqSubscriptionStorage.cs" />
@@ -272,7 +273,6 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseType.cs" />
     <Compile Include="Licensing\LicenseValidator.cs" />
-    <Compile Include="LoggingLibraryException.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\Internal\ReflectionExtensions.cs" />
@@ -281,14 +281,10 @@
     <Compile Include="Logging\Log4NetBridge\Log4NetBridgeAppender.cs" />
     <Compile Include="Logging\Loggers\ConsoleLogger.cs" />
     <Compile Include="Logging\Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\AppenderFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Configurator.cs" />
     <Compile Include="Logging\Loggers\Log4NetAdapter\Log.cs" />
     <Compile Include="Logging\Loggers\Log4NetAdapter\LoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\Configurator.cs" />
     <Compile Include="Logging\Loggers\NLogAdapter\Log.cs" />
     <Compile Include="Logging\Loggers\NLogAdapter\LoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\TargetFactory.cs" />
     <Compile Include="Logging\Loggers\NullLogger.cs" />
     <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
     <Compile Include="Logging\LoggingLibraryException.cs" />
