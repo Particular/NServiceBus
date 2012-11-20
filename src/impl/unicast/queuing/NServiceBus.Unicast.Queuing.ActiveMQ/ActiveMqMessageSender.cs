@@ -2,7 +2,6 @@
 {
     using System;
     using Apache.NMS;
-    using Apache.NMS.Util;
 
     public class ActiveMqMessageSender : ISendMessages
     {
@@ -10,17 +9,20 @@
         private readonly ISubscriptionManager subscriptionManager;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
         private readonly ITopicEvaluator topicEvaluator;
+        private readonly IDestinationEvaluator destinationEvaluator;
 
         public ActiveMqMessageSender(
             INetTxConnection connection, 
             ISubscriptionManager subscriptionManager, 
             IActiveMqMessageMapper activeMqMessageMapper,
-            ITopicEvaluator topicEvaluator)
+            ITopicEvaluator topicEvaluator,
+            IDestinationEvaluator destinationEvaluator)
         {
             this.connection = connection;
             this.subscriptionManager = subscriptionManager;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.topicEvaluator = topicEvaluator;
+            this.destinationEvaluator = destinationEvaluator;
         }
 
         public void Send(TransportMessage message, Address address)
@@ -74,24 +76,24 @@
             var typeName = message.Headers[Headers.EnclosedMessageTypes];
             var topic = this.topicEvaluator.GetTopicFromMessageType(typeName);
 
-            this.SendMessage(message, "topic://" + topic);
+            this.SendMessage(message, topic, "topic://");
         }
 
         private void SendMessage(TransportMessage message, Address address)
         {
-            this.SendMessage(message, "queue://" + address.Queue);
+            this.SendMessage(message, address.Queue, "queue://");
         }
 
-        private void SendMessage(TransportMessage message, string destination)
+        private void SendMessage(TransportMessage message, string destination, string destinationPrefix)
         {
             using (var session = this.connection.CreateNetTxSession())
             {
                 var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);
 
-                var d = SessionUtil.GetDestination(session, destination);
                 using (var producer = session.CreateProducer())
                 {
-                    producer.Send(d, jmsMessage);
+                    producer.Send(this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
+                    message.Id = jmsMessage.NMSMessageId;
                 }
             }
         }

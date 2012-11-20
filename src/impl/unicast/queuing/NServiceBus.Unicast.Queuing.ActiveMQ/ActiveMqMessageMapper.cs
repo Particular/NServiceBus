@@ -7,9 +7,13 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
     using Apache.NMS;
 
+    using NServiceBus.Unicast.Transport;
+
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
         public const string MessageIntentKey = "MessageIntent";
+        public const string ErrorCodeKey = "ErrorCode";
+        
         private readonly IMessageTypeInterpreter messageTypeInterpreter;
 
         public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter)
@@ -19,17 +23,12 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
         {
-            if (message.Headers == null || !message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-            {
-                throw new ArgumentException("Messages must have the enclosed message type on the header.");
-            }
-
             string messageBody = Encoding.UTF8.GetString(message.Body);
             IMessage jmsmessage = session.CreateTextMessage(messageBody);
 
-            if (message.IdForCorrelation != null)
+            if (message.CorrelationId != null)
             {
-                jmsmessage.NMSCorrelationID = message.IdForCorrelation;
+                jmsmessage.NMSCorrelationID = message.CorrelationId;
             }
 
             if (message.TimeToBeReceived < TimeSpan.FromMilliseconds(uint.MaxValue))
@@ -37,8 +36,12 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
                 jmsmessage.NMSTimeToLive = message.TimeToBeReceived;
             }
 
+            if (message.Headers != null && message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+            {
+                jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            }
+
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
-            jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             jmsmessage.NMSReplyTo = session.GetQueue(message.ReplyToAddress.Queue);
             jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
 
@@ -52,7 +55,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
         public TransportMessage CreateTransportMessage(IMessage message)
         {
-            var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty);
+            var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
             byte[] body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
 
             var transportMessage = new TransportMessage
@@ -60,7 +63,6 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
                     MessageIntent = this.GetIntent(message),
                     ReplyToAddress = replyToAddress,
                     CorrelationId = message.NMSCorrelationID,
-                    IdForCorrelation = message.NMSCorrelationID,
                     TimeToBeReceived = message.NMSTimeToLive,
                     Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
                     Id = message.NMSMessageId,
@@ -71,7 +73,7 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
             foreach (var key in message.Properties.Keys)
             {
                 var keyString = (string)key;
-                if (keyString == MessageIntentKey)
+                if (keyString == MessageIntentKey || keyString == ErrorCodeKey)
                 {
                     continue;
                 }
@@ -81,15 +83,26 @@ namespace NServiceBus.Unicast.Queuing.ActiveMQ
 
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                transportMessage.Headers[Headers.EnclosedMessageTypes] = 
-                    this.messageTypeInterpreter.GetAssemblyQualifiedName(message.NMSType);
+                var type = this.messageTypeInterpreter.GetAssemblyQualifiedName(message.NMSType);
+                if (!string.IsNullOrEmpty(type))
+                {
+                    transportMessage.Headers[Headers.EnclosedMessageTypes] = type;
+                }
+            }
+
+            if (!transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader) &&
+                message.Properties.Contains(ErrorCodeKey))
+            {
+                transportMessage.Headers[Headers.ControlMessageHeader] = "true";
+                transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = message.Properties[ErrorCodeKey].ToString();
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.NServiceBusVersion))
             {
-                transportMessage.Headers[Headers.NServiceBusVersion] = "3.0.0.0";
+                transportMessage.Headers[Headers.NServiceBusVersion] = "4.0.0.0";
             }
 
+            transportMessage.IdForCorrelation = transportMessage.GetIdForCorrelation();
             return transportMessage;
         }
 

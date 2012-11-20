@@ -72,7 +72,7 @@
         [Test]
         public void CreateTransportMessage_IfNServiceBusVersioIsNotDefined_ShouldAssignDefaultNServiceBusVersion()
         {
-            const string Version = "3.0.0.0";
+            const string Version = "4.0.0.0";
             var message = CreateTextMessage("");
 
             var result = this.testee.CreateTransportMessage(message);
@@ -141,6 +141,53 @@
             var result = this.testee.CreateTransportMessage(message);
 
             result.Headers[Headers.EnclosedMessageTypes].Should().Be(ExpectedEnclosedMessageTypes);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfEnclosedMessageTypesIsNotDefinedAndNoJmsType_ShouldNotAddEnclosedMessageTypes()
+        {
+            var message = CreateTextMessage("");
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers.Should().NotContainKey(Headers.EnclosedMessageTypes);
+        }
+        
+        [Test]
+        public void CreateTransportMessage_ShouldAssignCorrelationId()
+        {
+            const string CorrelationId = "TheCorrelationId";
+            var message = CreateTextMessage("");
+            message.NMSCorrelationID = CorrelationId;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.CorrelationId.Should().Be(CorrelationId);
+        }
+
+        [Test]
+        public void CreateTransportMessage_ShouldAssignMessageIdToIdForCorrelation()
+        {
+            const string MessageId = "MessageId";
+            var message = CreateTextMessage("");
+            message.NMSMessageId = MessageId;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.IdForCorrelation.Should().Be(MessageId);
+        }
+
+        [Test]
+        public void CreateTransportMessage_WhenMessageHasErrorCodeKey_ShouldAssignReturnMessageErrorCodeHeader()
+        {
+            const string Error = "Error";
+            var message = CreateTextMessage("");
+            message.Properties[ActiveMqMessageMapper.ErrorCodeKey] = Error;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.ReturnMessageErrorCodeHeader].Should().Be(Error);
+            result.Headers[Headers.ControlMessageHeader].Should().Be("true");
         }
         
         private static ITextMessage CreateTextMessage(string body)

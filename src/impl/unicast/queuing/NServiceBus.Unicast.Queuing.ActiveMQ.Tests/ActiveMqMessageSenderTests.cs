@@ -16,6 +16,7 @@
         private Mock<ISubscriptionManager> subscriptionManagerMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ITopicEvaluator> topicEvaluatiorMock;
+        private Mock<IDestinationEvaluator> destinationEvaluatorMock;
 
         [SetUp]
         public void SetUp()
@@ -24,12 +25,14 @@
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.topicEvaluatiorMock = new Mock<ITopicEvaluator>();
+            this.destinationEvaluatorMock = new Mock<IDestinationEvaluator>();
 
             this.testee = new ActiveMqMessageSender(
                 this.connectionMock.Object, 
                 this.subscriptionManagerMock.Object, 
                 this.activeMqMessageMapperMock.Object,
-                this.topicEvaluatiorMock.Object);
+                this.topicEvaluatiorMock.Object,
+                this.destinationEvaluatorMock.Object);
         }
 
         [Test]
@@ -45,7 +48,7 @@
                     MessageIntent = MessageIntentEnum.Subscribe,
                     Headers = headers,
                 };
-            this.topicEvaluatiorMock.Setup(te => te.GetTopicFromMessageType(SubscriptionMessageType)).Returns(Topic);
+            this.SetupGetTopicFromMessageType(SubscriptionMessageType, Topic);
 
             this.testee.Send(message, Address.Local);
 
@@ -65,7 +68,7 @@
                 MessageIntent = MessageIntentEnum.Unsubscribe,
                 Headers = headers,
             };
-            this.topicEvaluatiorMock.Setup(te => te.GetTopicFromMessageType(SubscriptionMessageType)).Returns(Topic);
+            this.SetupGetTopicFromMessageType(SubscriptionMessageType, Topic);
 
             this.testee.Send(message, Address.Local);
 
@@ -81,15 +84,11 @@
             var sessionMock = this.SetupCreateSession();
             var producerMock = this.SetupCreateProducer(sessionMock);
 
-            var headers = new Dictionary<string, string>();
-            headers[Headers.EnclosedMessageTypes] = SubscriptionMessageType;
-            var message = new TransportMessage
-            {
-                MessageIntent = MessageIntentEnum.Publish,
-                Headers = headers,
-            };
-            this.topicEvaluatiorMock.Setup(te => te.GetTopicFromMessageType(SubscriptionMessageType)).Returns(Topic);
-            var jmsMessage = this.SetupCreateJmsMessage(message, sessionMock);
+            var message = CreateTransportMessage(MessageIntentEnum.Publish);
+            message.Headers[Headers.EnclosedMessageTypes] = SubscriptionMessageType;
+
+            this.SetupGetTopicFromMessageType(SubscriptionMessageType, Topic);
+            var jmsMessage = this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
             var topic = this.SetupGetTopic(sessionMock, Topic);
 
             this.testee.Send(message, Address.Local);
@@ -100,42 +99,48 @@
         [Test]
         public void WhenSendingASendMessage_ThenItIsSentToTheDestinationQueue()
         {
-            const string Queue = "somequeue";
+            const string Queue = "QueueName";
 
             var sessionMock = this.SetupCreateSession();
             var producerMock = this.SetupCreateProducer(sessionMock);
-            var headers = new Dictionary<string, string>();
-            var message = new TransportMessage
-            {
-                MessageIntent = MessageIntentEnum.Send,
-                Headers = headers,
-            };
-            var jmsMessage = this.SetupCreateJmsMessage(message, sessionMock);
+            var message = CreateTransportMessage(MessageIntentEnum.Send);
+            var jmsMessage = this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
             var queue = this.SetupGetQueue(sessionMock, Queue);
 
-            this.testee.Send(message, new Address(Queue, "SomeMachineName"));
+            this.testee.Send(message, new Address(Queue, "SomeMachineName", true));
 
             producerMock.Verify(p => p.Send(queue, jmsMessage));
+        }
+
+        private static TransportMessage CreateTransportMessage(MessageIntentEnum messageIntent)
+        {
+            var headers = new Dictionary<string, string>();
+            return new TransportMessage { MessageIntent = messageIntent, Headers = headers, };
+        }
+
+        private void SetupGetTopicFromMessageType(string SubscriptionMessageType, string Topic)
+        {
+            this.topicEvaluatiorMock.Setup(te => te.GetTopicFromMessageType(SubscriptionMessageType)).Returns(Topic);
         }
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
         {
             var destination = new Mock<IQueue>().Object;
-            sessionMock.Setup(s => s.GetQueue(queue)).Returns(destination);
+            this.destinationEvaluatorMock.Setup(d => d.GetDestination(sessionMock.Object, queue, "queue://")).Returns(destination);
             return destination;
         }
 
         private ITopic SetupGetTopic(Mock<INetTxSession> sessionMock, string topic)
         {
             var destination = new Mock<ITopic>().Object;
-            sessionMock.Setup(s => s.GetTopic(topic)).Returns(destination);
+            this.destinationEvaluatorMock.Setup(d => d.GetDestination(sessionMock.Object, topic, "topic://")).Returns(destination);
             return destination;
         }
 
-        private IMessage SetupCreateJmsMessage(TransportMessage message, Mock<INetTxSession> sessionMock)
+        private IMessage SetupCreateJmsMessageFromTransportMessage(TransportMessage message, INetTxSession session)
         {
             var jmsMessage = new Mock<IMessage>().Object;
-            this.activeMqMessageMapperMock.Setup(m => m.CreateJmsMessage(message, sessionMock.Object)).Returns(jmsMessage);
+            this.activeMqMessageMapperMock.Setup(m => m.CreateJmsMessage(message, session)).Returns(jmsMessage);
             return jmsMessage;
         }
 

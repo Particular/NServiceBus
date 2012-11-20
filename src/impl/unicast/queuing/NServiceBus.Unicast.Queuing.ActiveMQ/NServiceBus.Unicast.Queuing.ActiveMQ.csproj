@@ -85,7 +85,9 @@
     <Compile Include="ActiveMqMessageSender.cs" />
     <Compile Include="ActiveMqSubscriptionStorage.cs" />
     <Compile Include="ActiveMqConnectionStarter.cs" />
+    <Compile Include="DestinationEvaluator.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
+    <Compile Include="IDestinationEvaluator.cs" />
     <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
