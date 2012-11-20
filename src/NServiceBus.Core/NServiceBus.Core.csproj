@@ -435,6 +435,7 @@
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\PooledThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />

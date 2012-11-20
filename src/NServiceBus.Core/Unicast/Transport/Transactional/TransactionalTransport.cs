@@ -11,6 +11,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using Utils;
     using System.Linq;
     using System.Runtime.Serialization;
+    using Monitoring;
 
     public class TransactionalTransport : ITransport
     {
@@ -121,14 +122,32 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (isStarted)
                 throw new InvalidOperationException("The transport is already started");
 
+            receiveAddress = address;
+
             FailureManager.Init(address);
 
-            Receiver.Init(address, TransactionSettings);
+            InitializePerformanceCounters();
+
+            StartReceiver();
+
+            isStarted = true;
+        }
+
+        void InitializePerformanceCounters()
+        {
+            currentThroughputPerformanceCounter = new ThroughputPerformanceCounter(receiveAddress);
+
+            currentThroughputPerformanceCounter.Initialize();
+        }
+
+        ThroughputPerformanceCounter currentThroughputPerformanceCounter;
+
+        void StartReceiver()
+        {
+            Receiver.Init(receiveAddress, TransactionSettings);
             Receiver.MessageDequeued += Process;
 
             Receiver.Start(maxDegreeOfParallelism);
-
-            isStarted = true;
         }
 
         void Process(object sender, TransportMessageAvailableEventArgs e)
@@ -150,6 +169,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
                 ClearFailuresForMessage(message.Id);
 
+                currentThroughputPerformanceCounter.MessageProcessed();
             }
             catch (AbortHandlingCurrentMessageException)
             {
@@ -388,6 +408,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         #endregion
 
 
+        Address receiveAddress;
         bool isStarted;
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
