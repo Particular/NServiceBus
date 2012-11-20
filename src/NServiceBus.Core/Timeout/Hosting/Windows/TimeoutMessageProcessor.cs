@@ -2,9 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using ObjectBuilder;
     using Unicast.Queuing;
-    using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
@@ -13,48 +11,37 @@ namespace NServiceBus.Timeout.Hosting.Windows
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
-        ITransport inputTransport;
-
+        
         static readonly Address TimeoutManagerAddress;
 
         public ISendMessages MessageSender { get; set; }
 
-        public TransactionalTransport MainTransport { get; set; }
-
-        public IBuilder Builder { get; set; }
-
         public IManageTimeouts TimeoutManager { get; set; }
-
-        public static Func<IReceiveMessages> MessageReceiverFactory { get; set; }
 
         static TimeoutMessageProcessor()
         {
             TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");            
         }
 
+        public TransactionalTransport InputTransport { get; set; }
+
         public void Start()
         {
-            var messageReceiver = MessageReceiverFactory != null ? MessageReceiverFactory() : new MsmqMessageReceiver();
 
-            inputTransport = new TransactionalTransport
-            {
-                MessageReceiver = messageReceiver,
-                IsTransactional = true,
-                NumberOfWorkerThreads = MainTransport.NumberOfWorkerThreads == 0 ? 1 : MainTransport.NumberOfWorkerThreads,
-                MaxRetries = MainTransport.MaxRetries,
-                FailureManager = new ManageMessageFailuresWithoutSlr(MainTransport.FailureManager),
-            };
+            //todo - the line below needs to change when we refactore the slr to be:
+            // transport.DisableSLR() or similar
+            InputTransport.FailureManager = new ManageMessageFailuresWithoutSlr(InputTransport.FailureManager);
 
-            inputTransport.TransportMessageReceived += OnTransportMessageReceived;
+            InputTransport.TransportMessageReceived += OnTransportMessageReceived;
 
-            inputTransport.Start(TimeoutManagerAddress);
+            InputTransport.Start(TimeoutManagerAddress);
         }
 
         public void Stop()
         {
-            if (inputTransport != null)
+            if (InputTransport != null)
             {
-                inputTransport.Dispose();
+                InputTransport.Dispose();
             }
         }
 

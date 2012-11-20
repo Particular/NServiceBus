@@ -91,6 +91,7 @@ namespace NServiceBus.Unicast
                 transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
                 transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
+            get { return transport; }
         }
 
         /// <summary>
@@ -264,11 +265,6 @@ namespace NServiceBus.Unicast
         /// Object that will be used to authorize subscription requests.
         /// </summary>
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get; set; }
-
-        /// <summary>
-        /// Object that will be used to manage failures.
-        /// </summary>
-        public IManageMessageFailures FailureManager { get; set; }
 
         /// <summary>
         /// Gets or Set AllowSubscribeToSelf 
@@ -898,10 +894,9 @@ namespace NServiceBus.Unicast
 
         License ValidateLicense()
         {
-            var licenseManager = Builder.Build<LicenseManager>();
-            licenseManager.PromptUserForLicenseIfTrialHasExpired();
+            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
-            return licenseManager.CurrentLicense;
+            return LicenseManager.CurrentLicense;
         }
 
         /// <summary>
@@ -1142,19 +1137,20 @@ namespace NServiceBus.Unicast
             
             try
             {
-                return MessageSerializer.Deserialize(new MemoryStream(m.Body));
+                IEnumerable<string> messageTypes = null;
+
+                if (m.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+                {
+                    var header = m.Headers[Headers.EnclosedMessageTypes];
+
+                    if (!string.IsNullOrEmpty(header))
+                        messageTypes = header.Split(';');
+                }
+
+                return MessageSerializer.Deserialize(new MemoryStream(m.Body), messageTypes);
             }
             catch (Exception e)
             {
-                try
-                {
-                    FailureManager.SerializationFailedForMessage(m, e);
-                }
-                catch (Exception)
-                {
-                    Configure.Instance.OnCriticalError();
-                }
-
                 throw new SerializationException("Could not deserialize message.", e);
             }
         }

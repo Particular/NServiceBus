@@ -6,7 +6,6 @@ namespace NServiceBus.Config
     {                
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<SatelliteTransportBuilder>(DependencyLifecycle.SingleInstance);                      
             Configure.Instance.Configurer.ConfigureComponent<SatelliteLauncher>(DependencyLifecycle.SingleInstance);            
         }
     }

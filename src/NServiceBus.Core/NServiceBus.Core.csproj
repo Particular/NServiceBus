@@ -146,6 +146,7 @@
     <Compile Include="Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Config\SecondLevelRetriesConfiguration.cs" />
     <Compile Include="Config\SqlServerTransportConfig.cs" />
+    <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\Config\Bootstrapper.cs" />
     <Compile Include="DataBus\DataBusMessageMutator.cs" />
@@ -239,7 +240,6 @@
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="IWcfService.cs" />
-    <Compile Include="Licensing\Configure.cs" />
     <Compile Include="Licensing\License.cs" />
     <Compile Include="Licensing\LicenseDescriptor.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
@@ -323,7 +323,6 @@
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatelitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
-    <Compile Include="Satellites\SatelliteTransportBuilder.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="Scheduling\Configuration\ConfigureScheduledTaskAsSystemMessages.cs" />
     <Compile Include="Scheduling\Configuration\SchedulerConfiguration.cs" />
@@ -389,7 +388,6 @@
     <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
     <Compile Include="Unicast\Monitoring\EnclosedMessageTypesMutator.cs" />
     <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\Headers.cs" />
     <Compile Include="Unicast\Monitoring\PerformanceCounterInitializer.cs" />
     <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
     <Compile Include="Unicast\Monitoring\RelatedToMessageMutator.cs" />
@@ -432,7 +430,13 @@
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\LicenceConfig.cs" />
+    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\PooledThreadingStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
+    <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />

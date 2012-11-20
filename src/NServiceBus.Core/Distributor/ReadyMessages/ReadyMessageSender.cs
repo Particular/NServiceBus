@@ -6,8 +6,6 @@ namespace NServiceBus.Distributor.ReadyMessages
 
     public class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
     {
-        public ITransport EndpointTransport { get; set; }
-
         public ISendMessages MessageSender { get; set; }
 
         public UnicastBus Bus { get; set; }
@@ -19,10 +17,10 @@ namespace NServiceBus.Distributor.ReadyMessages
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
                 return;
 
-            var capacityAvailable = EndpointTransport.NumberOfWorkerThreads;
+            var capacityAvailable = Bus.Transport.NumberOfWorkerThreads;
             SendReadyMessage(capacityAvailable, true);
 
-            EndpointTransport.FinishedMessageProcessing += (a, b) =>
+            Bus.Transport.FinishedMessageProcessing += (a, b) =>
                                                                {
                                                                    if (((IBus)Bus).CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
                                                                        return;

@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using Unicast.Transport.Transactional.Config;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
@@ -21,7 +20,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure IsTransactional(this Configure config, bool value)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.IsTransactional = value;
+            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional = value;
             return config;
         }
 
@@ -35,7 +34,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure DontUseTransactions(this Configure config)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.IsTransactional = false;
+            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional = false;
             return config;
         }
 
@@ -53,7 +52,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure IsolationLevel(this Configure config, IsolationLevel isolationLevel)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.IsolationLevel = isolationLevel;
+            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsolationLevel = isolationLevel;
             return config;
         }
 
@@ -72,7 +71,7 @@ namespace NServiceBus
             if(transactionTimeout > maxTimeout)
                 throw new ConfigurationErrorsException("Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
 
-            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionTimeout = transactionTimeout;
+            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.TransactionTimeout = transactionTimeout;
          
             return config;
         }

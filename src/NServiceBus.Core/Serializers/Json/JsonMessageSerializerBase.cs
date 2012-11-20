@@ -8,6 +8,9 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Serialization;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
@@ -32,6 +35,11 @@ namespace NServiceBus.Serializers.Json
             }
         }
 
+        /// <summary>
+        /// Removes the wrapping array if serializing a single message 
+        /// </summary>
+        public bool SkipArrayWrappingForSingleMessages { get; set; }
+
         public void Serialize(object[] messages, Stream stream)
         {
             JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
@@ -39,16 +47,22 @@ namespace NServiceBus.Serializers.Json
 
             JsonWriter jsonWriter = CreateJsonWriter(stream);
 
-            jsonSerializer.Serialize(jsonWriter, messages);
+            if(SkipArrayWrappingForSingleMessages && messages.Length == 1)
+                jsonSerializer.Serialize(jsonWriter, messages[0]);
+            else
+                jsonSerializer.Serialize(jsonWriter, messages);
             jsonWriter.Flush();
         }
 
-        public object[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream,IEnumerable<string> messageTypes = null)
         {
             JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
             jsonSerializer.ContractResolver = new MessageContractResolver(_messageMapper);
 
             JsonReader reader = CreateJsonReader(stream);
+            
+            if(SkipArrayWrappingForSingleMessages && messageTypes != null && messageTypes.Count() == 1)
+                return new[] { jsonSerializer.Deserialize(reader,Type.GetType(messageTypes.First())) };
 
             return jsonSerializer.Deserialize<object[]>(reader);
         }

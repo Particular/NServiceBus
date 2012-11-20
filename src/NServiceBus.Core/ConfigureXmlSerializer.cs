@@ -11,10 +11,14 @@ namespace NServiceBus
     {
         /// <summary>
         /// Use XML serialization that supports interface-based messages.
+        /// Optionally set the namespace to be used in the XML.
         /// </summary>
         /// <param name="config"></param>
+        /// <param name="nameSpace">The namespace to use</param>
+        /// <param name="sanitizeInput">Sanatizes the xml input if set to true</param>
+        /// <param name="dontWrapSingleMessages">Tells the serializer to not wrap single messages with a "messages" element. This will break compatibility with endpoints older thatn 3.4.0 </param>
         /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config)
+        public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false,bool dontWrapSingleMessages = false)
         {
             if (!Configure.BuilderIsConfigured())
             {
@@ -24,58 +28,13 @@ namespace NServiceBus
 
             config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
+            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SkipWrappingElementForSingleMessages, dontWrapSingleMessages);
+
+            if(!string.IsNullOrEmpty(nameSpace))
+                config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
 
             return config;
-        }
-
-        /// <summary>
-        /// Use XML serialization that supports interface-based messages.
-        /// Optionally set the namespace to be used in the XML.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="nameSpace"></param>
-        /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config, string nameSpace)
-        {
-            config.XmlSerializer();
-
-            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
-
-            return config;
-        }
-
-        /// <summary>
-        /// Use XML serialization that supports interface-based messages.
-        /// Optionally set the namespace to be used in the XML.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="sanitizeInput"></param>
-        /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config, bool sanitizeInput)
-        {
-          config.XmlSerializer();
-
-          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
-
-          return config;
-        }
-
-        /// <summary>
-        /// Use XML serialization that supports interface-based messages.
-        /// Optionally set the namespace to be used in the XML.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="nameSpace"></param>
-        /// <param name="sanitizeInput"></param>
-        /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config, string nameSpace, bool sanitizeInput)
-        {
-          config.XmlSerializer();
-
-          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
-          config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
-
-          return config;
         }
     }
 }

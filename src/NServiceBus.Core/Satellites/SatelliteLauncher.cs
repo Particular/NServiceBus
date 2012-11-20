@@ -11,14 +11,8 @@ namespace NServiceBus.Satellites
     using Unicast.Transport;
 
     public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
-    {
-        ILog Logger = LogManager.GetLogger("SatelliteLauncher");
-
-        System.Timers.Timer timer;
-        internal static ConcurrentBag<SatelliteContext> Satellites = new ConcurrentBag<SatelliteContext>();
-        
+    {   
         public IBuilder Builder { get; set; }        
-        public ISatelliteTransportBuilder TransportBuilder { get; set; }
         
         public void Start()
         {
@@ -57,8 +51,8 @@ namespace NServiceBus.Satellites
                 }
 
                 if (ctx.Instance.InputAddress != null && ctx.Instance.Disabled == false)
-                {                    
-                    ctx.Transport = TransportBuilder.Build();
+                {
+                    ctx.Transport = Builder.Build<ITransport>();
                 }                
             }
         }
@@ -140,5 +134,11 @@ namespace NServiceBus.Satellites
                 }
             }
         }
+     
+        static readonly ILog Logger = LogManager.GetLogger("SatelliteLauncher");
+
+        System.Timers.Timer timer;
+        
+        internal static ConcurrentBag<SatelliteContext> Satellites = new ConcurrentBag<SatelliteContext>();
     }
 }

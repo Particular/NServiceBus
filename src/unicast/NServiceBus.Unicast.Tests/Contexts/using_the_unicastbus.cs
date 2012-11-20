@@ -72,14 +72,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Transport = Transport,
                 SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
-                MessageMapper = MessageMapper,
-                FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
+                MessageMapper = MessageMapper
             };
             bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-            FuncBuilder.Register<LicenseManager>(() => new LicenseManager());
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }

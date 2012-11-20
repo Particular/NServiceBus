@@ -39,7 +39,9 @@ namespace NServiceBus.Licensing
         private bool trialPeriodHasExpired;
         private AbstractLicenseValidator validator;
 
-        public LicenseManager()
+        static LicenseManager instance;
+
+        private LicenseManager()
         {
             ChangeRhinoLicensingLogLevelToWarn();
 
@@ -48,7 +50,7 @@ namespace NServiceBus.Licensing
             Validate();
         }
 
-        public LicenseManager(string licenseText)
+        private LicenseManager(string licenseText)
         {
             ChangeRhinoLicensingLogLevelToWarn();
 
@@ -58,14 +60,40 @@ namespace NServiceBus.Licensing
         }
 
         /// <summary>
-        ///     Get current NServiceBus licensing information
+        /// Initializes the licensing system with the given license
         /// </summary>
-        public License CurrentLicense
+        /// <param name="licenseText"></param>
+        public static void Parse(string licenseText)
         {
-            get { return license; }
+            instance = new LicenseManager(licenseText);
         }
 
-        public void PromptUserForLicenseIfTrialHasExpired()
+        /// <summary>
+        ///     Get current NServiceBus licensing information
+        /// </summary>
+        public static License CurrentLicense
+        {
+            get
+            {
+                if(instance == null)
+                    instance = new LicenseManager();
+                
+                return instance.license;
+            }
+        }
+
+        /// <summary>
+        /// Prompts the users if their trial license has expired
+        /// </summary>
+        public static void PromptUserForLicenseIfTrialHasExpired()
+        {
+            if (instance == null)
+                instance = new LicenseManager();
+              
+            instance.PromptUserForLicenseIfTrialHasExpiredInternal();
+        }
+
+        private void PromptUserForLicenseIfTrialHasExpiredInternal()
         {
             if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
             {

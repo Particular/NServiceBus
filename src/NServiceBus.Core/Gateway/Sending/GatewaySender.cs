@@ -13,47 +13,40 @@ namespace NServiceBus.Gateway.Sending
     using Unicast.Queuing;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
+    using Unicast;
 
     public class GatewaySender:IDisposable
     {
+        public ITransport Transport { get; set; }
+        public UnicastBus UnicastBus { get; set; }
 
         public GatewaySender(   IBuilder builder,
                                                  IMangageReceiveChannels channelManager,
                                                  IMessageNotifier notifier,
-                                                 ISendMessages messageSender,
-                                                 IMainEndpointSettings settings)
+                                                 ISendMessages messageSender)
         {
-            this.settings = settings;
             this.builder = builder;
             this.channelManager = channelManager;
             this.notifier = notifier;
             this.messageSender = messageSender;
         }
 
+
+
         public void Start(Address inputAddress)
         {
             localAddress = inputAddress;
-            addressOfAuditStore = settings.AddressOfAuditStore;
+       
+            Transport.TransportMessageReceived += OnTransportMessageReceived;
 
-            transport = new TransactionalTransport
-                            {
-                                MessageReceiver = settings.Receiver,
-                                IsTransactional = !Endpoint.IsVolatile,
-                                NumberOfWorkerThreads = settings.NumberOfWorkerThreads,
-                                MaxRetries = settings.MaxRetries,
-                                FailureManager = settings.FailureManager
-                            };
-
-            transport.TransportMessageReceived += OnTransportMessageReceived;
-
-            transport.Start(localAddress);
+            Transport.Start(localAddress);
 
             Logger.InfoFormat("Gateway started listening on inputs on - {0}", localAddress);
         }
 
         public void Dispose()
         {
-            transport.Dispose();
+            Transport.Dispose();
             Logger.InfoFormat("Gateway stopped");
         }
         void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
@@ -105,8 +98,8 @@ namespace NServiceBus.Gateway.Sending
 
             notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
 
-            if (addressOfAuditStore != null && addressOfAuditStore != Address.Undefined)
-                messageSender.Send(transportMessage, addressOfAuditStore);
+            if (UnicastBus != null && UnicastBus.ForwardReceivedMessagesTo != null && UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
+                messageSender.Send(transportMessage, UnicastBus.ForwardReceivedMessagesTo);
         }
 
        
@@ -115,13 +108,10 @@ namespace NServiceBus.Gateway.Sending
             return channelManager.GetDefaultChannel().ToString();
         }
 
-        Address addressOfAuditStore;
         readonly IBuilder builder;
         readonly IMangageReceiveChannels channelManager;
         readonly IMessageNotifier notifier;
         readonly ISendMessages messageSender;
-        ITransport transport;
-        readonly IMainEndpointSettings settings;
         Address localAddress;
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");

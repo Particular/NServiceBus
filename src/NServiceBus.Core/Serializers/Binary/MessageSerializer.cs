@@ -25,7 +25,7 @@ namespace NServiceBus.Serializers.Binary
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public object[] Deserialize(Stream stream)
+        public object[] Deserialize(Stream stream, IEnumerable<string> messageTypes = null)
         {
             if (stream == null)
                 return null;

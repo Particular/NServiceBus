@@ -24,7 +24,7 @@ namespace NServiceBus.Serializers.XML.Test
     {
         private int number = 1;
         private int numberOfIterations = 100;
-        
+
 
         [Test, Ignore("Not supported")]
         public void Should_deserialize_arraylist()
@@ -67,8 +67,73 @@ namespace NServiceBus.Serializers.XML.Test
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
                 Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
 
-            }    
+            }
         }
+
+        [Test]
+        public void Should_deserialize_a_single_message_where_root_element_is_the_typename()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<NServiceBus.Serializers.XML.Test.MessageWithDouble><Double>23.4</Double></NServiceBus.Serializers.XML.Test.MessageWithDouble>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+
+            }
+        }
+
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_without_wrapping_element()
+        {
+            Serializer.ForMessage<EmptyMessage>(new EmptyMessage(), s =>
+                { s.SkipWrappingElementForSingleMessages = true; })
+                .AssertResultingXml(d=> d.DocumentElement.Name == "EmptyMessage","Root should be message typename");
+        }
+
+
+        [Test]
+        public void Should_deserialize_a_single_message_with_typename_passed_in_externally()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<WhatEver><Double>23.4</Double></WhatEver>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName });
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+
+            }
+        }
+
+        [Test]
+        public void Should_deserialize_a_batched_messages_with_typename_passed_in_externally()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<Messages><WhatEver><Double>23.4</Double></WhatEver><TheEmptyMessage></TheEmptyMessage></Messages>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble),typeof(EmptyMessage))
+                    .Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName, typeof(EmptyMessage).AssemblyQualifiedName });
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
+
+            }
+        }
+
+
 
         [Test]
         public void TestMultipleInterfacesDuplicatedPropery()
@@ -425,7 +490,7 @@ namespace NServiceBus.Serializers.XML.Test
 
 
 
-        [Test,Ignore("We're not supporting this type")]
+        [Test, Ignore("We're not supporting this type")]
         public void System_classes_with_non_default_ctors_should_be_supported()
         {
             var message = new MailMessage("from@gmail.com", "to@hotmail.com")
@@ -436,18 +501,18 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<MessageWithSystemClassAsProperty>(
                     m =>
-                        {
-                            m.MailMessage = message;
-                        });
+                    {
+                        m.MailMessage = message;
+                    });
             Assert.IsNotNull(result.MailMessage);
-            Assert.AreEqual( "from@gmail.com",result.MailMessage.From.Address);
+            Assert.AreEqual("from@gmail.com", result.MailMessage.From.Address);
             Assert.AreEqual(message.To.First(), result.MailMessage.To.First());
             Assert.AreEqual(message.BodyEncoding.CodePage, result.MailMessage.BodyEncoding.CodePage);
             Assert.AreEqual(message.BodyEncoding.EncoderFallback.MaxCharCount, result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount);
 
         }
 
-        [Test,Ignore("We're currently not supporting polymorphic properties")]
+        [Test, Ignore("We're currently not supporting polymorphic properties")]
         public void Messages_with_polymorphic_properties_should_be_supported()
         {
             var message = new PolyMessage
@@ -466,6 +531,10 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(((ChildOfBase)message.BaseType).ChildProp, ((ChildOfBase)result.BaseType).ChildProp);
         }
 
+    }
+
+    public class EmptyMessage:IMessage
+    {
     }
 
     public class PolyMessage : IMessage

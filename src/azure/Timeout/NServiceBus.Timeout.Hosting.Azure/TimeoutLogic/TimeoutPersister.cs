@@ -18,30 +18,40 @@
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
-            TimeoutManagerDataEntity lastSuccessfullReadEntity;
-            var lastSuccessfullRead = TryGetLastSuccessfullRead(context, out lastSuccessfullReadEntity)
-                                          ? lastSuccessfullReadEntity.LastSuccessfullRead
-                                          : DateTime.UtcNow;
-            
+            List<Tuple<string, DateTime>> results;
+            try
+            {
+                var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+                TimeoutManagerDataEntity lastSuccessfullReadEntity;
+                var lastSuccessfullRead = TryGetLastSuccessfullRead(context, out lastSuccessfullReadEntity)
+                                              ? lastSuccessfullReadEntity.LastSuccessfullRead
+                                              : DateTime.UtcNow;
 
-            var result = (from c in context.TimeoutData
-                          where c.PartitionKey == lastSuccessfullRead.ToString(partitionKeyScope)
-                          && c.OwningTimeoutManager == Configure.EndpointName
-                          select c).ToList().OrderBy(c => c.Time);
 
-            var allTimeouts = result.ToList();
-            var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= DateTime.UtcNow).ToList();
-            var futureTimeouts = allTimeouts.Where(c => c.Time > DateTime.UtcNow).ToList();
+                var result = (from c in context.TimeoutData
+                              where c.PartitionKey == lastSuccessfullRead.ToString(partitionKeyScope)
+                                    && c.OwningTimeoutManager == Configure.EndpointName
+                              select c).ToList().OrderBy(c => c.Time);
 
-            nextTimeToRunQuery = futureTimeouts.Count == 0 ? lastSuccessfullRead.AddHours(1) : futureTimeouts.First().Time;
+                var allTimeouts = result.ToList();
+                var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= DateTime.UtcNow).ToList();
+                var futureTimeouts = allTimeouts.Where(c => c.Time > DateTime.UtcNow).ToList();
 
-            var results = pastTimeouts
-                .Select(c => new Tuple<String, DateTime>(c.RowKey, c.Time))
-                .ToList();
+                nextTimeToRunQuery = futureTimeouts.Count == 0
+                                         ? lastSuccessfullRead.AddMinutes(1)
+                                         : futureTimeouts.First().Time;
 
-            UpdateSuccesfullRead(context, lastSuccessfullReadEntity);
+                results = pastTimeouts
+                   .Select(c => new Tuple<String, DateTime>(c.RowKey, c.Time))
+                   .ToList();
 
+                UpdateSuccesfullRead(context, lastSuccessfullReadEntity);
+            }
+            catch (DataServiceQueryException)
+            {
+                nextTimeToRunQuery = DateTime.Now.AddMinutes(1);
+                results = new List<Tuple<String, DateTime>>();
+            }
             return results;
         }
 
@@ -56,22 +66,22 @@
             var headers = Serialize(timeout.Headers);
 
             if (!TryGetTimeoutData(context, timeout.Time.ToString(partitionKeyScope), stateAddress, out timeoutDataEntity))
-                context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+                context.AddObject(ServiceContext.TimeoutDataTableName,
                                       new TimeoutDataEntity(timeout.Time.ToString(partitionKeyScope), stateAddress)
-                                          {
-                                              Destination = timeout.Destination.ToString(),
-                                              SagaId = timeout.SagaId,
-                                              StateAddress = stateAddress,
-                                              Time = timeout.Time,
-                                              CorrelationId = timeout.CorrelationId,
-                                              OwningTimeoutManager = timeout.OwningTimeoutManager,
-                                              Headers = headers
-                                          });
+                                      {
+                                          Destination = timeout.Destination.ToString(),
+                                          SagaId = timeout.SagaId,
+                                          StateAddress = stateAddress,
+                                          Time = timeout.Time,
+                                          CorrelationId = timeout.CorrelationId,
+                                          OwningTimeoutManager = timeout.OwningTimeoutManager,
+                                          Headers = headers
+                                      });
 
             timeout.Id = stateAddress;
 
             if (timeout.SagaId != default(Guid) && !TryGetTimeoutData(context, timeout.SagaId.ToString(), stateAddress, out timeoutDataEntity))
-                context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+                context.AddObject(ServiceContext.TimeoutDataTableName,
                                       new TimeoutDataEntity(timeout.SagaId.ToString(), stateAddress)
                                       {
                                           Destination = timeout.Destination.ToString(),
@@ -83,7 +93,7 @@
                                           Headers = headers
                                       });
 
-            context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+            context.AddObject(ServiceContext.TimeoutDataTableName,
                                 new TimeoutDataEntity(stateAddress, string.Empty)
                                 {
                                     Destination = timeout.Destination.ToString(),
@@ -112,16 +122,16 @@
                 }
 
                 timeoutData = new TimeoutData
-                    {
-                        Destination = Address.Parse(timeoutDataEntity.Destination),
-                        SagaId = timeoutDataEntity.SagaId,
-                        State = Download(timeoutDataEntity.StateAddress),
-                        Time = timeoutDataEntity.Time,
-                        CorrelationId = timeoutDataEntity.CorrelationId,
-                        Id = timeoutDataEntity.RowKey,
-                        OwningTimeoutManager = timeoutDataEntity.OwningTimeoutManager,
-                        Headers = Deserialize(timeoutDataEntity.Headers)
-                    };
+                {
+                    Destination = Address.Parse(timeoutDataEntity.Destination),
+                    SagaId = timeoutDataEntity.SagaId,
+                    State = Download(timeoutDataEntity.StateAddress),
+                    Time = timeoutDataEntity.Time,
+                    CorrelationId = timeoutDataEntity.CorrelationId,
+                    Id = timeoutDataEntity.RowKey,
+                    OwningTimeoutManager = timeoutDataEntity.OwningTimeoutManager,
+                    Headers = Deserialize(timeoutDataEntity.Headers)
+                };
 
                 TimeoutDataEntity timeoutDataEntityBySaga;
                 if (TryGetTimeoutData(context, timeoutDataEntity.SagaId.ToString(), timeoutId, out timeoutDataEntityBySaga))
@@ -136,12 +146,12 @@
                 }
 
                 RemoveState(timeoutDataEntity.StateAddress);
-                
+
                 context.DeleteObject(timeoutDataEntity);
 
                 context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Debug(string.Format("Failed to clean up timeout {0}", timeoutId), ex);
             }
@@ -174,7 +184,7 @@
                 }
                 context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Debug(string.Format("Failed to clean up timeouts for saga {0}", sagaId), ex);
             }
@@ -195,7 +205,7 @@
             }
 
             return result != null;
-                
+
         }
 
         public bool CanSend(TimeoutData data)
@@ -230,8 +240,8 @@
             account = CloudStorageAccount.Parse(connectionstring);
             var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
             var tableClient = account.CreateCloudTableClient();
-            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutManagerDataEntityTableName);
-            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutDataEntityTableName);
+            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutManagerDataTableName);
+            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutDataTableName);
             container = account.CreateCloudBlobClient().GetContainerReference("timeoutstate");
             container.CreateIfNotExist();
 
@@ -241,27 +251,27 @@
         private void MigrateExistingTimeouts(ServiceContext context)
         {
             var existing = (from c in context.TimeoutData
-                          where c.PartitionKey == "TimeoutData"
-                          select c).ToList();
+                            where c.PartitionKey == "TimeoutData"
+                            select c).ToList();
 
-            foreach(var timeout in existing)
+            foreach (var timeout in existing)
             {
                 TimeoutDataEntity timeoutDataEntity;
 
                 if (!TryGetTimeoutData(context, timeout.Time.ToString(partitionKeyScope), timeout.RowKey, out timeoutDataEntity))
-                    context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+                    context.AddObject(ServiceContext.TimeoutDataTableName,
                                       new TimeoutDataEntity(timeout.Time.ToString(partitionKeyScope), timeout.RowKey)
-                                          {
-                                              Destination = timeout.Destination,
-                                              SagaId = timeout.SagaId,
-                                              StateAddress = timeout.RowKey,
-                                              Time = timeout.Time,
-                                              CorrelationId = timeout.CorrelationId,
-                                              OwningTimeoutManager = timeout.OwningTimeoutManager
-                                          });
+                                      {
+                                          Destination = timeout.Destination,
+                                          SagaId = timeout.SagaId,
+                                          StateAddress = timeout.RowKey,
+                                          Time = timeout.Time,
+                                          CorrelationId = timeout.CorrelationId,
+                                          OwningTimeoutManager = timeout.OwningTimeoutManager
+                                      });
 
                 if (!TryGetTimeoutData(context, timeout.SagaId.ToString(), timeout.RowKey, out timeoutDataEntity))
-                    context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+                    context.AddObject(ServiceContext.TimeoutDataTableName,
                                           new TimeoutDataEntity(timeout.SagaId.ToString(), timeout.RowKey)
                                           {
                                               Destination = timeout.Destination,
@@ -273,16 +283,16 @@
                                           });
 
                 if (!TryGetTimeoutData(context, timeout.RowKey, string.Empty, out timeoutDataEntity))
-                    context.AddObject(ServiceContext.TimeoutDataEntityTableName,
+                    context.AddObject(ServiceContext.TimeoutDataTableName,
                                       new TimeoutDataEntity(timeout.RowKey, string.Empty)
-                                          {
-                                              Destination = timeout.Destination,
-                                              SagaId = timeout.SagaId,
-                                              StateAddress = timeout.RowKey,
-                                              Time = timeout.Time,
-                                              CorrelationId = timeout.CorrelationId,
-                                              OwningTimeoutManager = timeout.OwningTimeoutManager
-                                          });
+                                      {
+                                          Destination = timeout.Destination,
+                                          SagaId = timeout.SagaId,
+                                          StateAddress = timeout.RowKey,
+                                          Time = timeout.Time,
+                                          CorrelationId = timeout.CorrelationId,
+                                          OwningTimeoutManager = timeout.OwningTimeoutManager
+                                      });
 
                 context.DeleteObject(timeout);
                 context.SaveChanges();
@@ -303,7 +313,7 @@
             return blob.DownloadByteArray();
         }
 
-        private string Serialize(Dictionary<string, string> headers )
+        private string Serialize(Dictionary<string, string> headers)
         {
             var serializer = new JavaScriptSerializer();
             return serializer.Serialize(headers);
@@ -311,7 +321,7 @@
 
         private Dictionary<string, string> Deserialize(string state)
         {
-            if(string.IsNullOrEmpty(state)) return new Dictionary<string, string>();
+            if (string.IsNullOrEmpty(state)) return new Dictionary<string, string>();
 
             var serializer = new JavaScriptSerializer();
             return serializer.Deserialize<Dictionary<string, string>>(state);
@@ -342,12 +352,12 @@
             try
             {
                 lastSuccessfullReadEntity = (from m in context.TimeoutManagerData
-                                                 where m.PartitionKey == Configure.EndpointName
-                                                 select m).FirstOrDefault();
+                                             where m.PartitionKey == Configure.EndpointName
+                                             select m).FirstOrDefault();
             }
             catch
             {
-                
+
                 lastSuccessfullReadEntity = null;
             }
 
@@ -359,11 +369,12 @@
         {
             if (read == null)
             {
-                read = new TimeoutManagerDataEntity(Configure.EndpointName, string.Empty){
-                               LastSuccessfullRead = DateTime.UtcNow
-                           };
+                read = new TimeoutManagerDataEntity(Configure.EndpointName, string.Empty)
+                {
+                    LastSuccessfullRead = DateTime.UtcNow
+                };
 
-                context.AddObject(ServiceContext.TimeoutManagerDataEntityTableName, read);
+                context.AddObject(ServiceContext.TimeoutManagerDataTableName, read);
             }
             else
             {

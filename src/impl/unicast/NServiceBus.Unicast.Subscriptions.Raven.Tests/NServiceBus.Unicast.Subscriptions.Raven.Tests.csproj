@@ -90,9 +90,6 @@
     <Reference Include="Raven.Storage.Managed">
       <HintPath>..\..\..\..\lib\RavenDB\RavenDB.Database.975\Raven.Storage.Managed.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\..\lib\rhino.mocks\Rhino.Mocks.dll</HintPath>
-    </Reference>
     <Reference Include="Spatial4n.Core">
       <HintPath>..\..\..\..\lib\RavenDB\RavenDB.Database.975\Spatial4n.Core.dll</HintPath>
     </Reference>

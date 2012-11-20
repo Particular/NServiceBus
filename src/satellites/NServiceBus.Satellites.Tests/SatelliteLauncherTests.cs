@@ -32,7 +32,7 @@ namespace NServiceBus.Satellites.Tests
     {
         public SatelliteWithQueue()
         {
-            InputAddress = new Address("input","machineName");
+            InputAddress = new Address("input", "machineName");
         }
     }
 
@@ -40,11 +40,8 @@ namespace NServiceBus.Satellites.Tests
     public class TransportEventTests : SatelliteLauncherContext
     {
         readonly SatelliteWithQueue _sat = new SatelliteWithQueue();
-        readonly FakeTransport _transport = new FakeTransport();
-
         public override void BeforeRun()
         {
-            TransportBuilder.TransportToReturn = _transport;
         }
 
         public override void RegisterTypes()
@@ -55,8 +52,8 @@ namespace NServiceBus.Satellites.Tests
         [Test]
         public void When_a_message_is_received_the_Handle_method_should_called_on_the_satellite()
         {
-            var tm = new TransportMessage();            
-            _transport.RaiseEvent(tm);
+            var tm = new TransportMessage();
+            Transport.RaiseEvent(tm);
 
             Assert.That(_sat.IsMessageHandled, Is.True);
         }
@@ -66,11 +63,9 @@ namespace NServiceBus.Satellites.Tests
     public class TransportTests : SatelliteLauncherContext
     {
         readonly SatelliteWithQueue _satelliteWithQueue = new SatelliteWithQueue();
-        readonly FakeTransport _transport = new FakeTransport();
 
         public override void BeforeRun()
         {
-            TransportBuilder.TransportToReturn = _transport;
         }
 
         public override void RegisterTypes()
@@ -81,19 +76,19 @@ namespace NServiceBus.Satellites.Tests
         [Test]
         public void The_TransportMessageReceived_event_should_be_assigned()
         {
-            Assert.That(_transport.IsEventAssiged, Is.True);
+            Assert.That(Transport.IsEventAssiged, Is.True);
         }
 
         [Test]
         public void The_transport_should_be_started()
         {
-            Assert.That(_transport.IsStarted, Is.True);
+            Assert.That(Transport.IsStarted, Is.True);
         }
 
         [Test]
         public void The_transport_should_be_started_with_the_satellites_inputQueueAddress()
         {
-            Assert.AreEqual(_satelliteWithQueue.InputAddress, _transport.InputAddress);
+            Assert.AreEqual(_satelliteWithQueue.InputAddress, Transport.InputAddress);
         }
     }
 
@@ -101,11 +96,9 @@ namespace NServiceBus.Satellites.Tests
     public class SatelliteRestartTests : SatelliteLauncherContext
     {
         readonly SatelliteWithQueueThatThrowException _satellite = new SatelliteWithQueueThatThrowException();
-        readonly FakeTransport _transport = new FakeTransport();
-
+   
         public override void BeforeRun()
         {
-            TransportBuilder.TransportToReturn = _transport;
         }
 
         public override void RegisterTypes()
@@ -116,20 +109,20 @@ namespace NServiceBus.Satellites.Tests
         [Test]
         public void Number_of_worker_threads_should_be_set_to_0()
         {
-            Assert.That(_transport.NumberOfWorkerThreads, Is.EqualTo(0));
+            Assert.That(Transport.NumberOfWorkerThreads, Is.EqualTo(0));
         }
-        
+
         [Test]
-        public void The_Transport_should_have_been_restarted()
+        public void TheTransport_should_have_been_restarted()
         {
-            Assert.That(_transport.HasChangedNumberOfThreadsNTimes, Is.GreaterThan(0));
+            Assert.That(Transport.HasChangedNumberOfThreadsNTimes, Is.GreaterThan(0));
         }
     }
 
     public class SatelliteWithQueueThatThrowException : SatelliteWithQueue
     {
         public override void Start()
-        {            
+        {
             throw new Exception("This enpoint should not start!");
         }
     }
@@ -154,7 +147,7 @@ namespace NServiceBus.Satellites.Tests
 
         [Test]
         public void The_satellite_should_be_started()
-        {            
+        {
             Assert.That(_fakeSatellite.IsStarted, Is.True);
         }
     }
